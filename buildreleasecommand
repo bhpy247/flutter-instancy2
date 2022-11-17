@@ -1,0 +1,113 @@
+1) upgradedenterprise
+
+To Build upgradedenterprise Build Release :- flutter build apk --release -t lib/main-upgradedenterprise.dart --flavor upgradedenterprise --no-tree-shake-icons
+To Build upgradedenterprise Build Debug   :- flutter build apk --debug -t lib/main-upgradedenterprise.dart --flavor upgradedenterprise --no-tree-shake-icons
+To Run upgradedenterprise Build Release   :- flutter run --release -t lib/main-upgradedenterprise.dart --flavor upgradedenterprise
+To Run upgradedenterprise Build Debug     :- flutter run --debug -t lib/main-upgradedenterprise.dart --flavor upgradedenterprise
+To Build upgradedenterprise Build Web Release :- flutter build web --release -t lib/main-upgradedenterprise.dart --no-tree-shake-icons --web-renderer canvaskit
+To Run upgradedenterprise Build Web Release :- flutter run -d chrome --release -t lib/main-upgradedenterprise.dart
+To Rub upgradedenterprise Web Server :- flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0 -t lib/main-upgradedenterprise.dart --web-renderer canvaskit
+
+2) enterpriseapp
+
+To Build enterpriseapp Build Release :- flutter build apk --release -t lib/main-enterpriseapp.dart --flavor enterpriseapp --no-tree-shake-icons
+To Build enterpriseapp Build Debug   :- flutter build apk --debug -t lib/main-enterpriseapp.dart --flavor enterpriseapp --no-tree-shake-icons
+To Build enterpriseapp ios Build Release :- flutter build ios --release -t lib/main-enterpriseapp.dart --no-tree-shake-icons
+To Run enterpriseapp Build Release   :- flutter run --release -t lib/main-enterpriseapp.dart --flavor enterpriseapp
+To Run enterpriseapp Build Debug     :- flutter run --debug -t lib/main-enterpriseapp.dart --flavor enterpriseapp
+To Build enterpriseapp Build Web Release :- flutter build web --release -t lib/main-enterpriseapp.dart --no-tree-shake-icons --web-renderer canvaskit
+To Run enterpriseapp Build Web Release :- flutter run -d chrome --release -t lib/main-enterpriseapp.dart
+To Rub enterpriseapp Web Server :- flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0 -t lib/main-enterpriseapp.dart --web-renderer canvaskit
+
+3) instancylearning
+
+To Build instancylearning Build Release :- flutter build apk --release -t lib/main-instancylearning.dart --flavor instancylearning --no-tree-shake-icons
+To Build instancylearning Build Debug   :- flutter build apk --debug -t lib/main-instancylearning.dart --flavor instancylearning --no-tree-shake-icons
+To Build instancylearning ios Build Release :- flutter build ios --release -t lib/main-instancylearning.dart --no-tree-shake-icons
+To Run instancylearning Build Release   :- flutter run --release -t lib/main-instancylearning.dart --flavor instancylearning
+To Run instancylearning Build Debug     :- flutter run --debug -t lib/main-instancylearning.dart --flavor instancylearning
+To Build instancylearning Build Web Release :- flutter build web --release -t lib/main-instancylearning.dart --no-tree-shake-icons --web-renderer canvaskit
+To Run instancylearning Build Web Release :- flutter run -d chrome --release -t lib/main-instancylearning.dart
+To Rub instancylearning Web Server :- flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0 -t lib/main-instancylearning.dart --web-renderer canvaskit
+
+4) franklincoveysa
+
+To Build franklincoveysa Build Release :- flutter build apk --release -t lib/main-franklincoveysa.dart --flavor franklincoveysa --no-tree-shake-icons
+To Build franklincoveysa Build Debug   :- flutter build apk --debug -t lib/main-franklincoveysa.dart --flavor franklincoveysa --no-tree-shake-icons
+To Run franklincoveysa Build Release   :- flutter run --release -t lib/main-franklincoveysa.dart --flavor franklincoveysa
+To Run franklincoveysa Build Debug     :- flutter run --debug -t lib/main-franklincoveysa.dart --flavor franklincoveysa
+
+5) elearning
+
+To Build elearning Build Release :- flutter build apk --release -t lib/main-elearning.dart --flavor elearning --no-tree-shake-icons
+To Build elearning Build Debug   :- flutter build apk --debug -t lib/main-elearning.dart --flavor elearning --no-tree-shake-icons
+To Run elearning Build Release   :- flutter run --release -t lib/main-elearning.dart --flavor elearning
+To Run elearning Build Debug     :- flutter run --debug -t lib/main-elearning.dart --flavor elearning
+
+6) qalearning
+
+To Build qalearning Build Release :- flutter build apk --release -t lib/main-qalearning.dart --flavor qalearning --no-tree-shake-icons
+To Build qalearning Build Debug   :- flutter build apk --debug -t lib/main-qalearning.dart --flavor qalearning --no-tree-shake-icons
+To Run qalearning Build Release   :- flutter run --release -t lib/main-qalearning.dart --flavor qalearning
+To Run qalearning Build Debug     :- flutter run --debug -t lib/main-qalearning.dart --flavor qalearning
+
+//TO Build For Web
+flutter build web --release -t lib/main-web.dart --no-tree-shake-icons --web-renderer canvaskit
+
+
+flutter build apk --release --no-tree-shake-icons --build-name=1.1.8 --build-number=43 // Instancy
+
+flutter build apk --release --no-tree-shake-icons --build-name=2.1.8 --build-number=21 // Enterprise learning
+
+
+flutter build apk --release --no-tree-shake-icons --build-name=1.0.8 --build-number=16 // Instancy InApp  //testing App
+
+
+
+to update icon in flutter command
+
+flutter pub get
+flutter pub run flutter_launcher_icons:main
+
+//For IOS Apps Name and Package Name
+Instancy : com.instancy.instancyLearningMarket
+Enterprise learning : com.instancy.enterpriseapp
+
+firebase hosting:channel:deploy preview_name
+
+http://127.0.0.1:5500/?site=http://qalearning.instancy.com/&authToken=ac28d602-b1df-4b33-be0c-7452c4edbf20&appAuthURL=https://newazureplatform.instancy.com/api/&collection= admin_demo_staging&document=qalearning
+http://127.0.0.1:5500/?site=http://qalearning.instancy.com/&appAuthURL=https://newazureplatform.instancy.com/api/&collection= admin_demo_staging&document=qalearning
+
+
+// native Menus icon update script in server side
+update instbl_NativeAppSiteMobileMenus set IConpath = 'f518' where ContextTitle = 1
+update instbl_NativeAppSiteMobileMenus set IConpath = 'f02d' where ContextTitle = 2
+update instbl_NativeAppSiteMobileMenus set IConpath = 'f007' where ContextTitle = 3
+update instbl_NativeAppSiteMobileMenus set IConpath = 'f022' where ContextTitle = 4
+update instbl_NativeAppSiteMobileMenus set IConpath = 'f059' where ContextTitle = 5
+update instbl_NativeAppSiteMobileMenus set IConpath = 'f015' where ContextTitle = 6
+update instbl_NativeAppSiteMobileMenus set IConpath = 'f269' where ContextTitle = 7
+update instbl_NativeAppSiteMobileMenus set IConpath = 'f073' where ContextTitle = 8
+update instbl_NativeAppSiteMobileMenus set IConpath = 'f0c0' where ContextTitle = 9
+update instbl_NativeAppSiteMobileMenus set IConpath = 'f234' where ContextTitle = 10
+update instbl_NativeAppSiteMobileMenus set IConpath = 'f140' where ContextTitle = 11
+update instbl_NativeAppSiteMobileMenus set IConpath = 'f0c0' where ContextTitle = 12
+update instbl_NativeAppSiteMobileMenus set IConpath = 'f091' where ContextTitle = 13
+update instbl_NativeAppSiteMobileMenus set IConpath = 'f080' where ContextTitle = 14
+
+
+// to update this menu give this menu ids to backend team
+contextmenuid "1": // f518,
+contextmenuid "2": // f02d
+contextmenuid "3": // f007
+contextmenuid "4": // f022
+contextmenuid "5": // f059
+contextmenuid "6": // f015
+contextmenuid "7": // f269
+contextmenuid "8": // f073
+contextmenuid "9": // f0c0
+contextmenuid "10": // f234
+contextmenuid "11": // f140
+contextmenuid "12": // f0c0
+contextmenuid "13": // f091
+contextmenuid "14": // f080
