@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="elearning" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="buildFlavor" value="elearning" />
+    <option name="filePath" value="$PROJECT_DIR$/lib/main-elearning.dart" />
+    <method v="2" />
+  </configuration>
+</component>

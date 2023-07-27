@@ -33,7 +33,6 @@ migrate_working_dir/
 /build/
 
 # Web related
-lib/generated_plugin_registrant.dart
 
 # Symbolication related
 app.*.symbols
@@ -48,3 +47,15 @@ app.*.map.json
 /android/build
 
 pubspec.lock
+
+linux/flutter/generated_plugin_registrant.cc
+linux/flutter/generated_plugin_registrant.h
+linux/flutter/generated_plugins.cmake
+
+macos/Flutter/GeneratedPluginRegistrant.swift
+
+windows/flutter/generated_plugins.cmake
+windows/flutter/generated_plugin_registrant.h
+windows/flutter/generated_plugin_registrant.cc
+
+lib/generated_plugin_registrant.dart

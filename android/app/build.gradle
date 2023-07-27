@@ -76,10 +76,10 @@ android {
     productFlavors {
         upgradedenterprise {
             dimension "app"
-            applicationId "com.instancy.upgradedenterpriseapp"
+            applicationId "com.instancy.upgradedenterpriseapp2"
             versionCode 23
             versionName "2.2.0"
-            resValue "string", "app_name", "Upgraded Enterprise Learning"
+            resValue "string", "app_name", "Upgraded 2 Enterprise Learning"
         }
 
         enterpriseapp {
@@ -120,6 +120,14 @@ android {
             versionCode 2
             versionName "1.0.1"
             resValue "string", "app_name", "TAK"
+        }
+
+        gurruzi {
+            dimension "app"
+            applicationId "com.instancy.gurruzi"
+            versionCode 3
+            versionName "1.0.1"
+            resValue "string", "app_name", "Gurruzi"
         }
     }
 

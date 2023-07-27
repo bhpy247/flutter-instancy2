@@ -1,0 +1,405 @@
+import 'dart:typed_data';
+
+import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
+import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
+import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/event_track_content_model.dart';
+import 'package:flutter_instancy_2/models/profile/data_model/user_experience_data_model.dart';
+import 'package:flutter_instancy_2/utils/my_utils.dart';
+
+import '../../configs/app_constants.dart';
+import '../../models/app_configuration_models/data_models/component_configurations_model.dart';
+import '../../models/catalog/catalogCategoriesForBrowseModel.dart';
+import '../../models/filter/data_model/content_filter_category_tree_model.dart';
+import '../../models/profile/data_model/user_education_data_model.dart';
+import '../Catalog/catalog_provider.dart';
+import '../event_track/event_track_provider.dart';
+import '../filter/filter_provider.dart';
+import '../instabot/instabot_provider.dart';
+import '../my_learning/my_learning_provider.dart';
+import '../share/share_provider.dart';
+
+class NavigationArguments {
+  const NavigationArguments();
+}
+
+class ForgotPasswordNavigationArguments extends NavigationArguments {
+  final String email;
+
+  const ForgotPasswordNavigationArguments({
+    required this.email,
+  });
+}
+
+class AddWikiContentScreenNavigationArguments extends NavigationArguments {
+  final String title;
+  final int objectTypeId, mediaTypeId;
+
+  const AddWikiContentScreenNavigationArguments({
+    required this.title,
+    required this.objectTypeId,
+    required this.mediaTypeId,
+  });
+}
+
+class FiltersScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final FilterProvider filterProvider;
+  final ComponentConfigurationsModel componentConfigurationsModel;
+  final String? contentFilterByTypes;
+
+  const FiltersScreenNavigationArguments({
+    required this.componentId,
+    required this.filterProvider,
+    required this.componentConfigurationsModel,
+    this.contentFilterByTypes,
+  });
+}
+
+class WishListScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInstanceId;
+  final CatalogProvider? catalogProvider;
+
+  const WishListScreenNavigationArguments({
+    required this.componentId,
+    required this.componentInstanceId,
+    this.catalogProvider,
+  });
+}
+
+class GlobalSearchScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final FilterProvider filterProvider;
+  final ComponentConfigurationsModel componentConfigurationsModel;
+
+  const GlobalSearchScreenNavigationArguments({
+    required this.componentId,
+    required this.filterProvider,
+    required this.componentConfigurationsModel,
+  });
+}
+
+class SortingScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final FilterProvider filterProvider;
+
+  const SortingScreenNavigationArguments({
+    required this.componentId,
+    required this.filterProvider,
+  });
+}
+
+class CatalogContentsListScreenNavigationArguments extends NavigationArguments {
+  final int componentId, componentInstanceId;
+  final CatalogProvider? provider;
+  final ContentFilterCategoryTreeModel? selectedCategory;
+  List<CatalogCategoriesForBrowseModel> categoriesListForPath = [];
+
+  CatalogContentsListScreenNavigationArguments({
+    required this.componentInstanceId,
+    required this.componentId,
+    this.provider,
+    this.selectedCategory,
+    List<CatalogCategoriesForBrowseModel>? categoriesListForPath,
+  }) {
+    this.categoriesListForPath = categoriesListForPath ?? [];
+  }
+}
+
+class CatalogSubcategoriesListScreenNavigationArguments extends NavigationArguments {
+  final int componentId, componentInstanceId;
+  final CatalogProvider? provider;
+  final List<CatalogCategoriesForBrowseModel> categoriesListForPath;
+  final List<CatalogCategoriesForBrowseModel> subcategories;
+
+  const CatalogSubcategoriesListScreenNavigationArguments({
+    required this.componentInstanceId,
+    required this.componentId,
+    this.provider,
+    required this.categoriesListForPath,
+    required this.subcategories,
+  });
+}
+
+class MyLearningWaitlistScreenNavigationArguments extends NavigationArguments {
+  final int componentId, componentInstanceId;
+  final MyLearningProvider? myLearningProvider;
+  final NativeMenuComponentModel? componentModel;
+
+  const MyLearningWaitlistScreenNavigationArguments({
+    required this.componentId,
+    required this.componentInstanceId,
+    this.myLearningProvider,
+    this.componentModel,
+  });
+}
+
+class ViewCompletionCertificateScreenNavigationArguments extends NavigationArguments {
+  final String contentId, certificateId, certificatePage;
+
+  const ViewCompletionCertificateScreenNavigationArguments({
+    required this.contentId,
+    required this.certificateId,
+    required this.certificatePage,
+  });
+}
+
+class QRCodeImageScreenNavigationArguments extends NavigationArguments {
+  final String qrCodePath;
+
+  const QRCodeImageScreenNavigationArguments({
+    required this.qrCodePath,
+  });
+}
+
+class ShareWithConnectionsScreenNavigationArguments extends NavigationArguments {
+  final ShareContentType shareContentType;
+  final String contentId;
+  final String contentName;
+  final ShareProvider? shareProvider;
+
+  const ShareWithConnectionsScreenNavigationArguments({
+    required this.shareContentType,
+    required this.contentId,
+    required this.contentName,
+    this.shareProvider,
+  });
+}
+
+class ShareWithPeopleScreenNavigationArguments extends NavigationArguments {
+  final ShareContentType shareContentType;
+  final String contentId;
+  final String contentName;
+  final bool isSuggestToConnections;
+  final List<int>? userIds;
+
+  const ShareWithPeopleScreenNavigationArguments({
+    required this.shareContentType,
+    required this.contentId,
+    required this.contentName,
+    this.isSuggestToConnections = false,
+    this.userIds,
+  });
+}
+
+class RecommendToScreenNavigationArguments extends NavigationArguments {
+  final ShareContentType shareContentType;
+  final String contentId;
+  final String contentName;
+  final bool isSuggestToConnections;
+  final int componentId;
+  final List<int>? userIds;
+  final ShareProvider? shareProvider;
+
+
+  const RecommendToScreenNavigationArguments({
+    required this.shareContentType,
+    required this.contentId,
+    required this.contentName,
+    this.isSuggestToConnections = false,
+    this.userIds,
+    this.componentId = 0,
+    this.shareProvider,
+  });
+}
+
+class MyLearningContentProgressScreenNavigationArguments extends NavigationArguments {
+  final String contentId;
+  final CourseDTOModel? courseDTOModel;
+  final EventTrackContentModel? eventTrackContentModel;
+  final int userId;
+  final int contentTypeId;
+  final int componentId;
+  final String trackId;
+  final String eventId;
+  final String seqId;
+
+  const MyLearningContentProgressScreenNavigationArguments({
+    required this.contentId,
+    this.courseDTOModel,
+    this.eventTrackContentModel,
+    required this.userId,
+    required this.contentTypeId,
+    required this.componentId,
+    this.trackId = "",
+    this.eventId = "",
+    this.seqId = "-1",
+  });
+}
+
+class CourseDetailScreenNavigationArguments extends NavigationArguments {
+  final String contentId;
+  final int componentId;
+  final int componentInstanceId;
+  final int? userId;
+  final bool isFromCatalog;
+  final bool isConsolidated;
+  final bool isRescheduleEvent;
+  final InstancyContentScreenType screenType;
+  final MyLearningProvider? myLearningProvider;
+  final CatalogProvider? catalogProvider;
+
+  const CourseDetailScreenNavigationArguments({
+    required this.contentId,
+    required this.componentId,
+    required this.componentInstanceId,
+    required this.userId,
+    this.isFromCatalog = false,
+    this.isConsolidated = false,
+    this.isRescheduleEvent = false,
+    this.screenType = InstancyContentScreenType.Catalog,
+    this.myLearningProvider,
+    this.catalogProvider,
+  });
+}
+
+class PreRequisiteScreenNavigationArguments extends NavigationArguments {
+  final String contentId;
+  final int componentId;
+  final int componentInstanceId;
+  final bool isFromCatalog;
+  final bool isConsolidated;
+  final int selectedSequencePathId;
+  final List<int>? sequencePathIdsList;
+
+  const PreRequisiteScreenNavigationArguments({
+    required this.contentId,
+    required this.componentId,
+    required this.componentInstanceId,
+    required this.selectedSequencePathId,
+    this.sequencePathIdsList,
+    this.isFromCatalog = false,
+    this.isConsolidated = false,
+  });
+}
+
+class AddEditExperienceScreenNavigationArguments extends NavigationArguments {
+  final UserExperienceDataModel? userExperienceDataModel;
+
+  const AddEditExperienceScreenNavigationArguments({
+    this.userExperienceDataModel,
+  });
+}
+
+class AddEducationScreenNavigationArguments extends NavigationArguments {
+  final UserEducationDataModel? userEducationDataModel;
+  final ProfileProvider? profileProvider;
+
+  const AddEducationScreenNavigationArguments({
+    this.userEducationDataModel,
+    this.profileProvider,
+  });
+}
+
+class CourseLaunchWebViewScreenNavigationArguments extends NavigationArguments {
+  final String courseUrl;
+  final String courseName;
+  final int? contentTypeId;
+
+  const CourseLaunchWebViewScreenNavigationArguments({
+    required this.courseUrl,
+    required this.courseName,
+    this.contentTypeId,
+  });
+}
+
+class VideoLaunchScreenNavigationArguments extends NavigationArguments {
+  final bool isNetworkVideo;
+  final String contntName;
+  final String videoUrl;
+  final String videoFilePath;
+  final Uint8List? videoFileBytes;
+
+  const VideoLaunchScreenNavigationArguments({
+    this.isNetworkVideo = true,
+    this.contntName = "",
+    this.videoUrl = "",
+    this.videoFilePath = "",
+    this.videoFileBytes,
+  });
+
+  @override
+  String toString() {
+    return "VideoLaunchScreenNavigationArguments({${MyUtils.encodeJson({
+      "isNetworkVideo" : isNetworkVideo,
+      "contntName" : contntName,
+      "videoUrl" : videoUrl,
+      "videoFilePath" : videoFilePath,
+      "videoFileBytes" : videoFileBytes?.length,
+    })})";
+  }
+}
+
+class PDFLaunchScreenNavigationArguments extends NavigationArguments {
+  final bool isNetworkPDF;
+  final String contntName;
+  final String pdfUrl;
+  final String pdfFilePath;
+  final Uint8List? pdfFileBytes;
+
+  const PDFLaunchScreenNavigationArguments({
+    this.isNetworkPDF = true,
+    this.contntName = "",
+    this.pdfUrl = "",
+    this.pdfFilePath = "",
+    this.pdfFileBytes,
+  });
+}
+
+class WebViewScreenNavigationArguments extends NavigationArguments {
+  final String title;
+  final String url;
+
+  const WebViewScreenNavigationArguments({
+    required this.title,
+    required this.url,
+  });
+}
+
+class EventTrackScreenArguments extends NavigationArguments {
+  final String parentContentId;
+  final int componentId;
+  final int componentInstanceId;
+  final int objectTypeId;
+  final int scoId;
+  final bool isRelatedContent, isContentEnrolled;
+  final String? eventTrackTabType;
+  final EventTrackProvider? eventTrackProvider;
+
+  const EventTrackScreenArguments({
+    required this.parentContentId,
+    required this.componentId,
+    required this.componentInstanceId,
+    required this.objectTypeId,
+    required this.isRelatedContent,
+    required this.isContentEnrolled,
+    required this.scoId,
+    this.eventTrackProvider,
+    this.eventTrackTabType
+  });
+}
+
+class UserProfileScreenNavigationArguments extends NavigationArguments {
+  final ProfileProvider? profileProvider;
+  final bool isFromProfile, isMyProfile;
+  final int userId;
+
+  const UserProfileScreenNavigationArguments({
+    required this.profileProvider,
+    this.isFromProfile = false,
+    this.isMyProfile = false,
+    required this.userId,
+  });
+}
+
+class InstaBotScreen2NavigationArguments extends NavigationArguments {
+  final String courseId;
+  final InstaBotProvider? instaBotProvider;
+
+  const InstaBotScreen2NavigationArguments({
+    this.courseId = "",
+    this.instaBotProvider,
+  });
+}
