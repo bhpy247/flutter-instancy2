@@ -394,6 +394,6 @@ class ApiEndpoints {
     if(instancyApiUrl.endsWith("/")) {
       instancyApiUrl = instancyApiUrl.substring(0, instancyApiUrl.length - 1);
     }
-    return "$instancyApiUrl/AngularLMS/GetSiteBotDetails";
+    return "$instancyApiUrl/Bot/GetSiteBotDetails";
   }
 }
