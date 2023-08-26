@@ -42,7 +42,9 @@ dependencies:
   vector_math: ^2.1.2
   mime: ^1.0.4
   document_file_save_plus: ^2.0.0
-
+  googleapis: ^11.3.0
+  googleapis_auth: ^1.4.1
+  google_mlkit_text_recognition: ^0.10.0
   #endregion
 
   #region State Management:
@@ -116,6 +118,7 @@ dependencies:
 
   #region Media Players
   video_player: ^2.7.0
+  camera: ^0.10.5+2
   #endregion
 
   #region PDF Operations

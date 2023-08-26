@@ -218,7 +218,6 @@ class _OnBoard extends HookConsumerWidget {
                   itemCount: onBoardData.length,
                   itemBuilder: (BuildContext context, int index) {
                     return itemBuilder(onBoardModel: onBoardData[index]);
-
                     /*return SizedBox(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,

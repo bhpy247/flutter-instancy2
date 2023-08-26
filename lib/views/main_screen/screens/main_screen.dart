@@ -22,6 +22,7 @@ import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/catalog_categories_list_screen.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:flutter_instancy_2/views/event/screens/event_catalog_tab_screen.dart';
+import 'package:flutter_instancy_2/views/message/screen/message_screen.dart';
 import 'package:flutter_instancy_2/views/my_learning_plus/screens/my_learning_plus.dart';
 import 'package:provider/provider.dart';
 
@@ -388,6 +389,7 @@ class _MainScreenState extends State<MainScreen> {
       );
     } else if (model.componentid == InstancyComponents.MyLearning) {
       if (isExpanded) {
+        // return MyLearningScreen(componentId: componentId, componentInstanceId: componentInstanceId);
         return MyLearningScreen(
           componentId: model.componentid,
           componentInstanceId: model.repositoryid,
@@ -424,6 +426,8 @@ class _MainScreenState extends State<MainScreen> {
       }
     } else if (model.componentid == InstancyComponents.MyLearningPlus) {
       return const MyLearningPlus();
+    } else if (model.componentid == InstancyComponents.UserMessages) {
+      return const MessageScreen();
     } else {
       return const SizedBox();
     }

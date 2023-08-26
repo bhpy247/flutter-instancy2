@@ -168,12 +168,33 @@ abstract class DatePresentation {
 
     try {
       return DateFormat(dateFormat).format(dateTime);
-    }
-    catch(e, s) {
+    } catch (e, s) {
       String tag = MyUtils.getNewId();
       MyPrint.printOnConsole("Error in formatting date:'$dateTime' into format:'$dateFormat'", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
       return null;
     }
+  }
+
+  static String? getLastChatMessageFormattedDate({required DateTime? dateTime}) {
+    // MyPrint.printOnConsole("getLastChatMessageFormattedDate called with dateTime:'$dateTime'");
+
+    if (dateTime == null) {
+      return null;
+    }
+
+    String? timeString;
+    DateTime current = DateTime.now();
+
+    if (dateTime.year == current.year && dateTime.month == current.month && dateTime.day == current.day) {
+      timeString = DateFormat("hh:mm").format(dateTime);
+    } else if (DatePresentation.getDifferenceBetweenDatesInDays(dateTime, current) == 1) {
+      timeString = "yesterday";
+    } else {
+      timeString = DateFormat("").format(dateTime);
+      timeString = getFormattedDate(dateFormat: "dd MMM yy", dateTime: dateTime) ?? "";
+    }
+
+    return timeString;
   }
 }

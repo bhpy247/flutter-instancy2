@@ -168,10 +168,15 @@ class ParsingHelper {
       }
 
       return dateTime ?? defaultValue;
-    }
-    else {
+    } else {
       return defaultValue;
     }
+  }
+
+  static Timestamp? parseTimestampMethod(dynamic value, {Timestamp? defaultValue, String dateFormat = ""}) {
+    DateTime? dateTime = parseDateTimeMethod(value, defaultValue: defaultValue?.toDate(), dateFormat: dateFormat);
+
+    return dateTime != null ? Timestamp.fromDate(dateTime) : null;
   }
 
   static List<Map<K, V>> parseMapsListMethod<K, V>(dynamic value, {List<Map<K, V>>? defaultValue, bool isEmptyMapAllowed = false}) {

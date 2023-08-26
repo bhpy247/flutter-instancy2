@@ -6,6 +6,10 @@ class AppConstants {
   static const String saltKey = "gRBtUdz2KKLs7hFThDlxpQeKJeaSGouGP0epTeZEbrKsytseecDQxy3TItGpeGYuAegJATZALtvFNloYaAd2qopSVlzOAPatQKrCsKbACgb53cGam45bxafhLre1";
   static const String securityKey = "4512631236589784";
   static const String securityIv = '4512631236589784';
+  static const kAppFlavour = AppFlavour.marketPlace;
+  static const String fileServerLocation = '/Content/SiteConfiguration/Message/';
+
+
 
   static const int defaultSiteId = 374;
   static const String defaultLocale = "en-us";
@@ -642,4 +646,17 @@ class EventCatalogTabTypes {
         myEvents,
         additionalProgramDetails,
       ];
+}
+
+abstract class AppFlavour {
+  static const String marketPlace = 'MarketPlace';
+  static const String playGround = 'PlayGround';
+}
+
+class MessageType {
+  static const String Text = "Text";
+  static const String Image = "Image";
+  static const String Audio = "Audio";
+  static const String Video = "Video";
+  static const String Doc = "Doc";
 }

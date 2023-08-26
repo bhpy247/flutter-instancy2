@@ -358,7 +358,16 @@ class ApiEndpoints {
   String getPeopleList() => '${getBaseApiUrl()}PeopleListing/GetPeopleList';
 
   //endregion
-  //
+
+
+  //region Message
+  String getMessageUserList() => '${getBaseApiUrl()}Chat/GetChatConnectionUserList';
+
+  String sendChatMessage() => '${getBaseApiUrl()}Chat/InsertUserChatData';
+
+  String genericFileUpload() => '${getBaseApiUrl()}Generic/SaveFiles';
+  //endregion
+
   // region MyConnections https://upgradedenterpriseapi.instancy.com/api/ContentManagement/GetUserComingSoonResponse?userID=363&contentId=d45436ba-aa0e-49ac-a15a-4d5d0c7c2e7c&savingtype=
 
   //endregion

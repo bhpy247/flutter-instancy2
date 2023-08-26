@@ -53,6 +53,7 @@ import '../filter/response_model/learning_provider_filter_response_model.dart';
 import '../home/data_model/new_course_list_dto.dart';
 import '../home/response_model/banner_web_list_model.dart';
 import '../home/response_model/static_web_page_podel.dart';
+import '../message/response_model/chat_users_list_response_model.dart';
 import '../my_connections/response_model/people_listing_dto_response_model.dart';
 import '../my_learning/data_model/my_learning_content_model.dart';
 import '../my_learning/response_model/my_learning_response_dto_model.dart';
@@ -205,7 +206,12 @@ enum ModelDataParsingType {
   //endregion
 
   //region Instabot
-  botDetailsModel
+  botDetailsModel,
+  //endregion
+
+  //region messages screen
+  chatUsersListResponseModel
+
   //endregion
 }
 
@@ -350,7 +356,12 @@ class ModelDataParser {
     //endregion
 
     //region instabotResponse
-    ModelDataParsingType.botDetailsModel: parseBotDetailsModel
+    ModelDataParsingType.botDetailsModel: parseBotDetailsModel,
+    //endregion
+
+    //region
+    ModelDataParsingType.chatUsersListResponseModel: parseChatUsersListResponseModel
+
     //endregion
   };
 
@@ -937,6 +948,18 @@ class ModelDataParser {
       return PeopleListingDTOResponseModel.fromJson(json);
     }
     else {
+      return null;
+    }
+  }
+  //endregion
+
+  //region Messages
+  static ChatUsersListResponseModel? parseChatUsersListResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return ChatUsersListResponseModel.fromJson(json);
+    } else {
       return null;
     }
   }

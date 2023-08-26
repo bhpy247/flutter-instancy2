@@ -1495,8 +1495,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             child: CommonCachedNetworkImage(
               // imageUrl: "https://picsum.photos/200/300",
               imageUrl: contentDetailsDTOModel.UserProfileImagePath,
-              height: 40,
-              width: 40,
+              height: 50,
+              width: 50,
               fit: BoxFit.cover,
             ),
           ),

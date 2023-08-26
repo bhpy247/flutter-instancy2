@@ -110,6 +110,62 @@ class ApiController {
     }
   }
 
+  Future<DataResponseModel<T>> makeMultipartCallAndParseData<T>(ApiCallModel apiCallModel) async {
+    if(apiCallModel.isGetDataFromHive) {
+      return HiveOperationController().makeCall(
+        hiveCallModel: HiveCallModel(
+          operationType: HiveOperationType.get,
+          parsingType: apiCallModel.parsingType,
+          key: apiCallModel.url,
+          box: apiCallModel.hiveBox,
+        ),
+      );
+    }
+    else {
+      MyUtils.initializeHttpOverrides();
+
+      Response? response = await RestClient.multipartRequestCall(apiCallModel: apiCallModel);
+
+      T? data;
+      AppErrorModel? appErrorModel;
+
+      if(response?.statusCode == 200) {
+        MyPrint.printOnConsole("Parsing Data For Type:${apiCallModel.parsingType}");
+        data = ModelDataParser.parseDataFromDecodedValue<T>(parsingType: apiCallModel.parsingType, decodedValue: MyUtils.decodeJson(response!.body));
+
+        // if(apiCallModel.isStoreDataInHive) {
+        //   HiveOperationController().makeCall(
+        //     hiveCallModel: HiveCallModel(
+        //       operationType: HiveOperationType.set,
+        //       parsingType: apiCallModel.parsingType,
+        //       key: apiCallModel.url,
+        //       box: apiCallModel.hiveBox,
+        //       value: response.body,
+        //     ),
+        //   );
+        // }
+      }
+      else if(response?.statusCode == 401) {
+        appErrorModel = AppErrorModel(
+          message: AppStrings.tokenExpired,
+          code: 401,
+        );
+      }
+      else {
+        appErrorModel = AppErrorModel(
+          message: response?.body ?? AppStrings.errorInApiCall,
+          code: response?.statusCode ?? -1,
+        );
+      }
+
+      return DataResponseModel<T>(
+        data: data,
+        appErrorModel: appErrorModel,
+        statusCode: response?.statusCode ?? -1,
+      );
+    }
+  }
+
 
   //To Get Api Request Data with the minimum required values, other parameters it will get from ApiProvider present in the object
   Future<ApiCallModel> getApiCallModelFromData<RequestBodyType>({
@@ -157,5 +213,7 @@ class ApiController {
       hiveBox: box,
     );
   }
+
+
 }
 

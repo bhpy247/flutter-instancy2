@@ -7,6 +7,7 @@ import 'package:flutter_instancy_2/views/authentication/screens/sign_up_screen.d
 import 'package:flutter_instancy_2/views/catalog/screens/PrerequisiteScreen.dart';
 import 'package:flutter_instancy_2/views/course_details/screens/course_details_screen.dart';
 import 'package:flutter_instancy_2/views/event_track/screens/event_track_screen.dart';
+import 'package:flutter_instancy_2/views/lens_feature/screen/lens_screen.dart';
 import 'package:flutter_instancy_2/views/main_screen/screens/main_screen.dart';
 import 'package:flutter_instancy_2/views/my_learning_plus/screens/my_learning_plus.dart';
 import 'package:flutter_instancy_2/views/profile/component/add_education_screen.dart';
@@ -281,6 +282,14 @@ class NavigationController {
       case WebViewScreen.routeName:
         {
           page = parseWebViewScreen(settings: settings);
+          break;
+        }
+      //endregion
+
+      //region Camera screen
+      case LensScreen.routeName:
+        {
+          page = parseLensScreen(settings: settings);
           break;
         }
       //endregion
@@ -640,6 +649,13 @@ class NavigationController {
   }
 
   //endregion
+  static Widget? parseLensScreen({required RouteSettings settings}) {
+    return const LensScreen();
+  }
+
+  //region Camera
+
+  //endregion
   //endregion
 
   //region Navigation Methods
@@ -974,6 +990,18 @@ class NavigationController {
       routeName: EventTrackScreen.routeName,
       arguments: arguments,
     ));
+  }
+
+//endregion
+//
+// region Learning Path Module
+  static Future<dynamic> navigateToLensScreen({required NavigationOperationParameters navigationOperationParameters}) {
+    MyPrint.printOnConsole("navigateToLensScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: LensScreen.routeName,
+      ),
+    );
   }
 //endregion
 //endregion

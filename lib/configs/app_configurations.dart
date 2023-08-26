@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:html/parser.dart';
 
+import '../backend/app_theme/style.dart';
 import 'app_constants.dart';
 import 'ui_configurations.dart';
 
@@ -448,4 +449,14 @@ class AppConfigurations {
 
     return "";
   }
+
+  ShapeBorder bottomSheetShapeBorder() => const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)));
+
+  BorderRadiusGeometry borderRadiusGeometry() => const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20));
+
+  Container bottomSheetContainer({Widget? child}) => Container(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+        decoration: const BoxDecoration(color: Styles.backgroundColor, borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))),
+        child: child,
+      );
 }

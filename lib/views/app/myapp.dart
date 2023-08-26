@@ -4,6 +4,7 @@ import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_controller.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
+import 'package:flutter_instancy_2/backend/message/message_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/share/share_provider.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -71,6 +72,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<ContentReviewRatingsProvider>(create: (_) => ContentReviewRatingsProvider()),
         ChangeNotifierProvider<EventTrackProvider>(create: (_) => EventTrackProvider()),
         ChangeNotifierProvider<InstaBotProvider>(create: (_) => InstaBotProvider()),
+        ChangeNotifierProvider<MessageProvider>(create: (_) => MessageProvider()),
       ],
       child: const MainApp(),
     );

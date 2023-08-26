@@ -1,4 +1,3 @@
-import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 
 import 'primary_secondary_actions_configs.dart';
@@ -95,7 +94,7 @@ class PrimarySecondaryActionsController {
     if(map3.isEmpty) return model;
 
     model = map3[screenType];
-    MyPrint.printOnConsole("objectTypeId : ${objectTypeId}, model  : ${model?.primaryActions}");
+    // MyPrint.printOnConsole("objectTypeId : ${objectTypeId}, model  : ${model?.primaryActions}");
 
     return model;
   }

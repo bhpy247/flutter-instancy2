@@ -19,6 +19,7 @@ class CommonTextFormField extends StatelessWidget {
     this.boxConstraints,
     this.focusedBorderColor,
     this.enabled = true,
+    this.autoFocus = false,
     this.onChanged,
     this.onSubmitted,
     this.minLines,
@@ -27,12 +28,13 @@ class CommonTextFormField extends StatelessWidget {
     this.textInputAction,
     this.inputFormatters,
     this.isFilled = false,
-    this.fillColor
+    this.fillColor,
+    this.hintStyle
   }) : super(key: key);
 
   final TextEditingController? controller;
   final String hintText;
-  final bool isOutlineInputBorder,isSuffix, obscureText, isFilled;
+  final bool isOutlineInputBorder,isSuffix, obscureText, isFilled, autoFocus;
   final double borderRadius, borderWidth;
   final Color borderColor;
   final Color? focusedBorderColor, fillColor;
@@ -43,7 +45,7 @@ class CommonTextFormField extends StatelessWidget {
   final bool enabled;
   final void Function(String)? onChanged, onSubmitted;
   final int? minLines, maxLines;
-  final TextStyle? textStyle;
+  final TextStyle? textStyle, hintStyle;
   final TextInputAction? textInputAction;
   final List<TextInputFormatter>? inputFormatters;
 
@@ -53,6 +55,7 @@ class CommonTextFormField extends StatelessWidget {
 
     return TextFormField(
       controller: controller,
+      autofocus: autoFocus,
       obscureText: obscureText,
       style: textStyle ?? themeData.textTheme.titleSmall,
       validator: validator,
@@ -67,7 +70,7 @@ class CommonTextFormField extends StatelessWidget {
         enabledBorder: inputBorder(borderColor: borderColor),
         focusedBorder: inputBorder(borderColor: focusedBorderColor ?? themeData.primaryColor),
         hintText: hintText,
-        hintStyle: themeData.inputDecorationTheme.hintStyle?.copyWith(fontSize: 14),
+        hintStyle:hintStyle ?? themeData.inputDecorationTheme.hintStyle?.copyWith(fontSize: 14),
         // labelStyle: const TextStyle(color: Colors.grey, fontSize: 14),
         suffixIcon: suffixWidget,
         enabled: enabled,

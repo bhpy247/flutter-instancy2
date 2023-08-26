@@ -50,6 +50,9 @@ class Styles {
   static const Color chipTextColor = Color(0xff3A3A3A);
   static const Color textFieldBackgroundColor = Color(0xffF6F6F6);
 
+
+  static const Color chatTextBackgroundColor = Color(0xffEBEBEB);
+
   // static const Color  = Color(0xffF0C119);
 
 

@@ -19,6 +19,7 @@ class CommonButton extends StatelessWidget {
     this.iconPadding = const EdgeInsets.symmetric(horizontal: 5),
     this.padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
     this.child,
+    this.borderWidth = 0.5,
     this.borderColor,
   }) : super(key: key);
 
@@ -29,7 +30,7 @@ class CommonButton extends StatelessWidget {
   final Widget? child;
   final FontWeight fontWeight;
   final Color? iconColor, backGroundColor, fontColor, borderColor, highlightColor;
-  final double iconSize, fontSize, minWidth, borderRadius;
+  final double iconSize, fontSize, minWidth, borderRadius, borderWidth;
   final double? height;
 
   @override
@@ -48,7 +49,7 @@ class CommonButton extends StatelessWidget {
       color: backGroundColor ?? themeData.primaryColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
-        side: BorderSide(color: borderColor ?? Colors.grey, width: 0.5),
+        side: BorderSide(color: borderColor ?? Colors.grey, width: borderWidth),
       ),
       child: child ?? Row(
         mainAxisAlignment: MainAxisAlignment.center,

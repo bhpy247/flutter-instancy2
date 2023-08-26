@@ -17,6 +17,7 @@ import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
+import '../../configs/app_constants.dart';
 import '../../hive/hive_operation_controller.dart';
 import '../../models/app_configuration_models/data_models/localization_selection_model.dart';
 import '../../models/app_configuration_models/response_model/mobile_api_auth_response_model.dart';
@@ -105,8 +106,7 @@ class SplashController {
       String lmsUrl = await SharedPreferenceController.getCurrentSiteLMSUrlFromSharedPreference();
       MyPrint.printOnConsole("lmsUrl:'$lmsUrl'", tag: uid);
       apiUrlConfigurationProvider.setCurrentSiteLMSUrl(lmsUrl);
-    }
-    else {
+    } else {
       currentSiteUrl = apiUrlConfigurationProvider.getMainSiteUrl();
     }
     MyPrint.printOnConsole("final currentSiteUrl:'$currentSiteUrl'", tag: uid);
@@ -186,8 +186,7 @@ class SplashController {
     }
 
     DateTime endTime = DateTime.now();
-    MyPrint.printOnConsole("SplashController().getLearningPlatformInfoData Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds",
-        tag: newId);
+    MyPrint.printOnConsole("SplashController().getLearningPlatformInfoData Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: newId);
 
     return mobileGetLearningPortalInfoResponseModel;
   }
@@ -212,9 +211,7 @@ class SplashController {
     // splashHiveRepository.setLearningPlatformInfoData(model: mobileGetLearningPortalInfoResponse.data);
 
     DateTime endTime = DateTime.now();
-    MyPrint.printOnConsole(
-        "SplashController().getLearningPlatformInfoDataAndStoreInHive Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds",
-        tag: newId);
+    MyPrint.printOnConsole("SplashController().getLearningPlatformInfoDataAndStoreInHive Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: newId);
 
     return mobileGetLearningPortalInfoResponse.data;
   }
@@ -389,8 +386,10 @@ class SplashController {
   //region 3.2) SiteLocalizationStrings Section
   Future<LocalStr?> getSiteLocalizationStrings({bool isGetFromOffline = true, bool isSaveInOffline = true}) async {
     String newId = MyUtils.getNewId();
-    MyPrint.printOnConsole("SplashController().getSiteLocalizationStrings called with isGetFromOffline:$isGetFromOffline,"
-        " isSaveInOfflineL$isSaveInOffline", tag: newId);
+    MyPrint.printOnConsole(
+        "SplashController().getSiteLocalizationStrings called with isGetFromOffline:$isGetFromOffline,"
+        " isSaveInOfflineL$isSaveInOffline",
+        tag: newId);
 
     LocalStr? localStr;
 
@@ -414,8 +413,7 @@ class SplashController {
     }
 
     DateTime endTime = DateTime.now();
-    MyPrint.printOnConsole("SplashController().getSiteLocalizationStrings Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds",
-        tag: newId);
+    MyPrint.printOnConsole("SplashController().getSiteLocalizationStrings Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: newId);
 
     return localStr;
   }
@@ -441,9 +439,7 @@ class SplashController {
     // splashHiveRepository.setLanguageJsonFile(langCode: splashRepository.apiController.apiDataProvider.getLocale(), localStr: responseModel.data);
 
     DateTime endTime = DateTime.now();
-    MyPrint.printOnConsole(
-        "SplashController().getSiteLocalizationStringsFromApiAndStoreInHive Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds",
-        tag: newId);
+    MyPrint.printOnConsole("SplashController().getSiteLocalizationStringsFromApiAndStoreInHive Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: newId);
 
     return responseModel.data;
   }
@@ -477,8 +473,7 @@ class SplashController {
     }
 
     DateTime endTime = DateTime.now();
-    MyPrint.printOnConsole("SplashController().getTinCanConfigurations Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds",
-        tag: newId);
+    MyPrint.printOnConsole("SplashController().getTinCanConfigurations Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: newId);
 
     return tinCanDataModel;
   }
@@ -504,9 +499,7 @@ class SplashController {
     // splashHiveRepository.setTinCanConfigurations(langCode: splashRepository.apiController.apiDataProvider.getLocale(), tinCanDataModel: responseModel.data);
 
     DateTime endTime = DateTime.now();
-    MyPrint.printOnConsole(
-        "SplashController().getTinCanConfigurationsFromApiAndStoreInHive Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds",
-        tag: newId);
+    MyPrint.printOnConsole("SplashController().getTinCanConfigurationsFromApiAndStoreInHive Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: newId);
 
     return responseModel.data;
   }
@@ -523,8 +516,7 @@ class SplashController {
 
     DateTime startTime = DateTime.now();
     if (isGetFromOffline) {
-      DataResponseModel<List<NativeMenuModel>> hiveResponseModel =
-          await splashRepository.getNativeMenuModelsList(isGetDataFromHive: true, isStoreDataInHive: false);
+      DataResponseModel<List<NativeMenuModel>> hiveResponseModel = await splashRepository.getNativeMenuModelsList(isGetDataFromHive: true, isStoreDataInHive: false);
 
       nativeMenuModelsList = hiveResponseModel.data;
     }
@@ -532,6 +524,7 @@ class SplashController {
 
     if (isGetFromOffline && nativeMenuModelsList != null) {
       appProvider.setMenuModelsList(list: nativeMenuModelsList, isNotify: true);
+      addPredefineMenu();
       getAppMenusListFromApiAndStoreInHive(isStoreDataInHive: isSaveInOffline);
     } else {
       nativeMenuModelsList = await getAppMenusListFromApiAndStoreInHive(isStoreDataInHive: isSaveInOffline);
@@ -556,16 +549,14 @@ class SplashController {
 
     if (responseModel.data != null) {
       List<NativeMenuModel> data = responseModel.data!;
-
       appProvider.setMenuModelsList(list: data, isNotify: true);
+      addPredefineMenu();
     }
 
     // splashHiveRepository.setNativeMenuModelsList(list: responseModel.data);
 
     DateTime endTime = DateTime.now();
-    MyPrint.printOnConsole(
-        "SplashController().getAppMenusListFromApiAndStoreInHive Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds",
-        tag: newId);
+    MyPrint.printOnConsole("SplashController().getAppMenusListFromApiAndStoreInHive Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: newId);
 
     return responseModel.data;
   }
@@ -573,8 +564,7 @@ class SplashController {
   //endregion
 
   //region Menu Components Models List
-  Future<List<NativeMenuComponentModel>?> getAppMenuComponentsList(
-      {required int menuId, bool isGetFromOnline = true, bool isGetFromOffline = true, bool isSaveInOffline = true}) async {
+  Future<List<NativeMenuComponentModel>?> getAppMenuComponentsList({required int menuId, bool isGetFromOnline = true, bool isGetFromOffline = true, bool isSaveInOffline = true}) async {
     String newId = MyUtils.getNewId();
     MyPrint.printOnConsole(
         "SplashController().getAppMenuComponentsList called for menuId:$menuId, isGetFromOnline:$isGetFromOnline, "
@@ -599,13 +589,11 @@ class SplashController {
       appProvider.setMenuComponentModelsListForMenuId(menuId: menuId, list: nativeMenuComponentModelsList, isNotify: true);
       if (isGetFromOnline) getAppMenuComponentsListFromApiAndStoreInHive(menuId: menuId, isStoreDataInHive: isSaveInOffline);
     } else {
-      if (isGetFromOnline)
-        nativeMenuComponentModelsList = await getAppMenuComponentsListFromApiAndStoreInHive(menuId: menuId, isStoreDataInHive: isSaveInOffline);
+      if (isGetFromOnline) nativeMenuComponentModelsList = await getAppMenuComponentsListFromApiAndStoreInHive(menuId: menuId, isStoreDataInHive: isSaveInOffline);
     }
 
     DateTime endTime = DateTime.now();
-    MyPrint.printOnConsole("SplashController().getAppMenuComponentsList Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds",
-        tag: newId);
+    MyPrint.printOnConsole("SplashController().getAppMenuComponentsList Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: newId);
 
     return nativeMenuComponentModelsList;
   }
@@ -631,11 +619,24 @@ class SplashController {
     // splashHiveRepository.setNativeMenuComponentModelsList(menuId: menuId, list: responseModel.data);
 
     DateTime endTime = DateTime.now();
-    MyPrint.printOnConsole(
-        "SplashController().getAppMenuComponentsListFromApiAndStoreInHive Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds",
-        tag: newId);
+    MyPrint.printOnConsole("SplashController().getAppMenuComponentsListFromApiAndStoreInHive Finished after ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: newId);
 
     return responseModel.data;
+  }
+
+  void addPredefineMenu() {
+    List<NativeMenuModel> data = [
+      NativeMenuModel(image: "f1c6", displayname: "Messages", menuid: 1000),
+    ];
+    appProvider.setMenuModelsList(list: data, isNotify: false, isClear: false);
+    appProvider.setMenuComponentModelsListForMenuId(
+        menuId: 1000,
+        list: [
+          NativeMenuComponentModel(
+            componentid: InstancyComponents.UserMessages,
+          ),
+        ],
+        isNotify: false);
   }
 //endregion
 //endregion

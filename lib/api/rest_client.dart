@@ -144,14 +144,15 @@ class RestClient {
 
       MyPrint.logOnConsole("Curl Request:${CurlGenerator.toCurlFromRawRequest(
         method: "POST",
-        url: url,
-        headers: headers,
-      )}", tag: newId);
+            url: url,
+            headers: Map.from(headers)..addAll({HttpHeaders.contentTypeHeader: "multipart/form-data"}),
+            body: MyUtils.encodeJson(apiCallModel.fields),
+          )}", tag: newId);
 
 
       MultipartRequest request = MultipartRequest("POST", Uri.parse(url));
 
-      request.fields.addAll(apiCallModel.fields!);
+      if (apiCallModel.fields.checkNotEmpty) request.fields.addAll(apiCallModel.fields!);
 
       List<MultipartFile> files = <MultipartFile>[];
       for(InstancyMultipartFileUploadModel instancyMultipartFileUploadModel in (apiCallModel.files ?? <InstancyMultipartFileUploadModel>[])) {

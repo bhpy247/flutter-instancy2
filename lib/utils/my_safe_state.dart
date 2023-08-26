@@ -34,20 +34,18 @@ mixin MySafeState<T extends StatefulWidget> on State<T> {
   @protected
   void mySetState() {
     try {
-      if(_disposed || !mounted) {
+      if (_disposed || !mounted) {
         return;
       }
-    }
-    catch(e) {
+    } catch (e) {
       return;
     }
 
-    if(_pageMounted) {
+    if (_pageMounted) {
       setState(() {});
-    }
-    else {
+    } else {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        if(_pageMounted) {
+        if (_pageMounted) {
           setState(() {});
         }
       });

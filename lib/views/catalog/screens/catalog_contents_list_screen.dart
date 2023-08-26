@@ -157,13 +157,12 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
       onViewTap: primaryAction == InstancyContentActionsEnum.View
           ? null
           : () async {
-        MyPrint.printOnConsole("on view tap");
+              MyPrint.printOnConsole("on view tap");
               if (isSecondaryAction) Navigator.pop(context);
               onContentLaunchTap(model: model);
               if (model.ViewType == ViewTypesForContent.ViewAndAddToMyLearning && !ParsingHelper.parseBoolMethod(model.isContentEnrolled)) {
-                 addContentToMyLearning(model: model, index: index,isShowToast: false);
+                addContentToMyLearning(model: model, index: index, isShowToast: false);
               }
-
             },
       onAddToMyLearningTap: primaryAction == InstancyContentActionsEnum.AddToMyLearning
           ? null
@@ -762,8 +761,14 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
     } else if (!paginationModel.isLoading && contentsLength == 0) {
       return RefreshIndicator(
         onRefresh: onRefresh,
-        child: Center(
-          child: AppConfigurations.commonNoDataView(),
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+            Center(
+              child: AppConfigurations.commonNoDataView(),
+            ),
+          ],
         ),
       );
     }
@@ -828,7 +833,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
         )
         .toList();
 
-    MyPrint.printOnConsole("${model.Title} : options:$options");
+    // MyPrint.printOnConsole("${model.Title} : options:$options");
 
     InstancyUIActionModel? primaryAction = options.firstElement;
     // MyPrint.printOnConsole("primaryAction in Page:$primaryAction");
@@ -1071,7 +1076,25 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
       );
     }
 
+    Widget? cameraSuffixIcon;
+
+    cameraSuffixIcon = InkWell(
+      onTap: () {
+        NavigationController.navigateToLensScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+        );
+      },
+      child: const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.0),
+        child: Icon(Icons.camera_alt_outlined),
+      ),
+    );
+
     List<Widget> actions = <Widget>[];
+    actions.add(cameraSuffixIcon);
     if (clearSearchSuffixIcon != null) actions.add(clearSearchSuffixIcon);
     if (filterSuffixIcon != null) actions.add(filterSuffixIcon);
     if (sortSuffixIcon != null) actions.add(sortSuffixIcon);
