@@ -80,15 +80,24 @@ class CommonProviderMapParameter<K, V> {
           return mapEntry;
         }
       });
-    }
-    else {
+    } else {
       return _map;
     }
   }
 
   void setMap({required Map<K, V> map, bool isClear = true, bool isNotify = true}) {
-    if(isClear) _map.clear();
+    if (isClear) _map.clear();
     _map.addAll(map);
+    _notify(isNotify: isNotify);
+  }
+
+  void clearKey({required String key, bool isNotify = true}) {
+    _map.remove(key);
+    _notify(isNotify: isNotify);
+  }
+
+  void clearKeys({required List<String> keys, bool isNotify = true}) {
+    _map.removeWhere((key, value) => keys.contains(key));
     _notify(isNotify: isNotify);
   }
 }

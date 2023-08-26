@@ -1,8 +1,11 @@
+import 'package:flutter_instancy_2/models/classroom_events/data_model/tab_data_model.dart';
+
 import '../../api/api_call_model.dart';
 import '../../api/api_controller.dart';
 import '../../api/api_endpoints.dart';
 import '../../api/api_url_configuration_provider.dart';
 import '../../api/rest_client.dart';
+import '../../models/classroom_events/request_model/tabs_list_request_model.dart';
 import '../../models/common/app_error_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/common/model_data_parser.dart';
@@ -98,17 +101,40 @@ class EventRepository {
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<Map<String, dynamic>>(
       restCallType: RestCallType.simpleGetCall,
       queryParameters: {
-        "ContentID" : eventId,
-        "UserID" : apiUrlConfigurationProvider.getCurrentUserId().toString(),
-        "SiteID" : apiUrlConfigurationProvider.getCurrentSiteId().toString(),
-        "locale" : apiUrlConfigurationProvider.getLocale().toString(),
-        "multiLocation" : "",
+        "ContentID": eventId,
+        "UserID": apiUrlConfigurationProvider.getCurrentUserId().toString(),
+        "SiteID": apiUrlConfigurationProvider.getCurrentSiteId().toString(),
+        "locale": apiUrlConfigurationProvider.getLocale().toString(),
+        "multiLocation": "",
       },
       parsingType: ModelDataParsingType.eventSessionDataResponseModel,
       url: apiEndpoints.getEventSessionData(),
     );
 
     DataResponseModel<EventSessionDataResponseModel> apiResponseModel = await apiController.callApi<EventSessionDataResponseModel>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<List<TabDataModel>>> getTabsList({required TabsListRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+
+    requestModel.Locale = apiUrlConfigurationProvider.getLocale();
+    requestModel.aintUserID = apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.SiteID = apiUrlConfigurationProvider.getCurrentSiteId();
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<Map<String, dynamic>>(
+      restCallType: RestCallType.simpleGetCall,
+      queryParameters: requestModel.toJson(),
+      parsingType: ModelDataParsingType.tabDataModelList,
+      url: apiEndpoints.getDynamicTabs(),
+    );
+
+    DataResponseModel<List<TabDataModel>> apiResponseModel = await apiController.callApi<List<TabDataModel>>(
       apiCallModel: apiCallModel,
     );
 

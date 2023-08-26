@@ -18,6 +18,8 @@ Future<void>? runErrorSafeApp(VoidCallback appRunner) {
     () async {
       usePathUrlStrategy();
 
+      WidgetsFlutterBinding.ensureInitialized();
+
       await initApp();
       appRunner();
     },

@@ -38,7 +38,7 @@ class MainScreenDrawer extends StatelessWidget {
             Container(
               color: themeData.drawerTheme.backgroundColor,
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 20),
+                padding: const EdgeInsets.symmetric(vertical: 0),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: menusList.length,
@@ -105,25 +105,30 @@ class MainScreenDrawer extends StatelessWidget {
             Navigator.pop(context);
           }
         },
-        leading: Icon(
-          (icon.isNotEmpty)
-              ? icon.contains("-")
-                  ? IconDataSolid(int.parse('0x${"f02d"}'))
-                  : IconDataSolid(int.parse('0x$icon'))
-              : IconDataSolid(int.parse('0x${"f02d"}')),
-          color: isMenuSelected ? themeData.primaryColor : null,
-        ),
         trailing: childWidgetsList.isEmpty
             ? Icon(
                 Icons.arrow_drop_down,
                 color: appThemeProvider.getInstancyThemeColors().menuBGColor.getColor(),
               )
             : const Icon(Icons.keyboard_arrow_down),
-        title: Text(
-          nativeMenuModel.displayname,
-          style: themeData.textTheme.labelMedium?.copyWith(
-            color: isMenuSelected ? themeData.primaryColor : null,
-          ),
+        title: Row(
+          children: [
+            Icon(
+              (icon.isNotEmpty)
+                  ? icon.contains("-")
+                      ? IconDataSolid(int.parse('0x${"f02d"}'))
+                      : IconDataSolid(int.parse('0x$icon'))
+                  : IconDataSolid(int.parse('0x${"f02d"}')),
+              color: isMenuSelected ? themeData.primaryColor : null,
+            ),
+            const SizedBox(width: 15),
+            Text(
+              nativeMenuModel.displayname,
+              style: themeData.textTheme.labelMedium?.copyWith(
+                color: isMenuSelected ? themeData.primaryColor : null,
+              ),
+            ),
+          ],
         ),
         children: <Widget>[
           Column(

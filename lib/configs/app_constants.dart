@@ -400,6 +400,7 @@ class InstancyComponents {
   static const int ajaxCourseComponent = 1010;
   static const int DetailsComponentInsId = 3291;
   static const int PeopleListComponentInsId = 3473;
+  static const int EventCatalogTabsListComponentInsId = 3497;
 }
 
 class ViewTypesForContent {
@@ -623,4 +624,22 @@ class EventScheduleTypes {
   static const int regular = 0;
   static const int parent = 1;
   static const int instance = 2;
+}
+
+class EventCatalogTabTypes {
+  static const String upcomingCourses = "Upcoming-Courses";
+  static const String calendarSchedule = "Calendar-Schedule";
+  static const String calendarView = "Calendar-View";
+  static const String pastCourses = "Past-Courses";
+  static const String myEvents = "My-Events";
+  static const String additionalProgramDetails = "Additional-Program-Details";
+
+  static List<String> get values => [
+        upcomingCourses,
+        calendarSchedule,
+        calendarView,
+        pastCourses,
+        myEvents,
+        additionalProgramDetails,
+      ];
 }

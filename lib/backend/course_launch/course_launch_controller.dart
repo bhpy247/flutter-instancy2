@@ -595,36 +595,34 @@ class CourseLaunchController {
       return;
     }
 
+    //region Exceptional Media Type Validation
+    if ([
+      InstancyMediaTypes.corpAcademy,
+      InstancyMediaTypes.psyTechAssessment,
+      InstancyMediaTypes.dISCAssessment,
+      InstancyMediaTypes.assessment24x7,
+    ].contains(model.MediaTypeId)) {
+      MyPrint.printOnConsole("Returning from CourseLaunchController().checkNonTrackableContentStatusUpdate() because Media Type is not valid", tag: tag);
+      return;
+    }
+    //endregion
+
+    //region JWKey Validation
+    if (model.JWVideoKey.isNotEmpty) {
+      MyPrint.printOnConsole("Returning from CourseLaunchController().checkNonTrackableContentStatusUpdate() because JWVideoKey is not empty", tag: tag);
+      return;
+    }
+    //endregion
+
     bool autocompleteNonTrackableContent = appProvider.appSystemConfigurationModel.autocompleteNonTrackableContent;
     MyPrint.printOnConsole("autocompleteNonTrackableContent:$autocompleteNonTrackableContent", tag: tag);
 
     if (autocompleteNonTrackableContent) {
       MyPrint.printOnConsole("Have to update status to completed", tag: tag);
 
-      //region Exceptional Media Type Validation
-      if ([
-        InstancyMediaTypes.corpAcademy,
-        InstancyMediaTypes.psyTechAssessment,
-        InstancyMediaTypes.dISCAssessment,
-        InstancyMediaTypes.assessment24x7,
-        InstancyMediaTypes.embedAudio,
-        InstancyMediaTypes.embedVideo,
-      ].contains(model.MediaTypeId)) {
-        MyPrint.printOnConsole("Returning from CourseLaunchController().checkNonTrackableContentStatusUpdate() because Media Type is not valid", tag: tag);
-        return;
-      }
-      //endregion
-
       //region Content Status Validation
       if (model.ActualStatus == ContentStatusTypes.completed) {
         MyPrint.printOnConsole("Returning from CourseLaunchController().checkNonTrackableContentStatusUpdate() because Content Status is Completed already", tag: tag);
-        return;
-      }
-      //endregion
-
-      //region JWKey Validation
-      if (model.JWVideoKey.isNotEmpty) {
-        MyPrint.printOnConsole("Returning from CourseLaunchController().checkNonTrackableContentStatusUpdate() because JWVideoKey is not empty", tag: tag);
         return;
       }
       //endregion
@@ -686,8 +684,9 @@ class CourseLaunchController {
           isNetworkPDF: true,
         ),
       );
-    } else if (model.MediaTypeId == InstancyMediaTypes.video && model.JWVideoKey.isEmpty) {
-      /*return NavigationController.navigateToVideoLaunchScreen(
+    }
+    /*else if (model.MediaTypeId == InstancyMediaTypes.video && model.JWVideoKey.isEmpty) {
+      return NavigationController.navigateToVideoLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
@@ -697,8 +696,9 @@ class CourseLaunchController {
           videoUrl: launchUrl,
           isNetworkVideo: true,
         ),
-      );*/
-    } else {
+      );
+    }*/
+    else {
       return NavigationController.navigateToCourseLaunchWebViewScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,

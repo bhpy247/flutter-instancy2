@@ -13,10 +13,16 @@ import '../../api/api_endpoints.dart';
 import '../../api/api_url_configuration_provider.dart';
 import '../../api/rest_client.dart';
 import '../../models/catalog/request_model/add_content_to_my_learning_request_model.dart';
+import '../../models/catalog/request_model/add_expired_event_to_my_learning_request_model.dart';
+import '../../models/catalog/request_model/enroll_waiting_list_event_request_model.dart';
+import '../../models/catalog/request_model/mobile_catalog_objects_data_request_model.dart';
 import '../../models/catalog/request_model/user_coming_soon_request_model.dart';
 import '../../models/catalog/response_model/add_associated_content_to_mylearning_response_model.dart';
+import '../../models/catalog/response_model/add_expired_event_to_mylearning_response_model.dart';
 import '../../models/catalog/response_model/associated_content_response_model.dart';
 import '../../models/catalog/response_model/catalog_dto_response_model.dart';
+import '../../models/catalog/response_model/enroll_waiting_list_event_response_model.dart';
+import '../../models/catalog/response_model/mobile_catalog_objects_data_response_model.dart';
 import '../../models/catalog/response_model/prerequisiteDetailsResponseModel.dart';
 import '../../models/common/app_error_model.dart';
 import '../../models/common/data_response_model.dart';
@@ -82,6 +88,33 @@ class CatalogRepository {
     );
 
     DataResponseModel<CatalogResponseDTOModel> apiResponseModel = await apiController.callApi<CatalogResponseDTOModel>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<MobileCatalogObjectsDataResponseModel>> getMobileCatalogObjectsData({
+    required MobileCatalogObjectsDataRequestModel requestModel,
+    required int componentId,
+    required int componentInstanceId,
+    bool isFromOffline = false,
+    bool isStoreDataInHive = false,
+  }) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.mobileCatalogObjectsDataResponseModel,
+      url: apiEndpoints.apiGetMobileCatalogObjectsData(),
+      requestBody: MyUtils.encodeJson(requestModel.toJson()),
+      isGetDataFromHive: isFromOffline,
+      isStoreDataInHive: isStoreDataInHive,
+    );
+
+    DataResponseModel<MobileCatalogObjectsDataResponseModel> apiResponseModel = await apiController.callApi<MobileCatalogObjectsDataResponseModel>(
       apiCallModel: apiCallModel,
     );
 
@@ -155,6 +188,71 @@ class CatalogRepository {
     );
 
     DataResponseModel<AddAssociatedContentToMyLearningResponseModel> apiResponseModel = await apiController.callApi<AddAssociatedContentToMyLearningResponseModel>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<EnrollWaitingListEventResponseModel>> enrollWaitListEvent({
+    required EnrollWaitingListEventRequestModel requestModel,
+    bool isFromOffline = false,
+    bool isStoreDataInHive = false,
+  }) async {
+    MyPrint.printOnConsole('CatalogRepository().enrollWaitListEvent() called with requestModel:$requestModel');
+
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+
+    requestModel.UserID = apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.siteid = apiUrlConfigurationProvider.getCurrentSiteId();
+    requestModel.locale = apiUrlConfigurationProvider.getLocale();
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.enrollWaitingListEventResponseModel,
+      url: apiEndpoints.getEnrollWaitListEvent(),
+      requestBody: MyUtils.encodeJson(requestModel.toJson()),
+      isGetDataFromHive: isFromOffline,
+      isStoreDataInHive: isStoreDataInHive,
+    );
+
+    DataResponseModel<EnrollWaitingListEventResponseModel> apiResponseModel = await apiController.callApi<EnrollWaitingListEventResponseModel>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<AddExpiredEventToMyLearningResponseModel>> addExpiredEventToMyLearning({
+    required AddExpiredEventToMyLearningRequestModel requestModel,
+    bool isFromOffline = false,
+    bool isStoreDataInHive = false,
+  }) async {
+    MyPrint.printOnConsole('CatalogRepository().addExpiredEventToMyLearning() called with requestModel:$requestModel');
+
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+
+    requestModel.UserID = apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.SiteID = apiUrlConfigurationProvider.getCurrentSiteId();
+    requestModel.OrgUnitID = apiUrlConfigurationProvider.getCurrentSiteId();
+    requestModel.Locale = apiUrlConfigurationProvider.getLocale();
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.addExpiredEventToMyLearningResponseModel,
+      url: apiEndpoints.getExpiredContentAddToMyLearning(),
+      requestBody: MyUtils.encodeJson(requestModel.toJson()),
+      isGetDataFromHive: isFromOffline,
+      isStoreDataInHive: isStoreDataInHive,
+    );
+
+    DataResponseModel<AddExpiredEventToMyLearningResponseModel> apiResponseModel = await apiController.callApi<AddExpiredEventToMyLearningResponseModel>(
       apiCallModel: apiCallModel,
     );
 

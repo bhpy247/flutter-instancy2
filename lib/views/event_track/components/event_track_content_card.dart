@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/classroom_events/data_model/event_recodting_mobile_lms_data_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_content_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
@@ -86,6 +89,16 @@ class _EventTrackContentCardState extends State<EventTrackContentCard> {
   }
 
   Widget detailColumn(EventTrackContentModel model) {
+    int percentageCompleted = ParsingHelper.parseIntMethod(model.percentcompleted);
+    String contentStatus = model.corelessonstatus;
+    String actualStatus = model.actualstatus;
+
+    if (model.objecttypeid == InstancyObjectTypes.events && (model.recordingModel?.contentid).checkNotEmpty) {
+      EventRecordingMobileLMSDataModel recordingMobileLMSDataModel = model.recordingModel!;
+      percentageCompleted = ParsingHelper.parseIntMethod(recordingMobileLMSDataModel.contentprogress);
+      actualStatus = recordingMobileLMSDataModel.eventrecordstatus;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -152,9 +165,9 @@ class _EventTrackContentCardState extends State<EventTrackContentCard> {
         ),
         const SizedBox(height: 8),
         linearProgressBar(
-          percentCompleted: ParsingHelper.parseIntMethod(model.percentcompleted),
-          contentStatus: model.corelessonstatus,
-          actualStatus: model.actualstatus,
+          percentCompleted: percentageCompleted,
+          contentStatus: contentStatus,
+          actualStatus: actualStatus,
         ),
         /*getPrimaryActionButton(
           model: model,

@@ -4,9 +4,12 @@ import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_repository.dart';
 import 'package:flutter_instancy_2/models/catalog/catalogCategoriesForBrowseModel.dart';
 import 'package:flutter_instancy_2/models/catalog/request_model/add_associated_content_to_my_learning_request_model.dart';
+import 'package:flutter_instancy_2/models/catalog/request_model/add_expired_event_to_my_learning_request_model.dart';
 import 'package:flutter_instancy_2/models/catalog/request_model/catalog_request_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/add_associated_content_to_mylearning_response_model.dart';
+import 'package:flutter_instancy_2/models/catalog/response_model/add_expired_event_to_mylearning_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/associated_content_response_model.dart';
+import 'package:flutter_instancy_2/models/catalog/response_model/enroll_waiting_list_event_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/prerequisiteDetailsResponseModel.dart';
 import 'package:flutter_instancy_2/models/dto/response_dto_model.dart';
 import 'package:flutter_instancy_2/models/filter/data_model/filter_duration_value_model.dart';
@@ -19,6 +22,7 @@ import '../../models/app_configuration_models/data_models/component_configuratio
 import '../../models/app_configuration_models/data_models/local_str.dart';
 import '../../models/catalog/data_model/catalog_course_dto_model.dart';
 import '../../models/catalog/request_model/add_content_to_my_learning_request_model.dart';
+import '../../models/catalog/request_model/enroll_waiting_list_event_request_model.dart';
 import '../../models/catalog/response_model/catalog_dto_response_model.dart';
 import '../../models/catalog/response_model/removeFromWishlistModel.dart';
 import '../../models/catalog/response_model/user_coming_soon_response.dart';
@@ -610,6 +614,126 @@ class CatalogController {
       }
     } catch (e, s) {
       MyPrint.printOnConsole("Error in Adding Associated Content To MyLearning:$e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+    }
+
+    return isSuccess;
+  }
+
+  Future<bool> enrollWaitListEvent({
+    required EnrollWaitingListEventRequestModel requestModel,
+    required BuildContext context,
+    bool isShowToast = false,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole(
+        "CatalogController().enrollWaitListEvent() called with requestModel:$requestModel, context:$context, "
+        "isShowToast:$isShowToast",
+        tag: tag);
+
+    bool isSuccess = false;
+
+    try {
+      if (isShowToast && context.mounted) {
+        MyToast.greyMsg(context: context, msg: "Process initiated. Please be patience while we add the content to your My Learning section.", durationInSeconds: 4);
+      }
+
+      DataResponseModel<EnrollWaitingListEventResponseModel> dataResponseModel = await catalogRepository.enrollWaitListEvent(
+        requestModel: requestModel,
+      );
+
+      MyPrint.printOnConsole("addContentToMyLearning response:$dataResponseModel", tag: tag);
+
+      if (dataResponseModel.appErrorModel != null) {
+        MyPrint.printOnConsole("Returning from CatalogController().enrollWaitListEvent() because enrollWaitListEvent had some error", tag: tag);
+
+        if (isShowToast && context.mounted) {
+          MyToast.showError(context: context, msg: dataResponseModel.appErrorModel!.message);
+        }
+        return false;
+      }
+
+      if (dataResponseModel.data == null) {
+        MyPrint.printOnConsole("Returning from CatalogController().enrollWaitListEvent() because enrollWaitListEvent returned null", tag: tag);
+
+        if (isShowToast && context.mounted) {
+          MyToast.showError(context: context, msg: dataResponseModel.appErrorModel!.message);
+        }
+        return false;
+      }
+
+      EnrollWaitingListEventResponseModel responseModel = dataResponseModel.data!;
+
+      isSuccess = responseModel.IsSuccess;
+      MyPrint.printOnConsole("isSuccess:$isSuccess", tag: tag);
+
+      if (isShowToast && context.mounted) {
+        if (!isSuccess) {
+          MyToast.showError(context: context, msg: responseModel.Message);
+        }
+      }
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in Enrolling Waitinglist Event:$e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+    }
+
+    return isSuccess;
+  }
+
+  Future<bool> addExpiredEventToMyLearning({
+    required AddExpiredEventToMyLearningRequestModel requestModel,
+    required BuildContext context,
+    bool isShowToast = false,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole(
+        "CatalogController().addExpiredEventToMyLearning() called with requestModel:$requestModel, context:$context, "
+        "isShowToast:$isShowToast",
+        tag: tag);
+
+    bool isSuccess = false;
+
+    try {
+      if (isShowToast && context.mounted) {
+        MyToast.greyMsg(context: context, msg: "Process initiated. Please be patience while we add the content to your My Learning section.", durationInSeconds: 4);
+      }
+
+      DataResponseModel<AddExpiredEventToMyLearningResponseModel> dataResponseModel = await catalogRepository.addExpiredEventToMyLearning(
+        requestModel: requestModel,
+      );
+
+      MyPrint.printOnConsole("addContentToMyLearning response:$dataResponseModel", tag: tag);
+
+      if (dataResponseModel.appErrorModel != null) {
+        MyPrint.printOnConsole("Returning from CatalogController().addExpiredEventToMyLearning() because addExpiredEventToMyLearning had some error", tag: tag);
+
+        if (isShowToast && context.mounted) {
+          MyToast.showError(context: context, msg: dataResponseModel.appErrorModel!.message);
+        }
+        return false;
+      }
+
+      if (dataResponseModel.data == null) {
+        MyPrint.printOnConsole("Returning from CatalogController().addExpiredEventToMyLearning() because addExpiredEventToMyLearning returned null", tag: tag);
+
+        if (isShowToast && context.mounted) {
+          MyToast.showError(context: context, msg: dataResponseModel.appErrorModel!.message);
+        }
+        return false;
+      }
+
+      AddExpiredEventToMyLearningResponseModel responseModel = dataResponseModel.data!;
+
+      isSuccess = responseModel.result;
+      MyPrint.printOnConsole("isSuccess:$isSuccess", tag: tag);
+
+      if (isShowToast && context.mounted) {
+        if (!isSuccess) {
+          MyToast.showError(context: context, msg: responseModel.Message);
+        }
+      }
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in Adding Expired Content To MyLearning in CatalogController().addExpiredEventToMyLearning():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
     }
 

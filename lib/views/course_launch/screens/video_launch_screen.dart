@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
-import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../../backend/navigation/navigation.dart';
+import '../../common/components/common_loader.dart';
 
 class VideoLaunchScreen extends StatefulWidget {
   static const String routeName = "/VideoLaunchScreen";
@@ -41,23 +41,24 @@ class _VideoLaunchScreenState extends State<VideoLaunchScreen> {
       allowBackgroundPlayback: false,
       mixWithOthers: false,
     );
-    if(widget.arguments.isNetworkVideo) {
-      if(widget.arguments.videoUrl.isNotEmpty) {
-        videoPlayerController = VideoPlayerController.network(
-          widget.arguments.videoUrl,
-          videoPlayerOptions: videoPlayerOptions,
-        );
+    if (widget.arguments.isNetworkVideo) {
+      if (widget.arguments.videoUrl.isNotEmpty) {
+        Uri? uri = Uri.tryParse(widget.arguments.videoUrl);
+        if (uri != null) {
+          videoPlayerController = VideoPlayerController.networkUrl(
+            uri,
+            videoPlayerOptions: videoPlayerOptions,
+          );
+        }
       }
-    }
-    else {
-      if(!kIsWeb) {
-        if(widget.arguments.videoFileBytes.checkNotEmpty) {
+    } else {
+      if (!kIsWeb) {
+        if (widget.arguments.videoFileBytes.checkNotEmpty) {
           videoPlayerController = VideoPlayerController.contentUri(
             Uri.dataFromBytes(widget.arguments.videoFileBytes!),
             videoPlayerOptions: videoPlayerOptions,
           );
-        }
-        else if(widget.arguments.videoFilePath.isNotEmpty) {
+        } else if (widget.arguments.videoFilePath.isNotEmpty) {
           videoPlayerController = VideoPlayerController.contentUri(
             Uri.parse(widget.arguments.videoFilePath),
             videoPlayerOptions: videoPlayerOptions,
@@ -66,7 +67,7 @@ class _VideoLaunchScreenState extends State<VideoLaunchScreen> {
       }
     }
 
-    if(videoPlayerController != null) {
+    if (videoPlayerController != null) {
       futureInitializeVideo = getData();
     }
   }
@@ -100,21 +101,26 @@ class _VideoLaunchScreenState extends State<VideoLaunchScreen> {
     required Future<void>? futureInitializeVideo,
     required VideoPlayerController? videoPlayerController,
   }) {
-    if(futureInitializeVideo == null || videoPlayerController == null) {
+    if (futureInitializeVideo == null || videoPlayerController == null) {
       return const Center(
         child: Text("Video Couldn't loaded"),
       );
     }
 
-    if(!videoPlayerController.value.isInitialized) {
-      return const CommonLoader();
-    }
+    return ValueListenableBuilder<VideoPlayerValue>(
+      valueListenable: videoPlayerController,
+      builder: (BuildContext context, VideoPlayerValue videoPlayerValue, Widget? child) {
+        if (!videoPlayerController.value.isInitialized) {
+          return const CommonLoader();
+        }
 
-    return Center(
-      child: AspectRatio(
-        aspectRatio: videoPlayerController.value.aspectRatio,
-        child: VideoPlayer(videoPlayerController),
-      ),
+        return Center(
+          child: AspectRatio(
+            aspectRatio: videoPlayerController.value.aspectRatio,
+            child: VideoPlayer(videoPlayerController),
+          ),
+        );
+      },
     );
   }
 }

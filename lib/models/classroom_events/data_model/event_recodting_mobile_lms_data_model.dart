@@ -3,6 +3,7 @@ import '../../../utils/parsing_helper.dart';
 
 class EventRecordingMobileLMSDataModel {
   String eventid = "";
+  String contentid = "";
   String eventrecording = "";
   String eventrecordingmessage = "";
   String eventrecordingurl = "";
@@ -12,8 +13,7 @@ class EventRecordingMobileLMSDataModel {
   String eventscoid = "";
   String language = "";
   double contentprogress = 0;
-  dynamic contenttypeid;
-  dynamic contentid;
+  int contenttypeid = 0;
   dynamic viewlink;
   dynamic scoid;
   dynamic jwvideokey;
@@ -25,6 +25,7 @@ class EventRecordingMobileLMSDataModel {
 
   EventRecordingMobileLMSDataModel({
     this.eventid = "",
+    this.contentid = "",
     this.eventrecording = "",
     this.eventrecordingmessage = "",
     this.eventrecordingurl = "",
@@ -34,8 +35,7 @@ class EventRecordingMobileLMSDataModel {
     this.eventscoid = "",
     this.language = "",
     this.contentprogress = 0,
-    this.contenttypeid,
-    this.contentid,
+    this.contenttypeid = 0,
     this.viewlink,
     this.scoid,
     this.jwvideokey,
@@ -48,6 +48,7 @@ class EventRecordingMobileLMSDataModel {
 
   EventRecordingMobileLMSDataModel.fromJson(Map<String, dynamic> json) {
     eventid = ParsingHelper.parseStringMethod(json["eventid"]);
+    contentid = ParsingHelper.parseStringMethod(json["contentid"]);
     eventrecording = ParsingHelper.parseStringMethod(json["eventrecording"]);
     eventrecordingmessage = ParsingHelper.parseStringMethod(json["eventrecordingmessage"]);
     eventrecordingurl = ParsingHelper.parseStringMethod(json["eventrecordingurl"]);
@@ -57,8 +58,7 @@ class EventRecordingMobileLMSDataModel {
     eventscoid = ParsingHelper.parseStringMethod(json["eventscoid"]);
     language = ParsingHelper.parseStringMethod(json["language"]);
     contentprogress = ParsingHelper.parseDoubleMethod(json['contentprogress']);
-    contenttypeid = json["contenttypeid"];
-    contentid = json["contentid"];
+    contenttypeid = ParsingHelper.parseIntMethod(json["contenttypeid"], defaultValue: 0);
     viewlink = json["viewlink"];
     scoid = json["scoid"];
     jwvideokey = json["jwvideokey"];
@@ -72,6 +72,7 @@ class EventRecordingMobileLMSDataModel {
   Map<String, dynamic> toJson({bool toJson = true}) {
     return {
       "eventid": eventid,
+      "contentid": contentid,
       "eventrecording": eventrecording,
       "eventrecordingmessage": eventrecordingmessage,
       "eventrecordingurl": eventrecordingurl,
@@ -82,7 +83,6 @@ class EventRecordingMobileLMSDataModel {
       "language": language,
       "contentprogress": contentprogress,
       "contenttypeid": contenttypeid,
-      "contentid": contentid,
       "viewlink": viewlink,
       "scoid": scoid,
       "jwvideokey": jwvideokey,

@@ -11,9 +11,11 @@ import 'package:flutter_instancy_2/utils/my_utils.dart';
 import '../../configs/app_constants.dart';
 import '../../models/app_configuration_models/data_models/component_configurations_model.dart';
 import '../../models/catalog/catalogCategoriesForBrowseModel.dart';
+import '../../models/classroom_events/data_model/tab_data_model.dart';
 import '../../models/filter/data_model/content_filter_category_tree_model.dart';
 import '../../models/profile/data_model/user_education_data_model.dart';
 import '../Catalog/catalog_provider.dart';
+import '../event/event_provider.dart';
 import '../event_track/event_track_provider.dart';
 import '../filter/filter_provider.dart';
 import '../instabot/instabot_provider.dart';
@@ -401,5 +403,25 @@ class InstaBotScreen2NavigationArguments extends NavigationArguments {
   const InstaBotScreen2NavigationArguments({
     this.courseId = "",
     this.instaBotProvider,
+  });
+}
+
+class EventCatalogListScreenNavigationArguments extends NavigationArguments {
+  final String? tabId;
+  final TabDataModel? tabDataModel;
+  final EventProvider? eventProvider;
+  final bool enableSearching;
+  final bool isShowAppBar;
+  final int componentId;
+  final int componentInsId;
+
+  const EventCatalogListScreenNavigationArguments({
+    this.tabId,
+    this.tabDataModel,
+    this.eventProvider,
+    this.enableSearching = true,
+    this.isShowAppBar = true,
+    required this.componentId,
+    required this.componentInsId,
   });
 }

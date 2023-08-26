@@ -6,6 +6,7 @@ import 'package:flutter_instancy_2/models/authentication/response_model/signup_f
 import 'package:flutter_instancy_2/models/catalog/response_model/associated_content_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/user_coming_soon_response.dart';
+import 'package:flutter_instancy_2/models/classroom_events/data_model/tab_data_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_dto_model.dart';
 import 'package:flutter_instancy_2/models/home/response_model/categorywise_course_dto_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/response_model/page_notes_response_model.dart';
@@ -26,6 +27,9 @@ import '../authentication/response_model/email_login_response_model.dart';
 import '../authentication/response_model/sign_up_response_model.dart';
 import '../catalog/catalogCategoriesForBrowseModel.dart';
 import '../catalog/response_model/add_associated_content_to_mylearning_response_model.dart';
+import '../catalog/response_model/add_expired_event_to_mylearning_response_model.dart';
+import '../catalog/response_model/enroll_waiting_list_event_response_model.dart';
+import '../catalog/response_model/mobile_catalog_objects_data_response_model.dart';
 import '../catalog/response_model/prerequisiteDetailsResponseModel.dart';
 import '../catalog/response_model/removeFromWishlistModel.dart';
 import '../content_details/data_model/content_details_dto_model.dart';
@@ -123,6 +127,7 @@ enum ModelDataParsingType {
 
   //region CatalogContentFromCategories
   catalogResponseDTOModel,
+  mobileCatalogObjectsDataResponseModel,
   //endregion
 
   //region Filter
@@ -153,6 +158,7 @@ enum ModelDataParsingType {
 
   // region Event
   eventSessionDataResponseModel,
+  tabDataModelList,
   //endregion
 
   // region Content Details Module
@@ -168,6 +174,8 @@ enum ModelDataParsingType {
 
   //region Catalog Module
   addAssociatedContentToMyLearningResponseModel,
+  enrollWaitingListEventResponseModel,
+  addExpiredEventToMyLearningResponseModel,
   //endregion
 
   //region Event Track
@@ -253,16 +261,17 @@ class ModelDataParser {
     //endregion
 
     //region Wiki Component
-    ModelDataParsingType.fileUploadControlModel : parseListFileUploadControlsModel,
-    ModelDataParsingType.wikiCategoriesModel : parseWikiCategoriesModel,
+    ModelDataParsingType.fileUploadControlModel: parseListFileUploadControlsModel,
+    ModelDataParsingType.wikiCategoriesModel: parseWikiCategoriesModel,
     //endregion
 
     //region catalogCategoriesForBrowseModel
-    ModelDataParsingType.catalogCategoriesForBrowseModel : parseListCatalogCategoriesForBrowseModel,
+    ModelDataParsingType.catalogCategoriesForBrowseModel: parseListCatalogCategoriesForBrowseModel,
     //endregion
 
     //region CatalogContentFromCategoriesModel
-    ModelDataParsingType.catalogResponseDTOModel : parseCatalogResponseDTOModel,
+    ModelDataParsingType.catalogResponseDTOModel: parseCatalogResponseDTOModel,
+    ModelDataParsingType.mobileCatalogObjectsDataResponseModel: parseMobileCatalogObjectsDataResponseModel,
     //endregion
 
     //region Filter
@@ -288,12 +297,13 @@ class ModelDataParser {
     //endregion
 
     //region prerequisiteResponseModel
-    ModelDataParsingType.prerequisiteResponseModel : parsePrerequisiteDetailDataResponseModel,
-    ModelDataParsingType.associatedContent : parseAssociatedContentDataResponseModel,
+    ModelDataParsingType.prerequisiteResponseModel: parsePrerequisiteDetailDataResponseModel,
+    ModelDataParsingType.associatedContent: parseAssociatedContentDataResponseModel,
     //endregion
 
     // region Event
-    ModelDataParsingType.eventSessionDataResponseModel : parseEventSessionDataResponseModel,
+    ModelDataParsingType.eventSessionDataResponseModel: parseEventSessionDataResponseModel,
+    ModelDataParsingType.tabDataModelList: parseTabDataModelList,
     //endregion
 
     // region Content Details Module
@@ -309,16 +319,18 @@ class ModelDataParser {
 
     //region Catalog Module
     ModelDataParsingType.addAssociatedContentToMyLearningResponseModel: parseAddAssociatedContentToMyLearningResponseModel,
+    ModelDataParsingType.enrollWaitingListEventResponseModel: parseEnrollWaitingListEventResponseModel,
+    ModelDataParsingType.addExpiredEventToMyLearningResponseModel: parseAddExpiredEventToMyLearningResponseModel,
     //endregion
 
     //region Event Track
-    ModelDataParsingType.eventTrackHeaderDTOModel : parseEventTrackHeaderDTOModel,
-    ModelDataParsingType.eventTrackTabDTOModelList : parseEventTrackTabDTOModelList,
-    ModelDataParsingType.eventTrackDTOModelList : parseEventTrackDTOModelList,
-    ModelDataParsingType.glossaryModelList : parseGlossaryModelList,
-    ModelDataParsingType.eventTrackResourceResponseModel : parseEventTrackResourceResponseModel,
-    ModelDataParsingType.trackContentDataResponseModel : parseTrackContentDataResponseModel,
-    ModelDataParsingType.eventRelatedContentDataResponseModel : parseEventRelatedContentDataResponseModel,
+    ModelDataParsingType.eventTrackHeaderDTOModel: parseEventTrackHeaderDTOModel,
+    ModelDataParsingType.eventTrackTabDTOModelList: parseEventTrackTabDTOModelList,
+    ModelDataParsingType.eventTrackDTOModelList: parseEventTrackDTOModelList,
+    ModelDataParsingType.glossaryModelList: parseGlossaryModelList,
+    ModelDataParsingType.eventTrackResourceResponseModel: parseEventTrackResourceResponseModel,
+    ModelDataParsingType.trackContentDataResponseModel: parseTrackContentDataResponseModel,
+    ModelDataParsingType.eventRelatedContentDataResponseModel: parseEventRelatedContentDataResponseModel,
     //endregion
 
     // region Discussion
@@ -630,13 +642,23 @@ class ModelDataParser {
   static CatalogResponseDTOModel? parseCatalogResponseDTOModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return CatalogResponseDTOModel.fromMap(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
+
+  static MobileCatalogObjectsDataResponseModel? parseMobileCatalogObjectsDataResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
+
+    if (map.isNotEmpty) {
+      return MobileCatalogObjectsDataResponseModel.fromMap(map);
+    } else {
+      return null;
+    }
+  }
+
   //endregion
 
   //region Filter
@@ -788,24 +810,32 @@ class ModelDataParser {
   static EventSessionDataResponseModel? parseEventSessionDataResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return EventSessionDataResponseModel.fromMap(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
-  //endregion
 
+  static List<TabDataModel>? parseTabDataModelList({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> list = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+
+    if (list.isNotEmpty) {
+      return list.map((e) => TabDataModel.fromJson(e)).toList();
+    } else {
+      return null;
+    }
+  }
+
+  //endregion
 
   // region Content Details Module
   static ContentDetailsDTOModel? parseContentDetailsDTOModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return ContentDetailsDTOModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -972,22 +1002,41 @@ class ModelDataParser {
   static AddAssociatedContentToMyLearningResponseModel? parseAddAssociatedContentToMyLearningResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return AddAssociatedContentToMyLearningResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
+
+  static EnrollWaitingListEventResponseModel? parseEnrollWaitingListEventResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return EnrollWaitingListEventResponseModel.fromJson(json);
+    } else {
+      return null;
+    }
+  }
+
+  static AddExpiredEventToMyLearningResponseModel? parseAddExpiredEventToMyLearningResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return AddExpiredEventToMyLearningResponseModel.fromJson(json);
+    } else {
+      return null;
+    }
+  }
+
   //endregion
   // region Catalog Module
   static PageNotesResponseModel? parsePageNoteResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return PageNotesResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }

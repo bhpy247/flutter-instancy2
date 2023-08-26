@@ -79,27 +79,38 @@ class _SortingScreenState extends State<SortingScreen> with MySafeState {
 
   Widget getSortOptionsListView({required FilterProvider filterProvider}) {
     if(filterProvider.isLoadingSortData.get()) {
-      return const CommonLoader(isCenter: true,);
+      return const CommonLoader(
+        isCenter: true,
+      );
     }
 
     List<ComponentSortModel> sortOptions = filterProvider.sortOptions.getList(isNewInstance: false);
-    if(sortOptions.isEmpty) {
+    if (sortOptions.isEmpty) {
       return const Center(
         child: Text("No Sort Options"),
       );
     }
 
-    return ListView.builder(
-      itemCount: sortOptions.length,
-      itemBuilder: (BuildContext context, int index) {
-        ComponentSortModel componentSortModel = sortOptions[index];
-
-        return getIconWithTitle(
-          componentSortModel: componentSortModel,
-          iconAsset: "assets/sortIcons/atoz.png",
-          isIconVisible: false,
+    return RefreshIndicator(
+      onRefresh: () async {
+        filterController.getSortOptionsList(
+          isRefresh: true,
+          componentId: componentId,
         );
       },
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: sortOptions.length,
+        itemBuilder: (BuildContext context, int index) {
+          ComponentSortModel componentSortModel = sortOptions[index];
+
+          return getIconWithTitle(
+            componentSortModel: componentSortModel,
+            iconAsset: "assets/sortIcons/atoz.png",
+            isIconVisible: false,
+          );
+        },
+      ),
     );
 
     /*return ListView(

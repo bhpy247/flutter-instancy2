@@ -201,7 +201,7 @@ class ApiEndpoints {
     return "${getBaseApiUrl()}/Catalog/getCategoryForBrowse?strType=cat&intComponentID=$componentInstanceId&intSiteID=$siteId&intUserID=$userId&Locale=$locale";
   }
 
-  String getContentFromCategories() {
+  String apiGetMobileCatalogObjectsData() {
     return "${getBaseApiUrl()}/MobileLMS/MobileCatalogObjectsData";
   }
 
@@ -211,14 +211,17 @@ class ApiEndpoints {
 
   String getAssociatedAddtoMyLearning() => '${getBaseApiUrl()}catalog/AssociatedAddtoMyLearning';
 
+  String getEnrollWaitListEvent() => '${getBaseApiUrl()}/MobileLMS/EnrollWaitListEvent';
+
+  String getExpiredContentAddToMyLearning() => '${getBaseApiUrl()}/Catalog/AddExpiredContentToMyLearning';
+
   String getAddToWishlist() => "${getBaseApiUrl()}/Catalog/AddToWishList";
 
   String getAddToWaitList() => "${getBaseApiUrl()}Catalog/EnrollWaitListEvent";
 
   String apiCreateUpdateUserComingSoonResponse() => "${getBaseApiUrl()}/ContentManagement/CreateUpdateUserComingSoonResponse";
 
-  String getRemovedFromWishlist({required int userId, required String contentId}) =>
-      "${getBaseApiUrl()}/WishList/DeleteItemFromWishList?ContentID=$contentId&instUserID=$userId";
+  String getRemovedFromWishlist({required int userId, required String contentId}) => "${getBaseApiUrl()}/WishList/DeleteItemFromWishList?ContentID=$contentId&instUserID=$userId";
 
   //endregion
 
@@ -250,14 +253,21 @@ class ApiEndpoints {
 
   String getEventSessionData() => '${getBaseApiUrl()}/EventTrackTabs/getEventSessionData';
 
+  String getDynamicTabs() => '${getBaseApiUrl()}/DynamicTab/GetDynamicTabs';
+
   //endregion
 
   // region Share Section
   String getMyConnectionsListForShareContentUrl() => '${getBaseApiUrl()}/AsktheExpert/GetMyconnectionListForShareContent';
+
   String getRecommendToContentUrl() => '${getBaseApiUrl()}/AsktheExpert/GetRecommendedUsersList';
+
   String getSendMailToPeopleUrl() => '${getBaseApiUrl()}/Generic/SendMailToPeople';
+
   String getInsertRecommendedContentUrl() => '${getBaseApiUrl()}/AsktheExpert/InsertRecommendContent';
+
   String getInsertRecommendedContentNotificationUrl() => '${getBaseApiUrl()}/AsktheExpert/InsertRecommendedContentNotifications';
+
   String getSendRecommendedUserMail() => '${getBaseApiUrl()}/AsktheExpert/SendReccommendUserMail';
   String getSendMailToUserUrl() => '${getBaseApiUrl()}/Generic/SendMailToUser';
 

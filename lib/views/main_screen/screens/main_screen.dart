@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
+import 'package:flutter_instancy_2/backend/event/event_provider.dart';
 import 'package:flutter_instancy_2/backend/home/home_provider.dart';
 import 'package:flutter_instancy_2/backend/instabot/instabot_controller.dart';
 import 'package:flutter_instancy_2/backend/instabot/instabot_provider.dart';
@@ -20,6 +21,7 @@ import 'package:flutter_instancy_2/models/app_configuration_models/data_models/n
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/catalog_categories_list_screen.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
+import 'package:flutter_instancy_2/views/event/screens/event_catalog_tab_screen.dart';
 import 'package:flutter_instancy_2/views/my_learning_plus/screens/my_learning_plus.dart';
 import 'package:provider/provider.dart';
 
@@ -411,8 +413,15 @@ class _MainScreenState extends State<MainScreen> {
           wikiProvider: context.read<WikiProvider>(),
         );
       }
-    } else if (model.componentid == InstancyComponents.Events) {
-      return const Text("Classroom Events");
+    } else if (model.componentid == InstancyComponents.CatalogEvents) {
+      if (isExpanded) {
+        return EventCatalogTabScreen(
+          componentId: model.componentid,
+          eventProvider: context.read<EventProvider>(),
+        );
+      } else {
+        return const Text("Event Catalog");
+      }
     } else if (model.componentid == InstancyComponents.MyLearningPlus) {
       return const MyLearningPlus();
     } else {

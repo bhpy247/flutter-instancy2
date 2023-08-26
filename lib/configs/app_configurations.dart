@@ -10,19 +10,18 @@ class AppConfigurations {
   static const String conditionSeparator2 = "=";
   String _eventDateTimeFormat = "";
 
-  static String getContentIconFromObjectAndMediaType({int objectTypeId = -1, int mediaTypeId = -1}){
+  static String getContentIconFromObjectAndMediaType({int objectTypeId = -1, int mediaTypeId = -1}) {
     String path = "assets/myLearning/test.png";
 
     //region Learning Module
-    if(objectTypeId == InstancyObjectTypes.contentObject) {
+    if (objectTypeId == InstancyObjectTypes.contentObject) {
       // // type = InstancyContentTypeEnum.Learning_Module;
 
       path = "assets/myLearning/learningModule.png";
-      if(mediaTypeId == 61) {
+      if (mediaTypeId == 61) {
         path = "assets/myLearning/microLearning.png";
         // // subType = InstancyContentSubTypeEnum.Microlearning;
-      }
-      else if(mediaTypeId == 62) {
+      } else if (mediaTypeId == 62) {
         path = "assets/myLearning/learningModule.png";
         // // subType = InstancyContentSubTypeEnum.Learning_Module;
       }
@@ -30,23 +29,21 @@ class AppConfigurations {
     //endregion
 
     //region Assessment
-    else if(objectTypeId == InstancyObjectTypes.assessment) {
+    else if (objectTypeId == InstancyObjectTypes.assessment) {
       // type = InstancyContentTypeEnum.Assessment;
       path = "";
-      if(mediaTypeId == 27) {
+      if (mediaTypeId == 27) {
         // subType = InstancyContentSubTypeEnum.Test;
         path = "assets/myLearning/test.png";
-      }
-      else if(mediaTypeId == 28) {
+      } else if (mediaTypeId == 28) {
         // subType = InstancyContentSubTypeEnum.Survey;
         path = "assets/myLearning/survey.png";
-
       }
     }
     //endregion
 
     //region Learning Track
-    else if(objectTypeId == 10) {
+    else if (objectTypeId == 10) {
       path = "assets/myLearning/learningPath.png";
 
       // type = InstancyContentTypeEnum.Learning_Track;
@@ -54,226 +51,176 @@ class AppConfigurations {
     //endregion
 
     //region Video And Audio
-    else if(objectTypeId == 11) {
+    else if (objectTypeId == 11) {
       // type = InstancyContentTypeEnum.Video_and_Audio;
 
-      if(mediaTypeId == 1) {
+      if (mediaTypeId == 1) {
         // subType = InstancyContentSubTypeEnum.Image;
         path = "assets/myLearning/image.png";
-
-      }
-      else if(mediaTypeId == 3) {
+      } else if (mediaTypeId == 3) {
         // subType = InstancyContentSubTypeEnum.Video;
         path = "assets/myLearning/video.png";
-
-      }
-      else if(mediaTypeId == 4) {
+      } else if (mediaTypeId == 4) {
         // subType = InstancyContentSubTypeEnum.Audio;
         path = "assets/myLearning/audio.png";
-
-      }
-      else if(mediaTypeId == 57) {
+      } else if (mediaTypeId == 57) {
         // subType = InstancyContentSubTypeEnum.Embeded_Audio;
         path = "assets/myLearning/audio.png";
-
-      }
-      else if(mediaTypeId == 58) {
+      } else if (mediaTypeId == 58) {
         // subType = InstancyContentSubTypeEnum.Embeded_Video;
         path = "assets/myLearning/video.png";
-
       }
     }
     //endregion
 
     //region Documents
-    else if(objectTypeId == 14) {
+    else if (objectTypeId == 14) {
       // type = InstancyContentTypeEnum.Documents;
 
-      if(mediaTypeId == 8) {
+      if (mediaTypeId == 8) {
         // subType = InstancyContentSubTypeEnum.Word;
         path = "assets/myLearning/document.png";
-      }
-      else if(mediaTypeId == 9) {
+      } else if (mediaTypeId == 9) {
         // subType = InstancyContentSubTypeEnum.PDF;
         path = "assets/myLearning/pdf.png";
-
-      }
-      else if(mediaTypeId == 10) {
+      } else if (mediaTypeId == 10) {
         // subType = InstancyContentSubTypeEnum.Excel;
         path = "assets/myLearning/excel.png";
-
-      }
-      else if(mediaTypeId == 17) {
+      } else if (mediaTypeId == 17) {
         // subType = InstancyContentSubTypeEnum.PPT;
         path = "assets/myLearning/ppt.png";
-
-      }
-      else if(mediaTypeId == 18) {
+      } else if (mediaTypeId == 18) {
         // subType = InstancyContentSubTypeEnum.MPP;
-      }
-      else if(mediaTypeId == 19) {
+      } else if (mediaTypeId == 19) {
         // subType = InstancyContentSubTypeEnum.Visio_Types;
       }
     }
     //endregion
     //region Glossary
-    else if(objectTypeId == 20) {
+    else if (objectTypeId == 20) {
       // type = InstancyContentTypeEnum.Glossary;
     }
     //endregion
     //region HTML Package
-    else if(objectTypeId == 21) {
+    else if (objectTypeId == 21) {
       // type = InstancyContentTypeEnum.HTML_Package;
 
-      if(mediaTypeId == 40) {
+      if (mediaTypeId == 40) {
         // subType = InstancyContentSubTypeEnum.HTML_Zip_File;
         path = "assets/myLearning/html.png";
-
-      }
-      else if(mediaTypeId == 41) {
+      } else if (mediaTypeId == 41) {
         // subType = InstancyContentSubTypeEnum.Single_HTML_File;
         path = "assets/myLearning/html.png";
-
       }
     }
     //endregion
 
     //region E-Learning Course
-    else if(objectTypeId == 26) {
+    else if (objectTypeId == 26) {
       // type = InstancyContentTypeEnum.E_Learning_Course;
 
-      if(mediaTypeId == 30) {
+      if (mediaTypeId == 30) {
         // subType = InstancyContentSubTypeEnum.SCORM_12;
-      }
-      else if(mediaTypeId == 31) {
+      } else if (mediaTypeId == 31) {
         // subType = InstancyContentSubTypeEnum.SCORM_2004;
       }
     }
     //endregion
 
     //region AICC
-    else if(objectTypeId == 27) {
+    else if (objectTypeId == 27) {
       // type = InstancyContentTypeEnum.AICC;
     }
     //endregion
 
     //region Reference
-    else if(objectTypeId == 28) {
+    else if (objectTypeId == 28) {
       // type = InstancyContentTypeEnum.Reference;
 
-      if(mediaTypeId == 5) {
+      if (mediaTypeId == 5) {
         // subType = InstancyContentSubTypeEnum.Online_Course;
-      }
-      else if(mediaTypeId == 6) {
+      } else if (mediaTypeId == 6) {
         // subType = InstancyContentSubTypeEnum.Classroom_Course;
-      }
-      else if(mediaTypeId == 7) {
+      } else if (mediaTypeId == 7) {
         // subType = InstancyContentSubTypeEnum.Virtual_Classroom;
-      }
-      else if(mediaTypeId == 13) {
+      } else if (mediaTypeId == 13) {
         // subType = InstancyContentSubTypeEnum.URL;
         path = "assets/myLearning/url.png";
-
-      }
-      else if(mediaTypeId == 14) {
+      } else if (mediaTypeId == 14) {
         // subType = InstancyContentSubTypeEnum.LiveMeeting;
-      }
-      else if(mediaTypeId == 15) {
+      } else if (mediaTypeId == 15) {
         // subType = InstancyContentSubTypeEnum.Recording;
-      }
-      else if(mediaTypeId == 20) {
+      } else if (mediaTypeId == 20) {
         // subType = InstancyContentSubTypeEnum.Book;
-      }
-      else if(mediaTypeId == 21) {
+      } else if (mediaTypeId == 21) {
         // subType = InstancyContentSubTypeEnum.Document;
         path = "assets/myLearning/document.png";
-
-      }
-      else if(mediaTypeId == 22) {
+      } else if (mediaTypeId == 22) {
         // subType = InstancyContentSubTypeEnum.Conference;
-      }
-      else if(mediaTypeId == 23) {
+      } else if (mediaTypeId == 23) {
         // subType = InstancyContentSubTypeEnum.Video;
         path = "assets/myLearning/video.png";
-
-      }
-      else if(mediaTypeId == 24) {
+      } else if (mediaTypeId == 24) {
         // subType = InstancyContentSubTypeEnum.Audio;
         path = "assets/myLearning/audio.png";
-
-      }
-      else if(mediaTypeId == 25) {
+      } else if (mediaTypeId == 25) {
         // subType = InstancyContentSubTypeEnum.Web_Link;
-      }
-      else if(mediaTypeId == 26) {
+      } else if (mediaTypeId == 26) {
         // subType = InstancyContentSubTypeEnum.Blended_Online_and_Classroom;
-      }
-      else if(mediaTypeId == 33) {
+      } else if (mediaTypeId == 33) {
         // subType = InstancyContentSubTypeEnum.Assessor_Service;
-      }
-      else if(mediaTypeId == 42) {
+      } else if (mediaTypeId == 42) {
         // subType = InstancyContentSubTypeEnum.Image;
         path = "assets/myLearning/image.png";
-
-      }
-      else if(mediaTypeId == 43) {
+      } else if (mediaTypeId == 43) {
         // subType = InstancyContentSubTypeEnum.Teaching_Slides;
-      }
-      else if(mediaTypeId == 44) {
+      } else if (mediaTypeId == 44) {
         // subType = InstancyContentSubTypeEnum.Animation;
-      }
-      else if(mediaTypeId == 52) {
+      } else if (mediaTypeId == 52) {
         // subType = InstancyContentSubTypeEnum.PsyTech_Assessment;
-      }
-      else if(mediaTypeId == 53) {
+      } else if (mediaTypeId == 53) {
         // subType = InstancyContentSubTypeEnum.DISC_Assessment;
-      }
-      else if(mediaTypeId == 54) {
+      } else if (mediaTypeId == 54) {
         // subType = InstancyContentSubTypeEnum.Coorpacademy;
       }
     }
     //endregion
 
     //region Webpage
-    else if(objectTypeId == 36) {
+    else if (objectTypeId == 36) {
       // type = InstancyContentTypeEnum.Webpage;
     }
     //endregion
 
     // region Certificate
-    else if(objectTypeId == 52) {
+    else if (objectTypeId == 52) {
       // type = InstancyContentTypeEnum.Certificate;
     }
     //endregion
 
     //region Events
-    else if(objectTypeId == 70) {
+    else if (objectTypeId == 70) {
       path = "assets/myLearning/online.png";
       // type = InstancyContentTypeEnum.Event;
 
-      if(mediaTypeId == 46) {
+      if (mediaTypeId == 46) {
         path = "assets/myLearning/classroom.png";
         // subType = InstancyContentSubTypeEnum.Classroom_IN_Person;
-      }
-      else if(mediaTypeId == 47) {
+      } else if (mediaTypeId == 47) {
         // subType = InstancyContentSubTypeEnum.Virtual_Class_Online;
-      }
-      else if(mediaTypeId == 48) {
+      } else if (mediaTypeId == 48) {
         path = "assets/myLearning/classroom.png";
 
         // subType = InstancyContentSubTypeEnum.Networking_In_Person;
-      }
-      else if(mediaTypeId == 49) {
+      } else if (mediaTypeId == 49) {
         path = "assets/myLearning/classroom.png";
 
         // subType = InstancyContentSubTypeEnum.Lab_In_Person;
-      }
-      else if(mediaTypeId == 50) {
+      } else if (mediaTypeId == 50) {
         path = "assets/myLearning/classroom.png";
 
         // subType = InstancyContentSubTypeEnum.Project_In_Person;
-      }
-      else if(mediaTypeId == 51) {
+      } else if (mediaTypeId == 51) {
         path = "assets/myLearning/classroom.png";
 
         // subType = InstancyContentSubTypeEnum.Field_Trip_In_Person;
@@ -282,26 +229,26 @@ class AppConfigurations {
     //endregion
 
     // region XApi
-    else if(objectTypeId == 102) {
+    else if (objectTypeId == 102) {
       // type = InstancyContentTypeEnum.xAPI;
     }
     //endregion
 
     // region cmi5
-    else if(objectTypeId == 693) {
+    else if (objectTypeId == 693) {
       // type = InstancyContentTypeEnum.cmi5;
     }
     //endregion
 
     // region Assignment
-    else if(objectTypeId == 694) {
+    else if (objectTypeId == 694) {
       // type = InstancyContentTypeEnum.Assignment;
     }
     //endregion
 
     return path;
 
-  /*  if(courseName.contains(CoursesName.video) ){
+    /*  if(courseName.contains(CoursesName.video) ){
       return "assets/myLearning/video.png";
     } else if(courseName == CoursesName.learningModule){
       return "assets/myLearning/learningModule.png";
@@ -338,8 +285,8 @@ class AppConfigurations {
     }*/
   }
 
-  static IconData getIconDataFromInstancyModelString(String iconString){
-    if(iconString == "" ){
+  static IconData getIconDataFromInstancyModelString(String iconString) {
+    if (iconString == "") {
       return FontAwesomeIcons.arrowUp;
     } else {
       return FontAwesomeIcons.arrowUp;
@@ -356,50 +303,58 @@ class AppConfigurations {
 
   //region Instancy icons
   Map<Enum, String> icons = {
-    InstancyIconType.shareWithConnection : "${FontAwesomeIcons.userGroup.codePoint}",
-    InstancyIconType.shareViaEmail : "${FontAwesomeIcons.envelope.codePoint}",
-    InstancyIconType.shareWithPeople : "0xf079",
-    InstancyIconType.pause : "${FontAwesomeIcons.pause.codePoint}",
-    InstancyIconType.archived : "0xf187",
+    InstancyIconType.shareWithConnection: "${FontAwesomeIcons.userGroup.codePoint}",
+    InstancyIconType.shareViaEmail: "${FontAwesomeIcons.envelope.codePoint}",
+    InstancyIconType.shareWithPeople: "0xf079",
+    InstancyIconType.pause: "${FontAwesomeIcons.pause.codePoint}",
+    InstancyIconType.archived: "0xf187",
   };
 
-  static IconData getIconDataFromString(String iconString){
-    if(iconString.isNotEmpty) {
-      if(iconString.contains("-")){
+  static IconData getIconDataFromString(String iconString) {
+    if (iconString.isNotEmpty) {
+      if (iconString.contains("-")) {
         return IconDataSolid(int.parse('0x${"f02d"}'));
       } else {
-        return IconDataSolid(int.parse(iconString),);
+        return IconDataSolid(
+          int.parse(iconString),
+        );
       }
-    } else{
+    } else {
       return IconDataSolid(int.parse('0x${"f02d"}'));
     }
   }
 
-  IconData getInstancyIconFromType(Enum iconType){
+  IconData getInstancyIconFromType(Enum iconType) {
     String icon = icons[iconType] ?? "";
     return getIconDataFromString(icon);
   }
+
   //endregion
 
   //region commonAppBar Method
-  AppBar commonAppBar({String title = "", List<Widget>? actions}){
+  AppBar commonAppBar({String title = "", List<Widget>? actions}) {
     return AppBar(
       title: Text(title),
       actions: actions,
       // backgroundColor: themeData.primaryColor,
     );
   }
+
   //endregion
 
-
-
   //region imageView
-  Widget getImageView({String url = "assets/addContentLogo.png", double height = 159, double width = 135}){
-    return Image.asset(url,height: height,width: width,);
+  Widget getImageView({String url = "assets/addContentLogo.png", double height = 159, double width = 135}) {
+    return Image.asset(
+      url,
+      height: height,
+      width: width,
+    );
   }
+
   //endregion
 
   String get eventDateTimeFormat => _eventDateTimeFormat;
+
   void setEventDateTimeFormat(String value) {
     _eventDateTimeFormat = value;
   }
@@ -407,26 +362,19 @@ class AppConfigurations {
   static Color getContentStatusColor({required String status}) {
     if (status.contains('Progress')) {
       return InstancyColors.orange;
-    }
-    else if (status.contains('Not Attended')) {
+    } else if (status.contains('Not Attended')) {
       return InstancyColors.red;
-    }
-    else if (status.toLowerCase().contains('failed')) {
+    } else if (status.toLowerCase().contains('failed')) {
       return InstancyColors.red;
-    }
-    else if (status.contains('Attended')) {
+    } else if (status.contains('Attended')) {
       return InstancyColors.green;
-    }
-    else if (status.contains('Registered')) {
+    } else if (status.contains('Registered')) {
       return InstancyColors.orange;
-    }
-    else if (status.contains('Completed')) {
+    } else if (status.contains('Completed')) {
       return InstancyColors.green;
-    }
-    else if (status.contains('Pending')) {
+    } else if (status.contains('Pending')) {
       return InstancyColors.blue;
-    }
-    else {
+    } else {
       return InstancyColors.grey;
     }
 
@@ -455,38 +403,40 @@ class AppConfigurations {
   static Color getContentStatusColorFromActualStatus({required String status}) {
     if ([ContentStatusTypes.failed, ContentStatusTypes.notattended].contains(status)) {
       return InstancyColors.red;
-    }
-    else if ([ContentStatusTypes.passed, ContentStatusTypes.attended, ContentStatusTypes.completed, ContentStatusTypes.registered].contains(status)) {
+    } else if ([ContentStatusTypes.passed, ContentStatusTypes.attended, ContentStatusTypes.completed, ContentStatusTypes.registered].contains(status)) {
       return InstancyColors.green;
-    }
-    else if ([ContentStatusTypes.grade].contains(status)) {
+    } else if ([ContentStatusTypes.grade].contains(status)) {
       return InstancyColors.purple;
-    }
-    else if ([ContentStatusTypes.incomplete].contains(status)) {
+    } else if ([ContentStatusTypes.incomplete].contains(status)) {
       return InstancyColors.orange;
-    }
-    else if ([ContentStatusTypes.notAttempted].contains(status)) {
+    } else if ([ContentStatusTypes.notAttempted].contains(status)) {
       return InstancyColors.blue;
-    }
-    else if ([ContentStatusTypes.passed, ContentStatusTypes.attended, ContentStatusTypes.completed, ContentStatusTypes.registered].contains(status)) {
+    } else if ([ContentStatusTypes.passed, ContentStatusTypes.attended, ContentStatusTypes.completed, ContentStatusTypes.registered].contains(status)) {
       return InstancyColors.green;
-    }
-    else {
+    } else {
       return InstancyColors.grey;
     }
   }
 
-  static Widget commonNoDataView({String url = "assets/noDataView.png", String bottomText = "Nothings here!", double height = 250, double width = 300}){
-    return Container(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(url,height: height,width: width,),
-          SizedBox(height: 38,)
-,          Text(bottomText, style: TextStyle(fontSize: 25,fontWeight: FontWeight.w600),)
-        ],
-      ),
+  static Widget commonNoDataView({String url = "assets/noDataView.png", String bottomText = "Nothings here!", double height = 250, double width = 300}) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Image.asset(
+          url,
+          height: height,
+          width: width,
+        ),
+        const SizedBox(height: 38),
+        Text(
+          bottomText,
+          style: const TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.w600,
+          ),
+        )
+      ],
     );
   }
 
@@ -499,4 +449,3 @@ class AppConfigurations {
     return "";
   }
 }
-
