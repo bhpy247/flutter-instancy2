@@ -29,6 +29,7 @@ import '../../views/filter/screens/global_search_screen.dart';
 import '../../views/filter/screens/sort_screen.dart';
 import '../../views/home/screens/home_screen_view.dart';
 import '../../views/instabot/instabot_screen2.dart';
+import '../../views/lens_feature/component/surface_tracking_keyword_search_screen.dart';
 import '../../views/my_learning/screens/mylearning_waitlist_screen.dart';
 import '../../views/my_learning/screens/qr_code_image_screen.dart';
 import '../../views/my_learning/screens/view_completion_certificate_screen.dart';
@@ -286,10 +287,15 @@ class NavigationController {
         }
       //endregion
 
-      //region Camera screen
+      //region Lens Feature Module
       case LensScreen.routeName:
         {
           page = parseLensScreen(settings: settings);
+          break;
+        }
+      case SurfaceTrackingKeywordSearchScreen.routeName:
+        {
+          page = parseSurfaceTrackingKeywordSearchScreen(settings: settings);
           break;
         }
       //endregion
@@ -648,9 +654,23 @@ class NavigationController {
     }
   }
 
-  //endregion
+  //endregion Lens Feature Module
   static Widget? parseLensScreen({required RouteSettings settings}) {
-    return const LensScreen();
+    dynamic argument = settings.arguments;
+    if (argument is! LensScreenNavigationArguments) {
+      return null;
+    }
+
+    return LensScreen(arguments: argument);
+  }
+
+  static Widget? parseSurfaceTrackingKeywordSearchScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! SurfaceTrackingKeywordSearchScreenNavigationArguments) {
+      return null;
+    }
+
+    return SurfaceTrackingKeywordSearchScreen(arguments: argument);
   }
 
   //region Camera
@@ -993,16 +1013,31 @@ class NavigationController {
   }
 
 //endregion
-//
-// region Learning Path Module
-  static Future<dynamic> navigateToLensScreen({required NavigationOperationParameters navigationOperationParameters}) {
+
+  // region Lens Module
+  static Future<dynamic> navigateToLensScreen({required NavigationOperationParameters navigationOperationParameters, required LensScreenNavigationArguments arguments}) {
     MyPrint.printOnConsole("navigateToLensScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: LensScreen.routeName,
+        arguments: arguments,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToSurfaceTrackingKeywordSearchScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required SurfaceTrackingKeywordSearchScreenNavigationArguments arguments,
+  }) {
+    MyPrint.printOnConsole("SurfaceTrackingKeywordSearchScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: SurfaceTrackingKeywordSearchScreen.routeName,
+        arguments: arguments,
       ),
     );
   }
 //endregion
+
 //endregion
 }

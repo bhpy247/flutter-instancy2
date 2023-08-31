@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/view/common/components/common_cached_network_image.dart';
@@ -5,11 +7,13 @@ import 'package:flutter_instancy_2/backend/message/message_controller.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/configs/typedefs.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/message/data_model/chat_message_model.dart';
 import '../../../models/message/data_model/chat_user_model.dart';
+import '../../../models/message/request_model/send_chat_message_request_model.dart';
 import '../../../utils/my_print.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_loader.dart';
@@ -35,14 +39,18 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
   List<ChatMessageModel> messages = [];
   ScrollController _scrollController = ScrollController();
   bool noMoreMessages = false;
-  var chatRoom = '';
+  String chatRoom = '';
+  int fromUserID = -1;
+  int toUserId = -1;
   Stream<MyFirestoreQuerySnapshot> _usersStream = FirebaseFirestore.instance.collection(AppConstants.kAppFlavour).snapshots();
+
+  bool isSendingMessage = false;
 
   late Size deviceData;
 
   _getFireStoreStreams() async {
-    int fromUserID = messageController.messageRepository.apiController.apiDataProvider.getCurrentUserId();
-    int toUserId = widget.toUser.UserID;
+    fromUserID = messageController.messageRepository.apiController.apiDataProvider.getCurrentUserId();
+    toUserId = widget.toUser.UserID;
 
     if (fromUserID > toUserId) {
       chatRoom = '$toUserId-$fromUserID';
@@ -61,6 +69,67 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
       // messagesBloc.add(MoreMessagesFetched(
       //     _scrollController.position.pixels, messages.length));
     }
+  }
+
+  Future<bool> onAttachmentPicked({required String messageType, required Uint8List fileBytes, String? fileName}) async {
+    MyPrint.printOnConsole('onAttachmentPicked called with messageType:$messageType');
+    MyPrint.printOnConsole("Length: ${fileBytes.length}  fileBytes:$fileName");
+
+    if (fileBytes.isEmpty || fileName.checkEmpty) {
+      return false;
+    }
+
+    isSendingMessage = true;
+    mySetState();
+
+    String response = await messageController.sendMessage(
+      context: context,
+      requestModel: SendChatMessageRequestModel(
+        FromUserID: 0,
+        ToUserID: widget.toUser.UserID,
+        chatRoomId: chatRoom,
+        MessageType: messageType,
+        SendDatetime: null,
+        MarkAsRead: true,
+        fileName: fileName,
+        fileBytes: fileBytes,
+      ),
+    );
+    MyPrint.printOnConsole("response:'$response'");
+
+    isSendingMessage = false;
+    mySetState();
+
+    return true;
+  }
+
+  Future<bool> onSendMessageTapped({required String message}) async {
+    MyPrint.printOnConsole('onSendMessageTapped called with message:$message');
+    if (message.isEmpty) {
+      return false;
+    }
+
+    isSendingMessage = true;
+    mySetState();
+
+    String response = await messageController.sendMessage(
+      context: context,
+      requestModel: SendChatMessageRequestModel(
+        FromUserID: 0,
+        ToUserID: widget.toUser.UserID,
+        chatRoomId: chatRoom,
+        Message: message,
+        MessageType: MessageType.Text,
+        SendDatetime: null,
+        MarkAsRead: true,
+      ),
+    );
+    MyPrint.printOnConsole("response:'$response'");
+
+    isSendingMessage = false;
+    mySetState();
+
+    return true;
   }
 
   @override
@@ -97,9 +166,9 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
           builder: (BuildContext context, AsyncSnapshot<MyFirestoreQuerySnapshot> snapshot) {
             if (snapshot.connectionState == ConnectionState.active) {
               messages = snapshot.data?.docs.map((i) {
-                    ChatMessageModel chatMessageModel = ChatMessageModel.fromJson(i.data());
-                    return chatMessageModel;
-                  }).toList() ??
+                ChatMessageModel chatMessageModel = ChatMessageModel.fromJson(i.data());
+                return chatMessageModel;
+              }).toList() ??
                   [];
 
               /*messages.sort((a, b) {
@@ -200,15 +269,9 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
       itemBuilder: (BuildContext context, int index) {
         ChatMessageModel message = messages[index];
         MyPrint.printOnConsole("Messagessssss : ${message.ProfPic}");
-        return MessageItemModel(
-          showFriendImage: true,
-          toUser: widget.toUser,
-          text: message.Message,
-          fileUrl: message.fileUrl,
-          fromUserId: message.FromUserID,
-          msgType: message.msgType,
-          date: message.SendDatetime ?? DateTime.now(),
-          context: context,
+        return MessageItemWidget(
+          message: message,
+          currentUserId: fromUserID,
         );
       },
     );
@@ -238,17 +301,19 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
                       controller: _textController,
                     ),
                   ),
-                  AttachmentIcon(messageController: messageController, controller: _textController, toUserId: widget.toUser.UserID.toString(), chatRoom: chatRoom),
+                  AttachmentIcon(
+                    isSendingMessage: isSendingMessage,
+                    onAttachmentPicked: onAttachmentPicked,
+                  ),
                 ],
               ),
             ),
           ),
           const SizedBox(width: 8),
           SendIcon(
-            messageController: messageController,
             controller: _textController,
-            toUserId: widget.toUser.UserID,
-            chatRoom: chatRoom,
+            isSendingMessage: isSendingMessage,
+            onSendMessageTapped: onSendMessageTapped,
           ),
         ],
       ),

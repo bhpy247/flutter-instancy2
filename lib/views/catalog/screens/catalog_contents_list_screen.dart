@@ -1085,6 +1085,10 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
             context: context,
             navigationType: NavigationType.pushNamed,
           ),
+          arguments: LensScreenNavigationArguments(
+            componentId: componentId,
+            componentInsId: componentInstanceId,
+          ),
         );
       },
       child: const Padding(

@@ -1,13 +1,14 @@
 import 'package:flutter_instancy_2/models/message/response_model/chat_users_list_response_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 
 import '../../api/api_call_model.dart';
 import '../../api/api_controller.dart';
 import '../../api/api_endpoints.dart';
 import '../../api/api_url_configuration_provider.dart';
 import '../../api/rest_client.dart';
+import '../../models/common/Instancy_multipart_file_upload_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/common/model_data_parser.dart';
-import '../../models/message/request_model/attachment_upload_request_model.dart';
 import '../../models/message/request_model/send_chat_message_request_model.dart';
 import '../../utils/my_print.dart';
 import '../../utils/my_utils.dart';
@@ -47,17 +48,19 @@ class MessageRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<String>> uploadMessageFileData({required AttachmentUploadRequestModel attachmentUploadRequestModel}) async {
+  Future<DataResponseModel<String>> uploadGenericFiles({required List<InstancyMultipartFileUploadModel> instancyMultipartFileUploadModels, String? filePath}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData(
-      restCallType: RestCallType.multipartRequestCall,
+      restCallType: RestCallType.saveGenericFilesCall,
       parsingType: ModelDataParsingType.string,
       url: apiEndpoints.genericFileUpload(),
-      fields: attachmentUploadRequestModel.toMap(),
-      files: attachmentUploadRequestModel.fileUploads,
+      files: instancyMultipartFileUploadModels,
+      fields: {
+        if (filePath.checkNotEmpty) 'FilePath': filePath!,
+      },
     );
 
     DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(

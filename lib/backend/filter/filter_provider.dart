@@ -230,7 +230,7 @@ class FilterProvider extends CommonProvider {
   }
   //endregion
 
-  void resetData() {
+  void resetData({bool isNotify = true}) {
     setEnabledContentFilterByTypeModelFromList(filterByList: [], isNotify: false);
     categories.setList(list: [], isNotify: false);
     skills.setList(list: [], isNotify: false);
@@ -259,6 +259,6 @@ class FilterProvider extends CommonProvider {
     selectedEventDateType.set(value: null, isNotify: false);
     selectedStartEventDateTime.set(value: null, isNotify: false);
     selectedEndEventDateTime.set(value: null, isNotify: false);
-    selectedSort.set(value: defaultSort.get(), isNotify: true);
+    selectedSort.set(value: defaultSort.get(), isNotify: isNotify);
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter_instancy_2/backend/lens_feature/lens_provider.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
@@ -423,5 +424,23 @@ class EventCatalogListScreenNavigationArguments extends NavigationArguments {
     this.isShowAppBar = true,
     required this.componentId,
     required this.componentInsId,
+  });
+}
+
+class LensScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+
+  const LensScreenNavigationArguments({
+    required this.componentId,
+    required this.componentInsId,
+  });
+}
+
+class SurfaceTrackingKeywordSearchScreenNavigationArguments extends NavigationArguments {
+  final LensProvider? lensProvider;
+
+  const SurfaceTrackingKeywordSearchScreenNavigationArguments({
+    required this.lensProvider,
   });
 }

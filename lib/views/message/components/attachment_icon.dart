@@ -1,96 +1,57 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_instancy_2/backend/message/message_controller.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
-import 'package:flutter_instancy_2/models/common/Instancy_multipart_file_upload_model.dart';
-import 'package:flutter_instancy_2/models/message/request_model/attachment_upload_request_model.dart';
-import 'package:flutter_instancy_2/views/common/components/instancy_ui_actions/bottomsheet_option_tile.dart';
+import 'package:flutter_instancy_2/views/message/components/message_attachment_upload_selection_bottomsheet.dart';
 
 import '../../../backend/app_theme/style.dart';
 import '../../../configs/app_constants.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_utils.dart';
-import '../../common/components/instancy_ui_actions/bottomsheet_drager.dart';
 
 class AttachmentIcon extends StatelessWidget {
-  final TextEditingController controller;
-  final MessageController messageController;
-  final String toUserId;
-  final String chatRoom;
+  final bool isSendingMessage;
+  final void Function({required String messageType, required Uint8List fileBytes, String? fileName})? onAttachmentPicked;
 
   const AttachmentIcon({
     Key? key,
-    required this.controller,
-    required this.messageController,
-    required this.toUserId,
-    required this.chatRoom,
+    this.isSendingMessage = false,
+    this.onAttachmentPicked,
   }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: InkResponse(
-        child: Icon(
-          Icons.attach_file_outlined,
-          color: Styles.lightTextColor2.withOpacity(0.5),
-          size: 20,
-        ),
-        onTap: () async {
-          showModalBottomSheet(
-            shape: AppConfigurations().bottomSheetShapeBorder(),
-            context: context,
-            builder: (BuildContext bc) {
-              return AppConfigurations().bottomSheetContainer(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: <Widget>[
-                      const BottomSheetDragger(),
-                      BottomSheetOptionTile(
-                          iconData: Icons.image,
-                          text: 'Image',
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            openFile(MessageType.Image);
-                          }),
-                      BottomSheetOptionTile(
-                          iconData: Icons.videocam_rounded,
-                          text: 'Video',
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            openFile(MessageType.Video);
-                          }),
-                      BottomSheetOptionTile(
-                          iconData: Icons.audiotrack_outlined,
-                          text: 'Audio',
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            openFile(MessageType.Audio);
-                          }),
-                      BottomSheetOptionTile(
-                          iconData: Icons.file_copy_rounded,
-                          text: 'Documents',
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            openFile(MessageType.Doc);
-                          })
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
+  Future<void> attachFile({required BuildContext context}) async {
+    if (isSendingMessage) return;
+
+    dynamic messageTypeValue = await showModalBottomSheet(
+      shape: AppConfigurations().bottomSheetShapeBorder(),
+      context: context,
+      builder: (BuildContext bc) {
+        return const MessageAttachmentUploadSelectionBottomSheet();
+      },
     );
+    MyPrint.printOnConsole("messageTypeValue:'$messageTypeValue'");
+
+    if (messageTypeValue is! String || !MessageType.values.contains(messageTypeValue)) {
+      MyPrint.printOnConsole("Returning from AttachmentIcon().attachFile() Because message type not valid");
+      return;
+    }
+
+    PlatformFile? platformFile = await pickFile(messageTypeValue);
+    Uint8List? bytes = platformFile?.bytes;
+    MyPrint.printOnConsole("bytes length:${bytes?.length}");
+
+    if (platformFile == null || bytes == null) {
+      MyPrint.printOnConsole("Returning from AttachmentIcon().attachFile() Because couldn't pick file or bytes are null");
+      return;
+    }
+
+    if (onAttachmentPicked != null) {
+      onAttachmentPicked!(messageType: messageTypeValue, fileBytes: bytes, fileName: platformFile.name);
+    }
   }
 
-  openFile(String msgType) async {
-    // if (_pickingType == FileType.custom) {
-    // }
+  Future<PlatformFile?> pickFile(String msgType) async {
     FileType pickingType = FileType.image;
 
     var extension = '';
@@ -114,36 +75,31 @@ class AttachmentIcon extends StatelessWidget {
       //   _pickingType = FileType.image;
     }
 
-    List<PlatformFile> files = await MyUtils.pickFiles(pickingType: pickingType, multiPick: false, extensions: extension);
-    if (files.isNotEmpty) {
-      PlatformFile platformFile = files.first;
-      File file = File(platformFile.path!);
-      Uint8List bytes = file.readAsBytesSync();
-      MyPrint.printOnConsole("bytesbytes : ${platformFile.bytes}");
-      uploadFile(msgType, platformFile.name, bytes);
-    }
+    List<PlatformFile> files = await MyUtils.pickFiles(
+      pickingType: pickingType,
+      multiPick: false,
+      extensions: extension,
+      getBytes: true,
+    );
+    MyPrint.printOnConsole("files length:${files.length}");
+
+    return files.firstOrNull;
   }
 
-  Future uploadFile(String msgType, String fileName, Uint8List? fileBytes) async {
-    MyPrint.printOnConsole("Length: ${fileBytes?.length}  fileBytes: $fileName");
-    if ((fileBytes?.isEmpty ?? true) || fileName.isEmpty) {
-      return;
-    }
-
-    InstancyMultipartFileUploadModel instancyMultipartFileUploadModel = InstancyMultipartFileUploadModel(
-      fieldName: "File",
-      fileName: fileName,
-      bytes: fileBytes,
-    );
-
-    AttachmentUploadRequestModel attachmentUploadRequestModel = AttachmentUploadRequestModel(
-      toUserId: toUserId,
-      chatRoom: chatRoom,
-      fileUploads: [instancyMultipartFileUploadModel],
-    );
-
-    messageController.attachmentUpload(
-      attachmentUploadRequestModel: attachmentUploadRequestModel,
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      child: InkResponse(
+        onTap: () async {
+          attachFile(context: context);
+        },
+        child: Icon(
+          Icons.attach_file_outlined,
+          color: Styles.lightTextColor2.withOpacity(0.5),
+          size: 20,
+        ),
+      ),
     );
   }
 }

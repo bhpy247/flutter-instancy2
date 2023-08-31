@@ -1,52 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart' as flutter_inappwebview;
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:intl/intl.dart';
-import 'package:video_player/video_player.dart';
 
-// import '../../../backend/app_theme/style.dart';
 import '../../../backend/app_theme/style.dart';
 import '../../../configs/app_constants.dart';
-import '../../../models/message/data_model/chat_user_model.dart';
+import '../../../models/message/data_model/chat_message_model.dart';
 import '../../../utils/my_print.dart';
 
-class MessageItemModel extends StatefulWidget {
-  final bool showFriendImage;
-  final ChatUserModel toUser;
-  final int fromUserId;
-  final DateTime date;
+class MessageItemWidget extends StatefulWidget {
+  final ChatMessageModel message;
+  final int currentUserId;
 
-  final String text;
-  final String fileUrl;
-  final String msgType;
-  final BuildContext context;
-
-  const MessageItemModel({
+  const MessageItemWidget({
     Key? key,
-    required this.showFriendImage,
-    required this.toUser,
-    required this.fromUserId,
-    this.text = "",
-    this.fileUrl = "",
-    this.msgType = MessageType.Text,
-    required this.context,
-    required this.date,
+    required this.message,
+    required this.currentUserId,
   }) : super(key: key);
 
   @override
-  State<MessageItemModel> createState() => _MessageItemModelState();
+  State<MessageItemWidget> createState() => _MessageItemWidgetState();
 }
 
-class _MessageItemModelState extends State<MessageItemModel> {
+class _MessageItemWidgetState extends State<MessageItemWidget> {
   late ThemeData themeData;
 
-  // late Size deviceData;
+  late ChatMessageModel message;
+
+  @override
+  void initState() {
+    super.initState();
+    MyPrint.printOnConsole("MessageItemWidget init called");
+    message = widget.message;
+  }
+
+  @override
+  void didUpdateWidget(covariant MessageItemWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    message = widget.message;
+  }
 
   @override
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
     // deviceData = MediaQuery.of(context).size;
-    MyPrint.printOnConsole("fromUserId:${widget.fromUserId}, toUser.userID:${widget.toUser.UserID}");
-    bool isMessageReceived = widget.fromUserId == widget.toUser.UserID;
+    MyPrint.printOnConsole("fromUserId:${message.FromUserID}, toUser.userID:${message.ToUserID}");
+    bool isMessageReceived = message.ToUserID == widget.currentUserId;
 
     Color messageColor = Styles.chatTextBackgroundColor;
     if (!isMessageReceived) {
@@ -104,16 +104,18 @@ class _MessageItemModelState extends State<MessageItemModel> {
                   //             "0xFF${appBloc.uiSettingModel.appBGColor.substring(1, 7).toUpperCase()}")),
                   //   ),
                   // ),
-                  messageWidget(widget.msgType, isMessageReceived),
+                  messageWidget(message.msgType, isMessageReceived),
                   const SizedBox(height: 4),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        DateFormat.jm().format(widget.date),
-                        style: TextStyle(fontSize: 10, color: isMessageReceived ? Styles.lightTextColor2 : Colors.white),
-                      ),
+                      if (message.SendDatetime != null)
+                        Text(
+                          DateFormat.jm().format(message.SendDatetime!),
+                          style: TextStyle(fontSize: 10, color: isMessageReceived ? Styles.lightTextColor2 : Colors.white),
+                        ),
                       if (!isMessageReceived)
                         const Padding(
                           padding: EdgeInsets.only(left: 5),
@@ -144,90 +146,83 @@ class _MessageItemModelState extends State<MessageItemModel> {
   // Widget getUserProfile(){
   Widget messageWidget(String type, bool isMessageReceived) {
     MyPrint.printOnConsole("type:'$type'");
-    MyPrint.printOnConsole("widget.text:'${widget.text}'");
+    MyPrint.printOnConsole("text:'${message.Message}'");
+    MyPrint.printOnConsole("fileUrl:'${message.fileUrl}'");
 
     switch (type) {
       case MessageType.Text:
         return Container(
           margin: const EdgeInsets.only(top: 5.0),
           child: Text(
-            widget.text,
-            style: TextStyle(color: isMessageReceived ? Colors.black : Colors.white, fontSize: isMessageReceived ? 15 : 15),
+            message.Message,
+            style: TextStyle(
+              color: isMessageReceived ? null : themeData.colorScheme.onPrimary,
+              fontSize: isMessageReceived ? 15 : 15,
+            ),
           ),
         );
       case MessageType.Image:
         return InkWell(
           onTap: () {
-            Navigator.of(widget.context).push(MaterialPageRoute(builder: (context) => FileViewer(fileUrl: widget.fileUrl)));
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => FileViewer(fileUrl: message.fileUrl)));
           },
           child: Container(
-            width: 150,
-            height: 150,
+            width: 250,
             padding: const EdgeInsets.only(bottom: 8),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(5),
-              child: Image.network(
-                widget.fileUrl,
-                fit: BoxFit.cover,
+              child: CommonCachedNetworkImage(
+                imageUrl: message.fileUrl,
+                // fit: BoxFit.cover,
               ),
             ),
           ),
         );
       case MessageType.Doc:
-        return InkWell(
-          onTap: () async {
-            Navigator.of(widget.context).push(MaterialPageRoute(builder: (context) => FileViewer(fileUrl: widget.fileUrl)));
-            //PDFDocument doc = await PDFDocument.fromURL(fileUrl);
+        return SizedBox(
+          //margin: const EdgeInsets.only(top: 5.0),
+          child: InkWell(
+            onTap: () {
+              // Navigator.of(context).push(MaterialPageRoute(builder: (context) => FileViewer(fileUrl: message.fileUrl)));
 
-            // final result = await Navigator.push(
-            //   context,
-            //   // Create the SelectionScreen in the next step.
-            //   MaterialPageRoute(
-            //       builder: (context) => Scaffold(
-            //             appBar: AppBar(
-            //               title: Text('Example'),
-            //             ),
-            //             body: Center(child: PDFViewer(document: doc)),
-            //           )),
-            // );
-            //PDFViewer(document: doc);
-          },
-          child: SizedBox(
-            width: 150,
-            height: 150,
-            //padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-            child: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: AbsorbPointer(child: InAppWebView(initialUrlRequest: URLRequest(url: WebUri(widget.fileUrl)))),
+              NavigationController.navigateToPDFLaunchScreen(
+                navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+                arguments: PDFLaunchScreenNavigationArguments(
+                  pdfUrl: message.fileUrl,
+                  isNetworkPDF: true,
                 ),
-                const Center(
-                  child: Icon(Icons.picture_as_pdf_sharp),
-                )
-              ],
+              );
+            },
+            child: SizedBox(
+              width: 150,
+              height: 40,
+              //padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+              child: Center(
+                child: Icon(
+                  Icons.picture_as_pdf,
+                  color: isMessageReceived ? null : themeData.colorScheme.onPrimary,
+                ),
+              ),
             ),
           ),
         );
       case MessageType.Video:
-        Uri? uri = Uri.tryParse(widget.fileUrl);
-
-        if (uri == null) return const SizedBox();
-        final videoPlayerController = VideoPlayerController.networkUrl(uri);
-
-        videoPlayerController.initialize();
-
-        return InkWell(
-          onTap: () {
-            Navigator.of(widget.context).push(MaterialPageRoute(builder: (context) => FileViewer(fileUrl: widget.fileUrl)));
-          },
-          child: SizedBox(
-            width: 150,
-            height: 150,
-            //padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(5),
-              child: VideoPlayer(videoPlayerController),
+        return SizedBox(
+          //margin: const EdgeInsets.only(top: 5.0),
+          child: InkWell(
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => FileViewer(fileUrl: message.fileUrl)));
+            },
+            child: SizedBox(
+              width: 150,
+              height: 40,
+              //padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+              child: Center(
+                child: Icon(
+                  Icons.video_library,
+                  color: isMessageReceived ? null : themeData.colorScheme.onPrimary,
+                ),
+              ),
             ),
           ),
         );
@@ -236,14 +231,17 @@ class _MessageItemModelState extends State<MessageItemModel> {
           //margin: const EdgeInsets.only(top: 5.0),
           child: InkWell(
             onTap: () {
-              Navigator.of(widget.context).push(MaterialPageRoute(builder: (context) => FileViewer(fileUrl: widget.fileUrl)));
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => FileViewer(fileUrl: message.fileUrl)));
             },
-            child: const SizedBox(
+            child: SizedBox(
               width: 150,
               height: 40,
               //padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
               child: Center(
-                child: Icon(Icons.my_library_music),
+                child: Icon(
+                  Icons.my_library_music,
+                  color: isMessageReceived ? null : themeData.colorScheme.onPrimary,
+                ),
               ),
             ),
           ),
@@ -264,6 +262,8 @@ class FileViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    MyPrint.printOnConsole("FileViewer build called with fileUrl:$fileUrl");
+
     return Scaffold(
       appBar: AppBar(
           //title: Text(Uri.parse(fileUrl).path),
@@ -271,9 +271,10 @@ class FileViewer extends StatelessWidget {
       body: Column(
         children: [
           Expanded(
-              child: InAppWebView(
-            initialUrlRequest: URLRequest(url: WebUri(fileUrl)),
-          )),
+            child: flutter_inappwebview.InAppWebView(
+              initialUrlRequest: flutter_inappwebview.URLRequest(url: flutter_inappwebview.WebUri(fileUrl)),
+            ),
+          ),
         ],
       ),
     );

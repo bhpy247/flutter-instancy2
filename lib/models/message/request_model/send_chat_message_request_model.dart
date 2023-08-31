@@ -8,6 +8,7 @@ class SendChatMessageRequestModel {
   int ToUserID = 0;
   String Message = "";
   String chatRoomId = "";
+  String MessageType = "";
   DateTime? SendDatetime;
   bool MarkAsRead = false;
   String? fileName;
@@ -16,9 +17,10 @@ class SendChatMessageRequestModel {
   SendChatMessageRequestModel({
     required this.FromUserID,
     required this.ToUserID,
-    required this.Message,
     required this.chatRoomId,
+    required this.MessageType,
     required this.SendDatetime,
+    this.Message = "",
     this.MarkAsRead = false,
     this.fileName,
     this.fileBytes,
@@ -28,6 +30,7 @@ class SendChatMessageRequestModel {
     return {
       "FromUserID": FromUserID.toString(),
       "ToUserID": ToUserID.toString(),
+      "MessageType": MessageType,
       "Message": Message,
       "SendDatetime": DatePresentation.getFormattedDate(dateFormat: "yyyy-MM-dd HH:mm:ss aa", dateTime: SendDatetime) ?? "",
       "MarkAsRead": MarkAsRead.toString(),

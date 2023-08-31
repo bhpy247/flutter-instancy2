@@ -1,8 +1,4 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_bot/utils/extensions.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_repository.dart';
@@ -19,8 +15,6 @@ import 'package:flutter_instancy_2/models/dto/response_dto_model.dart';
 import 'package:flutter_instancy_2/models/filter/data_model/filter_duration_value_model.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
-import 'package:googleapis/vision/v1.dart' as vision_api;
-import 'package:googleapis_auth/auth_io.dart';
 
 import '../../api/api_controller.dart';
 import '../../configs/app_configurations.dart';
@@ -935,42 +929,4 @@ class CatalogController {
 
     return response.statusCode == 200;
   }
-
-  Future<List<vision_api.LocalizedObjectAnnotation>?> detectImage(Uint8List bytes) async {
-    String tag = MyUtils.getNewId(isFromUUuid: true);
-    MyPrint.printOnConsole("ImageDetectionScreen().detectImage() called with bytes", tag: tag);
-
-    MyPrint.printOnConsole("bytes length:${bytes.length}", tag: tag);
-
-    try {
-      String encodedImage = base64Encode(bytes);
-
-      // vision_api.VisionApi visionApi = vision_api.VisionApi(clientViaApiKey("AIzaSyDIGUE_xngxAGG4i22_RxWiNDQh7ZhtnxA"));
-      vision_api.VisionApi visionApi = vision_api.VisionApi(clientViaApiKey("AIzaSyDc6RyyMBZFNev6KlFQp6KuFWRy8yuw-PU"));
-      vision_api.BatchAnnotateImagesResponse response = await visionApi.images.annotate(vision_api.BatchAnnotateImagesRequest(
-        requests: [
-          vision_api.AnnotateImageRequest(
-            image: vision_api.Image(content: encodedImage),
-            features: [
-              vision_api.Feature(
-                maxResults: 10,
-                type: "OBJECT_LOCALIZATION",
-              ),
-            ],
-          ),
-        ],
-      ));
-      MyPrint.logOnConsole("response:${MyUtils.encodeJson(response.toJson())}", tag: tag);
-
-      List<vision_api.LocalizedObjectAnnotation>? localizedObjectAnnotations = response.responses?.firstElement?.localizedObjectAnnotations;
-      MyPrint.printOnConsole("localizedObjectAnnotations:$localizedObjectAnnotations", tag: tag);
-
-      return localizedObjectAnnotations;
-    } catch (e, s) {
-      MyPrint.printOnConsole("Error in DataController.detectImage():$e", tag: tag);
-      MyPrint.printOnConsole(s, tag: tag);
-      return null;
-    }
-  }
-
 }

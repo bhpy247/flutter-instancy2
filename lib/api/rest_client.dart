@@ -18,15 +18,17 @@ enum RestCallType {
   simpleGetCall,
   simplePostCall,
   multipartRequestCall,
+  saveGenericFilesCall,
   xxxUrlEncodedFormDataRequestCall,
 }
 
 class RestClient {
   static Map<RestCallType, RestCallTypeDef> callsMap = <RestCallType, RestCallTypeDef>{
-    RestCallType.simpleGetCall : getCall,
-    RestCallType.simplePostCall : postCall,
-    RestCallType.multipartRequestCall : multipartRequestCall,
-    RestCallType.xxxUrlEncodedFormDataRequestCall : xxxUrlEncodedFormDataRequestCall,
+    RestCallType.simpleGetCall: getCall,
+    RestCallType.simplePostCall: postCall,
+    RestCallType.multipartRequestCall: multipartRequestCall,
+    RestCallType.saveGenericFilesCall: saveGenericFilesCall,
+    RestCallType.xxxUrlEncodedFormDataRequestCall: xxxUrlEncodedFormDataRequestCall,
   };
 
   static Future<Response?> callApi({required ApiCallModel apiCallModel}) async {
@@ -157,18 +159,17 @@ class RestClient {
       List<MultipartFile> files = <MultipartFile>[];
       for(InstancyMultipartFileUploadModel instancyMultipartFileUploadModel in (apiCallModel.files ?? <InstancyMultipartFileUploadModel>[])) {
         if(instancyMultipartFileUploadModel.fieldName.isNotEmpty) {
-          if(instancyMultipartFileUploadModel.bytes != null && instancyMultipartFileUploadModel.fileName.isNotEmpty) {
+          if (instancyMultipartFileUploadModel.bytes != null) {
             files.add(MultipartFile.fromBytes(
               instancyMultipartFileUploadModel.fieldName,
               instancyMultipartFileUploadModel.bytes!,
               filename: instancyMultipartFileUploadModel.fileName,
             ));
-          }
-          else if(instancyMultipartFileUploadModel.filePath.isNotEmpty) {
+          } else if (instancyMultipartFileUploadModel.filePath.checkNotEmpty) {
             files.add(await MultipartFile.fromPath(
               instancyMultipartFileUploadModel.fieldName,
-              instancyMultipartFileUploadModel.filePath,
-              filename: instancyMultipartFileUploadModel.fileName.isEmpty ? null : instancyMultipartFileUploadModel.fileName,
+              instancyMultipartFileUploadModel.filePath!,
+              filename: instancyMultipartFileUploadModel.fileName,
             ));
           }
         }
@@ -191,9 +192,80 @@ class RestClient {
       MyPrint.logOnConsole("Response Body:${response.body}", tag: newId);
 
       return response;
-    }
-    catch (e, s) {
+    } catch (e, s) {
       MyPrint.printOnConsole("Error in Getting Response in RestClient.multipartRequestCall():$e", tag: newId);
+      MyPrint.printOnConsole(s, tag: newId);
+      return null;
+    }
+  }
+
+  static Future<Response?> saveGenericFilesCall({required ApiCallModel apiCallModel}) async {
+    String newId = MyUtils.getNewId(isFromUUuid: true);
+
+    Map<String, String> headers = _getRequiredHeadersFromApiCallModel(apiCallModel: apiCallModel);
+    headers.remove(HttpHeaders.contentTypeHeader);
+
+    try {
+      String url = _getFinalApiUrl(url: apiCallModel.url, queryParameters: apiCallModel.queryParameters);
+
+      MyPrint.printOnConsole("saveGenericFilesCall called", tag: newId);
+      MyPrint.printOnConsole("Url:'$url'", tag: newId);
+      MyPrint.printOnConsole("Headers:$headers", tag: newId);
+      MyPrint.printOnConsole("RequestBody:${apiCallModel.requestBody}", tag: newId);
+      MyPrint.printOnConsole("fields:${apiCallModel.fields}", tag: newId);
+      MyPrint.printOnConsole("files:${apiCallModel.files}", tag: newId);
+
+      MyPrint.logOnConsole(
+          "Curl Request:${CurlGenerator.toCurlFromRawRequest(
+            method: "POST",
+            url: url,
+            headers: Map.from(headers)..addAll({HttpHeaders.contentTypeHeader: "multipart/form-data"}),
+            body: MyUtils.encodeJson(apiCallModel.fields),
+          )}",
+          tag: newId);
+
+      MultipartRequest request = MultipartRequest("POST", Uri.parse(url));
+
+      request.fields.addAll(apiCallModel.fields ?? <String, String>{});
+
+      List<MultipartFile> files = <MultipartFile>[];
+      for (InstancyMultipartFileUploadModel instancyMultipartFileUploadModel in (apiCallModel.files ?? <InstancyMultipartFileUploadModel>[])) {
+        if (instancyMultipartFileUploadModel.fieldName.isNotEmpty) {
+          if (instancyMultipartFileUploadModel.bytes != null) {
+            files.add(MultipartFile.fromBytes(
+              instancyMultipartFileUploadModel.fieldName,
+              instancyMultipartFileUploadModel.bytes!,
+              filename: instancyMultipartFileUploadModel.fileName,
+            ));
+          } else if (instancyMultipartFileUploadModel.filePath.checkNotEmpty) {
+            files.add(await MultipartFile.fromPath(
+              instancyMultipartFileUploadModel.fieldName,
+              instancyMultipartFileUploadModel.filePath!,
+              filename: instancyMultipartFileUploadModel.fileName,
+            ));
+          }
+        }
+      }
+      request.files.addAll(files);
+
+      request.headers.addAll(headers);
+
+      DateTime startTime = DateTime.now();
+      MyPrint.printOnConsole("Api startTime:${DatePresentation.fullDateTimeFormat(startTime)} Seconds", tag: newId);
+
+      StreamedResponse streamedResponse = await request.send();
+      Response response = await Response.fromStream(streamedResponse);
+
+      DateTime endTime = DateTime.now();
+      MyPrint.printOnConsole("Api endTime:${DatePresentation.fullDateTimeFormat(endTime)}", tag: newId);
+
+      MyPrint.printOnConsole("Response Time:${endTime.difference(startTime).inMilliseconds / 1000} Seconds", tag: newId);
+      MyPrint.printOnConsole("Response Status:${response.statusCode}", tag: newId);
+      MyPrint.logOnConsole("Response Body:${response.body}", tag: newId);
+
+      return response;
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in Getting Response in RestClient.saveGenericFilesCall():$e", tag: newId);
       MyPrint.printOnConsole(s, tag: newId);
       return null;
     }

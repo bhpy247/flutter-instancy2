@@ -34,6 +34,10 @@ class LocaleType {
   static const String hindi = "hi";
 }
 
+class GCPCredentials {
+  static const String apiKey = "AIzaSyDIGUE_xngxAGG4i22_RxWiNDQh7ZhtnxA";
+}
+
 class ProfileGroupType {
   static const int personalInfo = 1;
   static const int contactInfo = 2;
@@ -204,6 +208,8 @@ class InstancyObjectTypes {
   static const int physicalProduct = 689;
   static const int cmi5 = 693;
   static const int assignment = 694;
+  static const int arModule = 695;
+  static const int vrModule = 696;
   static const int courseBot = 697;
 }
 
@@ -270,6 +276,8 @@ class InstancyMediaTypes {
   static const int comingSoon = 63;
   static const int contactUs = 64;
   static const int assessment24x7 = 65;
+  static const int threeDObject = 66;
+  static const int threeDAvatar = 67;
 }
 
 /*
@@ -659,4 +667,25 @@ class MessageType {
   static const String Audio = "Audio";
   static const String Video = "Video";
   static const String Doc = "Doc";
+
+  static List<String> get values => [
+        MessageType.Text,
+        MessageType.Image,
+        MessageType.Audio,
+        MessageType.Video,
+        MessageType.Doc,
+      ];
+}
+
+class ContentTypeCategoryId {
+  static const String image = "M1";
+  static const String video = "M1";
+  static const String arObject = "M66";
+  static const String arModule = "695";
+  static const String vrModule = "696";
+}
+
+class ARVRContentLaunchTypes {
+  static const String launchInAR = "launchInAR";
+  static const String launchInVR = "launchInVR";
 }

@@ -1,12 +1,17 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/utils/mmy_toast.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
 import 'package:flutter_instancy_2/backend/message/message_repository.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/configs/typedefs.dart';
+import 'package:flutter_instancy_2/models/common/Instancy_multipart_file_upload_model.dart';
 import 'package:flutter_instancy_2/models/message/data_model/chat_message_model.dart';
-import 'package:flutter_instancy_2/models/message/request_model/attachment_upload_request_model.dart';
 import 'package:flutter_instancy_2/models/message/request_model/send_chat_message_request_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 
 import '../../api/api_url_configuration_provider.dart';
 import '../../models/common/app_error_model.dart';
@@ -89,31 +94,20 @@ class MessageController {
     return provider.chatUsersList.getList();
   }
 
-  Future<DataResponseModel<String>> attachmentUpload({required AttachmentUploadRequestModel attachmentUploadRequestModel}) async {
+  Future<DataResponseModel<String>> attachmentUpload({required Uint8List bytes, String? fileName}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("MessageController().attachmentUpload() called", tag: tag);
 
-    ApiUrlConfigurationProvider apiUrlConfigurationProvider = messageRepository.apiController.apiDataProvider;
-    attachmentUploadRequestModel.userID = apiUrlConfigurationProvider.getCurrentUserId();
-    attachmentUploadRequestModel.siteID = apiUrlConfigurationProvider.getCurrentSiteId();
-    attachmentUploadRequestModel.locale = apiUrlConfigurationProvider.getLocale();
-    if ((attachmentUploadRequestModel.fileUploads ?? []).isNotEmpty) {
-      attachmentUploadRequestModel.fileUploads!.forEach((element) async {
-        String newFileUrl = '${apiUrlConfigurationProvider.getMainSiteUrl()}${AppConstants.fileServerLocation}${element.fileName}';
-
-        MyFirestoreCollectionReference fireStore = FirebaseFirestore.instance.collection(AppConstants.kAppFlavour).doc('messages').collection(attachmentUploadRequestModel.chatRoom);
-
-        await fireStore.add({
-          'fromUserId': apiUrlConfigurationProvider.getCurrentUserId(),
-          'toUserId': attachmentUploadRequestModel.toUserId,
-          'date': DateTime.now().toIso8601String().toString(),
-          'text': '',
-          'fileUrl': newFileUrl,
-          'msgType': attachmentUploadRequestModel.msgType.toString().split('.').last,
-        });
-      });
-    }
-    DataResponseModel<String> response = await messageRepository.uploadMessageFileData(attachmentUploadRequestModel: attachmentUploadRequestModel);
+    DataResponseModel<String> response = await messageRepository.uploadGenericFiles(
+      instancyMultipartFileUploadModels: [
+        InstancyMultipartFileUploadModel(
+          fieldName: "File",
+          fileName: fileName,
+          bytes: bytes,
+        ),
+      ],
+      filePath: AppConstants.fileServerLocation,
+    );
     MyPrint.printOnConsole("attachmentUpload Response:${response.data}", tag: tag);
     MyPrint.printOnConsole("attachmentUpload Response Type:${response.data?.runtimeType}", tag: tag);
 
@@ -135,7 +129,7 @@ class MessageController {
     return newResponse;
   }
 
-  Future<String> sendMessage({required SendChatMessageRequestModel requestModel}) async {
+  Future<String> sendMessage({required BuildContext context, required SendChatMessageRequestModel requestModel}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("MessageController().sendMessage() called with requestModel:'$requestModel'", tag: tag);
 
@@ -143,19 +137,47 @@ class MessageController {
 
     MyFirestoreCollectionReference chatroomCollection = FirebaseFirestore.instance.collection(AppConstants.kAppFlavour).doc('messages').collection(requestModel.chatRoomId);
 
+    String fileUrl = "";
+    if (requestModel.fileBytes.checkNotEmpty && requestModel.fileName.checkNotEmpty) {
+      MyPrint.printOnConsole("Having a file to upload named:${requestModel.fileName}", tag: tag);
+
+      DataResponseModel<String> uploadResponseModel = await attachmentUpload(bytes: requestModel.fileBytes!, fileName: requestModel.fileName);
+      if (uploadResponseModel.appErrorModel != null) {
+        AppErrorModel appErrorModel = uploadResponseModel.appErrorModel!;
+
+        MyPrint.printOnConsole("Error in Uploading File:${appErrorModel.message}", tag: tag);
+        MyPrint.printOnConsole("Exception:${appErrorModel.exception}", tag: tag);
+        MyPrint.printOnConsole("StackTrace:${appErrorModel.stackTrace}", tag: tag);
+
+        if (appErrorModel.message.isNotEmpty && context.mounted) {
+          MyToast.showError(context: context, msg: appErrorModel.message);
+        }
+
+        MyPrint.printOnConsole("Returning from MessageController().sendMessage() Because couldn't upload attachment", tag: tag);
+        return "";
+      }
+
+      fileUrl = "${messageRepository.apiController.apiDataProvider.getCurrentSiteLearnerUrl()}${AppConstants.fileServerLocation}${requestModel.fileName}";
+      MyPrint.printOnConsole("fileUrl:$fileUrl", tag: tag);
+    }
+
     requestModel.SendDatetime ??= DateTime.now();
 
     ChatMessageModel chatMessageModel = ChatMessageModel(
       Message: requestModel.Message,
-      msgType: MessageType.Text,
+      msgType: requestModel.MessageType,
       FromUserID: apiUrlConfigurationProvider.getCurrentUserId(),
       ToUserID: requestModel.ToUserID,
       SendDatetime: requestModel.SendDatetime,
       MarkAsRead: requestModel.MarkAsRead,
+      fileUrl: fileUrl,
     );
 
     chatroomCollection.add(chatMessageModel.toJson(toJson: false)).then((MyFirestoreDocumentReference documentReference) {
-      MyPrint.printOnConsole("documentReference.id:${documentReference.id}");
+      MyPrint.printOnConsole("documentReference.id:${documentReference.id}", tag: tag);
+    }).catchError((e, s) {
+      MyPrint.printOnConsole("Error in Updating Message in Chatroom Collection:$e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
     });
 
     //region Make Api Call
@@ -165,7 +187,7 @@ class MessageController {
       isFromOffline: false,
     );
 
-    MyPrint.printOnConsole("response.data: ${response.data}");
+    MyPrint.printOnConsole("response.data: ${response.data}", tag: tag);
     //endregion
 
     return "";

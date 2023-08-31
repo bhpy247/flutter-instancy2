@@ -1,18 +1,21 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/utils/my_print.dart';
 
-import '../../../models/course/data_model/CourseDTOModel.dart';
+import '../../../models/course/data_model/mobile_lms_course_model.dart';
 import '../../common/components/instancy_ui_actions/bottomsheet_drager.dart';
-import 'course_component.dart';
+import 'lens_screen_content_card.dart';
 
 class LensCoursesBottomsheetWidget extends StatefulWidget {
-  final List<String> labels;
+  final List<MobileLmsCourseModel> contents;
+  final bool isLoadingContents;
   final DraggableScrollableController? scrollController;
 
   const LensCoursesBottomsheetWidget({
     super.key,
-    required this.labels,
+    required this.contents,
+    this.isLoadingContents = false,
     this.scrollController,
   });
 
@@ -21,14 +24,12 @@ class LensCoursesBottomsheetWidget extends StatefulWidget {
 }
 
 class _LensCoursesBottomsheetWidgetState extends State<LensCoursesBottomsheetWidget> {
-  List<String> labels = <String>[];
   late DraggableScrollableController scrollController;
 
   @override
   void initState() {
     super.initState();
 
-    labels = widget.labels;
     scrollController = widget.scrollController ?? DraggableScrollableController();
   }
 
@@ -36,14 +37,18 @@ class _LensCoursesBottomsheetWidgetState extends State<LensCoursesBottomsheetWid
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
 
-    if (widget.labels.isEmpty) return const SizedBox();
+    MyPrint.printOnConsole("contents:${widget.contents.length}");
+    MyPrint.printOnConsole("isLoadingContents:${widget.isLoadingContents}");
+
+    if (widget.isLoadingContents) return const SizedBox();
 
     return SafeArea(
       child: DraggableScrollableSheet(
-        controller: scrollController,
+        controller: widget.scrollController ?? scrollController,
         expand: false,
         initialChildSize: 0.4,
-        minChildSize: .32,
+        minChildSize: 0.05,
+        maxChildSize: 1,
         builder: (BuildContext context, ScrollController controller) {
           return ClipRRect(
             borderRadius: const BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10)),
@@ -63,17 +68,26 @@ class _LensCoursesBottomsheetWidgetState extends State<LensCoursesBottomsheetWid
                   child: Column(
                     children: [
                       const BottomSheetDragger(),
-                      ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.all(16),
-                        shrinkWrap: true,
-                        itemCount: labels.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return CourseComponent(
-                            model: CourseDTOModel(Title: labels[index]),
-                          );
-                        },
-                      ),
+                      if (widget.contents.isEmpty) ...[
+                        const SizedBox(height: 50),
+                        Text(
+                          "No Content Found",
+                          style: themeData.textTheme.bodyMedium,
+                        ),
+                      ] else
+                        ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(16),
+                          shrinkWrap: true,
+                          itemCount: widget.contents.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            MobileLmsCourseModel model = widget.contents[index];
+
+                            return LensScreenContentCard(
+                              model: model,
+                            );
+                          },
+                        ),
                     ],
                   ),
                 ),

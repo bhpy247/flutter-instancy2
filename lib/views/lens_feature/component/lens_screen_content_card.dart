@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:provider/provider.dart';
 
+import '../../../backend/app/app_provider.dart';
+import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../configs/app_configurations.dart';
+import '../../../models/course/data_model/mobile_lms_course_model.dart';
+import '../../../utils/my_utils.dart';
 import '../../../utils/parsing_helper.dart';
 import '../../common/components/common_button.dart';
 import '../../common/components/common_cached_network_image.dart';
 
-class CourseComponent extends StatelessWidget {
-  final CourseDTOModel model;
+class LensScreenContentCard extends StatelessWidget {
+  final MobileLmsCourseModel model;
+  final void Function(MobileLmsCourseModel model)? onLaunchVRTap;
+  final void Function(MobileLmsCourseModel model)? onLaunchARTap;
 
-  const CourseComponent({super.key, required this.model});
+  const LensScreenContentCard({
+    super.key,
+    required this.model,
+    this.onLaunchVRTap,
+    this.onLaunchARTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +39,7 @@ class CourseComponent extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          imageWidget(url: model.ThumbnailImagePath, context: context),
+          imageWidget(url: model.thumbnailimagepath, context: context),
           const SizedBox(width: 20),
           Expanded(child: detailColumn(context: context)),
         ],
@@ -39,16 +50,17 @@ class CourseComponent extends StatelessWidget {
   Widget imageWidget({required String url, required BuildContext context}) {
     // MyPrint.printOnConsole("catalog content image url:$url");
 
-    // url = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: url));
+    url = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: url));
     // MyPrint.printOnConsole("catalog content final image url:$url");
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
-      child: const SizedBox(
+      child: SizedBox(
         height: 80,
         width: 80,
         child: CommonCachedNetworkImage(
-          imageUrl: "https://picsum.photos/200/300",
+          imageUrl: url,
+          // imageUrl: "https://picsum.photos/200/300",
           height: 80,
           width: 80,
           fit: BoxFit.cover,
@@ -72,13 +84,13 @@ class CourseComponent extends StatelessWidget {
                 children: [
                   coursesIcon(
                     assetName: AppConfigurations.getContentIconFromObjectAndMediaType(
-                      mediaTypeId: 1,
-                      objectTypeId: 2,
+                      mediaTypeId: model.mediatypeid,
+                      objectTypeId: model.objecttypeid,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    "Augmented Reality",
+                    model.contenttype,
                     style: themeData.textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -90,7 +102,7 @@ class CourseComponent extends StatelessWidget {
         ),
         const SizedBox(height: 5),
         Text(
-          model.Title,
+          model.name,
           style: themeData.textTheme.titleSmall?.copyWith(
             // color: Colors.white,
             fontSize: 14,
@@ -102,15 +114,15 @@ class CourseComponent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Dr. Joseph Campbell",
+              model.authordisplayname,
               style: themeData.textTheme.bodySmall?.copyWith(
                 fontSize: 11,
                 // color: Colors.white,
               ),
             ),
             const SizedBox(height: 8),
-            ratingView(ParsingHelper.parseDoubleMethod(3)),
-            getBottomViewInButton(themeData)
+            ratingView(ParsingHelper.parseDoubleMethod(model.ratingid)),
+            getBottomViewInButton(context: context, themeData: themeData)
           ],
         ),
       ],
@@ -127,6 +139,8 @@ class CourseComponent extends StatelessWidget {
   }
 
   Widget ratingView(double ratings) {
+    if (ratings <= 0) return const SizedBox();
+
     return RatingBarIndicator(
       rating: ratings,
       itemBuilder: (context, index) => const Icon(
@@ -140,7 +154,7 @@ class CourseComponent extends StatelessWidget {
     );
   }
 
-  Widget getBottomViewInButton(ThemeData themeData) {
+  Widget getBottomViewInButton({required ThemeData themeData, required BuildContext context}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -156,11 +170,13 @@ class CourseComponent extends StatelessWidget {
         Row(
           children: [
             CommonButton(
+              onPressed: () {
+                if (onLaunchVRTap != null) onLaunchVRTap!(model);
+              },
               padding: const EdgeInsets.symmetric(horizontal: 16),
               backGroundColor: Colors.transparent,
               borderColor: themeData.primaryColor,
               borderWidth: 1,
-              onPressed: () {},
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -185,11 +201,13 @@ class CourseComponent extends StatelessWidget {
             const SizedBox(width: 17),
             Expanded(
               child: CommonButton(
+                onPressed: () {
+                  if (onLaunchARTap != null) onLaunchARTap!(model);
+                },
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 backGroundColor: themeData.primaryColor,
                 borderColor: themeData.primaryColor,
                 borderWidth: 1,
-                onPressed: () {},
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

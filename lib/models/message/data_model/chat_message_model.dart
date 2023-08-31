@@ -63,7 +63,7 @@ class ChatMessageModel {
       "ToUserName": ToUserName,
       "ProfPic": ProfPic,
       "fileUrl": fileUrl,
-      "msgType": msgType = MessageType.Text,
+      "msgType": msgType,
       "Attachment": Attachment,
       "FromStatus": FromStatus,
       "ToStatus": ToStatus,
