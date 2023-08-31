@@ -2,27 +2,43 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/event/event_controller.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
+import 'package:flutter_instancy_2/backend/ui_actions/event_catalog/event_catalog_ui_actions_controller.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/tab_data_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/mobile_lms_course_model.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
+import '../../../api/api_controller.dart';
+import '../../../backend/Catalog/catalog_controller.dart';
 import '../../../backend/app/app_provider.dart';
 import '../../../backend/filter/filter_controller.dart';
 import '../../../backend/filter/filter_provider.dart';
 import '../../../backend/navigation/navigation.dart';
+import '../../../backend/share/share_provider.dart';
+import '../../../backend/ui_actions/event_catalog/event_catalog_ui_action_callback_model.dart';
+import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import '../../../configs/app_configurations.dart';
+import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
+import '../../../models/catalog/request_model/add_content_to_my_learning_request_model.dart';
+import '../../../models/catalog/response_model/removeFromWishlistModel.dart';
+import '../../../models/classroom_events/data_model/event_recodting_mobile_lms_data_model.dart';
 import '../../../models/common/pagination/pagination_model.dart';
+import '../../../models/event_track/request_model/view_recording_request_model.dart';
+import '../../../models/waitlist/response_model/add_to_waitList_response_model.dart';
 import '../../../utils/my_print.dart';
+import '../../../utils/my_toast.dart';
+import '../../../utils/parsing_helper.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_loader.dart';
 import '../../common/components/common_text_form_field.dart';
+import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import '../../common/components/modal_progress_hud.dart';
 import '../../filter/components/selected_filters_listview_component.dart';
 import '../components/event_list_card.dart';
@@ -191,6 +207,421 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
       isGetFromCache: false,
       isNotify: true,
     );
+  }
+
+  EventCatalogUIActionCallbackModel getEventCatalogUIActionCallbackModel({
+    required MobileLmsCourseModel model,
+    InstancyContentActionsEnum? primaryAction,
+    bool isSecondaryAction = true,
+    required int index,
+  }) {
+    return EventCatalogUIActionCallbackModel(
+      onEnrollTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        addContentToMyLearning(model: model, index: index);
+      },
+      onDetailsTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        await onDetailsTap(model: model);
+      },
+      onCancelEnrollmentTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        isLoading = true;
+        mySetState();
+
+        bool isCancelled = await EventController(eventProvider: null).cancelEventEnrollment(
+          context: context,
+          eventId: model.contentid,
+          isBadCancellationEnabled: model.isbadcancellationenabled == true,
+        );
+        MyPrint.printOnConsole("isCancelled:$isCancelled");
+
+        isLoading = false;
+        mySetState();
+
+        if (isCancelled) {
+          if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "Your enrollment for the course has been successfully canceled");
+
+          getEventCatalogContentsList(
+            isRefresh: true,
+            isGetFromCache: false,
+            isNotify: true,
+          );
+        }
+      },
+      onRescheduleTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        onDetailsTap(model: model, isRescheduleEvent: true);
+      },
+      onReEnrollmentHistoryTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        //TODO: Implement onReEnrollmentHistoryTap
+      },
+      onAddToWishlist: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        isLoading = true;
+        mySetState();
+        bool isSuccess = await CatalogController(provider: null).addContentToWishlist(
+          contentId: model.contentid,
+          componentId: componentId,
+          componentInstanceId: componentInsId,
+        );
+        MyPrint.printOnConsole("isSuccess: $isSuccess");
+        isLoading = false;
+        mySetState();
+
+        if (isSuccess) {
+          model.iswishlistcontent = 1;
+          mySetState();
+        }
+
+        if (pageMounted && context.mounted) {
+          if (isSuccess) {
+            MyToast.showSuccess(context: context, msg: appProvider.localStr.catalogAlertsubtitleItemaddedtowishlistsuccesfully);
+          } else {
+            MyToast.showError(context: context, msg: 'Failed');
+          }
+        }
+      },
+      onRemoveWishlist: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+        isLoading = true;
+        mySetState();
+        MyPrint.printOnConsole("Component instance id: $componentInsId");
+        RemoveFromWishlistResponseModel removeFromWishlistResponseModel = await CatalogController(provider: null).removeContentFromWishlist(
+          contentId: model.contentid,
+          componentId: componentId,
+          componentInstanceId: componentInsId,
+        );
+        isLoading = false;
+        mySetState();
+        MyPrint.printOnConsole("valueeee: ${removeFromWishlistResponseModel.isSuccess}");
+        if (removeFromWishlistResponseModel.isSuccess) {
+          model.iswishlistcontent = 0;
+          mySetState();
+        }
+        if (pageMounted && context.mounted) {
+          if (removeFromWishlistResponseModel.isSuccess) {
+            MyToast.showSuccess(context: context, msg: appProvider.localStr.catalogAlertsubtitleItemremovedtowishlistsuccesfully);
+          } else {
+            MyToast.showError(context: context, msg: 'Failed');
+          }
+        }
+      },
+      onAddToWaitListTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+        MyPrint.printOnConsole("Content id: ${model.contentid}");
+        isLoading = true;
+        mySetState();
+        AddToWaitListResponseModel addToWaitListResponseModel = await CatalogController(provider: null).addContentToWaitList(
+          contentId: model.contentid,
+          componentId: componentId,
+          componentInstanceId: componentInsId,
+        );
+        MyPrint.printOnConsole("isSuccess: ${addToWaitListResponseModel.isSuccess}");
+        isLoading = false;
+        mySetState();
+
+        if (addToWaitListResponseModel.isSuccess) {
+          getEventCatalogContentsList(
+            isRefresh: true,
+            isGetFromCache: false,
+            isNotify: true,
+          );
+        }
+
+        if (pageMounted && context.mounted) {
+          if (addToWaitListResponseModel.isSuccess) {
+            MyToast.showSuccess(context: context, msg: addToWaitListResponseModel.message);
+          } else {
+            MyToast.showError(context: context, msg: 'Failed');
+          }
+        }
+      },
+      onAddToCalenderTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        bool isSuccess = await EventController(eventProvider: null).addEventToCalender(
+          context: context,
+          EventStartDateTime: model.eventstartdatetime,
+          EventEndDateTime: model.eventenddatetime,
+          eventDateTimeFormat: appProvider.appSystemConfigurationModel.eventDateTimeFormat,
+          Title: model.name,
+          ShortDescription: model.shortdescription,
+          LocationName: model.locationname,
+        );
+        if (pageMounted && context.mounted) {
+          if (isSuccess) {
+            MyToast.showSuccess(context: context, msg: 'Event added successfully');
+          } else {
+            MyToast.showError(context: context, msg: 'Error occured while adding event');
+          }
+        }
+      },
+      onViewResources: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        dynamic value = await NavigationController.navigateToEventTrackScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: EventTrackScreenArguments(
+            eventTrackTabType: model.objecttypeid == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
+            objectTypeId: model.objecttypeid,
+            isRelatedContent: true,
+            parentContentId: model.contentid,
+            componentId: componentId,
+            scoId: model.scoid,
+            componentInstanceId: componentInsId,
+            isContentEnrolled: true,
+          ),
+        );
+
+        if (value == true) {
+          getEventCatalogContentsList(
+            isRefresh: true,
+            isGetFromCache: false,
+            isNotify: true,
+          );
+        }
+      },
+      onViewQRCodeTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        NavigationController.navigateToQRCodeImageScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: QRCodeImageScreenNavigationArguments(qrCodePath: model.actionviewqrcode),
+          // arguments: QRCodeImageScreenNavigationArguments(qrCodePath: model.ac),
+        );
+      },
+      onJoinTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        EventController(eventProvider: null).joinVirtualEvent(context: context, joinUrl: model.participanturl);
+      },
+      onViewRecordingTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        MyPrint.printOnConsole("onViewRecordingTap called for ObjectTypeId:${model.objecttypeid} and contentId:${model.contentid}");
+
+        EventRecordingMobileLMSDataModel? recordingDetails = model.recordingModel;
+
+        if (recordingDetails == null) {
+          MyPrint.printOnConsole("recordingDetails are null");
+          return;
+        }
+        ViewRecordingRequestModel viewRecordingRequestModel = ViewRecordingRequestModel(
+          contentName: recordingDetails.contentname,
+          contentID: recordingDetails.contentid,
+          contentTypeId: ParsingHelper.parseIntMethod(recordingDetails.contenttypeid),
+          eventRecordingURL: recordingDetails.eventrecordingurl,
+          eventRecording: ParsingHelper.parseBoolMethod(recordingDetails.eventrecording),
+          jWVideoKey: recordingDetails.jwvideokey ?? "",
+          language: recordingDetails.language,
+          recordingType: recordingDetails.recordingtype,
+          scoID: recordingDetails.scoid ?? "",
+          jwVideoPath: recordingDetails.viewlink ?? "",
+          viewType: recordingDetails.viewtype ?? "",
+        );
+        EventController(eventProvider: null).viewRecordingForEvent(model: viewRecordingRequestModel, context: context);
+      },
+      onViewSessionsTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        NavigationController.navigateToEventTrackScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: EventTrackScreenArguments(
+            objectTypeId: model.objecttypeid,
+            eventTrackTabType: EventTrackTabs.session,
+            isRelatedContent: false,
+            parentContentId: model.contentid,
+            componentId: componentId,
+            scoId: model.scoid,
+            componentInstanceId: componentInsId,
+            isContentEnrolled: true,
+          ),
+        );
+      },
+      onRecommendToTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        NavigationController.navigateToRecommendToScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: RecommendToScreenNavigationArguments(
+            shareContentType: ShareContentType.catalogCourse,
+            contentId: model.contentid,
+            contentName: model.name,
+            componentId: componentId,
+          ),
+        );
+      },
+      onShareWithConnectionTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        NavigationController.navigateToShareWithConnectionsScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: ShareWithConnectionsScreenNavigationArguments(
+            shareContentType: ShareContentType.catalogCourse,
+            contentId: model.contentid,
+            contentName: model.name,
+            shareProvider: context.read<ShareProvider>(),
+          ),
+        );
+      },
+      onShareWithPeopleTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        NavigationController.navigateToShareWithPeopleScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: ShareWithPeopleScreenNavigationArguments(
+            shareContentType: ShareContentType.catalogCourse,
+            contentId: model.contentid,
+            contentName: model.name,
+          ),
+        );
+      },
+      onShareTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+      },
+    );
+  }
+
+  Future<void> showMoreAction({
+    required MobileLmsCourseModel model,
+    InstancyContentActionsEnum? primaryAction,
+    required int index,
+  }) async {
+    LocalStr localStr = appProvider.localStr;
+
+    EventCatalogUIActionsController catalogUIActionsController = EventCatalogUIActionsController(appProvider: appProvider);
+    // CatalogUIActionsController catalogUIActionsController = CatalogUIActionsController(appProvider: appProvider);
+    // MyPrint.printOnConsole("isWIshlishContent: ${model.isWishListContent}");
+    List<InstancyUIActionModel> options = catalogUIActionsController
+        .getEventCatalogScreenSecondaryActions(
+          mobileLmsCourseModel: model,
+          localStr: localStr,
+          eventCatalogUIActionCallbackModel: getEventCatalogUIActionCallbackModel(
+            model: model,
+            primaryAction: primaryAction,
+            index: index,
+          ),
+          isWishlistMode: false,
+        )
+        .toList();
+
+    if (options.isEmpty) {
+      return;
+    }
+
+    InstancyUIActions().showAction(
+      context: context,
+      actions: options,
+    );
+  }
+
+  Future<void> onDetailsTap({required MobileLmsCourseModel model, bool isRescheduleEvent = false}) async {
+    String parentContentId = model.instanceparentcontentid;
+    MyPrint.printOnConsole("parentContentId:'$parentContentId'");
+
+    if (isRescheduleEvent && parentContentId.isEmpty) {
+      MyPrint.printOnConsole("Returning from onRescheduleTap because parentContentId is empty");
+      return;
+    }
+
+    dynamic value = await NavigationController.navigateToCourseDetailScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      arguments: CourseDetailScreenNavigationArguments(
+        contentId: isRescheduleEvent ? parentContentId : model.contentid,
+        componentId: isRescheduleEvent ? InstancyComponents.Catalog : widget.arguments.componentId,
+        componentInstanceId: widget.arguments.componentInsId,
+        userId: ApiController().apiDataProvider.getCurrentUserId(),
+        screenType: InstancyContentScreenType.MyLearning,
+        isRescheduleEvent: isRescheduleEvent,
+      ),
+    );
+    MyPrint.printOnConsole("CourseDetailScreen return value:$value");
+
+    getEventCatalogContentsList(
+      isRefresh: true,
+      isGetFromCache: false,
+      isNotify: true,
+    );
+  }
+
+  Future<void> addContentToMyLearning({required MobileLmsCourseModel model, required int index, bool isShowToast = true}) async {
+    /*if (model.AddLink == ContentAddLinkOperations.redirecttodetails) {
+      onDetailsTap(model: model);
+      return;
+    }*/
+
+    isLoading = true;
+    mySetState();
+
+    bool isSuccess = await CatalogController(provider: null).addContentToMyLearning(
+      requestModel: AddContentToMyLearningRequestModel(
+        SelectedContent: model.contentid,
+        multiInstanceParentId: model.parentid,
+        ERitems: "",
+        HideAdd: "",
+        AdditionalParams: "",
+        TargetDate: "",
+        MultiInstanceEventEnroll: "",
+        ComponentID: componentId,
+        ComponentInsID: componentInsId,
+      ),
+      context: context,
+      onPrerequisiteDialogShowEnd: () {
+        MyPrint.printOnConsole("onPrerequisiteDialogShowEnd called");
+
+        isLoading = true;
+        mySetState();
+      },
+      onPrerequisiteDialogShowStarted: () {
+        MyPrint.printOnConsole("onPrerequisiteDialogShowStarted called");
+        isLoading = false;
+        mySetState();
+      },
+      // hasPrerequisites: model.hasPrerequisiteContents(),
+      isShowToast: isShowToast,
+      isWaitForOtherProcesses: true,
+    );
+    MyPrint.printOnConsole("isSuccess $isSuccess");
+
+    isLoading = false;
+    mySetState();
+
+    if (isSuccess) {
+      await getEventCatalogContentsList(
+        isRefresh: true,
+        isGetFromCache: false,
+        isNotify: true,
+      );
+    }
   }
 
   @override
@@ -504,9 +935,9 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
           },
           suffixWidget: actions.isNotEmpty
               ? Row(
-            mainAxisSize: MainAxisSize.min,
-            children: actions,
-          )
+                  mainAxisSize: MainAxisSize.min,
+                  children: actions,
+                )
               : null,
         ),
       ),
@@ -640,9 +1071,44 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
 
           MobileLmsCourseModel model = list[index];
 
+          EventCatalogUIActionsController eventCatalogUIActionsController = EventCatalogUIActionsController(
+            appProvider: appProvider,
+          );
+          LocalStr localStr = appProvider.localStr;
+
+          List<InstancyUIActionModel> options = eventCatalogUIActionsController
+              .getEventCatalogScreenPrimaryActions(
+                mobileLmsCourseDTOModel: model,
+                localStr: localStr,
+                catalogUIActionCallbackModel: getEventCatalogUIActionCallbackModel(
+                  model: model,
+                  isSecondaryAction: false,
+                  index: index,
+                ),
+                isWishlistMode: false,
+              )
+              .toList();
+
+          InstancyUIActionModel? primaryAction = options.firstElement;
+
+          InstancyContentActionsEnum? primaryActionEnum = primaryAction?.actionsEnum;
+
           return Container(
             margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-            child: EventListCard(model: model),
+            child: EventListCard(
+              model: model,
+              primaryAction: primaryAction,
+              onPrimaryActionTap: () async {
+                MyPrint.printOnConsole("primaryAction:$primaryActionEnum");
+
+                if (primaryAction?.onTap != null) {
+                  primaryAction!.onTap!();
+                }
+              },
+              onMoreButtonTap: () {
+                showMoreAction(model: model, primaryAction: primaryActionEnum, index: index);
+              },
+            ),
           );
         },
       ),

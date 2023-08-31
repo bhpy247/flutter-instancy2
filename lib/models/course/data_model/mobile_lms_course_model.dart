@@ -1,5 +1,6 @@
 import '../../../utils/my_utils.dart';
 import '../../../utils/parsing_helper.dart';
+import '../../classroom_events/data_model/event_recodting_mobile_lms_data_model.dart';
 
 class MobileLmsCourseModel {
   String sitename = "";
@@ -10,6 +11,7 @@ class MobileLmsCourseModel {
   String iconpath = "";
   String contenttypethumbnail = "";
   String contentid = "";
+  String instanceparentcontentid = "";
   String name = "";
   String language = "";
   String shortdescription = "";
@@ -73,6 +75,7 @@ class MobileLmsCourseModel {
   String availableseats = "";
   String currency = "";
   String saleprice = "";
+  String actionviewqrcode = "";
   double ratingid = 0;
   int objecttypeid = 0;
   int filterid = 0;
@@ -211,6 +214,7 @@ class MobileLmsCourseModel {
   dynamic reschduleparentid;
   dynamic viewprerequisitecontentstatus;
   dynamic iswishlistcontent;
+  EventRecordingMobileLMSDataModel? recordingModel;
 
   MobileLmsCourseModel({
     this.sitename = "",
@@ -221,6 +225,7 @@ class MobileLmsCourseModel {
     this.iconpath = "",
     this.contenttypethumbnail = "",
     this.contentid = "",
+    this.instanceparentcontentid = "",
     this.name = "",
     this.language = "",
     this.shortdescription = "",
@@ -247,6 +252,7 @@ class MobileLmsCourseModel {
     this.contentauthordisplayname = "",
     this.recordingurl = "",
     this.startdate = "",
+    this.actionviewqrcode = "",
     this.datecompleted = "",
     this.totalsessiontime = "",
     this.corelessonstatus = "",
@@ -422,6 +428,7 @@ class MobileLmsCourseModel {
     this.reschduleparentid,
     this.viewprerequisitecontentstatus,
     this.iswishlistcontent,
+    this.recordingModel,
   });
 
   MobileLmsCourseModel.fromMap(Map<String, dynamic> map) {
@@ -441,6 +448,7 @@ class MobileLmsCourseModel {
     iconpath = ParsingHelper.parseStringMethod(map["iconpath"]);
     contenttypethumbnail = ParsingHelper.parseStringMethod(map["contenttypethumbnail"]);
     contentid = ParsingHelper.parseStringMethod(map["contentid"]);
+    instanceparentcontentid = ParsingHelper.parseStringMethod(map["instanceparentcontentid"]);
     name = ParsingHelper.parseStringMethod(map["name"]);
     language = ParsingHelper.parseStringMethod(map["language"]);
     shortdescription = ParsingHelper.parseStringMethod(map["shortdescription"]);
@@ -504,6 +512,7 @@ class MobileLmsCourseModel {
     availableseats = ParsingHelper.parseStringMethod(map["availableseats"]);
     currency = ParsingHelper.parseStringMethod(map["currency"]);
     saleprice = ParsingHelper.parseStringMethod(map["saleprice"]);
+    actionviewqrcode = ParsingHelper.parseStringMethod(map["actionviewqrcode"]);
     ratingid = ParsingHelper.parseDoubleMethod(map["ratingid"]);
     objecttypeid = ParsingHelper.parseIntMethod(map["objecttypeid"]);
     filterid = ParsingHelper.parseIntMethod(map["filterid"]);
@@ -642,6 +651,7 @@ class MobileLmsCourseModel {
     reschduleparentid = map["reschduleparentid"];
     viewprerequisitecontentstatus = map["viewprerequisitecontentstatus"];
     iswishlistcontent = map["iswishlistcontent"];
+    // recordingModel =
   }
 
   Map<String, dynamic> toMap({bool toJson = true}) {
@@ -654,6 +664,7 @@ class MobileLmsCourseModel {
       "iconpath": iconpath,
       "contenttypethumbnail": contenttypethumbnail,
       "contentid": contentid,
+      "instanceparentcontentid": instanceparentcontentid,
       "name": name,
       "language": language,
       "shortdescription": shortdescription,
@@ -717,6 +728,7 @@ class MobileLmsCourseModel {
       "availableseats": availableseats,
       "currency": currency,
       "saleprice": saleprice,
+      "actionviewqrcode": actionviewqrcode,
       "ratingid": ratingid,
       "objecttypeid": objecttypeid,
       "filterid": filterid,
