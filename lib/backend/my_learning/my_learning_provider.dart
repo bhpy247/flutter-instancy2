@@ -2,7 +2,7 @@ import 'package:flutter_instancy_2/backend/common/common_provider.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 import 'package:flutter_instancy_2/models/common/pagination/pagination_model.dart';
 
-import '../../models/my_learning/data_model/my_learning_course_dto_model.dart';
+import '../../models/course/data_model/CourseDTOModel.dart';
 
 class MyLearningProvider extends CommonProvider {
   MyLearningProvider() {
@@ -27,7 +27,7 @@ class MyLearningProvider extends CommonProvider {
       notify: notify,
     );
 
-    myLearningWaitlistContents = CommonProviderListParameter<MyLearningCourseDTOModel>(
+    myLearningWaitlistContents = CommonProviderListParameter<CourseDTOModel>(
       list: [],
       notify: notify,
     );
@@ -42,13 +42,13 @@ class MyLearningProvider extends CommonProvider {
   }
 
   //region My Learning Content Models map
-  final Map<String, MyLearningCourseDTOModel> _contentsModelMap = <String, MyLearningCourseDTOModel>{};
+  final Map<String, CourseDTOModel> _contentsModelMap = <String, CourseDTOModel>{};
 
-  Map<String, MyLearningCourseDTOModel> get contentsModelMap => _contentsModelMap;
+  Map<String, CourseDTOModel> get contentsModelMap => _contentsModelMap;
 
-  MyLearningCourseDTOModel? getMyLearningContentModelFromId({required String contentId}) => contentsModelMap[contentId];
+  CourseDTOModel? getMyLearningContentModelFromId({required String contentId}) => contentsModelMap[contentId];
 
-  void setMyLearningContentModelsMap({required Map<String, MyLearningCourseDTOModel> contents, bool isClear = true, bool isNotify = true}) {
+  void setMyLearningContentModelsMap({required Map<String, CourseDTOModel> contents, bool isClear = true, bool isNotify = true}) {
     if (isClear) _contentsModelMap.clear();
     _contentsModelMap.addAll(contents);
     if (isNotify) {
@@ -56,12 +56,12 @@ class MyLearningProvider extends CommonProvider {
     }
   }
 
-  void updateMyLearningContentModelData({required String contentId, required MyLearningCourseDTOModel contentModel, bool isNotify = true}) {
+  void updateMyLearningContentModelData({required String contentId, required CourseDTOModel contentModel, bool isNotify = true}) {
     if (contentId.isEmpty) return;
 
-    Map<String, MyLearningCourseDTOModel> modelsMap = contentsModelMap;
+    Map<String, CourseDTOModel> modelsMap = contentsModelMap;
 
-    MyLearningCourseDTOModel? model = modelsMap[contentId];
+    CourseDTOModel? model = modelsMap[contentId];
     if (model != null) {
       model.updateFromMap(contentModel.toMap());
       if (isNotify) {
@@ -75,8 +75,8 @@ class MyLearningProvider extends CommonProvider {
   //endregion
 
   //region My Learning Contents
-  void addMyLearningContentsInList({required List<MyLearningCourseDTOModel> myLearningContentModels, bool isClear = false, bool isNotify = true}) {
-    for (MyLearningCourseDTOModel model in myLearningContentModels) {
+  void addMyLearningContentsInList({required List<CourseDTOModel> myLearningContentModels, bool isClear = false, bool isNotify = true}) {
+    for (CourseDTOModel model in myLearningContentModels) {
       addMyLearningContentIdInIdsList(contentId: model.ContentID, isClear: isClear, isNotify: false);
       updateMyLearningContentModelData(contentId: model.ContentID, contentModel: model, isNotify: false);
     }
@@ -85,12 +85,12 @@ class MyLearningProvider extends CommonProvider {
     }
   }
 
-  List<MyLearningCourseDTOModel> getMyLearningContentsList() {
-    List<MyLearningCourseDTOModel> contents = <MyLearningCourseDTOModel>[];
+  List<CourseDTOModel> getMyLearningContentsList() {
+    List<CourseDTOModel> contents = <CourseDTOModel>[];
 
-    Map<String, MyLearningCourseDTOModel> map = contentsModelMap;
+    Map<String, CourseDTOModel> map = contentsModelMap;
     for (String element in myLearningContentIds) {
-      MyLearningCourseDTOModel? model = map[element];
+      CourseDTOModel? model = map[element];
       if (model != null) {
         contents.add(model);
       }
@@ -167,8 +167,8 @@ class MyLearningProvider extends CommonProvider {
   //endregion
 
   //region My Learning Archived Contents
-  void addMyLearningArchivedContentsInList({required List<MyLearningCourseDTOModel> myLearningContentModels, bool isClear = false, bool isNotify = true}) {
-    for (MyLearningCourseDTOModel model in myLearningContentModels) {
+  void addMyLearningArchivedContentsInList({required List<CourseDTOModel> myLearningContentModels, bool isClear = false, bool isNotify = true}) {
+    for (CourseDTOModel model in myLearningContentModels) {
       addMyLearningArchivedContentIdInIdsList(contentId: model.ContentID, isClear: isClear, isNotify: false);
       updateMyLearningContentModelData(contentId: model.ContentID, contentModel: model, isNotify: false);
     }
@@ -177,12 +177,12 @@ class MyLearningProvider extends CommonProvider {
     }
   }
 
-  List<MyLearningCourseDTOModel> getMyLearningArchivedContentsList() {
-    List<MyLearningCourseDTOModel> contents = <MyLearningCourseDTOModel>[];
+  List<CourseDTOModel> getMyLearningArchivedContentsList() {
+    List<CourseDTOModel> contents = <CourseDTOModel>[];
 
-    Map<String, MyLearningCourseDTOModel> map = contentsModelMap;
+    Map<String, CourseDTOModel> map = contentsModelMap;
     for (String element in myLearningArchivedContentIds) {
-      MyLearningCourseDTOModel? model = map[element];
+      CourseDTOModel? model = map[element];
       if (model != null) {
         contents.add(model);
       }
@@ -259,7 +259,7 @@ class MyLearningProvider extends CommonProvider {
   //endregion
 
   //region My Learning Waitlist Contents
-  late final CommonProviderListParameter<MyLearningCourseDTOModel> myLearningWaitlistContents;
+  late final CommonProviderListParameter<CourseDTOModel> myLearningWaitlistContents;
 
   int get myLearningWaitlistContentsLength => myLearningWaitlistContents.getList(isNewInstance: false).length;
 

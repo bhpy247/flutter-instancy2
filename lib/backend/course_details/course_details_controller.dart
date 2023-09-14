@@ -1,6 +1,5 @@
 import '../../api/api_controller.dart';
 import '../../models/common/data_response_model.dart';
-import '../../models/content_details/data_model/content_details_dto_model.dart';
 import '../../models/content_details/request_model/course_details_request_model.dart';
 import '../../models/content_details/request_model/course_details_schedule_data_request_model.dart';
 import '../../models/content_details/response_model/course_details_schedule_data_response_model.dart';
@@ -22,7 +21,7 @@ class CourseDetailsController {
   CourseDetailsProvider get courseDetailsProvider => _courseDetailsProvider;
   CourseDetailsRepository get courseDetailsRepository => _courseDetailsRepository;
 
-  Future<ContentDetailsDTOModel?> getCourseDetailsData({
+  Future<CourseDTOModel?> getCourseDetailsData({
     required CourseDetailsRequestModel requestModel,
     bool isNotify = true,
   }) async {
@@ -31,21 +30,21 @@ class CourseDetailsController {
 
     CourseDetailsProvider provider = courseDetailsProvider;
 
-    ContentDetailsDTOModel? courseDetailsModel;
+    CourseDTOModel? courseDetailsModel;
 
-    provider.isLoadingContentDetailsDTOModel.set(value: true, isNotify: isNotify);
+    provider.isLoadingCourseDTOModel.set(value: true, isNotify: isNotify);
 
-    DataResponseModel<ContentDetailsDTOModel> response = await courseDetailsRepository.getCourseDetailsData(requestModel: requestModel);
+    DataResponseModel<CourseDTOModel> response = await courseDetailsRepository.getCourseDetailsData(requestModel: requestModel);
     MyPrint.logOnConsole("getContentDetailsData response:$response", tag: tag);
 
-    provider.isLoadingContentDetailsDTOModel.set(value: false, isNotify: isNotify);
+    provider.isLoadingCourseDTOModel.set(value: false, isNotify: isNotify);
 
-    if(response.appErrorModel != null) {
+    if (response.appErrorModel != null) {
       MyPrint.printOnConsole("Returning from CourseDetailsController().getCourseDetailsData() because getContentDetailsData had some error", tag: tag);
       return courseDetailsModel;
     }
 
-    if(response.data != null) {
+    if (response.data != null) {
       courseDetailsModel = response.data!;
     }
     MyPrint.logOnConsole("final courseDetailsModel:$courseDetailsModel", tag: tag);

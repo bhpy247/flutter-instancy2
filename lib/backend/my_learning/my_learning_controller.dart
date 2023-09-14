@@ -11,9 +11,9 @@ import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
 import '../../api/api_controller.dart';
 import '../../models/common/data_response_model.dart';
+import '../../models/course/data_model/CourseDTOModel.dart';
 import '../../models/filter/data_model/enabled_content_filter_by_type_model.dart';
 import '../../models/filter/data_model/filter_duration_value_model.dart';
-import '../../models/my_learning/data_model/my_learning_course_dto_model.dart';
 import '../../models/my_learning/response_model/my_learning_response_dto_model.dart';
 import '../../models/my_learning/response_model/page_notes_response_model.dart';
 import '../../utils/my_print.dart';
@@ -55,7 +55,7 @@ class MyLearningController {
   }
 
   //region Get Contents
-  Future<List<MyLearningCourseDTOModel>> getMyLearningContentsListFromApi({
+  Future<List<CourseDTOModel>> getMyLearningContentsListFromApi({
     bool isRefresh = true,
     bool isGetFromCache = false,
     bool isNotify = true,
@@ -135,7 +135,7 @@ class MyLearningController {
     DateTime endTime = DateTime.now();
     MyPrint.printOnConsole("My Learning Data got in ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: tag);
 
-    List<MyLearningCourseDTOModel> contentsList = response.data?.CourseList ?? <MyLearningCourseDTOModel>[];
+    List<CourseDTOModel> contentsList = response.data?.CourseList ?? <CourseDTOModel>[];
     MyPrint.printOnConsole("My Learning Contents Length got in Api:${contentsList.length}", tag: tag);
 
     //region Set Provider Data After Getting Data From Api
@@ -149,7 +149,7 @@ class MyLearningController {
     return provider.getMyLearningContentsList();
   }
 
-  Future<List<MyLearningCourseDTOModel>> getMyLearningArchivedContentsListFromApi({
+  Future<List<CourseDTOModel>> getMyLearningArchivedContentsListFromApi({
     bool isRefresh = true,
     bool isGetFromCache = false,
     bool isNotify = true,
@@ -229,7 +229,7 @@ class MyLearningController {
     DateTime endTime = DateTime.now();
     MyPrint.printOnConsole("My Learning Archived Data got in ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: tag);
 
-    List<MyLearningCourseDTOModel> contentsList = response.data?.CourseList ?? <MyLearningCourseDTOModel>[];
+    List<CourseDTOModel> contentsList = response.data?.CourseList ?? <CourseDTOModel>[];
     MyPrint.printOnConsole("My Learning Archived Contents Length got in Api:${contentsList.length}", tag: tag);
 
     //region Set Provider Data After Getting Data From Api
@@ -243,7 +243,7 @@ class MyLearningController {
     return provider.getMyLearningArchivedContentsList();
   }
 
-  Future<List<MyLearningCourseDTOModel>> getMyLearningWaitlistContentsListFromApi({
+  Future<List<CourseDTOModel>> getMyLearningWaitlistContentsListFromApi({
     bool isRefresh = true,
     bool isGetFromCache = false,
     bool isNotify = true,
@@ -333,7 +333,7 @@ class MyLearningController {
     DateTime endTime = DateTime.now();
     MyPrint.printOnConsole("My Learning Waitlist Data got in ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: tag);
 
-    List<MyLearningCourseDTOModel> contentsList = response.data?.CourseList ?? <MyLearningCourseDTOModel>[];
+    List<CourseDTOModel> contentsList = response.data?.CourseList ?? <CourseDTOModel>[];
     MyPrint.printOnConsole("My Learning Waitlist Contents Length got in Api:${contentsList.length}", tag: tag);
 
     //region Set Provider Data After Getting Data From Api

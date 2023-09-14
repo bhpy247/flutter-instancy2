@@ -359,13 +359,15 @@ class ApiEndpoints {
 
   //endregion
 
-
   //region Message
   String getMessageUserList() => '${getBaseApiUrl()}Chat/GetChatConnectionUserList';
 
   String sendChatMessage() => '${getBaseApiUrl()}Chat/InsertUserChatData';
 
   String genericFileUpload() => '${getBaseApiUrl()}Generic/SaveFiles';
+
+  String getUserChatHistory() => '${getBaseApiUrl()}Chat/GetUserChatHistory';
+
   //endregion
 
   // region MyConnections https://upgradedenterpriseapi.instancy.com/api/ContentManagement/GetUserComingSoonResponse?userID=363&contentId=d45436ba-aa0e-49ac-a15a-4d5d0c7c2e7c&savingtype=
@@ -373,10 +375,7 @@ class ApiEndpoints {
   //endregion
 
   //region pageNotesResponseModel
-  String getUserComingSoonResponse(
-          {String contentId = "",
-          int userId = 0}) =>
-      '${getBaseApiUrl()}ContentManagement/GetUserComingSoonResponse?contentId=$contentId&userID=$userId&savingtype=';
+  String getUserComingSoonResponse({String contentId = "", int userId = 0}) => '${getBaseApiUrl()}ContentManagement/GetUserComingSoonResponse?contentId=$contentId&userID=$userId&savingtype=';
 
 //region pageNotesResponseModel
   String getPageNotes(

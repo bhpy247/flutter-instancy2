@@ -9,11 +9,10 @@ class AppConstants {
   static const kAppFlavour = AppFlavour.marketPlace;
   static const String fileServerLocation = '/Content/SiteConfiguration/Message/';
 
-
-
   static const int defaultSiteId = 374;
   static const String defaultLocale = "en-us";
-  static const String defaultAuthorImageUrl = "https://image.shutterstock.com/z/stock-photo-high-angle-view-of-video-conference-with-teacher-on-laptop-at-home-top-view-of-girl-in-video-call-1676998303.jpg";
+  static const String defaultAuthorImageUrl =
+      "https://image.shutterstock.com/z/stock-photo-high-angle-view-of-video-conference-with-teacher-on-laptop-at-home-top-view-of-girl-in-video-call-1676998303.jpg";
   static const String defaultVideoUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
 }
 
@@ -430,13 +429,7 @@ class ViewTypesForContent {
   static const int ViewAndAddToMyLearning = 5;
 }
 
-enum InstancyIconType {
-  shareWithConnection,
-  shareViaEmail,
-  shareWithPeople,
-  pause,
-  archived
-}
+enum InstancyIconType { shareWithConnection, shareViaEmail, shareWithPeople, pause, archived }
 
 class ContentFilterByTypes {
   static const String SortItems = "Sortitemsby";
@@ -577,7 +570,7 @@ class ContentAddLinkOperations {
   static const String addrecommenedrelatedcontent = "addrecommenedrelatedcontent";
 }
 
-class NotificationTypes{
+class NotificationTypes {
   static const int Reminder1 = 1;
   static const int Reminder2 = 2;
   static const int Reminder3 = 3;
@@ -712,4 +705,34 @@ class ARContentMeshTypes {
 class ARContentBGVRType {
   static const String image_360 = "image_360";
   static const String video_360 = "video_360";
+}
+
+
+class MessageRoleTypes {
+  static const int learner = 5;
+  static const int admin = 8;
+  static const int manager = 12;
+  static const int groupAdmin = 16;
+}
+
+class MessageRoleFilterType {
+  static const String all = "All";
+  static const String admin = "Admin";
+  static const String groupAdmin = "Group Admin";
+  static const String manager = "Manager";
+  static const String learner = "Learner";
+
+  static List<String> get values =>
+      [
+        all,
+        admin,
+        groupAdmin,
+        manager,
+        learner,
+      ];
+}
+
+class MessageStatusTypes {
+  static const String typing = "Typing..";
+  static const String online = "Online";
 }

@@ -91,7 +91,7 @@ class _MessageItemWidgetState extends State<MessageItemWidget> {
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: isMessageReceived ? CrossAxisAlignment.start : CrossAxisAlignment.start,
+                crossAxisAlignment: isMessageReceived ? CrossAxisAlignment.start : CrossAxisAlignment.end,
                 children: [
                   // Text(
                   //   text,
@@ -106,26 +106,28 @@ class _MessageItemWidgetState extends State<MessageItemWidget> {
                   // ),
                   messageWidget(message.msgType, isMessageReceived),
                   const SizedBox(height: 4),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (message.SendDatetime != null)
-                        Text(
-                          DateFormat.jm().format(message.SendDatetime!),
-                          style: TextStyle(fontSize: 10, color: isMessageReceived ? Styles.lightTextColor2 : Colors.white),
-                        ),
-                      if (!isMessageReceived)
-                        const Padding(
-                          padding: EdgeInsets.only(left: 5),
-                          child: Icon(
-                            Icons.check,
-                            size: 15,
-                            color: Colors.white,
+                  Container(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (message.SendDatetime != null)
+                          Text(
+                            DateFormat.jm().format(message.SendDatetime!),
+                            style: TextStyle(fontSize: 10, color: isMessageReceived ? Styles.lightTextColor2 : Colors.white),
                           ),
-                        )
-                    ],
+                        if (!isMessageReceived)
+                          const Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child: Icon(
+                              Icons.check,
+                              size: 15,
+                              color: Colors.white,
+                            ),
+                          )
+                      ],
+                    ),
                   ),
                 ],
               ),

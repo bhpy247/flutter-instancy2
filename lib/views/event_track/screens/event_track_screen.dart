@@ -16,7 +16,6 @@ import 'package:flutter_instancy_2/models/event_track/data_model/event_track_tab
 import 'package:flutter_instancy_2/models/event_track/data_model/track_block_model.dart';
 import 'package:flutter_instancy_2/models/event_track/request_model/event_track_headers_request_model.dart';
 import 'package:flutter_instancy_2/models/event_track/request_model/event_track_overview_request_model.dart';
-import 'package:flutter_instancy_2/models/my_learning/data_model/my_learning_course_dto_model.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
@@ -38,6 +37,7 @@ import '../../../backend/my_learning/my_learning_controller.dart';
 import '../../../backend/my_learning/my_learning_provider.dart';
 import '../../../backend/navigation/navigation.dart';
 import '../../../backend/profile/profile_provider.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../models/course_launch/data_model/course_launch_model.dart';
 import '../../../models/event_track/data_model/event_track_content_model.dart';
 import '../../../models/event_track/request_model/event_track_tab_request_model.dart';
@@ -81,7 +81,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
 
   late EventProvider eventProvider;
 
-  MyLearningCourseDTOModel myLearningCourseDTOModel = MyLearningCourseDTOModel();
+  CourseDTOModel courseDTOModel = CourseDTOModel();
 
   TabController? controller;
 
@@ -477,43 +477,37 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         child: Container(
           decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10))),
           child: SafeArea(
-            child: Container(
-              /*decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border(bottom: BorderSide(color: Colors.black.withOpacity(0.5), width: 0.2)),
-              ),*/
-              child: TabBar(
-                  controller: controller,
-                  isScrollable: controller!.length > 3,
-                  padding: const EdgeInsets.symmetric(vertical: 0),
-                  labelPadding: const EdgeInsets.symmetric(horizontal: 5).copyWith(bottom: 10),
-                  indicatorPadding: const EdgeInsets.only(top: 20),
-                  // indicatorWeight:0,
-                  indicatorSize: TabBarIndicatorSize.label,
-                  onTap: (int index) {
-                    selectedIndex = index;
-                    mySetState();
-                  },
-                  labelStyle: themeData.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w500, letterSpacing: 0.5),
-                  tabs: List.generate(
-                    learningPathTabList.length,
-                    (index) => tabTitleWidget(
-                      title: learningPathTabList[index].tabName,
-                      assetPath: "assets/myLearning/${learningPathTabList[index].tabName.toLowerCase()}.png",
-                      index: index,
-                    ),
-                  )
-
-                  // tabs: learningPathTabList.map((e) {
-                  //   return tabTitleWidget(
-                  //     title: e.tabName,
-                  //     assetPath: "assets/myLearning/${e.tabName.toLowerCase()}.png",
-                  //     // index: e.tabID,
-                  //
-                  //   );
-                  // }).toList(),
+            child: TabBar(
+                controller: controller,
+                isScrollable: controller!.length > 3,
+                padding: const EdgeInsets.symmetric(vertical: 0),
+                labelPadding: const EdgeInsets.symmetric(horizontal: 5).copyWith(bottom: 10),
+                indicatorPadding: const EdgeInsets.only(top: 20),
+                // indicatorWeight:0,
+                indicatorSize: TabBarIndicatorSize.label,
+                onTap: (int index) {
+                  selectedIndex = index;
+                  mySetState();
+                },
+                labelStyle: themeData.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w500, letterSpacing: 0.5),
+                tabs: List.generate(
+                  learningPathTabList.length,
+                  (index) => tabTitleWidget(
+                    title: learningPathTabList[index].tabName,
+                    assetPath: "assets/myLearning/${learningPathTabList[index].tabName.toLowerCase()}.png",
+                    index: index,
                   ),
-            ),
+                )
+
+                // tabs: learningPathTabList.map((e) {
+                //   return tabTitleWidget(
+                //     title: e.tabName,
+                //     assetPath: "assets/myLearning/${e.tabName.toLowerCase()}.png",
+                //     // index: e.tabID,
+                //
+                //   );
+                // }).toList(),
+                ),
           ),
         ),
       );

@@ -1217,8 +1217,8 @@ class ShareConnectionUserModel {
     instagramId = json["InstagramID"];
     jobRoleId = json["JobRoleID"];
     expert = json["Expert"];
-    isRecommended = json["IsRecommended"];
-    isContentInMyLearning = json["IsContentInMyLearning"];
+    isRecommended = ParsingHelper.parseIntMethod(json["IsRecommended"]);
+    isContentInMyLearning = ParsingHelper.parseIntMethod(json["IsContentInMyLearning"]);
   }
 
   Map<String, dynamic> toJson() {

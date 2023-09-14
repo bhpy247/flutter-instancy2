@@ -33,9 +33,9 @@ import '../catalog/response_model/enroll_waiting_list_event_response_model.dart'
 import '../catalog/response_model/mobile_catalog_objects_data_response_model.dart';
 import '../catalog/response_model/prerequisiteDetailsResponseModel.dart';
 import '../catalog/response_model/removeFromWishlistModel.dart';
-import '../content_details/data_model/content_details_dto_model.dart';
 import '../content_details/response_model/course_details_schedule_data_response_model.dart';
 import '../content_review_ratings/response_model/content_user_ratings_data_response_model.dart';
+import '../course/data_model/CourseDTOModel.dart';
 import '../course/data_model/gloassary_model.dart';
 import '../course_launch/response_model/content_status_response_model.dart';
 import '../discussion/response_model/forum_listing_dto_response_model.dart';
@@ -163,7 +163,7 @@ enum ModelDataParsingType {
   //endregion
 
   // region Content Details Module
-  contentDetailsDTOModel,
+  courseDTOModel,
   courseDetailsScheduleDataResponseModel,
   //endregion
 
@@ -314,7 +314,7 @@ class ModelDataParser {
     //endregion
 
     // region Content Details Module
-    ModelDataParsingType.contentDetailsDTOModel: parseContentDetailsDTOModel,
+    ModelDataParsingType.courseDTOModel: parseCourseDTOModel,
     ModelDataParsingType.courseDetailsScheduleDataResponseModel: parseCourseDetailsScheduleDataResponseModel,
     //endregion
 
@@ -824,11 +824,11 @@ class ModelDataParser {
   //endregion
 
   // region Content Details Module
-  static ContentDetailsDTOModel? parseContentDetailsDTOModel({required dynamic decodedValue}) {
+  static CourseDTOModel? parseCourseDTOModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
     if (json.isNotEmpty) {
-      return ContentDetailsDTOModel.fromJson(json);
+      return CourseDTOModel.fromMap(json);
     } else {
       return null;
     }

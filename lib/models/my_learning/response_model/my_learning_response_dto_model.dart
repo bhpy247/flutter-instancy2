@@ -1,18 +1,18 @@
 import '../../../utils/my_utils.dart';
 import '../../../utils/parsing_helper.dart';
-import '../data_model/my_learning_course_dto_model.dart';
+import '../../course/data_model/CourseDTOModel.dart';
 
 class MyLearningResponseDTOModel {
-  List<MyLearningCourseDTOModel> CourseList = <MyLearningCourseDTOModel>[];
+  List<CourseDTOModel> CourseList = <CourseDTOModel>[];
   int CourseCount = 0;
   String NotifyMessage = "";
 
   MyLearningResponseDTOModel({
-    List<MyLearningCourseDTOModel>? CourseList,
+    List<CourseDTOModel>? CourseList,
     this.CourseCount = 0,
     this.NotifyMessage = "",
   }) {
-    this.CourseList = CourseList ?? <MyLearningCourseDTOModel>[];
+    this.CourseList = CourseList ?? <CourseDTOModel>[];
   }
 
   MyLearningResponseDTOModel.fromMap(Map<String, dynamic> map) {
@@ -26,7 +26,7 @@ class MyLearningResponseDTOModel {
   void _initializeFromMap(Map<String, dynamic> map) {
     List<Map<String, dynamic>> courseMapsList = ParsingHelper.parseMapsListMethod(map['CourseList']);
     CourseList = courseMapsList.map((e) {
-      return MyLearningCourseDTOModel.fromMap(e);
+      return CourseDTOModel.fromMap(e);
     }).toList();
     CourseCount = ParsingHelper.parseIntMethod(map['CourseCount']);
     NotifyMessage = ParsingHelper.parseStringMethod(map['NotifyMessage']);

@@ -4,7 +4,7 @@ class EventCatalogUIActionParameterModel {
   final int objectTypeId;
   final int mediaTypeId;
   final int viewType;
-  final int relatedConentCount;
+  final int relatedContentCount;
   final int eventScheduleType;
   final int eventType;
   final int waitListEnroll;
@@ -19,8 +19,9 @@ class EventCatalogUIActionParameterModel {
   final String eventEndDatetime;
   final String actionviewqrcode;
   final String actualStatus;
+  final String WaitListLink;
+  final String RelatedContentLink;
   final bool isAddToMyLearning;
-  final bool actionWaitList;
   final bool eventRecording;
   final EventRecordingMobileLMSDataModel? recordingDetails;
 
@@ -28,7 +29,7 @@ class EventCatalogUIActionParameterModel {
     this.objectTypeId = 0,
     this.mediaTypeId = 0,
     this.viewType = 0,
-    this.relatedConentCount = 0,
+    this.relatedContentCount = 0,
     this.eventScheduleType = 0,
     this.eventType = 0,
     this.waitListEnroll = 0,
@@ -43,8 +44,9 @@ class EventCatalogUIActionParameterModel {
     this.eventStartDatetime = "",
     this.eventEndDatetime = "",
     this.actionviewqrcode = "",
+    this.WaitListLink = "",
+    this.RelatedContentLink = "",
     this.isAddToMyLearning = false,
-    this.actionWaitList = false,
     this.eventRecording = false,
     this.recordingDetails,
   });

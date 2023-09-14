@@ -32,9 +32,9 @@ import '../../../backend/ui_actions/my_learning/my_learning_ui_actions_controlle
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../models/course_launch/data_model/course_launch_model.dart';
 import '../../../models/event_track/request_model/view_recording_request_model.dart';
-import '../../../models/my_learning/data_model/my_learning_course_dto_model.dart';
 import '../../../utils/parsing_helper.dart';
 import '../../common/components/common_loader.dart';
 import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
@@ -175,7 +175,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
   }
 
   MyLearningUIActionCallbackModel getMyLearningUIActionCallbackModel({
-    required MyLearningCourseDTOModel model,
+    required CourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
     bool isSecondaryAction = true,
     required bool isArchived,
@@ -395,17 +395,17 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
         }
 
         ViewRecordingRequestModel viewRecordingRequestModel = ViewRecordingRequestModel(
-          contentName: recordingDetails.contentName,
-          contentID: recordingDetails.contentID,
-          contentTypeId: ParsingHelper.parseIntMethod(recordingDetails.contentTypeId),
-          eventRecordingURL: recordingDetails.eventRecordingURL,
-          eventRecording: ParsingHelper.parseBoolMethod(recordingDetails.eventRecording),
-          jWVideoKey: recordingDetails.jWVideoKey,
-          language: recordingDetails.language,
-          recordingType: recordingDetails.recordingType,
-          scoID: recordingDetails.scoID,
-          jwVideoPath: recordingDetails.viewLink,
-          viewType: recordingDetails.viewType,
+          contentName: recordingDetails.ContentName,
+          contentID: recordingDetails.ContentID,
+          contentTypeId: ParsingHelper.parseIntMethod(recordingDetails.ContentTypeId),
+          eventRecordingURL: recordingDetails.EventRecordingURL,
+          eventRecording: ParsingHelper.parseBoolMethod(recordingDetails.EventRecording),
+          jWVideoKey: recordingDetails.JWVideoKey,
+          language: recordingDetails.Language,
+          recordingType: recordingDetails.RecordingType,
+          scoID: recordingDetails.ScoID,
+          jwVideoPath: recordingDetails.ViewLink,
+          viewType: recordingDetails.ViewType,
         );
 
         EventController(eventProvider: null).viewRecordingForEvent(model: viewRecordingRequestModel, context: context);
@@ -531,7 +531,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
   }
 
   Future<void> showMoreAction({
-    required MyLearningCourseDTOModel model,
+    required CourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
     required bool isArchived,
   }) async {
@@ -568,7 +568,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
   }
 
   Future<void> onContentLaunchTap({
-    required MyLearningCourseDTOModel model,
+    required CourseDTOModel model,
     required bool isArchived,
   }) async {
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = myLearningController.myLearningRepository.apiController.apiDataProvider;
@@ -615,7 +615,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
     }
   }
 
-  Future<void> onDetailsTap({required MyLearningCourseDTOModel model}) async {
+  Future<void> onDetailsTap({required CourseDTOModel model}) async {
     dynamic value = await NavigationController.navigateToCourseDetailScreen(
       navigationOperationParameters: NavigationOperationParameters(
         context: context,
@@ -973,7 +973,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
             }
 
             String contentId = contents[index];
-            MyLearningCourseDTOModel? model = myLearningProvider.getMyLearningContentModelFromId(contentId: contentId);
+            CourseDTOModel? model = myLearningProvider.getMyLearningContentModelFromId(contentId: contentId);
 
             if (model == null) return const SizedBox();
 
@@ -1003,7 +1003,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
   }
 
   Widget getMyLearningContentWidget({
-    required MyLearningCourseDTOModel model,
+    required CourseDTOModel model,
     required bool isArchived,
   }) {
     LocalStr localStr = appProvider.localStr;
@@ -1016,7 +1016,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
 
     List<InstancyUIActionModel> options = myLearningUIActionsController
         .getMyLearningScreenPrimaryActions(
-          myLearningCourseDTOModel: model,
+      model: model,
           myLearningUIActionCallbackModel: getMyLearningUIActionCallbackModel(
             model: model,
             isSecondaryAction: false,
@@ -1031,7 +1031,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
     // MyPrint.printOnConsole("primaryActionEnum:$primaryActionEnum");
 
     return MyLearningCard(
-      myLearningCourseDTOModel: model,
+      courseDTOModel: model,
       primaryAction: primaryAction,
       onMoreButtonTap: () {
         showMoreAction(model: model, isArchived: isArchived);

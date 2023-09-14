@@ -3,50 +3,50 @@ import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import '../../../utils/my_utils.dart';
 
 class EventRecordingDetailsModel {
-  String eventRecordingMessage = "";
-  String eventRecordingURL = "";
-  String eventRecordingContentID = "";
-  String eventRecordStatus = "";
-  String contentTypeId = "";
-  String contentID = "";
-  String viewLink = "";
-  String scoID = "";
-  String jWVideoKey = "";
-  String contentName = "";
-  String windowProperties = "";
-  String viewType = "";
-  String recordingType = "";
+  String EventRecordingMessage = "";
+  String EventRecordingURL = "";
+  String EventRecordingContentID = "";
+  String EventRecordStatus = "";
+  String ContentTypeId = "";
+  String ContentID = "";
+  String ViewLink = "";
+  String ScoID = "";
+  String JWVideoKey = "";
+  String ContentName = "";
+  String WindowProperties = "";
+  String ViewType = "";
+  String RecordingType = "";
   String wstatus = "";
-  String percentCompletedClass = "";
-  String eventID = "";
-  String language = "";
+  String PercentCompletedClass = "";
+  String EventID = "";
+  String Language = "";
   String cloudMediaPlayerKey = "";
-  bool eventRecording = false;
-  int eventSCOID = 0;
-  int contentProgress = 0;
+  bool EventRecording = false;
+  int EventSCOID = 0;
+  int ContentProgress = 0;
 
   EventRecordingDetailsModel({
-    this.eventRecordingMessage = "",
-    this.eventRecordingURL = "",
-    this.eventRecordingContentID = "",
-    this.eventRecordStatus = "",
-    this.contentTypeId = "",
-    this.contentID = "",
-    this.viewLink = "",
-    this.scoID = "",
-    this.jWVideoKey = "",
-    this.contentName = "",
-    this.windowProperties = "",
-    this.viewType = "",
-    this.recordingType = "",
+    this.EventRecordingMessage = "",
+    this.EventRecordingURL = "",
+    this.EventRecordingContentID = "",
+    this.EventRecordStatus = "",
+    this.ContentTypeId = "",
+    this.ContentID = "",
+    this.ViewLink = "",
+    this.ScoID = "",
+    this.JWVideoKey = "",
+    this.ContentName = "",
+    this.WindowProperties = "",
+    this.ViewType = "",
+    this.RecordingType = "",
     this.wstatus = "",
-    this.percentCompletedClass = "",
-    this.eventID = "",
-    this.language = "",
+    this.PercentCompletedClass = "",
+    this.EventID = "",
+    this.Language = "",
     this.cloudMediaPlayerKey = "",
-    this.eventRecording = false,
-    this.eventSCOID = 0,
-    this.contentProgress = 0,
+    this.EventRecording = false,
+    this.EventSCOID = 0,
+    this.ContentProgress = 0,
   });
 
   EventRecordingDetailsModel.fromMap(Map<String, dynamic> map) {
@@ -58,52 +58,52 @@ class EventRecordingDetailsModel {
   }
 
   void _initializeFromMap(Map<String, dynamic> map) {
-    eventRecordingMessage = ParsingHelper.parseStringMethod(map['EventRecordingMessage']);
-    eventRecordingURL = ParsingHelper.parseStringMethod(map['EventRecordingURL']);
-    eventRecordingContentID = ParsingHelper.parseStringMethod(map['EventRecordingContentID']);
-    eventRecordStatus = ParsingHelper.parseStringMethod(map['EventRecordStatus']);
-    contentTypeId = ParsingHelper.parseStringMethod(map['ContentTypeId']);
-    contentID = ParsingHelper.parseStringMethod(map['ContentID']);
-    viewLink = ParsingHelper.parseStringMethod(map['ViewLink']);
-    scoID = ParsingHelper.parseStringMethod(map['ScoID']);
-    jWVideoKey = ParsingHelper.parseStringMethod(map['JWVideoKey']);
-    contentName = ParsingHelper.parseStringMethod(map['ContentName']);
-    windowProperties = ParsingHelper.parseStringMethod(map['WindowProperties']);
-    viewType = ParsingHelper.parseStringMethod(map['ViewType']);
-    recordingType = ParsingHelper.parseStringMethod(map['RecordingType']);
+    EventRecordingMessage = ParsingHelper.parseStringMethod(map['EventRecordingMessage']);
+    EventRecordingURL = ParsingHelper.parseStringMethod(map['EventRecordingURL']);
+    EventRecordingContentID = ParsingHelper.parseStringMethod(map['EventRecordingContentID']);
+    EventRecordStatus = ParsingHelper.parseStringMethod(map['EventRecordStatus']);
+    ContentTypeId = ParsingHelper.parseStringMethod(map['ContentTypeId']);
+    ContentID = ParsingHelper.parseStringMethod(map['ContentID']);
+    ViewLink = ParsingHelper.parseStringMethod(map['ViewLink']);
+    ScoID = ParsingHelper.parseStringMethod(map['ScoID']);
+    JWVideoKey = ParsingHelper.parseStringMethod(map['JWVideoKey']);
+    ContentName = ParsingHelper.parseStringMethod(map['ContentName']);
+    WindowProperties = ParsingHelper.parseStringMethod(map['WindowProperties']);
+    ViewType = ParsingHelper.parseStringMethod(map['ViewType']);
+    RecordingType = ParsingHelper.parseStringMethod(map['RecordingType']);
     wstatus = ParsingHelper.parseStringMethod(map['wstatus']);
-    percentCompletedClass = ParsingHelper.parseStringMethod(map['PercentCompletedClass']);
-    eventID = ParsingHelper.parseStringMethod(map['EventID']);
-    language = ParsingHelper.parseStringMethod(map['Language']);
+    PercentCompletedClass = ParsingHelper.parseStringMethod(map['PercentCompletedClass']);
+    EventID = ParsingHelper.parseStringMethod(map['EventID']);
+    Language = ParsingHelper.parseStringMethod(map['Language']);
     cloudMediaPlayerKey = ParsingHelper.parseStringMethod(map['cloudMediaPlayerKey']);
-    eventRecording = ParsingHelper.parseBoolMethod(map['EventRecording']);
-    eventSCOID = ParsingHelper.parseIntMethod(map['EventSCOID']);
-    contentProgress = ParsingHelper.parseIntMethod(map['ContentProgress']);
+    EventRecording = ParsingHelper.parseBoolMethod(map['EventRecording']);
+    EventSCOID = ParsingHelper.parseIntMethod(map['EventSCOID']);
+    ContentProgress = ParsingHelper.parseIntMethod(map['ContentProgress']);
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      "EventRecordingMessage": eventRecordingMessage,
-      "EventRecordingURL": eventRecordingURL,
-      "EventRecordingContentID": eventRecordingContentID,
-      "EventRecordStatus": eventRecordStatus,
-      "ContentTypeId": contentTypeId,
-      "ContentID": contentID,
-      "ViewLink": viewLink,
-      "ScoID": scoID,
-      "JWVideoKey": jWVideoKey,
-      "ContentName": contentName,
-      "WindowProperties": windowProperties,
-      "ViewType": viewType,
-      "RecordingType": recordingType,
+      "EventRecordingMessage": EventRecordingMessage,
+      "EventRecordingURL": EventRecordingURL,
+      "EventRecordingContentID": EventRecordingContentID,
+      "EventRecordStatus": EventRecordStatus,
+      "ContentTypeId": ContentTypeId,
+      "ContentID": ContentID,
+      "ViewLink": ViewLink,
+      "ScoID": ScoID,
+      "JWVideoKey": JWVideoKey,
+      "ContentName": ContentName,
+      "WindowProperties": WindowProperties,
+      "ViewType": ViewType,
+      "RecordingType": RecordingType,
       "wstatus": wstatus,
-      "PercentCompletedClass": percentCompletedClass,
-      "EventID": eventID,
-      "Language": language,
+      "PercentCompletedClass": PercentCompletedClass,
+      "EventID": EventID,
+      "Language": Language,
       "cloudMediaPlayerKey": cloudMediaPlayerKey,
-      "EventRecording": eventRecording,
-      "EventSCOID": eventSCOID,
-      "ContentProgress": contentProgress,
+      "EventRecording": EventRecording,
+      "EventSCOID": EventSCOID,
+      "ContentProgress": ContentProgress,
     };
   }
 

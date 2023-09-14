@@ -1,4 +1,5 @@
 import 'package:flutter_chat_bot/utils/parsing_helper.dart';
+import 'package:flutter_instancy_2/utils/my_utils.dart';
 
 class ChatUserModel {
   String FullName = "";
@@ -75,5 +76,10 @@ class ChatUserModel {
       "RankNo": RankNo,
       "ArchivedUserID": ArchivedUserID,
     };
+  }
+
+  @override
+  String toString() {
+    return MyUtils.encodeJson(toJson());
   }
 }

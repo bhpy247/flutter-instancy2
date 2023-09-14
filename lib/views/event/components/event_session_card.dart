@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
-import 'package:flutter_instancy_2/models/event/data_model/event_session_course_dto_model.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../../models/course/data_model/CourseDTOModel.dart';
+
 class EventSessionCard extends StatelessWidget {
-  final EventSessionCourseDTOModel eventSessionCourseDTOModel;
+  final CourseDTOModel courseDTOModel;
 
   const EventSessionCard({
     Key? key,
-    required this.eventSessionCourseDTOModel,
+    required this.courseDTOModel,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
 
-    MyPrint.printOnConsole("eventSessionCourseDTOModel.eventStartDateTime:'${eventSessionCourseDTOModel.EventStartDateTime}'");
+    MyPrint.printOnConsole("eventSessionCourseDTOModel.eventStartDateTime:'${courseDTOModel.EventStartDateTime}'");
 
     return InkWell(
       onTap: () {},
@@ -33,7 +34,7 @@ class EventSessionCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 getEventDateWidget(
-                  eventStartDateTime: eventSessionCourseDTOModel.EventStartDateTime,
+                  eventStartDateTime: courseDTOModel.EventStartDateTime,
                   themeData: themeData,
                   context: context,
                 ),
@@ -60,59 +61,64 @@ class EventSessionCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            if(eventSessionCourseDTOModel.ContentType.isNotEmpty) Container(
-                              margin: const EdgeInsets.symmetric(vertical: 3),
-                              child: Text(
-                                eventSessionCourseDTOModel.ContentType,
-                                style: themeData.textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
+                            if (courseDTOModel.ContentType.isNotEmpty)
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 3),
+                                child: Text(
+                                  courseDTOModel.ContentType,
+                                  style: themeData.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
                             getEventTimeWidget(
-                              eventStartDateTime: eventSessionCourseDTOModel.EventStartDateTime,
+                              eventStartDateTime: courseDTOModel.EventStartDateTime,
                               themeData: themeData,
                               context: context,
                             ),
-                            if(eventSessionCourseDTOModel.ContentStatus.isNotEmpty) Container(
-                              margin: const EdgeInsets.symmetric(vertical: 5),
-                              child: Text(
-                                eventSessionCourseDTOModel.ContentStatus,
-                                style: themeData.textTheme.bodyMedium?.copyWith(
-                                  color: themeData.primaryColor,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-
-                            if(eventSessionCourseDTOModel.Title.isNotEmpty) Container(
-                              margin: const EdgeInsets.symmetric(vertical: 3).copyWith(top: 10),
-                              child: Text(
-                                eventSessionCourseDTOModel.Title,
-                                style: themeData.textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            if(eventSessionCourseDTOModel.ShortDescription.isNotEmpty) Container(
-                              margin: const EdgeInsets.symmetric(vertical: 3),
-                              child: Text(
-                                eventSessionCourseDTOModel.ShortDescription,
-                                style: themeData.textTheme.bodyMedium,
-                              ),
-                            ),
-                            if(eventSessionCourseDTOModel.Duration.isNotEmpty) Container(
-                              margin: const EdgeInsets.symmetric(vertical: 3),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    eventSessionCourseDTOModel.Duration,
-                                    style: themeData.textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                            if (courseDTOModel.ContentStatus.isNotEmpty)
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 5),
+                                child: Text(
+                                  courseDTOModel.ContentStatus,
+                                  style: themeData.textTheme.bodyMedium?.copyWith(
+                                    color: themeData.primaryColor,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(7.0),
+                                ),
+                              ),
+
+                            if (courseDTOModel.Title.isNotEmpty)
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 3).copyWith(top: 10),
+                                child: Text(
+                                  courseDTOModel.Title,
+                                  style: themeData.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            if (courseDTOModel.ShortDescription.isNotEmpty)
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 3),
+                                child: Text(
+                                  courseDTOModel.ShortDescription,
+                                  style: themeData.textTheme.bodyMedium,
+                                ),
+                              ),
+                            if (courseDTOModel.Duration.isNotEmpty)
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 3),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      courseDTOModel.Duration,
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(7.0),
                                     child: Container(
                                       height: 10,
                                       width: 10,
@@ -124,33 +130,34 @@ class EventSessionCard extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    ' by ${eventSessionCourseDTOModel.PresenterDisplayName}',
-                                    style: themeData.textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
+                                    ' by ${courseDTOModel.PresenterDisplayName}',
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )
                                 ],
                               ),
                             ),
                             Container(
                               margin: const EdgeInsets.symmetric(vertical: 3),
                               child: Text(
-                                eventSessionCourseDTOModel.LocationName,
+                                courseDTOModel.LocationName,
                                 style: themeData.textTheme.bodyMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
                             // getEnrollButton(themeData: themeData),
-                            if(eventSessionCourseDTOModel.AvailableSeats.isNotEmpty) Container(
-                              margin: const EdgeInsets.symmetric(vertical: 3),
-                              child: Text(
-                                '${eventSessionCourseDTOModel.AvailableSeats} Seats Remain',
-                                style: themeData.textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
+                            if (courseDTOModel.AvailableSeats.isNotEmpty)
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 3),
+                                child: Text(
+                                  '${courseDTOModel.AvailableSeats} Seats Remain',
+                                  style: themeData.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ),
@@ -202,7 +209,7 @@ class EventSessionCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 3),
       child: Text(
-        '(${DateFormat('h:mm a').format(DateFormat(appProvider.appSystemConfigurationModel.eventDateTimeFormat).parse(eventSessionCourseDTOModel.EventStartDateTime))}-${DateFormat('h:mm a').format(DateFormat(appProvider.appSystemConfigurationModel.eventDateTimeFormat).parse(eventSessionCourseDTOModel.EventEndDateTime))})',
+        '(${DateFormat('h:mm a').format(DateFormat(appProvider.appSystemConfigurationModel.eventDateTimeFormat).parse(courseDTOModel.EventStartDateTime))}-${DateFormat('h:mm a').format(DateFormat(appProvider.appSystemConfigurationModel.eventDateTimeFormat).parse(courseDTOModel.EventEndDateTime))})',
         // newDateTime,
         style: themeData.textTheme.bodyMedium?.copyWith(
           fontWeight: FontWeight.w500,
@@ -212,43 +219,39 @@ class EventSessionCard extends StatelessWidget {
   }
 
   Widget getEnrollButton({required ThemeData themeData}) {
-    if(eventSessionCourseDTOModel.isContentEnrolled == "1" || eventSessionCourseDTOModel.isContentEnrolled.toLowerCase() == "true") {
+    if (courseDTOModel.isContentEnrolled == "1" || courseDTOModel.isContentEnrolled.toLowerCase() == "true") {
       return const SizedBox();
     }
 
-    return Container(
-      // margin: const EdgeInsets.only(left: 20.0, right: 20.0),
-      //height: 50.h,
-      child: MaterialButton(
-        disabledColor: themeData.primaryColor.withOpacity(0.5),
-        color: themeData.primaryColor,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Enroll',
-              style: themeData.textTheme.bodyMedium?.copyWith(
-                color: themeData.colorScheme.onPrimary,
-                fontWeight: FontWeight.bold,
-              ),
+    return MaterialButton(
+      disabledColor: themeData.primaryColor.withOpacity(0.5),
+      color: themeData.primaryColor,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Enroll',
+            style: themeData.textTheme.bodyMedium?.copyWith(
+              color: themeData.colorScheme.onPrimary,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-        ),
-        onPressed: () {
-          /*setState(() {
-            loaderEnroll = true;
-            contentID = catalogCourseDtoModel.contentID;
-          });
-          catalogBloc.add(AddEnrollEvent(
-            selectedContent: catalogCourseDtoModel.addLink,
-            componentID: 107,
-            componentInsID: 3291,
-            additionalParams: '',
-            targetDate: '',
-            rescheduleenroll: widget.isFromReschedule ? 'rescheduleenroll' : '',
-          ));*/
-        },
+          ),
+        ],
       ),
+      onPressed: () {
+        /*setState(() {
+          loaderEnroll = true;
+          contentID = catalogCourseDtoModel.contentID;
+        });
+        catalogBloc.add(AddEnrollEvent(
+          selectedContent: catalogCourseDtoModel.addLink,
+          componentID: 107,
+          componentInsID: 3291,
+          additionalParams: '',
+          targetDate: '',
+          rescheduleenroll: widget.isFromReschedule ? 'rescheduleenroll' : '',
+        ));*/
+      },
     );
   }
 }

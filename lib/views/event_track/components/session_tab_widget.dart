@@ -7,7 +7,7 @@ import '../../../backend/app/app_provider.dart';
 import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../backend/event/event_controller.dart';
 import '../../../configs/app_configurations.dart';
-import '../../../models/event/data_model/event_session_course_dto_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../utils/date_representation.dart';
 import '../../../utils/my_utils.dart';
 import '../../../utils/parsing_helper.dart';
@@ -80,7 +80,7 @@ class _SessionTabWidgetState extends State<SessionTabWidget> {
 
         Widget child;
 
-        List<EventSessionCourseDTOModel> scheduleData = eventProvider.eventSessionData.getList(isNewInstance: false);
+        List<CourseDTOModel> scheduleData = eventProvider.eventSessionData.getList(isNewInstance: false);
 
         if (scheduleData.isEmpty) {
           child = Center(
@@ -92,7 +92,7 @@ class _SessionTabWidgetState extends State<SessionTabWidget> {
             itemCount: scheduleData.length,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
-              EventSessionCourseDTOModel eventSessionCourseDTOModel = scheduleData[index];
+              CourseDTOModel eventSessionCourseDTOModel = scheduleData[index];
 
               return ModifiedEventSessionsCards(model: eventSessionCourseDTOModel);
             },
@@ -134,7 +134,7 @@ class _SessionTabWidgetState extends State<SessionTabWidget> {
 }
 
 class ModifiedEventSessionsCards extends StatelessWidget {
-  final EventSessionCourseDTOModel model;
+  final CourseDTOModel model;
 
   const ModifiedEventSessionsCards({
     Key? key,
@@ -148,7 +148,18 @@ class ModifiedEventSessionsCards extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15).copyWith(bottom: 15),
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(5), boxShadow: [const BoxShadow(color: Colors.black26, offset: Offset(1, 1), blurRadius: 3, spreadRadius: 1)]),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(5),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            offset: Offset(1, 1),
+            blurRadius: 3,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -235,7 +246,7 @@ class ModifiedEventSessionsCards extends StatelessWidget {
     );
   }
 
-  Widget eventStartDateAndTime({required EventSessionCourseDTOModel model, required BuildContext context}) {
+  Widget eventStartDateAndTime({required CourseDTOModel model, required BuildContext context}) {
     // MyPrint.printOnConsole("model. endDateTime: '${model.EventEndDateTime} to ${model.EventEndDateTimeTimeWithoutConvert}'");
 
     AppProvider appProvider = context.read<AppProvider>();

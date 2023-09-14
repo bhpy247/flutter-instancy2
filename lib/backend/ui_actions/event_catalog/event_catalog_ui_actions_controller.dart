@@ -1,13 +1,12 @@
-import 'package:flutter_chat_bot/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/event_catalog/event_catalog_ui_action_parameter_model.dart';
-import 'package:flutter_instancy_2/models/course/data_model/mobile_lms_course_model.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../configs/app_constants.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/classroom_events/data_model/event_recodting_mobile_lms_data_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../utils/my_print.dart';
 import '../../../views/common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import '../primary_secondary_actions/primary_secondary_actions.dart';
@@ -41,7 +40,6 @@ class EventCatalogUIActionsController {
       InstancyContentActionsEnum.ViewResources: showViewResources,
       InstancyContentActionsEnum.AddToWishlist: showAddToWishlist,
       InstancyContentActionsEnum.RemoveFromWishlist: showRemoveFromWishlist,
-      InstancyContentActionsEnum.AddToWaitList: showAddToWaitList,
       InstancyContentActionsEnum.CancelEnrollment: showCancelEnrollment,
       InstancyContentActionsEnum.RecommendTo: showRecommendTo,
       InstancyContentActionsEnum.ShareToConnections: showShareWithConnection,
@@ -110,7 +108,9 @@ class EventCatalogUIActionsController {
   }
 
   bool showAddToWishlist({required EventCatalogUIActionParameterModel parameterModel}) {
-    if (appProvider.appSystemConfigurationModel.enableWishlist == true && parameterModel.isWishlistContent == 0) {
+    // bool isEnrolled = showEnroll(parameterModel: parameterModel);
+
+    if (appProvider.appSystemConfigurationModel.enableWishlist == true && parameterModel.isWishlistContent == 0 && showEnroll(parameterModel: parameterModel)) {
       return true;
     }
     return false;
@@ -124,7 +124,7 @@ class EventCatalogUIActionsController {
   }
 
   bool showAddToWaitList({required EventCatalogUIActionParameterModel parameterModel}) {
-    if (!parameterModel.actionWaitList || parameterModel.waitListLimit == parameterModel.waitListEnroll) {
+    if (parameterModel.WaitListLink.isEmpty || parameterModel.waitListLimit == parameterModel.waitListEnroll) {
       return false;
     }
 
@@ -141,7 +141,7 @@ class EventCatalogUIActionsController {
   }
 
   bool showViewResources({required EventCatalogUIActionParameterModel parameterModel}) {
-    if (parameterModel.objectTypeId != InstancyObjectTypes.events || !parameterModel.isAddToMyLearning || parameterModel.relatedConentCount <= 0) {
+    if (parameterModel.objectTypeId != InstancyObjectTypes.events || !parameterModel.isAddToMyLearning || parameterModel.relatedContentCount <= 0) {
       return false;
     }
 
@@ -216,7 +216,7 @@ class EventCatalogUIActionsController {
 
   //region Primary Actions
   Iterable<InstancyUIActionModel> getEventCatalogScreenPrimaryActions({
-    required MobileLmsCourseModel mobileLmsCourseDTOModel,
+    required CourseDTOModel courseDTOModel,
     required LocalStr localStr,
     required EventCatalogUIActionCallbackModel catalogUIActionCallbackModel,
     required bool isWishlistMode,
@@ -225,15 +225,15 @@ class EventCatalogUIActionsController {
     //     " mediaTypeID:${catalogCourseDTOModel.MediaTypeID}, ViewType:${catalogCourseDTOModel.ViewType}, isContentEnrolled:${catalogCourseDTOModel.isContentEnrolled}");
 
     EventCatalogUIActionParameterModel parameterModel = getEventCatalogUIActionParameterModelFromCatalogCourseDTOModel(
-      model: mobileLmsCourseDTOModel,
+      model: courseDTOModel,
       isWishlistMode: isWishlistMode,
     );
 
     yield* getEventCatalogScreenPrimaryActionsFromCatalogUIActionParameterModel(
-      objectTypeId: mobileLmsCourseDTOModel.objecttypeid,
-      mediaTypeId: mobileLmsCourseDTOModel.mediatypeid,
-      viewType: mobileLmsCourseDTOModel.viewtype,
-      isContentEnrolled: mobileLmsCourseDTOModel.iscontent,
+      objectTypeId: courseDTOModel.ContentTypeId,
+      mediaTypeId: courseDTOModel.MediaTypeID,
+      viewType: courseDTOModel.ViewType,
+      isContentEnrolled: ["true", "1"].contains(courseDTOModel.isContentEnrolled.toLowerCase()),
       parameterModel: parameterModel,
       localStr: localStr,
       catalogUIActionCallbackModel: catalogUIActionCallbackModel,
@@ -273,28 +273,28 @@ class EventCatalogUIActionsController {
 
   //region Secondary Actions
   Iterable<InstancyUIActionModel> getEventCatalogScreenSecondaryActions({
-    required MobileLmsCourseModel mobileLmsCourseModel,
+    required CourseDTOModel courseDTOModel,
     required LocalStr localStr,
     required EventCatalogUIActionCallbackModel eventCatalogUIActionCallbackModel,
     required bool isWishlistMode,
   }) sync* {
-    MyPrint.printOnConsole("EventCatalogUIActionsController().getCatalogScreenSecondaryActions called with objectTypeId:${mobileLmsCourseModel.objecttypeid},"
-        " mediaTypeID:${mobileLmsCourseModel.mediatypeid}, ViewType:${mobileLmsCourseModel.viewtype}");
+    MyPrint.printOnConsole("EventCatalogUIActionsController().getCatalogScreenSecondaryActions called with objectTypeId:${courseDTOModel.ContentTypeId},"
+        " mediaTypeID:${courseDTOModel.MediaTypeID}, ViewType:${courseDTOModel.ViewType}");
 
     EventCatalogUIActionParameterModel parameterModel = getEventCatalogUIActionParameterModelFromCatalogCourseDTOModel(
-      model: mobileLmsCourseModel,
+      model: courseDTOModel,
       isWishlistMode: isWishlistMode,
     );
 
     List<InstancyContentActionsEnum> primaryActions = PrimarySecondaryActionsController.getPrimaryActionForCatalogContent(
-      viewType: mobileLmsCourseModel.viewtype,
-      objectTypeId: mobileLmsCourseModel.objecttypeid,
-      mediaTypeId: mobileLmsCourseModel.mediatypeid,
+      objectTypeId: courseDTOModel.ContentTypeId,
+      mediaTypeId: courseDTOModel.MediaTypeID,
+      viewType: courseDTOModel.ViewType,
     );
     List<InstancyContentActionsEnum> secondaryActions = PrimarySecondaryActionsController.getSecondaryActionForCatalogContent(
-      viewType: mobileLmsCourseModel.viewtype,
-      objectTypeId: mobileLmsCourseModel.objecttypeid,
-      mediaTypeId: mobileLmsCourseModel.mediatypeid,
+      objectTypeId: courseDTOModel.ContentTypeId,
+      mediaTypeId: courseDTOModel.MediaTypeID,
+      viewType: courseDTOModel.ViewType,
     );
     MyPrint.printOnConsole("primaryActions:$primaryActions");
     MyPrint.printOnConsole("secondaryActions:$secondaryActions");
@@ -306,11 +306,11 @@ class EventCatalogUIActionsController {
     MyPrint.printOnConsole("Final secondaryActions:$set");
 
     yield* getInstancyUIActionModelListFromInstancyContentActionsEnumList(
-      viewType: mobileLmsCourseModel.viewtype,
-      objectTypeId: mobileLmsCourseModel.objecttypeid,
+      objectTypeId: courseDTOModel.ContentTypeId,
+      viewType: courseDTOModel.ViewType,
       actions: set.toList(),
       parameterModel: parameterModel,
-      isContentEnrolled: mobileLmsCourseModel.iscontent,
+      isContentEnrolled: ["true", "1"].contains(courseDTOModel.isContentEnrolled.toLowerCase()),
       localStr: localStr,
       catalogUIActionCallbackModel: eventCatalogUIActionCallbackModel,
     );
@@ -347,33 +347,33 @@ class EventCatalogUIActionsController {
   //endregion
 
   EventCatalogUIActionParameterModel getEventCatalogUIActionParameterModelFromCatalogCourseDTOModel({
-    required MobileLmsCourseModel model,
+    required CourseDTOModel model,
     required bool isWishlistMode,
   }) {
     return EventCatalogUIActionParameterModel(
-        objectTypeId: model.objecttypeid,
-        mediaTypeId: model.mediatypeid,
-        viewType: model.viewtype,
-      waitListEnroll: model.waitlistenrolls,
-      waitListLimit: ParsingHelper.parseIntMethod(model.waitlistlimit),
-      actionWaitList: ParsingHelper.parseBoolMethod(model.actionwaitlist),
-      relatedConentCount: model.relatedconentcount,
-      eventScheduleType: model.eventscheduletype,
+      objectTypeId: model.ContentTypeId,
+      mediaTypeId: model.MediaTypeID,
+      viewType: model.ViewType,
+      waitListEnroll: model.WaitListEnrolls,
+      waitListLimit: model.WaitListLimit,
+      WaitListLink: model.WaitListLink,
+      RelatedContentLink: model.RelatedContentLink,
+      eventScheduleType: model.EventScheduleType,
       reportaction: "",
-      suggestToConnectionsLink: " ",
-      suggestWithFriendLink: " ",
-      shareLink: " ",
-      actualStatus: model.actualstatus,
-      eventStartDatetime: model.eventstartdatetime,
-      eventEndDatetime: model.eventenddatetime,
-      isAddToMyLearning: model.isaddedtomylearning == 1,
-      eventRecording: model.eventrecording,
-      eventType: model.eventtype,
-      isWishlistContent: ParsingHelper.parseIntMethod(model.iswishlistcontent),
-      parentId: model.instanceparentcontentid,
+      suggestToConnectionsLink: model.SuggesttoConnLink,
+      suggestWithFriendLink: model.SuggestwithFriendLink,
+      shareLink: model.Sharelink,
+      actualStatus: model.ActualStatus,
+      eventStartDatetime: model.EventStartDateTime,
+      eventEndDatetime: model.EventEndDateTime,
+      isAddToMyLearning: ["true", "1"].contains(model.isContentEnrolled.toLowerCase()),
+      eventRecording: model.EventRecording,
+      eventType: model.EventType,
+      isWishlistContent: model.isWishListContent,
+      parentId: model.InstanceParentContentID,
       // actionviewqrcode: model.actionviewqrcode,
-        // recordingDetails: model.recordingModel,
-        );
+      // recordingDetails: model.recordingModel,
+    );
   }
 
   Iterable<InstancyUIActionModel> getInstancyUIActionModelListFromInstancyContentActionsEnumList({
@@ -482,7 +482,7 @@ class EventCatalogUIActionsController {
       } else if (action == InstancyContentActionsEnum.ViewResources) {
         if (isShowAction(actionType: InstancyContentActionsEnum.ViewResources, parameterModel: parameterModel) && catalogUIActionCallbackModel.onViewResources != null) {
           model = InstancyUIActionModel(
-            text: localStr.learningTrackLabelEventViewResources,
+            text: localStr.eventsActionsheetRelatedcontentoption,
             iconData: InstancyIcons.viewResources,
             onTap: catalogUIActionCallbackModel.onViewResources,
             actionsEnum: InstancyContentActionsEnum.ViewResources,

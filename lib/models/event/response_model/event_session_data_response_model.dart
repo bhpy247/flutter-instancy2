@@ -1,17 +1,17 @@
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
 import '../../../utils/my_utils.dart';
-import '../data_model/event_session_course_dto_model.dart';
+import '../../course/data_model/CourseDTOModel.dart';
 
 class EventSessionDataResponseModel {
-  List<EventSessionCourseDTOModel> CourseList = [];
+  List<CourseDTOModel> CourseList = [];
   String eventdatetimeformat = "";
 
   EventSessionDataResponseModel({
-    List<EventSessionCourseDTOModel>? CourseList,
+    List<CourseDTOModel>? CourseList,
     this.eventdatetimeformat = "",
   }) {
-    this.CourseList = CourseList ?? <EventSessionCourseDTOModel>[];
+    this.CourseList = CourseList ?? <CourseDTOModel>[];
   }
 
   EventSessionDataResponseModel.fromMap(Map<String, dynamic> map) {
@@ -25,7 +25,7 @@ class EventSessionDataResponseModel {
   void _initializeFromMap(Map<String, dynamic> map) {
     List<Map<String, dynamic>> sessionMapsList = ParsingHelper.parseMapsListMethod(map['CourseList']);
     CourseList = sessionMapsList.map((e) {
-      return EventSessionCourseDTOModel.fromMap(e);
+      return CourseDTOModel.fromMap(e);
     }).toList();
     eventdatetimeformat = ParsingHelper.parseStringMethod(map['eventdatetimeformat']);
   }

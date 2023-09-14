@@ -95,4 +95,34 @@ class MessageRepository {
 
     return apiResponseModel;
   }
+
+  Future<DataResponseModel<ChatUsersListResponseModel>> getUserChatHistory({
+    bool isFromOffline = false,
+    bool isStoreDataInHive = false,
+    required SendChatMessageRequestModel requestModel,
+  }) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.chatUsersListResponseModel,
+      url: apiEndpoints.getUserChatHistory(),
+      requestBody: MyUtils.encodeJson({
+        "FromUserID": requestModel.FromUserID,
+        "ToUserID": requestModel.ToUserID,
+        "MarkAsRead": requestModel.MarkAsRead,
+      }),
+      isGetDataFromHive: isFromOffline,
+      isStoreDataInHive: isStoreDataInHive,
+    );
+
+    DataResponseModel<ChatUsersListResponseModel> apiResponseModel = await apiController.callApi<ChatUsersListResponseModel>(
+      apiCallModel: apiCallModel,
+    );
+    MyPrint.printOnConsole("aspi call model: ${apiResponseModel.data}");
+
+    return apiResponseModel;
+  }
 }

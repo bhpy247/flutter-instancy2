@@ -17,7 +17,7 @@ import '../../../backend/ui_actions/my_learning/my_learning_ui_actions_controlle
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
-import '../../../models/my_learning/data_model/my_learning_course_dto_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../utils/my_toast.dart';
 import '../../../utils/my_utils.dart';
 import '../../common/components/common_loader.dart';
@@ -85,7 +85,7 @@ class _MyLearningWaitlistScreenState extends State<MyLearningWaitlistScreen> wit
   }
 
   MyLearningUIActionCallbackModel getMyLearningUIActionCallbackModel({
-    required MyLearningCourseDTOModel model,
+    required CourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
     bool isSecondaryAction = true,
   }) {
@@ -207,7 +207,7 @@ class _MyLearningWaitlistScreenState extends State<MyLearningWaitlistScreen> wit
 
     // MyPrint.printOnConsole("My Learning Contents length In MyLearningScreen().getMyLearningContentsListView():${contents.length}");
 
-    List<MyLearningCourseDTOModel> contents = myLearningProvider.myLearningWaitlistContents.getList(isNewInstance: false);
+    List<CourseDTOModel> contents = myLearningProvider.myLearningWaitlistContents.getList(isNewInstance: false);
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -247,7 +247,7 @@ class _MyLearningWaitlistScreenState extends State<MyLearningWaitlistScreen> wit
             }
           }
 
-          MyLearningCourseDTOModel model = contents[index];
+          CourseDTOModel model = contents[index];
 
           return getMyLearningContentWidget(model: model);
         },
@@ -255,7 +255,7 @@ class _MyLearningWaitlistScreenState extends State<MyLearningWaitlistScreen> wit
     );
   }
 
-  Widget getMyLearningContentWidget({required MyLearningCourseDTOModel model}) {
+  Widget getMyLearningContentWidget({required CourseDTOModel model}) {
     LocalStr localStr = appProvider.localStr;
 
     MyLearningUIActionsController myLearningUIActionsController = MyLearningUIActionsController(
@@ -266,7 +266,7 @@ class _MyLearningWaitlistScreenState extends State<MyLearningWaitlistScreen> wit
 
     List<InstancyUIActionModel> options = myLearningUIActionsController
         .getMyLearningScreenPrimaryActions(
-          myLearningCourseDTOModel: model,
+          model: model,
           localStr: localStr,
           myLearningUIActionCallbackModel: getMyLearningUIActionCallbackModel(
             model: model,
@@ -279,7 +279,7 @@ class _MyLearningWaitlistScreenState extends State<MyLearningWaitlistScreen> wit
     InstancyContentActionsEnum? primaryActionEnum = primaryAction?.actionsEnum;
 
     return MyLearningCard(
-      myLearningCourseDTOModel: model,
+      courseDTOModel: model,
       primaryAction: primaryAction,
       isShowMoreOption: false,
       onPrimaryActionTap: () {

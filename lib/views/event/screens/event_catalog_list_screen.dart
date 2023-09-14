@@ -4,8 +4,8 @@ import 'package:flutter_instancy_2/backend/event/event_controller.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/event_catalog/event_catalog_ui_actions_controller.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/tab_data_model.dart';
-import 'package:flutter_instancy_2/models/course/data_model/mobile_lms_course_model.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
@@ -28,8 +28,8 @@ import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
 import '../../../models/catalog/request_model/add_content_to_my_learning_request_model.dart';
 import '../../../models/catalog/response_model/removeFromWishlistModel.dart';
-import '../../../models/classroom_events/data_model/event_recodting_mobile_lms_data_model.dart';
 import '../../../models/common/pagination/pagination_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../models/event_track/request_model/view_recording_request_model.dart';
 import '../../../models/waitlist/response_model/add_to_waitList_response_model.dart';
 import '../../../utils/my_print.dart';
@@ -210,7 +210,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
   }
 
   EventCatalogUIActionCallbackModel getEventCatalogUIActionCallbackModel({
-    required MobileLmsCourseModel model,
+    required CourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
     bool isSecondaryAction = true,
     required int index,
@@ -234,8 +234,8 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
 
         bool isCancelled = await EventController(eventProvider: null).cancelEventEnrollment(
           context: context,
-          eventId: model.contentid,
-          isBadCancellationEnabled: model.isbadcancellationenabled == true,
+          eventId: model.ContentID,
+          isBadCancellationEnabled: model.isBadCancellationEnabled == true,
         );
         MyPrint.printOnConsole("isCancelled:$isCancelled");
 
@@ -268,7 +268,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         isLoading = true;
         mySetState();
         bool isSuccess = await CatalogController(provider: null).addContentToWishlist(
-          contentId: model.contentid,
+          contentId: model.ContentID,
           componentId: componentId,
           componentInstanceId: componentInsId,
         );
@@ -277,7 +277,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         mySetState();
 
         if (isSuccess) {
-          model.iswishlistcontent = 1;
+          model.isWishListContent = 1;
           mySetState();
         }
 
@@ -295,7 +295,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         mySetState();
         MyPrint.printOnConsole("Component instance id: $componentInsId");
         RemoveFromWishlistResponseModel removeFromWishlistResponseModel = await CatalogController(provider: null).removeContentFromWishlist(
-          contentId: model.contentid,
+          contentId: model.ContentID,
           componentId: componentId,
           componentInstanceId: componentInsId,
         );
@@ -303,7 +303,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         mySetState();
         MyPrint.printOnConsole("valueeee: ${removeFromWishlistResponseModel.isSuccess}");
         if (removeFromWishlistResponseModel.isSuccess) {
-          model.iswishlistcontent = 0;
+          model.isWishListContent = 0;
           mySetState();
         }
         if (pageMounted && context.mounted) {
@@ -316,11 +316,11 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
       },
       onAddToWaitListTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
-        MyPrint.printOnConsole("Content id: ${model.contentid}");
+        MyPrint.printOnConsole("Content id: ${model.ContentID}");
         isLoading = true;
         mySetState();
         AddToWaitListResponseModel addToWaitListResponseModel = await CatalogController(provider: null).addContentToWaitList(
-          contentId: model.contentid,
+          contentId: model.ContentID,
           componentId: componentId,
           componentInstanceId: componentInsId,
         );
@@ -349,12 +349,12 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
 
         bool isSuccess = await EventController(eventProvider: null).addEventToCalender(
           context: context,
-          EventStartDateTime: model.eventstartdatetime,
-          EventEndDateTime: model.eventenddatetime,
+          EventStartDateTime: model.EventStartDateTime,
+          EventEndDateTime: model.EventEndDateTime,
           eventDateTimeFormat: appProvider.appSystemConfigurationModel.eventDateTimeFormat,
-          Title: model.name,
-          ShortDescription: model.shortdescription,
-          LocationName: model.locationname,
+          Title: model.ContentName,
+          ShortDescription: model.ShortDescription,
+          LocationName: model.LocationName,
         );
         if (pageMounted && context.mounted) {
           if (isSuccess) {
@@ -373,12 +373,12 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
             navigationType: NavigationType.pushNamed,
           ),
           arguments: EventTrackScreenArguments(
-            eventTrackTabType: model.objecttypeid == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
-            objectTypeId: model.objecttypeid,
+            eventTrackTabType: model.ContentTypeId == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
+            objectTypeId: model.ContentTypeId,
             isRelatedContent: true,
-            parentContentId: model.contentid,
+            parentContentId: model.ContentID,
             componentId: componentId,
-            scoId: model.scoid,
+            scoId: model.ScoID,
             componentInstanceId: componentInsId,
             isContentEnrolled: true,
           ),
@@ -395,43 +395,44 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
       onViewQRCodeTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 
-        NavigationController.navigateToQRCodeImageScreen(
+        //TODO: Find parameter to show QR Code
+        /*NavigationController.navigateToQRCodeImageScreen(
           navigationOperationParameters: NavigationOperationParameters(
             context: context,
             navigationType: NavigationType.pushNamed,
           ),
           arguments: QRCodeImageScreenNavigationArguments(qrCodePath: model.actionviewqrcode),
           // arguments: QRCodeImageScreenNavigationArguments(qrCodePath: model.ac),
-        );
+        );*/
       },
       onJoinTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 
-        EventController(eventProvider: null).joinVirtualEvent(context: context, joinUrl: model.participanturl);
+        EventController(eventProvider: null).joinVirtualEvent(context: context, joinUrl: model.JoinURL);
       },
       onViewRecordingTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 
-        MyPrint.printOnConsole("onViewRecordingTap called for ObjectTypeId:${model.objecttypeid} and contentId:${model.contentid}");
+        MyPrint.printOnConsole("onViewRecordingTap called for ObjectTypeId:${model.ContentTypeId} and contentId:${model.ContentID}");
 
-        EventRecordingMobileLMSDataModel? recordingDetails = model.recordingModel;
+        EventRecordingDetailsModel? recordingDetails = model.RecordingDetails;
 
         if (recordingDetails == null) {
           MyPrint.printOnConsole("recordingDetails are null");
           return;
         }
         ViewRecordingRequestModel viewRecordingRequestModel = ViewRecordingRequestModel(
-          contentName: recordingDetails.contentname,
-          contentID: recordingDetails.contentid,
-          contentTypeId: ParsingHelper.parseIntMethod(recordingDetails.contenttypeid),
-          eventRecordingURL: recordingDetails.eventrecordingurl,
-          eventRecording: ParsingHelper.parseBoolMethod(recordingDetails.eventrecording),
-          jWVideoKey: recordingDetails.jwvideokey ?? "",
-          language: recordingDetails.language,
-          recordingType: recordingDetails.recordingtype,
-          scoID: recordingDetails.scoid ?? "",
-          jwVideoPath: recordingDetails.viewlink ?? "",
-          viewType: recordingDetails.viewtype ?? "",
+          contentName: recordingDetails.ContentName,
+          contentID: recordingDetails.ContentID,
+          contentTypeId: ParsingHelper.parseIntMethod(recordingDetails.ContentID),
+          eventRecordingURL: recordingDetails.EventRecordingURL,
+          eventRecording: ParsingHelper.parseBoolMethod(recordingDetails.EventRecording),
+          jWVideoKey: recordingDetails.JWVideoKey,
+          language: recordingDetails.Language,
+          recordingType: recordingDetails.RecordingType,
+          scoID: recordingDetails.ScoID,
+          jwVideoPath: recordingDetails.ViewLink,
+          viewType: recordingDetails.ViewType,
         );
         EventController(eventProvider: null).viewRecordingForEvent(model: viewRecordingRequestModel, context: context);
       },
@@ -444,12 +445,12 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
             navigationType: NavigationType.pushNamed,
           ),
           arguments: EventTrackScreenArguments(
-            objectTypeId: model.objecttypeid,
+            objectTypeId: model.ContentTypeId,
             eventTrackTabType: EventTrackTabs.session,
             isRelatedContent: false,
-            parentContentId: model.contentid,
+            parentContentId: model.ContentID,
             componentId: componentId,
-            scoId: model.scoid,
+            scoId: model.ScoID,
             componentInstanceId: componentInsId,
             isContentEnrolled: true,
           ),
@@ -465,8 +466,8 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
           ),
           arguments: RecommendToScreenNavigationArguments(
             shareContentType: ShareContentType.catalogCourse,
-            contentId: model.contentid,
-            contentName: model.name,
+            contentId: model.ContentID,
+            contentName: model.ContentName,
             componentId: componentId,
           ),
         );
@@ -481,8 +482,8 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
           ),
           arguments: ShareWithConnectionsScreenNavigationArguments(
             shareContentType: ShareContentType.catalogCourse,
-            contentId: model.contentid,
-            contentName: model.name,
+            contentId: model.ContentID,
+            contentName: model.ContentName,
             shareProvider: context.read<ShareProvider>(),
           ),
         );
@@ -497,8 +498,8 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
           ),
           arguments: ShareWithPeopleScreenNavigationArguments(
             shareContentType: ShareContentType.catalogCourse,
-            contentId: model.contentid,
-            contentName: model.name,
+            contentId: model.ContentID,
+            contentName: model.ContentName,
           ),
         );
       },
@@ -509,7 +510,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
   }
 
   Future<void> showMoreAction({
-    required MobileLmsCourseModel model,
+    required CourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
     required int index,
   }) async {
@@ -520,7 +521,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
     // MyPrint.printOnConsole("isWIshlishContent: ${model.isWishListContent}");
     List<InstancyUIActionModel> options = catalogUIActionsController
         .getEventCatalogScreenSecondaryActions(
-          mobileLmsCourseModel: model,
+      courseDTOModel: model,
           localStr: localStr,
           eventCatalogUIActionCallbackModel: getEventCatalogUIActionCallbackModel(
             model: model,
@@ -541,8 +542,8 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
     );
   }
 
-  Future<void> onDetailsTap({required MobileLmsCourseModel model, bool isRescheduleEvent = false}) async {
-    String parentContentId = model.instanceparentcontentid;
+  Future<void> onDetailsTap({required CourseDTOModel model, bool isRescheduleEvent = false}) async {
+    String parentContentId = model.InstanceParentContentID;
     MyPrint.printOnConsole("parentContentId:'$parentContentId'");
 
     if (isRescheduleEvent && parentContentId.isEmpty) {
@@ -556,11 +557,11 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         navigationType: NavigationType.pushNamed,
       ),
       arguments: CourseDetailScreenNavigationArguments(
-        contentId: isRescheduleEvent ? parentContentId : model.contentid,
+        contentId: isRescheduleEvent ? parentContentId : model.ContentID,
         componentId: isRescheduleEvent ? InstancyComponents.Catalog : widget.arguments.componentId,
         componentInstanceId: widget.arguments.componentInsId,
         userId: ApiController().apiDataProvider.getCurrentUserId(),
-        screenType: InstancyContentScreenType.MyLearning,
+        screenType: InstancyContentScreenType.Catalog,
         isRescheduleEvent: isRescheduleEvent,
       ),
     );
@@ -573,7 +574,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
     );
   }
 
-  Future<void> addContentToMyLearning({required MobileLmsCourseModel model, required int index, bool isShowToast = true}) async {
+  Future<void> addContentToMyLearning({required CourseDTOModel model, required int index, bool isShowToast = true}) async {
     /*if (model.AddLink == ContentAddLinkOperations.redirecttodetails) {
       onDetailsTap(model: model);
       return;
@@ -584,8 +585,8 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
 
     bool isSuccess = await CatalogController(provider: null).addContentToMyLearning(
       requestModel: AddContentToMyLearningRequestModel(
-        SelectedContent: model.contentid,
-        multiInstanceParentId: model.parentid,
+        SelectedContent: model.ContentID,
+        multiInstanceParentId: model.InstanceParentContentID,
         ERitems: "",
         HideAdd: "",
         AdditionalParams: "",
@@ -772,7 +773,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
           scheduleWidget,
           const SizedBox(height: 10),
         ],
-        getSearchTextFormField(),
+        if (tabId != EventCatalogTabTypes.calendarView) getSearchTextFormField(),
         const SizedBox(height: 10),
         getSelectedFiltersListviewWidget(),
         Expanded(
@@ -815,6 +816,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
             margin: selectedFiltersCount > 0 ? const EdgeInsets.only(top: 5, right: 5) : null,
             child: InkWell(
               onTap: () async {
+                FocusScope.of(context).requestFocus(FocusNode());
                 navigateToFilterScreen();
               },
               child: const Icon(
@@ -861,6 +863,8 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
           children: [
             InkWell(
               onTap: () async {
+                FocusScope.of(context).requestFocus(FocusNode());
+
                 dynamic value = await NavigationController.navigateToSortingScreen(
                   navigationOperationParameters: NavigationOperationParameters(
                     context: context,
@@ -958,6 +962,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         );
       },
       onFilterChipTap: ({required String contentFilterByTypes}) {
+        FocusScope.of(context).requestFocus(FocusNode());
         if (contentFilterByTypes.isEmpty) return;
 
         navigateToFilterScreen(contentFilterByTypes: contentFilterByTypes);
@@ -1032,7 +1037,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
       );
     }
 
-    List<MobileLmsCourseModel> list = eventProvider.eventsList.getList(isNewInstance: false);
+    List<CourseDTOModel> list = eventProvider.eventsList.getList(isNewInstance: false);
 
     return RefreshIndicator(
       onRefresh: onRefresh,
@@ -1069,7 +1074,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
             onPagination();
           }
 
-          MobileLmsCourseModel model = list[index];
+          CourseDTOModel model = list[index];
 
           EventCatalogUIActionsController eventCatalogUIActionsController = EventCatalogUIActionsController(
             appProvider: appProvider,
@@ -1078,7 +1083,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
 
           List<InstancyUIActionModel> options = eventCatalogUIActionsController
               .getEventCatalogScreenPrimaryActions(
-                mobileLmsCourseDTOModel: model,
+                courseDTOModel: model,
                 localStr: localStr,
                 catalogUIActionCallbackModel: getEventCatalogUIActionCallbackModel(
                   model: model,
@@ -1106,6 +1111,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
                 }
               },
               onMoreButtonTap: () {
+                FocusScope.of(context).requestFocus(FocusNode());
                 showMoreAction(model: model, primaryAction: primaryActionEnum, index: index);
               },
             ),
@@ -1126,10 +1132,16 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         initialDisplayDate: eventProvider.calenderDate.get(),
         cellEndPadding: 1,
         view: CalendarView.month,
+        minDate: DateTime.now(),
+        onSelectionChanged: (ee) async {
+          onCalenderDateChanged(newDate: ee.date);
+        },
+        // onTap: (calendarDetails){
+        //   onCalenderDateChanged(newDate: calendarDetails.date);
+        //   mySetState();
+        // },
         showNavigationArrow: true,
-        headerStyle: const CalendarHeaderStyle(
-          textAlign: TextAlign.center,
-        ),
+        headerStyle: const CalendarHeaderStyle(textAlign: TextAlign.center, textStyle: TextStyle(fontWeight: FontWeight.bold)),
         showDatePickerButton: true,
         cellBorderColor: Colors.transparent,
         /*monthCellBuilder: (BuildContext context, MonthCellDetails monthCellDetails) {
@@ -1195,6 +1207,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
                   children: [
                     Text(
                       DatePresentation.ddMMMMyyyyTimeStamp(Timestamp.fromDate(scheduleDate)),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const Icon(
                       Icons.arrow_drop_down_sharp,

@@ -13,20 +13,20 @@ import 'package:provider/provider.dart';
 import '../../../backend/app/app_provider.dart';
 import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
-import '../../../models/my_learning/data_model/my_learning_course_dto_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../utils/my_print.dart';
 import '../../common/components/common_button.dart';
 import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
 
 class MyLearningCard extends StatefulWidget {
-  final MyLearningCourseDTOModel myLearningCourseDTOModel;
+  final CourseDTOModel courseDTOModel;
   final InstancyUIActionModel? primaryAction;
   final void Function()? onMoreButtonTap, onPrimaryActionTap, onThumbnailClick;
   final bool isShowMoreOption;
 
   const MyLearningCard({
     Key? key,
-    required this.myLearningCourseDTOModel,
+    required this.courseDTOModel,
     this.primaryAction,
     this.onThumbnailClick,
     this.onMoreButtonTap,
@@ -63,10 +63,10 @@ class _MyLearningCardState extends State<MyLearningCard> {
                   widget.onThumbnailClick!();
                 }
               },
-              child: imageWidget(widget.myLearningCourseDTOModel.ThumbnailImagePath),
+              child: imageWidget(widget.courseDTOModel.ThumbnailImagePath),
             ),
             const SizedBox(width: 10),
-            Expanded(child: detailColumn(widget.myLearningCourseDTOModel))
+            Expanded(child: detailColumn(widget.courseDTOModel))
           ],
         ),
       ),
@@ -102,7 +102,7 @@ class _MyLearningCardState extends State<MyLearningCard> {
     );
   }
 
-  Widget detailColumn(MyLearningCourseDTOModel model) {
+  Widget detailColumn(CourseDTOModel model) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -180,7 +180,7 @@ class _MyLearningCardState extends State<MyLearningCard> {
     );
   }
 
-  Widget eventStartDateAndTime(MyLearningCourseDTOModel model) {
+  Widget eventStartDateAndTime(CourseDTOModel model) {
     if (model.EventStartDateTime.isEmpty || model.EventEndDateTime.isEmpty || model.ContentTypeId != InstancyObjectTypes.events) return const SizedBox();
 
     AppConfigurationOperations appConfigurationOperations = AppConfigurationOperations(appProvider: context.read<AppProvider>());
@@ -346,7 +346,7 @@ class _MyLearningCardState extends State<MyLearningCard> {
     );
   }
 
-  Widget downloadIcon(MyLearningCourseDTOModel model) {
+  Widget downloadIcon(CourseDTOModel model) {
     if ((model.ContentTypeId == 10 && model.bit5) || [20, 27, 28, 36, 70, 102, 688, 693].contains(model.ContentTypeId)) {
       return const SizedBox();
     }
@@ -376,7 +376,7 @@ class _MyLearningCardState extends State<MyLearningCard> {
   }
 
   Widget getPrimaryActionButton({
-    required MyLearningCourseDTOModel model,
+    required CourseDTOModel model,
     required BuildContext context,
     required InstancyUIActionModel? primaryAction,
   }) {

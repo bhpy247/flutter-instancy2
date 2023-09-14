@@ -4,13 +4,9 @@ import 'package:flutter_instancy_2/backend/Catalog/catalog_repository.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/local_str.dart';
-import 'package:flutter_instancy_2/models/catalog/request_model/mobile_catalog_objects_data_request_model.dart';
-import 'package:flutter_instancy_2/models/catalog/response_model/mobile_catalog_objects_data_response_model.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/tab_data_model.dart';
 import 'package:flutter_instancy_2/models/classroom_events/request_model/tabs_list_request_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
-import 'package:flutter_instancy_2/models/course/data_model/mobile_lms_course_model.dart';
-import 'package:flutter_instancy_2/models/event/data_model/event_session_course_dto_model.dart';
 import 'package:flutter_instancy_2/models/event/response_model/event_session_data_response_model.dart';
 import 'package:flutter_instancy_2/models/event_track/request_model/view_recording_request_model.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
@@ -22,7 +18,10 @@ import '../../api/api_controller.dart';
 import '../../api/api_url_configuration_provider.dart';
 import '../../configs/app_configurations.dart';
 import '../../models/app_configuration_models/data_models/component_configurations_model.dart';
+import '../../models/catalog/request_model/catalog_request_model.dart';
+import '../../models/catalog/response_model/catalog_dto_response_model.dart';
 import '../../models/common/pagination/pagination_model.dart';
+import '../../models/course/data_model/CourseDTOModel.dart';
 import '../../models/filter/data_model/enabled_content_filter_by_type_model.dart';
 import '../../models/filter/data_model/filter_duration_value_model.dart';
 import '../../utils/my_print.dart';
@@ -64,7 +63,7 @@ class EventController {
     provider.sortEnabled.set(value: AppConfigurations.getSortEnabledFromContentFilterBy(contentFilterBy: model.contentFilterBy), isNotify: false);
   }
 
-  Future<List<EventSessionCourseDTOModel>> getEventSessionsList({
+  Future<List<CourseDTOModel>> getEventSessionsList({
     required String eventId,
     bool isNotify = true,
   }) async {
@@ -80,7 +79,7 @@ class EventController {
       return [];
     }
 
-    List<EventSessionCourseDTOModel> courseList = <EventSessionCourseDTOModel>[];
+    List<CourseDTOModel> courseList = <CourseDTOModel>[];
 
     provider.isLoadingEventSessionData.set(value: true, isNotify: isNotify);
 
@@ -140,7 +139,7 @@ class EventController {
   }
 
   // region Events Listing
-  Future<List<MobileLmsCourseModel>> getEventCatalogContentsListFromApi({
+  Future<List<CourseDTOModel>> getEventCatalogContentsListFromApi({
     bool isRefresh = true,
     bool isGetFromCache = false,
     bool isNotify = true,
@@ -180,7 +179,7 @@ class EventController {
         notifier: provider.notify,
         notify: isNotify,
       );
-      provider.eventsList.setList(list: <MobileLmsCourseModel>[], isClear: true, isNotify: isNotify);
+      provider.eventsList.setList(list: <CourseDTOModel>[], isClear: true, isNotify: isNotify);
     }
     //endregion
 
@@ -207,7 +206,7 @@ class EventController {
     DateTime startTime = DateTime.now();
 
     //region Get Request Model From Provider Data
-    MobileCatalogObjectsDataRequestModel catalogRequestModel = getMobileCatalogObjectsDataRequestModelModelFromProviderData(
+    CatalogRequestModel catalogRequestModel = getCatalogRequestModelModelFromProviderData(
       provider: provider,
       tabId: tabId,
       paginationModel: provider.eventsPaginationModel.get(),
@@ -219,14 +218,14 @@ class EventController {
     //endregion
 
     //region Make Api Call
-    DataResponseModel<MobileCatalogObjectsDataResponseModel> response = await CatalogRepository(apiController: eventRepository.apiController).getMobileCatalogObjectsData(
+    DataResponseModel<CatalogResponseDTOModel> response = await CatalogRepository(apiController: eventRepository.apiController).getCatalogContentList(
       requestModel: catalogRequestModel,
       componentId: componentId,
       componentInstanceId: componentInstanceId,
       isStoreDataInHive: true,
       isFromOffline: false,
     );
-    MyPrint.printOnConsole("Event Catalog Contents Length:${response.data?.table2.length ?? 0}", tag: tag);
+    MyPrint.printOnConsole("Event Catalog Contents Length:${response.data?.CourseList.length ?? 0}", tag: tag);
     //endregion
 
     DateTime endTime = DateTime.now();
@@ -237,7 +236,7 @@ class EventController {
       return provider.eventsList.getList(isNewInstance: true);
     }
 
-    List<MobileLmsCourseModel> contentsList = response.data?.table2 ?? <MobileLmsCourseModel>[];
+    List<CourseDTOModel> contentsList = response.data?.CourseList ?? <CourseDTOModel>[];
     MyPrint.printOnConsole("Event Catalog Contents Length got in Api:${contentsList.length}", tag: tag);
 
     //region Set Provider Data After Getting Data From Api
@@ -256,7 +255,7 @@ class EventController {
     return provider.eventsList.getList(isNewInstance: true);
   }
 
-  MobileCatalogObjectsDataRequestModel getMobileCatalogObjectsDataRequestModelModelFromProviderData({
+  CatalogRequestModel getCatalogRequestModelModelFromProviderData({
     required EventProvider provider,
     required String tabId,
     required PaginationModel paginationModel,
@@ -324,7 +323,7 @@ class EventController {
       additionalFilter = DatePresentation.getFormattedDate(dateFormat: "yyyy-MM-dd HH:mm:ss", dateTime: scheduleDate) ?? "";
     }
 
-    return MobileCatalogObjectsDataRequestModel(
+    return CatalogRequestModel(
       iswishlistcontent: isWishList ? 1 : 0,
       componentID: ParsingHelper.parseStringMethod(componentId),
       componentInsID: ParsingHelper.parseStringMethod(componentInstanceId),

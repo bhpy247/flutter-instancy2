@@ -10,10 +10,10 @@ import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui
 import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_parameter_model.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_actions_controller.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
-import 'package:flutter_instancy_2/models/content_details/data_model/content_details_dto_model.dart';
 
 import '../../../configs/app_constants.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../utils/my_print.dart';
 import '../../../views/common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import '../../my_learning/my_learning_provider.dart';
@@ -153,7 +153,7 @@ class CourseDetailsUIActionsController {
   }
 
   // Iterable<InstancyUIActionModel> getCourseDetailsPrimaryActions({
-  //   required ContentDetailsDTOModel contentDetailsDTOModel,
+  //   required CourseDTOModel contentDetailsDTOModel,
   //   required InstancyContentScreenType screenType,
   //   required LocalStr localStr,
   //   required MyLearningUIActionCallbackModel myLearningUIActionCallbackModel,
@@ -173,7 +173,7 @@ class CourseDetailsUIActionsController {
   //       viewType: contentDetailsDTOModel.ViewType,
   //       localStr: localStr,
   //       myLearningUIActionCallbackModel: myLearningUIActionCallbackModel,
-  //       parameterModel: getMyLearningUIActionParameterModelFromContentDetailsDTOModel(model: contentDetailsDTOModel),
+  //       parameterModel: getMyLearningUIActionParameterModelFromCourseDTOModel(model: contentDetailsDTOModel),
   //     );
   //   }
   //   else if(screenType == InstancyContentScreenType.Catalog)  {
@@ -184,13 +184,13 @@ class CourseDetailsUIActionsController {
   //       isContentEnrolled: contentDetailsDTOModel.isContentEnrolled,
   //       localStr: localStr,
   //       catalogUIActionCallbackModel: catalogUIActionCallbackModel,
-  //       parameterModel: getCatalogUIActionParameterModelFromContentDetailsDTOModel(model: contentDetailsDTOModel),
+  //       parameterModel: getCatalogUIActionParameterModelFromCourseDTOModel(model: contentDetailsDTOModel),
   //     );
   //   }
   // }
 
   Iterable<InstancyUIActionModel> getCourseDetailsPrimaryActions({
-    required ContentDetailsDTOModel contentDetailsDTOModel,
+    required CourseDTOModel contentDetailsDTOModel,
     required InstancyContentScreenType screenType,
     required LocalStr localStr,
     required CourseDetailsUIActionCallbackModel callBackModel,
@@ -230,7 +230,7 @@ class CourseDetailsUIActionsController {
   }
 
   Iterable<InstancyUIActionModel> getCourseDetailsSecondaryActions({
-    required ContentDetailsDTOModel contentDetailsDTOModel,
+    required CourseDTOModel contentDetailsDTOModel,
     required InstancyContentScreenType screenType,
     required LocalStr localStr,
     required MyLearningUIActionCallbackModel myLearningUIActionCallbackModel,
@@ -250,7 +250,7 @@ class CourseDetailsUIActionsController {
         viewType: contentDetailsDTOModel.ViewType,
         localStr: localStr,
         myLearningUIActionCallbackModel: myLearningUIActionCallbackModel,
-        parameterModel: getMyLearningUIActionParameterModelFromContentDetailsDTOModel(model: contentDetailsDTOModel),
+        parameterModel: getMyLearningUIActionParameterModelFromCourseDTOModel(model: contentDetailsDTOModel),
       );
     } else if (screenType == InstancyContentScreenType.Catalog) {
       yield* CatalogUIActionsController(appProvider: appProvider).getCatalogScreenSecondaryActionsFromCatalogUIActionParameterModel(
@@ -260,12 +260,12 @@ class CourseDetailsUIActionsController {
         isContentEnrolled: contentDetailsDTOModel.isContentEnrolled.toLowerCase() == "1" || contentDetailsDTOModel.isContentEnrolled.toLowerCase() == "true",
         localStr: localStr,
         catalogUIActionCallbackModel: catalogUIActionCallbackModel,
-        parameterModel: getCatalogUIActionParameterModelFromContentDetailsDTOModel(contentDetailsDTOModel: contentDetailsDTOModel),
+        parameterModel: getCatalogUIActionParameterModelFromCourseDTOModel(contentDetailsDTOModel: contentDetailsDTOModel),
       );
     }
   }
 
-  MyLearningUIActionParameterModel getMyLearningUIActionParameterModelFromContentDetailsDTOModel({required ContentDetailsDTOModel model}) {
+  MyLearningUIActionParameterModel getMyLearningUIActionParameterModelFromCourseDTOModel({required CourseDTOModel model}) {
     return MyLearningUIActionParameterModel(
       objectTypeId: model.ContentTypeId,
       mediaTypeId: model.MediaTypeID,
@@ -283,7 +283,7 @@ class CourseDetailsUIActionsController {
       eventStartDatetime: model.EventStartDateTime,
       isArchived: model.IsArchived,
       removeLink: "",
-      eventRecording: model.recordingDetails,
+      eventRecording: model.RecordingDetails,
       InstanceEventReSchedule: model.ReScheduleEvent,
       CertificateLink: model.CertificateLink,
       ActionViewQRcode: model.ActionViewQRcode,
@@ -293,7 +293,7 @@ class CourseDetailsUIActionsController {
     );
   }
 
-  CatalogUIActionParameterModel getCatalogUIActionParameterModelFromContentDetailsDTOModel({required ContentDetailsDTOModel contentDetailsDTOModel}) {
+  CatalogUIActionParameterModel getCatalogUIActionParameterModelFromCourseDTOModel({required CourseDTOModel contentDetailsDTOModel}) {
     return CatalogUIActionParameterModel(
       objectTypeId: contentDetailsDTOModel.ContentTypeId,
       mediaTypeId: contentDetailsDTOModel.MediaTypeID,
@@ -304,7 +304,7 @@ class CourseDetailsUIActionsController {
       hasRelatedContents: contentDetailsDTOModel.AddLink.startsWith("addrecommenedrelatedcontent"),
       isContentEnrolled: contentDetailsDTOModel.isContentEnrolled.toLowerCase() == "1" || contentDetailsDTOModel.isContentEnrolled.toLowerCase() == "true",
       bit4: contentDetailsDTOModel.bit4,
-      eventRecording: contentDetailsDTOModel.recordingDetails != null,
+      eventRecording: contentDetailsDTOModel.RecordingDetails != null,
       ViewLink: contentDetailsDTOModel.ViewLink,
       AddLink: contentDetailsDTOModel.AddLink,
       BuyNowLink: contentDetailsDTOModel.BuyNowLink,

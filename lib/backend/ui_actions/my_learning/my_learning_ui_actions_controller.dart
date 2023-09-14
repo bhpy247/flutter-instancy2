@@ -7,7 +7,7 @@ import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/
 
 import '../../../configs/app_constants.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
-import '../../../models/my_learning/data_model/my_learning_course_dto_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../utils/my_print.dart';
 import '../../../views/common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import '../../my_learning/my_learning_provider.dart';
@@ -256,19 +256,19 @@ class MyLearningUIActionsController {
 
   //region Primary Actions
   Iterable<InstancyUIActionModel> getMyLearningScreenPrimaryActions({
-    required MyLearningCourseDTOModel myLearningCourseDTOModel,
+    required CourseDTOModel model,
     required LocalStr localStr,
     required MyLearningUIActionCallbackModel myLearningUIActionCallbackModel,
   }) sync* {
     // MyPrint.printOnConsole("getMyLearningScreenPrimaryActions called with objectTypeId:${myLearningCourseDTOModel.ContentTypeId},"
     //     " mediaTypeID:${myLearningCourseDTOModel.MediaTypeID}, ViewType:${myLearningCourseDTOModel.ViewType}, Name:${myLearningCourseDTOModel.TitleName}");
 
-    MyLearningUIActionParameterModel parameterModel = getMyLearningUIActionParameterModelFromMyLearningCourseDTOModel(myLearningCourseDTOModel: myLearningCourseDTOModel);
+    MyLearningUIActionParameterModel parameterModel = getMyLearningUIActionParameterModelFromCourseDTOModel(model: model);
 
     yield* getMyLearningScreenPrimaryActionsFromMyLearningUIActionParameterModel(
-      objectTypeId: myLearningCourseDTOModel.ContentTypeId,
-      mediaTypeId: myLearningCourseDTOModel.MediaTypeID,
-      viewType: myLearningCourseDTOModel.ViewType,
+      objectTypeId: model.ContentTypeId,
+      mediaTypeId: model.MediaTypeID,
+      viewType: model.ViewType,
       parameterModel: parameterModel,
       localStr: localStr,
       myLearningUIActionCallbackModel: myLearningUIActionCallbackModel,
@@ -306,14 +306,14 @@ class MyLearningUIActionsController {
 
   //region Secondary Actions
   Iterable<InstancyUIActionModel> getMyLearningScreenSecondaryActions({
-    required MyLearningCourseDTOModel myLearningCourseDTOModel,
+    required CourseDTOModel myLearningCourseDTOModel,
     required LocalStr localStr,
     required MyLearningUIActionCallbackModel myLearningUIActionCallbackModel,
   }) sync* {
     MyPrint.printOnConsole("getMyLearningScreenSecondaryActions called with objectTypeId:${myLearningCourseDTOModel.ContentTypeId},"
         " mediaTypeID:${myLearningCourseDTOModel.MediaTypeID}");
 
-    MyLearningUIActionParameterModel parameterModel = getMyLearningUIActionParameterModelFromMyLearningCourseDTOModel(myLearningCourseDTOModel: myLearningCourseDTOModel);
+    MyLearningUIActionParameterModel parameterModel = getMyLearningUIActionParameterModelFromCourseDTOModel(model: myLearningCourseDTOModel);
 
     List<InstancyContentActionsEnum> actions1 = PrimarySecondaryActionsController.getPrimaryActionForMyLearningContent(
       mediaTypeId: myLearningCourseDTOModel.MediaTypeID,
@@ -381,33 +381,33 @@ class MyLearningUIActionsController {
 
   //endregion
 
-  MyLearningUIActionParameterModel getMyLearningUIActionParameterModelFromMyLearningCourseDTOModel({
-    required MyLearningCourseDTOModel myLearningCourseDTOModel,
+  MyLearningUIActionParameterModel getMyLearningUIActionParameterModelFromCourseDTOModel({
+    required CourseDTOModel model,
   }) {
     return MyLearningUIActionParameterModel(
-      objectTypeId: myLearningCourseDTOModel.ContentTypeId,
-      mediaTypeId: myLearningCourseDTOModel.MediaTypeID,
-      CancelEventLink: myLearningCourseDTOModel.CancelEventLink,
-      bit4: myLearningCourseDTOModel.bit4,
-      ViewLink: myLearningCourseDTOModel.ViewLink,
-      DetailsLink: myLearningCourseDTOModel.DetailsLink,
-      eventenddatetime: myLearningCourseDTOModel.EventEndDateTime,
-      EventType: myLearningCourseDTOModel.EventType,
-      eventScheduleType: myLearningCourseDTOModel.EventScheduleType,
-      RelatedContentLink: myLearningCourseDTOModel.RelatedContentLink,
-      IsRelatedcontent: myLearningCourseDTOModel.IsRelatedcontent,
-      actualStatus: myLearningCourseDTOModel.ActualStatus,
-      eventStartDatetime: myLearningCourseDTOModel.EventStartDateTime,
-      isArchived: myLearningCourseDTOModel.IsArchived,
-      removeLink: myLearningCourseDTOModel.RemoveLink,
-      eventRecording: myLearningCourseDTOModel.RecordingDetails,
-      InstanceEventReSchedule: myLearningCourseDTOModel.InstanceEventReSchedule,
-      CertificateLink: myLearningCourseDTOModel.CertificateLink,
-      ActionViewQRcode: myLearningCourseDTOModel.ActionViewQRcode,
-      suggestToConnectionsLink: myLearningCourseDTOModel.SuggesttoConnLink,
-      suggestWithFriendLink: myLearningCourseDTOModel.SuggestwithFriendLink,
-      shareLink: myLearningCourseDTOModel.Sharelink,
-      ViewSessionsLink: myLearningCourseDTOModel.ViewSessionsLink,
+      objectTypeId: model.ContentTypeId,
+      mediaTypeId: model.MediaTypeID,
+      CancelEventLink: model.CancelEventLink,
+      bit4: model.bit4,
+      ViewLink: model.ViewLink,
+      DetailsLink: model.DetailsLink,
+      eventenddatetime: model.EventEndDateTime,
+      EventType: model.EventType,
+      eventScheduleType: model.EventScheduleType,
+      RelatedContentLink: model.RelatedContentLink,
+      IsRelatedcontent: model.IsRelatedcontent,
+      actualStatus: model.ActualStatus,
+      eventStartDatetime: model.EventStartDateTime,
+      isArchived: model.IsArchived,
+      removeLink: model.RemoveLink,
+      eventRecording: model.RecordingDetails,
+      InstanceEventReSchedule: model.InstanceEventReSchedule,
+      CertificateLink: model.CertificateLink,
+      ActionViewQRcode: model.ActionViewQRcode,
+      suggestToConnectionsLink: model.SuggesttoConnLink,
+      suggestWithFriendLink: model.SuggestwithFriendLink,
+      shareLink: model.Sharelink,
+      ViewSessionsLink: model.ViewSessionsLink,
     );
   }
 

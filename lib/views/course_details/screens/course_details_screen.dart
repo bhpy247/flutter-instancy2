@@ -22,12 +22,10 @@ import 'package:flutter_instancy_2/configs/ui_configurations.dart';
 import 'package:flutter_instancy_2/models/catalog/request_model/add_content_to_my_learning_request_model.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
 import 'package:flutter_instancy_2/models/common/pagination/pagination_model.dart';
-import 'package:flutter_instancy_2/models/content_details/data_model/content_details_dto_model.dart';
 import 'package:flutter_instancy_2/models/content_details/request_model/course_details_request_model.dart';
 import 'package:flutter_instancy_2/models/content_details/request_model/course_details_schedule_data_request_model.dart';
 import 'package:flutter_instancy_2/models/content_review_ratings/data_model/content_user_rating_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
-import 'package:flutter_instancy_2/models/event/data_model/event_session_course_dto_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
@@ -139,7 +137,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
       ),
     );
 
-    ContentDetailsDTOModel? contentDetailsDTOModel = courseDetailsProvider.contentDetailsDTOModel.get();
+    CourseDTOModel? contentDetailsDTOModel = courseDetailsProvider.contentDetailsDTOModel.get();
     MyPrint.printOnConsole("contentDetailsDTOModel.ContentTypeId:${contentDetailsDTOModel?.ContentTypeId}");
     MyPrint.printOnConsole("contentDetailsDTOModel.EventScheduleType:${contentDetailsDTOModel?.EventScheduleType}");
 
@@ -159,7 +157,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
   }
 
   CatalogUIActionCallbackModel getCatalogUIActionCallbackModel({
-    required ContentDetailsDTOModel model,
+    required CourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
     bool isSecondaryAction = true,
   }) {
@@ -355,7 +353,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
   }
 
   MyLearningUIActionCallbackModel getMyLearningUIActionCallbackModel({
-    required ContentDetailsDTOModel model,
+    required CourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
     bool isSecondaryAction = true,
   }) {
@@ -509,7 +507,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
       onViewRecordingTap: () {
         if (isSecondaryAction) Navigator.pop(context);
 
-        EventRecordingDetailsModel? recordingDetails = model.recordingDetails;
+        EventRecordingDetailsModel? recordingDetails = model.RecordingDetails;
 
         if (recordingDetails == null) {
           MyPrint.printOnConsole("recordingDetails are null");
@@ -520,14 +518,14 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
           contentName: model.ContentName,
           contentID: model.ContentID,
           contentTypeId: model.ContentTypeId,
-          eventRecordingURL: recordingDetails.eventRecordingURL,
-          eventRecording: recordingDetails.eventRecording,
-          jWVideoKey: recordingDetails.jWVideoKey,
-          language: recordingDetails.language,
-          recordingType: recordingDetails.recordingType,
-          scoID: recordingDetails.scoID,
-          jwVideoPath: recordingDetails.viewLink,
-          viewType: recordingDetails.viewType,
+          eventRecordingURL: recordingDetails.EventRecordingURL,
+          eventRecording: recordingDetails.EventRecording,
+          jWVideoKey: recordingDetails.JWVideoKey,
+          language: recordingDetails.Language,
+          recordingType: recordingDetails.RecordingType,
+          scoID: recordingDetails.ScoID,
+          jwVideoPath: recordingDetails.ViewLink,
+          viewType: recordingDetails.ViewType,
         );
         EventController(eventProvider: null).viewRecordingForEvent(model: viewRecordingRequestModel, context: context);
       },
@@ -635,7 +633,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
   }
 
   CourseDetailsUIActionCallbackModel getCourseDetailsUIActionCallbackModel({
-    required ContentDetailsDTOModel model,
+    required CourseDTOModel model,
   }) {
     return CourseDetailsUIActionCallbackModel(
       onEnrollTap: () async {
@@ -685,7 +683,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
   }
 
   void showModalBottomSheetView({
-    required ContentDetailsDTOModel model,
+    required CourseDTOModel model,
     required InstancyContentScreenType screenType,
     InstancyContentActionsEnum? primaryAction,
   }) {
@@ -831,7 +829,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
   }
 
   Future<void> onContentLaunchTap({
-    required ContentDetailsDTOModel model,
+    required CourseDTOModel model,
   }) async {
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = myLearningController.myLearningRepository.apiController.apiDataProvider;
 
@@ -962,7 +960,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     );
   }
 
-  AppBar appBar({ContentDetailsDTOModel? contentDetailsDTOModel}) {
+  AppBar appBar({CourseDTOModel? contentDetailsDTOModel}) {
     return AppBar(
       leading: IconButton(
         onPressed: () {
@@ -992,7 +990,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     required CourseDetailsProvider courseDetailsProvider,
     required ContentReviewRatingsProvider contentReviewRatingsProvider,
   }) {
-    ContentDetailsDTOModel? contentDetailsDTOModel = courseDetailsProvider.contentDetailsDTOModel.get();
+    CourseDTOModel? contentDetailsDTOModel = courseDetailsProvider.contentDetailsDTOModel.get();
 
     if (contentDetailsDTOModel == null) {
       return Center(
@@ -1059,7 +1057,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
   }
 
   //region Course Info
-  Widget getCourseInfoWidget({required ContentDetailsDTOModel contentDetailsDTOModel}) {
+  Widget getCourseInfoWidget({required CourseDTOModel contentDetailsDTOModel}) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -1081,7 +1079,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             // color: AppConfigurations.getContentStatusColor(status: contentDetailsDTOModel.ContentStatus),
             // color: InstancyColors.progressBarFillColor,
             color: AppConfigurations.getContentStatusColorFromActualStatus(status: contentDetailsDTOModel.ActualStatus),
-            percentCompleted: contentDetailsDTOModel.percentagecompleted,
+            percentCompleted: contentDetailsDTOModel.PercentCompleted,
             objectTypeId: contentDetailsDTOModel.ContentTypeId,
             contentStatus: contentDetailsDTOModel.ContentStatus,
           ),
@@ -1250,7 +1248,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
   //endregion
 
-  Widget getPrimaryActionButton({required ContentDetailsDTOModel contentDetailsDTOModel}) {
+  Widget getPrimaryActionButton({required CourseDTOModel contentDetailsDTOModel}) {
     ThemeData themeData = Theme.of(context);
 
     LocalStr localStr = appProvider.localStr;
@@ -1390,7 +1388,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
   }
 
   //region courseDurationView
-  Widget courseDurationView({required ContentDetailsDTOModel contentDetailsDTOModel}) {
+  Widget courseDurationView({required CourseDTOModel contentDetailsDTOModel}) {
     if (contentDetailsDTOModel.Duration.isEmpty) {
       return const SizedBox();
     }
@@ -1405,7 +1403,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
               const SizedBox(
                 width: 10,
               ),
-              Text("${ParsingHelper.parseStringMethod(contentDetailsDTOModel.Duration)}")
+              Text(ParsingHelper.parseStringMethod(contentDetailsDTOModel.Duration))
             ],
           )),
     );
@@ -1462,7 +1460,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
   //endregion
 
   //region authorView
-  Widget getAuthorView({required ContentDetailsDTOModel contentDetailsDTOModel}) {
+  Widget getAuthorView({required CourseDTOModel contentDetailsDTOModel}) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: getWidgetWithTitle(
@@ -1484,7 +1482,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     );
   }
 
-  Widget getAuthorImageAndNameWidget({required ContentDetailsDTOModel contentDetailsDTOModel}) {
+  Widget getAuthorImageAndNameWidget({required CourseDTOModel contentDetailsDTOModel}) {
     MyPrint.printOnConsole("contentDetailsDTOModel.authorWithLink:${contentDetailsDTOModel.UserProfileImagePath}");
     String imageUrl = AppConfigurationOperations(appProvider: appProvider).getInstancyImageUrlFromImagePath(imagePath: contentDetailsDTOModel.UserProfileImagePath);
     MyPrint.printOnConsole("final imageUrl:$imageUrl");
@@ -1553,7 +1551,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
   //endregion
 
   //region reviews
-  Widget getReviews({required ContentDetailsDTOModel contentDetailsDTOModel}) {
+  Widget getReviews({required CourseDTOModel contentDetailsDTOModel}) {
     /*AppConfigurationOperations appConfigurationOperations = AppConfigurationOperations(appProvider: appProvider);
 
     if (!appConfigurationOperations.showReviewAndRatingSection(averageRating: contentDetailsDTOModel.RatingID)) {
@@ -1640,7 +1638,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
   //endregion
 
   //region ratings
-  Widget getRatings({required ContentDetailsDTOModel contentDetailsDTOModel}) {
+  Widget getRatings({required CourseDTOModel contentDetailsDTOModel}) {
     /*MyPrint.printOnConsole(
         "contentDetailsDTOModel.RatingID : ${contentDetailsDTOModel.RatingID} : appProvider.appSystemConfigurationModel.minimumRatingRequiredToShowRating: ${appProvider.appSystemConfigurationModel.minimumRatingRequiredToShowRating}");
     if (!AppConfigurationOperations(appProvider: appProvider).showReviewAndRatingSection(averageRating: contentDetailsDTOModel.RatingID)) {
@@ -1713,7 +1711,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
   //endregion
 
   Widget getMultiInstanceEventScheduleListWidget({required CourseDetailsProvider courseDetailsProvider}) {
-    ContentDetailsDTOModel? contentDetailsDTOModel = courseDetailsProvider.contentDetailsDTOModel.get();
+    CourseDTOModel? contentDetailsDTOModel = courseDetailsProvider.contentDetailsDTOModel.get();
 
     if (contentDetailsDTOModel == null ||
         contentDetailsDTOModel.ContentTypeId != InstancyObjectTypes.events ||
@@ -1789,7 +1787,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
   }
 
   Widget getEventSessionsListWidget({
-    ContentDetailsDTOModel? contentDetailsDTOModel,
+    CourseDTOModel? contentDetailsDTOModel,
     required EventProvider eventProvider,
   }) {
     if (contentDetailsDTOModel == null || contentDetailsDTOModel.ContentTypeId != InstancyObjectTypes.events || contentDetailsDTOModel.EventType != EventTypes.session) {
@@ -1804,7 +1802,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
     Widget child;
 
-    List<EventSessionCourseDTOModel> scheduleData = eventProvider.eventSessionData.getList(isNewInstance: false);
+    List<CourseDTOModel> scheduleData = eventProvider.eventSessionData.getList(isNewInstance: false);
 
     if (scheduleData.isEmpty) {
       child = Center(
@@ -1816,9 +1814,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         itemCount: scheduleData.length,
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (BuildContext context, int index) {
-          EventSessionCourseDTOModel eventSessionCourseDTOModel = scheduleData[index];
+          CourseDTOModel courseDTOModel = scheduleData[index];
 
-          return EventSessionCard(eventSessionCourseDTOModel: eventSessionCourseDTOModel);
+          return EventSessionCard(courseDTOModel: courseDTOModel);
         },
       );
     }

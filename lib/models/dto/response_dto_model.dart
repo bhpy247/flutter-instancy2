@@ -1,6 +1,5 @@
 import '../../utils/my_utils.dart';
 import '../../utils/parsing_helper.dart';
-import '../content_details/data_model/content_details_dto_model.dart';
 import '../course/data_model/CourseDTOModel.dart';
 import 'global_search_course_dto_model.dart';
 
@@ -12,7 +11,7 @@ class ResponseDTOModel {
   bool IsSuccess = false;
   CourseDTOModel? CourseObject;
   GlobalSearchCourseDTOModel? SearchObject;
-  ContentDetailsDTOModel? DetailsObject;
+  CourseDTOModel? DetailsObject;
 
   ResponseDTOModel({
     this.Message = "",
@@ -52,7 +51,7 @@ class ResponseDTOModel {
 
     Map<String, dynamic> DetailsObjectMap = ParsingHelper.parseMapMethod(json['DetailsObject']);
     if(DetailsObjectMap.isNotEmpty) {
-      DetailsObject = ContentDetailsDTOModel.fromJson(DetailsObjectMap);
+      DetailsObject = CourseDTOModel.fromMap(DetailsObjectMap);
     }
   }
 

@@ -15,7 +15,7 @@ import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
-import '../../../models/my_learning/data_model/my_learning_course_dto_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../utils/my_print.dart';
 import '../../common/components/common_button.dart';
 import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
@@ -273,7 +273,7 @@ class _EventTrackContentCardState extends State<EventTrackContentCard> {
   }
 
   Widget getPrimaryActionButton({
-    required MyLearningCourseDTOModel model,
+    required CourseDTOModel model,
     required BuildContext context,
     required InstancyUIActionModel? primaryAction,
   }) {

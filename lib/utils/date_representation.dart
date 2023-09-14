@@ -187,9 +187,11 @@ abstract class DatePresentation {
     DateTime current = DateTime.now();
 
     if (dateTime.year == current.year && dateTime.month == current.month && dateTime.day == current.day) {
-      timeString = DateFormat("hh:mm").format(dateTime);
+      timeString = DateFormat("hh:mm a").format(dateTime);
     } else if (DatePresentation.getDifferenceBetweenDatesInDays(dateTime, current) == 1) {
       timeString = "yesterday";
+    } else if (DatePresentation.getDifferenceBetweenDatesInDays(dateTime, current) <= 7) {
+      timeString = getFormattedDate(dateFormat: "EEEE", dateTime: dateTime) ?? "";
     } else {
       timeString = DateFormat("").format(dateTime);
       timeString = getFormattedDate(dateFormat: "dd MMM yy", dateTime: dateTime) ?? "";

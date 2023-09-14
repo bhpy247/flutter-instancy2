@@ -1,15 +1,13 @@
-import 'package:flutter_instancy_2/backend/common/common_provider.dart';
-import 'package:flutter_instancy_2/models/classroom_events/data_model/tab_data_model.dart';
-import 'package:flutter_instancy_2/models/course/data_model/mobile_lms_course_model.dart';
-
+import '../../models/classroom_events/data_model/tab_data_model.dart';
 import '../../models/common/pagination/pagination_model.dart';
-import '../../models/event/data_model/event_session_course_dto_model.dart';
+import '../../models/course/data_model/CourseDTOModel.dart';
+import '../common/common_provider.dart';
 import '../filter/filter_provider.dart';
 
 class EventProvider extends CommonProvider {
   EventProvider() {
-    eventSessionData = CommonProviderListParameter<EventSessionCourseDTOModel>(
-      list: <EventSessionCourseDTOModel>[],
+    eventSessionData = CommonProviderListParameter<CourseDTOModel>(
+      list: <CourseDTOModel>[],
       notify: notify,
     );
     isLoadingEventSessionData = CommonProviderPrimitiveParameter<bool>(
@@ -50,7 +48,7 @@ class EventProvider extends CommonProvider {
       value: "",
       notify: notify,
     );
-    eventsList = CommonProviderListParameter<MobileLmsCourseModel>(
+    eventsList = CommonProviderListParameter<CourseDTOModel>(
       list: [],
       notify: notify,
     );
@@ -72,7 +70,7 @@ class EventProvider extends CommonProvider {
     );
   }
 
-  late final CommonProviderListParameter<EventSessionCourseDTOModel> eventSessionData;
+  late final CommonProviderListParameter<CourseDTOModel> eventSessionData;
 
   int get eventSessionDataLength => eventSessionData.getList(isNewInstance: false).length;
   late final CommonProviderPrimitiveParameter<bool> isLoadingEventSessionData;
@@ -132,7 +130,7 @@ class EventProvider extends CommonProvider {
   late final CommonProviderPrimitiveParameter<String> currentSearchId;
   late final CommonProviderPrimitiveParameter<String> searchString;
 
-  late final CommonProviderListParameter<MobileLmsCourseModel> eventsList;
+  late final CommonProviderListParameter<CourseDTOModel> eventsList;
 
   int get eventsListLength => eventsList.getList(isNewInstance: false).length;
 

@@ -32,15 +32,24 @@ class MessageController {
 
   MessageProvider get messageProvider => _messageProvider;
 
-  Future<List<ChatUserModel>> getChatUsersList({bool isRefresh = true, bool isNotify = true}) async {
+  Future<List<ChatUserModel>> getChatUsersList({
+    bool isRefresh = true,
+    bool isClear = true,
+    bool isNotify = true,
+  }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("MessageController().getChatUsersList() called with", tag: tag);
 
     MessageProvider provider = messageProvider;
 
-    List<ChatUserModel> chatUsers = provider.chatUsersList.getList();
+    List<ChatUserModel> chatUsers = provider.allChatUsersList.getList();
 
     if (isRefresh || chatUsers.isEmpty) {
+      if (isClear) {
+        provider.allChatUsersList.setList(list: [], isNotify: false, isClear: true);
+        provider.filteredChatUserList.setList(list: [], isNotify: false, isClear: true);
+      }
+
       provider.isChatUsersLoading.set(value: true, isNotify: isNotify);
 
       //region Make Api Call
@@ -59,39 +68,16 @@ class MessageController {
       List<ChatUserModel> usersList = response.data?.Table ?? <ChatUserModel>[];
       MyPrint.printOnConsole("Message User List Length got in Api:${usersList.length}", tag: tag);
 
-      int currentSiteId = messageRepository.apiController.apiDataProvider.getCurrentSiteId();
-      int currentUserId = messageRepository.apiController.apiDataProvider.getCurrentUserId();
+      provider.allChatUsersList.setList(list: usersList, isClear: true, isNotify: false);
 
-      List<int> pickedUserIds = <int>[];
+      String selectedFilerRole = messageProvider.selectedFilterRole.get();
 
-      usersList = usersList.where((ChatUserModel chatUser) {
-        bool isValidSiteUser = chatUser.SiteID == currentSiteId;
-        bool isValidUserStatus = chatUser.UserStatus == 1;
-        bool isValidConnectionStatus = chatUser.Myconid == currentUserId && chatUser.ConnectionStatus == 1;
-        bool isValidRole = [8, 12, 16].contains(chatUser.RoleID);
+      setSelectedFilterRole(selectedFilterRole: selectedFilerRole, isNotify: false);
 
-        bool isAddingUser = isValidSiteUser && isValidUserStatus && (isValidConnectionStatus || isValidRole);
-
-        if (isAddingUser) {
-          if (pickedUserIds.contains(chatUser.UserID)) {
-            isAddingUser = false;
-          } else {
-            pickedUserIds.add(chatUser.UserID);
-          }
-        }
-
-        return isAddingUser;
-      }).toList();
-
-      usersList.sort((a, b) {
-        return a.RankNo.compareTo(b.RankNo);
-      });
-
-      provider.chatUsersList.setList(list: usersList, isClear: true, isNotify: false);
       provider.isChatUsersLoading.set(value: false, isNotify: true);
     }
 
-    return provider.chatUsersList.getList();
+    return provider.filteredChatUserList.getList();
   }
 
   Future<DataResponseModel<String>> attachmentUpload({required Uint8List bytes, String? fileName}) async {
@@ -191,5 +177,96 @@ class MessageController {
     //endregion
 
     return "";
+  }
+
+  Future<String> setMarkAsReadTrue({required BuildContext context, required SendChatMessageRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("MessageController().setMarkAsReadTrue() called with requestModel:'$requestModel'", tag: tag);
+
+    requestModel.SendDatetime ??= DateTime.now();
+
+    //region Make Api Call
+    DataResponseModel<ChatUsersListResponseModel> response = await messageRepository.getUserChatHistory(
+      requestModel: requestModel,
+      isStoreDataInHive: true,
+      isFromOffline: false,
+    );
+
+    MyPrint.printOnConsole("response.data: ${response.data}", tag: tag);
+    //endregion
+
+    return "";
+  }
+
+  void setSelectedFilterRole({required String selectedFilterRole, bool isNotify = true}) {
+    messageProvider.selectedFilterRole.set(value: selectedFilterRole, isNotify: false);
+
+    List<ChatUserModel> chatUserList = messageProvider.allChatUsersList.getList(isNewInstance: true);
+
+    int currentSiteId = messageRepository.apiController.apiDataProvider.getCurrentSiteId();
+    int currentUserId = messageRepository.apiController.apiDataProvider.getCurrentUserId();
+
+    List<int> pickedUserIds = <int>[];
+
+    chatUserList = chatUserList.where((ChatUserModel chatUser) {
+      bool isValidSiteUser = chatUser.SiteID == currentSiteId;
+      bool isValidUserStatus = chatUser.UserStatus == 1;
+      bool isValidConnectionStatus = chatUser.Myconid == currentUserId;
+      bool isValidRole = [MessageRoleTypes.admin, MessageRoleTypes.manager, MessageRoleTypes.groupAdmin].contains(chatUser.RoleID);
+      bool isValidFilter = selectedFilterRole == MessageRoleFilterType.all ||
+          switch (selectedFilterRole) {
+            MessageRoleFilterType.admin => chatUser.RoleID == MessageRoleTypes.admin,
+            MessageRoleFilterType.groupAdmin => chatUser.RoleID == MessageRoleTypes.groupAdmin,
+            MessageRoleFilterType.manager => chatUser.RoleID == MessageRoleTypes.manager,
+            MessageRoleFilterType.learner => chatUser.RoleID == MessageRoleTypes.learner,
+            _ => false,
+          };
+
+      bool isAddingUser = isValidSiteUser && isValidUserStatus && (isValidConnectionStatus || isValidRole) && isValidFilter;
+
+      if (isAddingUser) {
+        if (pickedUserIds.contains(chatUser.UserID)) {
+          isAddingUser = false;
+        } else {
+          pickedUserIds.add(chatUser.UserID);
+        }
+      }
+
+      return isAddingUser;
+    }).toList();
+
+    chatUserList.sort((a, b) {
+      return a.RankNo.compareTo(b.RankNo);
+    });
+    MyPrint.printOnConsole("filteredChatUserList length : ${messageProvider.filteredChatUserList.getList().length}");
+
+    messageProvider.filteredChatUserList.setList(list: chatUserList, isClear: true, isNotify: isNotify);
+  }
+
+  void updateLastMessageInChat({required int fromUserId, required int toUserId, required String lastMessage}) {
+    MyPrint.printOnConsole("updateLastMessageInChat called with fromUserId:$fromUserId, toUserId:$toUserId, lastMessage:'$lastMessage'");
+
+    int currentSiteId = messageRepository.apiController.apiDataProvider.getCurrentSiteId();
+    int currentUserId = messageRepository.apiController.apiDataProvider.getCurrentUserId();
+
+    for (ChatUserModel model in messageProvider.allChatUsersList.getList(isNewInstance: false).where((ChatUserModel chatUser) {
+      bool isValidSiteUser = chatUser.SiteID == currentSiteId;
+      bool isValidUserStatus = chatUser.UserStatus == 1;
+      bool isValidConnectionStatus = chatUser.Myconid == currentUserId;
+      bool isValidRole = [MessageRoleTypes.admin, MessageRoleTypes.manager, MessageRoleTypes.groupAdmin].contains(chatUser.RoleID);
+
+      return isValidSiteUser && isValidUserStatus && chatUser.UserID == toUserId && (isValidConnectionStatus || isValidRole);
+    })) {
+      model.LatestMessage = lastMessage;
+      MyPrint.printOnConsole("Updated last message for model:$model");
+    }
+
+    List<ChatUserModel> filteredChatUserList = messageProvider.filteredChatUserList.getList(isNewInstance: true);
+    ChatUserModel? model = filteredChatUserList.where((ChatUserModel chatUser) {
+      return chatUser.UserID == toUserId;
+    }).firstOrNull;
+    bool isRemoved = filteredChatUserList.remove(model);
+    if (isRemoved) filteredChatUserList.insert(0, model!);
+    messageProvider.filteredChatUserList.setList(list: filteredChatUserList, isClear: true, isNotify: false);
   }
 }
