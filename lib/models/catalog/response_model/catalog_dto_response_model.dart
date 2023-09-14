@@ -1,20 +1,19 @@
-import 'package:flutter_instancy_2/models/catalog/data_model/catalog_course_dto_model.dart';
-import 'package:flutter_instancy_2/models/dto/category_dto_model.dart';
-
 import '../../../utils/my_utils.dart';
 import '../../../utils/parsing_helper.dart';
+import '../../course/data_model/CourseDTOModel.dart';
+import '../../dto/category_dto_model.dart';
 
 class CatalogResponseDTOModel {
-  List<CatalogCourseDTOModel> CourseList = <CatalogCourseDTOModel>[];
+  List<CourseDTOModel> CourseList = <CourseDTOModel>[];
   int CourseCount = 0;
   List<CategoryDTOModel> CategoryDTO = [];
 
   CatalogResponseDTOModel({
-    List<CatalogCourseDTOModel>? CourseList,
+    List<CourseDTOModel>? CourseList,
     this.CourseCount = 0,
     List<CategoryDTOModel>? CategoryDTO,
   }) {
-    this.CourseList = CourseList ?? <CatalogCourseDTOModel>[];
+    this.CourseList = CourseList ?? <CourseDTOModel>[];
     this.CategoryDTO = CategoryDTO ?? <CategoryDTOModel>[];
   }
 
@@ -29,7 +28,11 @@ class CatalogResponseDTOModel {
   void _initializeFromMap(Map<String, dynamic> map) {
     List<Map<String, dynamic>> courseMapsList = ParsingHelper.parseMapsListMethod(map['CourseList']);
     CourseList = courseMapsList.map((e) {
-      return CatalogCourseDTOModel.fromMap(e);
+      return CourseDTOModel.fromMap(e);
+    }).toList();
+
+    CourseList = courseMapsList.map((e) {
+      return CourseDTOModel.fromMap(e);
     }).toList();
 
     CourseCount = ParsingHelper.parseIntMethod(map['CourseCount']);

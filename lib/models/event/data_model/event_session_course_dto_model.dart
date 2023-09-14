@@ -2,9 +2,9 @@ import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecor
 
 import '../../../utils/my_utils.dart';
 import '../../../utils/parsing_helper.dart';
-import '../../catalog/data_model/catalog_course_dto_model.dart';
+import '../../course/data_model/CourseDTOModel.dart';
 
-class EventSessionCourseDTOModel extends CatalogCourseDTOModel {
+class EventSessionCourseDTOModel extends CourseDTOModel {
   String Location = "";
   int PresenterID = 0;
   int Prerequisites = 0;

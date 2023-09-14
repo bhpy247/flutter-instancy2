@@ -1,26 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/app/app_provider.dart';
 import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../configs/app_configurations.dart';
-import '../../../models/course/data_model/mobile_lms_course_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../utils/my_utils.dart';
-import '../../../utils/parsing_helper.dart';
 import '../../common/components/common_button.dart';
 import '../../common/components/common_cached_network_image.dart';
+import '../../common/components/common_icon_button.dart';
 
 class LensScreenContentCard extends StatelessWidget {
-  final MobileLmsCourseModel model;
-  final void Function(MobileLmsCourseModel model)? onLaunchVRTap;
-  final void Function(MobileLmsCourseModel model)? onLaunchARTap;
+  final CourseDTOModel model;
+  final bool isShowARVRLaunch;
+  final void Function(CourseDTOModel model)? onLaunchVRTap;
+  final void Function(CourseDTOModel model)? onLaunchARTap;
+  final void Function(CourseDTOModel model)? onMoreButtonTap;
 
   const LensScreenContentCard({
     super.key,
     required this.model,
+    this.isShowARVRLaunch = true,
     this.onLaunchVRTap,
     this.onLaunchARTap,
+    this.onMoreButtonTap,
   });
 
   @override
@@ -39,7 +44,7 @@ class LensScreenContentCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          imageWidget(url: model.thumbnailimagepath, context: context),
+          imageWidget(url: model.ThumbnailImagePath, context: context),
           const SizedBox(width: 20),
           Expanded(child: detailColumn(context: context)),
         ],
@@ -84,13 +89,13 @@ class LensScreenContentCard extends StatelessWidget {
                 children: [
                   coursesIcon(
                     assetName: AppConfigurations.getContentIconFromObjectAndMediaType(
-                      mediaTypeId: model.mediatypeid,
-                      objectTypeId: model.objecttypeid,
+                      mediaTypeId: model.MediaTypeID,
+                      objectTypeId: model.ContentTypeId,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    model.contenttype,
+                    model.ContentType,
                     style: themeData.textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -98,11 +103,12 @@ class LensScreenContentCard extends StatelessWidget {
                 ],
               ),
             ),
+            getMoreOptionsButton(),
           ],
         ),
         const SizedBox(height: 5),
         Text(
-          model.name,
+          model.ContentName,
           style: themeData.textTheme.titleSmall?.copyWith(
             // color: Colors.white,
             fontSize: 14,
@@ -114,14 +120,14 @@ class LensScreenContentCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              model.authordisplayname,
+              model.AuthorDisplayName,
               style: themeData.textTheme.bodySmall?.copyWith(
                 fontSize: 11,
                 // color: Colors.white,
               ),
             ),
             const SizedBox(height: 8),
-            ratingView(ParsingHelper.parseDoubleMethod(model.ratingid)),
+            ratingView(model.RatingID),
             getBottomViewInButton(context: context, themeData: themeData)
           ],
         ),
@@ -135,6 +141,20 @@ class LensScreenContentCard extends StatelessWidget {
       height: 13,
       width: 13,
       fit: BoxFit.contain,
+    );
+  }
+
+  Widget getMoreOptionsButton() {
+    return InkWell(
+      onTap: () {
+        if (onMoreButtonTap != null) {
+          onMoreButtonTap!(model);
+        }
+      },
+      child: const CommonIconButton(
+        iconData: Icons.more_vert,
+        iconSize: 22,
+      ),
     );
   }
 
@@ -155,6 +175,15 @@ class LensScreenContentCard extends StatelessWidget {
   }
 
   Widget getBottomViewInButton({required ThemeData themeData, required BuildContext context}) {
+    bool isArContent = model.ContentTypeId == InstancyObjectTypes.arModule ||
+        model.ContentTypeId == InstancyObjectTypes.vrModule ||
+        model.MediaTypeID == InstancyMediaTypes.threeDObject ||
+        model.MediaTypeID == InstancyMediaTypes.threeDAvatar;
+
+    if (!isShowARVRLaunch || !isArContent) {
+      return const SizedBox();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

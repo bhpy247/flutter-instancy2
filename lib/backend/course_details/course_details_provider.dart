@@ -1,7 +1,7 @@
 import 'package:flutter_instancy_2/backend/common/common_provider.dart';
 
-import '../../models/catalog/data_model/catalog_course_dto_model.dart';
 import '../../models/content_details/data_model/content_details_dto_model.dart';
+import '../../models/course/data_model/CourseDTOModel.dart';
 
 class CourseDetailsProvider extends CommonProvider {
   CourseDetailsProvider() {
@@ -14,8 +14,8 @@ class CourseDetailsProvider extends CommonProvider {
       notify: notify,
     );
 
-    scheduleData = CommonProviderListParameter<CatalogCourseDTOModel>(
-      list: <CatalogCourseDTOModel>[],
+    scheduleData = CommonProviderListParameter<CourseDTOModel>(
+      list: <CourseDTOModel>[],
       notify: notify,
     );
     isLoadingContentDetailsScheduleData = CommonProviderPrimitiveParameter<bool>(
@@ -27,7 +27,8 @@ class CourseDetailsProvider extends CommonProvider {
   late final CommonProviderPrimitiveParameter<ContentDetailsDTOModel?> contentDetailsDTOModel;
   late final CommonProviderPrimitiveParameter<bool> isLoadingContentDetailsDTOModel;
 
-  late final CommonProviderListParameter<CatalogCourseDTOModel> scheduleData;
+  late final CommonProviderListParameter<CourseDTOModel> scheduleData;
+
   int get scheduleDataLength => scheduleData.getList(isNewInstance: false).length;
   late final CommonProviderPrimitiveParameter<bool> isLoadingContentDetailsScheduleData;
 }

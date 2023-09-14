@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import '../../../configs/app_configurations.dart';
-import '../../../models/catalog/data_model/catalog_course_dto_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../utils/date_representation.dart';
 import '../../../utils/my_utils.dart';
 import '../../common/components/common_cached_network_image.dart';
@@ -16,7 +16,7 @@ import '../../common/components/common_icon_button.dart';
 import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
 
 class CatalogContentListComponent extends StatelessWidget {
-  final CatalogCourseDTOModel model;
+  final CourseDTOModel model;
   final InstancyUIActionModel? primaryAction;
   final Function()? onPrimaryActionTap, onMoreButtonTap;
 
@@ -135,7 +135,7 @@ class CatalogContentListComponent extends StatelessWidget {
     );
   }
 
-  Widget eventStartDateAndTime({required CatalogCourseDTOModel model, required BuildContext context}) {
+  Widget eventStartDateAndTime({required CourseDTOModel model, required BuildContext context}) {
     // MyPrint.printOnConsole("model. endDateTime: '${model.EventEndDateTime} to ${model.EventEndDateTimeTimeWithoutConvert}'");
 
     AppProvider appProvider = context.read<AppProvider>();
@@ -224,7 +224,7 @@ class CatalogContentListComponent extends StatelessWidget {
   }
 
   Widget getPrimaryActionButton({
-    required CatalogCourseDTOModel model,
+    required CourseDTOModel model,
     required BuildContext context,
     required InstancyUIActionModel? primaryAction,
   }) {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/catalog/catalog_ui_action_callback_model.dart';
-import 'package:flutter_instancy_2/models/catalog/data_model/catalog_course_dto_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
@@ -21,6 +20,7 @@ import '../../../models/app_configuration_models/data_models/native_menu_compone
 import '../../../models/catalog/request_model/add_content_to_my_learning_request_model.dart';
 import '../../../models/catalog/response_model/removeFromWishlistModel.dart';
 import '../../../models/common/pagination/pagination_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_toast.dart';
 import '../../catalog/components/catalogContentListComponent.dart';
@@ -86,7 +86,7 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
     );
   }
   CatalogUIActionCallbackModel getCatalogUIActionCallbackModel({
-    required CatalogCourseDTOModel model,
+    required CourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
     bool isSecondaryAction = true,
   }) {
@@ -290,7 +290,7 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
   }
 
   Future<void> showMoreAction({
-    required CatalogCourseDTOModel model,
+    required CourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
   }) async {
     LocalStr localStr = appProvider.localStr;
@@ -319,7 +319,7 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
     );
   }
 
-  Future<void> addContentToMyLearning({required CatalogCourseDTOModel model}) async {
+  Future<void> addContentToMyLearning({required CourseDTOModel model}) async {
     isLoading = true;
     mySetState();
     bool isSuccess = await catalogController.addContentToMyLearning(
@@ -417,7 +417,7 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
     required Future<void> Function() onPagination,
   }) {
     PaginationModel paginationModel = catalogProvider.wishlistContentsPaginationModel.get();
-    List<CatalogCourseDTOModel> list = catalogProvider.wishlistContents.getList(isNewInstance: false);
+    List<CourseDTOModel> list = catalogProvider.wishlistContents.getList(isNewInstance: false);
 
     if (paginationModel.isFirstTimeLoading) {
       return const Center(
@@ -427,8 +427,8 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
 
     if (!paginationModel.isLoading && list.isEmpty) {
       return RefreshIndicator(
-        onRefresh: onRefresh,
-        child:Center(
+          onRefresh: onRefresh,
+          child:Center(
           child: AppConfigurations.commonNoDataView(),
         )
       );
@@ -463,7 +463,7 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
             }
           }
 
-          CatalogCourseDTOModel model = list[index];
+          CourseDTOModel model = list[index];
 
           return getCatalogContentWidget(model: model);
         },
@@ -471,18 +471,19 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
     );
   }
 
-  Widget getCatalogContentWidget({required CatalogCourseDTOModel model}) {
+  Widget getCatalogContentWidget({required CourseDTOModel model}) {
     LocalStr localStr = appProvider.localStr;
 
     CatalogUIActionsController catalogUIActionsController = CatalogUIActionsController(
       appProvider: appProvider,
     );
     // MyPrint.printOnConsole("isWIshlishContent: ${model.isWishListContent}");
-    List<InstancyUIActionModel> options = catalogUIActionsController.getCatalogScreenPrimaryActions(
-      catalogCourseDTOModel: model,
-      localStr: localStr,
-      catalogUIActionCallbackModel: getCatalogUIActionCallbackModel(
-        model: model,
+    List<InstancyUIActionModel> options = catalogUIActionsController
+        .getCatalogScreenPrimaryActions(
+          catalogCourseDTOModel: model,
+          localStr: localStr,
+          catalogUIActionCallbackModel: getCatalogUIActionCallbackModel(
+            model: model,
         isSecondaryAction: false,
       ),
       isWishlistMode: true,

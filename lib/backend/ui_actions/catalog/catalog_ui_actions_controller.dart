@@ -5,7 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../configs/app_constants.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
-import '../../../models/catalog/data_model/catalog_course_dto_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../utils/my_print.dart';
 import '../../../views/common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import '../primary_secondary_actions/primary_secondary_actions.dart';
@@ -219,7 +219,7 @@ class CatalogUIActionsController {
 
   //region Primary Actions
   Iterable<InstancyUIActionModel> getCatalogScreenPrimaryActions({
-    required CatalogCourseDTOModel catalogCourseDTOModel,
+    required CourseDTOModel catalogCourseDTOModel,
     required LocalStr localStr,
     required CatalogUIActionCallbackModel catalogUIActionCallbackModel,
     required bool isWishlistMode,
@@ -275,7 +275,7 @@ class CatalogUIActionsController {
 
   //region Secondary Actions
   Iterable<InstancyUIActionModel> getCatalogScreenSecondaryActions({
-    required CatalogCourseDTOModel catalogCourseDTOModel,
+    required CourseDTOModel catalogCourseDTOModel,
     required LocalStr localStr,
     required CatalogUIActionCallbackModel catalogUIActionCallbackModel,
     required bool isWishlistMode,
@@ -345,7 +345,7 @@ class CatalogUIActionsController {
   //endregion
 
   CatalogUIActionParameterModel getCatalogUIActionParameterModelFromCatalogCourseDTOModel({
-    required CatalogCourseDTOModel catalogCourseDTOModel,
+    required CourseDTOModel catalogCourseDTOModel,
     required bool isWishlistMode,
   }) {
     return CatalogUIActionParameterModel(
@@ -548,11 +548,11 @@ class CatalogUIActionsController {
         }
       }
       else if(action == InstancyContentActionsEnum.ViewResources) {
-        if (isShowAction(actionType: InstancyContentActionsEnum.ViewResources, parameterModel: parameterModel) && catalogUIActionCallbackModel.onCancelEnrollmentTap != null) {
+        if (isShowAction(actionType: InstancyContentActionsEnum.ViewResources, parameterModel: parameterModel) && catalogUIActionCallbackModel.onViewResources != null) {
           model = InstancyUIActionModel(
             text: localStr.eventsActionsheetRelatedcontentoption,
-            iconData: InstancyIcons.cancelEnrollment,
-            onTap: catalogUIActionCallbackModel.onCancelEnrollmentTap,
+            iconData: InstancyIcons.viewResources,
+            onTap: catalogUIActionCallbackModel.onViewResources,
             actionsEnum: InstancyContentActionsEnum.ViewResources,
           );
         }

@@ -36,8 +36,6 @@ class ContentDetailsDTOModel extends CourseDTOModel {
   String SurveyLink = "";
   String NotesLink = "";
   String WaitListLink = "";
-  String ShowParentPrerequisiteEventDate = "";
-  String ShowPrerequisiteEventDate = "";
   String DiscussionsLink = "";
   String ContentViewType = "";
   String WindowProperties = "";
@@ -65,7 +63,6 @@ class ContentDetailsDTOModel extends CourseDTOModel {
   String SampleContentLink = "";
   String UserProfileImagePath = "";
   bool isBadCancellationEnabled = false;
-  bool isContentEnrolled = false;
   bool isShowEventFullStatus = false;
   bool isBookingOpened = false;
   bool IsSuccess = false;
@@ -108,8 +105,6 @@ class ContentDetailsDTOModel extends CourseDTOModel {
     this.SurveyLink = "",
     this.NotesLink = "",
     this.WaitListLink = "",
-    this.ShowParentPrerequisiteEventDate = "",
-    this.ShowPrerequisiteEventDate = "",
     this.UserProfileImagePath = "",
     this.DiscussionsLink = "",
     this.ContentViewType = "",
@@ -137,7 +132,6 @@ class ContentDetailsDTOModel extends CourseDTOModel {
     this.SkinID = "",
     this.SampleContentLink = "",
     this.isBadCancellationEnabled = false,
-    this.isContentEnrolled = false,
     this.isBookingOpened = false,
     this.isShowEventFullStatus = false,
     this.IsSuccess = false,
@@ -192,8 +186,6 @@ class ContentDetailsDTOModel extends CourseDTOModel {
     SurveyLink = ParsingHelper.parseStringMethod(json["SurveyLink"]);
     NotesLink = ParsingHelper.parseStringMethod(json["NotesLink"]);
     WaitListLink = ParsingHelper.parseStringMethod(json["WaitListLink"]);
-    ShowParentPrerequisiteEventDate = ParsingHelper.parseStringMethod(json["ShowParentPrerequisiteEventDate"]);
-    ShowPrerequisiteEventDate = ParsingHelper.parseStringMethod(json["ShowPrerequisiteEventDate"]);
     DiscussionsLink = ParsingHelper.parseStringMethod(json["DiscussionsLink"]);
     ContentViewType = ParsingHelper.parseStringMethod(json["ContentViewType"]);
     WindowProperties = ParsingHelper.parseStringMethod(json["WindowProperties"]);
@@ -220,7 +212,6 @@ class ContentDetailsDTOModel extends CourseDTOModel {
     SkinID = ParsingHelper.parseStringMethod(json["SkinID"]);
     SampleContentLink = ParsingHelper.parseStringMethod(json["SampleContentLink"]);
     isBadCancellationEnabled = ParsingHelper.parseBoolMethod(json["isBadCancellationEnabled"]);
-    isContentEnrolled = ParsingHelper.parseBoolMethod(json["isContentEnrolled"]);
     isBookingOpened = ParsingHelper.parseBoolMethod(json["isBookingOpened"]);
     isShowEventFullStatus = ParsingHelper.parseBoolMethod(json["isShowEventFullStatus"]);
     IsSuccess = ParsingHelper.parseBoolMethod(json["IsSuccess"]);
@@ -268,8 +259,6 @@ class ContentDetailsDTOModel extends CourseDTOModel {
       "SurveyLink": SurveyLink,
       "NotesLink": NotesLink,
       "WaitListLink": WaitListLink,
-      "ShowParentPrerequisiteEventDate": ShowParentPrerequisiteEventDate,
-      "ShowPrerequisiteEventDate": ShowPrerequisiteEventDate,
       "DiscussionsLink": DiscussionsLink,
       "ContentViewType": ContentViewType,
       "WindowProperties": WindowProperties,
@@ -297,7 +286,6 @@ class ContentDetailsDTOModel extends CourseDTOModel {
       "SkinID": SkinID,
       "SampleContentLink": SampleContentLink,
       "isBadCancellationEnabled": isBadCancellationEnabled,
-      "isContentEnrolled": isContentEnrolled,
       "isBookingOpened": isBookingOpened,
       "isShowEventFullStatus": isShowEventFullStatus,
       "IsSuccess": IsSuccess,

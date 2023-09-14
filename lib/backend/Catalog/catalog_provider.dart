@@ -3,8 +3,8 @@ import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 
 import '../../models/catalog/catalogCategoriesForBrowseModel.dart';
 import '../../models/catalog/data_model/associated_content_course_dto_model.dart';
-import '../../models/catalog/data_model/catalog_course_dto_model.dart';
 import '../../models/common/pagination/pagination_model.dart';
+import '../../models/course/data_model/CourseDTOModel.dart';
 
 class CatalogProvider extends CommonProvider {
   CatalogProvider() {
@@ -24,7 +24,7 @@ class CatalogProvider extends CommonProvider {
       list: [],
       notify: notify,
     );
-    catalogCategoryContent = CommonProviderListParameter<CatalogCourseDTOModel>(
+    catalogCategoryContent = CommonProviderListParameter<CourseDTOModel>(
       list: [],
       notify: notify,
     );
@@ -32,7 +32,7 @@ class CatalogProvider extends CommonProvider {
       value: "",
       notify: notify,
     );
-    wishlistContents = CommonProviderListParameter<CatalogCourseDTOModel>(
+    wishlistContents = CommonProviderListParameter<CourseDTOModel>(
       list: [],
       notify: notify,
     );
@@ -62,23 +62,27 @@ class CatalogProvider extends CommonProvider {
   late CommonProviderPrimitiveParameter<int> pageSize;
   late CommonProviderPrimitiveParameter<bool> filterEnabled;
   late CommonProviderPrimitiveParameter<bool> sortEnabled;
+
   //endregion
 
   late final CommonProviderListParameter<CatalogCategoriesForBrowseModel> catalogCategoriesForBrowserList;
 
-  late final CommonProviderListParameter<CatalogCourseDTOModel> catalogCategoryContent;
+  late final CommonProviderListParameter<CourseDTOModel> catalogCategoryContent;
+
   int get catalogContentLength => catalogCategoryContent.getList(isNewInstance: false).length;
 
   late final CommonProviderPrimitiveParameter<String> catalogContentSearchString;
 
-  late final CommonProviderListParameter<CatalogCourseDTOModel> wishlistContents;
+  late final CommonProviderListParameter<CourseDTOModel> wishlistContents;
   late final CommonProviderPrimitiveParameter<int> maxWishlistContentsCount;
+
   int get wishlistContentsLength => wishlistContents.getList(isNewInstance: false).length;
 
   late final CommonProviderPrimitiveParameter<PaginationModel> catalogContentPaginationModel;
   late final CommonProviderPrimitiveParameter<PaginationModel> wishlistContentsPaginationModel;
 
   final List<AssociatedContentCourseDTOModel> _prerequisiteModelArrayListRecommended = [];
+
   List<AssociatedContentCourseDTOModel> get prerequisiteModelArrayListRecommended => _prerequisiteModelArrayListRecommended;
 
   // String prerequisiteRecommended;

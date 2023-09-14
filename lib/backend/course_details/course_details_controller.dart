@@ -1,10 +1,10 @@
 import '../../api/api_controller.dart';
-import '../../models/catalog/data_model/catalog_course_dto_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/content_details/data_model/content_details_dto_model.dart';
 import '../../models/content_details/request_model/course_details_request_model.dart';
 import '../../models/content_details/request_model/course_details_schedule_data_request_model.dart';
 import '../../models/content_details/response_model/course_details_schedule_data_response_model.dart';
+import '../../models/course/data_model/CourseDTOModel.dart';
 import '../../utils/my_print.dart';
 import '../../utils/my_utils.dart';
 import 'course_details_provider.dart';
@@ -55,7 +55,7 @@ class CourseDetailsController {
     return courseDetailsModel;
   }
 
-  Future<List<CatalogCourseDTOModel>> getCourseDetailsScheduleData({
+  Future<List<CourseDTOModel>> getCourseDetailsScheduleData({
     required CourseDetailsScheduleDataRequestModel requestModel,
     bool isNotify = true,
   }) async {
@@ -64,7 +64,7 @@ class CourseDetailsController {
 
     CourseDetailsProvider provider = courseDetailsProvider;
 
-    List<CatalogCourseDTOModel> courseList = <CatalogCourseDTOModel>[];
+    List<CourseDTOModel> courseList = <CourseDTOModel>[];
 
     provider.isLoadingContentDetailsScheduleData.set(value: true, isNotify: isNotify);
 
@@ -73,7 +73,7 @@ class CourseDetailsController {
 
     provider.isLoadingContentDetailsScheduleData.set(value: false, isNotify: false);
 
-    if(response.appErrorModel != null) {
+    if (response.appErrorModel != null) {
       MyPrint.printOnConsole("Returning from CourseDetailsController().getCourseDetailsScheduleData() because getScheduleData had some error", tag: tag);
       return courseList;
     }

@@ -20,7 +20,6 @@ import '../../api/api_controller.dart';
 import '../../configs/app_configurations.dart';
 import '../../models/app_configuration_models/data_models/component_configurations_model.dart';
 import '../../models/app_configuration_models/data_models/local_str.dart';
-import '../../models/catalog/data_model/catalog_course_dto_model.dart';
 import '../../models/catalog/request_model/add_content_to_my_learning_request_model.dart';
 import '../../models/catalog/request_model/enroll_waiting_list_event_request_model.dart';
 import '../../models/catalog/response_model/catalog_dto_response_model.dart';
@@ -28,6 +27,7 @@ import '../../models/catalog/response_model/removeFromWishlistModel.dart';
 import '../../models/catalog/response_model/user_coming_soon_response.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/common/pagination/pagination_model.dart';
+import '../../models/course/data_model/CourseDTOModel.dart';
 import '../../models/filter/data_model/enabled_content_filter_by_type_model.dart';
 import '../../models/waitlist/response_model/add_to_waitList_response_model.dart';
 import '../../utils/my_print.dart';
@@ -98,7 +98,7 @@ class CatalogController {
     provider.catalogCategoriesForBrowserList.setList(list: catalogCategoriesList, isClear: true, isNotify: true);
   }
 
-  Future<List<CatalogCourseDTOModel>> getCatalogContentsListFromApi({
+  Future<List<CourseDTOModel>> getCatalogContentsListFromApi({
     bool isRefresh = true,
     bool isGetFromCache = false,
     bool isNotify = true,
@@ -135,7 +135,7 @@ class CatalogController {
         notifier: provider.notify,
         notify: isNotify,
       );
-      provider.catalogCategoryContent.setList(list: <CatalogCourseDTOModel>[], isClear: true, isNotify: isNotify);
+      provider.catalogCategoryContent.setList(list: <CourseDTOModel>[], isClear: true, isNotify: isNotify);
     }
     //endregion
 
@@ -186,7 +186,7 @@ class CatalogController {
     DateTime endTime = DateTime.now();
     MyPrint.printOnConsole("Catalog Data got in ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: tag);
 
-    List<CatalogCourseDTOModel> contentsList = response.data?.CourseList ?? <CatalogCourseDTOModel>[];
+    List<CourseDTOModel> contentsList = response.data?.CourseList ?? <CourseDTOModel>[];
     MyPrint.printOnConsole("Catalog Contents Length got in Api:${contentsList.length}", tag: tag);
 
     //region Set Provider Data After Getting Data From Api
@@ -205,7 +205,7 @@ class CatalogController {
     return provider.catalogCategoryContent.getList(isNewInstance: true);
   }
 
-  Future<List<CatalogCourseDTOModel>> getWishListContentsListFromApi({
+  Future<List<CourseDTOModel>> getWishListContentsListFromApi({
     bool isRefresh = true,
     bool isGetFromCache = false,
     bool isNotify = true,
@@ -242,7 +242,7 @@ class CatalogController {
         notifier: provider.notify,
         notify: isNotify,
       );
-      provider.wishlistContents.setList(list: <CatalogCourseDTOModel>[], isClear: true, isNotify: isNotify);
+      provider.wishlistContents.setList(list: <CourseDTOModel>[], isClear: true, isNotify: isNotify);
     }
     //endregion
 
@@ -293,7 +293,7 @@ class CatalogController {
     DateTime endTime = DateTime.now();
     MyPrint.printOnConsole("Catalog Data got in ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: tag);
 
-    List<CatalogCourseDTOModel> contentsList = response.data?.CourseList ?? <CatalogCourseDTOModel>[];
+    List<CourseDTOModel> contentsList = response.data?.CourseList ?? <CourseDTOModel>[];
     MyPrint.printOnConsole("Catalog Contents Length got in Api:${contentsList.length}", tag: tag);
 
     //region Set Provider Data After Getting Data From Api

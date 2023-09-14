@@ -439,8 +439,12 @@ class LensScreenNavigationArguments extends NavigationArguments {
 
 class SurfaceTrackingKeywordSearchScreenNavigationArguments extends NavigationArguments {
   final LensProvider? lensProvider;
+  final int componentId;
+  final int componentInsId;
 
   const SurfaceTrackingKeywordSearchScreenNavigationArguments({
     required this.lensProvider,
+    required this.componentId,
+    required this.componentInsId,
   });
 }

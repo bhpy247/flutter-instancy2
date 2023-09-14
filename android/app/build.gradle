@@ -55,7 +55,7 @@ android {
         //cloud_firestore needs min sdk version 19
         //flutter_facebook_auth needs min sdk version 19
 
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

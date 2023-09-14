@@ -81,7 +81,7 @@ class GotoCourseLaunch {
     //String startPage = courseDTOModel.startpage.toString();
     // String endDurationDate = courseDTOModel.durationenddate.toString();
 
-    if(objectTypeId == InstancyObjectTypes.reference) {
+    if (objectTypeId == InstancyObjectTypes.reference) {
       return startPage;
     }
 
@@ -89,7 +89,7 @@ class GotoCourseLaunch {
     File? myFile;
     bool isDownloadFileExists = false;
 
-    if(!kIsWeb) {
+    if (!kIsWeb) {
       dir = await AppController.getDocumentsDirectory();
 
       downloadDestFolderPath = "$dir/.Mydownloads/Contentdownloads/$contentId";
@@ -109,7 +109,8 @@ class GotoCourseLaunch {
     String authPassword = tinCanDataModel.lrsauthorizationpassword;
     String base64lrsAuthKey = "$authKey:$authPassword";
     String lrsEndPoint = tinCanDataModel.lrsendpoint;
-    String lrsActor = "${"{\"name\":[\"$userName\"],\"account\":[{\"accountServiceHomePage\":\"${apiUrlConfigurationProvider.getCurrentSiteUrl()}"}\",\"accountName\":\"$password|$strUserID\"}],\"objectType\":\"Agent\"}&activity_id=$activityId&grouping=$activityId";
+    String lrsActor =
+        "${"{\"name\":[\"$userName\"],\"account\":[{\"accountServiceHomePage\":\"${apiUrlConfigurationProvider.getCurrentSiteUrl()}"}\",\"accountName\":\"$password|$strUserID\"}],\"objectType\":\"Agent\"}&activity_id=$activityId&grouping=$activityId";
     String lrsAuthorizationKey = "";
     String autKey = base64lrsAuthKey;
 
@@ -126,6 +127,7 @@ class GotoCourseLaunch {
     MyPrint.printOnConsole("enabletincanSupportforco:$enabletincanSupportforco");
     MyPrint.printOnConsole("enabletincanSupportforao:$enabletincanSupportforao");
     MyPrint.printOnConsole("enabletincanSupportforlt:$enabletincanSupportforlt");
+
     ///End TIN CAN OPTIONS
 
     /// this is offline part
@@ -141,23 +143,19 @@ class GotoCourseLaunch {
 
         /// Remove this line
         offlinePath = "file://$finalDownloadedFilePath";
-      }
-      else if (objectTypeId == InstancyObjectTypes.xApi) {
+      } else if (objectTypeId == InstancyObjectTypes.xApi) {
         String encodedString = lrsActor;
 
         offlinePath = "file://$offlinePath";
         offlinePath = "$offlinePath?&endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$encodedString&cid=0&nativeappURL=true&IsInstancyContent=true";
-      }
-      else if (objectTypeId == InstancyObjectTypes.externalTraining) {}
-      else if (objectTypeId == InstancyObjectTypes.scorm1_2) {
+      } else if (objectTypeId == InstancyObjectTypes.externalTraining) {
+      } else if (objectTypeId == InstancyObjectTypes.scorm1_2) {
         offlinePath = "file://$dir/Mydownloads/Content/LaunchCourse.html?contentpath=file://$offlinePath";
-      }
-      else if (objectTypeId == InstancyObjectTypes.certificate) {
+      } else if (objectTypeId == InstancyObjectTypes.certificate) {
         String cerName = "$contentId/Certificate";
 
         offlinePath = "$offlinePath/$userid/$cerName.pdf";
-      }
-      else if ([
+      } else if ([
         InstancyObjectTypes.mediaResource,
         InstancyObjectTypes.document,
         InstancyObjectTypes.html,
@@ -202,10 +200,8 @@ class GotoCourseLaunch {
           );*/
 
           ///databaseH.insertUserSession(learnerSessionModel);
-
         }
-      }
-      else {
+      } else {
         offlinePath = "file://$finalDownloadedFilePath";
       }
 
@@ -214,7 +210,7 @@ class GotoCourseLaunch {
       MyPrint.printOnConsole("final....offlinePathEncode....path.....$offlinePathEncode");
       MyPrint.printOnConsole("final....finalDownloadedFilePath....path.....$finalDownloadedFilePath");
 
-      if(finalDownloadedFilePath.contains(".pdf")) {
+      if (finalDownloadedFilePath.contains(".pdf")) {
         NavigationController.navigateToPDFLaunchScreen(
           navigationOperationParameters: NavigationOperationParameters(
             context: context,
@@ -226,9 +222,8 @@ class GotoCourseLaunch {
             pdfFilePath: finalDownloadedFilePath,
           ),
         );
-      }
-      else if (finalDownloadedFilePath.contains(".mp4")) {
-        if(myFile != null) {
+      } else if (finalDownloadedFilePath.contains(".mp4")) {
+        if (myFile != null) {
           NavigationController.navigateToVideoLaunchScreen(
             navigationOperationParameters: NavigationOperationParameters(
               context: context,
@@ -240,8 +235,7 @@ class GotoCourseLaunch {
             ),
           );
         }
-      }
-      else if (finalDownloadedFilePath.toLowerCase().contains(".xlsx") ||
+      } else if (finalDownloadedFilePath.toLowerCase().contains(".xlsx") ||
           finalDownloadedFilePath.toLowerCase().contains(".xls") ||
           finalDownloadedFilePath.toLowerCase().contains(".ppt") ||
           finalDownloadedFilePath.toLowerCase().contains(".pptx") ||
@@ -249,8 +243,7 @@ class GotoCourseLaunch {
           finalDownloadedFilePath.toLowerCase().contains(".doc") ||
           finalDownloadedFilePath.toLowerCase().contains(".docx")) {
         await openFile(finalDownloadedFilePath);
-      }
-      else {
+      } else {
         MyPrint.printOnConsole('finalDownloadedFilePath $finalDownloadedFilePath');
         return "$offlinePath?nativeappURL=true&cid=12855&stid=316&lloc=1&lstatus=incomplete&susdata=%23pgvs_start%231;2;3;4;5;6;%23pgvs_end%23&quesdata=&sname=vinoth%20instancy&IsInstancyContent=true";
         //alertDialog(context);
@@ -270,17 +263,14 @@ class GotoCourseLaunch {
                   true,
                   list,
                 )));*/
-      }
-      else {
-        if (
-          [
-            InstancyObjectTypes.mediaResource,
-            InstancyObjectTypes.document,
-            InstancyObjectTypes.html,
-            InstancyObjectTypes.reference,
-            InstancyObjectTypes.webPage,
-          ].contains(objectTypeId)
-        ) {
+      } else {
+        if ([
+          InstancyObjectTypes.mediaResource,
+          InstancyObjectTypes.document,
+          InstancyObjectTypes.html,
+          InstancyObjectTypes.reference,
+          InstancyObjectTypes.webPage,
+        ].contains(objectTypeId)) {
           // if (courseDTOModel.ActualStatus == "Not Started" || courseDTOModel.actualstatus.isEmpty) {
           if (true) {
             // need to save CMI model
@@ -316,7 +306,6 @@ class GotoCourseLaunch {
             );*/
 
             ///databaseH.insertUserSession(learnerSessionModel);
-
           }
         }
 
@@ -326,16 +315,15 @@ class GotoCourseLaunch {
 
         // Start of 8,9,10
         if ([InstancyObjectTypes.contentObject, InstancyObjectTypes.assessment, InstancyObjectTypes.track].contains(objectTypeId)) {
-          urlForView = "${"${siteUrl}ajaxcourse/ScoID/$scoId/ContentTypeId/$objectTypeId"}/ContentID/$contentId/AllowCourseTracking/true/trackuserid/$userid/ismobilecontentview/true/ContentPath/~Content~PublishFiles~$folderPath~$startPage?nativeappURL=true";
+          urlForView =
+              "${"${siteUrl}ajaxcourse/ScoID/$scoId/ContentTypeId/$objectTypeId"}/ContentID/$contentId/AllowCourseTracking/true/trackuserid/$userid/ismobilecontentview/true/ContentPath/~Content~PublishFiles~$folderPath~$startPage?nativeappURL=true";
 
           if (isTinCan) {
             if (objectTypeId == InstancyObjectTypes.contentObject && enabletincanSupportforco) {
               urlForView = "$urlForView&endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$lrsActor";
-            }
-            else if (objectTypeId == InstancyObjectTypes.assessment && enabletincanSupportforao) {
+            } else if (objectTypeId == InstancyObjectTypes.assessment && enabletincanSupportforao) {
               urlForView = "$urlForView&endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$lrsActor";
-            }
-            else if (objectTypeId == InstancyObjectTypes.track && enabletincanSupportforlt) {
+            } else if (objectTypeId == InstancyObjectTypes.track && enabletincanSupportforlt) {
               urlForView = "$urlForView&endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$lrsActor";
             }
           }
@@ -352,8 +340,7 @@ class GotoCourseLaunch {
             String jwstartpage = "";
             if (isValidString(courseLaunchModel.jwstartpage)) {
               jwstartpage = courseLaunchModel.jwstartpage;
-            }
-            else {
+            } else {
               jwstartpage = startPage;
             }
 
@@ -361,14 +348,12 @@ class GotoCourseLaunch {
 
             // urlForView = "${"${siteUrl}ajaxcourse/ScoID/$scoId/ContentTypeId/$objectTypeId"}/ContentID/$contentId/AllowCourseTracking/true/trackuserid/$userid/ismobilecontentview/true/ContentPath/~Content~PublishFiles~$folderPath~$jwstartpage?JWVideoParentID/$contentId/jwvideokey/$jwVideoKey";
             urlForView = "$siteUrl/content/publishfiles/$folderPath/$jwstartpage";
-          }
-          else if(objectTypeId == InstancyObjectTypes.mediaResource && [InstancyMediaTypes.embedAudio.toString(), InstancyMediaTypes.embedVideo.toString()].contains(mediaTypeId)) {
+          } else if (objectTypeId == InstancyObjectTypes.mediaResource && [InstancyMediaTypes.embedAudio.toString(), InstancyMediaTypes.embedVideo.toString()].contains(mediaTypeId)) {
             MyPrint.printOnConsole("In Embed Section");
             MyPrint.printOnConsole("folderPath:$folderPath");
 
             urlForView = "${"$siteUrl/content/publishfiles/$folderPath/${courseLaunchModel.locale}"}/$folderPath.html?v=${Random().nextInt(100000)}";
-          }
-          else {
+          } else {
             urlForView = "$siteUrl/content/publishfiles/${folderPath.toLowerCase()}/$startPage";
             if (appSystemConfigurationModel.isCloudStorageEnabled) {
               urlForView = "${appSystemConfigurationModel.azureRootPath}content/publishfiles/${folderPath.toLowerCase()}/$startPage";
@@ -387,16 +372,16 @@ class GotoCourseLaunch {
 
         else if (objectTypeId == InstancyObjectTypes.reference) {
           urlForView = startPage;
-        }
-        else if (objectTypeId == InstancyObjectTypes.scorm1_2) {
+        } else if (objectTypeId == InstancyObjectTypes.scorm1_2) {
           // scorm content
 
           String startPage2 = startPage.replaceAll("/", "~");
 
-          urlForView = "${"${siteUrl}ajaxcourse/CourseName/$courseName/ScoID/$scoId/ContentID/$contentId/ContentTypeId/$objectTypeId"}/AllowCourseTracking/true/trackuserid/$userid/eventkey//eventtype//ismobilecontentview/true/ContentPath/~Content~PublishFiles~$folderPath~$startPage2?nativeappurl=true";
-        }
-        else if (objectTypeId == InstancyObjectTypes.aICC) {
-          urlForView = "${"$siteUrl/ajaxcourse/CourseName/$courseName/ContentID/$contentId/ContentTypeId/$objectTypeId"}/AllowCourseTracking/true/trackuserid/$userid/eventkey//eventtype//ismobilecontentview/true/ContentPath/~$startPage?nativeappurl=true";
+          urlForView =
+              "${"${siteUrl}ajaxcourse/CourseName/$courseName/ScoID/$scoId/ContentID/$contentId/ContentTypeId/$objectTypeId"}/AllowCourseTracking/true/trackuserid/$userid/eventkey//eventtype//ismobilecontentview/true/ContentPath/~Content~PublishFiles~$folderPath~$startPage2?nativeappurl=true";
+        } else if (objectTypeId == InstancyObjectTypes.aICC) {
+          urlForView =
+              "${"$siteUrl/ajaxcourse/CourseName/$courseName/ContentID/$contentId/ContentTypeId/$objectTypeId"}/AllowCourseTracking/true/trackuserid/$userid/eventkey//eventtype//ismobilecontentview/true/ContentPath/~$startPage?nativeappurl=true";
         }
 
         /// need to fix after TinConfig
@@ -406,50 +391,55 @@ class GotoCourseLaunch {
           encodedString = lrsActor.replaceAll(" ", "%20");
 
           if (isValidString(folderPath) && folderPath != "0") {
-            urlForView = "${"${apiUrlConfigurationProvider.getCurrentSiteUrl()}Content/PublishFiles/$folderPath/$startPage?endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$encodedString&registration=$folderPath&ContentID=$contentId&ObjectTypeID=$objectTypeId"}&CanTrack=YES";
-          }
-          else {
-            urlForView = "${"${apiUrlConfigurationProvider.getCurrentSiteUrl()}Content/PublishFiles/$folderPath/$startPage?endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$encodedString&ContentID=$contentId&ObjectTypeID=$objectTypeId"}&CanTrack=YES";
+            urlForView =
+                "${"${apiUrlConfigurationProvider.getCurrentSiteUrl()}Content/PublishFiles/$folderPath/$startPage?endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$encodedString&registration=$folderPath&ContentID=$contentId&ObjectTypeID=$objectTypeId"}&CanTrack=YES";
+          } else {
+            urlForView =
+                "${"${apiUrlConfigurationProvider.getCurrentSiteUrl()}Content/PublishFiles/$folderPath/$startPage?endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$encodedString&ContentID=$contentId&ObjectTypeID=$objectTypeId"}&CanTrack=YES";
           }
 
           MyPrint.printOnConsole("isCloudStorageEnabled:${appSystemConfigurationModel.isCloudStorageEnabled}");
           if (appSystemConfigurationModel.isCloudStorageEnabled) {
-            urlForView = "${"${appSystemConfigurationModel.azureRootPath}Content/PublishFiles/$folderPath/$startPage?endpoint=&auth=&actor=$encodedString&ContentID=$contentId&ObjectTypeID=$objectTypeId"}&CanTrack=NO&nativeappURL=true";
+            urlForView =
+                "${"${appSystemConfigurationModel.azureRootPath}Content/PublishFiles/$folderPath/$startPage?endpoint=&auth=&actor=$encodedString&ContentID=$contentId&ObjectTypeID=$objectTypeId"}&CanTrack=NO&nativeappURL=true";
           }
-        }
-        else if (objectTypeId == InstancyObjectTypes.certificate) {
+        } else if (objectTypeId == InstancyObjectTypes.certificate) {
           String cerName = "$contentId/Certificate";
           urlForView = "$siteUrl/content/sitefiles/$siteId/UserCertificates/$userid/$cerName.pdf";
-        }
-        else if (objectTypeId == InstancyObjectTypes.externalTraining) {}
-        else if (objectTypeId == InstancyObjectTypes.dictionaryGlossary) {
+        } else if (objectTypeId == InstancyObjectTypes.externalTraining) {
+        } else if (objectTypeId == InstancyObjectTypes.dictionaryGlossary) {
           urlForView = "$siteUrl/content/PublishFiles/$folderPath/glossary_english.html";
 
           /// uiSettingsModel
           if (appSystemConfigurationModel.isCloudStorageEnabled) {
             urlForView = "${appSystemConfigurationModel.azureRootPath}content/publishfiles/$folderPath/glossary_english.html";
           }
-        }
-        else {}
+        } else if ([InstancyObjectTypes.arModule, InstancyObjectTypes.vrModule].contains(objectTypeId)) {
+          urlForView = "${appSystemConfigurationModel.isCloudStorageEnabled ? appSystemConfigurationModel.azureRootPath : siteUrl}/content/PublishFiles/$folderPath/content/data.json";
+        } else {}
 
         if (objectTypeId != InstancyObjectTypes.xApi && !urlForView.toLowerCase().contains("coursemedium") && !appSystemConfigurationModel.isCloudStorageEnabled) {
           urlForView = urlForView.replaceAll("\\?", "%3F");
         }
 
         if ([
-          InstancyObjectTypes.mediaResource,
-          InstancyObjectTypes.document,
-          InstancyObjectTypes.dictionaryGlossary,
-          InstancyObjectTypes.webPage,
-        ].contains(objectTypeId) && !appSystemConfigurationModel.isCloudStorageEnabled) {
+              InstancyObjectTypes.mediaResource,
+              InstancyObjectTypes.document,
+              InstancyObjectTypes.dictionaryGlossary,
+              InstancyObjectTypes.webPage,
+            ].contains(objectTypeId) &&
+            ![InstancyMediaTypes.threeDObject, InstancyMediaTypes.threeDAvatar].contains(courseLaunchModel.MediaTypeId) &&
+            !appSystemConfigurationModel.isCloudStorageEnabled) {
           urlForView = "$urlForView?fromNativeapp=true";
         }
 
         String encodedStr = "";
         if (objectTypeId == InstancyObjectTypes.xApi || objectTypeId == InstancyObjectTypes.reference) {
           encodedStr = replace(urlForView);
-        }
-        else {
+        } else if ([InstancyObjectTypes.arModule, InstancyObjectTypes.vrModule].contains(objectTypeId) ||
+            [InstancyMediaTypes.threeDObject, InstancyMediaTypes.threeDAvatar].contains(courseLaunchModel.MediaTypeId)) {
+          encodedStr = urlForView;
+        } else {
           encodedStr = replace(urlForView);
         }
 
@@ -500,18 +490,12 @@ class GotoCourseLaunch {
       }
     }
 
-
-
     return retUrl;
   }
 
   bool isValidString(String str) {
     try {
-      if (str.isEmpty ||
-          str == "" ||
-          str == "null" ||
-          str == "undefined" ||
-          str == "null\n") {
+      if (str.isEmpty || str == "" || str == "null" || str == "undefined" || str == "null\n") {
         return false;
       } else {
         return true;
@@ -582,7 +566,10 @@ class GotoCourseLaunch {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          title: const Text("Comming Soon", style: TextStyle(color: Colors.black),),
+          title: const Text(
+            "Comming Soon",
+            style: TextStyle(color: Colors.black),
+          ),
           content: const Text("Offline HTML content will not load  "),
           actions: [
             ok,

@@ -1,19 +1,19 @@
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
 import '../../../utils/my_utils.dart';
-import '../../catalog/data_model/catalog_course_dto_model.dart';
+import '../../course/data_model/CourseDTOModel.dart';
 
 class CourseDetailsScheduleDataResponseModel {
-  List<CatalogCourseDTOModel> courseList = [];
+  List<CourseDTOModel> courseList = [];
   int courseCount = 0;
   dynamic selfScheduleInstancesData;
 
   CourseDetailsScheduleDataResponseModel({
-    List<CatalogCourseDTOModel>? courseList,
+    List<CourseDTOModel>? courseList,
     this.courseCount = 0,
     this.selfScheduleInstancesData,
   }) {
-    this.courseList = courseList ?? <CatalogCourseDTOModel>[];
+    this.courseList = courseList ?? <CourseDTOModel>[];
   }
 
   CourseDetailsScheduleDataResponseModel.fromMap(Map<String, dynamic> map) {
@@ -27,7 +27,7 @@ class CourseDetailsScheduleDataResponseModel {
   void _initializeFromMap(Map<String, dynamic> map) {
     List<Map<String, dynamic>> courseMapsList = ParsingHelper.parseMapsListMethod(map['CourseList']);
     courseList = courseMapsList.map((e) {
-      return CatalogCourseDTOModel.fromMap(e);
+      return CourseDTOModel.fromMap(e);
     }).toList();
     courseCount = ParsingHelper.parseIntMethod(map['CourseCount']);
     selfScheduleInstancesData = map['selfScheduleInstancesData'];

@@ -6,10 +6,10 @@ import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../../../models/catalog/data_model/catalog_course_dto_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 
 class ScheduleEventCard extends StatelessWidget {
-  final CatalogCourseDTOModel catalogCourseDtoModel;
+  final CourseDTOModel catalogCourseDtoModel;
   final void Function()? onEnrollTap, onCancelEnrollmentTap;
 
   const ScheduleEventCard({
@@ -67,62 +67,66 @@ class ScheduleEventCard extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                if(catalogCourseDtoModel.ContentType.isNotEmpty) Text(
-                                  catalogCourseDtoModel.ContentType,
-                                  style: themeData.textTheme.bodyMedium,
-                                ),
+                                if (catalogCourseDtoModel.ContentType.isNotEmpty)
+                                  Text(
+                                    catalogCourseDtoModel.ContentType,
+                                    style: themeData.textTheme.bodyMedium,
+                                  ),
                                 getEventTimeWidget(
                                   eventStartDateTime: catalogCourseDtoModel.EventStartDateTime,
                                   themeData: themeData,
                                   context: context,
                                 ),
-                                if(catalogCourseDtoModel.Title.isNotEmpty) Container(
-                                  margin: const EdgeInsets.symmetric(vertical: 2).copyWith(top: 20),
-                                  child: Text(
-                                    catalogCourseDtoModel.Title,
-                                    style: themeData.textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
+                                if (catalogCourseDtoModel.Title.isNotEmpty)
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(vertical: 2).copyWith(top: 20),
+                                    child: Text(
+                                      catalogCourseDtoModel.Title,
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                if(catalogCourseDtoModel.ShortDescription.isNotEmpty) Container(
-                                  margin: const EdgeInsets.symmetric(vertical: 2),
-                                  child: Text(
-                                    catalogCourseDtoModel.ShortDescription,
-                                    style: themeData.textTheme.bodyMedium,
+                                if (catalogCourseDtoModel.ShortDescription.isNotEmpty)
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(vertical: 2),
+                                    child: Text(
+                                      catalogCourseDtoModel.ShortDescription,
+                                      style: themeData.textTheme.bodyMedium,
+                                    ),
                                   ),
-                                ),
-                                if(catalogCourseDtoModel.Duration.isNotEmpty) Container(
-                                  margin: const EdgeInsets.symmetric(vertical: 2),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        catalogCourseDtoModel.Duration,
-                                        style: themeData.textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(7.0),
-                                        child: Container(
-                                          height: 10,
-                                          width: 10,
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey.shade700,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(width: 1.5, color: Colors.grey.shade700),
+                                if (catalogCourseDtoModel.Duration.isNotEmpty)
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(vertical: 2),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          catalogCourseDtoModel.Duration,
+                                          style: themeData.textTheme.bodyMedium?.copyWith(
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      ),
-                                      Text(
-                                        ' by ${catalogCourseDtoModel.PresenterDisplayName}',
-                                        style: themeData.textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.bold,
+                                        Padding(
+                                          padding: const EdgeInsets.all(7.0),
+                                          child: Container(
+                                            height: 10,
+                                            width: 10,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey.shade700,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(width: 1.5, color: Colors.grey.shade700),
+                                            ),
+                                          ),
                                         ),
-                                      )
-                                    ],
+                                        Text(
+                                          ' by ${catalogCourseDtoModel.PresenterDisplayName}',
+                                          style: themeData.textTheme.bodyMedium?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                ),
                                 Container(
                                   margin: const EdgeInsets.symmetric(vertical: 2),
                                   child: Text(
@@ -134,15 +138,16 @@ class ScheduleEventCard extends StatelessWidget {
                                 ),
                                 getEnrollButton(themeData: themeData),
                                 getCancelEnrollmentButton(themeData: themeData),
-                                if(catalogCourseDtoModel.AvailableSeats.isNotEmpty) Container(
-                                  margin: const EdgeInsets.symmetric(vertical: 2),
-                                  child: Text(
-                                    '${catalogCourseDtoModel.AvailableSeats} Seats Remain',
-                                    style: themeData.textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
+                                if (catalogCourseDtoModel.AvailableSeats.isNotEmpty)
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(vertical: 2),
+                                    child: Text(
+                                      '${catalogCourseDtoModel.AvailableSeats} Seats Remain',
+                                      style: themeData.textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
-                                ),
                               ],
                             ),
                           ),
@@ -181,7 +186,7 @@ class ScheduleEventCard extends StatelessWidget {
   }
 
   Widget getEventTimeWidget({required String eventStartDateTime, required ThemeData themeData, required BuildContext context}) {
-    if(eventStartDateTime.isEmpty) {
+    if (eventStartDateTime.isEmpty) {
       return const SizedBox();
     }
 
@@ -203,7 +208,7 @@ class ScheduleEventCard extends StatelessWidget {
   }
 
   Widget getEnrollButton({required ThemeData themeData}) {
-    if(catalogCourseDtoModel.isContentEnrolled == "1" || catalogCourseDtoModel.isContentEnrolled.toLowerCase() == "true") {
+    if (catalogCourseDtoModel.isContentEnrolled == "1" || catalogCourseDtoModel.isContentEnrolled.toLowerCase() == "true") {
       return const SizedBox();
     }
 
@@ -224,7 +229,7 @@ class ScheduleEventCard extends StatelessWidget {
         ],
       ),
       onPressed: () {
-        if(onEnrollTap != null) {
+        if (onEnrollTap != null) {
           onEnrollTap!();
         }
       },
@@ -232,7 +237,7 @@ class ScheduleEventCard extends StatelessWidget {
   }
 
   Widget getCancelEnrollmentButton({required ThemeData themeData}) {
-    if(catalogCourseDtoModel.isContentEnrolled == "0" || catalogCourseDtoModel.isContentEnrolled.toLowerCase() == "false") {
+    if (catalogCourseDtoModel.isContentEnrolled == "0" || catalogCourseDtoModel.isContentEnrolled.toLowerCase() == "false") {
       return const SizedBox();
     }
 
@@ -253,7 +258,7 @@ class ScheduleEventCard extends StatelessWidget {
         ],
       ),
       onPressed: () {
-        if(onCancelEnrollmentTap != null) {
+        if (onCancelEnrollmentTap != null) {
           onCancelEnrollmentTap!();
         }
       },

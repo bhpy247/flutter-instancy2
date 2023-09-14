@@ -8,22 +8,45 @@ import 'package:flutter_instancy_2/views/lens_feature/component/lens_courses_bot
 import 'package:flutter_instancy_2/views/lens_feature/component/lens_screen_capture_control_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../../../api/api_url_configuration_provider.dart';
+import '../../../backend/Catalog/catalog_controller.dart';
+import '../../../backend/app/app_provider.dart';
+import '../../../backend/authentication/authentication_provider.dart';
+import '../../../backend/course_launch/course_launch_controller.dart';
+import '../../../backend/event/event_controller.dart';
 import '../../../backend/lens_feature/lens_provider.dart';
+import '../../../backend/navigation/navigation.dart';
+import '../../../backend/share/share_provider.dart';
+import '../../../backend/ui_actions/catalog/catalog_ui_action_callback_model.dart';
+import '../../../backend/ui_actions/catalog/catalog_ui_actions_controller.dart';
+import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
+import '../../../configs/app_constants.dart';
+import '../../../models/app_configuration_models/data_models/local_str.dart';
+import '../../../models/catalog/request_model/add_content_to_my_learning_request_model.dart';
+import '../../../models/catalog/response_model/removeFromWishlistModel.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
+import '../../../models/course_launch/data_model/course_launch_model.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_safe_state.dart';
 import '../../../utils/my_toast.dart';
 import '../../../utils/my_utils.dart';
+import '../../../utils/parsing_helper.dart';
+import '../../common/components/comment_dialog.dart';
+import '../../common/components/common_loader.dart';
+import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import '../../common/components/modal_progress_hud.dart';
 import '../component/lens_screen_flash_button.dart';
 
 class LensImageSearchScreen extends StatefulWidget {
-  final CameraController cameraController;
   final LensProvider? lensProvider;
+  final int componentId;
+  final int componentInsId;
 
   const LensImageSearchScreen({
     super.key,
-    required this.cameraController,
     required this.lensProvider,
+    required this.componentId,
+    required this.componentInsId,
   });
 
   @override
@@ -33,8 +56,15 @@ class LensImageSearchScreen extends StatefulWidget {
 class _LensImageSearchScreenState extends State<LensImageSearchScreen> with WidgetsBindingObserver, TickerProviderStateMixin, MySafeState {
   bool isLoading = false;
 
+  int componentId = -1;
+  int componentInstanceId = -1;
+
+  late AppProvider appProvider;
   late LensProvider lensProvider;
   late LensController lensController;
+  late CatalogController catalogController;
+
+  late Future<bool> initializeCameraFuture;
 
   late CameraController controller;
 
@@ -42,21 +72,33 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
 
   DraggableScrollableController scrollController = DraggableScrollableController();
 
+  Future<bool> initializeCamera() async {
+    try {
+      List<CameraDescription> cameras = await availableCameras();
+      controller = CameraController(cameras[0], ResolutionPreset.max);
+      await controller.initialize();
+      return true;
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in LensImageSearchScreen().initializeCamera():$e");
+      MyPrint.printOnConsole(s);
+      return false;
+    }
+  }
+
   Future<void> onTakePictureButtonPressed() async {
     XFile? file = await takePicture();
 
-    imageFile = file;
-    mySetState();
+    if (file == null) {
+      return;
+    }
 
     controller.setFlashMode(FlashMode.off);
     controller.pausePreview();
 
-    if (imageFile == null) {
-      return;
-    }
-
+    imageFile = file;
     isLoading = true;
     mySetState();
+
     Uint8List? imageBytes = await getBytesFromImage(imageFile);
 
     if (imageBytes == null) {
@@ -131,14 +173,410 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
     }
   }
 
+  CatalogUIActionCallbackModel getCatalogUIActionCallbackModel({
+    required CourseDTOModel model,
+    InstancyContentActionsEnum? primaryAction,
+    bool isSecondaryAction = true,
+  }) {
+    return CatalogUIActionCallbackModel(
+      onViewTap: primaryAction == InstancyContentActionsEnum.View
+          ? null
+          : () async {
+              MyPrint.printOnConsole("on view tap");
+              if (isSecondaryAction) Navigator.pop(context);
+              onContentLaunchTap(model: model);
+              if (model.ViewType == ViewTypesForContent.ViewAndAddToMyLearning && !ParsingHelper.parseBoolMethod(model.isContentEnrolled)) {
+                addContentToMyLearning(model: model, isShowToast: false);
+              }
+            },
+      onAddToMyLearningTap: primaryAction == InstancyContentActionsEnum.AddToMyLearning
+          ? null
+          : () async {
+              if (isSecondaryAction) Navigator.pop(context);
+              addContentToMyLearning(model: model);
+            },
+      onBuyTap: primaryAction == InstancyContentActionsEnum.Buy
+          ? null
+          : () {
+              if (isSecondaryAction) Navigator.pop(context);
+
+              catalogController.buyCourse(context: context);
+            },
+      onEnrollTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        addContentToMyLearning(model: model);
+      },
+      onDetailsTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        await onDetailsTap(model: model);
+      },
+      onIAmInterestedTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+        isLoading = true;
+        mySetState();
+        await onIAmInterestedTap(model.ContentID);
+        isLoading = false;
+        mySetState();
+      },
+      onContactTap: () async {
+        if (model.startpage.isNotEmpty) {
+          MyUtils.launchUrl(url: MyUtils.getSecureUrl(model.startpage));
+        }
+      },
+      onAddToWishlist: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        isLoading = true;
+        mySetState();
+        bool isSuccess = await catalogController.addContentToWishlist(
+          contentId: model.ContentID,
+          componentId: componentId,
+          componentInstanceId: componentInstanceId,
+        );
+        MyPrint.printOnConsole("isSuccess: $isSuccess");
+        isLoading = false;
+        mySetState();
+
+        if (isSuccess) {
+          model.AddtoWishList = "";
+          model.RemoveFromWishList = "Y";
+        }
+
+        if (pageMounted && context.mounted) {
+          if (isSuccess) {
+            MyToast.showSuccess(context: context, msg: appProvider.localStr.catalogAlertsubtitleItemaddedtowishlistsuccesfully);
+          } else {
+            MyToast.showError(context: context, msg: 'Failed');
+          }
+        }
+      },
+      onRemoveWishlist: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+        isLoading = true;
+        mySetState();
+        MyPrint.printOnConsole("Component instance id: $componentInstanceId");
+        RemoveFromWishlistResponseModel removeFromWishlistResponseModel = await catalogController.removeContentFromWishlist(
+          contentId: model.ContentID,
+          componentId: componentId,
+          componentInstanceId: componentInstanceId,
+        );
+        isLoading = false;
+        mySetState();
+        MyPrint.printOnConsole("valueeee: ${removeFromWishlistResponseModel.isSuccess}");
+        if (removeFromWishlistResponseModel.isSuccess) {
+          model.AddtoWishList = "Y";
+          model.RemoveFromWishList = "";
+        }
+
+        if (pageMounted && context.mounted) {
+          if (removeFromWishlistResponseModel.isSuccess) {
+            MyToast.showSuccess(context: context, msg: appProvider.localStr.catalogAlertsubtitleItemremovedtowishlistsuccesfully);
+          } else {
+            MyToast.showError(context: context, msg: 'Failed');
+          }
+        }
+      },
+      onAddToWaitListTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+        MyPrint.printOnConsole("Content id: ${model.ContentID}");
+        // isLoading = true;
+        // mySetState();
+        // AddToWaitListResponseModel addToWaitListResponseModel = await catalogController.addContentToWaitList(
+        //   contentId: model.ContentID,
+        //   componentId: componentId,
+        //   componentInstanceId: componentInstanceId,
+        // );
+        // MyPrint.printOnConsole("isSuccess: ${addToWaitListResponseModel.isSuccess}");
+        // isLoading = false;
+        // mySetState();
+        //
+        // if (addToWaitListResponseModel.isSuccess) {
+        //   getCatalogContentsList(
+        //     isRefresh: true,
+        //     isGetFromCache: false,
+        //     isNotify: true,
+        //   );
+        // }
+        //
+        // if (pageMounted && context.mounted) {
+        //   if (addToWaitListResponseModel.isSuccess) {
+        //     MyToast.showSuccess(context: context, msg: addToWaitListResponseModel.message);
+        //   } else {
+        //     MyToast.showError(context: context, msg: 'Failed');
+        //   }
+        // }
+        //TODO: Implement onAddToWaitListTap
+      },
+      onCancelEnrollmentTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        isLoading = true;
+        mySetState();
+
+        bool isCancelled = await EventController(eventProvider: null).cancelEventEnrollment(
+          context: context,
+          eventId: model.ContentID,
+          isBadCancellationEnabled: model.isBadCancellationEnabled == true,
+        );
+        MyPrint.printOnConsole("isCancelled:$isCancelled");
+
+        isLoading = false;
+        mySetState();
+
+        if (isCancelled) {
+          if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "Your enrollment for the course has been successfully canceled");
+        }
+      },
+      onViewResources: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        NavigationController.navigateToEventTrackScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: EventTrackScreenArguments(
+            eventTrackTabType: model.ContentTypeId == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
+            objectTypeId: model.ContentTypeId,
+            isRelatedContent: true,
+            parentContentId: model.ContentID,
+            componentId: componentId,
+            scoId: model.ScoID,
+            componentInstanceId: componentInstanceId,
+            isContentEnrolled: ["1", "true"].contains(model.isContentEnrolled.toLowerCase()),
+          ),
+        );
+      },
+      onRescheduleTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        //TODO: Implement onRescheduleTap
+      },
+      onReEnrollmentHistoryTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        //TODO: Implement onViewResources
+      },
+      onRecommendToTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        NavigationController.navigateToRecommendToScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: RecommendToScreenNavigationArguments(
+            shareContentType: ShareContentType.catalogCourse,
+            contentId: model.ContentID,
+            contentName: model.Title,
+            componentId: componentId,
+          ),
+        );
+      },
+      onShareWithConnectionTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        NavigationController.navigateToShareWithConnectionsScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: ShareWithConnectionsScreenNavigationArguments(
+            shareContentType: ShareContentType.catalogCourse,
+            contentId: model.ContentID,
+            contentName: model.Title,
+            shareProvider: context.read<ShareProvider>(),
+          ),
+        );
+      },
+      onShareWithPeopleTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        NavigationController.navigateToShareWithPeopleScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: ShareWithPeopleScreenNavigationArguments(
+            shareContentType: ShareContentType.catalogCourse,
+            contentId: model.ContentID,
+            contentName: model.Title,
+          ),
+        );
+      },
+      onShareTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        MyUtils.shareContent(content: model.Sharelink);
+      },
+      onDownloadTap: () {},
+    );
+  }
+
+  Future<void> showMoreAction({
+    required CourseDTOModel model,
+    InstancyContentActionsEnum? primaryAction,
+  }) async {
+    LocalStr localStr = appProvider.localStr;
+
+    CatalogUIActionsController catalogUIActionsController = CatalogUIActionsController(appProvider: appProvider);
+    // MyPrint.printOnConsole("isWIshlishContent: ${model.isWishListContent}");
+    List<InstancyUIActionModel> options = catalogUIActionsController
+        .getCatalogScreenSecondaryActions(
+          catalogCourseDTOModel: model,
+          localStr: localStr,
+          catalogUIActionCallbackModel: getCatalogUIActionCallbackModel(
+            model: model,
+            primaryAction: primaryAction,
+          ),
+          isWishlistMode: false,
+        )
+        .toList();
+
+    if (options.isEmpty) {
+      return;
+    }
+
+    InstancyUIActions().showAction(
+      context: context,
+      actions: options,
+    );
+  }
+
+  Future<void> onIAmInterestedTap(String contentId) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CommentDialog(
+          contentId: contentId,
+          catalogController: catalogController,
+        );
+      },
+    );
+  }
+
+  Future<void> onDetailsTap({required CourseDTOModel model}) async {
+    dynamic value = await NavigationController.navigateToCourseDetailScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      arguments: CourseDetailScreenNavigationArguments(
+        contentId: model.ContentID,
+        componentId: componentId,
+        componentInstanceId: componentInstanceId,
+        userId: model.SiteUserID,
+        screenType: InstancyContentScreenType.Catalog,
+      ),
+    );
+    MyPrint.printOnConsole("CourseDetailScreen return value:$value");
+
+    if (value == true) {}
+  }
+
+  Future<void> addContentToMyLearning({required CourseDTOModel model, bool isShowToast = true}) async {
+    if (model.AddLink == ContentAddLinkOperations.redirecttodetails) {
+      onDetailsTap(model: model);
+      return;
+    }
+
+    isLoading = true;
+    mySetState();
+
+    String contentId = model.ContentID;
+
+    bool isSuccess = await catalogController.addContentToMyLearning(
+      requestModel: AddContentToMyLearningRequestModel(
+        SelectedContent: contentId,
+        multiInstanceParentId: model.InstanceParentContentID,
+        ERitems: "",
+        HideAdd: "",
+        AdditionalParams: "",
+        TargetDate: "",
+        MultiInstanceEventEnroll: "",
+        ComponentID: componentId,
+        ComponentInsID: componentInstanceId,
+      ),
+      context: context,
+      onPrerequisiteDialogShowEnd: () {
+        MyPrint.printOnConsole("onPrerequisiteDialogShowEnd called");
+
+        isLoading = true;
+        mySetState();
+      },
+      onPrerequisiteDialogShowStarted: () {
+        MyPrint.printOnConsole("onPrerequisiteDialogShowStarted called");
+        isLoading = false;
+        mySetState();
+      },
+      hasPrerequisites: model.hasPrerequisiteContents(),
+      isShowToast: isShowToast,
+      isWaitForOtherProcesses: true,
+    );
+    MyPrint.printOnConsole("isSuccess $isSuccess");
+
+    isLoading = false;
+    mySetState();
+
+    if (isSuccess) {
+      model.AddLink = "";
+      model.ViewLink = "Y";
+    }
+  }
+
+  Future<void> onContentLaunchTap({required CourseDTOModel model}) async {
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = catalogController.catalogRepository.apiController.apiDataProvider;
+
+    isLoading = true;
+    mySetState();
+
+    bool isLaunched = await CourseLaunchController(
+      appProvider: appProvider,
+      authenticationProvider: context.read<AuthenticationProvider>(),
+      componentId: componentId,
+      componentInstanceId: componentInstanceId,
+    ).viewCourse(
+      context: context,
+      model: CourseLaunchModel(
+        ContentTypeId: model.ContentTypeId,
+        MediaTypeId: model.MediaTypeID,
+        ScoID: model.ScoID,
+        SiteUserID: apiUrlConfigurationProvider.getCurrentUserId(),
+        SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+        ContentID: model.ContentID,
+        locale: apiUrlConfigurationProvider.getLocale(),
+        ActivityId: model.ActivityId,
+        ActualStatus: model.ActualStatus,
+        ContentName: model.ContentName,
+        FolderPath: model.FolderPath,
+        JWVideoKey: model.JWVideoKey,
+        jwstartpage: model.jwstartpage,
+        startPage: model.startpage,
+        bit5: model.bit5,
+      ),
+    );
+
+    isLoading = false;
+    mySetState();
+
+    if (isLaunched) {}
+  }
+
   @override
   void initState() {
     super.initState();
 
+    componentId = widget.componentId;
+    componentInstanceId = widget.componentInsId;
+
+    appProvider = context.read<AppProvider>();
     lensProvider = widget.lensProvider ?? LensProvider();
     lensController = LensController(lensProvider: lensProvider);
+    catalogController = CatalogController(provider: null);
 
-    controller = widget.cameraController;
+    initializeCameraFuture = initializeCamera();
 
     scrollController.addListener(() {
       if (scrollController.size == 1.0) {
@@ -159,6 +597,7 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    controller.dispose();
     scrollController.dispose();
     super.dispose();
   }
@@ -179,7 +618,20 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
             inAsyncCall: isLoading || lensProvider.isLoadingContents.get(),
             child: SizedBox(
               height: MediaQuery.of(context).size.height,
-              child: imageFile == null ? getCameraView() : getImagePickedWidget(),
+              child: FutureBuilder(
+                future: initializeCameraFuture,
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return const CommonLoader();
+                  }
+
+                  if (!controller.value.isInitialized) {
+                    return const CommonLoader();
+                  }
+
+                  return imageFile == null ? getCameraView() : getImagePickedWidget();
+                },
+              ),
             ),
           );
         },
@@ -231,13 +683,14 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               getReloadButton(),
-              Flexible(
-                child: LensCoursesBottomsheetWidget(
-                  contents: lensProvider.contentsList.getList(isNewInstance: false),
-                  isLoadingContents: lensProvider.isLoadingContents.get(),
-                  scrollController: scrollController,
+              if (!isLoading)
+                Flexible(
+                  child: LensCoursesBottomsheetWidget(
+                    contents: lensProvider.contentsList.getList(isNewInstance: false),
+                    isLoadingContents: lensProvider.isLoadingContents.get(),
+                    scrollController: scrollController,
+                  ),
                 ),
-              ),
             ],
           ),
         ),

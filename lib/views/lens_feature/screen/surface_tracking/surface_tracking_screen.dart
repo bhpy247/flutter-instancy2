@@ -1,34 +1,42 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
-import 'package:flutter_instancy_2/views/lens_feature/component/surface_tracking_keyword_search_screen.dart';
+import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
+import 'package:flutter_instancy_2/backend/course_launch/course_launch_controller.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/ar_vr_module/data_model/ar_scene_meshobject_model.dart';
+import 'package:flutter_instancy_2/models/ar_vr_module/data_model/ar_scene_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:provider/provider.dart';
+import 'package:vector_math/vector_math_64.dart' as vector_math;
 
+import '../../../../backend/app/app_provider.dart';
 import '../../../../backend/lens_feature/lens_controller.dart';
 import '../../../../backend/lens_feature/lens_provider.dart';
+import '../../../../backend/navigation/navigation.dart';
 import '../../../../backend/navigation/navigation_response.dart';
-import '../../../../models/course/data_model/mobile_lms_course_model.dart';
+import '../../../../models/ar_vr_module/response_model/ar_content_model.dart';
+import '../../../../models/common/data_response_model.dart';
+import '../../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../../utils/my_print.dart';
 import '../../../../utils/my_safe_state.dart';
-import '../../../../utils/my_toast.dart';
-import '../../../../utils/my_utils.dart';
-import '../../../common/components/common_loader.dart';
 import '../../../common/components/modal_progress_hud.dart';
-import '../../component/lens_screen_capture_control_widget.dart';
-import '../../component/lens_screen_flash_button.dart';
+import '../../component/surface_tracking_keyword_search_screen.dart';
+import 'surface_tracking_screen_android.dart';
+import 'surface_tracking_screen_ios.dart';
 
 class SurfaceTrackingScreen extends StatefulWidget {
-  final CameraController cameraController;
   final LensProvider? lensProvider;
+  final int componentId;
+  final int componentInsId;
 
   const SurfaceTrackingScreen({
     super.key,
-    required this.cameraController,
     required this.lensProvider,
+    required this.componentId,
+    required this.componentInsId,
   });
 
   @override
@@ -38,93 +46,24 @@ class SurfaceTrackingScreen extends StatefulWidget {
 class _SurfaceTrackingScreenState extends State<SurfaceTrackingScreen> with WidgetsBindingObserver, TickerProviderStateMixin, MySafeState {
   bool isLoading = false;
 
+  int componentId = -1;
+  int componentInstanceId = -1;
+
+  late AppProvider appProvider;
+  late AuthenticationProvider authenticationProvider;
+
   late LensProvider lensProvider;
   late LensController lensController;
 
-  late CameraController controller;
+  GlobalKey<SurfaceTrackingScreenAndroidState> surfaceTrackingScreenAndroidKey = GlobalKey<SurfaceTrackingScreenAndroidState>();
 
-  XFile? imageFile;
+  ARContentModel? arContentModel;
 
   DraggableScrollableController scrollController = DraggableScrollableController();
 
-  List<bool> isSelected = [false, false];
+  List<bool> isSelected = [true, false];
 
-  Future<void> onTakePictureButtonPressed() async {
-    XFile? file = await takePicture();
-
-    imageFile = file;
-    mySetState();
-
-    controller.setFlashMode(FlashMode.off);
-    controller.pausePreview();
-
-    if (imageFile == null) {
-      return;
-    }
-
-    isLoading = true;
-    mySetState();
-    Uint8List? imageBytes = await getBytesFromImage(imageFile);
-
-    if (imageBytes == null) {
-      if (context.mounted) {
-        MyToast.showError(context: context, msg: "Error in converting image to bytes");
-      }
-      isLoading = false;
-      mySetState();
-      return;
-    }
-
-    await lensController.performImageSearch(imageBytes: imageBytes);
-
-    isLoading = false;
-    mySetState();
-  }
-
-  Future<XFile?> takePicture() async {
-    final CameraController cameraController = controller;
-    if (!cameraController.value.isInitialized) {
-      MyToast.showSuccess(msg: 'Error: select a camera first.', context: context);
-
-      return null;
-    }
-
-    if (cameraController.value.isTakingPicture) {
-      // A capture is already pending, do nothing.
-      return null;
-    }
-
-    try {
-      final XFile file = await cameraController.takePicture();
-      return file;
-    } on CameraException catch (e) {
-      if (context.mounted) MyToast.showSuccess(msg: 'Error: ${e.code}\n${e.description}', context: context);
-      return null;
-    }
-  }
-
-  Future<Uint8List?> getBytesFromImage(XFile? imageFile) async {
-    String tag = MyUtils.getNewId(isFromUUuid: true);
-    MyPrint.printOnConsole("ImageDetectionScreen().clickImageAndGiveBytes() called with file", tag: tag);
-
-    if (imageFile == null) {
-      MyPrint.printOnConsole("Returning from ImageDetectionScreen().clickImageAndGiveBytes() because Picked image is Null", tag: tag);
-      return null;
-    }
-
-    Uint8List? bytes;
-    try {
-      bytes = await imageFile.readAsBytes();
-    } catch (e, s) {
-      MyPrint.printOnConsole("Error in Reading Bytes from Picked Image in DataController.clickImageAndGiveBytes():$e", tag: tag);
-      MyPrint.printOnConsole(s, tag: tag);
-    }
-
-    MyPrint.printOnConsole("Final Bytes Length in ImageDetectionScreen().clickImageAndGiveBytes():${bytes?.length}", tag: tag);
-    return bytes;
-  }
-
-  Future<void> onSetFlashModeButtonPressed({required BuildContext context, required FlashMode mode}) async {
+  /*Future<void> onSetFlashModeButtonPressed({required BuildContext context, required FlashMode mode}) async {
     try {
       await controller.setFlashMode(mode);
     } on CameraException catch (e, s) {
@@ -136,7 +75,7 @@ class _SurfaceTrackingScreenState extends State<SurfaceTrackingScreen> with Widg
       MyPrint.printOnConsole("Error in ImageFeatureScreen().onSetFlashModeButtonPressed():$e");
       MyPrint.printOnConsole(s);
     }
-  }
+  }*/
 
   Future<void> navigateToSurfaceTrackingKeywordScreenAndGetARContent() async {
     dynamic value = await NavigationController.navigateToSurfaceTrackingKeywordSearchScreen(
@@ -146,6 +85,8 @@ class _SurfaceTrackingScreenState extends State<SurfaceTrackingScreen> with Widg
       ),
       arguments: SurfaceTrackingKeywordSearchScreenNavigationArguments(
         lensProvider: lensProvider,
+        componentId: componentId,
+        componentInsId: componentInstanceId,
       ),
     );
     MyPrint.printOnConsole("value:$value");
@@ -156,23 +97,91 @@ class _SurfaceTrackingScreenState extends State<SurfaceTrackingScreen> with Widg
 
     SurfaceTrackingKeywordSearchScreenNavigationResponse response = value;
 
-    MobileLmsCourseModel courseModel = response.courseModel;
+    CourseDTOModel courseModel = response.courseModel;
     String arVrContentLaunchTypes = response.arVrContentLaunchTypes;
 
-    MyPrint.printOnConsole("Selected Content Id:${courseModel.contentid}");
-    MyPrint.printOnConsole("Selected Content Name:${courseModel.name}");
+    MyPrint.printOnConsole("Selected Content Id:${courseModel.ContentID}");
+    MyPrint.printOnConsole("Selected Content Name:${courseModel.ContentName}");
     MyPrint.printOnConsole("arVrContentLaunchTypes:$arVrContentLaunchTypes");
+
     //Launch Content
+    CourseLaunchController courseLaunchController = CourseLaunchController(
+      apiController: lensController.lensRepository.apiController,
+      apiDataProvider: lensController.lensRepository.apiController.apiDataProvider,
+      appProvider: appProvider,
+      authenticationProvider: authenticationProvider,
+      componentId: -1,
+      componentInstanceId: -1,
+    );
+
+    if (context.checkMounted() && context.mounted) {
+      String courseLaunchUrl = await courseLaunchController.getARContentUrl(
+        context: context,
+        courseModel: courseModel,
+      );
+
+      MyPrint.printOnConsole("courseLaunchUrl:'$courseLaunchUrl'");
+
+      if ([InstancyObjectTypes.arModule, InstancyObjectTypes.vrModule].contains(courseModel.ContentTypeId)) {
+        DataResponseModel<ARContentModel> responseModel = await CourseLaunchController.getARContentModelFromUrl(contentUrl: courseLaunchUrl);
+        MyPrint.printOnConsole("responseModel:${responseModel.data}");
+
+        arContentModel = responseModel.data;
+        mySetState();
+
+        surfaceTrackingScreenAndroidKey.currentState?.initializeARViewFromARContentModel(arContentModel: arContentModel);
+      } else if ([InstancyMediaTypes.threeDAvatar, InstancyMediaTypes.threeDObject].contains(courseModel.MediaTypeID)) {
+        String meshType = "";
+        if (courseLaunchUrl.toLowerCase().contains(".glb")) {
+          meshType = ARContentMeshTypes.glb;
+        } else if (courseLaunchUrl.toLowerCase().contains(".gltf")) {
+          meshType = ARContentMeshTypes.gltf;
+        }
+        MyPrint.printOnConsole("meshType:$meshType");
+
+        if (meshType.isNotEmpty) {
+          int sceneId = DateTime.now().millisecondsSinceEpoch;
+
+          arContentModel = ARContentModel(
+            scenes: [
+              ARSceneModel(
+                id: sceneId,
+                sceneType: ARContentSceneTypes.groundTracking,
+                meshObjects: [
+                  ARSceneMeshObjectModel(
+                    id: sceneId + 1,
+                    meshType: meshType,
+                    position: vector_math.Vector3(0, 0, -2),
+                    mediaUrl: courseLaunchUrl,
+                    mediaName: courseModel.ContentName,
+                    name: courseModel.ContentName,
+                    sceneId: sceneId,
+                    isLock: false,
+                  ),
+                ],
+              ),
+            ],
+          );
+          mySetState();
+
+          surfaceTrackingScreenAndroidKey.currentState?.initializeARViewFromARContentModel(arContentModel: arContentModel);
+        }
+      }
+    }
   }
 
   @override
   void initState() {
     super.initState();
 
+    componentId = widget.componentId;
+    componentInstanceId = widget.componentInsId;
+
+    appProvider = context.read<AppProvider>();
+    authenticationProvider = context.read<AuthenticationProvider>();
+
     lensProvider = widget.lensProvider ?? LensProvider();
     lensController = LensController(lensProvider: lensProvider);
-
-    controller = widget.cameraController;
 
     scrollController.addListener(() {
       if (scrollController.size == 1.0) {
@@ -205,86 +214,44 @@ class _SurfaceTrackingScreenState extends State<SurfaceTrackingScreen> with Widg
       providers: [
         ChangeNotifierProvider<LensProvider>.value(value: lensProvider),
       ],
-      child: Consumer<LensProvider>(
-        builder: (BuildContext context, LensProvider lensProvider, Widget? child) {
-          return ModalProgressHUD(
-            inAsyncCall: isLoading || lensProvider.isLoadingContents.get(),
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: imageFile == null ? getCameraView() : getImagePickedWidget(),
+      child: ModalProgressHUD(
+        inAsyncCall: isLoading || lensProvider.isLoadingContents.get(),
+        child: getMainBody(),
+      ),
+    );
+  }
+
+  Widget getMainBody() {
+    if (!kIsWeb) {
+      if (Platform.isAndroid) {
+        return Stack(
+          children: [
+            SurfaceTrackingScreenAndroid(
+              key: surfaceTrackingScreenAndroidKey,
             ),
-          );
-        },
+            Align(
+              alignment: Alignment.topCenter,
+              child: getToggleButton(),
+            ),
+            // getContentList(),
+          ],
+        );
+      } else if (Platform.isIOS) {
+        return const SurfaceTrackingScreenIOS();
+      }
+    }
+
+    return Center(
+      child: Text(
+        "Not Implemented",
+        style: themeData.textTheme.labelMedium,
       ),
     );
-  }
-
-  Widget getCameraView() {
-    return SizedBox(
-      height: double.maxFinite,
-      child: CameraPreview(
-        controller,
-        child: ValueListenableBuilder<CameraValue>(
-          valueListenable: controller,
-          builder: (BuildContext context, CameraValue cameraValue, Widget? child) {
-            // MyPrint.printOnConsole("CameraValue builder build called");
-
-            return Stack(
-              children: [
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: LensScreenCaptureControlWidget(
-                    isTakingPicture: cameraValue.isTakingPicture,
-                    onClickImage: cameraValue.isInitialized && !cameraValue.isRecordingVideo && !cameraValue.isTakingPicture ? onTakePictureButtonPressed : null,
-                  ),
-                ),
-                Column(
-                  children: [
-                    LensScreenFlashCloseButton(
-                      isFlashOn: cameraValue.flashMode == FlashMode.torch,
-                      onFlashTap: () {
-                        onSetFlashModeButtonPressed(
-                          context: context,
-                          mode: cameraValue.flashMode == FlashMode.torch ? FlashMode.off : FlashMode.torch,
-                        );
-                      },
-                    ),
-                    getToggleButton(),
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget getImagePickedWidget() {
-    return ModalProgressHUD(
-      inAsyncCall: isLoading,
-      progressIndicator: const CommonLoader(),
-      child: Stack(
-        children: [
-          _thumbnailWidget(),
-          const SizedBox(),
-        ],
-      ),
-    );
-  }
-
-  Widget _thumbnailWidget() {
-    return (kIsWeb
-        ? Image.network(imageFile!.path)
-        : Image.file(
-            File(imageFile!.path),
-            fit: BoxFit.cover,
-            height: MediaQuery.of(context).size.height,
-          ));
   }
 
   Widget getToggleButton() {
     return Container(
+      margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.1),
       decoration: BoxDecoration(
         color: const Color(0xffceceb2),
         borderRadius: BorderRadius.circular(15),
@@ -362,6 +329,8 @@ class _SurfaceTrackingScreenState extends State<SurfaceTrackingScreen> with Widg
     return SurfaceTrackingKeywordSearchScreen(
       arguments: SurfaceTrackingKeywordSearchScreenNavigationArguments(
         lensProvider: lensProvider,
+        componentId: componentId,
+        componentInsId: componentInstanceId,
       ),
     );
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_instancy_2/backend/common/common_provider.dart';
-import 'package:flutter_instancy_2/models/course/data_model/mobile_lms_course_model.dart';
 
 import '../../models/common/pagination/pagination_model.dart';
+import '../../models/course/data_model/CourseDTOModel.dart';
 
 class LensProvider extends CommonProvider {
   LensProvider() {
@@ -22,8 +22,8 @@ class LensProvider extends CommonProvider {
       value: -1,
       notify: notify,
     );
-    contentsList = CommonProviderListParameter<MobileLmsCourseModel>(
-      list: <MobileLmsCourseModel>[],
+    contentsList = CommonProviderListParameter<CourseDTOModel>(
+      list: <CourseDTOModel>[],
       notify: notify,
     );
     isLoadingContents = CommonProviderPrimitiveParameter<bool>(
@@ -64,7 +64,7 @@ class LensProvider extends CommonProvider {
   late final CommonProviderPrimitiveParameter<int> componentId;
   late final CommonProviderPrimitiveParameter<int> componentInstanceId;
 
-  late final CommonProviderListParameter<MobileLmsCourseModel> contentsList;
+  late final CommonProviderListParameter<CourseDTOModel> contentsList;
   late final CommonProviderPrimitiveParameter<bool> isLoadingContents;
   late final CommonProviderPrimitiveParameter<PaginationModel> contentsPaginationModel;
   late final CommonProviderPrimitiveParameter<String> currentSearchId;

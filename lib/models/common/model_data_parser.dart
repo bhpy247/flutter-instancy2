@@ -21,6 +21,7 @@ import '../app_configuration_models/data_models/local_str.dart';
 import '../app_configuration_models/data_models/tincan_data_model.dart';
 import '../app_configuration_models/response_model/mobile_api_auth_response_model.dart';
 import '../app_configuration_models/response_model/mobile_get_learning_portal_info_response_model.dart';
+import '../ar_vr_module/response_model/ar_content_model.dart';
 import '../authentication/data_model/successful_user_login_model.dart';
 import '../authentication/response_model/country_response_model.dart';
 import '../authentication/response_model/email_login_response_model.dart';
@@ -92,7 +93,6 @@ enum ModelDataParsingType {
   listWebListModel,
   staticWebPageModel,
   //endregion
-
 
   //region forgotPassword
   forgotPasswordResponseModel,
@@ -210,60 +210,62 @@ enum ModelDataParsingType {
   //endregion
 
   //region messages screen
-  chatUsersListResponseModel
-
+  chatUsersListResponseModel,
   //endregion
+
+  // region ARModule
+  arContentModel,
+  // endregion
 }
 
 class ModelDataParser {
   static Map<ModelDataParsingType, ModelDataParsingCallbackTypeDef> callsMap = <ModelDataParsingType, ModelDataParsingCallbackTypeDef>{
-    ModelDataParsingType.dynamic : parseDynamic,
-    ModelDataParsingType.string : parseString,
-    ModelDataParsingType.bool : parseBool,
+    ModelDataParsingType.dynamic: parseDynamic,
+    ModelDataParsingType.string: parseString,
+    ModelDataParsingType.bool: parseBool,
 
     //region Splash Module
-    ModelDataParsingType.mobileGetLearningPortalInfoResponseModel : parseLearningPortalInfo,
-    ModelDataParsingType.mobileApiAuthResponseModel : parseMobileApiAuthResponseModel,
-    ModelDataParsingType.localStr : parseLocalStr,
-    ModelDataParsingType.tinCanDataModel : parseTinCanDataModel,
-    ModelDataParsingType.nativeMenuModelsList : parseNativeMenuModelsList,
-    ModelDataParsingType.nativeMenusComponentModelsList : parseNativeMenuComponentModelsList,
+    ModelDataParsingType.mobileGetLearningPortalInfoResponseModel: parseLearningPortalInfo,
+    ModelDataParsingType.mobileApiAuthResponseModel: parseMobileApiAuthResponseModel,
+    ModelDataParsingType.localStr: parseLocalStr,
+    ModelDataParsingType.tinCanDataModel: parseTinCanDataModel,
+    ModelDataParsingType.nativeMenuModelsList: parseNativeMenuModelsList,
+    ModelDataParsingType.nativeMenusComponentModelsList: parseNativeMenuComponentModelsList,
     //endregion
 
     //region Authentication Module
-    ModelDataParsingType.emailLoginResponseModel : parseEmailLoginResponseModel,
-    ModelDataParsingType.successfulUserLoginModel : parseSuccessfulUserLoginModel,
-    ModelDataParsingType.signupResponseModel : parseSignupResponseModel,
+    ModelDataParsingType.emailLoginResponseModel: parseEmailLoginResponseModel,
+    ModelDataParsingType.successfulUserLoginModel: parseSuccessfulUserLoginModel,
+    ModelDataParsingType.signupResponseModel: parseSignupResponseModel,
     //endregion
 
     //region Home Menu
-    ModelDataParsingType.newLearningResourcesResponseModel : parseNewLearningResourcesResponseModel,
-    ModelDataParsingType.listCourseDTOModel : parseCourseDTOList,
-    ModelDataParsingType.listWebListModel : parseWebListList,
-    ModelDataParsingType.staticWebPageModel : parseStaticWebPageModel,
+    ModelDataParsingType.newLearningResourcesResponseModel: parseNewLearningResourcesResponseModel,
+    ModelDataParsingType.listCourseDTOModel: parseCourseDTOList,
+    ModelDataParsingType.listWebListModel: parseWebListList,
+    ModelDataParsingType.staticWebPageModel: parseStaticWebPageModel,
     //endregion
 
-
     //region signUpFieldResponseModel
-    ModelDataParsingType.signupFieldResponseModel:parseSignupFieldResponseModel,
+    ModelDataParsingType.signupFieldResponseModel: parseSignupFieldResponseModel,
     //endregion
 
     //region forgotPassword
-    ModelDataParsingType.forgotPasswordResponseModel : parseForgotPasswordResponseModel,
+    ModelDataParsingType.forgotPasswordResponseModel: parseForgotPasswordResponseModel,
     //endregion
 
     //region Profile Menu
-    ModelDataParsingType.profileResponseModel : parseProfileResponseModel,
-    ModelDataParsingType.countryResponseModel : parseCountryResponseModel,
-    ModelDataParsingType.educationTitleResponseModel : parseEducationTitleResponseModel,
-    ModelDataParsingType.userProfileHeaderDTOModel : parseUserProfileHeaderDTOModel,
+    ModelDataParsingType.profileResponseModel: parseProfileResponseModel,
+    ModelDataParsingType.countryResponseModel: parseCountryResponseModel,
+    ModelDataParsingType.educationTitleResponseModel: parseEducationTitleResponseModel,
+    ModelDataParsingType.userProfileHeaderDTOModel: parseUserProfileHeaderDTOModel,
     //endregion
 
     //region My Learning Menu
-    ModelDataParsingType.myLearningContentModel : parseMyLearningContentModel,
-    ModelDataParsingType.contentUserRatingsDataResponseModel : parseContentUserRatingsDataResponseModel,
-    ModelDataParsingType.myLearningResponseDTOModel : parseMyLearningResponseDTOModel,
-    ModelDataParsingType.pageNoteResponseModel : parsePageNoteResponseModel,
+    ModelDataParsingType.myLearningContentModel: parseMyLearningContentModel,
+    ModelDataParsingType.contentUserRatingsDataResponseModel: parseContentUserRatingsDataResponseModel,
+    ModelDataParsingType.myLearningResponseDTOModel: parseMyLearningResponseDTOModel,
+    ModelDataParsingType.pageNoteResponseModel: parsePageNoteResponseModel,
     //endregion
 
     //region Wiki Component
@@ -289,9 +291,8 @@ class ModelDataParser {
     //endregion
 
     //region
-    ModelDataParsingType.removeFromWishlist : parseRemoveFromWishlistResponseModel,
+    ModelDataParsingType.removeFromWishlist: parseRemoveFromWishlistResponseModel,
     //endregion
-
 
     // region Share Module
     ModelDataParsingType.shareConnectionListResponseModel: parseShareConnectionListResponseModel,
@@ -340,19 +341,19 @@ class ModelDataParser {
     //endregion
 
     // region Discussion
-    ModelDataParsingType.forumListingDTOResponseModel : parseForumListingDTOResponseModel,
+    ModelDataParsingType.forumListingDTOResponseModel: parseForumListingDTOResponseModel,
     //endregion
 
     // region MyConnection
-    ModelDataParsingType.peopleListingDTOResponseModel : parsePeopleListingDTOResponseModel,
+    ModelDataParsingType.peopleListingDTOResponseModel: parsePeopleListingDTOResponseModel,
     //endregion
 
     //region userComingSoonResponse
-    ModelDataParsingType.userComingSoonResponseModel : parseUserComingSoonResponseModel,
+    ModelDataParsingType.userComingSoonResponseModel: parseUserComingSoonResponseModel,
     //endregion
 
     //region waitListResponse
-    ModelDataParsingType.addToWaitListResponseModel : parseAddWaitListResponseModel,
+    ModelDataParsingType.addToWaitListResponseModel: parseAddWaitListResponseModel,
     //endregion
 
     //region instabotResponse
@@ -360,8 +361,12 @@ class ModelDataParser {
     //endregion
 
     //region
-    ModelDataParsingType.chatUsersListResponseModel: parseChatUsersListResponseModel
+    ModelDataParsingType.chatUsersListResponseModel: parseChatUsersListResponseModel,
 
+    //endregion
+
+    //region ARModule
+    ModelDataParsingType.arContentModel: parseARContentModel,
     //endregion
   };
 
@@ -370,10 +375,9 @@ class ModelDataParser {
     ModelDataParsingCallbackTypeDef? type = callsMap[parsingType];
     MyPrint.printOnConsole("Parsing Callback:$type");
 
-    if(type is ModelDataParsingCallbackTypeDef<T>) {
+    if (type is ModelDataParsingCallbackTypeDef<T>) {
       return type(decodedValue: decodedValue);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -393,10 +397,9 @@ class ModelDataParser {
   static MobileGetLearningPortalInfoResponseModel? parseLearningPortalInfo({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return MobileGetLearningPortalInfoResponseModel.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -404,10 +407,9 @@ class ModelDataParser {
   static MobileApiAuthResponseModel? parseMobileApiAuthResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return MobileApiAuthResponseModel.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -415,10 +417,9 @@ class ModelDataParser {
   static LocalStr? parseLocalStr({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return LocalStr.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -426,10 +427,9 @@ class ModelDataParser {
   static TinCanDataModel? parseTinCanDataModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(MyUtils.decodeJson(decodedValue.toString().replaceAll("'", '"')));
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return TinCanDataModel.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -445,16 +445,16 @@ class ModelDataParser {
 
     return mapsList.map((e) => NativeMenuComponentModel.fromJson(e)).toList();
   }
+
   //endregion
 
   //region Authentication Module
   static EmailLoginResponseModel? parseEmailLoginResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return EmailLoginResponseModel.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -462,10 +462,9 @@ class ModelDataParser {
   static SuccessfulUserLoginModel? parseSuccessfulUserLoginModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return SuccessfulUserLoginModel.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -473,23 +472,22 @@ class ModelDataParser {
   static SignupResponseModel? parseSignupResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return SignupResponseModel.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
+
   //endregion
 
   //region Home Menu
   static CategoryWiseCourseDTOResponseModel? parseNewLearningResourcesResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return CategoryWiseCourseDTOResponseModel.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -509,10 +507,9 @@ class ModelDataParser {
   static StaticWebPageModel? parseStaticWebPageModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return StaticWebPageModel.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -520,10 +517,9 @@ class ModelDataParser {
   static ForgotPasswordResponseModel? parseForgotPasswordResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return ForgotPasswordResponseModel.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -531,23 +527,22 @@ class ModelDataParser {
   static SignupFieldResponseModel? parseSignupFieldResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return SignupFieldResponseModel.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
+
   //endregion
 
   //region Profile Menu
   static ProfileResponseModel? parseProfileResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return ProfileResponseModel.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -555,10 +550,9 @@ class ModelDataParser {
   static CountryResponseModel? parseCountryResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return CountryResponseModel.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -566,10 +560,9 @@ class ModelDataParser {
   static EducationTitleResponseModel? parseEducationTitleResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return EducationTitleResponseModel.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -577,23 +570,22 @@ class ModelDataParser {
   static UserProfileHeaderDTOModel? parseUserProfileHeaderDTOModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return UserProfileHeaderDTOModel.fromJson(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
+
   //endregion
 
   //region My Learning Menu
   static MyLearningContentModel? parseMyLearningContentModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return MyLearningContentModel.fromMap(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -601,10 +593,9 @@ class ModelDataParser {
   static ContentUserRatingsDataResponseModel? parseContentUserRatingsDataResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return ContentUserRatingsDataResponseModel.fromMap(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -612,13 +603,13 @@ class ModelDataParser {
   static MyLearningResponseDTOModel? parseMyLearningResponseDTOModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(map.isNotEmpty) {
+    if (map.isNotEmpty) {
       return MyLearningResponseDTOModel.fromMap(map);
-    }
-    else {
+    } else {
       return null;
     }
   }
+
   //endregion
 
   //region Wiki Component
@@ -629,15 +620,15 @@ class ModelDataParser {
   }
 
   static WikiCategoriesModel? parseWikiCategoriesModel({required dynamic decodedValue}) {
-      Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
+    Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-      if(map.isNotEmpty) {
-        return WikiCategoriesModel.fromMap(map);
-      }
-      else {
-        return null;
-      }
+    if (map.isNotEmpty) {
+      return WikiCategoriesModel.fromMap(map);
+    } else {
+      return null;
     }
+  }
+
   //endregion
 
   // region Wiki Component
@@ -680,12 +671,11 @@ class ModelDataParser {
     }).toList();
     mapsList.removeWhere((element) => element.isEmpty);
 
-    if(mapsList.isNotEmpty) {
+    if (mapsList.isNotEmpty) {
       return mapsList.map((Map<String, dynamic> map) {
         return ContentFilterCategoryTreeModel.fromJson(map);
       }).toList();
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -693,10 +683,9 @@ class ModelDataParser {
   static LearningProviderFilterResponseModel? parseLearningProviderFilterResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return LearningProviderFilterResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -704,10 +693,9 @@ class ModelDataParser {
   static InstructorListFilterResponseModel? parseInstructorListFilterResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return InstructorListFilterResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -715,10 +703,9 @@ class ModelDataParser {
   static FilterDurationValuesResponseModel? parseFilterDurationValuesResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return FilterDurationValuesResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -726,49 +713,48 @@ class ModelDataParser {
   static ComponentSortResponseModel? parseComponentSortResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return ComponentSortResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
+
   //endregion
 
   //region
-  static RemoveFromWishlistResponseModel? parseRemoveFromWishlistResponseModel({required dynamic decodedValue}){
+  static RemoveFromWishlistResponseModel? parseRemoveFromWishlistResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return RemoveFromWishlistResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
+
   //endregion
 
   //region Share Module
   static ShareConnectionListResponseModel? parseShareConnectionListResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return ShareConnectionListResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
+
   //endregion
 
   // region Progress Report Module
   static ContentProgressDetailDataResponseModel? parseProgressDetailDataResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return ContentProgressDetailDataResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -780,26 +766,24 @@ class ModelDataParser {
     }).toList();
     mapsList.removeWhere((element) => element.isEmpty);
 
-    if(mapsList.isNotEmpty) {
+    if (mapsList.isNotEmpty) {
       return mapsList.map((Map<String, dynamic> map) {
         return ContentProgressSummaryDataModel.fromJson(map);
       }).toList();
-    }
-    else {
+    } else {
       return null;
     }
   }
-  //endregion
 
+  //endregion
 
   //region Prerequisite Model
   static PrerequisiteDetailResponseModel? parsePrerequisiteDetailDataResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return PrerequisiteDetailResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -807,10 +791,9 @@ class ModelDataParser {
   static AssociatedContentResponseModel? parseAssociatedContentDataResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return AssociatedContentResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -854,23 +837,22 @@ class ModelDataParser {
   static CourseDetailsScheduleDataResponseModel? parseCourseDetailsScheduleDataResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return CourseDetailsScheduleDataResponseModel.fromMap(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
+
   //endregion
 
   //region Event Track
   static EventTrackHeaderDTOModel? parseEventTrackHeaderDTOModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return EventTrackHeaderDTOModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -896,10 +878,9 @@ class ModelDataParser {
   static EventTrackResourceResponseModel? parseEventTrackResourceResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return EventTrackResourceResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -907,10 +888,9 @@ class ModelDataParser {
   static TrackContentDataResponseModel? parseTrackContentDataResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return TrackContentDataResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -918,39 +898,39 @@ class ModelDataParser {
   static EventRelatedContentDataResponseModel? parseEventRelatedContentDataResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return EventRelatedContentDataResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
+
   //endregion
 
   // region Discussion
   static ForumListingDTOResponseModel? parseForumListingDTOResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return ForumListingDTOResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
+
   //endregion
 
   // region MyConnection
   static PeopleListingDTOResponseModel? parsePeopleListingDTOResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return PeopleListingDTOResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
+
   //endregion
 
   //region Messages
@@ -963,16 +943,15 @@ class ModelDataParser {
       return null;
     }
   }
-  //endregion
 
+  //endregion
 
   static UserComingSoonResponse? parseUserComingSoonResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return UserComingSoonResponse.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -1000,10 +979,9 @@ class ModelDataParser {
   static ResponseDTOModel? parseResponseDTOModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return ResponseDTOModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -1012,13 +990,13 @@ class ModelDataParser {
   static ContentStatusResponseModel? parseContentStatusResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
-    if(json.isNotEmpty) {
+    if (json.isNotEmpty) {
       return ContentStatusResponseModel.fromJson(json);
-    }
-    else {
+    } else {
       return null;
     }
   }
+
   //endregion
 
   // region Catalog Module
@@ -1063,5 +1041,18 @@ class ModelDataParser {
       return null;
     }
   }
-  //endregion
+
+//endregion
+
+// region ARModule
+  static ARContentModel? parseARContentModel({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> json = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return ARContentModel.fromJson(json);
+    } else {
+      return null;
+    }
+  }
+// endregion
 }

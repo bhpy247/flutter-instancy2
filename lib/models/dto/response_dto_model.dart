@@ -1,7 +1,7 @@
 import '../../utils/my_utils.dart';
 import '../../utils/parsing_helper.dart';
-import '../catalog/data_model/catalog_course_dto_model.dart';
 import '../content_details/data_model/content_details_dto_model.dart';
+import '../course/data_model/CourseDTOModel.dart';
 import 'global_search_course_dto_model.dart';
 
 class ResponseDTOModel {
@@ -10,7 +10,7 @@ class ResponseDTOModel {
   String SelfScheduleEventID = "";
   String NotiFyMsg = "";
   bool IsSuccess = false;
-  CatalogCourseDTOModel? CourseObject;
+  CourseDTOModel? CourseObject;
   GlobalSearchCourseDTOModel? SearchObject;
   ContentDetailsDTOModel? DetailsObject;
 
@@ -42,7 +42,7 @@ class ResponseDTOModel {
 
     Map<String, dynamic> CourseObjectMap = ParsingHelper.parseMapMethod(json['CourseObject']);
     if(CourseObjectMap.isNotEmpty) {
-      CourseObject = CatalogCourseDTOModel.fromMap(CourseObjectMap);
+      CourseObject = CourseDTOModel.fromMap(CourseObjectMap);
     }
 
     Map<String, dynamic> SearchObjectMap = ParsingHelper.parseMapMethod(json['SearchObject']);

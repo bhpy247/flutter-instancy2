@@ -54,19 +54,34 @@ class AppConfigurationOperations {
     if (email.contains('.@')) return false;
     if (email.contains('..')) return false;
     String suffix = email.substring(email.lastIndexOf('.') + 1);
-    if (suffix.length != 2 && suffix != 'com' && suffix != 'net' && suffix != 'org' && suffix != 'edu' && suffix != 'int' && suffix != 'mil' && suffix != 'gov' && suffix != 'arpa' && suffix != 'biz' && suffix != 'aero' && suffix != 'name' && suffix != 'coop' && suffix != 'info' && suffix != 'pro' && suffix != 'museum') {
+    if (suffix.length != 2 &&
+        suffix != 'com' &&
+        suffix != 'net' &&
+        suffix != 'org' &&
+        suffix != 'edu' &&
+        suffix != 'int' &&
+        suffix != 'mil' &&
+        suffix != 'gov' &&
+        suffix != 'arpa' &&
+        suffix != 'biz' &&
+        suffix != 'aero' &&
+        suffix != 'name' &&
+        suffix != 'coop' &&
+        suffix != 'info' &&
+        suffix != 'pro' &&
+        suffix != 'museum') {
       return false;
     }
     return true;
   }
 
   String getInstancyImageUrlFromImagePath({required String imagePath}) {
-    if(imagePath.isEmpty || imagePath.startsWith("http://") || imagePath.startsWith("https://")) return imagePath;
+    if (imagePath.isEmpty || imagePath.startsWith("http://") || imagePath.startsWith("https://")) return imagePath;
 
     String newImageUrl = '';
 
     //To Remove First Slash from Path because AzureRootPath and Site Url will have / at the end
-    if(imagePath.startsWith("/")) imagePath = imagePath.replaceFirst("/", "");
+    if (imagePath.startsWith("/")) imagePath = imagePath.replaceFirst("/", "");
 
     SiteUrlConfigurationModel siteUrlConfigurationModel = appProvider.siteConfigurations;
     AppSystemConfigurationModel appSystemConfigurationModel = appProvider.appSystemConfigurationModel;
@@ -76,12 +91,29 @@ class AppConfigurationOperations {
     if (appSystemConfigurationModel.isCloudStorageEnabled) {
       newImageUrl = "${appSystemConfigurationModel.azureRootPath}$imagePath";
       // newImageUrl = newImageUrl.toLowerCase();
-    }
-    else {
+    } else {
       newImageUrl = '${siteUrlConfigurationModel.siteLMSUrl}$imagePath';
     }
 
     return newImageUrl;
+  }
+
+  String getARContentUrl({required String url}) {
+    if (url.startsWith("http")) {
+      return url;
+    }
+
+    if (url.startsWith("assets/")) {
+      url = "${appProvider.siteConfigurations.siteLMSUrl}/ARVREditor/$url";
+    } else if (url.startsWith("../content/media/")) {
+      SiteUrlConfigurationModel siteUrlConfigurationModel = appProvider.siteConfigurations;
+      // AppSystemConfigurationModel appSystemConfigurationModel = appProvider.appSystemConfigurationModel;
+
+      url = '${siteUrlConfigurationModel.siteLMSUrl}${url.replaceFirst("../content/media/", "/Content/Instancy V2 Folders/")}';
+    }
+
+    // url = Uri.encodeFull(url);
+    return url;
   }
 
   static Map<String, String> getConditionsMapFromConditionsString({
@@ -91,13 +123,13 @@ class AppConfigurationOperations {
   }) {
     Map<String, String> map = <String, String>{};
 
-    if(conditionSeparator1.isEmpty || conditionSeparator2.isEmpty) return map;
+    if (conditionSeparator1.isEmpty || conditionSeparator2.isEmpty) return map;
 
     List<String> conditionsList1 = getListFromSeparatorJoinedString(parameterString: conditionsString, separator: conditionSeparator1);
     for (String condition in conditionsList1) {
       List<String> conditionsList2 = getListFromSeparatorJoinedString(parameterString: condition, separator: conditionSeparator2);
 
-      if(conditionsList2.length == 2) {
+      if (conditionsList2.length == 2) {
         map[conditionsList2[0]] = conditionsList2[1];
       }
     }
@@ -111,7 +143,7 @@ class AppConfigurationOperations {
   }) {
     String conditionsString = "";
 
-    if(conditionSeparator1.isEmpty || conditionSeparator2.isEmpty) return conditionsString;
+    if (conditionSeparator1.isEmpty || conditionSeparator2.isEmpty) return conditionsString;
 
     List<String> conditionStringsList = <String>[];
     conditionsMap.forEach((String key, dynamic value) {
@@ -145,8 +177,7 @@ class AppConfigurationOperations {
   static bool isValidString(String val) {
     if (val.isEmpty || val == 'null') {
       return false;
-    }
-    else {
+    } else {
       return true;
     }
   }
@@ -176,7 +207,7 @@ class AppConfigurationOperations {
   }
 
   DateTime? getEventDateTime({required String eventDate, String dateFormat = ""}) {
-    if(dateFormat.isEmpty) {
+    if (dateFormat.isEmpty) {
       dateFormat = appProvider.appSystemConfigurationModel.eventDateTimeFormat;
     }
 
@@ -186,11 +217,11 @@ class AppConfigurationOperations {
   }
 
   String getConvertedEventDateTimeString({required String eventDate, String sourceDateFormat = "", String destinationDateFormat = ""}) {
-    if(destinationDateFormat.isEmpty) {
+    if (destinationDateFormat.isEmpty) {
       return "";
     }
 
-    if(sourceDateFormat.isEmpty) {
+    if (sourceDateFormat.isEmpty) {
       sourceDateFormat = appProvider.appSystemConfigurationModel.eventDateTimeFormat;
     }
 
@@ -234,10 +265,9 @@ class AppConfigurationOperations {
 
   static bool hasPrerequisiteContents(String AddLink) {
     List<String> list = AddLink.split("\$");
-    if(list.firstElement == ContentAddLinkOperations.addrecommenedrelatedcontent && (list.length > 1 && ParsingHelper.parseIntMethod(list[1]) > 0)) {
+    if (list.firstElement == ContentAddLinkOperations.addrecommenedrelatedcontent && (list.length > 1 && ParsingHelper.parseIntMethod(list[1]) > 0)) {
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }
@@ -264,7 +294,7 @@ class AppConfigurationOperations {
   }
 
   bool checkMenuAvailable({required int menuId}) {
-    return [17,2,62].contains(menuId);
+    return [17, 2, 62].contains(menuId);
   }
 
   bool isShowSetComplete({required int objectTypeId, required int mediaTypeId, required String contentStatus, required ProfileProvider profileProvider}) {

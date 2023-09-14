@@ -19,8 +19,12 @@ import 'package:flutter_instancy_2/models/course_launch/response_model/content_s
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
+import '../../api/api_call_model.dart';
 import '../../api/api_url_configuration_provider.dart';
+import '../../api/rest_client.dart';
 import '../../configs/app_constants.dart';
+import '../../models/ar_vr_module/response_model/ar_content_model.dart';
+import '../../models/common/model_data_parser.dart';
 import '../../models/course_launch/request_model/content_status_request_model.dart';
 import '../../utils/my_print.dart';
 import 'course_launch_repository.dart';
@@ -416,6 +420,10 @@ class CourseLaunchController {
             courseId: model.ContentID,
           ),
         );
+      }
+      if ([InstancyObjectTypes.arModule, InstancyObjectTypes.vrModule].contains(model.ContentTypeId) ||
+          [InstancyMediaTypes.threeDAvatar, InstancyMediaTypes.threeDObject].contains(model.MediaTypeId)) {
+        return true;
       } else {
         String url = "";
         SuccessfulUserLoginModel? successfulUserLoginModel = authenticationProvider.getSuccessfulUserLoginModel();
@@ -711,5 +719,54 @@ class CourseLaunchController {
         ),
       );
     }
+  }
+
+  Future<String> getARContentUrl({required BuildContext context, required CourseDTOModel courseModel}) async {
+    String url = "";
+
+    SuccessfulUserLoginModel? successfulUserLoginModel = authenticationProvider.getSuccessfulUserLoginModel();
+    if (successfulUserLoginModel == null) {
+      return url;
+    }
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiDataProvider;
+
+    GotoCourseLaunch courseLaunch = GotoCourseLaunch(
+      context: context,
+      apiUrlConfigurationProvider: apiUrlConfigurationProvider,
+      successfulUserLoginModel: successfulUserLoginModel,
+      tinCanDataModel: appProvider.tinCanDataModel,
+      appSystemConfigurationModel: appProvider.appSystemConfigurationModel,
+      courseLaunchModel: CourseLaunchModel(
+        ContentTypeId: courseModel.ContentTypeId,
+        MediaTypeId: courseModel.MediaTypeID,
+        ScoID: courseModel.ScoID,
+        SiteUserID: apiUrlConfigurationProvider.getCurrentSiteId(),
+        SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+        ContentID: courseModel.ContentID,
+        locale: apiUrlConfigurationProvider.getLocale(),
+        FolderPath: courseModel.FolderPath,
+        startPage: courseModel.startpage,
+      ),
+    );
+    url = await courseLaunch.getCourseUrl();
+
+    return url;
+  }
+
+  static Future<DataResponseModel<ARContentModel>> getARContentModelFromUrl({required String contentUrl}) async {
+    ApiCallModel apiCallModel = await ApiController().getApiCallModelFromData(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.arContentModel,
+      url: contentUrl,
+      isGetDataFromHive: false,
+      isStoreDataInHive: false,
+    );
+
+    DataResponseModel<ARContentModel> apiResponseModel = await ApiController().callApi<ARContentModel>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
   }
 }

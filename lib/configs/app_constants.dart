@@ -679,8 +679,9 @@ class MessageType {
 
 class ContentTypeCategoryId {
   static const String image = "M1";
-  static const String video = "M1";
-  static const String arObject = "M66";
+  static const String video = "M3";
+  static const String threeDObject = "M66";
+  static const String threeDAvatar = "M67";
   static const String arModule = "695";
   static const String vrModule = "696";
 }
@@ -688,4 +689,27 @@ class ContentTypeCategoryId {
 class ARVRContentLaunchTypes {
   static const String launchInAR = "launchInAR";
   static const String launchInVR = "launchInVR";
+}
+
+class ARContentSceneTypes {
+  static const int imageTracking = 1;
+  static const int groundTracking = 2;
+  static const int qrCode = 3;
+}
+
+class ARContentMeshTypes {
+  static const String text = "text";
+  static const String image = "image";
+  static const String video = "video";
+  static const String audio = "audio";
+  static const String button = "button";
+  static const String sphere = "sphere";
+  static const String hotspot = "hotspot";
+  static const String glb = "glb";
+  static const String gltf = "gltf";
+}
+
+class ARContentBGVRType {
+  static const String image_360 = "image_360";
+  static const String video_360 = "video_360";
 }

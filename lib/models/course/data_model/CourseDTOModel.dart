@@ -1,6 +1,8 @@
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
+import '../../../backend/configurations/app_configuration_operations.dart';
+
 class CourseDTOModel {
   String SiteName = "";
   String ContentID = "";
@@ -75,6 +77,54 @@ class CourseDTOModel {
   String CoreLessonStatus = "";
   String FolderPath = "";
   String ActivityId = "";
+  String Titlewithlink = "";
+  String rcaction = "";
+  String Categories = "";
+  String IsSubSite = "";
+  String MembershipName = "";
+  String EventAvailableSeats = "";
+  String EventCompletedProgress = "";
+  String EventContentProgress = "";
+  String PreviewLink = "";
+  String ApproveLink = "";
+  String RejectLink = "";
+  String ReadLink = "";
+  String AddLink = "";
+  String EnrollNowLink = "";
+  String CancelEventLink = "";
+  String WaitListLink = "";
+  String InapppurchageLink = "";
+  String AlredyinmylearnigLink = "";
+  String RecommendedLink = "";
+  String EditMetadataLink = "";
+  String ReplaceLink = "";
+  String EditLink = "";
+  String DeleteLink = "";
+  String SampleContentLink = "";
+  String TitleExpired = "";
+  String PracticeAssessmentsAction = "";
+  String CreateAssessmentAction = "";
+  String OverallProgressReportAction = "";
+  String ContentScoID = "";
+  String ContentViewType = "";
+  String WindowProperties = "";
+  String AddtoWishList = "";
+  String RemoveFromWishList = "";
+  String Duration = "";
+  String Credits = "";
+  String DetailspopupTags = "";
+  String Modules = "";
+  String EnrollmentLimit = "";
+  String AvailableSeats = "";
+  String NoofUsersEnrolled = "";
+  String WaitListLimit = "";
+  String WaitListEnrolls = "";
+  String EventStartDateforEnroll = "";
+  String DownLoadLink = "";
+  String PrerequisiteDateConflictName = "";
+  String PrerequisiteDateConflictDateTime = "";
+  String isContentEnrolled = "";
+  String SkinID = "";
   int FilterId = 0;
   int SiteId = 0;
   int UserSiteId = 0;
@@ -87,13 +137,20 @@ class CourseDTOModel {
   int ViewType = 0;
   int CategoryID = 0;
   int TotalRatings = 0;
+  int Count = 0;
+  int isWishListContent = 0;
   double PercentCompleted = 0;
   double RatingID = 0;
   bool ShowMembershipExpiryAlert = false;
   bool bit5 = false;
-  dynamic bit4;
   bool OpenNewBrowserWindow = false;
   bool bit1 = false;
+  bool isBadCancellationEnabled = false;
+  bool isBookingOpened = false;
+  bool EventRecording = false;
+  bool ShowParentPrerequisiteEventDate = false;
+  bool ShowPrerequisiteEventDate = false;
+  dynamic bit4;
 
   CourseDTOModel({
     this.SiteName = "",
@@ -169,6 +226,54 @@ class CourseDTOModel {
     this.CoreLessonStatus = "",
     this.FolderPath = "",
     this.ActivityId = "",
+    this.Titlewithlink = "",
+    this.rcaction = "",
+    this.Categories = "",
+    this.IsSubSite = "",
+    this.MembershipName = "",
+    this.EventAvailableSeats = "",
+    this.EventCompletedProgress = "",
+    this.EventContentProgress = "",
+    this.PreviewLink = "",
+    this.ApproveLink = "",
+    this.RejectLink = "",
+    this.ReadLink = "",
+    this.AddLink = "",
+    this.EnrollNowLink = "",
+    this.CancelEventLink = "",
+    this.WaitListLink = "",
+    this.InapppurchageLink = "",
+    this.AlredyinmylearnigLink = "",
+    this.RecommendedLink = "",
+    this.EditMetadataLink = "",
+    this.ReplaceLink = "",
+    this.EditLink = "",
+    this.DeleteLink = "",
+    this.SampleContentLink = "",
+    this.TitleExpired = "",
+    this.PracticeAssessmentsAction = "",
+    this.CreateAssessmentAction = "",
+    this.OverallProgressReportAction = "",
+    this.ContentScoID = "",
+    this.ContentViewType = "",
+    this.WindowProperties = "",
+    this.AddtoWishList = "",
+    this.RemoveFromWishList = "",
+    this.Duration = "",
+    this.Credits = "",
+    this.DetailspopupTags = "",
+    this.Modules = "",
+    this.EnrollmentLimit = "",
+    this.AvailableSeats = "",
+    this.NoofUsersEnrolled = "",
+    this.WaitListLimit = "",
+    this.WaitListEnrolls = "",
+    this.EventStartDateforEnroll = "",
+    this.DownLoadLink = "",
+    this.PrerequisiteDateConflictName = "",
+    this.PrerequisiteDateConflictDateTime = "",
+    this.SkinID = "",
+    this.isContentEnrolled = "",
     this.FilterId = 0,
     this.SiteId = 0,
     this.UserSiteId = 0,
@@ -183,11 +288,18 @@ class CourseDTOModel {
     this.TotalRatings = 0,
     this.PercentCompleted = 0,
     this.RatingID = 0,
+    this.Count = 0,
+    this.isWishListContent = 0,
     this.ShowMembershipExpiryAlert = false,
     this.bit5 = false,
     this.bit4,
     this.OpenNewBrowserWindow = false,
     this.bit1 = false,
+    this.isBadCancellationEnabled = false,
+    this.isBookingOpened = false,
+    this.EventRecording = false,
+    this.ShowParentPrerequisiteEventDate = false,
+    this.ShowPrerequisiteEventDate = false,
   });
 
   CourseDTOModel.fromMap(Map<String, dynamic> map) {
@@ -273,6 +385,54 @@ class CourseDTOModel {
     CoreLessonStatus = ParsingHelper.parseStringMethod(map["CoreLessonStatus"]);
     FolderPath = ParsingHelper.parseStringMethod(map["FolderPath"]);
     ActivityId = ParsingHelper.parseStringMethod(map["ActivityId"]);
+    Titlewithlink = ParsingHelper.parseStringMethod(map['Titlewithlink']);
+    rcaction = ParsingHelper.parseStringMethod(map['rcaction']);
+    Categories = ParsingHelper.parseStringMethod(map['Categories']);
+    IsSubSite = ParsingHelper.parseStringMethod(map['IsSubSite']);
+    MembershipName = ParsingHelper.parseStringMethod(map['MembershipName']);
+    EventAvailableSeats = ParsingHelper.parseStringMethod(map['EventAvailableSeats']);
+    EventCompletedProgress = ParsingHelper.parseStringMethod(map['EventCompletedProgress']);
+    EventContentProgress = ParsingHelper.parseStringMethod(map['EventContentProgress']);
+    PreviewLink = ParsingHelper.parseStringMethod(map['PreviewLink']);
+    ApproveLink = ParsingHelper.parseStringMethod(map['ApproveLink']);
+    RejectLink = ParsingHelper.parseStringMethod(map['RejectLink']);
+    ReadLink = ParsingHelper.parseStringMethod(map['ReadLink']);
+    AddLink = ParsingHelper.parseStringMethod(map['AddLink']);
+    EnrollNowLink = ParsingHelper.parseStringMethod(map['EnrollNowLink']);
+    CancelEventLink = ParsingHelper.parseStringMethod(map['CancelEventLink']);
+    WaitListLink = ParsingHelper.parseStringMethod(map['WaitListLink']);
+    InapppurchageLink = ParsingHelper.parseStringMethod(map['InapppurchageLink']);
+    AlredyinmylearnigLink = ParsingHelper.parseStringMethod(map['AlredyinmylearnigLink']);
+    RecommendedLink = ParsingHelper.parseStringMethod(map['RecommendedLink']);
+    EditMetadataLink = ParsingHelper.parseStringMethod(map['EditMetadataLink']);
+    ReplaceLink = ParsingHelper.parseStringMethod(map['ReplaceLink']);
+    EditLink = ParsingHelper.parseStringMethod(map['EditLink']);
+    DeleteLink = ParsingHelper.parseStringMethod(map['DeleteLink']);
+    SampleContentLink = ParsingHelper.parseStringMethod(map['SampleContentLink']);
+    TitleExpired = ParsingHelper.parseStringMethod(map['TitleExpired']);
+    PracticeAssessmentsAction = ParsingHelper.parseStringMethod(map['PracticeAssessmentsAction']);
+    CreateAssessmentAction = ParsingHelper.parseStringMethod(map['CreateAssessmentAction']);
+    OverallProgressReportAction = ParsingHelper.parseStringMethod(map['OverallProgressReportAction']);
+    ContentScoID = ParsingHelper.parseStringMethod(map['ContentScoID']);
+    ContentViewType = ParsingHelper.parseStringMethod(map['ContentViewType']);
+    WindowProperties = ParsingHelper.parseStringMethod(map['WindowProperties']);
+    AddtoWishList = ParsingHelper.parseStringMethod(map['AddtoWishList']);
+    RemoveFromWishList = ParsingHelper.parseStringMethod(map['RemoveFromWishList']);
+    Duration = ParsingHelper.parseStringMethod(map['Duration']);
+    Credits = ParsingHelper.parseStringMethod(map['Credits']);
+    DetailspopupTags = ParsingHelper.parseStringMethod(map['DetailspopupTags']);
+    Modules = ParsingHelper.parseStringMethod(map['Modules']);
+    EnrollmentLimit = ParsingHelper.parseStringMethod(map['EnrollmentLimit']);
+    AvailableSeats = ParsingHelper.parseStringMethod(map['AvailableSeats']);
+    NoofUsersEnrolled = ParsingHelper.parseStringMethod(map['NoofUsersEnrolled']);
+    WaitListLimit = ParsingHelper.parseStringMethod(map['WaitListLimit']);
+    WaitListEnrolls = ParsingHelper.parseStringMethod(map['WaitListEnrolls']);
+    EventStartDateforEnroll = ParsingHelper.parseStringMethod(map['EventStartDateforEnroll']);
+    DownLoadLink = ParsingHelper.parseStringMethod(map['DownLoadLink']);
+    PrerequisiteDateConflictName = ParsingHelper.parseStringMethod(map['PrerequisiteDateConflictName']);
+    PrerequisiteDateConflictDateTime = ParsingHelper.parseStringMethod(map['PrerequisiteDateConflictDateTime']);
+    SkinID = ParsingHelper.parseStringMethod(map['SkinID']);
+    isContentEnrolled = ParsingHelper.parseStringMethod(map['isContentEnrolled']);
     PercentCompleted = ParsingHelper.parseDoubleMethod(map["PercentCompleted"]);
     FilterId = ParsingHelper.parseIntMethod(map["FilterId"]);
     SiteId = ParsingHelper.parseIntMethod(map["SiteId"]);
@@ -285,12 +445,20 @@ class CourseDTOModel {
     EventScheduleType = ParsingHelper.parseIntMethod(map["EventScheduleType"]);
     ViewType = ParsingHelper.parseIntMethod(map["ViewType"]);
     CategoryID = ParsingHelper.parseIntMethod(map["CategoryID"]);
+    isContentEnrolled = ParsingHelper.parseStringMethod(map['isContentEnrolled']);
+    Count = ParsingHelper.parseIntMethod(map['Count']);
+    isWishListContent = ParsingHelper.parseIntMethod(map['isWishListContent']);
     RatingID = ParsingHelper.parseDoubleMethod(map["RatingID"]);
     ShowMembershipExpiryAlert = ParsingHelper.parseBoolMethod(map["ShowMembershipExpiryAlert"]);
     bit5 = ParsingHelper.parseBoolMethod(map["bit5"]);
     bit4 = map["bit4"];
     OpenNewBrowserWindow = ParsingHelper.parseBoolMethod(map["OpenNewBrowserWindow"]);
     bit1 = ParsingHelper.parseBoolMethod(map["bit1"]);
+    isBadCancellationEnabled = ParsingHelper.parseBoolMethod(map['isBadCancellationEnabled']);
+    isBookingOpened = ParsingHelper.parseBoolMethod(map['isBookingOpened']);
+    EventRecording = ParsingHelper.parseBoolMethod(map['EventRecording']);
+    ShowParentPrerequisiteEventDate = ParsingHelper.parseBoolMethod(map['ShowParentPrerequisiteEventDate']);
+    ShowPrerequisiteEventDate = ParsingHelper.parseBoolMethod(map['ShowPrerequisiteEventDate']);
   }
 
   Map<String, dynamic> toMap() {
@@ -369,6 +537,54 @@ class CourseDTOModel {
       "CoreLessonStatus": CoreLessonStatus,
       "FolderPath": FolderPath,
       "ActivityId": ActivityId,
+      "Titlewithlink": Titlewithlink,
+      "rcaction": rcaction,
+      "Categories": Categories,
+      "IsSubSite": IsSubSite,
+      "MembershipName": MembershipName,
+      "EventAvailableSeats": EventAvailableSeats,
+      "EventCompletedProgress": EventCompletedProgress,
+      "EventContentProgress": EventContentProgress,
+      "PreviewLink": PreviewLink,
+      "ApproveLink": ApproveLink,
+      "RejectLink": RejectLink,
+      "ReadLink": ReadLink,
+      "AddLink": AddLink,
+      "EnrollNowLink": EnrollNowLink,
+      "CancelEventLink": CancelEventLink,
+      "WaitListLink": WaitListLink,
+      "InapppurchageLink": InapppurchageLink,
+      "AlredyinmylearnigLink": AlredyinmylearnigLink,
+      "RecommendedLink": RecommendedLink,
+      "EditMetadataLink": EditMetadataLink,
+      "ReplaceLink": ReplaceLink,
+      "EditLink": EditLink,
+      "DeleteLink": DeleteLink,
+      "SampleContentLink": SampleContentLink,
+      "TitleExpired": TitleExpired,
+      "PracticeAssessmentsAction": PracticeAssessmentsAction,
+      "CreateAssessmentAction": CreateAssessmentAction,
+      "OverallProgressReportAction": OverallProgressReportAction,
+      "ContentScoID": ContentScoID,
+      "ContentViewType": ContentViewType,
+      "WindowProperties": WindowProperties,
+      "AddtoWishList": AddtoWishList,
+      "RemoveFromWishList": RemoveFromWishList,
+      "Duration": Duration,
+      "Credits": Credits,
+      "DetailspopupTags": DetailspopupTags,
+      "Modules": Modules,
+      "EnrollmentLimit": EnrollmentLimit,
+      "AvailableSeats": AvailableSeats,
+      "NoofUsersEnrolled": NoofUsersEnrolled,
+      "WaitListLimit": WaitListLimit,
+      "WaitListEnrolls": WaitListEnrolls,
+      "EventStartDateforEnroll": EventStartDateforEnroll,
+      "DownLoadLink": DownLoadLink,
+      "PrerequisiteDateConflictName": PrerequisiteDateConflictName,
+      "PrerequisiteDateConflictDateTime": PrerequisiteDateConflictDateTime,
+      "SkinID": SkinID,
+      "isContentEnrolled": isContentEnrolled,
       "PercentCompleted": PercentCompleted,
       "FilterId": FilterId,
       "SiteId": SiteId,
@@ -381,17 +597,28 @@ class CourseDTOModel {
       "EventScheduleType": EventScheduleType,
       "ViewType": ViewType,
       "CategoryID": CategoryID,
+      "Count": Count,
+      "isWishListContent": isWishListContent,
       "RatingID": RatingID,
       "ShowMembershipExpiryAlert": ShowMembershipExpiryAlert,
       "bit5": bit5,
       "bit4": bit4,
       "OpenNewBrowserWindow": OpenNewBrowserWindow,
       "bit1": bit1,
+      "isBadCancellationEnabled": isBadCancellationEnabled,
+      "isBookingOpened": isBookingOpened,
+      "EventRecording": EventRecording,
+      "ShowParentPrerequisiteEventDate": ShowParentPrerequisiteEventDate,
+      "ShowPrerequisiteEventDate": ShowPrerequisiteEventDate,
     };
   }
 
   @override
   String toString() {
     return MyUtils.encodeJson(toMap());
+  }
+
+  bool hasPrerequisiteContents() {
+    return AppConfigurationOperations.hasPrerequisiteContents(AddLink);
   }
 }

@@ -1,11 +1,11 @@
-import '../../models/course/data_model/mobile_lms_course_model.dart';
+import '../../models/course/data_model/CourseDTOModel.dart';
 
 class NavigationResponse {
   const NavigationResponse();
 }
 
 class SurfaceTrackingKeywordSearchScreenNavigationResponse extends NavigationResponse {
-  final MobileLmsCourseModel courseModel;
+  final CourseDTOModel courseModel;
   final String arVrContentLaunchTypes;
 
   const SurfaceTrackingKeywordSearchScreenNavigationResponse({

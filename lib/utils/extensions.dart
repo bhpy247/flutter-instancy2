@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:intl/intl.dart';
+import 'package:vector_math/vector_math_64.dart';
+
+import 'parsing_helper.dart';
 
 extension MyStringExtension on String? {
   bool get checkNotEmpty => (this ?? '').isNotEmpty;
@@ -86,8 +89,7 @@ extension ContextExtension on BuildContext {
   bool checkMounted() {
     try {
       return mounted;
-    }
-    catch(e, s) {
+    } catch (e, s) {
       MyPrint.printOnConsole("Error in ContextExtension.checkMounted():$e");
       MyPrint.printOnConsole(s);
       return false;
@@ -95,4 +97,42 @@ extension ContextExtension on BuildContext {
   }
 
   Size get sizeData => MediaQuery.of(this).size;
+}
+
+extension Vector3Extension on Vector3 {
+  static Vector3 fromJson(Map<String, dynamic> json) {
+    double x = ParsingHelper.parseDoubleMethod(json['x']);
+    double y = ParsingHelper.parseDoubleMethod(json['y']);
+    double z = ParsingHelper.parseDoubleMethod(json['z']);
+
+    return Vector3(x, y, z);
+  }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      "x": x,
+      "y": y,
+      "z": z,
+    };
+  }
+}
+
+extension Vector4Extension on Vector4 {
+  static Vector4 fromJson(Map<String, dynamic> json) {
+    double x = ParsingHelper.parseDoubleMethod(json['x']);
+    double y = ParsingHelper.parseDoubleMethod(json['y']);
+    double z = ParsingHelper.parseDoubleMethod(json['z']);
+    double w = ParsingHelper.parseDoubleMethod(json['w']);
+
+    return Vector4(x, y, z, w);
+  }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      "x": x,
+      "y": y,
+      "z": z,
+      "w": w,
+    };
+  }
 }

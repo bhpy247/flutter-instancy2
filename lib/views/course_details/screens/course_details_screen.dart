@@ -50,8 +50,8 @@ import '../../../backend/share/share_provider.dart';
 import '../../../backend/ui_actions/course_details/course_details_ui_actions_controller.dart';
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
-import '../../../models/catalog/data_model/catalog_course_dto_model.dart';
 import '../../../models/catalog/response_model/removeFromWishlistModel.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../models/event_track/request_model/view_recording_request_model.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_utils.dart';
@@ -1486,6 +1486,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
   Widget getAuthorImageAndNameWidget({required ContentDetailsDTOModel contentDetailsDTOModel}) {
     MyPrint.printOnConsole("contentDetailsDTOModel.authorWithLink:${contentDetailsDTOModel.UserProfileImagePath}");
+    String imageUrl = AppConfigurationOperations(appProvider: appProvider).getInstancyImageUrlFromImagePath(imagePath: contentDetailsDTOModel.UserProfileImagePath);
+    MyPrint.printOnConsole("final imageUrl:$imageUrl");
     return Row(
       children: [
         Container(
@@ -1494,10 +1496,11 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             borderRadius: BorderRadius.circular(50),
             child: CommonCachedNetworkImage(
               // imageUrl: "https://picsum.photos/200/300",
-              imageUrl: contentDetailsDTOModel.UserProfileImagePath,
+              imageUrl: imageUrl,
               height: 50,
               width: 50,
               fit: BoxFit.cover,
+              errorIconSize: 30,
             ),
           ),
         ),
@@ -1727,7 +1730,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
     Widget child;
 
-    List<CatalogCourseDTOModel> scheduleData = courseDetailsProvider.scheduleData.getList(isNewInstance: false);
+    List<CourseDTOModel> scheduleData = courseDetailsProvider.scheduleData.getList(isNewInstance: false);
 
     if (scheduleData.isEmpty) {
       child = Center(
@@ -1739,7 +1742,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         itemCount: scheduleData.length,
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (BuildContext context, int index) {
-          CatalogCourseDTOModel catalogCourseDtoModel = scheduleData[index];
+          CourseDTOModel catalogCourseDtoModel = scheduleData[index];
 
           return ScheduleEventCard(
             catalogCourseDtoModel: catalogCourseDtoModel,

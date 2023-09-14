@@ -1474,6 +1474,280 @@ class PrimarySecondaryActionsConfigs {
           ),
         },
       },
+      InstancyMediaTypes.threeDObject: <int, Map<InstancyContentScreenType, PrimarySecondaryActionsDataModel>>{
+        ViewTypesForContent.View: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.AddToMyLearning,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.Report,
+              InstancyContentActionsEnum.SetComplete,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+        ViewTypesForContent.Subscription: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.AddToMyLearning,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.Report,
+              InstancyContentActionsEnum.SetComplete,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+        ViewTypesForContent.ECommerce: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.Buy,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.Buy,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.Report,
+              InstancyContentActionsEnum.SetComplete,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+        ViewTypesForContent.ViewAndAddToMyLearning: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.AddToMyLearning,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.Report,
+              InstancyContentActionsEnum.SetComplete,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+      },
+      InstancyMediaTypes.threeDAvatar: <int, Map<InstancyContentScreenType, PrimarySecondaryActionsDataModel>>{
+        ViewTypesForContent.View: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.AddToMyLearning,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.Report,
+              InstancyContentActionsEnum.SetComplete,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+        ViewTypesForContent.Subscription: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.AddToMyLearning,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.Report,
+              InstancyContentActionsEnum.SetComplete,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+        ViewTypesForContent.ECommerce: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.Buy,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.Buy,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.Report,
+              InstancyContentActionsEnum.SetComplete,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+        ViewTypesForContent.ViewAndAddToMyLearning: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.AddToMyLearning,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.Report,
+              InstancyContentActionsEnum.SetComplete,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+      },
     },
     InstancyObjectTypes.document: <int, Map<int, Map<InstancyContentScreenType, PrimarySecondaryActionsDataModel>>>{
       InstancyMediaTypes.word: <int, Map<InstancyContentScreenType, PrimarySecondaryActionsDataModel>>{
@@ -9422,6 +9696,268 @@ class PrimarySecondaryActionsConfigs {
               InstancyContentActionsEnum.Unarchive,
               InstancyContentActionsEnum.Report,
               InstancyContentActionsEnum.ViewCertificate,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+      },
+    },
+    InstancyObjectTypes.arModule: <int, Map<int, Map<InstancyContentScreenType, PrimarySecondaryActionsDataModel>>>{
+      InstancyMediaTypes.none: <int, Map<InstancyContentScreenType, PrimarySecondaryActionsDataModel>>{
+        ViewTypesForContent.View: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.AddToMyLearning,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+        ViewTypesForContent.Subscription: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.AddToMyLearning,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+        ViewTypesForContent.ECommerce: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.AddToMyLearning,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.Buy,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+        ViewTypesForContent.ViewAndAddToMyLearning: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.AddToMyLearning,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+      },
+    },
+    InstancyObjectTypes.vrModule: <int, Map<int, Map<InstancyContentScreenType, PrimarySecondaryActionsDataModel>>>{
+      InstancyMediaTypes.none: <int, Map<InstancyContentScreenType, PrimarySecondaryActionsDataModel>>{
+        ViewTypesForContent.View: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.AddToMyLearning,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+        ViewTypesForContent.Subscription: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.AddToMyLearning,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+        ViewTypesForContent.ECommerce: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.AddToMyLearning,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.Buy,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+        },
+        ViewTypesForContent.ViewAndAddToMyLearning: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
+          InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.AddToWishlist,
+              InstancyContentActionsEnum.RemoveFromWishlist,
+              InstancyContentActionsEnum.AddToMyLearning,
+              InstancyContentActionsEnum.RecommendTo,
+              InstancyContentActionsEnum.ShareToConnections,
+              InstancyContentActionsEnum.ShareWithPeople,
+              InstancyContentActionsEnum.Share,
+            ],
+          ),
+          InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
+            primaryActions: [
+              InstancyContentActionsEnum.View,
+              InstancyContentActionsEnum.Details,
+            ],
+            secondaryActions: <InstancyContentActionsEnum>[
+              InstancyContentActionsEnum.Details,
+              InstancyContentActionsEnum.Archive,
+              InstancyContentActionsEnum.Unarchive,
               InstancyContentActionsEnum.ShareToConnections,
               InstancyContentActionsEnum.ShareWithPeople,
               InstancyContentActionsEnum.Share,

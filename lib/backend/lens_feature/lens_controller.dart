@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter_instancy_2/backend/lens_feature/lens_provider.dart';
 import 'package:flutter_instancy_2/backend/lens_feature/lens_repository.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:googleapis/vision/v1.dart' as vision_api;
@@ -11,11 +12,10 @@ import 'package:googleapis_auth/auth_io.dart';
 
 import '../../api/api_controller.dart';
 import '../../api/api_url_configuration_provider.dart';
-import '../../models/catalog/request_model/mobile_catalog_objects_data_request_model.dart';
-import '../../models/catalog/response_model/mobile_catalog_objects_data_response_model.dart';
+import '../../models/catalog/request_model/catalog_request_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/common/pagination/pagination_model.dart';
-import '../../models/course/data_model/mobile_lms_course_model.dart';
+import '../../models/course/data_model/CourseDTOModel.dart';
 import '../../utils/my_print.dart';
 import '../../utils/my_utils.dart';
 import '../../utils/parsing_helper.dart';
@@ -79,6 +79,7 @@ class LensController {
               vision_api.Feature(
                 maxResults: 10,
                 type: "OBJECT_LOCALIZATION",
+                // type: "LABEL_DETECTION",
               ),
             ],
           ),
@@ -87,6 +88,7 @@ class LensController {
       MyPrint.logOnConsole("response:${MyUtils.encodeJson(response.toJson())}", tag: tag);
 
       List<vision_api.LocalizedObjectAnnotation>? localizedObjectAnnotations = response.responses?.firstElement?.localizedObjectAnnotations;
+      // List<vision_api.LocalizedObjectAnnotation>? localizedObjectAnnotations = response.responses?.firstElement?.la;
       MyPrint.printOnConsole("localizedObjectAnnotations:${localizedObjectAnnotations?.length}", tag: tag);
 
       return localizedObjectAnnotations;
@@ -144,7 +146,7 @@ class LensController {
     return labels;
   }
 
-  Future<List<MobileLmsCourseModel>> getCatalogContentsListFromApi({
+  Future<List<CourseDTOModel>> getCatalogContentsListFromApi({
     bool isRefresh = true,
     bool isGetFromCache = false,
     bool isNotify = true,
@@ -181,7 +183,7 @@ class LensController {
         notifier: provider.notify,
         notify: isNotify,
       );
-      provider.contentsList.setList(list: <MobileLmsCourseModel>[], isClear: true, isNotify: isNotify);
+      provider.contentsList.setList(list: <CourseDTOModel>[], isClear: true, isNotify: isNotify);
     }
     //endregion
 
@@ -211,7 +213,7 @@ class LensController {
     int componentId = provider.componentId.get();
     int componentInstanceId = provider.componentInstanceId.get();
 
-    MobileCatalogObjectsDataRequestModel catalogRequestModel = getMobileCatalogObjectsDataRequestModelModelFromProviderData(
+    CatalogRequestModel catalogRequestModel = getCatalogRequestModelModelFromProviderData(
       provider: provider,
       paginationModel: provider.contentsPaginationModel.get(),
       componentId: componentId,
@@ -221,14 +223,14 @@ class LensController {
     //endregion
 
     //region Make Api Call
-    DataResponseModel<MobileCatalogObjectsDataResponseModel> response = await CatalogRepository(apiController: lensRepository.apiController).getMobileCatalogObjectsData(
+    DataResponseModel<CatalogResponseDTOModel> response = await CatalogRepository(apiController: lensRepository.apiController).getCatalogContentList(
       requestModel: catalogRequestModel,
       componentId: componentId,
       componentInstanceId: componentInstanceId,
       isStoreDataInHive: false,
       isFromOffline: false,
     );
-    MyPrint.printOnConsole("Lens Screen Catalog Contents Length:${response.data?.table2.length ?? 0}", tag: tag);
+    MyPrint.printOnConsole("Lens Screen Catalog Contents Length:${response.data?.CourseList.length ?? 0}", tag: tag);
     //endregion
 
     DateTime endTime = DateTime.now();
@@ -239,7 +241,7 @@ class LensController {
       return provider.contentsList.getList(isNewInstance: true);
     }
 
-    List<MobileLmsCourseModel> contentsList = response.data?.table2 ?? <MobileLmsCourseModel>[];
+    List<CourseDTOModel> contentsList = response.data?.CourseList ?? <CourseDTOModel>[];
     MyPrint.printOnConsole("Lens Screen Catalog Contents Length got in Api:${contentsList.length}", tag: tag);
 
     //region Set Provider Data After Getting Data From Api
@@ -258,7 +260,7 @@ class LensController {
     return provider.contentsList.getList(isNewInstance: true);
   }
 
-  MobileCatalogObjectsDataRequestModel getMobileCatalogObjectsDataRequestModelModelFromProviderData({
+  CatalogRequestModel getCatalogRequestModelModelFromProviderData({
     required LensProvider provider,
     required PaginationModel paginationModel,
     required int componentId,
@@ -276,7 +278,7 @@ class LensController {
       );
     }
 
-    return MobileCatalogObjectsDataRequestModel(
+    return CatalogRequestModel(
       componentID: ParsingHelper.parseStringMethod(componentId),
       componentInsID: ParsingHelper.parseStringMethod(componentInstanceId),
       searchText: searchText,

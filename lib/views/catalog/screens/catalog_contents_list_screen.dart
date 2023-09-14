@@ -7,7 +7,6 @@ import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/catalog/catalog_ui_action_callback_model.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
-import 'package:flutter_instancy_2/models/catalog/data_model/catalog_course_dto_model.dart';
 import 'package:flutter_instancy_2/models/catalog/request_model/add_content_to_my_learning_request_model.dart';
 import 'package:flutter_instancy_2/models/filter/data_model/content_filter_category_tree_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
@@ -33,6 +32,7 @@ import '../../../models/app_configuration_models/data_models/native_menu_compone
 import '../../../models/catalog/catalogCategoriesForBrowseModel.dart';
 import '../../../models/catalog/response_model/removeFromWishlistModel.dart';
 import '../../../models/common/pagination/pagination_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../models/course_launch/data_model/course_launch_model.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_toast.dart';
@@ -148,7 +148,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
   }
 
   CatalogUIActionCallbackModel getCatalogUIActionCallbackModel({
-    required CatalogCourseDTOModel model,
+    required CourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
     bool isSecondaryAction = true,
     required int index,
@@ -387,7 +387,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
   }
 
   Future<void> showMoreAction({
-    required CatalogCourseDTOModel model,
+    required CourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
     required int index,
   }) async {
@@ -429,7 +429,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
         });
   }
 
-  Future<void> onDetailsTap({required CatalogCourseDTOModel model}) async {
+  Future<void> onDetailsTap({required CourseDTOModel model}) async {
     dynamic value = await NavigationController.navigateToCourseDetailScreen(
       navigationOperationParameters: NavigationOperationParameters(
         context: context,
@@ -454,7 +454,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
     }
   }
 
-  Future<void> addContentToMyLearning({required CatalogCourseDTOModel model, required int index, bool isShowToast = true}) async {
+  Future<void> addContentToMyLearning({required CourseDTOModel model, required int index, bool isShowToast = true}) async {
     if (model.AddLink == ContentAddLinkOperations.redirecttodetails) {
       onDetailsTap(model: model);
       return;
@@ -515,7 +515,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
     }
   }
 
-  Future<void> onContentLaunchTap({required CatalogCourseDTOModel model}) async {
+  Future<void> onContentLaunchTap({required CourseDTOModel model}) async {
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = catalogController.catalogRepository.apiController.apiDataProvider;
 
     isLoading = true;
@@ -773,7 +773,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
       );
     }
 
-    List<CatalogCourseDTOModel> list = catalogProvider.catalogCategoryContent.getList(isNewInstance: false);
+    List<CourseDTOModel> list = catalogProvider.catalogCategoryContent.getList(isNewInstance: false);
 
     return RefreshIndicator(
       onRefresh: onRefresh,
@@ -805,7 +805,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
             onPagination();
           }
 
-          CatalogCourseDTOModel model = list[index];
+          CourseDTOModel model = list[index];
 
           return getCatalogContentWidget(model: model, index: index);
         },
@@ -813,7 +813,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
     );
   }
 
-  Widget getCatalogContentWidget({required CatalogCourseDTOModel model, required int index}) {
+  Widget getCatalogContentWidget({required CourseDTOModel model, required int index}) {
     LocalStr localStr = appProvider.localStr;
 
     CatalogUIActionsController catalogUIActionsController = CatalogUIActionsController(
@@ -1092,7 +1092,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
         );
       },
       child: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.0),
+        padding: EdgeInsets.symmetric(horizontal: 14),
         child: Icon(Icons.camera_alt_outlined),
       ),
     );
