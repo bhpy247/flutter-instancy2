@@ -24,30 +24,71 @@ class EventCatalogUIActionParameterModel {
   final bool isAddToMyLearning;
   final bool eventRecording;
   final EventRecordingMobileLMSDataModel? recordingDetails;
+  final int ViewType;
+  final bool isWishlistMode;
+  final bool hasRelatedContents;
+  final bool isContentEnrolled;
+  final bool bit4;
+  final String ViewLink;
+  final String AddLink;
+  final String BuyNowLink;
+  final String EnrollNowLink;
+  final String TitleExpired;
+  final String DetailsLink;
+  final String cancelEventLink;
+  final String eventenddatetime;
+  final String InstanceEventReSchedule;
+  final String ReEnrollmentHistory;
+  final String waitListLink;
+  final String RecommendedLink;
+  final String AddToWishlist;
+  final String RemoveFromWishList;
+  final String ShareToRecommend;
+  final String IsRelatedcontent;
 
-  const EventCatalogUIActionParameterModel({
-    this.objectTypeId = 0,
-    this.mediaTypeId = 0,
-    this.viewType = 0,
-    this.relatedContentCount = 0,
-    this.eventScheduleType = 0,
-    this.eventType = 0,
-    this.waitListEnroll = 0,
-    this.waitListLimit = 0,
-    this.isWishlistContent = 0,
+  const EventCatalogUIActionParameterModel(
+      {this.objectTypeId = 0,
+      this.mediaTypeId = 0,
+      this.viewType = 0,
+      this.relatedContentCount = 0,
+      this.eventScheduleType = 0,
+      this.eventType = 0,
+      this.waitListEnroll = 0,
+      this.waitListLimit = 0,
+      this.isWishlistContent = 0,
     this.parentId = "",
     this.actualStatus = "",
     this.reportaction = "",
     this.suggestToConnectionsLink = "",
-    this.suggestWithFriendLink = "",
-    this.shareLink = "",
-    this.eventStartDatetime = "",
-    this.eventEndDatetime = "",
-    this.actionviewqrcode = "",
-    this.WaitListLink = "",
-    this.RelatedContentLink = "",
-    this.isAddToMyLearning = false,
-    this.eventRecording = false,
-    this.recordingDetails,
-  });
+      this.suggestWithFriendLink = "",
+      this.shareLink = "",
+      this.eventStartDatetime = "",
+      this.eventEndDatetime = "",
+      this.actionviewqrcode = "",
+      this.WaitListLink = "",
+      this.RelatedContentLink = "",
+      this.isAddToMyLearning = false,
+      this.eventRecording = false,
+      this.recordingDetails,
+      this.ViewType = 0,
+      this.isWishlistMode = false,
+      this.hasRelatedContents = false,
+      this.isContentEnrolled = false,
+      this.bit4 = false,
+      this.ViewLink = "",
+      this.AddLink = "",
+      this.BuyNowLink = "",
+      this.EnrollNowLink = "",
+      this.TitleExpired = "",
+      this.DetailsLink = "",
+      this.cancelEventLink = "",
+      this.eventenddatetime = "",
+      this.InstanceEventReSchedule = "",
+      this.ReEnrollmentHistory = "",
+      this.waitListLink = "",
+      this.RecommendedLink = "",
+      this.AddToWishlist = "",
+      this.RemoveFromWishList = "",
+      this.IsRelatedcontent = "",
+      this.ShareToRecommend = ""});
 }

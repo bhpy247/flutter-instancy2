@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/my_print.dart';
+import 'package:flutter_chat_bot/view/common/components/bottom_sheet_dragger.dart';
 import 'package:flutter_instancy_2/backend/message/message_controller.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
+import 'package:flutter_instancy_2/views/message/components/roleFilterWidget.dart';
 import 'package:flutter_instancy_2/views/message/screen/user_message_list.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +18,7 @@ import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_cached_network_image.dart';
 import '../../common/components/common_loader.dart';
 import '../../common/components/common_text_form_field.dart';
+import '../components/messageFilterWidget.dart';
 
 class MessageScreen extends StatefulWidget {
   const MessageScreen({super.key});
@@ -40,6 +43,108 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
       isNotify: isNotify,
       isClear: isClear,
     );
+  }
+
+  void showFilterSelectionBottomSheet() {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Consumer<MessageProvider>(builder: (context, messageProvider, _) {
+            return Container(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                // crossAxisAlignment: CrossAxisAlignment.,
+                children: [
+                  const BottomSheetDragger(),
+                  InkWell(
+                    splashColor: Colors.black12,
+                    focusColor: Colors.black12,
+                    onTap: () {
+                      Navigator.pop(context);
+                      roleFilterBottomSheet(provider: messageProvider);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            "assets/role.png",
+                            height: 20,
+                            width: 20,
+                          ),
+                          const SizedBox(
+                            width: 22,
+                          ),
+                          Expanded(
+                            child: const Text(
+                              "Role Filters",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                          ),
+                          Icon(
+                            Icons.circle,
+                            color: messageProvider.selectedFilterRole.get() != RoleFilterType.all ? Colors.green : Colors.transparent,
+                            size: 10,
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    splashColor: Colors.black12,
+                    focusColor: Colors.black12,
+                    onTap: () {
+                      Navigator.pop(context);
+                      messageFilterBottomSheet(provider: messageProvider);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 25),
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            "assets/messageFilter.png",
+                            height: 20,
+                            width: 20,
+                          ),
+                          const SizedBox(
+                            width: 22,
+                          ),
+                          Expanded(
+                            child: const Text(
+                              "Message Filters",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                          ),
+                          Icon(
+                            Icons.circle,
+                            color: messageProvider.selectedMessageFilter.get() != MessageFilterType.all ? Colors.green : Colors.transparent,
+                            size: 10,
+                          )
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            );
+          });
+        });
+  }
+
+  void roleFilterBottomSheet({required MessageProvider provider}) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return RoleFilterWidget(messageProvider: messageProvider);
+        });
+  }
+
+  void messageFilterBottomSheet({required MessageProvider provider}) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return MessageFilterWidget(messageProvider: messageProvider);
+        });
   }
 
   @override
@@ -111,7 +216,16 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
                     )),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: filterPopupMenu(),
+                child: InkWell(
+                  onTap: () {
+                    showFilterSelectionBottomSheet();
+                  },
+                  child: const Icon(
+                    FontAwesomeIcons.ellipsis,
+                    color: Colors.grey,
+                    size: 20,
+                  ),
+                ),
               ),
             ],
           ),
@@ -193,6 +307,7 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
                   imageUrl: chatUser.ProfPic,
                   height: 50,
                   width: 50,
+                  fit: BoxFit.cover,
                 ),
               ),
               const SizedBox(width: 10),
@@ -278,7 +393,7 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
       //     child: Text("Manager"),
       //   ),
       // ],
-      itemBuilder: (_) => MessageRoleFilterType.values
+      itemBuilder: (_) => RoleFilterType.values
           .map(
             (String e) => PopupMenuItem(
               value: e,

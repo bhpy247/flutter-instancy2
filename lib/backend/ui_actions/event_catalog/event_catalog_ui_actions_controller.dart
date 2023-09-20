@@ -65,15 +65,11 @@ class EventCatalogUIActionsController {
   }
 
   bool showEnroll({required EventCatalogUIActionParameterModel parameterModel}) {
-    bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(parameterModel.eventEndDatetime) ?? true);
-    // MyPrint.printOnConsole("EventStartDate in showEnroll:${parameterModel.eventStartDatetime}");
-    // MyPrint.printOnConsole("isEventCompleted in showEnroll:$isEventCompleted");
-
-    if (parameterModel.objectTypeId != InstancyObjectTypes.events || parameterModel.isAddToMyLearning || [EventScheduleTypes.parent].contains(parameterModel.eventScheduleType) || isEventCompleted) {
-      return false;
+    if ((parameterModel.EnrollNowLink.isNotEmpty || (parameterModel.AddLink.isNotEmpty && parameterModel.objectTypeId == InstancyObjectTypes.events && parameterModel.TitleExpired.isEmpty))) {
+      return true;
     }
 
-    return true;
+    return false;
   }
 
   bool showCancelEnrollment({required EventCatalogUIActionParameterModel parameterModel}) {
@@ -157,12 +153,17 @@ class EventCatalogUIActionsController {
   }
 
   bool showJoin({required EventCatalogUIActionParameterModel parameterModel}) {
-    bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(parameterModel.eventEndDatetime) ?? true);
-    // MyPrint.printOnConsole("isEventCompleted in showJoin:$isEventCompleted");
+    bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(
+          parameterModel.eventEndDatetime,
+          dateFormat: "MM/dd/yyyy HH:mm:ss aa",
+        ) ??
+        true);
+    MyPrint.printOnConsole("isEventCompleted in showJoin:$isEventCompleted");
 
-    if (parameterModel.objectTypeId != InstancyObjectTypes.events || parameterModel.mediaTypeId != InstancyMediaTypes.virtualClassroomEvent || !parameterModel.isAddToMyLearning || isEventCompleted) {
+    if (parameterModel.objectTypeId != InstancyObjectTypes.events || parameterModel.mediaTypeId != InstancyMediaTypes.virtualClassroomEvent || isEventCompleted) {
       return false;
     }
+    MyPrint.printOnConsole("Show in Join");
 
     return true;
   }
@@ -211,6 +212,7 @@ class EventCatalogUIActionsController {
   }
 
   bool showShare({required EventCatalogUIActionParameterModel parameterModel}) {
+    MyPrint.printOnConsole("parameterModel.shareLink : ${parameterModel.shareLink}");
     return AppConfigurationOperations.isValidString(parameterModel.shareLink);
   }
 
@@ -371,6 +373,27 @@ class EventCatalogUIActionsController {
       eventType: model.EventType,
       isWishlistContent: model.isWishListContent,
       parentId: model.InstanceParentContentID,
+      ViewType: model.ViewType,
+      isWishlistMode: false,
+      hasRelatedContents: model.AddLink.startsWith("addrecommenedrelatedcontent"),
+      isContentEnrolled: model.isContentEnrolled.toLowerCase() == "1" || model.isContentEnrolled.toLowerCase() == "true",
+      bit4: model.bit4,
+      ViewLink: model.ViewLink,
+      AddLink: model.AddLink,
+      BuyNowLink: model.BuyNowLink,
+      EnrollNowLink: model.EnrollNowLink,
+      TitleExpired: "",
+      DetailsLink: model.DetailsLink,
+      cancelEventLink: model.CancelEventlink,
+      eventenddatetime: model.EventEndDateTime,
+      InstanceEventReSchedule: model.InstanceEventReSchedule,
+      ReEnrollmentHistory: model.ReEnrollmentHistory,
+      waitListLink: model.WaitListLink,
+      RecommendedLink: "",
+      AddToWishlist: "",
+      RemoveFromWishList: "",
+      IsRelatedcontent: model.IsRelatedcontent,
+      ShareToRecommend: model.SharetoRecommendedLink,
       // actionviewqrcode: model.actionviewqrcode,
       // recordingDetails: model.recordingModel,
     );

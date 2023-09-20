@@ -34,6 +34,7 @@ import '../../../models/event_track/request_model/view_recording_request_model.d
 import '../../../models/waitlist/response_model/add_to_waitList_response_model.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_toast.dart';
+import '../../../utils/my_utils.dart';
 import '../../../utils/parsing_helper.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_loader.dart';
@@ -505,6 +506,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
       },
       onShareTap: () {
         if (isSecondaryAction) Navigator.pop(context);
+        MyUtils.shareContent(content: model.Sharelink);
       },
     );
   }

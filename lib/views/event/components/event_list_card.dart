@@ -122,9 +122,9 @@ class EventListCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             ratingView(ParsingHelper.parseDoubleMethod(model.TotalRatings)),
-            Container(
-              child: eventStartDateAndTime(model: model, context: context),
-            ),
+            // Container(
+            //   child: eventStartDateAndTime(model: model, context: context),
+            // ),
             getPrimaryActionButton(
               model: model,
               context: context,
@@ -137,14 +137,14 @@ class EventListCard extends StatelessWidget {
   }
 
   Widget eventStartDateAndTime({required CourseDTOModel model, required BuildContext context}) {
-    // MyPrint.printOnConsole("model. endDateTime: '${model.EventEndDateTime} to ${model.EventEndDateTimeTimeWithoutConvert}'");
+    // MyPrint.printOnConsole("model. endDateTime: '${model.Title} to ${model.EventEndDateTimeTimeWithoutConvert}'");
 
     AppProvider appProvider = context.read<AppProvider>();
 
     if (model.EventStartDateTime.isEmpty) return const SizedBox();
 
     DateTime? startDateTime = ParsingHelper.parseDateTimeMethod(model.EventStartDateTime);
-    startDateTime ??= ParsingHelper.parseDateTimeMethod(model.EventStartDateTime, dateFormat: appProvider.appSystemConfigurationModel.dateTimeFormat);
+    startDateTime ??= ParsingHelper.parseDateTimeMethod(model.EventStartDateTime, dateFormat: "M/dd/yyyy hh:mm:ss aa");
     DateTime? endDateTime = ParsingHelper.parseDateTimeMethod(model.EventEndDateTime);
     endDateTime ??= ParsingHelper.parseDateTimeMethod(model.EventEndDateTime, dateFormat: appProvider.appSystemConfigurationModel.dateTimeFormat);
 

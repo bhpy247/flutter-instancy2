@@ -8,6 +8,7 @@ import 'package:flutter_instancy_2/backend/content_review_ratings/content_review
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 import 'package:flutter_instancy_2/backend/home/home_provider.dart';
+import 'package:flutter_instancy_2/backend/message/message_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
@@ -175,6 +176,7 @@ class AuthenticationController {
     context.read<ShareProvider>().resetData();
     context.read<ProgressReportProvider>().resetData();
     context.read<ContentReviewRatingsProvider>().resetData();
+    context.read<MessageProvider>().resetData();
 
     Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, LoginSignUpSelectionScreen.routeName, (route) => false);
 

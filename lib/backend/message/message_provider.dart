@@ -18,7 +18,11 @@ class MessageProvider extends CommonProvider {
       notify: notify,
     );
     selectedFilterRole = CommonProviderPrimitiveParameter<String>(
-      value: MessageRoleFilterType.all,
+      value: RoleFilterType.all,
+      notify: notify,
+    );
+    selectedMessageFilter = CommonProviderPrimitiveParameter<String>(
+      value: MessageFilterType.all,
       notify: notify,
     );
   }
@@ -27,6 +31,7 @@ class MessageProvider extends CommonProvider {
   late CommonProviderListParameter<ChatUserModel> allChatUsersList;
   late CommonProviderListParameter<ChatUserModel> filteredChatUserList;
   late CommonProviderPrimitiveParameter<String> selectedFilterRole;
+  late CommonProviderPrimitiveParameter<String> selectedMessageFilter;
 
   int get chatUserListLength => allChatUsersList.getList(isNewInstance: false).length;
 
@@ -34,6 +39,7 @@ class MessageProvider extends CommonProvider {
     isChatUsersLoading.set(value: false, isNotify: false);
     allChatUsersList.setList(list: [], isNotify: false);
     filteredChatUserList.setList(list: [], isNotify: false);
-    selectedFilterRole.set(value: MessageRoleFilterType.all, isNotify: false);
+    selectedFilterRole.set(value: RoleFilterType.all, isNotify: false);
+    selectedMessageFilter.set(value: RoleFilterType.all, isNotify: false);
   }
 }

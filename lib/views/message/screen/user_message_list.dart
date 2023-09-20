@@ -10,7 +10,10 @@ import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/configs/typedefs.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 import '../../../backend/app_theme/style.dart';
 import '../../../backend/authentication/authentication_provider.dart';
@@ -54,6 +57,10 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
   String lastMessage = "";
 
   late Size deviceData;
+
+  final SpeechToText _speechToText = SpeechToText();
+  bool _speechEnabled = false;
+  String _lastWords = '';
 
   _getFireStoreStreams() async {
     fromUserID = messageController.messageRepository.apiController.apiDataProvider.getCurrentUserId();
@@ -172,10 +179,36 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
     userImageUrl = imageurl;
   }
 
+  void _initSpeech() async {
+    _speechEnabled = await _speechToText.initialize();
+    mySetState();
+  }
+
+  void _startListening() async {
+    await _speechToText.listen(onResult: _onSpeechResult);
+    MyPrint.printOnConsole("is _startListening called");
+    mySetState();
+  }
+
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    _lastWords = result.recognizedWords;
+    _textController.text = _lastWords;
+    _textController.selection = TextSelection.fromPosition(TextPosition(offset: _textController.text.length));
+
+    MyPrint.printOnConsole("result: ${result.recognizedWords}");
+    mySetState();
+  }
+
+  void _stopListening() async {
+    await _speechToText.stop();
+    MyPrint.printOnConsole("is _stopListening called");
+    mySetState();
+  }
+
   @override
   void initState() {
     super.initState();
-
+    _initSpeech();
     messageProvider = context.read<MessageProvider>();
     messageController = MessageController(provider: messageProvider);
     _textController = TextEditingController();
@@ -405,10 +438,23 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
                   const SizedBox(
                     width: 10,
                   ),
-                  Icon(
-                    Icons.mic,
-                    color: Styles.lightTextColor2.withOpacity(0.5),
-                    size: 20,
+                  _speechToText.isNotListening
+                      ? const SizedBox()
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: SpinKitWave(color: themeData.primaryColor, size: 15, type: SpinKitWaveType.center),
+                        ),
+                  InkWell(
+                    onTap: isSendingMessage
+                        ? null
+                        : _speechToText.isNotListening
+                            ? _startListening
+                            : _stopListening,
+                    child: Icon(
+                      Icons.mic,
+                      color: Styles.lightTextColor2.withOpacity(0.5),
+                      size: 20,
+                    ),
                   ),
                   const SizedBox(
                     width: 15,

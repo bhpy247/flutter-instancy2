@@ -12,6 +12,7 @@ import 'package:flutter_instancy_2/models/common/Instancy_multipart_file_upload_
 import 'package:flutter_instancy_2/models/message/data_model/chat_message_model.dart';
 import 'package:flutter_instancy_2/models/message/request_model/send_chat_message_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 import '../../api/api_url_configuration_provider.dart';
 import '../../models/common/app_error_model.dart';
@@ -127,7 +128,10 @@ class MessageController {
     if (requestModel.fileBytes.checkNotEmpty && requestModel.fileName.checkNotEmpty) {
       MyPrint.printOnConsole("Having a file to upload named:${requestModel.fileName}", tag: tag);
 
-      DataResponseModel<String> uploadResponseModel = await attachmentUpload(bytes: requestModel.fileBytes!, fileName: requestModel.fileName);
+      DataResponseModel<String> uploadResponseModel = await attachmentUpload(
+        bytes: requestModel.fileBytes!,
+        fileName: requestModel.fileName,
+      );
       if (uploadResponseModel.appErrorModel != null) {
         AppErrorModel appErrorModel = uploadResponseModel.appErrorModel!;
 
@@ -145,6 +149,35 @@ class MessageController {
 
       fileUrl = "${messageRepository.apiController.apiDataProvider.getCurrentSiteLearnerUrl()}${AppConstants.fileServerLocation}${requestModel.fileName}";
       MyPrint.printOnConsole("fileUrl:$fileUrl", tag: tag);
+      MyPrint.printOnConsole("uploadResponseModel : :${uploadResponseModel.data}", tag: tag);
+    }
+    String thumbnailImageUrl = "";
+    if (requestModel.MessageType == MessageType.Video) {
+      String fileName = MyUtils.getNewId();
+      Uint8List? thumbnailImage;
+      thumbnailImage = await VideoThumbnail.thumbnailData(
+        video: fileUrl,
+        imageFormat: ImageFormat.PNG,
+        maxHeight: 64, // specify the height of the thumbnail, let the width auto-scaled to keep the source aspect ratio
+        quality: 75,
+      );
+      DataResponseModel<String> uploadResponseModel = await attachmentUpload(bytes: thumbnailImage!, fileName: "$fileName.png");
+      if (uploadResponseModel.appErrorModel != null) {
+        AppErrorModel appErrorModel = uploadResponseModel.appErrorModel!;
+
+        MyPrint.printOnConsole("Error in thumbnail File:${appErrorModel.message}", tag: tag);
+        MyPrint.printOnConsole("Exception:${appErrorModel.exception}", tag: tag);
+        MyPrint.printOnConsole("StackTrace:${appErrorModel.stackTrace}", tag: tag);
+
+        if (appErrorModel.message.isNotEmpty && context.mounted) {
+          MyToast.showError(context: context, msg: appErrorModel.message);
+        }
+
+        MyPrint.printOnConsole("Returning from MessageController().sendMessage() Because couldn't upload thumbnail image", tag: tag);
+        return "";
+      }
+      thumbnailImageUrl = "${messageRepository.apiController.apiDataProvider.getCurrentSiteLearnerUrl()}${AppConstants.fileServerLocation}${"$fileName.png"}";
+      MyPrint.printOnConsole("fileUrl:$thumbnailImageUrl", tag: tag);
     }
 
     requestModel.SendDatetime ??= DateTime.now();
@@ -157,6 +190,7 @@ class MessageController {
       SendDatetime: requestModel.SendDatetime,
       MarkAsRead: requestModel.MarkAsRead,
       fileUrl: fileUrl,
+      thumbnailImage: thumbnailImageUrl,
     );
 
     chatroomCollection.add(chatMessageModel.toJson(toJson: false)).then((MyFirestoreDocumentReference documentReference) {
@@ -198,7 +232,7 @@ class MessageController {
     return "";
   }
 
-  void setSelectedFilterRole({required String selectedFilterRole, bool isNotify = true}) {
+  void setSelectedFilterRole({required String selectedFilterRole, bool isNotify = true, String selectedMessageFilter = MessageFilterType.all}) {
     messageProvider.selectedFilterRole.set(value: selectedFilterRole, isNotify: false);
 
     List<ChatUserModel> chatUserList = messageProvider.allChatUsersList.getList(isNewInstance: true);
@@ -213,16 +247,24 @@ class MessageController {
       bool isValidUserStatus = chatUser.UserStatus == 1;
       bool isValidConnectionStatus = chatUser.Myconid == currentUserId;
       bool isValidRole = [MessageRoleTypes.admin, MessageRoleTypes.manager, MessageRoleTypes.groupAdmin].contains(chatUser.RoleID);
-      bool isValidFilter = selectedFilterRole == MessageRoleFilterType.all ||
+      bool isValidFilter = selectedFilterRole == RoleFilterType.all ||
           switch (selectedFilterRole) {
-            MessageRoleFilterType.admin => chatUser.RoleID == MessageRoleTypes.admin,
-            MessageRoleFilterType.groupAdmin => chatUser.RoleID == MessageRoleTypes.groupAdmin,
-            MessageRoleFilterType.manager => chatUser.RoleID == MessageRoleTypes.manager,
-            MessageRoleFilterType.learner => chatUser.RoleID == MessageRoleTypes.learner,
+            RoleFilterType.admin => chatUser.RoleID == MessageRoleTypes.admin,
+            RoleFilterType.groupAdmin => chatUser.RoleID == MessageRoleTypes.groupAdmin,
+            RoleFilterType.manager => chatUser.RoleID == MessageRoleTypes.manager,
+            RoleFilterType.learner => chatUser.RoleID == MessageRoleTypes.learner,
             _ => false,
           };
 
-      bool isAddingUser = isValidSiteUser && isValidUserStatus && (isValidConnectionStatus || isValidRole) && isValidFilter;
+      bool isValidMessageFilter = selectedMessageFilter == MessageFilterType.all ||
+          switch (selectedMessageFilter) {
+            MessageFilterType.archive => chatUser.ArchivedUserID == 1,
+            MessageFilterType.myConnection => chatUser.Myconid == currentUserId,
+            MessageFilterType.unRead => chatUser.UnReadCount > 0,
+            _ => false,
+          };
+
+      bool isAddingUser = isValidSiteUser && isValidUserStatus && (isValidConnectionStatus || isValidRole) && isValidFilter && isValidMessageFilter;
 
       if (isAddingUser) {
         if (pickedUserIds.contains(chatUser.UserID)) {

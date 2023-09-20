@@ -10,10 +10,12 @@ class ChatMessageModel {
   String ToUserName = "";
   String ProfPic = "";
   String fileUrl = "";
+  String fileName = "";
   String msgType = MessageType.Text;
   String Attachment = "";
   String FromStatus = "";
   String ToStatus = "";
+  String thumbnailImage = "";
   int FromUserID = 0;
   int ToUserID = 0;
   int chatId = 0;
@@ -26,6 +28,8 @@ class ChatMessageModel {
     this.ToUserName = "",
     this.ProfPic = "",
     this.fileUrl = "",
+    this.fileName = "",
+    this.thumbnailImage = "",
     this.msgType = MessageType.Text,
     this.Attachment = "",
     this.FromStatus = "",
@@ -43,9 +47,11 @@ class ChatMessageModel {
     ToUserName = ParsingHelper.parseStringMethod(json["ToUserName"]);
     ProfPic = ParsingHelper.parseStringMethod(json["ProfPic"]);
     fileUrl = ParsingHelper.parseStringMethod(json["fileUrl"]);
+    fileName = ParsingHelper.parseStringMethod(json["fileName"]);
     msgType = ParsingHelper.parseStringMethod(json["msgType"], defaultValue: MessageType.Text);
     Attachment = ParsingHelper.parseStringMethod(json["Attachment"]);
     FromStatus = ParsingHelper.parseStringMethod(json["FromStatus"]);
+    thumbnailImage = ParsingHelper.parseStringMethod(json["thumbnailImage"]);
     ToStatus = ParsingHelper.parseStringMethod(json["ToStatus"]);
     FromUserID = ParsingHelper.parseIntMethod(json["FromUserID"]);
     ToUserID = ParsingHelper.parseIntMethod(json["ToUserID"]);
@@ -63,9 +69,11 @@ class ChatMessageModel {
       "ToUserName": ToUserName,
       "ProfPic": ProfPic,
       "fileUrl": fileUrl,
+      "fileName": fileName,
       "msgType": msgType,
       "Attachment": Attachment,
       "FromStatus": FromStatus,
+      "thumbnailImage": thumbnailImage,
       "ToStatus": ToStatus,
       "FromUserID": FromUserID,
       "ToUserID": ToUserID,

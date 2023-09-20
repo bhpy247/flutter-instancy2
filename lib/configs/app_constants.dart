@@ -715,20 +715,34 @@ class MessageRoleTypes {
   static const int groupAdmin = 16;
 }
 
-class MessageRoleFilterType {
+class RoleFilterType {
   static const String all = "All";
   static const String admin = "Admin";
   static const String groupAdmin = "Group Admin";
   static const String manager = "Manager";
   static const String learner = "Learner";
 
-  static List<String> get values =>
-      [
+  static List<String> get values => [
         all,
         admin,
         groupAdmin,
         manager,
         learner,
+      ];
+}
+
+// "Archive","All Message","Unread","My Connection"
+class MessageFilterType {
+  static const String all = "All Message";
+  static const String archive = "Archive";
+  static const String unRead = "Unread";
+  static const String myConnection = "My Connection";
+
+  static List<String> get values => [
+        all,
+        archive,
+        unRead,
+        myConnection,
       ];
 }
 

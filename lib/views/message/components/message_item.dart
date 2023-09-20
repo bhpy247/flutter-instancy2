@@ -1,13 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart' as flutter_inappwebview;
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:just_audio/just_audio.dart';
 
 import '../../../backend/app_theme/style.dart';
 import '../../../configs/app_constants.dart';
 import '../../../models/message/data_model/chat_message_model.dart';
 import '../../../utils/my_print.dart';
+import 'audio_player_widget.dart';
 
 class MessageItemWidget extends StatefulWidget {
   final ChatMessageModel message;
@@ -183,74 +188,131 @@ class _MessageItemWidgetState extends State<MessageItemWidget> {
       case MessageType.Doc:
         return SizedBox(
           //margin: const EdgeInsets.only(top: 5.0),
-          child: InkWell(
-            onTap: () {
-              // Navigator.of(context).push(MaterialPageRoute(builder: (context) => FileViewer(fileUrl: message.fileUrl)));
-
-              NavigationController.navigateToPDFLaunchScreen(
-                navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-                arguments: PDFLaunchScreenNavigationArguments(
-                  pdfUrl: message.fileUrl,
-                  isNetworkPDF: true,
-                ),
-              );
-            },
-            child: SizedBox(
-              width: 150,
-              height: 40,
-              //padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-              child: Center(
-                child: Icon(
-                  Icons.picture_as_pdf,
-                  color: isMessageReceived ? null : themeData.colorScheme.onPrimary,
-                ),
-              ),
-            ),
-          ),
+          child: getDocumentWidget(message: message, isMessageReceived: isMessageReceived),
         );
       case MessageType.Video:
         return SizedBox(
-          //margin: const EdgeInsets.only(top: 5.0),
-          child: InkWell(
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => FileViewer(fileUrl: message.fileUrl)));
-            },
-            child: SizedBox(
-              width: 150,
-              height: 40,
-              //padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-              child: Center(
-                child: Icon(
-                  Icons.video_library,
-                  color: isMessageReceived ? null : themeData.colorScheme.onPrimary,
-                ),
-              ),
-            ),
-          ),
-        );
+            //margin: const EdgeInsets.only(top: 5.0),
+            child: getVideoWidget(message: message, isMessageReceived: isMessageReceived));
       case MessageType.Audio:
         return SizedBox(
-          //margin: const EdgeInsets.only(top: 5.0),
-          child: InkWell(
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => FileViewer(fileUrl: message.fileUrl)));
-            },
-            child: SizedBox(
-              width: 150,
-              height: 40,
-              //padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-              child: Center(
-                child: Icon(
-                  Icons.my_library_music,
-                  color: isMessageReceived ? null : themeData.colorScheme.onPrimary,
-                ),
-              ),
-            ),
-          ),
-        );
+            //margin: const EdgeInsets.only(top: 5.0),
+            child: getAudioWidget(message: message, isMessageReceived: isMessageReceived));
     }
 
     return const SizedBox();
+  }
+
+  final _player = AudioPlayer();
+
+  Future<void> audioInit(String url) async {
+    try {
+      // AAC example: https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.aac
+      await _player.setAudioSource(AudioSource.uri(Uri.parse(url)));
+    } catch (e) {
+      print("Error loading audio source: $e");
+    }
+  }
+
+  Widget getDocumentWidget({required ChatMessageModel message, required bool isMessageReceived}) {
+    return InkWell(
+      onTap: () {
+        NavigationController.navigateToPDFLaunchScreen(
+          navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+          arguments: PDFLaunchScreenNavigationArguments(
+            pdfUrl: message.fileUrl,
+            isNetworkPDF: true,
+          ),
+        );
+      },
+      child: SizedBox(
+        // width: 150,
+        height: 40,
+        //padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+        child: Row(
+          children: [
+            Center(
+              child: Icon(
+                FontAwesomeIcons.solidFileLines,
+                color: isMessageReceived ? null : themeData.colorScheme.onPrimary,
+                size: 20,
+              ),
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            Expanded(
+              child: Text(
+                message.fileUrl.split("Message/").lastOrNull ?? "pdf",
+                style: const TextStyle(color: Colors.white),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget getVideoWidget({required ChatMessageModel message, required bool isMessageReceived}) {
+    if (message.thumbnailImage.isEmpty) return SizedBox();
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => FileViewer(fileUrl: message.fileUrl)));
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 250,
+            padding: const EdgeInsets.only(bottom: 8),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: CommonCachedNetworkImage(
+                imageUrl: message.thumbnailImage,
+                fit: BoxFit.cover,
+                errorHeight: 100,
+              ),
+            ),
+          ),
+          Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white38,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                FontAwesomeIcons.play,
+                color: Colors.white,
+                size: 20,
+              ))
+        ],
+      ),
+    );
+  }
+
+  Widget getAudioWidget({required ChatMessageModel message, required bool isMessageReceived}) {
+    return AudioPlayerWidget(
+      url: message.fileUrl,
+    );
+    // return InkWell(
+    //   onTap: () {
+    //     Navigator.of(context).push(MaterialPageRoute(builder: (context) => FileViewer(fileUrl: message.fileUrl)));
+    //   },
+    //   child: SizedBox(
+    //     width: 150,
+    //     // height: 40,
+    //     //padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+    //     // child: Center(
+    //     //   child: Icon(
+    //     //     Icons.my_library_music,
+    //     //     color: isMessageReceived ? null : themeData.colorScheme.onPrimary,
+    //     //   ),
+    //     // ),
+    //     child: Text(message.fileUrl),
+    //   ),
+    // );
   }
 }
 
@@ -268,8 +330,8 @@ class FileViewer extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-          //title: Text(Uri.parse(fileUrl).path),
-          ),
+        //title: Text(Uri.parse(fileUrl).path),
+      ),
       body: Column(
         children: [
           Expanded(
