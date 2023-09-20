@@ -81,10 +81,10 @@ class _SurfaceTrackingKeywordSearchScreenState extends State<SurfaceTrackingKeyw
       onBuyTap: primaryAction == InstancyContentActionsEnum.Buy
           ? null
           : () {
-              if (isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
-              catalogController.buyCourse(context: context);
-            },
+        catalogController.buyCourse(context: context);
+      },
       onEnrollTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 
@@ -545,33 +545,38 @@ class _SurfaceTrackingKeywordSearchScreenState extends State<SurfaceTrackingKeyw
 
           return Container(
             margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-            child: LensScreenContentCard(
-              model: model,
-              onLaunchVRTap: (CourseDTOModel model) {
-                Navigator.pop(
-                  context,
-                  SurfaceTrackingKeywordSearchScreenNavigationResponse(
-                    courseModel: model,
-                    arVrContentLaunchTypes: ARVRContentLaunchTypes.launchInVR,
-                  ),
-                );
-              },
-              onLaunchARTap: (CourseDTOModel model) {
-                Navigator.pop(
-                  context,
-                  SurfaceTrackingKeywordSearchScreenNavigationResponse(
-                    courseModel: model,
-                    arVrContentLaunchTypes: ARVRContentLaunchTypes.launchInAR,
-                  ),
-                );
-              },
-              onMoreButtonTap: (CourseDTOModel model) {
-                showMoreAction(model: model, primaryAction: null);
-              },
-            ),
+            child: getContentCardWidget(model: model),
           );
         },
       ),
+    );
+  }
+
+  Widget getContentCardWidget({required CourseDTOModel model}) {
+    return LensScreenContentCard(
+      model: model,
+      onMoreButtonTap: (CourseDTOModel model) {
+        showMoreAction(model: model);
+      },
+      onLaunchARTap: (CourseDTOModel model) {
+        Navigator.pop(
+          context,
+          SurfaceTrackingKeywordSearchScreenNavigationResponse(
+            courseModel: model,
+            arVrContentLaunchTypes: ARVRContentLaunchTypes.launchInAR,
+          ),
+        );
+      },
+      onLaunchVRTap: (CourseDTOModel model) {
+        Navigator.pop(
+          context,
+          SurfaceTrackingKeywordSearchScreenNavigationResponse(
+            courseModel: model,
+            arVrContentLaunchTypes: ARVRContentLaunchTypes.launchInVR,
+          ),
+        );
+      },
+      isShowARVRLaunch: true,
     );
   }
 }

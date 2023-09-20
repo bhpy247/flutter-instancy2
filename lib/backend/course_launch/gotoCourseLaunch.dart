@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_controller.dart';
+import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:intl/intl.dart';
 import 'package:open_file_plus/open_file_plus.dart';
@@ -330,7 +331,9 @@ class GotoCourseLaunch {
         } // End of 8,9,10
 
         // Start of 11,14,21,36
-        else if ([
+        else if (AppConfigurationOperations.isARContent(contentTypeId: courseLaunchModel.ContentTypeId, mediaTypeId: courseLaunchModel.MediaTypeId)) {
+          urlForView = getARVRModuleContentWebviewLaunchUrl();
+        } else if ([
           InstancyObjectTypes.mediaResource,
           InstancyObjectTypes.document,
           InstancyObjectTypes.html,
@@ -414,8 +417,6 @@ class GotoCourseLaunch {
           if (appSystemConfigurationModel.isCloudStorageEnabled) {
             urlForView = "${appSystemConfigurationModel.azureRootPath}content/publishfiles/$folderPath/glossary_english.html";
           }
-        } else if ([InstancyObjectTypes.arModule, InstancyObjectTypes.vrModule].contains(objectTypeId)) {
-          urlForView = "${appSystemConfigurationModel.isCloudStorageEnabled ? appSystemConfigurationModel.azureRootPath : siteUrl}/content/PublishFiles/$folderPath/content/data.json";
         } else {}
 
         if (objectTypeId != InstancyObjectTypes.xApi && !urlForView.toLowerCase().contains("coursemedium") && !appSystemConfigurationModel.isCloudStorageEnabled) {
@@ -507,6 +508,58 @@ class GotoCourseLaunch {
 
   String replace(String str) {
     return str.replaceAll(" ", "%20");
+  }
+
+  String getARVRModuleContentModelUrl() {
+    MyPrint.printOnConsole("GotoCourseLaunch().getARVRModuleContentModelUrl() called");
+
+    String siteUrl = apiUrlConfigurationProvider.getCurrentSiteUrl();
+    String folderPath = courseLaunchModel.FolderPath;
+    String startPage = courseLaunchModel.startPage;
+    String baseUrl = appSystemConfigurationModel.isCloudStorageEnabled ? appSystemConfigurationModel.azureRootPath : siteUrl;
+
+    String contentUrl = "";
+
+    if ([InstancyObjectTypes.arModule, InstancyObjectTypes.vrModule].contains(courseLaunchModel.ContentTypeId)) {
+      contentUrl = "$baseUrl/content/PublishFiles/$folderPath/content/data.json";
+    } else if ([InstancyMediaTypes.threeDObject, InstancyMediaTypes.threeDAvatar].contains(courseLaunchModel.MediaTypeId)) {
+      contentUrl = "$baseUrl/content/publishfiles/${folderPath.toLowerCase()}/$startPage";
+    }
+
+    MyPrint.printOnConsole("contentUrl:$contentUrl");
+    contentUrl = contentUrl.replaceAll("https://", "");
+    contentUrl = contentUrl.replaceAll("http://", "");
+    contentUrl = contentUrl.replaceAll("//", "/");
+    contentUrl = "https://$contentUrl";
+    MyPrint.printOnConsole("Final contentUrl:$contentUrl");
+
+    return contentUrl;
+  }
+
+  String getARVRModuleContentWebviewLaunchUrl() {
+    MyPrint.printOnConsole("GotoCourseLaunch().getARVRModuleContentWebviewLaunchUrl() called");
+
+    String siteUrl = apiUrlConfigurationProvider.getCurrentSiteUrl();
+    String folderPath = courseLaunchModel.FolderPath;
+    String startPage = courseLaunchModel.startPage;
+    String baseUrl = appSystemConfigurationModel.isCloudStorageEnabled ? appSystemConfigurationModel.azureRootPath : siteUrl;
+
+    String contentUrl = "";
+
+    if ([InstancyObjectTypes.arModule, InstancyObjectTypes.vrModule].contains(courseLaunchModel.ContentTypeId)) {
+      contentUrl = "$baseUrl/content/PublishFiles/$folderPath/$startPage";
+    } else if ([InstancyMediaTypes.threeDObject, InstancyMediaTypes.threeDAvatar].contains(courseLaunchModel.MediaTypeId)) {
+      contentUrl = "$baseUrl/content/publishfiles/${folderPath.toLowerCase()}/3dpreview.html";
+    }
+
+    MyPrint.printOnConsole("contentUrl:$contentUrl");
+    contentUrl = contentUrl.replaceAll("https://", "");
+    contentUrl = contentUrl.replaceAll("http://", "");
+    contentUrl = contentUrl.replaceAll("//", "/");
+    contentUrl = "https://$contentUrl";
+    MyPrint.printOnConsole("Final contentUrl:$contentUrl");
+
+    return contentUrl;
   }
 
   Future<DateTime?> convertToDate(String dateString) async {

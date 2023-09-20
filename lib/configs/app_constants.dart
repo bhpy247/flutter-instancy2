@@ -37,6 +37,11 @@ class GCPCredentials {
   static const String apiKey = "AIzaSyDIGUE_xngxAGG4i22_RxWiNDQh7ZhtnxA";
 }
 
+class AppAssets {
+  static const String surfaceDetection = "assets/lens_images/surface_detection.gif";
+  static const String tapOnPlane = "assets/lens_images/tap_on_plane.gif";
+}
+
 class ProfileGroupType {
   static const int personalInfo = 1;
   static const int contactInfo = 2;

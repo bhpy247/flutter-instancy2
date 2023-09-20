@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_controller.dart';
+import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:provider/provider.dart';
 
 import '../../../api/api_url_configuration_provider.dart';
@@ -35,6 +36,7 @@ import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import '../../common/components/modal_progress_hud.dart';
 import '../component/lens_courses_bottomsheet_widget.dart';
 import '../component/lens_screen_capture_control_widget.dart';
+import '../component/lens_screen_content_card.dart';
 import '../component/lens_screen_flash_button.dart';
 
 class LensOcrScreen extends StatefulWidget {
@@ -173,8 +175,11 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
     InstancyContentActionsEnum? primaryAction,
     bool isSecondaryAction = true,
   }) {
+    bool isArContent = AppConfigurationOperations.isARContent(contentTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeID);
+    // MyPrint.printOnConsole("isArContent:$isArContent");
+
     return CatalogUIActionCallbackModel(
-      onViewTap: primaryAction == InstancyContentActionsEnum.View
+      onViewTap: isArContent || primaryAction == InstancyContentActionsEnum.View
           ? null
           : () async {
               MyPrint.printOnConsole("on view tap");
@@ -187,16 +192,16 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
       onAddToMyLearningTap: primaryAction == InstancyContentActionsEnum.AddToMyLearning
           ? null
           : () async {
-              if (isSecondaryAction) Navigator.pop(context);
-              addContentToMyLearning(model: model);
-            },
+        if (isSecondaryAction) Navigator.pop(context);
+        addContentToMyLearning(model: model);
+      },
       onBuyTap: primaryAction == InstancyContentActionsEnum.Buy
           ? null
           : () {
-              if (isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
-              catalogController.buyCourse(context: context);
-            },
+        catalogController.buyCourse(context: context);
+      },
       onEnrollTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 
@@ -521,7 +526,7 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
     }
   }
 
-  Future<void> onContentLaunchTap({required CourseDTOModel model}) async {
+  Future<void> onContentLaunchTap({required CourseDTOModel model, String arVrContentLaunchTypes = ARVRContentLaunchTypes.launchInAR}) async {
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = catalogController.catalogRepository.apiController.apiDataProvider;
 
     isLoading = true;
@@ -549,6 +554,7 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
         JWVideoKey: model.JWVideoKey,
         jwstartpage: model.jwstartpage,
         startPage: model.startpage,
+        arVrContentLaunchTypes: arVrContentLaunchTypes,
         bit5: model.bit5,
       ),
     );
@@ -636,31 +642,36 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
   Widget getCameraView() {
     return SizedBox(
       height: double.maxFinite,
-      child: CameraPreview(
-        controller,
-        child: ValueListenableBuilder<CameraValue>(
-          valueListenable: controller,
-          builder: (BuildContext context, CameraValue cameraValue, Widget? child) {
-            // MyPrint.printOnConsole("CameraValue builder build called");
+      child: InkWell(
+        onTap: () {
+          controller.setFocusPoint(null);
+        },
+        child: CameraPreview(
+          controller,
+          child: ValueListenableBuilder<CameraValue>(
+            valueListenable: controller,
+            builder: (BuildContext context, CameraValue cameraValue, Widget? child) {
+              // MyPrint.printOnConsole("CameraValue builder build called");
 
-            return Stack(
-              children: [
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: LensScreenCaptureControlWidget(
-                    isTakingPicture: cameraValue.isTakingPicture,
-                    onClickImage: cameraValue.isInitialized && !cameraValue.isRecordingVideo && !cameraValue.isTakingPicture ? onTakePictureButtonPressed : null,
+              return Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: LensScreenCaptureControlWidget(
+                      isTakingPicture: cameraValue.isTakingPicture,
+                      onClickImage: cameraValue.isInitialized && !cameraValue.isRecordingVideo && !cameraValue.isTakingPicture ? onTakePictureButtonPressed : null,
+                    ),
                   ),
-                ),
-                LensScreenFlashCloseButton(
-                  isFlashOn: cameraValue.flashMode == FlashMode.torch,
-                  onFlashTap: () {
-                    onSetFlashModeButtonPressed(context: context, mode: cameraValue.flashMode == FlashMode.torch ? FlashMode.off : FlashMode.torch);
-                  },
-                ),
-              ],
-            );
-          },
+                  LensScreenFlashCloseButton(
+                    isFlashOn: cameraValue.flashMode == FlashMode.torch,
+                    onFlashTap: () {
+                      onSetFlashModeButtonPressed(context: context, mode: cameraValue.flashMode == FlashMode.torch ? FlashMode.off : FlashMode.torch);
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -709,8 +720,8 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
                       contents: lensProvider.contentsList.getList(isNewInstance: false),
                       isLoadingContents: lensProvider.isLoadingContents.get(),
                       scrollController: scrollController,
-                      onMoreButtonTap: (CourseDTOModel model) {
-                        showMoreAction(model: model, primaryAction: null);
+                      contentBuilder: (CourseDTOModel model) {
+                        return getContentCardWidget(model: model);
                       },
                     ),
                   ),
@@ -768,6 +779,61 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
           ),
         );
       },
+    );
+  }
+
+  Widget getContentCardWidget({required CourseDTOModel model}) {
+    LocalStr localStr = appProvider.localStr;
+
+    CatalogUIActionsController catalogUIActionsController = CatalogUIActionsController(
+      appProvider: appProvider,
+    );
+
+    List<InstancyUIActionModel> options = catalogUIActionsController
+        .getCatalogScreenPrimaryActions(
+          catalogCourseDTOModel: model,
+          localStr: localStr,
+          catalogUIActionCallbackModel: getCatalogUIActionCallbackModel(
+            model: model,
+            isSecondaryAction: false,
+          ),
+          isWishlistMode: false,
+        )
+        .toList();
+
+    // MyPrint.printOnConsole("${model.Title} : options:$options");
+
+    InstancyUIActionModel? primaryAction = options.firstOrNull;
+    // MyPrint.printOnConsole("primaryAction in Page:$primaryAction");
+    // MyPrint.printOnConsole("primaryAction in Page:${primaryAction?.actionsEnum}");
+    InstancyContentActionsEnum? primaryActionEnum = primaryAction?.actionsEnum;
+
+    return LensScreenContentCard(
+      model: model,
+      primaryAction: primaryAction,
+      onMoreButtonTap: (CourseDTOModel model) {
+        showMoreAction(model: model);
+      },
+      onLaunchARTap: (CourseDTOModel model) {
+        onContentLaunchTap(model: model, arVrContentLaunchTypes: ARVRContentLaunchTypes.launchInAR);
+      },
+      onLaunchVRTap: (CourseDTOModel model) {
+        onContentLaunchTap(model: model, arVrContentLaunchTypes: ARVRContentLaunchTypes.launchInVR);
+      },
+      onPrimaryActionTap: () async {
+        MyPrint.printOnConsole("primaryAction:$primaryActionEnum");
+
+        bool isArContent = AppConfigurationOperations.isARContent(contentTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeID);
+
+        if (isArContent) {
+          onContentLaunchTap(model: model, arVrContentLaunchTypes: ARVRContentLaunchTypes.launchInAR);
+        } else {
+          if (primaryAction?.onTap != null) {
+            primaryAction!.onTap!();
+          }
+        }
+      },
+      isShowARVRLaunch: true,
     );
   }
 }

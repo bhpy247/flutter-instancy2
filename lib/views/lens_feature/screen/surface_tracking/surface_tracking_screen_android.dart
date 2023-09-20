@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
@@ -12,10 +13,12 @@ import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/ar_vr_module/data_model/ar_scene_meshobject_model.dart';
 import 'package:flutter_instancy_2/models/ar_vr_module/data_model/ar_scene_model.dart';
 import 'package:flutter_instancy_2/models/ar_vr_module/response_model/ar_content_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:vector_math/vector_math_64.dart' as vector_math;
 
 import '../../../../api/api_call_model.dart';
 import '../../../../api/rest_client.dart';
@@ -46,6 +49,11 @@ class SurfaceTrackingScreenAndroidState extends State<SurfaceTrackingScreenAndro
   ArCoreViewType arCoreViewType = ArCoreViewType.STANDARDVIEW;
 
   ArCoreController? arCoreController;
+
+  bool isDetectingPlane = false;
+  bool isCapturingPlanePosition = false;
+  StreamController<List<ArCoreHitTestResult>> planeTapStreamController = StreamController<List<ArCoreHitTestResult>>.broadcast();
+  StreamController<ArCorePlane> planeDetectionStreamController = StreamController<ArCorePlane>.broadcast();
 
   ARContentModel? arContentModel;
   int currentScene = -1;
@@ -80,13 +88,23 @@ class SurfaceTrackingScreenAndroidState extends State<SurfaceTrackingScreenAndro
     MyPrint.printOnConsole("SurfaceTrackingScreenAndroidState()._onArCoreViewCreated called", tag: tag);
 
     arCoreController = controller;
+    controller.onPlaneTap = onPlaneTap;
+    controller.onPlaneDetected = onPlaneDetected;
 
-    initializeARViewFromARContentModel(arContentModel: arContentModel!);
+    initializeARViewFromARContentModel(arContentModel: arContentModel);
+  }
+
+  void onPlaneTap(List<ArCoreHitTestResult> hits) {
+    planeTapStreamController.add(hits);
+  }
+
+  void onPlaneDetected(ArCorePlane plane) {
+    planeDetectionStreamController.add(plane);
   }
 
   Future<void> initializeARViewFromARContentModel({required ARContentModel? arContentModel}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("SurfaceTrackingScreenAndroidState().initializeARViewFromARContentModel called", tag: tag);
+    MyPrint.printOnConsole("SurfaceTrackingScreenAndroidState().initializeARViewFromARContentModel called with arContentModel:$arContentModel", tag: tag);
 
     ArCoreController? controller = arCoreController;
 
@@ -108,12 +126,81 @@ class SurfaceTrackingScreenAndroidState extends State<SurfaceTrackingScreenAndro
       return;
     }
 
-    await initializeARViewFromARSceneModel(sceneModel: arSceneModel);
+    isDetectingPlane = false;
+    isCapturingPlanePosition = false;
+
+    isDetectingPlane = true;
+    mySetState();
+
+    ArCorePlane? plane = await detectPlane(controller: controller);
+    MyPrint.printOnConsole("Plane detected:$plane", tag: tag);
+
+    MyPrint.printOnConsole("Detecting Plane", tag: tag);
+    isDetectingPlane = false;
+    mySetState();
+
+    if (plane == null) {
+      MyPrint.printOnConsole("Returning from SurfaceTrackingScreenAndroidState().initializeARViewFromARContentModel because detected plane is null", tag: tag);
+      return;
+    }
+
+    MyPrint.printOnConsole("Capturing Position", tag: tag);
+    isCapturingPlanePosition = true;
+    mySetState();
+
+    vector_math.Vector3? position = await pickPlanePosition(controller: controller);
+    MyPrint.printOnConsole("Position captured:$position", tag: tag);
+
+    isCapturingPlanePosition = false;
+    mySetState();
+
+    await initializeARViewFromARSceneModel(sceneModel: arSceneModel, planePosition: position);
   }
 
-  Future<void> initializeARViewFromARSceneModel({required ARSceneModel sceneModel}) async {
+  Future<ArCorePlane?> detectPlane({required ArCoreController controller}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("SurfaceTrackingScreenAndroidState().initializeARViewFromARSceneModel called with sceneModel:$sceneModel", tag: tag);
+    MyPrint.printOnConsole("SurfaceTrackingScreenAndroidState().detectPlane() called", tag: tag);
+
+    ArCorePlane? detectedPlane;
+
+    try {
+      detectedPlane = await planeDetectionStreamController.stream.first.then((ArCorePlane? plane) {
+        return plane;
+      }).catchError((e, s) {
+        return null;
+      });
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in SurfaceTrackingScreenAndroidState().detectPlane():$e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+    }
+
+    MyPrint.printOnConsole("Final detectedPlane:$detectedPlane", tag: tag);
+
+    return detectedPlane;
+  }
+
+  Future<vector_math.Vector3?> pickPlanePosition({required ArCoreController controller}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("SurfaceTrackingScreenAndroidState().pickPlanePosition called", tag: tag);
+
+    vector_math.Vector3? planePosition;
+
+    try {
+      List<ArCoreHitTestResult> hits = await planeTapStreamController.stream.first;
+      planePosition = hits.firstOrNull?.pose.translation;
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in SurfaceTrackingScreenAndroidState().pickPlanePosition():$e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+    }
+
+    MyPrint.printOnConsole("Final planePosition:$planePosition", tag: tag);
+
+    return planePosition;
+  }
+
+  Future<void> initializeARViewFromARSceneModel({required ARSceneModel sceneModel, required vector_math.Vector3? planePosition}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("SurfaceTrackingScreenAndroidState().initializeARViewFromARSceneModel called with sceneModel:$sceneModel, planePosition:$planePosition", tag: tag);
 
     ArCoreController? controller = arCoreController;
 
@@ -126,8 +213,7 @@ class SurfaceTrackingScreenAndroidState extends State<SurfaceTrackingScreenAndro
 
     currentScene = sceneModel.id;
 
-    if (sceneModel.sceneType == ARContentSceneTypes.imageTracking) {
-    } else if (sceneModel.sceneType == ARContentSceneTypes.groundTracking) {}
+    if (sceneModel.sceneType == ARContentSceneTypes.imageTracking) {} else if (sceneModel.sceneType == ARContentSceneTypes.groundTracking) {}
 
     List<Future<ArCoreNode?>> futures = sceneModel.meshObjects.map((ARSceneMeshObjectModel meshObjectModel) {
       return handleProto1ARModuleSceneMeshObjectModel(model: meshObjectModel);
@@ -186,6 +272,7 @@ class SurfaceTrackingScreenAndroidState extends State<SurfaceTrackingScreenAndro
       // rotation: anchorPose.rotation,
       image: image,
       video: video,
+      position: planePosition,
       children: finalNodes,
     );
     await controller.addArCoreNodeWithAnchor(anchorNode!);
@@ -201,8 +288,7 @@ class SurfaceTrackingScreenAndroidState extends State<SurfaceTrackingScreenAndro
 
     AppConfigurationOperations appConfigurationOperations = AppConfigurationOperations(appProvider: appProvider);
 
-    if (model.meshType == ARContentMeshTypes.text) {
-    } else if (model.meshType == ARContentMeshTypes.sphere) {
+    if (model.meshType == ARContentMeshTypes.text) {} else if (model.meshType == ARContentMeshTypes.sphere) {
       final material = ArCoreMaterial(
         // color: const Color.fromARGB(255, 255, 0, 0),
         color: const Color.fromARGB(120, 66, 134, 244),
@@ -345,6 +431,10 @@ class SurfaceTrackingScreenAndroidState extends State<SurfaceTrackingScreenAndro
         return null;
       }
 
+      MyPrint.printOnConsole("model.position:${model.position}", tag: tag);
+      MyPrint.printOnConsole("model.rotation:${model.rotation}", tag: tag);
+      MyPrint.printOnConsole("model.scale:${model.scale}", tag: tag);
+
       node = ArCoreReferenceNode(
         name: model.id.toString(),
         objectUrl: objectUrl,
@@ -394,6 +484,12 @@ class SurfaceTrackingScreenAndroidState extends State<SurfaceTrackingScreenAndro
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("SurfaceTrackingScreenAndroidState().clearCurrentScene() called", tag: tag);
 
+    if (isDetectingPlane || isCapturingPlanePosition) {
+      isDetectingPlane = false;
+      isCapturingPlanePosition = false;
+      mySetState();
+    }
+
     ArCoreController? controller = arCoreController;
 
     if (controller == null) {
@@ -439,6 +535,37 @@ class SurfaceTrackingScreenAndroidState extends State<SurfaceTrackingScreenAndro
     mySetState();
   }
 
+  Future<void> showGLTFModel({required String gltfUrl}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("SurfaceTrackingScreenAndroidState().showGLTFModel() called with gltfUrl:'$gltfUrl'", tag: tag);
+
+    ArCoreController? controller = arCoreController;
+
+    if (controller == null) {
+      MyPrint.printOnConsole("Returning from SurfaceTrackingScreenAndroidState().initializeARViewFromARSceneModel() because controller is null", tag: tag);
+      return;
+    }
+
+    bool isAdded = await controller
+        .addArCoreNode(ArCoreReferenceNode(
+      objectUrl: gltfUrl,
+      position: vector_math.Vector3(0, 0, -2),
+      scale: vector_math.Vector3(0.1, 0.1, 0.1),
+    ))
+        .then((value) {
+      MyPrint.printOnConsole("Successfully Shown GLTF Model", tag: tag);
+
+      return true;
+    }).catchError((e, s) {
+      MyPrint.printOnConsole("Error in Showing GLTF Model:$e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+
+      return false;
+    });
+
+    MyPrint.printOnConsole("isAdded:$isAdded", tag: tag);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -456,6 +583,8 @@ class SurfaceTrackingScreenAndroidState extends State<SurfaceTrackingScreenAndro
   @override
   void dispose() {
     arCoreController?.dispose();
+    planeTapStreamController.close();
+    planeDetectionStreamController.close();
     super.dispose();
   }
 
@@ -490,13 +619,60 @@ class SurfaceTrackingScreenAndroidState extends State<SurfaceTrackingScreenAndro
   }
 
   Widget getMainBody() {
-    return ArCoreView(
-      onArCoreViewCreated: _onArCoreViewCreated,
-      type: arCoreViewType,
-      debug: true,
-      enablePlaneRenderer: true,
-      enableTapRecognizer: true,
-      enableUpdateListener: true,
+    MyPrint.printOnConsole("isDetectingPlane:$isDetectingPlane");
+    MyPrint.printOnConsole("isCapturingPlanePosition:$isCapturingPlanePosition");
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ArCoreView(
+          onArCoreViewCreated: _onArCoreViewCreated,
+          type: arCoreViewType,
+          debug: true,
+          enablePlaneRenderer: true,
+          enableTapRecognizer: true,
+          enableUpdateListener: true,
+        ),
+        if (isDetectingPlane)
+          Align(
+            alignment: Alignment.center,
+            child: getPlaneDetectionInstructionWidget(),
+          ),
+        if (isCapturingPlanePosition)
+          Align(
+            alignment: Alignment.center,
+            child: getPlaneTapInstructionWidget(),
+          ),
+      ],
+    );
+  }
+
+  Widget getPlaneDetectionInstructionWidget() {
+    Size size = context.sizeData;
+    return IgnorePointer(
+      child: SizedBox(
+        width: (size.aspectRatio > 1 ? size.height : size.width) * 0.6,
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: Image.asset(
+            AppAssets.surfaceDetection,
+            fit: BoxFit.fill,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget getPlaneTapInstructionWidget() {
+    Size size = context.sizeData;
+    return IgnorePointer(
+      child: SizedBox(
+        width: (size.aspectRatio > 1 ? size.height : size.width) * 0.4,
+        child: Image.asset(
+          AppAssets.tapOnPlane,
+          fit: BoxFit.fill,
+        ),
+      ),
     );
   }
 }

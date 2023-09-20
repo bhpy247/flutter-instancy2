@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -11,43 +10,55 @@ import '../../../utils/my_utils.dart';
 import '../../common/components/common_button.dart';
 import '../../common/components/common_cached_network_image.dart';
 import '../../common/components/common_icon_button.dart';
+import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
 
 class LensScreenContentCard extends StatelessWidget {
   final CourseDTOModel model;
   final bool isShowARVRLaunch;
+  final InstancyUIActionModel? primaryAction;
   final void Function(CourseDTOModel model)? onLaunchVRTap;
   final void Function(CourseDTOModel model)? onLaunchARTap;
   final void Function(CourseDTOModel model)? onMoreButtonTap;
+  final Function()? onPrimaryActionTap;
 
   const LensScreenContentCard({
     super.key,
     required this.model,
     this.isShowARVRLaunch = true,
+    this.primaryAction,
     this.onLaunchVRTap,
     this.onLaunchARTap,
     this.onMoreButtonTap,
+    this.onPrimaryActionTap,
   });
 
   @override
   Widget build(BuildContext context) {
     // late ThemeData themeData = Theme.of(context);
 
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.white,
+    return InkWell(
+      onTap: () {
+        if (onPrimaryActionTap != null) {
+          onPrimaryActionTap!();
+        }
+      },
+      child: Container(
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: Colors.white,
+            ),
           ),
         ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          imageWidget(url: model.ThumbnailImagePath, context: context),
-          const SizedBox(width: 20),
-          Expanded(child: detailColumn(context: context)),
-        ],
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            imageWidget(url: model.ThumbnailImagePath, context: context),
+            const SizedBox(width: 20),
+            Expanded(child: detailColumn(context: context)),
+          ],
+        ),
       ),
     );
   }
@@ -175,17 +186,14 @@ class LensScreenContentCard extends StatelessWidget {
   }
 
   Widget getBottomViewInButton({required ThemeData themeData, required BuildContext context}) {
-    bool isArContent = model.ContentTypeId == InstancyObjectTypes.arModule ||
-        model.ContentTypeId == InstancyObjectTypes.vrModule ||
-        model.MediaTypeID == InstancyMediaTypes.threeDObject ||
-        model.MediaTypeID == InstancyMediaTypes.threeDAvatar;
+    bool isArContent = AppConfigurationOperations.isARContent(contentTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeID);
 
     if (!isShowARVRLaunch || !isArContent) {
       return const SizedBox();
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 8),
         Text(
@@ -197,69 +205,68 @@ class LensScreenContentCard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            CommonButton(
-              onPressed: () {
-                if (onLaunchVRTap != null) onLaunchVRTap!(model);
-              },
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              backGroundColor: Colors.transparent,
-              borderColor: themeData.primaryColor,
-              borderWidth: 1,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    "assets/images/cube.png",
-                    height: 15,
-                    width: 15,
-                    color: themeData.primaryColor,
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    "3D Spaces",
-                    style: themeData.textTheme.labelSmall?.copyWith(
-                      color: themeData.primaryColor,
-                      // fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 17),
-            Expanded(
+            /*Container(
+              margin: const EdgeInsets.only(right: 17),
               child: CommonButton(
                 onPressed: () {
-                  if (onLaunchARTap != null) onLaunchARTap!(model);
+                  if (onLaunchVRTap != null) onLaunchVRTap!(model);
                 },
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                backGroundColor: themeData.primaryColor,
+                backGroundColor: Colors.transparent,
                 borderColor: themeData.primaryColor,
                 borderWidth: 1,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Image.asset(
-                      "assets/images/3dEnvi.png",
+                      "assets/images/cube.png",
                       height: 15,
                       width: 15,
-                      color: themeData.colorScheme.onPrimary,
+                      color: themeData.primaryColor,
                     ),
                     const SizedBox(width: 5),
-                    Flexible(
-                      child: Text(
-                        "3D Environment",
-                        style: themeData.textTheme.labelSmall?.copyWith(
-                          color: themeData.colorScheme.onPrimary,
-                          // fontSize: 12,
-                          letterSpacing: 0.5,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    Text(
+                      "3D Spaces",
+                      style: themeData.textTheme.labelSmall?.copyWith(
+                        color: themeData.primaryColor,
+                        // fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
-                    )
+                    ),
                   ],
                 ),
+              ),
+            ),*/
+            CommonButton(
+              onPressed: () {
+                if (onLaunchARTap != null) onLaunchARTap!(model);
+              },
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              backGroundColor: themeData.primaryColor,
+              borderColor: themeData.primaryColor,
+              borderWidth: 1,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    "assets/images/3dEnvi.png",
+                    height: 15,
+                    width: 15,
+                    color: themeData.colorScheme.onPrimary,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    "3D Environment",
+                    style: themeData.textTheme.labelSmall?.copyWith(
+                      color: themeData.colorScheme.onPrimary,
+                      // fontSize: 12,
+                      letterSpacing: 0.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  )
+                ],
               ),
             )
           ],

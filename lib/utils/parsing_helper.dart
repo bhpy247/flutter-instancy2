@@ -128,18 +128,17 @@ class ParsingHelper {
     }
     else if(value is String) {
       DateTime? dateTime;
-      // MyPrint.printOnConsole("DateTime Value:$value");
-      if(dateFormat.isNotEmpty) {
+      // MyPrint.printOnConsole("DateTime Value:'$value'");
+      if (value.isNotEmpty && dateFormat.isNotEmpty) {
         try {
           dateTime = DateFormat(dateFormat).parse(value);
-        }
-        catch(e, s) {
+        } catch (e, s) {
           MyPrint.printOnConsole("Error in Converting from String to DateTime with Format '$dateFormat':$e");
           MyPrint.printOnConsole(s);
         }
       }
 
-      if(dateTime == null) {
+      if (dateTime == null) {
         int? intValue = int.tryParse(value);
         if(intValue != null) {
           try {

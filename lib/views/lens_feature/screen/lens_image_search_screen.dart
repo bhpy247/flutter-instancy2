@@ -1,9 +1,9 @@
-import 'dart:io';
-
 import 'package:camera/camera.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/lens_feature/lens_controller.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/views/lens_feature/component/lens_courses_bottomsheet_widget.dart';
 import 'package:flutter_instancy_2/views/lens_feature/component/lens_screen_capture_control_widget.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +12,7 @@ import '../../../api/api_url_configuration_provider.dart';
 import '../../../backend/Catalog/catalog_controller.dart';
 import '../../../backend/app/app_provider.dart';
 import '../../../backend/authentication/authentication_provider.dart';
+import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../backend/course_launch/course_launch_controller.dart';
 import '../../../backend/event/event_controller.dart';
 import '../../../backend/lens_feature/lens_provider.dart';
@@ -35,6 +36,7 @@ import '../../common/components/comment_dialog.dart';
 import '../../common/components/common_loader.dart';
 import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import '../../common/components/modal_progress_hud.dart';
+import '../component/lens_screen_content_card.dart';
 import '../component/lens_screen_flash_button.dart';
 
 class LensImageSearchScreen extends StatefulWidget {
@@ -55,6 +57,8 @@ class LensImageSearchScreen extends StatefulWidget {
 
 class _LensImageSearchScreenState extends State<LensImageSearchScreen> with WidgetsBindingObserver, TickerProviderStateMixin, MySafeState {
   bool isLoading = false;
+  bool isClickingImage = false;
+  bool isPickingImage = false;
 
   int componentId = -1;
   int componentInstanceId = -1;
@@ -68,7 +72,7 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
 
   late CameraController controller;
 
-  XFile? imageFile;
+  Uint8List? imageBytes;
 
   DraggableScrollableController scrollController = DraggableScrollableController();
 
@@ -95,24 +99,26 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
     controller.setFlashMode(FlashMode.off);
     controller.pausePreview();
 
-    imageFile = file;
-    isLoading = true;
+    isClickingImage = true;
     mySetState();
 
-    Uint8List? imageBytes = await getBytesFromImage(imageFile);
+    Uint8List? imageBytes = await getBytesFromImage(file);
 
-    if (imageBytes == null) {
+    if (file.path.isEmpty || imageBytes == null) {
       if (context.mounted) {
         MyToast.showError(context: context, msg: "Error in converting image to bytes");
       }
-      isLoading = false;
+      isClickingImage = false;
       mySetState();
       return;
     }
 
-    await lensController.performImageSearch(imageBytes: imageBytes);
+    this.imageBytes = imageBytes;
+    mySetState();
 
-    isLoading = false;
+    await lensController.performImageSearch(imageBytes: imageBytes, path: file.path);
+
+    isClickingImage = false;
     mySetState();
   }
 
@@ -136,6 +142,41 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
       (e);
       return null;
     }
+  }
+
+  Future<void> onGalleryTap() async {
+    MyPrint.printOnConsole("onGalleryTap called");
+
+    isPickingImage = true;
+    mySetState();
+
+    List<PlatformFile> files = await MyUtils.pickFiles(
+      pickingType: FileType.image,
+      multiPick: false,
+      getBytes: true,
+    );
+
+    String? imagePath = files.firstOrNull?.path;
+    Uint8List? imageBytes = files.firstOrNull?.bytes;
+
+    if (imagePath.checkEmpty || imageBytes == null) {
+      if (context.mounted) {
+        MyToast.showError(context: context, msg: "Error in converting image to bytes");
+      }
+      isPickingImage = false;
+      mySetState();
+      return;
+    }
+
+    this.imageBytes = imageBytes;
+    isLoading = true;
+    mySetState();
+
+    await lensController.performImageSearch(imageBytes: imageBytes, path: imagePath!);
+
+    isPickingImage = false;
+    isLoading = false;
+    mySetState();
   }
 
   Future<Uint8List?> getBytesFromImage(XFile? imageFile) async {
@@ -178,8 +219,11 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
     InstancyContentActionsEnum? primaryAction,
     bool isSecondaryAction = true,
   }) {
+    bool isArContent = AppConfigurationOperations.isARContent(contentTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeID);
+    MyPrint.printOnConsole("isArContent:$isArContent");
+
     return CatalogUIActionCallbackModel(
-      onViewTap: primaryAction == InstancyContentActionsEnum.View
+      onViewTap: isArContent || primaryAction == InstancyContentActionsEnum.View
           ? null
           : () async {
               MyPrint.printOnConsole("on view tap");
@@ -192,16 +236,16 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
       onAddToMyLearningTap: primaryAction == InstancyContentActionsEnum.AddToMyLearning
           ? null
           : () async {
-              if (isSecondaryAction) Navigator.pop(context);
-              addContentToMyLearning(model: model);
-            },
+        if (isSecondaryAction) Navigator.pop(context);
+        addContentToMyLearning(model: model);
+      },
       onBuyTap: primaryAction == InstancyContentActionsEnum.Buy
           ? null
           : () {
-              if (isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
-              catalogController.buyCourse(context: context);
-            },
+        catalogController.buyCourse(context: context);
+      },
       onEnrollTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 
@@ -526,7 +570,7 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
     }
   }
 
-  Future<void> onContentLaunchTap({required CourseDTOModel model}) async {
+  Future<void> onContentLaunchTap({required CourseDTOModel model, String arVrContentLaunchTypes = ARVRContentLaunchTypes.launchInAR}) async {
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = catalogController.catalogRepository.apiController.apiDataProvider;
 
     isLoading = true;
@@ -554,6 +598,7 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
         JWVideoKey: model.JWVideoKey,
         jwstartpage: model.jwstartpage,
         startPage: model.startpage,
+        arVrContentLaunchTypes: arVrContentLaunchTypes,
         bit5: model.bit5,
       ),
     );
@@ -629,7 +674,7 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
                     return const CommonLoader();
                   }
 
-                  return imageFile == null ? getCameraView() : getImagePickedWidget();
+                  return imageBytes == null ? getCameraView() : getImagePickedWidget();
                 },
               ),
             ),
@@ -642,31 +687,37 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
   Widget getCameraView() {
     return SizedBox(
       height: double.maxFinite,
-      child: CameraPreview(
-        controller,
-        child: ValueListenableBuilder<CameraValue>(
-          valueListenable: controller,
-          builder: (BuildContext context, CameraValue cameraValue, Widget? child) {
-            // MyPrint.printOnConsole("CameraValue builder build called");
+      child: InkWell(
+        onTap: () {
+          controller.setFocusPoint(null);
+        },
+        child: CameraPreview(
+          controller,
+          child: ValueListenableBuilder<CameraValue>(
+            valueListenable: controller,
+            builder: (BuildContext context, CameraValue cameraValue, Widget? child) {
+              // MyPrint.printOnConsole("CameraValue builder build called");
 
-            return Stack(
-              children: [
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: LensScreenCaptureControlWidget(
-                    isTakingPicture: cameraValue.isTakingPicture,
-                    onClickImage: cameraValue.isInitialized && !cameraValue.isRecordingVideo && !cameraValue.isTakingPicture ? onTakePictureButtonPressed : null,
+              return Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: LensScreenCaptureControlWidget(
+                      isTakingPicture: cameraValue.isTakingPicture,
+                      onClickImage: cameraValue.isInitialized && !cameraValue.isRecordingVideo && !cameraValue.isTakingPicture ? onTakePictureButtonPressed : null,
+                      onGalleryTap: onGalleryTap,
+                    ),
                   ),
-                ),
-                LensScreenFlashCloseButton(
-                  isFlashOn: cameraValue.flashMode == FlashMode.torch,
-                  onFlashTap: () {
-                    onSetFlashModeButtonPressed(context: context, mode: cameraValue.flashMode == FlashMode.torch ? FlashMode.off : FlashMode.torch);
-                  },
-                ),
-              ],
-            );
-          },
+                  LensScreenFlashCloseButton(
+                    isFlashOn: cameraValue.flashMode == FlashMode.torch,
+                    onFlashTap: () {
+                      onSetFlashModeButtonPressed(context: context, mode: cameraValue.flashMode == FlashMode.torch ? FlashMode.off : FlashMode.torch);
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -689,6 +740,9 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
                     contents: lensProvider.contentsList.getList(isNewInstance: false),
                     isLoadingContents: lensProvider.isLoadingContents.get(),
                     scrollController: scrollController,
+                    contentBuilder: (CourseDTOModel model) {
+                      return getContentCardWidget(model: model);
+                    },
                   ),
                 ),
             ],
@@ -699,25 +753,26 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
   }
 
   Widget getClickedImageWidget() {
-    return (kIsWeb
-        ? Image.network(imageFile!.path)
-        : Image.file(
-            File(imageFile!.path),
-            fit: BoxFit.cover,
-            height: MediaQuery.of(context).size.height,
-          ));
+    if (imageBytes == null) return const SizedBox();
+
+    return Image.memory(
+      imageBytes!,
+      fit: BoxFit.cover,
+      height: MediaQuery.of(context).size.height,
+    );
   }
 
   Widget getReloadButton() {
     return ValueListenableBuilder<bool>(
       valueListenable: lensProvider.isShowRetakeButton,
       builder: (BuildContext context, bool isShowRetakeButton, Widget? child) {
+        MyPrint.printOnConsole("isShowRetakeButton:$isShowRetakeButton");
         if (!isShowRetakeButton) return const SizedBox();
 
         return InkWell(
           onTap: () async {
             MyPrint.printOnConsole("Called");
-            imageFile = null;
+            imageBytes = null;
             mySetState();
             lensProvider.resetContentsData(isNotify: false);
             await controller.resumePreview();
@@ -734,6 +789,61 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
           ),
         );
       },
+    );
+  }
+
+  Widget getContentCardWidget({required CourseDTOModel model}) {
+    LocalStr localStr = appProvider.localStr;
+
+    CatalogUIActionsController catalogUIActionsController = CatalogUIActionsController(
+      appProvider: appProvider,
+    );
+
+    List<InstancyUIActionModel> options = catalogUIActionsController
+        .getCatalogScreenPrimaryActions(
+          catalogCourseDTOModel: model,
+          localStr: localStr,
+          catalogUIActionCallbackModel: getCatalogUIActionCallbackModel(
+            model: model,
+            isSecondaryAction: false,
+          ),
+          isWishlistMode: false,
+        )
+        .toList();
+
+    // MyPrint.printOnConsole("${model.Title} : options:$options");
+
+    InstancyUIActionModel? primaryAction = options.firstOrNull;
+    // MyPrint.printOnConsole("primaryAction in Page:$primaryAction");
+    // MyPrint.printOnConsole("primaryAction in Page:${primaryAction?.actionsEnum}");
+    InstancyContentActionsEnum? primaryActionEnum = primaryAction?.actionsEnum;
+
+    return LensScreenContentCard(
+      model: model,
+      primaryAction: primaryAction,
+      onMoreButtonTap: (CourseDTOModel model) {
+        showMoreAction(model: model);
+      },
+      onLaunchARTap: (CourseDTOModel model) {
+        onContentLaunchTap(model: model, arVrContentLaunchTypes: ARVRContentLaunchTypes.launchInAR);
+      },
+      onLaunchVRTap: (CourseDTOModel model) {
+        onContentLaunchTap(model: model, arVrContentLaunchTypes: ARVRContentLaunchTypes.launchInVR);
+      },
+      onPrimaryActionTap: () async {
+        MyPrint.printOnConsole("primaryAction:$primaryActionEnum");
+
+        bool isArContent = AppConfigurationOperations.isARContent(contentTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeID);
+
+        if (isArContent) {
+          onContentLaunchTap(model: model, arVrContentLaunchTypes: ARVRContentLaunchTypes.launchInAR);
+        } else {
+          if (primaryAction?.onTap != null) {
+            primaryAction!.onTap!();
+          }
+        }
+      },
+      isShowARVRLaunch: true,
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' as material;
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_controller.dart';
@@ -388,7 +389,7 @@ class SplashController {
     String newId = MyUtils.getNewId();
     MyPrint.printOnConsole(
         "SplashController().getSiteLocalizationStrings called with isGetFromOffline:$isGetFromOffline,"
-        " isSaveInOfflineL$isSaveInOffline",
+            " isSaveInOfflineL$isSaveInOffline",
         tag: newId);
 
     LocalStr? localStr;
@@ -568,7 +569,7 @@ class SplashController {
     String newId = MyUtils.getNewId();
     MyPrint.printOnConsole(
         "SplashController().getAppMenuComponentsList called for menuId:$menuId, isGetFromOnline:$isGetFromOnline, "
-        "isGetFromOffline:$isGetFromOffline, isSaveInOffline:$isSaveInOffline",
+            "isGetFromOffline:$isGetFromOffline, isSaveInOffline:$isSaveInOffline",
         tag: newId);
 
     List<NativeMenuComponentModel>? nativeMenuComponentModelsList;
@@ -626,17 +627,22 @@ class SplashController {
 
   void addPredefineMenu() {
     List<NativeMenuModel> data = [
-      NativeMenuModel(image: "f1c6", displayname: "Messages", menuid: 1000),
+      NativeMenuModel(
+        displayname: "Messages",
+        menuid: 1000,
+        menuIconData: material.Icons.message,
+      ),
     ];
     appProvider.setMenuModelsList(list: data, isNotify: false, isClear: false);
     appProvider.setMenuComponentModelsListForMenuId(
-        menuId: 1000,
-        list: [
-          NativeMenuComponentModel(
-            componentid: InstancyComponents.UserMessages,
-          ),
-        ],
-        isNotify: false);
+      menuId: 1000,
+      list: [
+        NativeMenuComponentModel(
+          componentid: InstancyComponents.UserMessages,
+        ),
+      ],
+      isNotify: false,
+    );
   }
 //endregion
 //endregion

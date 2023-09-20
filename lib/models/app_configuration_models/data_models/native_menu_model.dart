@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
@@ -5,6 +6,7 @@ class NativeMenuModel {
   int displayorder = 0, menuid = 0, parentmenuid = 0, webmenuid = 0;
   String displayname = "", image = "", locale = "";
   bool isofflinemenu = false, isenabled = false, ismultiplecomponent = false;
+  IconData? menuIconData;
 
   NativeMenuModel({
     this.displayorder = 0,
@@ -17,6 +19,7 @@ class NativeMenuModel {
     this.isofflinemenu = false,
     this.isenabled = false,
     this.ismultiplecomponent = false,
+    this.menuIconData,
   });
 
   NativeMenuModel.fromJson(Map<String, dynamic> json) {

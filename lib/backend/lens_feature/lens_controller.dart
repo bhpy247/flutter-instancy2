@@ -35,7 +35,7 @@ class LensController {
 
   LensRepository get lensRepository => _lensRepository;
 
-  Future<void> performImageSearch({required Uint8List imageBytes, bool isNotify = true}) async {
+  Future<void> performImageSearch({required Uint8List imageBytes, required String path, bool isNotify = true}) async {
     String tag = MyUtils.getNewId(isFromUUuid: true);
     MyPrint.printOnConsole("LensController().performImageSearch() called with imageBytes:${imageBytes.length}, isNotify:$isNotify", tag: tag);
 
@@ -43,10 +43,8 @@ class LensController {
 
     provider.isLoadingContents.set(value: true, isNotify: isNotify);
 
-    List<vision_api.LocalizedObjectAnnotation>? detectionResponse = await detectLabelsFromImageUsingVisionApi(imageBytes);
-    MyPrint.printOnConsole("detectionResponse:$detectionResponse", tag: tag);
-
-    List<String> labels = (detectionResponse ?? <vision_api.LocalizedObjectAnnotation>[]).map((e) => e.name ?? "").toSet().toList()..removeWhere((element) => element.isEmpty);
+    List<vision_api.EntityAnnotation>? detectionResponse = await detectLabelsFromImageUsingVisionApi(imageBytes);
+    List<String> labels = (detectionResponse ?? <vision_api.EntityAnnotation>[]).map((e) => e.description ?? "").toSet().toList()..removeWhere((element) => element.isEmpty);
     MyPrint.printOnConsole("labels:$labels", tag: tag);
 
     lensProvider.labels.setList(list: labels, isClear: true, isNotify: false);
@@ -60,7 +58,7 @@ class LensController {
     provider.isLoadingContents.set(value: false, isNotify: true);
   }
 
-  Future<List<vision_api.LocalizedObjectAnnotation>?> detectLabelsFromImageUsingVisionApi(Uint8List bytes) async {
+  Future<List<vision_api.EntityAnnotation>?> detectLabelsFromImageUsingVisionApi(Uint8List bytes) async {
     String tag = MyUtils.getNewId(isFromUUuid: true);
     MyPrint.printOnConsole("LensController().detectLabelsFromImageUsingVisionApi() called with bytes", tag: tag);
 
@@ -70,7 +68,6 @@ class LensController {
       String encodedImage = base64Encode(bytes);
 
       vision_api.VisionApi visionApi = vision_api.VisionApi(clientViaApiKey(GCPCredentials.apiKey));
-      // vision_api.VisionApi visionApi = vision_api.VisionApi(clientViaApiKey("AIzaSyDc6RyyMBZFNev6KlFQp6KuFWRy8yuw-PU"));
       vision_api.BatchAnnotateImagesResponse response = await visionApi.images.annotate(vision_api.BatchAnnotateImagesRequest(
         requests: [
           vision_api.AnnotateImageRequest(
@@ -78,8 +75,8 @@ class LensController {
             features: [
               vision_api.Feature(
                 maxResults: 10,
-                type: "OBJECT_LOCALIZATION",
-                // type: "LABEL_DETECTION",
+                // type: "OBJECT_LOCALIZATION",
+                type: "LABEL_DETECTION",
               ),
             ],
           ),
@@ -87,11 +84,10 @@ class LensController {
       ));
       MyPrint.logOnConsole("response:${MyUtils.encodeJson(response.toJson())}", tag: tag);
 
-      List<vision_api.LocalizedObjectAnnotation>? localizedObjectAnnotations = response.responses?.firstElement?.localizedObjectAnnotations;
-      // List<vision_api.LocalizedObjectAnnotation>? localizedObjectAnnotations = response.responses?.firstElement?.la;
-      MyPrint.printOnConsole("localizedObjectAnnotations:${localizedObjectAnnotations?.length}", tag: tag);
+      List<vision_api.EntityAnnotation>? labelAnnotations = response.responses?.firstElement?.labelAnnotations;
+      MyPrint.printOnConsole("labelAnnotations:${labelAnnotations?.length}", tag: tag);
 
-      return localizedObjectAnnotations;
+      return labelAnnotations;
     } catch (e, s) {
       MyPrint.printOnConsole("Error in DataController.detectLabelsFromImageUsingVisionApi():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);

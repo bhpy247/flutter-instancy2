@@ -241,6 +241,15 @@ class AppConfigurationOperations {
     return parsedString;
   }
 
+  static bool isARContent({required int contentTypeId, required int mediaTypeId}) {
+    bool isArContent = contentTypeId == InstancyObjectTypes.arModule ||
+        contentTypeId == InstancyObjectTypes.vrModule ||
+        mediaTypeId == InstancyMediaTypes.threeDObject ||
+        mediaTypeId == InstancyMediaTypes.threeDAvatar;
+
+    return isArContent;
+  }
+
   bool checkComponentConsolidated({required String conditionsString}) {
     Map<String, String> conditionsMap = getConditionsMapFromConditionsString(conditionsString: conditionsString);
 

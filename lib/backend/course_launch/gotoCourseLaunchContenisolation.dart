@@ -129,7 +129,7 @@ class GotoCourseLaunchContentisolation {
     ///End TIN CAN OPTIONS
 
     /// this is offline part
-    if (isDownloadFileExists && objectTypeId != "70") {
+    if (isDownloadFileExists && objectTypeId != InstancyObjectTypes.events) {
       MyPrint.printOnConsole('if___course_launch_ogjtypr $objectTypeId');
 
       /// Generate Offline Path
@@ -138,8 +138,7 @@ class GotoCourseLaunchContentisolation {
 
         /// Remove this line
         offlinePath = "file://$finalDownloadedFilePath";
-      }
-      else if (objectTypeId == InstancyObjectTypes.xApi) {
+      } else if (objectTypeId == InstancyObjectTypes.xApi) {
         String encodedString = lrsActor;
 
         offlinePath = "file://$offlinePath";

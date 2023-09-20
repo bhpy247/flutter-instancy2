@@ -151,7 +151,7 @@ class _SurfaceTrackingScreenState extends State<SurfaceTrackingScreen> with Widg
                   ARSceneMeshObjectModel(
                     id: sceneId + 1,
                     meshType: meshType,
-                    position: vector_math.Vector3(0, 0, -2),
+                    position: vector_math.Vector3(0, 0, 0),
                     mediaUrl: courseLaunchUrl,
                     mediaName: courseModel.ContentName,
                     name: courseModel.ContentName,
@@ -168,6 +168,13 @@ class _SurfaceTrackingScreenState extends State<SurfaceTrackingScreen> with Widg
         }
       }
     }
+  }
+
+  Future<void> showGLTFModel() async {
+    // surfaceTrackingScreenAndroidKey.currentState?.showGLTFModel(gltfUrl: "http://qalearning.instancy.com//content/publishfiles/2a6644c4-ce88-450a-ae91-043a0d3e4eb0/scene.gltf");
+    // surfaceTrackingScreenAndroidKey.currentState?.showGLTFModel(gltfUrl: "https://storage.googleapis.com/instancy-admin-web-demo.appspot.com/3dFiles/ufo.gltf");
+    // surfaceTrackingScreenAndroidKey.currentState?.showGLTFModel(gltfUrl: "https://storage.googleapis.com/instancy-admin-web-demo.appspot.com/3dFiles/15ade4402f9e11ee9b2fcd4ac08e4724/scene.gltf");
+    // surfaceTrackingScreenAndroidKey.currentState?.showGLTFModel(gltfUrl: "https://storage.googleapis.com/instancy-admin-web-demo.appspot.com/3dFiles/474730102f9e11ee9b2fcd4ac08e4724/scene.gltf");
   }
 
   @override
@@ -229,10 +236,25 @@ class _SurfaceTrackingScreenState extends State<SurfaceTrackingScreen> with Widg
             SurfaceTrackingScreenAndroid(
               key: surfaceTrackingScreenAndroidKey,
             ),
-            Align(
-              alignment: Alignment.topCenter,
-              child: getToggleButton(),
+            if (arContentModel == null)
+              Align(
+                alignment: Alignment.topCenter,
+                child: getToggleButton(),
+              ),
+            Positioned(
+              top: 60,
+              right: 10,
+              child: getCloseButton(),
             ),
+            /*Align(
+              alignment: Alignment.bottomCenter,
+              child: LensScreenCaptureControlWidget(
+                isTakingPicture: false,
+                onClickImage: () {
+                  showGLTFModel();
+                },
+              ),
+            ),*/
             // getContentList(),
           ],
         );
@@ -320,6 +342,28 @@ class _SurfaceTrackingScreenState extends State<SurfaceTrackingScreen> with Widg
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget getCloseButton() {
+    return InkWell(
+      onTap: () {
+        if (arContentModel != null) {
+          surfaceTrackingScreenAndroidKey.currentState?.clearCurrentScene();
+          arContentModel = null;
+          mySetState();
+        } else {
+          Navigator.pop(context);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(color: Colors.white38, shape: BoxShape.circle, border: Border.all(color: Colors.white)),
+        child: const Icon(
+          Icons.clear,
+          color: Colors.white,
         ),
       ),
     );

@@ -305,8 +305,8 @@ class CourseLaunchController {
 
         return true;
       } else if (model.ContentTypeId == InstancyObjectTypes.assignment) {
-        String assignmenturl =
-            '${apiDataProvider.getCurrentSiteUrl()}assignmentdialog/ContentID/${model.ContentID}/SiteID/${model.SiteId}/ScoID/${model.ScoID}/UserID/${model.SiteUserID}/ismobilecontentview/true';
+        String assignmenturl = '${apiDataProvider.getCurrentSiteUrl()}assignmentdialog/ContentID/${model.ContentID}/SiteID/${model.SiteId}'
+            '/ScoID/${model.ScoID}/UserID/${model.SiteUserID}/ismobilecontentview/true';
         MyPrint.printOnConsole('assignmenturl is : $assignmenturl');
 
         dynamic value = await navigateToLaunchScreen(
@@ -420,10 +420,34 @@ class CourseLaunchController {
             courseId: model.ContentID,
           ),
         );
-      }
-      if ([InstancyObjectTypes.arModule, InstancyObjectTypes.vrModule].contains(model.ContentTypeId) ||
-          [InstancyMediaTypes.threeDAvatar, InstancyMediaTypes.threeDObject].contains(model.MediaTypeId)) {
-        return true;
+      } else if (AppConfigurationOperations.isARContent(contentTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeId)) {
+        String url = "";
+        SuccessfulUserLoginModel? successfulUserLoginModel = authenticationProvider.getSuccessfulUserLoginModel();
+        if (successfulUserLoginModel != null) {
+          GotoCourseLaunch courseLaunch = GotoCourseLaunch(
+            context: context,
+            apiUrlConfigurationProvider: apiDataProvider,
+            successfulUserLoginModel: successfulUserLoginModel,
+            tinCanDataModel: appProvider.tinCanDataModel,
+            appSystemConfigurationModel: appProvider.appSystemConfigurationModel,
+            courseLaunchModel: model,
+          );
+          url = await courseLaunch.getCourseUrl();
+        }
+
+        MyPrint.printOnConsole('urldataaaaa $url');
+        if (url.isNotEmpty) {
+          // checkNonTrackableContentStatusUpdate(model: model);
+
+          dynamic value = await navigateToLaunchScreen(
+            context: context,
+            model: model,
+            launchUrl: url,
+          );
+          MyPrint.printOnConsole('CourseLaunchController().launchCourse() value $value');
+          // return value == true;
+          return true;
+        }
       } else {
         String url = "";
         SuccessfulUserLoginModel? successfulUserLoginModel = authenticationProvider.getSuccessfulUserLoginModel();
@@ -749,7 +773,7 @@ class CourseLaunchController {
         startPage: courseModel.startpage,
       ),
     );
-    url = await courseLaunch.getCourseUrl();
+    url = courseLaunch.getARVRModuleContentModelUrl();
 
     return url;
   }

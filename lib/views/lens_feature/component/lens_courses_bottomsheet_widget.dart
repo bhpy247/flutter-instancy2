@@ -5,20 +5,19 @@ import 'package:flutter_chat_bot/utils/my_print.dart';
 
 import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../common/components/instancy_ui_actions/bottomsheet_drager.dart';
-import 'lens_screen_content_card.dart';
 
 class LensCoursesBottomsheetWidget extends StatefulWidget {
   final List<CourseDTOModel> contents;
   final bool isLoadingContents;
   final DraggableScrollableController? scrollController;
-  final void Function(CourseDTOModel model)? onMoreButtonTap;
+  final Widget Function(CourseDTOModel model)? contentBuilder;
 
   const LensCoursesBottomsheetWidget({
     super.key,
     required this.contents,
     this.isLoadingContents = false,
     this.scrollController,
-    this.onMoreButtonTap,
+    this.contentBuilder,
   });
 
   @override
@@ -85,11 +84,11 @@ class _LensCoursesBottomsheetWidgetState extends State<LensCoursesBottomsheetWid
                           itemBuilder: (BuildContext context, int index) {
                             CourseDTOModel model = widget.contents[index];
 
-                            return LensScreenContentCard(
-                              model: model,
-                              onMoreButtonTap: widget.onMoreButtonTap,
-                              isShowARVRLaunch: false,
-                            );
+                            if (widget.contentBuilder != null) {
+                              return widget.contentBuilder!(model);
+                            } else {
+                              return const SizedBox();
+                            }
                           },
                         ),
                     ],

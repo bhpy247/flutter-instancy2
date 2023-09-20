@@ -1,3 +1,5 @@
+import 'package:flutter_instancy_2/configs/app_constants.dart';
+
 class CourseLaunchModel {
   int ContentTypeId;
   int MediaTypeId;
@@ -13,6 +15,7 @@ class CourseLaunchModel {
   String JWVideoKey;
   String ActivityId;
   String ActualStatus;
+  String arVrContentLaunchTypes;
   bool bit5;
 
   CourseLaunchModel({
@@ -30,6 +33,7 @@ class CourseLaunchModel {
     this.JWVideoKey = "",
     this.ActivityId = "",
     this.ActualStatus = "",
+    this.arVrContentLaunchTypes = ARVRContentLaunchTypes.launchInAR,
     this.bit5 = false,
   });
 }

@@ -28,6 +28,11 @@ class MainScreenDrawer extends StatelessWidget {
 
     List<NativeMenuModel> allMenusList = appProvider.getMenuModelsList();
 
+    List<NativeMenuModel> finalMenusList = menusList.where((NativeMenuModel menuModel) {
+      // return true;
+      return ["my learning", "catalog", "learning catalog", "classroom events", "event catalog", "profile", "my profile", "messages"].contains(menuModel.displayname.toLowerCase());
+    }).toList();
+
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.7,
       // backgroundColor: themeData.primaryColor,
@@ -41,12 +46,12 @@ class MainScreenDrawer extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 0),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: menusList.length,
+                itemCount: finalMenusList.length,
                 itemBuilder: (BuildContext context, int index) {
                   return getSingleMenuItem(
                     context: context,
                     themeData: themeData,
-                    nativeMenuModel: menusList[index],
+                    nativeMenuModel: finalMenusList[index],
                     allMenusList: allMenusList,
                     index: index,
                   );
@@ -69,7 +74,6 @@ class MainScreenDrawer extends StatelessWidget {
     /*if(!AppConfigurationOperations(appProvider: appProvider).checkMenuAvailable(menuId: nativeMenuModel.menuid)) {
       return const SizedBox();
     }*/
-    String icon = nativeMenuModel.image;
 
     List<Widget> childWidgetsList = buildChildMenusList(
       context: context,
@@ -80,6 +84,14 @@ class MainScreenDrawer extends StatelessWidget {
     AppThemeProvider appThemeProvider = Provider.of<AppThemeProvider>(context, listen: false);
 
     bool isMenuSelected = mainScreenProvider.getAppBarTitle() == nativeMenuModel.displayname;
+
+    IconData iconData = IconDataSolid(int.parse('0xf02d'));
+    if (nativeMenuModel.image.isNotEmpty) {
+      int? codePoint = int.tryParse('0x${nativeMenuModel.image}');
+      if (codePoint != null) iconData = IconDataSolid(codePoint);
+    } else if (nativeMenuModel.menuIconData != null) {
+      iconData = nativeMenuModel.menuIconData!;
+    }
 
     return Theme(
       data: themeData.copyWith(
@@ -114,11 +126,7 @@ class MainScreenDrawer extends StatelessWidget {
         title: Row(
           children: [
             Icon(
-              (icon.isNotEmpty)
-                  ? icon.contains("-")
-                      ? IconDataSolid(int.parse('0x${"f02d"}'))
-                      : IconDataSolid(int.parse('0x$icon'))
-                  : IconDataSolid(int.parse('0x${"f02d"}')),
+              iconData,
               color: isMenuSelected ? themeData.primaryColor : null,
             ),
             const SizedBox(width: 15),
