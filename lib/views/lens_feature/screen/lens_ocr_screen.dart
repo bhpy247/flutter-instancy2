@@ -523,6 +523,7 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
     if (isSuccess) {
       model.AddLink = "";
       model.ViewLink = "Y";
+      model.isContentEnrolled = "true";
     }
   }
 

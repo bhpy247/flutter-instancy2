@@ -80,6 +80,7 @@ class MainScreenDrawer extends StatelessWidget {
       nativeMenuModel: nativeMenuModel,
       allMenusList: allMenusList,
     );
+    // MyPrint.printOnConsole("childWidgetsList length for ${nativeMenuModel.displayname}:${childWidgetsList.length}");
 
     AppThemeProvider appThemeProvider = Provider.of<AppThemeProvider>(context, listen: false);
 
@@ -117,12 +118,7 @@ class MainScreenDrawer extends StatelessWidget {
             Navigator.pop(context);
           }
         },
-        trailing: childWidgetsList.isEmpty
-            ? Icon(
-                Icons.arrow_drop_down,
-                color: appThemeProvider.getInstancyThemeColors().menuBGColor.getColor(),
-              )
-            : const Icon(Icons.keyboard_arrow_down),
+        trailing: childWidgetsList.isEmpty ? const SizedBox() : const Icon(Icons.keyboard_arrow_down),
         title: Row(
           children: [
             Icon(
@@ -138,11 +134,7 @@ class MainScreenDrawer extends StatelessWidget {
             ),
           ],
         ),
-        children: <Widget>[
-          Column(
-            children: childWidgetsList,
-          )
-        ],
+        children: childWidgetsList,
       ),
     );
   }

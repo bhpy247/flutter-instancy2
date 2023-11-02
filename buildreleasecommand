@@ -51,6 +51,26 @@ To Build qalearning Build Debug   :- flutter build apk --debug -t lib/main-qalea
 To Run qalearning Build Release   :- flutter run --release -t lib/main-qalearning.dart --flavor qalearning
 To Run qalearning Build Debug     :- flutter run --debug -t lib/main-qalearning.dart --flavor qalearning
 
+7) qalearning2
+
+To Build qalearning Build Release :- flutter build apk --release -t lib/main-qalearning.dart --flavor qalearning2 --no-tree-shake-icons
+To Build qalearning Build Debug   :- flutter build apk --debug -t lib/main-qalearning.dart --flavor qalearning2 --no-tree-shake-icons
+To Run qalearning Build Release   :- flutter run --release -t lib/main-qalearning.dart --flavor qalearning2
+To Run qalearning Build Debug     :- flutter run --debug -t lib/main-qalearning.dart --flavor qalearning2
+
+
+//To Build for ios
+1) modify bundle id in xcode
+2) modify Version Name in xcode
+3) modify Build Version Code in xcode
+4) modify app name in xcode
+5) modify app name in info.plist
+6) modify GoogleService-Info.plist in ios/Runner according to BundleId
+7) modify App Logo icons
+8) When build starts, check for pods that required Development Team, if not assigned, then assign. This has to be done before build completes.
+9) Run Xcode/Product/Archive
+10) Distribute that on TestFlight
+
 //TO Build For Web
 flutter build web --release -t lib/main-web.dart --no-tree-shake-icons --web-renderer canvaskit
 
@@ -72,6 +92,7 @@ flutter pub run flutter_launcher_icons:main
 //For IOS Apps Name and Package Name
 Instancy : com.instancy.instancyLearningMarket
 Enterprise learning : com.instancy.enterpriseapp
+QA Learning : com.instancy.qalearning2
 
 firebase hosting:channel:deploy preview_name
 

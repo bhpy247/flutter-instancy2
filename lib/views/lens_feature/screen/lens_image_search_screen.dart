@@ -567,6 +567,7 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
     if (isSuccess) {
       model.AddLink = "";
       model.ViewLink = "Y";
+      model.isContentEnrolled = "true";
     }
   }
 

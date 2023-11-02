@@ -336,6 +336,7 @@ class _SurfaceTrackingKeywordSearchScreenState extends State<SurfaceTrackingKeyw
     if (isSuccess) {
       model.AddLink = "";
       model.ViewLink = "Y";
+      model.isContentEnrolled = "true";
     }
   }
 

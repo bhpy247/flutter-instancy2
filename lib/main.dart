@@ -8,8 +8,8 @@ void main() async {
   await runErrorSafeApp(
     () => runApp(
       MyApp(
-        mainSiteUrl: ClientUrls.upgradedEnterpriseClientUrl,
-        appAuthURL: ClientUrls.getAuthUrl(ClientUrls.upgradedEnterpriseClientUrl),
+        mainSiteUrl: ClientUrls.qaLearningClientUrl,
+        appAuthURL: ClientUrls.getAuthUrl(ClientUrls.qaLearningClientUrl),
         splashScreenLogo: "assets/images/playgroundlogo.png",
       ),
     ),

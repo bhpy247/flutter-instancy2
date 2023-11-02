@@ -28,8 +28,9 @@ class CatalogUIActionParameterModel {
   final String AddToWishlist;
   final String RemoveFromWishList;
   final String RelatedContentLink;
-  final String ShareToRecommend;
   final String IsRelatedcontent;
+  final String ShareToRecommend;
+  final String ContentName;
 
   const CatalogUIActionParameterModel({
     this.objectTypeId = 0,
@@ -62,6 +63,7 @@ class CatalogUIActionParameterModel {
     this.RemoveFromWishList = "",
     this.RelatedContentLink = "",
     this.IsRelatedcontent = "",
-    this.ShareToRecommend = ""
+    this.ShareToRecommend = "",
+    this.ContentName = "",
   });
 }

@@ -132,6 +132,16 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> {
       shouldOverrideUrlLoading: (InAppWebViewController controller, NavigationAction navigationAction) async {
         return NavigationActionPolicy.ALLOW;
       },
+      onPermissionRequest: (InAppWebViewController controller, PermissionRequest request) async {
+        MyPrint.printOnConsole("onPermissionRequest called for Request:${request.resources}");
+
+        return PermissionResponse(
+          action: PermissionResponseAction.PROMPT,
+          resources: [
+            PermissionResourceType.CAMERA_AND_MICROPHONE,
+          ],
+        );
+      },
     );
   }
 }

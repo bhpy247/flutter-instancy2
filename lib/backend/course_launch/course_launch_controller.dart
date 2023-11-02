@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart' as inAppWebview;
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
@@ -715,6 +716,11 @@ class CourseLaunchController {
           pdfUrl: launchUrl,
           isNetworkPDF: true,
         ),
+      );
+    } else if (AppConfigurationOperations.isARContent(contentTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeId)) {
+      inAppWebview.ChromeSafariBrowser browser = inAppWebview.ChromeSafariBrowser();
+      await browser.open(
+        url: inAppWebview.WebUri(launchUrl),
       );
     }
     /*else if (model.MediaTypeId == InstancyMediaTypes.video && model.JWVideoKey.isEmpty) {

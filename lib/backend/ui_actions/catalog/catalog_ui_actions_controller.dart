@@ -380,6 +380,7 @@ class CatalogUIActionsController {
       RemoveFromWishList: catalogCourseDTOModel.RemoveFromWishList,
       RelatedContentLink: catalogCourseDTOModel.RelatedContentLink,
       IsRelatedcontent: catalogCourseDTOModel.IsRelatedcontent,
+      ContentName: catalogCourseDTOModel.ContentName,
     );
   }
 
@@ -394,31 +395,30 @@ class CatalogUIActionsController {
   }) sync* {
     // MyPrint.printOnConsole("getInstancyUIActionModelListFromInstancyContentActionsEnumList called with Actions:$actions");
     // MyPrint.printOnConsole("isContentEnrolled:$isContentEnrolled");
-    if([ViewTypesForContent.Subscription, ViewTypesForContent.ECommerce].contains(viewType)) {
-    // if(true) {
-      if(actions.contains(InstancyContentActionsEnum.View)) {
-        if(!isContentEnrolled) {
-          actions[actions.indexOf(InstancyContentActionsEnum.View)] = viewType == ViewTypesForContent.Subscription ? InstancyContentActionsEnum.AddToMyLearning : InstancyContentActionsEnum.Buy;
-        }
-      }
-      else if(actions.contains(InstancyContentActionsEnum.AddToMyLearning) || actions.contains(InstancyContentActionsEnum.Buy)) {
-        if(isContentEnrolled) {
-          if(actions.contains(InstancyContentActionsEnum.AddToMyLearning)) {
-            actions[actions.indexOf(InstancyContentActionsEnum.AddToMyLearning)] = InstancyContentActionsEnum.View;
-          }
-          if(actions.contains(InstancyContentActionsEnum.Buy)) {
-            actions[actions.indexOf(InstancyContentActionsEnum.Buy)] = InstancyContentActionsEnum.View;
-          }
-        }
-      }
-    }
 
-    if(objectTypeId == InstancyObjectTypes.events) {
-      if(!isContentEnrolled) {
-        // if(actions.contains(InstancyContentActionsEnum.Details)) actions.remove(InstancyContentActionsEnum.Details);
+    if (actions.contains(InstancyContentActionsEnum.View)) {
+      if (!isContentEnrolled && [ViewTypesForContent.Subscription, ViewTypesForContent.ECommerce].contains(viewType)) {
+        actions[actions.indexOf(InstancyContentActionsEnum.View)] = viewType == ViewTypesForContent.Subscription ? InstancyContentActionsEnum.AddToMyLearning : InstancyContentActionsEnum.Buy;
       }
-      else {
-        if(actions.contains(InstancyContentActionsEnum.Enroll)) actions.remove(InstancyContentActionsEnum.Enroll);
+    } else if (actions.contains(InstancyContentActionsEnum.AddToMyLearning) || actions.contains(InstancyContentActionsEnum.Buy) || actions.contains(InstancyContentActionsEnum.Enroll)) {
+      if (isContentEnrolled) {
+        if (actions.contains(InstancyContentActionsEnum.AddToMyLearning)) {
+          if (!actions.contains(InstancyContentActionsEnum.View)) {
+            actions[actions.indexOf(InstancyContentActionsEnum.AddToMyLearning)] = InstancyContentActionsEnum.View;
+          } else {
+            actions.remove(InstancyContentActionsEnum.AddToMyLearning);
+          }
+        }
+        if (actions.contains(InstancyContentActionsEnum.Buy)) {
+          if (!actions.contains(InstancyContentActionsEnum.View)) {
+            actions[actions.indexOf(InstancyContentActionsEnum.Buy)] = InstancyContentActionsEnum.View;
+          } else {
+            actions.remove(InstancyContentActionsEnum.Buy);
+          }
+        }
+        if (actions.contains(InstancyContentActionsEnum.Enroll)) {
+          actions.remove(InstancyContentActionsEnum.Enroll);
+        }
       }
     }
     // MyPrint.printOnConsole("final actions:$actions");

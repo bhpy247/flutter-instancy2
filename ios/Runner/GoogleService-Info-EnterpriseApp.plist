@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>639139368781-u8hvum7e0bc1o8ntg20lb2r1dfqvgp2u.apps.googleusercontent.com</string>
+	<string>639139368781-q204c331l1pccu75lume4opkjueidivl.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.639139368781-u8hvum7e0bc1o8ntg20lb2r1dfqvgp2u</string>
+	<string>com.googleusercontent.apps.639139368781-q204c331l1pccu75lume4opkjueidivl</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>639139368781-5nptlij2nfuj915bu7rmqts7cc8ttjp2.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.instancy.qalearning2</string>
+	<string>com.instancy.enterpriseapp</string>
 	<key>PROJECT_ID</key>
 	<string>instancy-f241d</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,7 +31,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:639139368781:ios:71f3c8ea7cb7b58c447104</string>
+	<string>1:639139368781:ios:91c258b64b5a2d45447104</string>
 	<key>DATABASE_URL</key>
 	<string>https://instancy-f241d.firebaseio.com</string>
 </dict>
