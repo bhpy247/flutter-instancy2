@@ -80,11 +80,30 @@ class _SurfaceTrackingKeywordSearchScreenState extends State<SurfaceTrackingKeyw
             },
       onBuyTap: primaryAction == InstancyContentActionsEnum.Buy
           ? null
-          : () {
-        if (isSecondaryAction) Navigator.pop(context);
+          : () async {
+              if (isSecondaryAction) Navigator.pop(context);
 
-        catalogController.buyCourse(context: context);
-      },
+              isLoading = true;
+              mySetState();
+
+              bool isBuySuccess = await catalogController.buyCourse(
+                context: context,
+                model: model,
+                ComponentID: componentId,
+                ComponentInsID: componentInstanceId,
+                isWaitForPostPurchaseProcesses: true,
+              );
+
+              isLoading = false;
+              mySetState();
+
+              if (isBuySuccess) {
+                model.AddLink = "";
+                model.BuyNowLink = "";
+                model.ViewLink = "Y";
+                model.isContentEnrolled = "true";
+              }
+            },
       onEnrollTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 

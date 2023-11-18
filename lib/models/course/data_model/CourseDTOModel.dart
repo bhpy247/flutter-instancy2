@@ -175,6 +175,8 @@ class CourseDTOModel {
   String DownloadLink = "";
   String QRImageName = "";
   String UserProfileImagePath = "";
+  String GoogleProductId = "";
+  String ItunesProductId = "";
   int WaitListLimit = 0;
   int WaitListEnrolls = 0;
   int FilterId = 0;
@@ -391,6 +393,8 @@ class CourseDTOModel {
     this.RedirectinstanceID = "",
     this.DownloadLink = "",
     this.QRImageName = "",
+    this.GoogleProductId = "",
+    this.ItunesProductId = "",
     this.WaitListLimit = 0,
     this.WaitListEnrolls = 0,
     this.FilterId = 0,
@@ -627,6 +631,8 @@ class CourseDTOModel {
     QRImageName = ParsingHelper.parseStringMethod(map["QRImageName"]);
     SkinID = ParsingHelper.parseStringMethod(map["SkinID"]);
     SampleContentLink = ParsingHelper.parseStringMethod(map["SampleContentLink"]);
+    GoogleProductId = ParsingHelper.parseStringMethod(map["GoogleProductId"]);
+    ItunesProductId = ParsingHelper.parseStringMethod(map["ItunesProductId"]);
     PercentCompleted = ParsingHelper.parseDoubleMethod(map["PercentCompleted"]);
     WaitListLimit = ParsingHelper.parseIntMethod(map['WaitListLimit']);
     WaitListEnrolls = ParsingHelper.parseIntMethod(map['WaitListEnrolls']);
@@ -850,6 +856,8 @@ class CourseDTOModel {
       "RemoveLink": RemoveLink,
       "RatingLink": RatingLink,
       "CancelOrderData": CancelOrderData,
+      "GoogleProductId": GoogleProductId,
+      "ItunesProductId": ItunesProductId,
       "PercentCompleted": PercentCompleted,
       "WaitListLimit": WaitListLimit,
       "WaitListEnrolls": WaitListEnrolls,

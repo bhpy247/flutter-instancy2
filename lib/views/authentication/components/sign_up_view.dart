@@ -19,6 +19,8 @@ class SignUpView extends StatelessWidget {
   final bool isSignUpInProgress;
   final void Function() signUp;
 
+  static ThemeData? themeData;
+
   const SignUpView({
     Key? key,
     this.profileConfigDataList = const [],
@@ -31,14 +33,14 @@ class SignUpView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData themeData = Theme.of(context);
+    themeData = Theme.of(context);
 
     return Consumer<AppProvider>(
       builder: (BuildContext context, AppProvider appProvider, Widget? child) {
         List<Widget> children = getFieldsWidgetsList(profileConfigDataList: profileConfigDataList, appProvider: appProvider).toList();
 
         if (children.isNotEmpty) {
-          children.add(getSignUPButton(themeData: themeData));
+          children.add(getSignUPButton());
         }
 
         return Form(
@@ -96,6 +98,7 @@ class SignUpView extends StatelessWidget {
             controller: uiControlModel.textEditingController,
             labelName: uiControlModel.displayText,
             obscureText: uiControlModel.isPassword && !uiControlModel.isPassVisible,
+            enabled: !isSignUpInProgress,
             suffixWidget: uiControlModel.isPassword
                 ? InkWell(
                     onTap: () {
@@ -114,9 +117,11 @@ class SignUpView extends StatelessWidget {
             onChanged: (String text) {
               uiControlModel.value = text;
             },
-            inputFormatters: uiControlModel.isPassword || uiControlModel.isEmail ? [
-              FilteringTextInputFormatter.deny(" "),
-            ] : null,
+            inputFormatters: uiControlModel.isPassword || uiControlModel.isEmail
+                ? [
+                    FilteringTextInputFormatter.deny(" "),
+                  ]
+                : null,
           ),
         ),
         if (uiControlModel.isPassword)
@@ -126,6 +131,7 @@ class SignUpView extends StatelessWidget {
               controller: uiControlModel.confirmPasswordTextEditingController,
               labelName: "${appProvider.localStr.signupconfirmpasswordTitleConfirmpasswordtitle}${uiControlModel.isRequired ? " *" : ""}",
               obscureText: !uiControlModel.isConfPassVisible,
+              enabled: !isSignUpInProgress,
               suffixWidget: InkWell(
                 onTap: () {
                   uiControlModel.isConfPassVisible = !uiControlModel.isConfPassVisible;
@@ -150,7 +156,7 @@ class SignUpView extends StatelessWidget {
 
   //endregion
 
-  Widget getSignUPButton({required ThemeData themeData}) {
+  Widget getSignUPButton() {
     return CommonButton(
       onPressed: () async {
         signUp();
@@ -159,13 +165,13 @@ class SignUpView extends StatelessWidget {
       child: isSignUpInProgress
           ? CommonLoader(
               size: 22,
-              color: themeData.colorScheme.onPrimary,
+              color: themeData?.colorScheme.onPrimary,
               lineWidth: 2,
             )
           : Text(
-              "Sign Up",
-              style: themeData.textTheme.titleSmall?.copyWith(
-                color: themeData.colorScheme.onPrimary,
+        "Sign Up",
+              style: themeData?.textTheme.titleSmall?.copyWith(
+                color: themeData?.colorScheme.onPrimary,
               ),
             ),
     );
@@ -176,6 +182,7 @@ class SignUpView extends StatelessWidget {
     TextEditingController? controller,
     String labelName = "",
     bool obscureText = false,
+    bool enabled = true,
     Widget? suffixWidget,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
@@ -190,6 +197,8 @@ class SignUpView extends StatelessWidget {
       labelText: labelName,
       maxLength: TextField.noMaxLength,
       obscureText: obscureText,
+      enabled: enabled,
+      disabledColor: themeData?.textTheme.labelMedium?.color,
       suffixWidget: suffixWidget,
       keyboardType: keyboardType,
       validator: validator,

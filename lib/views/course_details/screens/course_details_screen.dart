@@ -189,10 +189,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             },
       onBuyTap: primaryAction == InstancyContentActionsEnum.Buy
           ? null
-          : () {
+          : () async {
               if (isSecondaryAction) Navigator.pop(context);
 
-              catalogController.buyCourse(context: context);
+              buyCourse(model: model);
             },
       onEnrollTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
@@ -636,6 +636,16 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     required CourseDTOModel model,
   }) {
     return CourseDetailsUIActionCallbackModel(
+      onBuyTap: () async {
+        await buyCourse(model: model);
+      },
+      onAddToMyLearningTap: () async {
+        await addContentToMyLearning(
+          contentIdToAddToMyLearning: model.ContentID,
+          contentIdToLoadInScreen: model.ContentID,
+          hasPrerequisites: model.hasPrerequisiteContents(),
+        );
+      },
       onEnrollTap: () async {
         await addContentToMyLearning(
           contentIdToAddToMyLearning: model.ContentID,
@@ -671,13 +681,6 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
       },
       onPlayTap: () {
         onContentLaunchTap(model: model);
-      },
-      onAddToMyLearningTap: () async {
-        await addContentToMyLearning(
-          contentIdToAddToMyLearning: model.ContentID,
-          contentIdToLoadInScreen: model.ContentID,
-          hasPrerequisites: model.hasPrerequisiteContents(),
-        );
       },
     );
   }
@@ -821,6 +824,33 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
     if (isSuccess) {
       contentId = contentIdToLoadInScreen;
+      futureGetData = getContentDetailsData();
+      isRefreshOtherPageWhenPop = true;
+    }
+
+    mySetState();
+  }
+
+  Future<void> buyCourse({
+    required CourseDTOModel model,
+  }) async {
+    MyPrint.printOnConsole("CourseDetailScreen().buyCourse() called for content:${model.ContentID}");
+
+    isLoading = true;
+    mySetState();
+
+    bool isBuySuccess = await catalogController.buyCourse(
+      context: context,
+      model: model,
+      ComponentID: componentId,
+      ComponentInsID: componentInstanceId,
+      isWaitForPostPurchaseProcesses: true,
+    );
+
+    isLoading = false;
+
+    if (isBuySuccess) {
+      contentId = model.ContentID;
       futureGetData = getContentDetailsData();
       isRefreshOtherPageWhenPop = true;
     }
@@ -1269,7 +1299,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
           ),
         )
         .toList();
-    MyPrint.printOnConsole("Primary options:$options");
+    MyPrint.printOnConsole("Primary options:${options.map((e) => e.actionsEnum).toList()}");
 
     InstancyUIActionModel? primaryAction = options.firstElement;
     InstancyContentActionsEnum? primaryActionEnum = primaryAction?.actionsEnum;

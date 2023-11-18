@@ -87,19 +87,18 @@ class _ForgotPasswordState extends State<ForgotPassword> with MySafeState {
                   isLoading = true;
                   mySetState();
 
-                  bool isSent = await AuthenticationController(authenticationProvider: Provider.of<AuthenticationProvider>(context,listen: false)).forgotPassword(email: emailController.text);
+                  bool isSent = await AuthenticationController(provider: Provider.of<AuthenticationProvider>(context, listen: false)).forgotPassword(email: emailController.text);
 
                   isLoading = false;
                   mySetState();
 
-                  if(isSent) {
-                    if(pageMounted && context.mounted) {
+                  if (isSent) {
+                    if (pageMounted && context.mounted) {
                       MyToast.showSuccess(context: context, msg: "The password reset link is sent to your email address.");
                       Navigator.pop(context);
                     }
-                  }
-                  else {
-                    if(pageMounted && context.mounted) {
+                  } else {
+                    if (pageMounted && context.mounted) {
                       MyToast.showError(context: context, msg: "The password reset link couldn't sent.");
                     }
                   }

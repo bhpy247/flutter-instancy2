@@ -116,12 +116,15 @@ abstract class DatePresentation {
     DateTime new1 = DateTime(dateTime1.year, dateTime1.month, dateTime1.day);
     DateTime new2 = DateTime(dateTime2.year, dateTime2.month, dateTime2.day);
 
-    if(new1.day == new2.day && new1.month == new2.month && new1.year == new2.year) {
+    if (new1.day == new2.day && new1.month == new2.month && new1.year == new2.year) {
       return true;
-    }
-    else {
+    } else {
       return false;
     }
+  }
+
+  static bool isSameMonth(DateTime dateTime1, DateTime dateTime2) {
+    return dateTime1.month == dateTime2.month && dateTime1.year == dateTime2.year;
   }
 
   static int getDifferenceBetweenDatesInDays(DateTime dateTime1, DateTime dateTime2) {
@@ -129,10 +132,9 @@ abstract class DatePresentation {
     DateTime new2 = DateTime(dateTime2.year, dateTime2.month, dateTime2.day);
 
     Duration duration = new1.difference(new2);
-    if(duration.inDays.isNegative) {
+    if (duration.inDays.isNegative) {
       return duration.inDays * -1;
-    }
-    else {
+    } else {
       return duration.inDays;
     }
   }

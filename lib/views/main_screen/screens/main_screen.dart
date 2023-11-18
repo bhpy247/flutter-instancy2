@@ -36,6 +36,7 @@ import '../../home/components/home_recommended_leaarning_resources_slider.dart';
 import '../../home/components/static_webpage_widget.dart';
 import '../../my_learning/screens/my_learning_screen.dart';
 import '../../profile/screens/user_profile_screen.dart';
+import '../../settings/screens/settings_main_screen.dart';
 import '../components/main_screen_bottombar.dart';
 import '../components/main_screen_drawer.dart';
 
@@ -428,6 +429,8 @@ class _MainScreenState extends State<MainScreen> {
       return const MyLearningPlus();
     } else if (model.componentid == InstancyComponents.UserMessages) {
       return const MessageScreen();
+    } else if (model.componentid == InstancyComponents.UserSettings) {
+      return const SettingsMainScreen();
     } else {
       return const SizedBox();
     }

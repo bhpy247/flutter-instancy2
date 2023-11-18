@@ -4,6 +4,7 @@ import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_controller.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
+import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/share/share_provider.dart';
@@ -18,6 +19,7 @@ import '../../backend/content_review_ratings/content_review_ratings_provider.dar
 import '../../backend/event/event_provider.dart';
 import '../../backend/event_track/event_track_provider.dart';
 import '../../backend/home/home_provider.dart';
+import '../../backend/in_app_purchase/in_app_purchase_provider.dart';
 import '../../backend/instabot/instabot_provider.dart';
 import '../../backend/navigation/navigation_controller.dart';
 import '../../backend/profile/profile_provider.dart';
@@ -73,6 +75,8 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<EventTrackProvider>(create: (_) => EventTrackProvider()),
         ChangeNotifierProvider<InstaBotProvider>(create: (_) => InstaBotProvider()),
         ChangeNotifierProvider<MessageProvider>(create: (_) => MessageProvider()),
+        ChangeNotifierProvider<MembershipProvider>(create: (_) => MembershipProvider()),
+        ChangeNotifierProvider<InAppPurchaseProvider>(create: (_) => InAppPurchaseProvider()),
       ],
       child: const MainApp(),
     );

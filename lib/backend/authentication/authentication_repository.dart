@@ -1,7 +1,7 @@
 import 'package:flutter_instancy_2/api/api_call_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/email_login_response_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/forgot_password_response_model.dart';
-import 'package:flutter_instancy_2/models/authentication/response_model/sign_up_response_model.dart';
+import 'package:flutter_instancy_2/models/authentication/response_model/mobile_create_sign_up_response_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/signup_field_response_model.dart';
 import 'package:flutter_instancy_2/models/common/app_error_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
@@ -201,7 +201,7 @@ class AuthenticationRepository {
     }
   }
 
-  Future<DataResponseModel<SignupResponseModel>> signUpUser({required String val}) async {
+  Future<DataResponseModel<MobileCreateSignUpResponseModel>> signUpUser({required String val}) async {
     try {
       ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
@@ -212,13 +212,13 @@ class AuthenticationRepository {
 
       ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
         restCallType: RestCallType.simplePostCall,
-        parsingType: ModelDataParsingType.signupResponseModel,
+        parsingType: ModelDataParsingType.MobileCreateSignUpResponseModel,
         url: apiEndpoints.apiSignUpUser(locale: apiController.apiDataProvider.getLocale()),
         isAuthenticatedApiCall: false,
         requestBody: requestBody,
       );
 
-      DataResponseModel<SignupResponseModel> apiResponseModel = await apiController.callApi<SignupResponseModel>(
+      DataResponseModel<MobileCreateSignUpResponseModel> apiResponseModel = await apiController.callApi<MobileCreateSignUpResponseModel>(
         apiCallModel: apiCallModel,
       );
       MyPrint.printOnConsole("Response data of the signUpUser: ${apiResponseModel.data}");
@@ -228,7 +228,7 @@ class AuthenticationRepository {
     catch (e, s) {
       MyPrint.printOnConsole("Error in AuthenticationRepository.loginWithEmailAndPassword():$e");
       MyPrint.printOnConsole(s);
-      return DataResponseModel<SignupResponseModel>(
+      return DataResponseModel<MobileCreateSignUpResponseModel>(
         appErrorModel: AppErrorModel(
           exception: e as Exception,
           stackTrace: s,

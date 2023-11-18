@@ -1,4 +1,5 @@
 class EventCatalogUIActionCallbackModel {
+  void Function()? onBuyTap;
   void Function()? onEnrollTap;
   void Function()? onJoinTap;
   void Function()? onDetailsTap;
@@ -19,6 +20,7 @@ class EventCatalogUIActionCallbackModel {
   void Function()? onShareTap;
 
   EventCatalogUIActionCallbackModel({
+    this.onBuyTap,
     this.onEnrollTap,
     this.onJoinTap,
     this.onViewQRCodeTap,

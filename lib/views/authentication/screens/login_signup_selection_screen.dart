@@ -1,7 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
-import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart';
+import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/models/membership/data_model/membership_plan_details_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
@@ -34,6 +36,45 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
   final PageController _pageController = PageController();
 
   late AppProvider appProvider;
+
+  Future<void> signUp() async {
+    MembershipPlanDetailsModel? membershipPlanDetailsModel;
+
+    if (appProvider.appSystemConfigurationModel.enableMembership) {
+      dynamic value = await NavigationController.navigateToMembershipSelectionScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: MembershipSelectionScreenNavigationArguments(
+          membershipProvider: context.read<MembershipProvider>(),
+        ),
+      );
+
+      MyPrint.printOnConsole("value from MembershipSelectionScreen:$value");
+
+      if (value is! MembershipPlanDetailsModel) {
+        return;
+      }
+
+      membershipPlanDetailsModel = value;
+    }
+
+    if (context.mounted) {
+      NavigationController.navigateToLoginScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: LoginScreenNavigationArguments(
+          selectedSectionIndex: 1,
+          isSignInEnabled: false,
+          isSignUpEnabled: appProvider.appSystemConfigurationModel.selfRegistrationAllowed,
+          membershipPlanDetailsModel: membershipPlanDetailsModel,
+        ),
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -127,15 +168,23 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
                 themeData.primaryColor,
                 isDarkBackground: true,
                 onPressed: () {
-                  NavigationController.navigateToLoginScreen(context: context, selectedSectionIndex: 0);
+                  NavigationController.navigateToLoginScreen(
+                    navigationOperationParameters: NavigationOperationParameters(
+                      context: context,
+                      navigationType: NavigationType.pushNamed,
+                    ),
+                    arguments: const LoginScreenNavigationArguments(
+                      selectedSectionIndex: 0,
+                      isSignInEnabled: true,
+                      isSignUpEnabled: false,
+                    ),
+                  );
                 },
               ),
             ),
             Expanded(child: Container()),
             signUpText(),
-            const SizedBox(
-              height: 10,
-            )
+            const SizedBox(height: 10)
           ],
         )
       ],
@@ -143,7 +192,7 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
   }
 
   Widget getCircles() {
-    if(circleImageUrl.isNotEmpty) {
+    if (circleImageUrl.isNotEmpty) {
       return CommonCachedNetworkImage(
         imageUrl: circleImageUrl,
         width: MediaQuery.of(context).size.width,
@@ -154,8 +203,7 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
           child: const SizedBox(),
         ),
       );
-    }
-    else {
+    } else {
       return Image.asset(
         circleUrl,
         width: MediaQuery.of(context).size.width,
@@ -231,7 +279,7 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
       skipButton: Container(),
       itemBuilder: ({required board.OnBoardModel onBoardModel}) {
         Widget imageWidget;
-        if(onBoardModel.imgUrl.startsWith("http://") || onBoardModel.imgUrl.startsWith("https://")) {
+        if (onBoardModel.imgUrl.startsWith("http://") || onBoardModel.imgUrl.startsWith("https://")) {
           MyPrint.printOnConsole("onBoardModel.imgUrl:${onBoardModel.imgUrl}");
 
           imageWidget = CommonCachedNetworkImage(
@@ -241,8 +289,7 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
             fit: BoxFit.contain,
             placeholder: (_, __) => const CommonLoader(isCenter: true),
           );
-        }
-        else {
+        } else {
           imageWidget = Image.asset(
             onBoardModel.imgUrl,
             width: 228,
@@ -256,9 +303,13 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              const SizedBox(height: 30,),
+              const SizedBox(
+                height: 30,
+              ),
               imageWidget,
-              const SizedBox(height: 20,),
+              const SizedBox(
+                height: 20,
+              ),
               // Container(
               //   margin: const EdgeInsets.symmetric(horizontal: 12),
               //   child: Text(
@@ -292,13 +343,15 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
   }
 
   Widget signUpText() {
+    if (!appProvider.appSystemConfigurationModel.selfRegistrationAllowed) return const SizedBox();
+
     return RichText(
       text: TextSpan(text: "Don’t have an account? ", style: const TextStyle(fontSize: 16, color: Colors.black), children: [
         TextSpan(
           text: appProvider.localStr.loginButtonSignupbutton,
           recognizer: TapGestureRecognizer()
             ..onTap = () {
-              NavigationController.navigateToLoginScreen(context: context, selectedSectionIndex: 1);
+              signUp();
             },
           style: TextStyle(
             fontSize: 16,

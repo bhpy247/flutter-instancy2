@@ -174,16 +174,16 @@ class ProfileConfigDataModel {
       }
 
       //For Password
-      if (attributeconfigid == 6) {
+      if ([UIControlTypes.passwordField].contains(uicontroltypeid)) {
         model.confirmPasswordTextEditingController = TextEditingController();
 
-        if(isrequired) {
+        if (isrequired) {
           model.validator = (String? text) {
-            if(text.checkEmpty) {
+            if (text.checkEmpty) {
               return "$displaytext cannot be empty";
             }
 
-            if(text!.length <= 2) {
+            if (text!.length <= 2) {
               return "Passwords length should be greater than or equal to 3";
             }
 

@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_instancy_2/backend/common/common_provider.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/currency_model.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_model.dart';
 
@@ -7,7 +8,16 @@ import '../../models/app_configuration_models/data_models/local_str.dart';
 import '../../models/app_configuration_models/data_models/site_configuration_model.dart';
 import '../../models/app_configuration_models/data_models/tincan_data_model.dart';
 
-class AppProvider extends ChangeNotifier {
+class AppProvider extends CommonProvider {
+  AppProvider() {
+    currencyModel = CommonProviderPrimitiveParameter<CurrencyModel?>(
+      value: null,
+      notify: notify,
+    );
+  }
+
+  late CommonProviderPrimitiveParameter<CurrencyModel?> currencyModel;
+
   //region Site Url Configuration Model
   SiteUrlConfigurationModel _siteConfigurations = SiteUrlConfigurationModel();
 
@@ -15,7 +25,7 @@ class AppProvider extends ChangeNotifier {
 
   void setSiteUrlConfigurationModel({required SiteUrlConfigurationModel value, bool isNotify = true}) {
     _siteConfigurations = value;
-    if(isNotify) notifyListeners();
+    if (isNotify) notifyListeners();
   }
   //endregion
 

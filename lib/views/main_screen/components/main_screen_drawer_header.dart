@@ -116,7 +116,7 @@ class _MainScreenDrawerHeaderWidgetState extends State<MainScreenDrawerHeaderWid
                       onTap: () {
                         AuthenticationProvider authenticationProvider = Provider.of<AuthenticationProvider>(context, listen: false);
                         AuthenticationController authenticationController = AuthenticationController(
-                          authenticationProvider: authenticationProvider,
+                          provider: authenticationProvider,
                         );
 
                         authenticationController.logout();

@@ -31,6 +31,7 @@ class EventCatalogUIActionsController {
 
   void _initializeActionsMap() {
     _actionsMap = <InstancyContentActionsEnum, EventCatalogUIActionTypeDef>{
+      InstancyContentActionsEnum.Buy: showBuy,
       InstancyContentActionsEnum.Enroll: showEnroll,
       InstancyContentActionsEnum.Details: showDetails,
       InstancyContentActionsEnum.Reschedule: showReschedule,
@@ -61,6 +62,14 @@ class EventCatalogUIActionsController {
   }
 
   bool showDetails({required EventCatalogUIActionParameterModel parameterModel}) {
+    return true;
+  }
+
+  bool showBuy({required EventCatalogUIActionParameterModel parameterModel}) {
+    if (parameterModel.BuyNowLink.isEmpty || parameterModel.ViewType != ViewTypesForContent.ECommerce) {
+      return false;
+    }
+
     return true;
   }
 
@@ -415,7 +424,16 @@ class EventCatalogUIActionsController {
       InstancyUIActionModel? model;
 
       //Primary Actions
-      if (action == InstancyContentActionsEnum.Enroll) {
+      if (action == InstancyContentActionsEnum.Buy) {
+        if (isShowAction(actionType: InstancyContentActionsEnum.Buy, parameterModel: parameterModel) && catalogUIActionCallbackModel.onBuyTap != null) {
+          model = InstancyUIActionModel(
+            text: localStr.catalogActionsheetBuyoption,
+            iconData: InstancyIcons.buy,
+            onTap: catalogUIActionCallbackModel.onBuyTap,
+            actionsEnum: InstancyContentActionsEnum.Buy,
+          );
+        }
+      } else if (action == InstancyContentActionsEnum.Enroll) {
         // MyPrint.printOnConsole("isShowAction(actionType: InstancyContentActionsEnum.AddToMyLearning, parameterModel: parameterModel):${isShowAction(actionType: InstancyContentActionsEnum.AddToMyLearning, parameterModel: parameterModel)}");
         // MyPrint.printOnConsole("showAddToMyLearning(parameterModel: parameterModel):${showAddToMyLearning(parameterModel: parameterModel)}");
         if (isShowAction(actionType: InstancyContentActionsEnum.Enroll, parameterModel: parameterModel)) {

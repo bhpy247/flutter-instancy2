@@ -91,7 +91,7 @@ class _PreRequisiteDialogueScreenState extends State<PreRequisiteDialogueScreen>
 
     return ListView.builder(
       shrinkWrap: true,
-      physics: AlwaysScrollableScrollPhysics(),
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.only(bottom: 20),
       itemCount: pathsList.length,
       itemBuilder: (BuildContext context, int index) {

@@ -1,6 +1,5 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/authentication/screens/forgot_password_screen.dart';
 import 'package:flutter_instancy_2/views/authentication/screens/login_screen.dart';
 import 'package:flutter_instancy_2/views/authentication/screens/sign_up_screen.dart';
@@ -9,6 +8,7 @@ import 'package:flutter_instancy_2/views/course_details/screens/course_details_s
 import 'package:flutter_instancy_2/views/event_track/screens/event_track_screen.dart';
 import 'package:flutter_instancy_2/views/lens_feature/screen/lens_screen.dart';
 import 'package:flutter_instancy_2/views/main_screen/screens/main_screen.dart';
+import 'package:flutter_instancy_2/views/membership/screens/membership_selection_screen.dart';
 import 'package:flutter_instancy_2/views/my_learning_plus/screens/my_learning_plus.dart';
 import 'package:flutter_instancy_2/views/profile/component/add_education_screen.dart';
 import 'package:flutter_instancy_2/views/share/recommend_to_screen.dart';
@@ -36,6 +36,8 @@ import '../../views/my_learning/screens/view_completion_certificate_screen.dart'
 import '../../views/profile/screens/add_edit_experience_screen.dart';
 import '../../views/profile/screens/user_profile_screen.dart';
 import '../../views/progress_report/screens/my_learning_content_progress_screen.dart';
+import '../../views/settings/screens/purchase_history_screen.dart';
+import '../../views/settings/screens/user_membership_details_screen.dart';
 import '../../views/share/share_with_connections_screen.dart';
 import '../../views/share/share_with_people_screen.dart';
 import 'navigation.dart';
@@ -97,13 +99,7 @@ class NavigationController {
         }
       case LoginScreen.routeName:
         {
-          Map<String, dynamic> argument = ParsingHelper.parseMapMethod(settings.arguments);
-
-          int selectedSectionIndex = ParsingHelper.parseIntMethod(argument['selectedSectionIndex'], defaultValue: 0);
-
-          page = LoginScreen(
-            selectedSectionIndex: selectedSectionIndex,
-          );
+          page = parseLoginScreen(settings: settings);
           break;
         }
       case LoginSignUpSelectionScreen.routeName:
@@ -157,7 +153,7 @@ class NavigationController {
           break;
         }
 
-      //region Filter Module
+    //region Filter Module
       case FiltersScreen.routeName:
         {
           page = parseFiltersScreen(settings: settings);
@@ -168,7 +164,7 @@ class NavigationController {
           page = parseSortingScreen(settings: settings);
           break;
         }
-      //endregion
+    //endregion
 
       case CatalogContentsListScreen.routeName:
         {
@@ -196,7 +192,7 @@ class NavigationController {
           break;
         }
 
-      //region Share Module
+    //region Share Module
       case ShareWithConnectionsScreen.routeName:
         {
           page = parseShareWithConnectionsScreen(settings: settings);
@@ -212,25 +208,25 @@ class NavigationController {
           page = parseRecommendToScreen(settings: settings);
           break;
         }
-      //endregion
+    //endregion
 
-      // region Course Details Module
+    // region Course Details Module
       case CourseDetailScreen.routeName:
         {
           page = parseCourseDetailScreen(settings: settings);
           break;
         }
-      //endregion
+    //endregion
 
-      // region Progress Report Module
+    // region Progress Report Module
       case MyLearningContentProgressScreen.routeName:
         {
           page = parseMyLearningContentProgressScreen(settings: settings);
           break;
         }
-      //endregion
+    //endregion
 
-      // region Profile Module
+    // region Profile Module
       case UserProfileScreen.routeName:
         {
           page = parseUserProfileScreen(settings: settings);
@@ -246,25 +242,25 @@ class NavigationController {
           page = parseAddEducationScreen(settings: settings);
           break;
         }
-      //endregion
+    //endregion
 
-      //region PreRequisiteScreen
+    //region PreRequisiteScreen
       case PrerequisiteScreen.routeName:
         {
           page = parsePreRequisiteScreen(settings: settings);
           break;
         }
-      //endregion
+    //endregion
 
-      //region Instabot
+    //region Instabot
       case InstaBotScreen2.routeName:
         {
           page = parseInstaBotScreen2(settings: settings);
           break;
         }
-      //endregion
+    //endregion
 
-      // region Course Launch
+    // region Course Launch
       case CourseLaunchWebViewScreen.routeName:
         {
           page = parseCourseLaunchWebViewScreen(settings: settings);
@@ -285,9 +281,9 @@ class NavigationController {
           page = parseWebViewScreen(settings: settings);
           break;
         }
-      //endregion
+    //endregion
 
-      //region Lens Feature Module
+    //region Lens Feature Module
       case LensScreen.routeName:
         {
           page = parseLensScreen(settings: settings);
@@ -299,19 +295,48 @@ class NavigationController {
           break;
         }
       //endregion
+
+      //region Membership
+      case MembershipSelectionScreen.routeName:
+        {
+          page = parseMembershipSelectionScreen(settings: settings);
+          break;
+        }
+      case UserMembershipDetailsScreen.routeName:
+        {
+          page = parseUserMembershipDetailsScreen(settings: settings);
+          break;
+        }
+      //endregion
+
+      // region Membership
+      case PurchaseHistoryScreen.routeName:
+        {
+          page = parsePurchaseHistoryScreen(settings: settings);
+          break;
+        }
+      //endregion
     }
 
-    if (page != null) {
-      return PageRouteBuilder(
-        pageBuilder: (c, a1, a2) => page!,
-        //transitionsBuilder: (c, anim, a2, child) => FadeTransition(opacity: anim, child: child),
-        transitionsBuilder: (c, anim, a2, child) => SizeTransition(sizeFactor: anim, child: child),
-        transitionDuration: const Duration(milliseconds: 0),
-        settings: settings,
-      );
-    } else {
+    if (page == null) {
       return null;
     }
+
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      return CupertinoPageRoute(
+        builder: (BuildContext context) {
+          return page!;
+        },
+      );
+    }
+
+    return PageRouteBuilder(
+      pageBuilder: (c, a1, a2) => page!,
+      //transitionsBuilder: (c, anim, a2, child) => FadeTransition(opacity: anim, child: child),
+      transitionsBuilder: (c, anim, a2, child) => SizeTransition(sizeFactor: anim, child: child),
+      transitionDuration: const Duration(milliseconds: 0),
+      settings: settings,
+    );
   }
 
   //region Parse Page From RouteSettings
@@ -326,6 +351,15 @@ class NavigationController {
     } else {
       return null;
     }
+  }
+
+  static Widget? parseLoginScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! LoginScreenNavigationArguments) {
+      return null;
+    }
+
+    return LoginScreen(arguments: argument);
   }
 
   //endregion
@@ -673,17 +707,52 @@ class NavigationController {
     return SurfaceTrackingKeywordSearchScreen(arguments: argument);
   }
 
-  //region Camera
+  //region Membership
+  static Widget? parseMembershipSelectionScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! MembershipSelectionScreenNavigationArguments) {
+      return null;
+    }
+
+    return MembershipSelectionScreen(arguments: argument);
+  }
+
+  static Widget? parseUserMembershipDetailsScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! UserMembershipDetailsScreenNavigationArguments) {
+      return null;
+    }
+
+    return UserMembershipDetailsScreen(arguments: argument);
+  }
+
+  //endregion
+
+  // region Settings
+  static Widget? parsePurchaseHistoryScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! PurchaseHistoryScreenNavigationArguments) {
+      return null;
+    }
+
+    return PurchaseHistoryScreen(arguments: argument);
+  }
 
   //endregion
   //endregion
 
   //region Navigation Methods
   //region Authentication
-  static Future<dynamic> navigateToLoginScreen({BuildContext? context, int selectedSectionIndex = 0}) async {
-    return await Navigator.pushNamed(context ?? mainNavigatorKey.currentContext!, LoginScreen.routeName, arguments: {
-      "selectedSectionIndex": selectedSectionIndex,
-    });
+  static Future<dynamic> navigateToLoginScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required LoginScreenNavigationArguments arguments,
+  }) async {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: LoginScreen.routeName,
+        arguments: arguments,
+      ),
+    );
   }
 
   static Future<dynamic> navigateToForgotPassword({
@@ -692,9 +761,9 @@ class NavigationController {
   }) async {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: ForgotPassword.routeName,
-      arguments: arguments,
-    ));
+          routeName: ForgotPassword.routeName,
+          arguments: arguments,
+        ));
   }
 
   //endregion
@@ -706,9 +775,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: AddWikiContentScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: AddWikiContentScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   //endregion
@@ -720,9 +789,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: GlobalSearchScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: GlobalSearchScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   static Future<dynamic> navigateToFiltersScreen({
@@ -731,9 +800,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: FiltersScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: FiltersScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   static Future<dynamic> navigateToSortingScreen({
@@ -742,9 +811,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: SortingScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: SortingScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   //endregion
@@ -756,9 +825,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: WishListScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: WishListScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   //endregion
@@ -770,9 +839,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: CatalogContentsListScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: CatalogContentsListScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   static Future<dynamic> navigateToCatalogSubcategoriesListScreen({
@@ -781,9 +850,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: CatalogSubcategoriesListScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: CatalogSubcategoriesListScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   //endregion
@@ -795,9 +864,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: MyLearningWaitlistScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: MyLearningWaitlistScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   static Future<dynamic> navigateToViewCompletionCertificateScreen({
@@ -806,9 +875,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: ViewCompletionCertificateScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: ViewCompletionCertificateScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   static Future<dynamic> navigateToQRCodeImageScreen({
@@ -817,9 +886,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: QRCodeImageScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: QRCodeImageScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   //endregion
@@ -831,9 +900,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: ShareWithConnectionsScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: ShareWithConnectionsScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   static Future<dynamic> navigateToShareWithPeopleScreen({
@@ -842,9 +911,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: ShareWithPeopleScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: ShareWithPeopleScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   static Future<dynamic> navigateToRecommendToScreen({
@@ -853,9 +922,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: RecommendToScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: RecommendToScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   //endregion
@@ -867,9 +936,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: MyLearningContentProgressScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: MyLearningContentProgressScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   //endregion
@@ -881,9 +950,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: CourseDetailScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: CourseDetailScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   //endregion
@@ -895,9 +964,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: UserProfileScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: UserProfileScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   static Future<dynamic> navigateToAddEditExperienceScreen({
@@ -906,9 +975,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: AddEditExperienceScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: AddEditExperienceScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   static Future<dynamic> navigateToAddEducationScreen({
@@ -917,9 +986,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: AddEducationScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: AddEducationScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   //endregion
@@ -931,9 +1000,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: PrerequisiteScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: PrerequisiteScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   //endregion
@@ -945,9 +1014,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: InstaBotScreen2.routeName,
-      arguments: arguments,
-    ));
+          routeName: InstaBotScreen2.routeName,
+          arguments: arguments,
+        ));
   }
 
   //endregion
@@ -959,9 +1028,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: CourseLaunchWebViewScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: CourseLaunchWebViewScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   static Future<dynamic> navigateToVideoLaunchScreen({
@@ -970,9 +1039,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: VideoLaunchScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: VideoLaunchScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   static Future<dynamic> navigateToPDFLaunchScreen({
@@ -981,9 +1050,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: PDFLaunchScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: PDFLaunchScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   static Future<dynamic> navigateToWebViewScreen({
@@ -992,9 +1061,9 @@ class NavigationController {
   }) {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: WebViewScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: WebViewScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
   //endregion
@@ -1007,9 +1076,9 @@ class NavigationController {
     MyPrint.printOnConsole("navigateToEventTrackScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
-      routeName: EventTrackScreen.routeName,
-      arguments: arguments,
-    ));
+          routeName: EventTrackScreen.routeName,
+          arguments: arguments,
+        ));
   }
 
 //endregion
@@ -1037,7 +1106,48 @@ class NavigationController {
       ),
     );
   }
+
 //endregion
 
+  //region Membership
+  static Future<dynamic> navigateToMembershipSelectionScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required MembershipSelectionScreenNavigationArguments arguments,
+  }) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: MembershipSelectionScreen.routeName,
+        arguments: arguments,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToUserMembershipDetailsScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required UserMembershipDetailsScreenNavigationArguments arguments,
+  }) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: UserMembershipDetailsScreen.routeName,
+        arguments: arguments,
+      ),
+    );
+  }
+
+//endregion
+
+// region Settings
+  static Future<dynamic> navigateToPurchaseHistoryScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required PurchaseHistoryScreenNavigationArguments arguments,
+  }) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: PurchaseHistoryScreen.routeName,
+        arguments: arguments,
+      ),
+    );
+  }
+//endregion
 //endregion
 }

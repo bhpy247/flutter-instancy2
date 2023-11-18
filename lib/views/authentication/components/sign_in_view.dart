@@ -7,7 +7,6 @@ import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '../../../configs/app_strings.dart';
 import '../../common/components/common_button.dart';
 import '../../common/components/common_loader.dart';
 import '../../common/components/common_text_form_field.dart';
@@ -45,17 +44,17 @@ class SignInView extends StatelessWidget {
         children: [
           getTextFormField(
             controller: loginEmailController,
+            themeData: themeData,
             hintText: appProvider.localStr.loginTextfieldUsernametextfieldplaceholder,
             prefixWidget: prefixIcon(Icons.email),
+            enabled: !isSignInProgress,
             validator: (String? value) {
               if ((value?.trim()).checkEmpty) {
                 return appProvider.localStr.loginAlertsubtitleUsernameorpasswordcannotbeempty;
-              }
-              else if (!AppConfigurationOperations.isValidEmailString(value!.trim())) {
-              //else if (!RegExp(r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$').hasMatch(value ?? "")) {
+              } else if (!AppConfigurationOperations.isValidEmailString(value!.trim())) {
+                //else if (!RegExp(r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$').hasMatch(value ?? "")) {
                 return appProvider.localStr.loginAlertsubtitleInvalidusernameorpassword;
-              }
-              else {
+              } else {
                 return null;
               }
             },
@@ -68,7 +67,9 @@ class SignInView extends StatelessWidget {
           ),
           getTextFormField(
             controller: loginPassController,
+            themeData: themeData,
             hintText: appProvider.localStr.loginTextfieldPasswordtextfieldplaceholder,
+            enabled: !isSignInProgress,
             suffixWidget: InkWell(
               onTap: () {
                 if (isPasswordVisibilityChanged != null) {
@@ -115,16 +116,19 @@ class SignInView extends StatelessWidget {
 
   Widget getTextFormField({
     required TextEditingController controller,
+    required ThemeData themeData,
     String hintText = "",
     bool isSuffix = false,
     Widget? suffixWidget,
     bool obscureText = false,
+    bool enabled = true,
     Widget? prefixWidget,
     FormFieldValidator<String>? validator,
     List<TextInputFormatter>? inputFormatters,
   }) {
     return CommonTextFormFieldWithLabel(
       contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      enabled: enabled,
       controller: controller,
       obscureText: obscureText,
       suffixWidget: suffixWidget,
@@ -135,6 +139,7 @@ class SignInView extends StatelessWidget {
       isOutlineInputBorder: true,
       validator: validator,
       inputFormatters: inputFormatters,
+      disabledColor: themeData.textTheme.labelMedium?.color,
     );
   }
 

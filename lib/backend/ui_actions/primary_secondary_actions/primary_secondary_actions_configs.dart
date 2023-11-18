@@ -5,7 +5,7 @@ import 'primary_secondary_actions_data_model.dart';
 
 class PrimarySecondaryActionsConfigs {
   //ContentType>MediaType>ViewType>{ScreenType : PrimarySecondaryActionsDataModel}
-  static Map<int, Map<int, Map<int, Map<InstancyContentScreenType, PrimarySecondaryActionsDataModel>>>> primarySecondaryActions =
+  static const Map<int, Map<int, Map<int, Map<InstancyContentScreenType, PrimarySecondaryActionsDataModel>>>> primarySecondaryActions =
       <int, Map<int, Map<int, Map<InstancyContentScreenType, PrimarySecondaryActionsDataModel>>>>{
     InstancyObjectTypes.contentObject: <int, Map<int, Map<InstancyContentScreenType, PrimarySecondaryActionsDataModel>>>{
       InstancyMediaTypes.microLearning: <int, Map<InstancyContentScreenType, PrimarySecondaryActionsDataModel>>{
@@ -7050,7 +7050,7 @@ class PrimarySecondaryActionsConfigs {
         ViewTypesForContent.ECommerce: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
-              InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.Buy,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7230,7 +7230,7 @@ class PrimarySecondaryActionsConfigs {
         ViewTypesForContent.ECommerce: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
-              InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.Buy,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7408,7 +7408,7 @@ class PrimarySecondaryActionsConfigs {
         ViewTypesForContent.ECommerce: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
-              InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.Buy,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7582,7 +7582,7 @@ class PrimarySecondaryActionsConfigs {
         ViewTypesForContent.ECommerce: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
-              InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.Buy,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7756,7 +7756,7 @@ class PrimarySecondaryActionsConfigs {
         ViewTypesForContent.ECommerce: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
-              InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.Buy,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7930,7 +7930,7 @@ class PrimarySecondaryActionsConfigs {
         ViewTypesForContent.ECommerce: <InstancyContentScreenType, PrimarySecondaryActionsDataModel>{
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
-              InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.Buy,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[

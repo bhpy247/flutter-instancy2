@@ -1,11 +1,14 @@
 import 'dart:typed_data';
 
+import 'package:flutter_instancy_2/backend/in_app_purchase/in_app_purchase_provider.dart';
 import 'package:flutter_instancy_2/backend/lens_feature/lens_provider.dart';
+import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_content_model.dart';
+import 'package:flutter_instancy_2/models/membership/data_model/membership_plan_details_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_experience_data_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
@@ -196,7 +199,6 @@ class RecommendToScreenNavigationArguments extends NavigationArguments {
   final List<int>? userIds;
   final ShareProvider? shareProvider;
 
-
   const RecommendToScreenNavigationArguments({
     required this.shareContentType,
     required this.contentId,
@@ -326,12 +328,12 @@ class VideoLaunchScreenNavigationArguments extends NavigationArguments {
   @override
   String toString() {
     return "VideoLaunchScreenNavigationArguments({${MyUtils.encodeJson({
-      "isNetworkVideo" : isNetworkVideo,
-      "contntName" : contntName,
-      "videoUrl" : videoUrl,
-      "videoFilePath" : videoFilePath,
-      "videoFileBytes" : videoFileBytes?.length,
-    })})";
+          "isNetworkVideo": isNetworkVideo,
+          "contntName": contntName,
+          "videoUrl": videoUrl,
+          "videoFilePath": videoFilePath,
+          "videoFileBytes": videoFileBytes?.length,
+        })})";
   }
 }
 
@@ -371,17 +373,16 @@ class EventTrackScreenArguments extends NavigationArguments {
   final String? eventTrackTabType;
   final EventTrackProvider? eventTrackProvider;
 
-  const EventTrackScreenArguments({
-    required this.parentContentId,
-    required this.componentId,
-    required this.componentInstanceId,
-    required this.objectTypeId,
-    required this.isRelatedContent,
-    required this.isContentEnrolled,
-    required this.scoId,
-    this.eventTrackProvider,
-    this.eventTrackTabType
-  });
+  const EventTrackScreenArguments(
+      {required this.parentContentId,
+      required this.componentId,
+      required this.componentInstanceId,
+      required this.objectTypeId,
+      required this.isRelatedContent,
+      required this.isContentEnrolled,
+      required this.scoId,
+      this.eventTrackProvider,
+      this.eventTrackTabType});
 }
 
 class UserProfileScreenNavigationArguments extends NavigationArguments {
@@ -446,5 +447,45 @@ class SurfaceTrackingKeywordSearchScreenNavigationArguments extends NavigationAr
     required this.lensProvider,
     required this.componentId,
     required this.componentInsId,
+  });
+}
+
+class MembershipSelectionScreenNavigationArguments extends NavigationArguments {
+  final MembershipProvider? membershipProvider;
+  final bool isUpdateMembership;
+
+  const MembershipSelectionScreenNavigationArguments({
+    this.membershipProvider,
+    this.isUpdateMembership = false,
+  });
+}
+
+class LoginScreenNavigationArguments extends NavigationArguments {
+  final int selectedSectionIndex;
+  final bool isSignInEnabled;
+  final bool isSignUpEnabled;
+  final MembershipPlanDetailsModel? membershipPlanDetailsModel;
+
+  const LoginScreenNavigationArguments({
+    this.selectedSectionIndex = 0,
+    this.isSignInEnabled = true,
+    this.isSignUpEnabled = true,
+    this.membershipPlanDetailsModel,
+  });
+}
+
+class PurchaseHistoryScreenNavigationArguments extends NavigationArguments {
+  final InAppPurchaseProvider? inAppPurchaseProvider;
+
+  const PurchaseHistoryScreenNavigationArguments({
+    this.inAppPurchaseProvider,
+  });
+}
+
+class UserMembershipDetailsScreenNavigationArguments extends NavigationArguments {
+  final MembershipProvider? membershipProvider;
+
+  const UserMembershipDetailsScreenNavigationArguments({
+    this.membershipProvider,
   });
 }

@@ -30,7 +30,7 @@ class MainScreenDrawer extends StatelessWidget {
 
     List<NativeMenuModel> finalMenusList = menusList.where((NativeMenuModel menuModel) {
       // return true;
-      return ["my learning", "catalog", "learning catalog", "classroom events", "event catalog", "profile", "my profile", "messages"].contains(menuModel.displayname.toLowerCase());
+      return ["my learning", "catalog", "learning catalog", "classroom events", "event catalog", "profile", "my profile", "settings", "messages"].contains(menuModel.displayname.toLowerCase());
     }).toList();
 
     return Drawer(

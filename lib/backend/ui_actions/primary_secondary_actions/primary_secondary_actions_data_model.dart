@@ -1,10 +1,10 @@
 import 'primary_secondary_actions_constants.dart';
 
 class PrimarySecondaryActionsDataModel {
-  List<InstancyContentActionsEnum>? primaryActions;
-  List<InstancyContentActionsEnum>? secondaryActions;
+  final List<InstancyContentActionsEnum>? primaryActions;
+  final List<InstancyContentActionsEnum>? secondaryActions;
 
-  PrimarySecondaryActionsDataModel({
+  const PrimarySecondaryActionsDataModel({
     this.primaryActions,
     this.secondaryActions,
   });

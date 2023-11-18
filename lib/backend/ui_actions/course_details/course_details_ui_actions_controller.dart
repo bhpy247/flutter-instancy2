@@ -53,12 +53,13 @@ class CourseDetailsUIActionsController {
 
   void _initializeActionsMap() {
     _actionsMap = <InstancyContentActionsEnum, CourseDetailsUIActionTypeDef>{
+      InstancyContentActionsEnum.Buy: showBuy,
+      InstancyContentActionsEnum.AddToMyLearning: showAddToMyLearning,
       InstancyContentActionsEnum.Enroll: showEnroll,
-      InstancyContentActionsEnum.CancelEnrollment: showCancelEnrollment,
       InstancyContentActionsEnum.Join: showJoin,
+      InstancyContentActionsEnum.CancelEnrollment: showCancelEnrollment,
       InstancyContentActionsEnum.View: showView,
       InstancyContentActionsEnum.Play: showPlay,
-      InstancyContentActionsEnum.AddToMyLearning: showAddToMyLearning,
     };
   }
 
@@ -70,6 +71,26 @@ class CourseDetailsUIActionsController {
     } else {
       return false;
     }
+  }
+
+  bool showBuy({required CourseDetailsUIActionParameterModel parameterModel}) {
+    if (parameterModel.isContentEnrolled ||
+        [ViewTypesForContent.View, ViewTypesForContent.Subscription, ViewTypesForContent.ViewAndAddToMyLearning].contains(parameterModel.viewType) ||
+        parameterModel.objectTypeId == InstancyObjectTypes.events) {
+      return false;
+    }
+
+    return true;
+  }
+
+  bool showAddToMyLearning({required CourseDetailsUIActionParameterModel parameterModel}) {
+    if (parameterModel.isContentEnrolled ||
+        [ViewTypesForContent.View, ViewTypesForContent.ECommerce, ViewTypesForContent.ViewAndAddToMyLearning].contains(parameterModel.viewType) ||
+        parameterModel.objectTypeId == InstancyObjectTypes.events) {
+      return false;
+    }
+
+    return true;
   }
 
   bool showEnroll({required CourseDetailsUIActionParameterModel parameterModel}) {
@@ -84,21 +105,6 @@ class CourseDetailsUIActionsController {
         isEventCompleted ||
         parameterModel.eventScheduleType == EventScheduleTypes.instance ||
         (parameterModel.eventScheduleType == EventScheduleTypes.regular && parameterModel.isContentEnrolled)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  bool showCancelEnrollment({required CourseDetailsUIActionParameterModel parameterModel}) {
-    bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(
-          parameterModel.eventEndDateTime,
-          dateFormat: "MM/dd/yyyy HH:mm:ss aa",
-        ) ??
-        true);
-    MyPrint.printOnConsole("isEventCompleted in showCancelEnrollment:$isEventCompleted");
-
-    if (parameterModel.objectTypeId != InstancyObjectTypes.events || isEventCompleted || parameterModel.eventScheduleType == EventScheduleTypes.parent || !parameterModel.isContentEnrolled) {
       return false;
     }
 
@@ -121,6 +127,21 @@ class CourseDetailsUIActionsController {
     return true;
   }
 
+  bool showCancelEnrollment({required CourseDetailsUIActionParameterModel parameterModel}) {
+    bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(
+          parameterModel.eventEndDateTime,
+          dateFormat: "MM/dd/yyyy HH:mm:ss aa",
+        ) ??
+        true);
+    MyPrint.printOnConsole("isEventCompleted in showCancelEnrollment:$isEventCompleted");
+
+    if (parameterModel.objectTypeId != InstancyObjectTypes.events || isEventCompleted || parameterModel.eventScheduleType == EventScheduleTypes.parent || !parameterModel.isContentEnrolled) {
+      return false;
+    }
+
+    return true;
+  }
+
   bool showView({required CourseDetailsUIActionParameterModel parameterModel}) {
     bool isShow = true;
 
@@ -136,16 +157,6 @@ class CourseDetailsUIActionsController {
   bool showPlay({required CourseDetailsUIActionParameterModel parameterModel}) {
     if (([ViewTypesForContent.ECommerce, ViewTypesForContent.Subscription].contains(parameterModel.viewType) && !parameterModel.isContentEnrolled) ||
         !MyLearningUIActionConfigs.isPlayEnabled(objectTypeId: parameterModel.objectTypeId, mediaTypeId: parameterModel.mediaTypeId)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  bool showAddToMyLearning({required CourseDetailsUIActionParameterModel parameterModel}) {
-    if (parameterModel.isContentEnrolled ||
-        [ViewTypesForContent.View, ViewTypesForContent.ViewAndAddToMyLearning].contains(parameterModel.viewType) ||
-        parameterModel.objectTypeId == InstancyObjectTypes.events) {
       return false;
     }
 
@@ -196,14 +207,15 @@ class CourseDetailsUIActionsController {
     required CourseDetailsUIActionCallbackModel callBackModel,
   }) sync* {
     MyPrint.printOnConsole("getCourseDetailsSecondaryActions called with objectTypeId:${contentDetailsDTOModel.ContentTypeId},"
-        " mediaTypeID:${contentDetailsDTOModel.MediaTypeID}, screenType:$screenType");
+        " mediaTypeID:${contentDetailsDTOModel.MediaTypeID}, ViewType:${contentDetailsDTOModel.ViewType}, screenType:$screenType");
     List<InstancyContentActionsEnum> primaryActions = [
+      InstancyContentActionsEnum.Buy,
       InstancyContentActionsEnum.Enroll,
       InstancyContentActionsEnum.Join,
       InstancyContentActionsEnum.CancelEnrollment,
+      InstancyContentActionsEnum.AddToMyLearning,
       InstancyContentActionsEnum.View,
       InstancyContentActionsEnum.Play,
-      InstancyContentActionsEnum.AddToMyLearning,
     ];
 
     Iterable<InstancyUIActionModel> actionsList = getInstancyUIActionModelListFromInstancyContentActionsEnumList(
@@ -337,18 +349,48 @@ class CourseDetailsUIActionsController {
     required LocalStr localStr,
     required CourseDetailsUIActionCallbackModel callbackModel,
   }) sync* {
-    // MyPrint.printOnConsole("getInstancyUIActionModelListFromInstancyContentActionsEnumList called with actions:$actions");
+    MyPrint.printOnConsole("getInstancyUIActionModelListFromInstancyContentActionsEnumList called with actions:$actions");
 
     for (InstancyContentActionsEnum action in actions) {
       InstancyUIActionModel? model;
 
-      if (action == InstancyContentActionsEnum.Enroll) {
+      if (action == InstancyContentActionsEnum.Buy) {
+        bool isShowJoin = isShowAction(actionType: InstancyContentActionsEnum.Buy, parameterModel: parameterModel);
+        if (isShowJoin && callbackModel.onBuyTap != null) {
+          model = InstancyUIActionModel(
+            text: localStr.catalogActionsheetBuyoption,
+            iconData: InstancyIcons.buy,
+            onTap: callbackModel.onBuyTap,
+            actionsEnum: InstancyContentActionsEnum.Buy,
+          );
+        }
+      } else if (action == InstancyContentActionsEnum.AddToMyLearning) {
+        bool isShowJoin = isShowAction(actionType: InstancyContentActionsEnum.AddToMyLearning, parameterModel: parameterModel);
+        if (isShowJoin && callbackModel.onAddToMyLearningTap != null) {
+          model = InstancyUIActionModel(
+            text: localStr.catalogActionsheetAddtomylearningoption,
+            iconData: InstancyIcons.addToMyLearning,
+            onTap: callbackModel.onAddToMyLearningTap,
+            actionsEnum: InstancyContentActionsEnum.AddToMyLearning,
+          );
+        }
+      } else if (action == InstancyContentActionsEnum.Enroll) {
         if (isShowAction(actionType: InstancyContentActionsEnum.Enroll, parameterModel: parameterModel) && callbackModel.onEnrollTap != null) {
           model = InstancyUIActionModel(
             text: localStr.eventsActionsheetEnrollNowOption,
             iconData: InstancyIcons.addToMyLearning,
             actionsEnum: InstancyContentActionsEnum.Enroll,
             onTap: callbackModel.onEnrollTap,
+          );
+        }
+      } else if (action == InstancyContentActionsEnum.Join) {
+        bool isShowJoin = isShowAction(actionType: InstancyContentActionsEnum.Join, parameterModel: parameterModel);
+        if (isShowJoin && callbackModel.onJoinTap != null) {
+          model = InstancyUIActionModel(
+            text: localStr.mylearningActionsheetJoinoption,
+            iconData: InstancyIcons.join,
+            onTap: callbackModel.onJoinTap,
+            actionsEnum: InstancyContentActionsEnum.Join,
           );
         }
       } else if (action == InstancyContentActionsEnum.CancelEnrollment) {
@@ -376,26 +418,6 @@ class CourseDetailsUIActionsController {
             iconData: InstancyIcons.play,
             onTap: callbackModel.onPlayTap,
             actionsEnum: InstancyContentActionsEnum.Play,
-          );
-        }
-      } else if (action == InstancyContentActionsEnum.Join) {
-        bool isShowJoin = isShowAction(actionType: InstancyContentActionsEnum.Join, parameterModel: parameterModel);
-        if (isShowJoin && callbackModel.onJoinTap != null) {
-          model = InstancyUIActionModel(
-            text: localStr.mylearningActionsheetJoinoption,
-            iconData: InstancyIcons.join,
-            onTap: callbackModel.onJoinTap,
-            actionsEnum: InstancyContentActionsEnum.Join,
-          );
-        }
-      } else if (action == InstancyContentActionsEnum.AddToMyLearning) {
-        bool isShowJoin = isShowAction(actionType: InstancyContentActionsEnum.AddToMyLearning, parameterModel: parameterModel);
-        if (isShowJoin && callbackModel.onAddToMyLearningTap != null) {
-          model = InstancyUIActionModel(
-            text: localStr.catalogActionsheetAddtomylearningoption,
-            iconData: InstancyIcons.addToMyLearning,
-            onTap: callbackModel.onAddToMyLearningTap,
-            actionsEnum: InstancyContentActionsEnum.AddToMyLearning,
           );
         }
       }

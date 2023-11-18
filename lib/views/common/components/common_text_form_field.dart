@@ -131,7 +131,8 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
     this.onTap,
     this.floatingLabelColor,
     this.isFilled = false,
-    this.fillColor
+    this.fillColor,
+    this.disabledColor,
   }) : super(key: key);
 
   final TextEditingController? controller;
@@ -150,53 +151,57 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
   final FocusNode? focusNode;
   final int? minLines, maxLines, errorMaxLines;
   final Function()? onTap;
-
+  final Color? disabledColor;
 
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
 
-    return TextFormField(
-      onChanged: onChanged,
-      onFieldSubmitted: onSubmitted,
-      onTap: onTap,
-      // cursorHeight: 0,
-      // cursorWidth: 0,
-
-      enabled: enabled,
-      focusNode: focusNode,
-      controller: controller,
-      style: themeData.textTheme.titleSmall,
-      obscureText: obscureText,
-      validator: validator,
-      keyboardType: keyboardType,
-      inputFormatters: inputFormatters,
-      // textAlignVertical: TextAlignVertical.top,
-
-      decoration: InputDecoration(
-
-        filled: isFilled,
-        fillColor: fillColor,
-        labelStyle: TextStyle(color: floatingLabelColor, fontSize: 13,letterSpacing: 0.4),
-        // floatingLabelBehavior: FloatingLabelBehavior.auto,
-        // floatingLabelStyle: TextStyle(color: floatingLabelColor, fontSize: 15),
-        floatingLabelAlignment: FloatingLabelAlignment.start,
-        border: inputBorder(borderColor ?? Colors.grey),
-        errorMaxLines: errorMaxLines,
-        enabledBorder: inputBorder(enabledBorderColor ?? themeData.inputDecorationTheme.border?.borderSide.color ?? Colors.black),
-        disabledBorder: inputBorder(disabledBorderColor ?? Colors.grey),
-        focusedBorder: inputBorder(focusColor ?? Theme.of(context).primaryColor),
-        labelText: labelText,
-        label: label,
-        prefixIconConstraints: const BoxConstraints(minWidth: 40),
-        prefixIcon: prefixWidget,
-        // labelStyle: const TextStyle(color: Colors.grey),
-        // labelStyle: themeData.inputDecorationTheme.labelStyle?.copyWith(fontSize: 14),
-        suffixIcon: suffixWidget,
-        contentPadding: contentPadding,
+    return Theme(
+      data: themeData.copyWith(
+        disabledColor: disabledColor,
       ),
-      minLines: minLines,
-      maxLines: maxLines,
+      child: TextFormField(
+        onChanged: onChanged,
+        onFieldSubmitted: onSubmitted,
+        onTap: onTap,
+        // cursorHeight: 0,
+        // cursorWidth: 0,
+
+        enabled: enabled,
+        focusNode: focusNode,
+        controller: controller,
+        style: themeData.textTheme.titleSmall,
+        obscureText: obscureText,
+        validator: validator,
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
+        // textAlignVertical: TextAlignVertical.top,
+
+        decoration: InputDecoration(
+          filled: isFilled,
+          fillColor: fillColor,
+          labelStyle: TextStyle(color: floatingLabelColor, fontSize: 13, letterSpacing: 0.4),
+          // floatingLabelBehavior: FloatingLabelBehavior.auto,
+          // floatingLabelStyle: TextStyle(color: floatingLabelColor, fontSize: 15),
+          floatingLabelAlignment: FloatingLabelAlignment.start,
+          border: inputBorder(borderColor ?? Colors.grey),
+          errorMaxLines: errorMaxLines,
+          enabledBorder: inputBorder(enabledBorderColor ?? themeData.inputDecorationTheme.border?.borderSide.color ?? Colors.black),
+          disabledBorder: inputBorder(disabledBorderColor ?? Colors.grey),
+          focusedBorder: inputBorder(focusColor ?? Theme.of(context).primaryColor),
+          labelText: labelText,
+          label: label,
+          prefixIconConstraints: const BoxConstraints(minWidth: 40),
+          prefixIcon: prefixWidget,
+          // labelStyle: const TextStyle(color: Colors.grey),
+          // labelStyle: themeData.inputDecorationTheme.labelStyle?.copyWith(fontSize: 14),
+          suffixIcon: suffixWidget,
+          contentPadding: contentPadding,
+        ),
+        minLines: minLines,
+        maxLines: maxLines,
+      ),
     );
   }
 

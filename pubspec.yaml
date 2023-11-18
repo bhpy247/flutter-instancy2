@@ -45,6 +45,7 @@ dependencies:
   just_audio: ^0.9.35
   rxdart: ^0.27.7
   video_thumbnail: ^0.5.3
+  in_app_purchase: ^3.1.11
   #endregion
 
   #region State Management:
@@ -139,12 +140,10 @@ dependencies:
 
 
 flutter_icons:
-  # image_path: "assets/logo.png"
-  # image_path_android: "assets/logo.png"
-  #  image_path: "assets/marketplaceicon.png"
-  #  image_path_android: "assets/marketplaceicon.png"
-  image_path: "assets/logo.png"
-  image_path_android: "assets/logo.png"
+#  image_path: "assets/logo.png"
+  #  image_path_android: "assets/logo.png"
+  image_path: "assets/marketplaceicon.png"
+  image_path_android: "assets/marketplaceicon.png"
   android: false # can specify file name here e.g. "ic_launcher"
   ios: true # can specify file name here e.g. "My-Launcher-Icon"
   # optionally, as transparency is not allowed on app store

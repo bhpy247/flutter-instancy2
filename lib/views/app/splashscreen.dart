@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_controller.dart';
@@ -47,10 +48,15 @@ class _SplashScreenState extends State<SplashScreen> {
 
     bool isUserLoggedIn = await authenticationController.isUserLoggedIn();
 
-    if(isUserLoggedIn) {
+    await AppController(provider: appProvider).getCurrencyModel(
+      isRefresh: true,
+      isGetFromCache: true,
+      isNotify: true,
+    );
+
+    if (isUserLoggedIn) {
       Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, MainScreen.routeName, (route) => false);
-    }
-    else {
+    } else {
       Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, LoginSignUpSelectionScreen.routeName, (route) => false);
     }
   }
@@ -65,7 +71,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     splashController = SplashController(appProvider: appProvider, appThemeProvider: appThemeProvider);
 
-    authenticationController = AuthenticationController(authenticationProvider: Provider.of<AuthenticationProvider>(context, listen: false));
+    authenticationController = AuthenticationController(provider: Provider.of<AuthenticationProvider>(context, listen: false));
 
     getData();
   }

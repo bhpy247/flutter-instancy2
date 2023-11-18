@@ -7,6 +7,7 @@ class ClientUrls {
 
   //QA Sites
   static const String qaLearningClientUrl = "https://qalearning.instancy.com/";
+  static const String shieldBaseClientUrl = "https://shieldbase.instancy.com/";
 
   //Production Sites
   static const String elearningProductionClientUrl = "https://elearning.instancy.com/";
@@ -24,9 +25,8 @@ class ClientUrls {
   static const Map<String, String> siteAuthUrlMap = <String, String>{
     elearningStagingClientUrl: STAGING_APP_AUTH_URL,
     enterpriseDemoStagingClientUrl: STAGING_APP_AUTH_URL,
-
     qaLearningClientUrl: QA_APP_AUTH_URL,
-
+    shieldBaseClientUrl: QA_APP_AUTH_URL,
     elearningProductionClientUrl: LIVE_APP_AUTH_URL,
     enterpriseDemoClientUrl: LIVE_APP_AUTH_URL,
     franklinClientUrl: LIVE_APP_AUTH_URL,
@@ -60,12 +60,11 @@ class ClientUrls {
     siteUrl = siteUrl.replaceFirst("http://", "https://");
     MyPrint.printOnConsole("siteUrl:$siteUrl");
 
-    if(siteUrl == enterpriseDemoClientUrl) {
+    if (siteUrl == enterpriseDemoClientUrl) {
       return "https://inst-chatbot-webapp-dev.azurewebsites.net/api/DLToken";
-    } else if(siteUrl == qaLearningClientUrl) {
+    } else if ([qaLearningClientUrl, shieldBaseClientUrl].contains(siteUrl)) {
       return "https://instancywebappbot.azurewebsites.net/api/DLToken";
-    }
-    else {
+    } else {
       return "";
     }
   }

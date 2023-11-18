@@ -1,6 +1,7 @@
 import 'package:flutter_chat_bot/models/authorization/response_model/bot_details_model.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_model.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/response_model/currency_data_response_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/forgot_password_response_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/signup_field_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/associated_content_response_model.dart';
@@ -25,7 +26,7 @@ import '../ar_vr_module/response_model/ar_content_model.dart';
 import '../authentication/data_model/successful_user_login_model.dart';
 import '../authentication/response_model/country_response_model.dart';
 import '../authentication/response_model/email_login_response_model.dart';
-import '../authentication/response_model/sign_up_response_model.dart';
+import '../authentication/response_model/mobile_create_sign_up_response_model.dart';
 import '../catalog/catalogCategoriesForBrowseModel.dart';
 import '../catalog/response_model/add_associated_content_to_mylearning_response_model.dart';
 import '../catalog/response_model/add_expired_event_to_mylearning_response_model.dart';
@@ -54,6 +55,10 @@ import '../filter/response_model/learning_provider_filter_response_model.dart';
 import '../home/data_model/new_course_list_dto.dart';
 import '../home/response_model/banner_web_list_model.dart';
 import '../home/response_model/static_web_page_podel.dart';
+import '../in_app_purchase/response_model/ecommerce_order_response_model.dart';
+import '../in_app_purchase/response_model/ecommerce_process_payment_response_model.dart';
+import '../membership/data_model/member_ship_dto_model.dart';
+import '../membership/response_model/user_active_membership_response_model.dart';
 import '../message/response_model/chat_users_list_response_model.dart';
 import '../my_connections/response_model/people_listing_dto_response_model.dart';
 import '../my_learning/data_model/my_learning_content_model.dart';
@@ -61,6 +66,7 @@ import '../my_learning/response_model/my_learning_response_dto_model.dart';
 import '../profile/data_model/user_profile_header_dto_model.dart';
 import '../profile/response_model/education_title_response_model.dart';
 import '../profile/response_model/profile_response_model.dart';
+import '../profile/response_model/sign_up_response_model.dart';
 import '../progress_report/data_model/content_progress_summary_data_model.dart.dart';
 import '../progress_report/response_model/content_progress_detail_data_response.dart';
 import '../share/response_model/share_connection_list_response_model.dart';
@@ -72,7 +78,11 @@ enum ModelDataParsingType {
   string,
   bool,
 
-  //region Splash Module
+  //region App Module
+  CurrencyDataResponseModel,
+  //endregion
+
+  // region Splash Module
   mobileGetLearningPortalInfoResponseModel,
   mobileApiAuthResponseModel,
   localStr,
@@ -84,7 +94,7 @@ enum ModelDataParsingType {
   //region Authentication Module
   emailLoginResponseModel,
   successfulUserLoginModel,
-  signupResponseModel,
+  MobileCreateSignUpResponseModel,
   //endregion
 
   //region Home Menu
@@ -107,6 +117,7 @@ enum ModelDataParsingType {
   countryResponseModel,
   educationTitleResponseModel,
   userProfileHeaderDTOModel,
+  SignUpResponseModel,
   //endregion
 
   //region My Learning Menu
@@ -216,6 +227,16 @@ enum ModelDataParsingType {
   // region ARModule
   arContentModel,
   // endregion
+
+  //region InApp Purchase
+  EcommerceProcessPaymentResponseModel,
+  EcommerceOrderResponseModel,
+  //endregion
+
+  // region Membership
+  MemberShipDTOModelList,
+  UserActiveMembershipResponseModel,
+  //endregion
 }
 
 class ModelDataParser {
@@ -223,6 +244,10 @@ class ModelDataParser {
     ModelDataParsingType.dynamic: parseDynamic,
     ModelDataParsingType.string: parseString,
     ModelDataParsingType.bool: parseBool,
+
+    //region App Module
+    ModelDataParsingType.CurrencyDataResponseModel: parseCurrencyDataResponseModel,
+    //endregion
 
     //region Splash Module
     ModelDataParsingType.mobileGetLearningPortalInfoResponseModel: parseLearningPortalInfo,
@@ -236,7 +261,7 @@ class ModelDataParser {
     //region Authentication Module
     ModelDataParsingType.emailLoginResponseModel: parseEmailLoginResponseModel,
     ModelDataParsingType.successfulUserLoginModel: parseSuccessfulUserLoginModel,
-    ModelDataParsingType.signupResponseModel: parseSignupResponseModel,
+    ModelDataParsingType.MobileCreateSignUpResponseModel: parseMobileCreateSignUpResponseModel,
     //endregion
 
     //region Home Menu
@@ -259,6 +284,7 @@ class ModelDataParser {
     ModelDataParsingType.countryResponseModel: parseCountryResponseModel,
     ModelDataParsingType.educationTitleResponseModel: parseEducationTitleResponseModel,
     ModelDataParsingType.userProfileHeaderDTOModel: parseUserProfileHeaderDTOModel,
+    ModelDataParsingType.SignUpResponseModel: parseSignUpResponseModel,
     //endregion
 
     //region My Learning Menu
@@ -368,7 +394,30 @@ class ModelDataParser {
     //region ARModule
     ModelDataParsingType.arContentModel: parseARContentModel,
     //endregion
+
+    //region InApp Purchase
+    ModelDataParsingType.EcommerceProcessPaymentResponseModel: parseEcommerceProcessPaymentResponseModel,
+    ModelDataParsingType.EcommerceOrderResponseModel: parseEcommerceOrderResponseModel,
+    //endregion
+
+    // region MemberShip
+    ModelDataParsingType.MemberShipDTOModelList: parseMemberShipDTOModelList,
+    ModelDataParsingType.UserActiveMembershipResponseModel: parseUserActiveMembershipResponseModel,
+    //endregion
   };
+
+  //region App Module
+  static CurrencyDataResponseModel? parseCurrencyDataResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
+
+    if (map.isNotEmpty) {
+      return CurrencyDataResponseModel.fromMap(map);
+    } else {
+      return null;
+    }
+  }
+
+  //endregion
 
   //region Splash Module
   static T? parseDataFromDecodedValue<T>({required ModelDataParsingType parsingType, dynamic decodedValue}) {
@@ -469,11 +518,11 @@ class ModelDataParser {
     }
   }
 
-  static SignupResponseModel? parseSignupResponseModel({required dynamic decodedValue}) {
+  static MobileCreateSignUpResponseModel? parseMobileCreateSignUpResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
     if (map.isNotEmpty) {
-      return SignupResponseModel.fromJson(map);
+      return MobileCreateSignUpResponseModel.fromJson(map);
     } else {
       return null;
     }
@@ -572,6 +621,16 @@ class ModelDataParser {
 
     if (map.isNotEmpty) {
       return UserProfileHeaderDTOModel.fromJson(map);
+    } else {
+      return null;
+    }
+  }
+
+  static SignUpResponseModel? parseSignUpResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
+
+    if (map.isNotEmpty) {
+      return SignUpResponseModel.fromMap(map);
     } else {
       return null;
     }
@@ -1054,5 +1113,45 @@ class ModelDataParser {
       return null;
     }
   }
+
 // endregion
+
+//region InApp Purchase
+  static EcommerceProcessPaymentResponseModel? parseEcommerceProcessPaymentResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return EcommerceProcessPaymentResponseModel.fromJson(json);
+    } else {
+      return null;
+    }
+  }
+
+  static EcommerceOrderResponseModel? parseEcommerceOrderResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return EcommerceOrderResponseModel.fromMap(json);
+    } else {
+      return null;
+    }
+  }
+
+//endregion
+
+// region Membership
+  static List<MemberShipDTOModel> parseMemberShipDTOModelList({required dynamic decodedValue}) {
+    return ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue).map((e) => MemberShipDTOModel.fromMap(e)).toList();
+  }
+
+  static UserActiveMembershipResponseModel? parseUserActiveMembershipResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return UserActiveMembershipResponseModel.fromMap(json);
+    } else {
+      return null;
+    }
+  }
+//endregion
 }

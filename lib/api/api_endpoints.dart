@@ -46,6 +46,11 @@ class ApiEndpoints {
 
   //endregion
 
+  //region Generic Api
+  String GetCurrencyData() => '${getBaseApiUrl()}Generic/GetCurrencyData';
+
+  //endregion
+
   //region Authentication Api
   String apiPostLoginDetails() {
     return "${getBaseApiUrl()}MobileLMS/PostLoginDetails";
@@ -105,8 +110,7 @@ class ApiEndpoints {
   //region forgotPassword
   String apiGetUserStatusAPI({required String email}) => "${getBaseApiUrl()}MobileLMS/UserStatusForPasswordReset?Login=$email&SiteURL=$siteUrl";
 
-  String resetUserDataAPI({required String userId, required String resetId}) =>
-      "${getBaseApiUrl()}MobileLMS/UsersPasswordResetDataFromMobile?Userid=$userId&ResetID=$resetId";
+  String resetUserDataAPI({required String userId, required String resetId}) => "${getBaseApiUrl()}MobileLMS/UsersPasswordResetDataFromMobile?Userid=$userId&ResetID=$resetId";
 
   String sendPwdResetAPI({required int siteId, required int userId, required String email, required String newguId}) =>
       "${getBaseApiUrl()}User/SendPasswordResetEmail?SiteID=$siteId&Userid=$userId&ToEmailID=$email&newguId=$newguId"; //&PublicContentURL=$contentURL/PasswordRecovery/Gid/$uuid";
@@ -129,8 +133,6 @@ class ApiEndpoints {
   String apiGetProfileHeader() => '${getBaseApiUrl()}UserProfile/GetProfileHeaderData';
 
   String apiSaveProfile() => '${getBaseApiUrl()}UserProfile/SaveprofileData';
-
-  String apiProcessPayments() => '${getBaseApiUrl()}Ecommerce/ProcessPayments';
 
   String apiUpdatePersonalDetailsInProfile() => '${getBaseApiUrl()}/MobileLMS/MobileUpdateUserProfile';
 
@@ -269,6 +271,7 @@ class ApiEndpoints {
   String getInsertRecommendedContentNotificationUrl() => '${getBaseApiUrl()}/AsktheExpert/InsertRecommendedContentNotifications';
 
   String getSendRecommendedUserMail() => '${getBaseApiUrl()}/AsktheExpert/SendReccommendUserMail';
+
   String getSendMailToUserUrl() => '${getBaseApiUrl()}/Generic/SendMailToUser';
 
   //endregion
@@ -331,7 +334,6 @@ class ApiEndpoints {
   String getEventRelatedContentsData() => "${getBaseApiUrl()}MobileLMS/GetMobileEventRelatedContentMetadata";
 
   //endregion
-  //endregion
 
   //region Instabot
   String GetInsertBotData() => '${getBaseApiUrl()}/Chatbot/InsertBotData';
@@ -378,15 +380,7 @@ class ApiEndpoints {
   String getUserComingSoonResponse({String contentId = "", int userId = 0}) => '${getBaseApiUrl()}ContentManagement/GetUserComingSoonResponse?contentId=$contentId&userID=$userId&savingtype=';
 
 //region pageNotesResponseModel
-  String getPageNotes(
-          {String contentId = "",
-          int userId = 0,
-          int componentId = 0,
-          int componentInstanceId = 0,
-          int siteId = 0,
-          int pageId = -1,
-          int seqId = 0,
-          String locale = ""}) =>
+  String getPageNotes({String contentId = "", int userId = 0, int componentId = 0, int componentInstanceId = 0, int siteId = 0, int pageId = -1, int seqId = 0, String locale = ""}) =>
       '${getBaseApiUrl()}Notes/GetAllUserPageNotes?ContentID=$contentId&ComponentID=$componentId&ComponentInstanceID=$componentInstanceId&UserID=$userId&SiteID=$siteId&PageID=$pageId&SeqID=$seqId';
 
   String saveUserPageNote() => "${getBaseApiUrl()}Notes/SaveUserPageNotes";
@@ -405,11 +399,34 @@ class ApiEndpoints {
 //endregion
 
   //region setComplete https://upgradedenterpriseapi.instancy.com/api/CourseTracking/UpdateCompleteStatus
-  String setCompleteStatusCatalog() =>"${getBaseApiUrl()}CourseTracking/UpdateCompleteStatus";
+  String setCompleteStatusCatalog() => "${getBaseApiUrl()}CourseTracking/UpdateCompleteStatus";
+
+  //endregion
+
+  //region In App Purchase
+  String getMobileSaveInAppPurchaseDetails() => '${getBaseApiUrl()}MobileLMS/MobileSaveInAppPurchaseDetails';
+
+  String getEcommerceProcessPayments() => '${getBaseApiUrl()}Ecommerce/ProcessPayments';
+
+  String getEcommercePurchaseData() => '${getBaseApiUrl()}Ecommerce/PurchaseData';
+
+  String getGetEcommerceOrderByUser() => '${getBaseApiUrl()}Ecommerce/GetEcommerceOrderByUser';
+
+  //endregion
+
+  //region Membership
+  String getMemberShipDetails() => '${getBaseApiUrl()}MemberShip/GetMemberShipDetails';
+
+  String GetUpdateMemberShipDetails() => '${getBaseApiUrl()}MemberShip/GetUpdateMemberShipDetails';
+
+  String GetUserActiveMembership() => '${getBaseApiUrl()}MemberShip/GetUserActiveMembership';
+
+  String CancelUserMembership() => '${getBaseApiUrl()}MemberShip/CancelUserMembership';
+
   //endregion
 
   String apiGetSiteBotDetails({required String instancyApiUrl}) {
-    if(instancyApiUrl.endsWith("/")) {
+    if (instancyApiUrl.endsWith("/")) {
       instancyApiUrl = instancyApiUrl.substring(0, instancyApiUrl.length - 1);
     }
     return "$instancyApiUrl/Bot/GetSiteBotDetails";

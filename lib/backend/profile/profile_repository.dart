@@ -2,12 +2,15 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/country_response_model.dart';
 import 'package:flutter_instancy_2/models/profile/request_model/create_education_request_model.dart';
 import 'package:flutter_instancy_2/models/profile/request_model/create_experience_request_model.dart';
 import 'package:flutter_instancy_2/models/profile/request_model/remove_experience_request_model.dart';
+import 'package:flutter_instancy_2/models/profile/request_model/user_save_profile_data_request_model.dart';
 import 'package:flutter_instancy_2/models/profile/response_model/education_title_response_model.dart';
 import 'package:flutter_instancy_2/models/profile/response_model/profile_response_model.dart';
+import 'package:flutter_instancy_2/models/profile/response_model/sign_up_response_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
 import '../../api/api_call_model.dart';
@@ -340,6 +343,32 @@ class ProfileRepository {
     );
 
     DataResponseModel<UserProfileHeaderDTOModel> apiResponseModel = await apiController.callApi<UserProfileHeaderDTOModel>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<SignUpResponseModel>> saveProfileData({required UserSaveProfileDataRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+
+    requestModel.intCompID = InstancyComponents.NewSignUpForm;
+    requestModel.intCompInsID = InstancyComponents.NewSignUpFormComponentInsId;
+    requestModel.siteId = apiUrlConfigurationProvider.getCurrentSiteId();
+    requestModel.localeId = apiUrlConfigurationProvider.getLocale();
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<Map<String, String>>(
+      restCallType: RestCallType.xxxUrlEncodedFormDataRequestCall,
+      parsingType: ModelDataParsingType.SignUpResponseModel,
+      url: apiEndpoints.apiSaveProfile(),
+      requestBody: requestModel.toJson(),
+    );
+
+    DataResponseModel<SignUpResponseModel> apiResponseModel = await apiController.callApi<SignUpResponseModel>(
       apiCallModel: apiCallModel,
     );
 

@@ -1,12 +1,15 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_controller.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/currency_model.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/request_model/currency_data_request_model.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/response_model/currency_data_response_model.dart';
 import 'package:flutter_instancy_2/models/common/instancy_picked_file_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
@@ -15,12 +18,31 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
+import '../../api/api_controller.dart';
+import '../../models/common/data_response_model.dart';
 import '../../views/common/components/platform_alert_dialog.dart';
 import '../navigation/navigation_controller.dart';
+import 'app_repository.dart';
 
 class AppController {
+  late AppProvider _appProvider;
+  late AppRepository _appRepository;
+
+  AppController({required AppProvider? provider, AppRepository? repository, ApiController? apiController}) {
+    _appProvider = provider ?? AppProvider();
+    _appRepository = repository ?? AppRepository(apiController: apiController ?? ApiController());
+  }
+
+  AppProvider get appProvider => _appProvider;
+
+  AppRepository get appRepository => _appRepository;
+
   Future<void> sessionTimeOut() async {
-    dynamic didiRequestSignOut = await AppUIComponents.showMyPlatformDialog(
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("AppController().sessionTimeOut() called", tag: tag);
+    MyPrint.printOnConsole(StackTrace.current, tag: tag);
+
+    await AppUIComponents.showMyPlatformDialog(
       context: NavigationController.mainNavigatorKey.currentContext!,
       dialog: const PlatformAlertDialog(
         defaultActionText: 'OK',
@@ -33,10 +55,10 @@ class AppController {
 
     // if (didiRequestSignOut == true) {
     if (true) {
-      MyPrint.printOnConsole("Logout");
+      MyPrint.printOnConsole("Logout", tag: tag);
 
       AuthenticationProvider authenticationProvider = Provider.of<AuthenticationProvider>(NavigationController.mainNavigatorKey.currentContext!, listen: false);
-      AuthenticationController authenticationController = AuthenticationController(authenticationProvider: authenticationProvider);
+      AuthenticationController authenticationController = AuthenticationController(provider: authenticationProvider);
       authenticationController.logout();
     }
   }
@@ -48,15 +70,14 @@ class AppController {
     List<InstancyPickedFileModel> images = <InstancyPickedFileModel>[];
 
     ImageSource? source;
-    if(imageSource == InstancyImagePickSource.camera) {
+    if (imageSource == InstancyImagePickSource.camera) {
       source = ImageSource.camera;
-    }
-    else if(imageSource == InstancyImagePickSource.gallery) {
+    } else if (imageSource == InstancyImagePickSource.gallery) {
       source = ImageSource.gallery;
     }
     MyPrint.printOnConsole("source:$source", tag: tag);
 
-    if(source == null) {
+    if (source == null) {
       MyPrint.printOnConsole("Returning from AppController.pickImages() because ImageSource is Null", tag: tag);
       return images;
     }
@@ -64,17 +85,15 @@ class AppController {
     List<XFile> files = [];
 
     try {
-      if(pickMultiple) {
+      if (pickMultiple) {
         files = await ImagePicker().pickMultiImage();
-      }
-      else {
+      } else {
         XFile? xfile = await ImagePicker().pickImage(source: source);
-        if(xfile != null) {
+        if (xfile != null) {
           files.add(xfile);
         }
       }
-    }
-    catch(e, s) {
+    } catch (e, s) {
       MyPrint.printOnConsole("Error in Picking Image in AppController.pickImages():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
       return images;
@@ -86,8 +105,7 @@ class AppController {
       Uint8List? bytes;
       try {
         bytes = await file.readAsBytes();
-      }
-      catch(e, s) {
+      } catch (e, s) {
         MyPrint.printOnConsole("Error in Getting Bytes from Image in AppController.pickImages():$e", tag: tag);
         MyPrint.printOnConsole(s, tag: tag);
       }
@@ -109,19 +127,15 @@ class AppController {
     List<InstancyPickedFileModel> images = <InstancyPickedFileModel>[];
 
     FileType fileType = FileType.any;
-    if(filePickType == InstancyFilePickType.image) {
+    if (filePickType == InstancyFilePickType.image) {
       fileType = FileType.image;
-    }
-    else if(filePickType == InstancyFilePickType.audio) {
+    } else if (filePickType == InstancyFilePickType.audio) {
       fileType = FileType.audio;
-    }
-    else if(filePickType == InstancyFilePickType.video) {
+    } else if (filePickType == InstancyFilePickType.video) {
       fileType = FileType.video;
-    }
-    else if(filePickType == InstancyFilePickType.media) {
+    } else if (filePickType == InstancyFilePickType.media) {
       fileType = FileType.media;
-    }
-    else if(filePickType == InstancyFilePickType.custom) {
+    } else if (filePickType == InstancyFilePickType.custom) {
       fileType = FileType.custom;
     }
     MyPrint.printOnConsole("fileType:$fileType", tag: tag);
@@ -137,14 +151,13 @@ class AppController {
         withData: true,
       );
 
-      if(result == null || result.files.isEmpty) {
+      if (result == null || result.files.isEmpty) {
         MyPrint.printOnConsole("Returning from ProfileController().updateProfileImage() because picked file or bytes are Null", tag: tag);
         return images;
       }
 
       files = result.files;
-    }
-    catch(e, s) {
+    } catch (e, s) {
       MyPrint.printOnConsole("Error in Picking Image in AppController.pickImages():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
       return images;
@@ -157,9 +170,9 @@ class AppController {
       MyPrint.printOnConsole("File Bytes:${file.bytes?.lengthInBytes}");
 
       Uint8List? bytes = file.bytes;
-      if(bytes != null) {
+      if (bytes != null) {
         int index = file.name.indexOf(".");
-        if(index >= 0) {
+        if (index >= 0) {
           String extension = file.name.substring(index);
           images.add(InstancyPickedFileModel(
             fileName: "${DateTime.now().millisecondsSinceEpoch}$extension",
@@ -183,7 +196,7 @@ class AppController {
     return images;
   }
 
-  static Future<Uint8List> _getBytesFromStream({required Stream<List<int>> stream}) async {
+  /*static Future<Uint8List> _getBytesFromStream({required Stream<List<int>> stream}) async {
     MyPrint.printOnConsole('Conversion Started');
     DateTime startTime = DateTime.now();
 
@@ -211,7 +224,7 @@ class AppController {
     MyPrint.printOnConsole('Bytes Length:${uint8list.lengthInBytes / pow(1000, 2)} MB');
 
     return uint8list;
-  }
+  }*/
 
   static Future<bool> checkInternetConnectivity() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
@@ -226,12 +239,64 @@ class AppController {
   }
 
   static Future<String> getDocumentsDirectory() async {
-    if(kIsWeb) {
+    if (kIsWeb) {
       return "";
     }
-    final directory = Platform.isAndroid
-        ? await getExternalStorageDirectory()
-        : await getApplicationDocumentsDirectory();
+    final directory = Platform.isAndroid ? await getExternalStorageDirectory() : await getApplicationDocumentsDirectory();
     return directory?.path ?? "";
+  }
+
+  Future<CurrencyModel?> getCurrencyModel({
+    String country = "",
+    bool isRefresh = true,
+    bool isGetFromCache = true,
+    bool isNotify = true,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("AppController().getCurrencyModel() called with country:'$country', isRefresh:$isRefresh, isGetFromCache:$isGetFromCache, isNotify:$isNotify", tag: tag);
+
+    AppProvider provider = appProvider;
+
+    CurrencyModel? currencyModel = provider.currencyModel.get();
+    MyPrint.printOnConsole("currencyModel in Provider:$currencyModel", tag: tag);
+
+    if (isGetFromCache) {
+      DataResponseModel<CurrencyDataResponseModel> response = await appRepository.GetCurrencyData(
+        requestModel: CurrencyDataRequestModel(
+          strUserCountry: country,
+        ),
+        isGetDataFromHive: true,
+        isStoreDataInHive: false,
+      );
+      MyPrint.logOnConsole("GetCurrencyData Hive response:$response", tag: tag);
+
+      currencyModel = response.data?.Table.firstOrNull;
+      MyPrint.printOnConsole("currencyModel in Hive:$currencyModel", tag: tag);
+      provider.currencyModel.set(value: currencyModel, isNotify: isNotify);
+    }
+
+    if (isRefresh || currencyModel == null) {
+      DataResponseModel<CurrencyDataResponseModel> response = await appRepository.GetCurrencyData(
+        requestModel: CurrencyDataRequestModel(
+          strUserCountry: country,
+        ),
+        isStoreDataInHive: true,
+        isGetDataFromHive: false,
+      );
+      MyPrint.logOnConsole("GetCurrencyData response:$response", tag: tag);
+
+      if (response.appErrorModel != null) {
+        MyPrint.printOnConsole("Returning from AppController().getCurrencyModel() because GetCurrencyData had some error", tag: tag);
+        return currencyModel;
+      }
+
+      currencyModel = response.data?.Table.firstOrNull;
+      MyPrint.printOnConsole("currencyModel from Api:$currencyModel", tag: tag);
+    }
+
+    MyPrint.logOnConsole("final currencyModel:$currencyModel", tag: tag);
+    provider.currencyModel.set(value: currencyModel, isNotify: true);
+
+    return currencyModel;
   }
 }

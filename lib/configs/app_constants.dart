@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class AppConstants {
   static const String apiAllowFromExternalHostKey = "AllowWindowsandMobileApps";
@@ -414,9 +415,11 @@ class InstancyComponents {
   static const int headerComponent = 1008;
   static const int myProfileComponent = 1009;
   static const int ajaxCourseComponent = 1010;
+  static const int NewSignUpFormComponentInsId = 3104;
   static const int DetailsComponentInsId = 3291;
   static const int PeopleListComponentInsId = 3473;
   static const int EventCatalogTabsListComponentInsId = 3497;
+  static const int UserSettings = 5000;
 }
 
 class ViewTypesForContent {
@@ -459,28 +462,28 @@ class ContentFilterByTypes {
 }
 
 class InstancyIcons {
-  static final IconData view = IconDataSolid(int.parse('0xf06e'));
-  static final IconData details = IconDataSolid(int.parse('0xf570'));
-  static final IconData play = IconDataSolid(int.parse('0xf144'));
-  static final IconData join = IconDataSolid(int.parse('0xf234'));
-  static final IconData addToCalender = IconDataSolid(int.parse('0xf271'));
+  static const IconData view = FontAwesomeIcons.solidEye;
+  static const IconData details = FontAwesomeIcons.fileInvoice;
+  static const IconData play = FontAwesomeIcons.solidCirclePlay;
+  static const IconData join = FontAwesomeIcons.userPlus;
+  static const IconData addToCalender = FontAwesomeIcons.solidCalendarPlus;
   static const IconData relatedContent = Icons.content_copy;
   static const IconData notes = Icons.note_add;
   static const IconData cancelEnrollment = Icons.cancel;
-  static final IconData archieve = IconDataSolid(int.parse('0xf187'));
-  static final IconData remove = IconDataSolid(int.parse('0xf056'));
-  static final IconData qrCode = IconDataSolid(int.parse('0xf029'));
-  static final IconData viewSessions = IconDataSolid(int.parse('0xf63d'));
-  static final IconData viewRecording = IconDataSolid(int.parse('0xf8d9'));
-  static final IconData reschedule = IconDataSolid(int.parse('0xf783'));
-  static final IconData ReEnrollmentHistory = IconDataSolid(int.parse('0xf783'));
-  static final IconData RecommendTo = IconDataSolid(int.parse('0xf1e0'));
-  static final IconData shareWithConnection = IconDataSolid(int.parse('0xf1e0'));
-  static final IconData shareWithPeople = IconDataSolid(int.parse('0xf079'));
-  static final IconData waitList = IconDataSolid(int.parse('0xf144'));
-  static final IconData download = IconDataSolid(int.parse('0xf144'));
-  static final IconData delete = IconDataSolid(int.parse('0xf144'));
-  static final IconData buy = IconDataSolid(int.parse('0xf144'));
+  static const IconData archieve = FontAwesomeIcons.boxArchive;
+  static const IconData remove = FontAwesomeIcons.circleMinus;
+  static const IconData qrCode = FontAwesomeIcons.qrcode;
+  static const IconData viewSessions = MdiIcons.laptopAccount;
+  static const IconData viewRecording = FontAwesomeIcons.recordVinyl;
+  static const IconData reschedule = FontAwesomeIcons.calendarDay;
+  static const IconData ReEnrollmentHistory = FontAwesomeIcons.calendarDay;
+  static const IconData RecommendTo = FontAwesomeIcons.shareNodes;
+  static const IconData shareWithConnection = FontAwesomeIcons.shareNodes;
+  static const IconData shareWithPeople = FontAwesomeIcons.retweet;
+  static const IconData waitList = MdiIcons.humanQueue;
+  static const IconData download = MdiIcons.download;
+  static const IconData delete = FontAwesomeIcons.xmark;
+  static const IconData buy = FontAwesomeIcons.cartShopping;
   static const IconData share = Icons.share;
   static const IconData addToMyLearning = Icons.add_circle;
   static const IconData addToWishlist = Icons.favorite_border;
@@ -754,4 +757,12 @@ class MessageFilterType {
 class MessageStatusTypes {
   static const String typing = "Typing..";
   static const String online = "Online";
+}
+
+class MembershipRenewType {
+  static const String auto = "auto";
+}
+
+class EcommerceTransactionType {
+  static const String membership = "membership";
 }

@@ -217,6 +217,31 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
     required int index,
   }) {
     return EventCatalogUIActionCallbackModel(
+      onBuyTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        isLoading = true;
+        mySetState();
+
+        bool isBuySuccess = await CatalogController(provider: null).buyCourse(
+          context: context,
+          model: model,
+          ComponentID: componentId,
+          ComponentInsID: componentInsId,
+          isWaitForPostPurchaseProcesses: true,
+        );
+
+        isLoading = false;
+        mySetState();
+
+        if (isBuySuccess) {
+          await getEventCatalogContentsList(
+            isRefresh: true,
+            isGetFromCache: false,
+            isNotify: true,
+          );
+        }
+      },
       onEnrollTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 

@@ -82,11 +82,11 @@ class CatalogUIActionsController {
   }
 
   bool showBuy({required CatalogUIActionParameterModel parameterModel}) {
-    if (parameterModel.BuyNowLink.isNotEmpty && parameterModel.ViewType == ViewTypesForContent.ECommerce) {
-      return true;
+    if (parameterModel.BuyNowLink.isEmpty || parameterModel.ViewType != ViewTypesForContent.ECommerce) {
+      return false;
     }
 
-    return false;
+    return true;
   }
 
   bool showEnroll({required CatalogUIActionParameterModel parameterModel}) {

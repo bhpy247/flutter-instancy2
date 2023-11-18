@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_instancy_2/models/dto/response_dto_model.dart';
 import 'package:flutter_instancy_2/models/filter/data_model/filter_duration_value_model.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 
 import '../../api/api_controller.dart';
 import '../../configs/app_configurations.dart';
@@ -29,6 +31,7 @@ import '../../models/common/data_response_model.dart';
 import '../../models/common/pagination/pagination_model.dart';
 import '../../models/course/data_model/CourseDTOModel.dart';
 import '../../models/filter/data_model/enabled_content_filter_by_type_model.dart';
+import '../../models/in_app_purchase/request_model/ecommerce_process_payment_request_model.dart';
 import '../../models/waitlist/response_model/add_to_waitList_response_model.dart';
 import '../../utils/my_print.dart';
 import '../../utils/my_utils.dart';
@@ -36,6 +39,7 @@ import '../../views/catalog/components/confirm_remove_content_by_user_dialog.dar
 import '../../views/catalog/screens/prerequisite_dialogue_view.dart';
 import '../configurations/app_configuration_operations.dart';
 import '../filter/filter_provider.dart';
+import '../in_app_purchase/in_app_purchase_controller.dart';
 
 class CatalogController {
   late CatalogRepository catalogRepository;
@@ -108,7 +112,7 @@ class CatalogController {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
         "CatalogController().getCatalogContentsListFromApi() called with isRefresh:$isRefresh, isGetFromCache:$isGetFromCache, "
-        "isNotify:$isNotify, componentId:$componentId, componentInstanceId:$componentInstanceId",
+            "isNotify:$isNotify, componentId:$componentId, componentInstanceId:$componentInstanceId",
         tag: tag);
 
     CatalogProvider provider = catalogProvider;
@@ -214,7 +218,7 @@ class CatalogController {
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
-        "MyLearningController().getMyLearningContentsList() called with isRefresh:$isRefresh, isGetFromCache:$isGetFromCache, "
+        "CatalogController().getWishListContentsListFromApi() called with isRefresh:$isRefresh, isGetFromCache:$isGetFromCache, "
         "isNotify:$isNotify, componentId:$componentId, componentInstanceId:$componentInstanceId",
         tag: tag);
 
@@ -350,28 +354,28 @@ class CatalogController {
       sortBy: isWishList ? filterProvider.defaultSort.get() : filterProvider.selectedSort.get(),
       categories: (enabledContentFilterByTypeModel?.categories ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedCategories.getList().map((e) => e.categoryId).toList(),
-            )
+        list: filterProvider.selectedCategories.getList().map((e) => e.categoryId).toList(),
+      )
           : "",
       objecttypes: (enabledContentFilterByTypeModel?.objecttypeid ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedContentTypes.getList().map((e) => e.categoryId).toList(),
-            )
+        list: filterProvider.selectedContentTypes.getList().map((e) => e.categoryId).toList(),
+      )
           : "",
       skillcats: (enabledContentFilterByTypeModel?.skills ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedSkills.getList().map((e) => e.categoryId).toList(),
-            )
+        list: filterProvider.selectedSkills.getList().map((e) => e.categoryId).toList(),
+      )
           : "",
       jobroles: (enabledContentFilterByTypeModel?.jobroles ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedJobRoles.getList().map((e) => e.categoryId).toList(),
-            )
+        list: filterProvider.selectedJobRoles.getList().map((e) => e.categoryId).toList(),
+      )
           : "",
       solutions: (enabledContentFilterByTypeModel?.solutions ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedSolutions.getList().map((e) => e.categoryId).toList(),
-            )
+        list: filterProvider.selectedSolutions.getList().map((e) => e.categoryId).toList(),
+      )
           : "",
       ratings: (enabledContentFilterByTypeModel?.rating ?? false) ? ParsingHelper.parseStringMethod(filterProvider.selectedRating.get()) : "",
       pricerange: (enabledContentFilterByTypeModel?.ecommerceprice ?? false) && filterProvider.minPrice.get() != null && filterProvider.maxPrice.get() != null
@@ -379,8 +383,8 @@ class CatalogController {
           : "",
       instructors: (enabledContentFilterByTypeModel?.instructor ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedInstructor.getList().map((e) => e.UserID).toList(),
-            )
+        list: filterProvider.selectedInstructor.getList().map((e) => e.UserID).toList(),
+      )
           : "",
       filtercredits: filtercredits,
     );
@@ -446,7 +450,7 @@ class CatalogController {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
         "CatalogController().addContentToMyLearning() called with requestModel:$requestModel, context:$context, "
-        "isShowToast:$isShowToast",
+            "isShowToast:$isShowToast",
         tag: tag);
 
     bool isSuccess = false;
@@ -560,6 +564,110 @@ class CatalogController {
     return isSuccess;
   }
 
+  Future<bool> buyCourse({
+    required BuildContext context,
+    required CourseDTOModel model,
+    required int ComponentID,
+    required int ComponentInsID,
+    bool isWaitForPostPurchaseProcesses = true,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CatalogController().buyCourse() called for Content:'${model.ContentID}'", tag: tag);
+
+    String productId = switch (defaultTargetPlatform) {
+      // TargetPlatform.android => "1_dollar_product",
+      // TargetPlatform.iOS => "com.instancy.instancyLearningMarket_product1",
+      TargetPlatform.android => model.GoogleProductId,
+      TargetPlatform.iOS => model.ItunesProductId,
+      _ => "",
+    };
+    MyPrint.printOnConsole("Product Id:'$productId'", tag: tag);
+
+    if (productId.isEmpty) {
+      MyPrint.printOnConsole("Product Id not Available", tag: tag);
+      if (context.mounted) MyToast.showError(context: context, msg: "Store Details Not Available");
+      return false;
+    }
+
+    Map<String, ProductDetails> map = await InAppPurchaseController().getProductDetails([productId]);
+    MyPrint.printOnConsole("Product Details Map:$map", tag: tag);
+
+    ProductDetails? productDetails = map[productId];
+
+    if (productDetails == null) {
+      MyPrint.printOnConsole("Product Details Not Available", tag: tag);
+      if (context.mounted) MyToast.showError(context: context, msg: "Product Details Not Available");
+      return false;
+    }
+
+    PurchaseDetails? purchaseDetails = await InAppPurchaseController().launchInAppPurchase(productDetails);
+    MyPrint.printOnConsole("purchaseDetails.status:${purchaseDetails?.status}", tag: tag);
+
+    if (purchaseDetails == null) {
+      MyPrint.printOnConsole("Purchase Failed", tag: tag);
+      if (context.mounted) MyToast.showError(context: context, msg: "Purchase Failed");
+      return false;
+    } else if (purchaseDetails.status == PurchaseStatus.canceled) {
+      MyPrint.printOnConsole("Purchase Cancelled", tag: tag);
+      if (context.mounted) MyToast.greyMsg(context: context, msg: "Purchase Cancelled");
+      return false;
+    } else if (purchaseDetails.status == PurchaseStatus.pending) {
+      MyPrint.printOnConsole("Purchase Pending", tag: tag);
+      if (context.mounted) MyToast.greyMsg(context: context, msg: "Purchase Pending");
+      return false;
+    } else if (purchaseDetails.status == PurchaseStatus.error) {
+      IAPError? error = purchaseDetails.error;
+      MyPrint.printOnConsole("Error in Store Purchase:$error", tag: tag);
+
+      if (error != null) {
+        if (context.mounted) MyToast.showError(context: context, msg: "Error in Buying Content : '${error.message}'");
+      } else {
+        if (context.mounted) MyToast.showError(context: context, msg: "Error in Buying Content");
+      }
+
+      return false;
+    } else if (purchaseDetails.status == PurchaseStatus.restored) {
+      MyPrint.printOnConsole("Purchase Restored", tag: tag);
+
+      return false;
+    }
+
+    MyPrint.printOnConsole("Purchase Successful", tag: tag);
+
+    bool isPurchaseSaved = await InAppPurchaseController().purchaseProduct(
+      requestModel: EcommerceProcessPaymentRequestModel(
+        ContentID: model.ContentID,
+        token: purchaseDetails.purchaseID ?? "",
+        CurrencySign: model.Currency,
+      ),
+    );
+
+    if (isPurchaseSaved) {
+      CatalogController.isAddedContentToMyLearning = true;
+
+      List<Future> futures = <Future>[
+        removeContentFromWishlist(
+          contentId: model.ContentID,
+          componentId: ComponentID,
+          componentInstanceId: ComponentInsID,
+        ).then((RemoveFromWishlistResponseModel removeFromWishlistResponseModel) {
+          MyPrint.printOnConsole("removeFromWishlistResponseModel:$removeFromWishlistResponseModel", tag: tag);
+        }).catchError((e, s) {
+          MyPrint.printOnConsole("Error in removeFromWishlist:$e", tag: tag);
+          MyPrint.printOnConsole(s, tag: tag);
+        }),
+      ];
+
+      if (isWaitForPostPurchaseProcesses) {
+        await Future.wait(futures);
+      } else {
+        Future.wait(futures);
+      }
+    }
+
+    return isPurchaseSaved;
+  }
+
   Future<bool> addAssociatedContentToMyLearning({
     required AddAssociatedContentToMyLearningRequestModel requestModel,
     required BuildContext context,
@@ -628,7 +736,7 @@ class CatalogController {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
         "CatalogController().enrollWaitListEvent() called with requestModel:$requestModel, context:$context, "
-        "isShowToast:$isShowToast",
+            "isShowToast:$isShowToast",
         tag: tag);
 
     bool isSuccess = false;
@@ -688,7 +796,7 @@ class CatalogController {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
         "CatalogController().addExpiredEventToMyLearning() called with requestModel:$requestModel, context:$context, "
-        "isShowToast:$isShowToast",
+            "isShowToast:$isShowToast",
         tag: tag);
 
     bool isSuccess = false;
@@ -738,10 +846,6 @@ class CatalogController {
     }
 
     return isSuccess;
-  }
-
-  Future<void> buyCourse({required BuildContext context}) async {
-    MyToast.greyMsg(context: context, msg: "This feature is in progress. You will get this in next update");
   }
 
   Future showPrerequisiteDialogue({
@@ -879,7 +983,7 @@ class CatalogController {
     MyPrint.printOnConsole("getAssociatedContent");
 
     DataResponseModel<AssociatedContentResponseModel> response =
-        await catalogRepository.getAssociatedContent(componentId: componentId, contentId: contentId, componentInstanceId: componentInstanceId, preRequisiteSequencePathId: preRequisiteSequencePathId);
+    await catalogRepository.getAssociatedContent(componentId: componentId, contentId: contentId, componentInstanceId: componentInstanceId, preRequisiteSequencePathId: preRequisiteSequencePathId);
     MyPrint.printOnConsole("return getAssociatedContent");
 
     MyPrint.printOnConsole("response: ${response.data}");
@@ -919,7 +1023,7 @@ class CatalogController {
 
   Future<bool> setComplete({required String contentId, required int scoId}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("MyLearningController().setComplete() called with contentId:'$contentId', scoId:'$scoId'", tag: tag);
+    MyPrint.printOnConsole("CatalogController().setComplete() called with contentId:'$contentId', scoId:'$scoId'", tag: tag);
 
     DataResponseModel response = await catalogRepository.setCompleteStatus(
       contentID: contentId,

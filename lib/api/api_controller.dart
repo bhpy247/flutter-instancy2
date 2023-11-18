@@ -47,7 +47,7 @@ class ApiController {
 
     if(responseModel.appErrorModel?.code == 401 && isLogoutOnAuthorizationExpired) {
       //Logout
-      AppController().sessionTimeOut();
+      AppController(provider: null).sessionTimeOut();
     }
 
     return responseModel;

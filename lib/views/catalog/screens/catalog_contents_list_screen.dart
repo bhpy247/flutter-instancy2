@@ -172,10 +172,30 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
             },
       onBuyTap: primaryAction == InstancyContentActionsEnum.Buy
           ? null
-          : () {
+          : () async {
               if (isSecondaryAction) Navigator.pop(context);
 
-              catalogController.buyCourse(context: context);
+              isLoading = true;
+              mySetState();
+
+              bool isBuySuccess = await catalogController.buyCourse(
+                context: context,
+                model: model,
+                ComponentID: componentId,
+                ComponentInsID: componentInstanceId,
+                isWaitForPostPurchaseProcesses: true,
+              );
+
+              isLoading = false;
+              mySetState();
+
+              if (isBuySuccess) {
+                await getCatalogContentsList(
+                  isRefresh: true,
+                  isGetFromCache: false,
+                  isNotify: true,
+                );
+              }
             },
       onEnrollTap: () async {
         if (isSecondaryAction) Navigator.pop(context);

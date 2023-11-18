@@ -85,33 +85,62 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
       componentInstanceId: componentInstanceId,
     );
   }
+
   CatalogUIActionCallbackModel getCatalogUIActionCallbackModel({
     required CourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
     bool isSecondaryAction = true,
   }) {
     return CatalogUIActionCallbackModel(
-      onViewTap: primaryAction == InstancyContentActionsEnum.View ? null : () {
-        if(isSecondaryAction) Navigator.pop(context);
+      onViewTap: primaryAction == InstancyContentActionsEnum.View
+          ? null
+          : () {
+              if (isSecondaryAction) Navigator.pop(context);
 
-        //TODO: Implement onViewTap
-      },
-      onAddToMyLearningTap: primaryAction == InstancyContentActionsEnum.AddToMyLearning ? null : () async {
-        if(isSecondaryAction) Navigator.pop(context);
-        addContentToMyLearning(model: model);
-      },
-      onBuyTap: primaryAction == InstancyContentActionsEnum.Buy ? null : () {
-        if(isSecondaryAction) Navigator.pop(context);
+              //TODO: Implement onViewTap
+            },
+      onAddToMyLearningTap: primaryAction == InstancyContentActionsEnum.AddToMyLearning
+          ? null
+          : () async {
+              if (isSecondaryAction) Navigator.pop(context);
+              addContentToMyLearning(model: model);
+            },
+      onBuyTap: primaryAction == InstancyContentActionsEnum.Buy
+          ? null
+          : () async {
+              if (isSecondaryAction) Navigator.pop(context);
 
-        catalogController.buyCourse(context: context);
-      },
+              MyPrint.printOnConsole("Buy called");
+
+              isLoading = true;
+              mySetState();
+
+              bool isBuySuccess = await catalogController.buyCourse(
+                context: context,
+                model: model,
+                ComponentID: componentId,
+                ComponentInsID: componentInstanceId,
+                isWaitForPostPurchaseProcesses: true,
+              );
+
+              isLoading = false;
+              mySetState();
+
+              if (isBuySuccess) {
+                await getCatalogContentsList(
+                  isRefresh: true,
+                  isGetFromCache: false,
+                  isNotify: true,
+                );
+              }
+            },
       onEnrollTap: () async {
-        if(isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
         addContentToMyLearning(model: model);
       },
       onDetailsTap: () async {
-        if(isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
         dynamic value = await NavigationController.navigateToCourseDetailScreen(
           navigationOperationParameters: NavigationOperationParameters(
@@ -135,14 +164,10 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
           );
         }
       },
-      onIAmInterestedTap:() async {
-
-      },
-      onContactTap:() async {
-
-      },
+      onIAmInterestedTap: () async {},
+      onContactTap: () async {},
       onAddToWishlist: () async {
-        if(isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
         isLoading = true;
         mySetState();
@@ -172,7 +197,7 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
         }
       },
       onRemoveWishlist: () async {
-        if(isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
         isLoading = true;
         mySetState();
         MyPrint.printOnConsole("Component instance id: $componentInstanceId");
@@ -200,12 +225,12 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
         }
       },
       onAddToWaitListTap: () {
-        if(isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
         //TODO: Implement onAddToWaitListTap
       },
       onCancelEnrollmentTap: () async {
-        if(isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
         isLoading = true;
         mySetState();
@@ -231,27 +256,27 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
         }
       },
       onViewResources: () {
-        if(isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
         //TODO: Implement onViewResources
       },
       onRescheduleTap: () {
-        if(isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
         //TODO: Implement onRescheduleTap
       },
       onReEnrollmentHistoryTap: () {
-        if(isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
         //TODO: Implement onViewResources
       },
       onRecommendToTap: () {
-        if(isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
         //TODO: Implement onReEnrollmentHistoryTap
       },
       onShareWithConnectionTap: () {
-        if(isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
         NavigationController.navigateToShareWithConnectionsScreen(
           navigationOperationParameters: NavigationOperationParameters(
@@ -267,7 +292,7 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
         );
       },
       onShareWithPeopleTap: () {
-        if(isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
         NavigationController.navigateToShareWithPeopleScreen(
           navigationOperationParameters: NavigationOperationParameters(
@@ -282,7 +307,7 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
         );
       },
       onShareTap: () {
-        if(isSecondaryAction) Navigator.pop(context);
+        if (isSecondaryAction) Navigator.pop(context);
 
         //TODO: Implement onShareTap
       },
@@ -299,15 +324,17 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
       appProvider: appProvider,
     );
     // MyPrint.printOnConsole("isWIshlishContent: ${model.isWishListContent}");
-    List<InstancyUIActionModel> options = catalogUIActionsController.getCatalogScreenSecondaryActions(
-      catalogCourseDTOModel: model,
-      localStr: localStr,
-      catalogUIActionCallbackModel: getCatalogUIActionCallbackModel(
-        model: model,
-        primaryAction: primaryAction,
-      ),
-      isWishlistMode: true,
-    ).toList();
+    List<InstancyUIActionModel> options = catalogUIActionsController
+        .getCatalogScreenSecondaryActions(
+          catalogCourseDTOModel: model,
+          localStr: localStr,
+          catalogUIActionCallbackModel: getCatalogUIActionCallbackModel(
+            model: model,
+            primaryAction: primaryAction,
+          ),
+          isWishlistMode: true,
+        )
+        .toList();
 
     if (options.isEmpty) {
       return;
@@ -359,11 +386,18 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
 
   @override
   Widget build(BuildContext context) {
-    return ModalProgressHUD(
-      inAsyncCall: isLoading,
-      child: Scaffold(
-        appBar: AppConfigurations().commonAppBar(title: "Wishlisted"),
-        body: AppUIComponents.getBackGroundBordersRounded(child: getMainWidget(), context: context),
+    super.pageBuild();
+
+    return WillPopScope(
+      onWillPop: () async {
+        return !isLoading;
+      },
+      child: ModalProgressHUD(
+        inAsyncCall: isLoading,
+        child: Scaffold(
+          appBar: AppConfigurations().commonAppBar(title: "Wishlisted"),
+          body: AppUIComponents.getBackGroundBordersRounded(child: getMainWidget(), context: context),
+        ),
       ),
     );
   }
@@ -428,10 +462,9 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
     if (!paginationModel.isLoading && list.isEmpty) {
       return RefreshIndicator(
           onRefresh: onRefresh,
-          child:Center(
-          child: AppConfigurations.commonNoDataView(),
-        )
-      );
+          child: Center(
+            child: AppConfigurations.commonNoDataView(),
+          ));
     }
 
     return RefreshIndicator(
@@ -484,10 +517,11 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
           localStr: localStr,
           catalogUIActionCallbackModel: getCatalogUIActionCallbackModel(
             model: model,
-        isSecondaryAction: false,
-      ),
-      isWishlistMode: true,
-    ).toList();
+            isSecondaryAction: false,
+          ),
+          isWishlistMode: true,
+        )
+        .toList();
 
     // MyPrint.printOnConsole("options:$options");
 
@@ -504,7 +538,7 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
         onPrimaryActionTap: () async {
           MyPrint.printOnConsole("primaryAction:$primaryActionEnum");
 
-          if(primaryAction?.onTap != null) {
+          if (primaryAction?.onTap != null) {
             primaryAction!.onTap!();
           }
         },
