@@ -1052,6 +1052,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
                   getLearningObjectivesWidget(learningObjectives: contentDetailsDTOModel.LearningObjectives),
                   getTableOfContentsWidget(tableOfContents: contentDetailsDTOModel.TableofContent),
                   courseDurationView(contentDetailsDTOModel: contentDetailsDTOModel),
+                  directionUrl(contentDetailsDTOModel: contentDetailsDTOModel),
                   // programOutlineView(),
                   getAuthorView(contentDetailsDTOModel: contentDetailsDTOModel),
                   getReviews(contentDetailsDTOModel: contentDetailsDTOModel),
@@ -1436,6 +1437,28 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
               Text(ParsingHelper.parseStringMethod(contentDetailsDTOModel.Duration))
             ],
           )),
+    );
+  }
+
+  //endregion
+  //
+  // region courseDurationView
+  Widget directionUrl({required CourseDTOModel contentDetailsDTOModel}) {
+    if (contentDetailsDTOModel.DirectionURL.isEmpty) {
+      return const SizedBox();
+    }
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: getWidgetWithTitle(
+          title: "URL",
+          widget: InkWell(
+              onTap: () {
+                MyUtils.launchUrl(url: ParsingHelper.parseStringMethod(contentDetailsDTOModel.DirectionURL));
+              },
+              child: Text(
+                ParsingHelper.parseStringMethod(contentDetailsDTOModel.DirectionURL),
+                style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+              ))),
     );
   }
 

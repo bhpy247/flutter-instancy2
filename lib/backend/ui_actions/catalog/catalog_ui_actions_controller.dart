@@ -298,7 +298,6 @@ class CatalogUIActionsController {
       objectTypeId:catalogCourseDTOModel.ContentTypeId,
       mediaTypeId: catalogCourseDTOModel.MediaTypeID,
     );
-    MyPrint.printOnConsole("secondaryActions:$secondaryActions");
 
     Set<InstancyContentActionsEnum> set = {};
     set.addAll(primaryActions);

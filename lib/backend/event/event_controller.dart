@@ -8,10 +8,12 @@ import 'package:flutter_instancy_2/models/classroom_events/data_model/tab_data_m
 import 'package:flutter_instancy_2/models/classroom_events/request_model/tabs_list_request_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/event/response_model/event_session_data_response_model.dart';
+import 'package:flutter_instancy_2/models/event/response_model/re_entrollment_history_response_model.dart';
 import 'package:flutter_instancy_2/models/event_track/request_model/view_recording_request_model.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/event/components/event_cancel_enrolment_dialog.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../api/api_controller.dart';
@@ -250,9 +252,60 @@ class EventController {
       notify: isNotify,
     );
     provider.eventsList.setList(list: contentsList, isClear: false, isNotify: true);
+    updateEventListAccordingToCalendarDate();
+
+    Map<String, int> eventDate = {};
+
+    for (CourseDTOModel event in contentsList) {
+      MyPrint.printOnConsole("StartDateTime:${event.EventStartDateTime}, EndDateTime:${event.EventEndDateTime}", tag: tag);
+
+      DateTime? startDate = ParsingHelper.parseDateTimeMethod(event.EventStartDateTime, dateFormat: "MM/dd/yyyy hh:mm aa");
+      DateTime? endDate = ParsingHelper.parseDateTimeMethod(event.EventEndDateTime, dateFormat: "MM/dd/yyyy hh:mm aa");
+      if (endDate != null && startDate != null) {
+        List<DateTime> dates = MyUtils.getDaysInBetween(startDate, endDate);
+        MyPrint.printOnConsole("dates:${dates.map((e) => e.toIso8601String())}", tag: tag);
+
+        for (DateTime dateTime in dates) {
+          eventDate.update(DateFormat("yyyy-MM-dd").format(dateTime), (value) => ++value, ifAbsent: () => 1);
+        }
+      }
+    }
+    MyPrint.printOnConsole("eventDate : $eventDate", tag: tag);
+
+    eventProvider.calenderDatesHavingEventMap.setMap(map: eventDate, isClear: true, isNotify: false);
+
     //endregion
 
     return provider.eventsList.getList(isNewInstance: true);
+  }
+
+  void updateEventListAccordingToCalendarDate() {
+    MyPrint.printOnConsole("EventController().updateEventListAccordingToCalendarDate() called");
+
+    List<CourseDTOModel> eventList = eventProvider.eventsList.getList();
+
+    DateTime selectedCalenderDate = eventProvider.selectedCalenderDate.get();
+    MyPrint.printOnConsole("selectedCalenderDate: $selectedCalenderDate");
+
+    List<CourseDTOModel> selectedEventList = eventList.where(
+      (element) {
+        DateTime? eventStartDate = ParsingHelper.parseDateTimeMethod(element.EventStartDateTime, dateFormat: "MM/dd/yyyy hh:mm aa");
+        DateTime? eventEndDate = ParsingHelper.parseDateTimeMethod(element.EventEndDateTime, dateFormat: "MM/dd/yyyy hh:mm aa");
+
+        if (eventStartDate == null || eventEndDate == null) return false;
+
+        return DatePresentation.isSameDay(eventStartDate, selectedCalenderDate) ||
+            DatePresentation.isSameDay(eventEndDate, selectedCalenderDate) ||
+            (DatePresentation.isDayAfter(selectedCalenderDate, eventStartDate) && DatePresentation.isDayBefore(selectedCalenderDate, eventEndDate));
+
+        // DateTime? eventEndDate = ParsingHelper.parseDateTimeMethod(element.EventEndDateTime, dateFormat: "MM/dd/yyyy hh:mm aa");
+        // return ((eventStartDate?.day == selectedCalenderDate.day && eventStartDate?.month == selectedCalenderDate.month && eventStartDate?.year == selectedCalenderDate.year) ||
+        //     !DatePresentation.isSameDay(eventStartDate!, eventEndDate!));
+      },
+    ).toList();
+    MyPrint.printOnConsole("selectedEventList: ${selectedEventList.length}");
+
+    eventProvider.selectedCalendarDateEventList.setList(list: selectedEventList);
   }
 
   CatalogRequestModel getCatalogRequestModelModelFromProviderData({
@@ -289,7 +342,7 @@ class EventController {
 
     if (tabId == EventCatalogTabTypes.calendarView) {
       pageIndex = 1;
-      pageSize = 100;
+      pageSize = 1000;
 
       DateTime? calenderDate = provider.calenderDate.get();
       if (calenderDate != null) {
@@ -338,7 +391,11 @@ class EventController {
       pageSize: pageSize,
       contentID: "",
       keywords: "",
-      sortBy: isWishList ? filterProvider.defaultSort.get() : filterProvider.selectedSort.get(),
+      sortBy: tabId == EventCatalogTabTypes.calendarSchedule
+          ? "C.EventStartDateTime"
+          : isWishList
+              ? filterProvider.defaultSort.get()
+              : filterProvider.selectedSort.get(),
       categories: (enabledContentFilterByTypeModel?.categories ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
               list: filterProvider.selectedCategories.getList().map((e) => e.categoryId).toList(),
@@ -460,6 +517,31 @@ class EventController {
     }
 
     return dataResponseModel.data == 'true';
+  }
+
+  Future<ReEnrollmentHistoryResponseModel?> getReEnrollmentHistory({
+    required BuildContext context,
+    required String eventId,
+    required String instanceId,
+    LocalStr? localStr,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("EventController().getReEnrollmentHistory() called with eventId:'$eventId' and instance Id: $instanceId", tag: tag);
+
+    EventRepository repository = eventRepository;
+
+    DataResponseModel<ReEnrollmentHistoryResponseModel> dataResponseModel = await repository.getReEnrollmentHistory(
+      eventId: eventId,
+      instanceId: instanceId,
+    );
+    MyPrint.printOnConsole("getReEnrollmentHistory response:$dataResponseModel", tag: tag);
+
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from EventController().getReEnrollmentHistory() because getReEnrollmentHistory had some error", tag: tag);
+      return null;
+    }
+
+    return dataResponseModel.data;
   }
 
   Future<bool> checkCancelEnrollmentFromDialog({required BuildContext context, LocalStr? localStr}) async {

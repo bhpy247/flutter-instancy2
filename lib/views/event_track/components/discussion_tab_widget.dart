@@ -44,7 +44,7 @@ class _DiscussionTabWidgetState extends State<DiscussionTabWidget> {
     discussionController = DiscussionController(discussionProvider: discussionProvider);
 
     PaginationModel paginationModel = discussionProvider.forumListPaginationModel.get();
-    if (!paginationModel.isFirstTimeLoading && !paginationModel.isLoading && paginationModel.hasMore && discussionProvider.forumsListLength == 0) {
+    if (!paginationModel.isFirstTimeLoading && !paginationModel.isLoading && paginationModel.hasMore && discussionProvider.forumsList.length == 0) {
       discussionProvider.forumContentId.set(value: widget.contentId, isNotify: false);
       discussionController.getForumsList(
         isRefresh: true,
@@ -80,7 +80,7 @@ class _DiscussionTabWidgetState extends State<DiscussionTabWidget> {
       );
     }
 
-    if (!paginationModel.isLoading && discussionProvider.forumsListLength == 0) {
+    if (!paginationModel.isLoading && discussionProvider.forumsList.length == 0) {
       return RefreshIndicator(
         onRefresh: () async {
           discussionController.getForumsList(

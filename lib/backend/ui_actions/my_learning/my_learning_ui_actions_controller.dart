@@ -64,6 +64,7 @@ class MyLearningUIActionsController {
       InstancyContentActionsEnum.ShareToConnections: showShareWithConnection,
       InstancyContentActionsEnum.ShareWithPeople: showShareWithPeople,
       InstancyContentActionsEnum.Share: showShare,
+      InstancyContentActionsEnum.ReEnrollmentHistory: showReEnrollmentHistory,
     };
   }
 
@@ -163,6 +164,18 @@ class MyLearningUIActionsController {
     }
 
     return true;
+  }
+
+  bool showReEnrollmentHistory({required MyLearningUIActionParameterModel parameterModel}) {
+    // bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(parameterModel.eventEndDatetime) ?? true);
+    // MyPrint.printOnConsole("isEventCompleted in showCancelEnrollment:$isEventCompleted");
+    // if (parameterModel.objectTypeId == InstancyObjectTypes.events && isEventCompleted) {
+    //   return true;
+    // }
+    if (parameterModel.ReEnrollmentHistoryLink.isNotEmpty) {
+      return true;
+    }
+    return false;
   }
 
   bool showAddToCalender({required MyLearningUIActionParameterModel parameterModel}) {
@@ -408,6 +421,7 @@ class MyLearningUIActionsController {
       suggestWithFriendLink: model.SuggestwithFriendLink,
       shareLink: model.Sharelink,
       ViewSessionsLink: model.ViewSessionsLink,
+      ReEnrollmentHistoryLink: model.ReEnrollmentHistory,
     );
   }
 
@@ -590,6 +604,15 @@ class MyLearningUIActionsController {
             iconSize: 20,
             onTap: myLearningUIActionCallbackModel.onViewSessionsTap,
             actionsEnum: InstancyContentActionsEnum.ViewSessions,
+          );
+        }
+      } else if (action == InstancyContentActionsEnum.ReEnrollmentHistory) {
+        if (isShowAction(actionType: InstancyContentActionsEnum.ReEnrollmentHistory, parameterModel: parameterModel) && myLearningUIActionCallbackModel.onReEnrollmentHistoryTap != null) {
+          model = InstancyUIActionModel(
+            text: localStr.eventsActionSheetReEnrollmentHistoryOption,
+            iconData: InstancyIcons.ReEnrollmentHistory,
+            onTap: myLearningUIActionCallbackModel.onReEnrollmentHistoryTap,
+            actionsEnum: InstancyContentActionsEnum.ReEnrollmentHistory,
           );
         }
       } else if (action == InstancyContentActionsEnum.ShareToConnections) {

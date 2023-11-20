@@ -364,6 +364,16 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
           refreshMyLearningData();
         }
       },
+      onReEnrollmentHistoryTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+        await NavigationController.navigateToReEnrollmentHistoryScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: ReEnrollmentHistoryScreenNavigationArguments(model: model),
+        );
+      },
       onCertificateTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 

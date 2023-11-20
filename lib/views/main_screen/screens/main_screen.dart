@@ -21,9 +21,11 @@ import 'package:flutter_instancy_2/models/app_configuration_models/data_models/n
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/catalog_categories_list_screen.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
+import 'package:flutter_instancy_2/views/discussion_forum/screens/discussion_forum_list_main_screen.dart';
 import 'package:flutter_instancy_2/views/event/screens/event_catalog_tab_screen.dart';
 import 'package:flutter_instancy_2/views/message/screen/message_screen.dart';
 import 'package:flutter_instancy_2/views/my_learning_plus/screens/my_learning_plus.dart';
+import 'package:flutter_instancy_2/views/transferToAgent/screens/transferToAgentScreen.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
@@ -126,6 +128,7 @@ class _MainScreenState extends State<MainScreen> {
             for (int i = 0; i < bottomMenusLength; i++) {
               bottomBarMenusList.add(mainMenusList[i]);
             }
+
             drawerMenusList.removeWhere((element) => bottomBarMenusList.contains(element));
           }
 
@@ -355,7 +358,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget getUIComponentFromMenuComponentModel({required NativeMenuComponentModel model, bool isExpanded = false}) {
-    // MyPrint.printOnConsole("Component iddddd: ${model.componentid}");
+    MyPrint.printOnConsole("Component iddddd: ${model.componentid}");
     if (model.componentid == InstancyComponents.NewLearningResources) {
       return HomeNewLearningResourcesSlider(
         homeProvider: homeProvider,
@@ -431,6 +434,15 @@ class _MainScreenState extends State<MainScreen> {
       return const MessageScreen();
     } else if (model.componentid == InstancyComponents.UserSettings) {
       return const SettingsMainScreen();
+    } else if (model.componentid == InstancyComponents.transferToAgentComponent) {
+      return const TransferToAgent();
+    } else if (model.componentid == InstancyComponents.discussionForumComponent) {
+      return DiscussionForumMainScreen(
+        arguments: DiscussionForumScreenNavigationArguments(
+          componentId: model.componentid,
+          componentInsId: model.repositoryid,
+        ),
+      );
     } else {
       return const SizedBox();
     }

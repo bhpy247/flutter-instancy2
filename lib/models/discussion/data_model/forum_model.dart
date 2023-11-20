@@ -1,7 +1,10 @@
 import 'package:flutter_instancy_2/models/discussion/data_model/like_user_id_model.dart';
+import 'package:flutter_instancy_2/models/discussion/data_model/topic_model.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
 
-import './../../../utils/parsing_helper.dart';
 import '../../../utils/my_utils.dart';
+import './../../../utils/parsing_helper.dart';
+import 'forum_info_user_model.dart';
 
 class ForumModel {
   String Name = "";
@@ -28,6 +31,7 @@ class ForumModel {
   int NoOfTopics = 0;
   int TotalPosts = 0;
   int Existing = 0;
+  int totalLikeUserCount = 0;
   bool Active = false;
   bool RequiresSubscription = false;
   bool CreateNewTopic = false;
@@ -44,7 +48,14 @@ class ForumModel {
   bool AllowPinEditValue = false;
   DateTime? DFUpdateTime;
   DateTime? DFChangeUpdateTime;
+  DateTime? CreatedDateTime;
   List<LikeUserIDModel> TotalLikes = <LikeUserIDModel>[];
+  List<TopicModel> MainTopicsList = List<TopicModel>.empty(growable: true);
+  List<TopicModel> PinnedTopicsList = List<TopicModel>.empty(growable: true);
+  List<TopicModel> UnpinnedTopicsList = List<TopicModel>.empty(growable: true);
+  List<ForumUserInfoModel> likeUserList = <ForumUserInfoModel>[];
+  bool isLoadingTopics = false;
+  bool isLikedByMe = false;
 
   ForumModel({
     this.Name = "",
@@ -71,6 +82,7 @@ class ForumModel {
     this.NoOfTopics = 0,
     this.TotalPosts = 0,
     this.Existing = 0,
+    this.totalLikeUserCount = 0,
     this.Active = false,
     this.RequiresSubscription = false,
     this.CreateNewTopic = false,
@@ -88,8 +100,13 @@ class ForumModel {
     this.DFUpdateTime,
     this.DFChangeUpdateTime,
     List<LikeUserIDModel>? TotalLikes,
+    List<TopicModel>? MainTopicsList,
+    List<ForumUserInfoModel>? likeUserList,
+    this.isLoadingTopics = false,
   }) {
     this.TotalLikes = TotalLikes ?? <LikeUserIDModel>[];
+    this.MainTopicsList = MainTopicsList ?? List<TopicModel>.empty(growable: true);
+    this.likeUserList = likeUserList ?? <ForumUserInfoModel>[];
   }
 
   ForumModel.fromJson(Map<String, dynamic> map) {
@@ -141,54 +158,87 @@ class ForumModel {
     AllowPinEditValue = ParsingHelper.parseBoolMethod(json["AllowPinEditValue"]);
     DFUpdateTime = ParsingHelper.parseDateTimeMethod(json["DFUpdateTime"]);
     DFChangeUpdateTime = ParsingHelper.parseDateTimeMethod(json["DFChangeUpdateTime"]);
+    CreatedDateTime = ParsingHelper.parseDateTimeMethod(CreatedDate);
 
+    TotalLikes.clear();
     List<Map<String, dynamic>> TotalLikesMapsList = ParsingHelper.parseMapsListMethod(json["TotalLikes"]);
     TotalLikes.addAll(TotalLikesMapsList.map((e) => LikeUserIDModel.fromJson(e)).toList());
+    calculateLikeUserCount();
+
+    MainTopicsList.clear();
+    calculatePinnedTopics();
+    isLoadingTopics = false;
+  }
+
+  void calculateLikeUserCount() {
+    totalLikeUserCount = TotalLikes.map((e) => e.UserID).toList().toSet().length;
+  }
+
+  void calculatePinnedTopics() {
+    PinnedTopicsList.clear();
+    UnpinnedTopicsList.clear();
+
+    for (TopicModel topicModel in MainTopicsList) {
+      if (topicModel.IsPin) {
+        PinnedTopicsList.add(topicModel);
+      } else {
+        UnpinnedTopicsList.add(topicModel);
+      }
+    }
+
+    sortTopics(false);
+  }
+
+  void sortTopics(bool isAscending) {
+    UnpinnedTopicsList.sort((TopicModel a, TopicModel b) {
+      MyPrint.printOnConsole("a.CreatedDateTime:${a.CreatedDateTime}, b.CreatedDateTime:${b.CreatedDateTime}");
+      return a.CreatedDateTime != null && b.CreatedDateTime != null ? (isAscending ? a.CreatedDateTime!.compareTo(b.CreatedDateTime!) : b.CreatedDateTime!.compareTo(a.CreatedDateTime!)) : 0;
+    });
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "Name" : Name,
-      "Description" : Description,
-      "CreatedDate" : CreatedDate,
-      "SendEmail" : SendEmail,
-      "Author" : Author,
-      "DFProfileImage" : DFProfileImage,
-      "NoImageText" : NoImageText,
-      "ForumThumbnailPath" : ForumThumbnailPath,
-      "DescriptionWithLimit" : DescriptionWithLimit,
-      "ModeratorID" : ModeratorID,
-      "UpdatedAuthor" : UpdatedAuthor,
-      "UpdatedDate" : UpdatedDate,
-      "ModeratorName" : ModeratorName,
-      "DescriptionWithoutLimit" : DescriptionWithoutLimit,
-      "CategoryIDs" : CategoryIDs,
-      "MappedContentNames" : MappedContentNames,
-      "ForumID" : ForumID,
-      "ParentForumID" : ParentForumID,
-      "DisplayOrder" : DisplayOrder,
-      "SiteID" : SiteID,
-      "CreatedUserID" : CreatedUserID,
-      "NoOfTopics" : NoOfTopics,
-      "TotalPosts" : TotalPosts,
-      "Existing" : Existing,
-      "Active" : Active,
-      "RequiresSubscription" : RequiresSubscription,
-      "CreateNewTopic" : CreateNewTopic,
-      "AttachFile" : AttachFile,
-      "LikePosts" : LikePosts,
-      "Moderation" : Moderation,
-      "IsPrivate" : IsPrivate,
-      "AllowShare" : AllowShare,
-      "AllowPin" : AllowPin,
-      "CreateNewTopicEditValue" : CreateNewTopicEditValue,
-      "LikePostsEditValue" : LikePostsEditValue,
-      "AttachFileEditValue" : AttachFileEditValue,
-      "AllowShareEditValue" : AllowShareEditValue,
-      "AllowPinEditValue" : AllowPinEditValue,
-      "DFUpdateTime" : DFUpdateTime,
-      "DFChangeUpdateTime" : DFChangeUpdateTime,
-      "TotalLikes" : TotalLikes.map((e) => e.toJson()).toList(),
+      "Name": Name,
+      "Description": Description,
+      "CreatedDate": CreatedDate,
+      "SendEmail": SendEmail,
+      "Author": Author,
+      "DFProfileImage": DFProfileImage,
+      "NoImageText": NoImageText,
+      "ForumThumbnailPath": ForumThumbnailPath,
+      "DescriptionWithLimit": DescriptionWithLimit,
+      "ModeratorID": ModeratorID,
+      "UpdatedAuthor": UpdatedAuthor,
+      "UpdatedDate": UpdatedDate,
+      "ModeratorName": ModeratorName,
+      "DescriptionWithoutLimit": DescriptionWithoutLimit,
+      "CategoryIDs": CategoryIDs,
+      "MappedContentNames": MappedContentNames,
+      "ForumID": ForumID,
+      "ParentForumID": ParentForumID,
+      "DisplayOrder": DisplayOrder,
+      "SiteID": SiteID,
+      "CreatedUserID": CreatedUserID,
+      "NoOfTopics": NoOfTopics,
+      "TotalPosts": TotalPosts,
+      "Existing": Existing,
+      "Active": Active,
+      "RequiresSubscription": RequiresSubscription,
+      "CreateNewTopic": CreateNewTopic,
+      "AttachFile": AttachFile,
+      "LikePosts": LikePosts,
+      "Moderation": Moderation,
+      "IsPrivate": IsPrivate,
+      "AllowShare": AllowShare,
+      "AllowPin": AllowPin,
+      "CreateNewTopicEditValue": CreateNewTopicEditValue,
+      "LikePostsEditValue": LikePostsEditValue,
+      "AttachFileEditValue": AttachFileEditValue,
+      "AllowShareEditValue": AllowShareEditValue,
+      "AllowPinEditValue": AllowPinEditValue,
+      "DFUpdateTime": DFUpdateTime,
+      "DFChangeUpdateTime": DFChangeUpdateTime,
+      "TotalLikes": TotalLikes.map((e) => e.toJson()).toList(),
     };
   }
 

@@ -9,6 +9,7 @@ import 'package:flutter_instancy_2/models/classroom_events/data_model/tab_data_m
 import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -97,6 +98,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
           isNotify: true,
         ),*/
     ]);
+    // _events = _MeetingDataSource(_getAppointments());
   }
 
   Future<void> navigateToFilterScreen({String? contentFilterByTypes}) async {
@@ -140,7 +142,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
     MyPrint.printOnConsole("existingDate:$existingDate");
 
     if (existingDate == null || (newDate.month != existingDate.month || newDate.year != existingDate.year)) {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
         eventProvider.calenderDate.set(value: newDate, isNotify: false);
         getEventCatalogContentsList(
           isRefresh: true,
@@ -283,10 +285,15 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
 
         onDetailsTap(model: model, isRescheduleEvent: true);
       },
-      onReEnrollmentHistoryTap: () {
+      onReEnrollmentHistoryTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
-
-        //TODO: Implement onReEnrollmentHistoryTap
+        await NavigationController.navigateToReEnrollmentHistoryScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: ReEnrollmentHistoryScreenNavigationArguments(model: model),
+        );
       },
       onAddToWishlist: () async {
         if (isSecondaryAction) Navigator.pop(context);
@@ -696,6 +703,14 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         isNotify: true,
       );
     }
+
+    searchController.text = eventProvider.searchString.get();
+    // getEventCatalogContentsList(
+    //   isRefresh: true,
+    //   isGetFromCache: false,
+    //   isNotify: true,
+    // );
+    eventController.updateEventListAccordingToCalendarDate();
   }
 
   @override
@@ -1000,7 +1015,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
   Widget getCatalogContentsListView() {
     return getContentsListViewWidget(
       scrollController: catalogContentScrollController,
-      contentsLength: eventProvider.eventsListLength,
+      contentsLength: tabId == EventCatalogTabTypes.calendarView ? eventProvider.selectedCalendarDateEventList.getList().length : eventProvider.eventsListLength,
       paginationModel: eventProvider.eventsPaginationModel.get(),
       onRefresh: () async {
         getEventCatalogContentsList(
@@ -1064,8 +1079,8 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
       );
     }
 
-    List<CourseDTOModel> list = eventProvider.eventsList.getList(isNewInstance: false);
-
+    List<CourseDTOModel> list = (tabId == EventCatalogTabTypes.calendarView) ? eventProvider.selectedCalendarDateEventList.getList() : eventProvider.eventsList.getList(isNewInstance: false);
+    MyPrint.printOnConsole("List.length : ${list.length}");
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: ScrollablePositionedList.builder(
@@ -1100,7 +1115,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
           if (index > (contentsLength - paginationModel.refreshLimit) && paginationModel.hasMore && !paginationModel.isLoading) {
             onPagination();
           }
-
+          MyPrint.printOnConsole("Indexxxx: $index");
           CourseDTOModel model = list[index];
 
           EventCatalogUIActionsController eventCatalogUIActionsController = EventCatalogUIActionsController(
@@ -1124,6 +1139,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
           InstancyUIActionModel? primaryAction = options.firstElement;
 
           InstancyContentActionsEnum? primaryActionEnum = primaryAction?.actionsEnum;
+          // MyPrint.printOnConsole("parameterModel.EventType: ${model.EventType}  title: ${model.Title}");
 
           return Container(
             margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
@@ -1159,9 +1175,14 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         initialDisplayDate: eventProvider.calenderDate.get(),
         cellEndPadding: 1,
         view: CalendarView.month,
+
         minDate: DateTime.now(),
-        onSelectionChanged: (ee) async {
-          onCalenderDateChanged(newDate: ee.date);
+        onSelectionChanged: (CalendarSelectionDetails ee) {
+          MyPrint.printOnConsole("onSelectionChanged : ${ee.date}");
+          // onCalenderDateChanged(newDate: ee.date);
+          eventProvider.selectedCalenderDate.set(value: ee.date ?? DateTime.now());
+          eventController.updateEventListAccordingToCalendarDate();
+          mySetState();
         },
         // onTap: (calendarDetails){
         //   onCalenderDateChanged(newDate: calendarDetails.date);
@@ -1170,10 +1191,66 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         showNavigationArrow: true,
         headerStyle: const CalendarHeaderStyle(textAlign: TextAlign.center, textStyle: TextStyle(fontWeight: FontWeight.bold)),
         showDatePickerButton: true,
+        // dataSource: ,
+        // monthCellBuilder: (BuildContext context, MonthCellDetails details) {
+        //   final bool hasEvent = _appointments.any((appointment) =>
+        //   appointment.startTime.day == details.date.day &&
+        //       appointment.startTime.month == details.date.month &&
+        //       appointment.startTime.year == details.date.year);
+        //
+        //   if (hasEvent) {
+        //     return Container(
+        //       height: 5,
+        //       width: 5,
+        //       decoration: BoxDecoration(
+        //         // borderRadius: BorderRadius.circular(5),
+        //         color: Colors.red,
+        //         shape: BoxShape.circle
+        //
+        //       ),
+        //       child: Text("${details.date.day}",textAlign: TextAlign.center),
+        //       // child: ,
+        //     );
+        //   } else {
+        //     return Text("${details.date.day}",textAlign: TextAlign.center);
+        //   }
+        // },
         cellBorderColor: Colors.transparent,
-        /*monthCellBuilder: (BuildContext context, MonthCellDetails monthCellDetails) {
-            return Text(DatePresentation.getFormattedDate(dateFormat: "d", dateTime: monthCellDetails.date) ?? "");
-          },*/
+
+        monthCellBuilder: (BuildContext context, MonthCellDetails monthCellDetails) {
+          int count = eventProvider.calenderDatesHavingEventMap.getMap()[DateFormat("yyyy-MM-dd").format(monthCellDetails.date)] ?? 0;
+          bool isCurrentDate = DateFormat("yyyy-MM-dd").format(monthCellDetails.date) == DateFormat("yyyy-MM-dd").format(DateTime.now());
+          bool pastEvent = monthCellDetails.date.isBefore(DateTime.now());
+
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                  padding: EdgeInsets.all(isCurrentDate ? 5 : 0),
+                  decoration: BoxDecoration(color: isCurrentDate ? themeData.primaryColor : Colors.white, shape: BoxShape.circle),
+                  child: Text(DatePresentation.getFormattedDate(dateFormat: "d", dateTime: monthCellDetails.date) ?? "",
+                      style: TextStyle(
+                          color: isCurrentDate
+                              ? Colors.white
+                              : pastEvent
+                                  ? Colors.grey
+                                  : Colors.black))),
+              const SizedBox(
+                height: 3,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  count,
+                  (index) => const Padding(
+                    padding: EdgeInsets.only(left: 2.0),
+                    child: Icon(Icons.circle, size: 5, color: Colors.green),
+                  ),
+                ),
+              )
+            ],
+          );
+        },
         monthViewSettings: MonthViewSettings(
           monthCellStyle: MonthCellStyle(
             textStyle: themeData.textTheme.bodySmall?.copyWith(
@@ -1189,6 +1266,20 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
       ),
     );
   }
+
+  //     child: SfCalendar(
+  //       view: CalendarView.month,
+  //       controller: _calendarController,
+  //       showDatePickerButton: true,
+  //       showNavigationArrow: true,
+  //       // onViewChanged: onViewChanged,
+  //       dataSource: _events,
+  //       // monthViewSettings: MonthViewSettings(
+  //       //     showAgenda: true, numberOfWeeksInView: 6),
+  //       timeSlotViewSettings: const TimeSlotViewSettings(minimumAppointmentDuration: Duration(minutes: 60)),
+  //     ),
+  //   );
+  // }
 
   Widget? getScheduleDateWidget() {
     if (tabId != EventCatalogTabTypes.calendarSchedule) {
@@ -1275,4 +1366,18 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
       ),
     );
   }
+// CalendarDataSource _getCalendarDataSource(List<Appointment> events) {
+//   final List<Meeting> appointments = events.map((event) {
+//     final DateTime date = event.startTime;
+//     final Meeting meeting = Meeting(
+//       eventName: event.subject,
+//       from: date,
+//       to: date.add(Duration(hours: 2)), // Adjust the duration as needed
+//       background: Colors.blue, // Customize the dot color
+//     );
+//     return meeting;
+//   }).toList();
+//
+//   return CalendarDataSource(appointments: appointments);
+// }
 }

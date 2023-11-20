@@ -389,7 +389,7 @@ class SplashController {
     String newId = MyUtils.getNewId();
     MyPrint.printOnConsole(
         "SplashController().getSiteLocalizationStrings called with isGetFromOffline:$isGetFromOffline,"
-            " isSaveInOfflineL$isSaveInOffline",
+        " isSaveInOfflineL$isSaveInOffline",
         tag: newId);
 
     LocalStr? localStr;
@@ -569,7 +569,7 @@ class SplashController {
     String newId = MyUtils.getNewId();
     MyPrint.printOnConsole(
         "SplashController().getAppMenuComponentsList called for menuId:$menuId, isGetFromOnline:$isGetFromOnline, "
-            "isGetFromOffline:$isGetFromOffline, isSaveInOffline:$isSaveInOffline",
+        "isGetFromOffline:$isGetFromOffline, isSaveInOffline:$isSaveInOffline",
         tag: newId);
 
     List<NativeMenuComponentModel>? nativeMenuComponentModelsList;
@@ -628,6 +628,11 @@ class SplashController {
   void addPredefineMenu() {
     List<NativeMenuModel> data = [
       NativeMenuModel(
+        displayname: "Discussion Forum",
+        menuid: 1003,
+        menuIconData: material.Icons.document_scanner,
+      ),
+      NativeMenuModel(
         displayname: "Settings",
         menuid: 1000,
         menuIconData: material.Icons.settings,
@@ -637,8 +642,14 @@ class SplashController {
         menuid: 1001,
         menuIconData: material.Icons.message,
       ),
+      NativeMenuModel(
+        displayname: "Transfer to Human Agent",
+        menuid: 1002,
+        menuIconData: material.Icons.person,
+      ),
     ];
     appProvider.setMenuModelsList(list: data, isNotify: false, isClear: false);
+
     appProvider.setMenuComponentModelsListForMenuId(
       menuId: 1000,
       list: [
@@ -653,6 +664,24 @@ class SplashController {
       list: [
         NativeMenuComponentModel(
           componentid: InstancyComponents.UserMessages,
+        ),
+      ],
+      isNotify: false,
+    );
+    appProvider.setMenuComponentModelsListForMenuId(
+      menuId: 1002,
+      list: [
+        NativeMenuComponentModel(
+          componentid: InstancyComponents.transferToAgentComponent,
+        ),
+      ],
+      isNotify: false,
+    );
+    appProvider.setMenuComponentModelsListForMenuId(
+      menuId: 1003,
+      list: [
+        NativeMenuComponentModel(
+          componentid: InstancyComponents.discussionForumComponent,
         ),
       ],
       isNotify: false,

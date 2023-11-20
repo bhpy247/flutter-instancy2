@@ -14,7 +14,7 @@ import '../../../utils/my_utils.dart';
 
 class AttachmentIcon extends StatelessWidget {
   final bool isSendingMessage;
-  final void Function({required String messageType, required Uint8List fileBytes, String? fileName})? onAttachmentPicked;
+  final void Function({required String messageType, required Uint8List fileBytes, String? fileName, required String filePath})? onAttachmentPicked;
 
   const AttachmentIcon({
     Key? key,
@@ -49,7 +49,7 @@ class AttachmentIcon extends StatelessWidget {
       }
 
       if (onAttachmentPicked != null) {
-        onAttachmentPicked!(messageType: messageTypeValue, fileBytes: bytes, fileName: platformFile.name);
+        onAttachmentPicked!(messageType: messageTypeValue, fileBytes: bytes, fileName: platformFile.name, filePath: platformFile.path!);
       }
     }
   }

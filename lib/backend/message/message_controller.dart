@@ -190,6 +190,7 @@ class MessageController {
       SendDatetime: requestModel.SendDatetime,
       MarkAsRead: requestModel.MarkAsRead,
       fileUrl: fileUrl,
+      videoDuration: requestModel.videoFileDuration,
       thumbnailImage: thumbnailImageUrl,
     );
 
@@ -232,7 +233,7 @@ class MessageController {
     return "";
   }
 
-  void setSelectedFilterRole({required String selectedFilterRole, bool isNotify = true, String selectedMessageFilter = MessageFilterType.all}) {
+  void setSelectedFilterRole({String selectedFilterRole = RoleFilterType.all, bool isNotify = true, String selectedMessageFilter = MessageFilterType.all}) {
     messageProvider.selectedFilterRole.set(value: selectedFilterRole, isNotify: false);
 
     List<ChatUserModel> chatUserList = messageProvider.allChatUsersList.getList(isNewInstance: true);
@@ -258,7 +259,7 @@ class MessageController {
 
       bool isValidMessageFilter = selectedMessageFilter == MessageFilterType.all ||
           switch (selectedMessageFilter) {
-            MessageFilterType.archive => chatUser.ArchivedUserID == 1,
+            MessageFilterType.archive => chatUser.ArchivedUserID != -1,
             MessageFilterType.myConnection => chatUser.Myconid == currentUserId,
             MessageFilterType.unRead => chatUser.UnReadCount > 0,
             _ => false,
@@ -310,5 +311,46 @@ class MessageController {
     bool isRemoved = filteredChatUserList.remove(model);
     if (isRemoved) filteredChatUserList.insert(0, model!);
     messageProvider.filteredChatUserList.setList(list: filteredChatUserList, isClear: true, isNotify: false);
+  }
+
+  Future<void> setArchiveAndUnarchive({
+    required bool isArchive,
+    required int otherUserId,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("MessageController().setArchiveAndUnarchive() called with isArchive:$isArchive, otherUserId:$otherUserId", tag: tag);
+
+    //region Make Api Call
+    DateTime startTime = DateTime.now();
+
+    List<ChatUserModel> filteredChatUserList = messageProvider.allChatUsersList.getList(isNewInstance: true);
+    List<ChatUserModel>? modelList = filteredChatUserList.where((ChatUserModel chatUser) {
+      return chatUser.UserID == otherUserId;
+    }).toList();
+
+    for (var element in modelList) {
+      element.ArchivedUserID = isArchive ? otherUserId : -1;
+    }
+    messageProvider.allChatUsersList.setList(list: modelList, isClear: false);
+
+    setSelectedFilterRole(
+      selectedFilterRole: messageProvider.selectedFilterRole.get(),
+      selectedMessageFilter: messageProvider.selectedMessageFilter.get(),
+      isNotify: false,
+    );
+    DataResponseModel<String> response = await messageRepository.setArchiveAndUnArchive(
+      isStoreDataInHive: true,
+      isFromOffline: false,
+      intArchivedUserID: isArchive ? otherUserId : -1,
+      intDeleteUserID: otherUserId,
+      isArchived: isArchive,
+    );
+
+    MyPrint.printOnConsole("response response : $response", tag: tag);
+
+    DateTime endTime = DateTime.now();
+
+    MyPrint.printOnConsole("Message User List Data got in ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: tag);
+    //endregion
   }
 }

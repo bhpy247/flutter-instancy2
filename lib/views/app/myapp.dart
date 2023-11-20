@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_controller.dart';
+import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
+import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
@@ -77,6 +79,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<MessageProvider>(create: (_) => MessageProvider()),
         ChangeNotifierProvider<MembershipProvider>(create: (_) => MembershipProvider()),
         ChangeNotifierProvider<InAppPurchaseProvider>(create: (_) => InAppPurchaseProvider()),
+        ChangeNotifierProvider<DiscussionProvider>(create: (_) => DiscussionProvider()),
       ],
       child: const MainApp(),
     );

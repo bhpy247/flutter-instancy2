@@ -6,6 +6,7 @@ class SeekBar extends StatefulWidget {
   final Duration duration;
   final Duration position;
   final Duration bufferedPosition;
+  final bool isMessageReceived;
 
   final ValueChanged<Duration>? onChanged;
   final ValueChanged<Duration>? onChangeEnd;
@@ -17,6 +18,7 @@ class SeekBar extends StatefulWidget {
     required this.bufferedPosition,
     this.onChanged,
     this.onChangeEnd,
+    this.isMessageReceived = false,
   }) : super(key: key);
 
   @override
@@ -46,14 +48,16 @@ class SeekBarState extends State<SeekBar> {
             SliderTheme(
               data: _sliderThemeData.copyWith(
                 thumbShape: HiddenThumbComponentShape(),
-                activeTrackColor: Colors.white30,
-                inactiveTrackColor: Colors.grey.shade300,
+                activeTrackColor: widget.isMessageReceived ? Colors.black.withOpacity(.1) : Colors.white30,
+                inactiveTrackColor: widget.isMessageReceived ? Colors.black : Colors.grey.shade300,
               ),
               child: ExcludeSemantics(
                 child: Slider(
                   min: 0.0,
                   max: widget.duration.inMilliseconds.toDouble(),
-                  value: min(widget.bufferedPosition.inMilliseconds.toDouble(), widget.duration.inMilliseconds.toDouble()),
+                  value: (widget.position.inMilliseconds.toDouble() >= widget.duration.inMilliseconds.toDouble())
+                      ? 0.0
+                      : min(widget.bufferedPosition.inMilliseconds.toDouble(), widget.duration.inMilliseconds.toDouble()),
                   onChanged: (value) {
                     setState(() {
                       _dragValue = value;
@@ -75,14 +79,17 @@ class SeekBarState extends State<SeekBar> {
         ),
         SliderTheme(
           data: _sliderThemeData.copyWith(
-            inactiveTrackColor: Colors.white30,
-            activeTrackColor: Colors.white,
-            thumbColor: Colors.white,
+            inactiveTrackColor: widget.isMessageReceived ? Colors.black12 : Colors.white30,
+            activeTrackColor: widget.isMessageReceived ? Colors.black : Colors.white,
+            thumbColor: widget.isMessageReceived ? Colors.black87 : Colors.white,
           ),
           child: Slider(
             min: 0.0,
             max: widget.duration.inMilliseconds.toDouble(),
-            value: min(_dragValue ?? widget.position.inMilliseconds.toDouble(), widget.duration.inMilliseconds.toDouble()),
+            // value: min(_dragValue ?? widget.position.inMilliseconds.toDouble(), widget.duration.inMilliseconds.toDouble()),
+            value: (widget.position.inMilliseconds.toDouble() >= widget.duration.inMilliseconds.toDouble())
+                ? 0.0
+                : min(_dragValue ?? widget.position.inMilliseconds.toDouble(), widget.duration.inMilliseconds.toDouble()),
             onChanged: (value) {
               setState(() {
                 _dragValue = value;
@@ -104,18 +111,20 @@ class SeekBarState extends State<SeekBar> {
           bottom: -2,
           left: 25,
           // top: 0,
-          child: Text("${widget.position.toString().substring(0, 7)} / ${widget.duration.toString().substring(0, 7)}",
+          child: Text(
+              (widget.position.inMilliseconds.toDouble() >= widget.duration.inMilliseconds.toDouble())
+                  ? "${(widget.position - widget.duration).toString().substring(0, 7)} / ${widget.duration.toString().substring(0, 7)}"
+                  : " ${widget.position.toString().substring(0, 7)} / ${widget.duration.toString().substring(0, 7)}",
               //   RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
               //       .firstMatch("${_remaining}")
               //       ?.group(1) ??
               //       '${widget.duration} / ${widget.position}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white)),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: widget.isMessageReceived ? null : Colors.white)),
         ),
       ],
     );
   }
 
-  Duration get _remaining => widget.duration - widget.position;
 }
 
 class HiddenThumbComponentShape extends SliderComponentShape {

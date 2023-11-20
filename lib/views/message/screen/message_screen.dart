@@ -75,8 +75,8 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
                           const SizedBox(
                             width: 22,
                           ),
-                          Expanded(
-                            child: const Text(
+                          const Expanded(
+                            child: Text(
                               "Role Filters",
                               style: TextStyle(fontSize: 15),
                             ),
@@ -109,8 +109,8 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
                           const SizedBox(
                             width: 22,
                           ),
-                          Expanded(
-                            child: const Text(
+                          const Expanded(
+                            child: Text(
                               "Message Filters",
                               style: TextStyle(fontSize: 15),
                             ),
@@ -218,6 +218,7 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: InkWell(
                   onTap: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
                     showFilterSelectionBottomSheet();
                   },
                   child: const Icon(
@@ -354,15 +355,35 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
                         // DateFormat.jm().format(DateTime.parse(chatUser.sendDateTime)),
                         style: const TextStyle(fontSize: 10, color: Styles.lightTextColor2),
                       ),
-                      if (chatUser.UnReadCount != 0)
-                        Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(shape: BoxShape.circle, color: themeData.primaryColor),
-                          child: Text(
-                            chatUser.UnReadCount.toString(),
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        )
+                      Row(
+                        children: [
+                          if (chatUser.UnReadCount != 0)
+                            Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(shape: BoxShape.circle, color: themeData.primaryColor),
+                              child: Text(
+                                chatUser.UnReadCount.toString(),
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: InkWell(
+                              onTap: () async {
+                                await messageController.setArchiveAndUnarchive(
+                                  isArchive: chatUser.ArchivedUserID == -1,
+                                  otherUserId: chatUser.UserID,
+                                );
+                              },
+                              child: Image.asset(
+                                chatUser.ArchivedUserID != -1 ? "assets/unarchive.png" : "assets/archive.png",
+                                height: 25,
+                                width: 25,
+                              ),
+                            ),
+                          )
+                        ],
+                      )
                     ],
                   ),
                 ],
@@ -370,53 +391,6 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget filterPopupMenu() {
-    return PopupMenuButton<String>(
-      // itemBuilder: (context) => [
-      //   // PopupMenuItem 1
-      //   const PopupMenuItem(
-      //     value: 1,
-      //     child: Text("All"),
-      //   ),
-      //   const PopupMenuItem(
-      //     value: 2,
-      //     child: Text("Group Admin"),
-      //   ),const PopupMenuItem(
-      //     value: 3,
-      //     child: Text("Admin"),
-      //   ),const PopupMenuItem(
-      //     value: 4,
-      //     child: Text("Manager"),
-      //   ),
-      // ],
-      itemBuilder: (_) => RoleFilterType.values
-          .map(
-            (String e) => PopupMenuItem(
-              value: e,
-              child: Text(
-                e,
-                style: themeData.textTheme.labelMedium?.copyWith(
-                  color: messageProvider.selectedFilterRole.get() == e ? themeData.primaryColor : null,
-                ),
-              ),
-            ),
-          )
-          .toList(),
-      offset: const Offset(0, 50),
-      color: Colors.white,
-      elevation: 2,
-      onSelected: (value) {
-        FocusScope.of(context).requestFocus(FocusNode());
-        messageController.setSelectedFilterRole(selectedFilterRole: value);
-      },
-      child: const Icon(
-        FontAwesomeIcons.ellipsis,
-        color: Colors.grey,
-        size: 20,
       ),
     );
   }

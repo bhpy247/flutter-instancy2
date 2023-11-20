@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,10 +11,12 @@ import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/configs/typedefs.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../backend/app_theme/style.dart';
 import '../../../backend/authentication/authentication_provider.dart';
@@ -109,7 +112,7 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
     }
   }
 
-  Future<bool> onAttachmentPicked({required String messageType, required Uint8List fileBytes, String? fileName}) async {
+  Future<bool> onAttachmentPicked({required String messageType, required Uint8List fileBytes, String? fileName, required String filePath}) async {
     MyPrint.printOnConsole('onAttachmentPicked called with messageType:$messageType');
     MyPrint.printOnConsole("Length: ${fileBytes.length}  fileBytes:$fileName");
 
@@ -119,25 +122,36 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
 
     isSendingMessage = true;
     mySetState();
+    int duration = 0;
+    if (messageType == MessageType.Video) {
+      VideoPlayerController controller;
+      controller = VideoPlayerController.file(File(filePath));
+      await controller.initialize();
+      duration = controller.value.duration.inSeconds;
+      MyPrint.printOnConsole("controller.value.duration : ${controller.value.duration.inSeconds}");
+    }
 
-    String response = await messageController.sendMessage(
-      context: context,
-      requestModel: SendChatMessageRequestModel(
-        FromUserID: fromUserID,
-        ToUserID: widget.toUser.UserID,
-        chatRoomId: chatRoom,
-        MessageType: messageType,
-        SendDatetime: null,
-        MarkAsRead: false,
-        fileName: fileName,
-        fileBytes: fileBytes,
-      ),
-    );
-    MyPrint.printOnConsole("response:'$response'");
+    if (context.mounted) {
+      String response = await messageController.sendMessage(
+        context: context,
+        requestModel: SendChatMessageRequestModel(
+            FromUserID: fromUserID,
+            ToUserID: widget.toUser.UserID,
+            chatRoomId: chatRoom,
+            MessageType: messageType,
+            SendDatetime: null,
+            MarkAsRead: false,
+            fileName: fileName,
+            fileBytes: fileBytes,
+            videoFileDuration: duration
+            // videoFileDuratin
+            ),
+      );
+      MyPrint.printOnConsole("response:'$response'");
 
-    isSendingMessage = false;
-    mySetState();
-
+      isSendingMessage = false;
+      mySetState();
+    }
     return true;
   }
 
@@ -184,18 +198,39 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
     mySetState();
   }
 
-  void _startListening() async {
-    await _speechToText.listen(onResult: _onSpeechResult);
-    MyPrint.printOnConsole("is _startListening called");
+  Future<void> _startListening() async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole('_onSpeechResult called', tag: tag);
+
+    try {
+      await _speechToText.listen(
+        onResult: _onSpeechResult,
+        onSoundLevelChange: (double level) {
+          MyPrint.printOnConsole('onSoundLevelChange called with level:$level', tag: tag);
+          // if(level == -2.0){
+          //   _speechToText.stop();
+          //   mySetState();
+          // }
+        },
+        listenMode: ListenMode.search,
+      );
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in UserMessageListScreen()._startListening();$e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+    }
+    MyPrint.printOnConsole("is _startListening called", tag: tag);
     mySetState();
   }
 
   void _onSpeechResult(SpeechRecognitionResult result) {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole('_onSpeechResult called', tag: tag);
+
     _lastWords = result.recognizedWords;
     _textController.text = _lastWords;
     _textController.selection = TextSelection.fromPosition(TextPosition(offset: _textController.text.length));
 
-    MyPrint.printOnConsole("result: ${result.recognizedWords}");
+    MyPrint.printOnConsole("result: ${result.recognizedWords}", tag: tag);
     mySetState();
   }
 
@@ -249,9 +284,9 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
             builder: (BuildContext context, AsyncSnapshot<MyFirestoreQuerySnapshot> snapshot) {
               if (snapshot.connectionState == ConnectionState.active) {
                 messages = snapshot.data?.docs.map((i) {
-                      ChatMessageModel chatMessageModel = ChatMessageModel.fromJson(i.data());
-                      return chatMessageModel;
-                    }).toList() ??
+                  ChatMessageModel chatMessageModel = ChatMessageModel.fromJson(i.data());
+                  return chatMessageModel;
+                }).toList() ??
                     [];
                 ChatMessageModel? lastMessageModel = messages.firstOrNull;
                 lastMessage = lastMessageModel?.Message ?? "";
@@ -391,6 +426,7 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
   }
 
   Widget getMessageTextField() {
+    MyPrint.printOnConsole("_speechToText.isNotListening: ${_speechToText.isNotListening}");
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
       decoration: BoxDecoration(color: Colors.white, boxShadow: [
@@ -438,12 +474,13 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
                   const SizedBox(
                     width: 10,
                   ),
-                  _speechToText.isNotListening
-                      ? const SizedBox()
-                      : Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: SpinKitWave(color: themeData.primaryColor, size: 15, type: SpinKitWaveType.center),
-                        ),
+                  if (_speechEnabled)
+                    _speechToText.isNotListening
+                        ? const SizedBox()
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: SpinKitWave(color: themeData.primaryColor, size: 15, type: SpinKitWaveType.center),
+                          ),
                   InkWell(
                     onTap: isSendingMessage
                         ? null

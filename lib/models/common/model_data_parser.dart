@@ -8,6 +8,10 @@ import 'package:flutter_instancy_2/models/catalog/response_model/associated_cont
 import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/user_coming_soon_response.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/tab_data_model.dart';
+import 'package:flutter_instancy_2/models/discussion/data_model/forum_info_user_model.dart';
+import 'package:flutter_instancy_2/models/discussion/data_model/forum_model.dart';
+import 'package:flutter_instancy_2/models/discussion/data_model/topic_comment_model.dart';
+import 'package:flutter_instancy_2/models/event/response_model/re_entrollment_history_response_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_dto_model.dart';
 import 'package:flutter_instancy_2/models/home/response_model/categorywise_course_dto_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/response_model/page_notes_response_model.dart';
@@ -39,7 +43,9 @@ import '../content_review_ratings/response_model/content_user_ratings_data_respo
 import '../course/data_model/CourseDTOModel.dart';
 import '../course/data_model/gloassary_model.dart';
 import '../course_launch/response_model/content_status_response_model.dart';
+import '../discussion/response_model/discussion_topic_dto_response_model.dart';
 import '../discussion/response_model/forum_listing_dto_response_model.dart';
+import '../discussion/response_model/replies_dto_model.dart';
 import '../dto/response_dto_model.dart';
 import '../event/response_model/event_session_data_response_model.dart';
 import '../event_track/data_model/event_track_header_dto_model.dart';
@@ -171,6 +177,7 @@ enum ModelDataParsingType {
   // region Event
   eventSessionDataResponseModel,
   tabDataModelList,
+  reEnrollmentHistoryResponseModel,
   //endregion
 
   // region Content Details Module
@@ -202,6 +209,12 @@ enum ModelDataParsingType {
 
   // region Discussion
   forumListingDTOResponseModel,
+  ForumUserInfoList,
+  discussionTopicResponseModel,
+  RepliesDTOModel,
+  topicCommentResponseModel,
+  userLikedList,
+  forumResponseModel,
   //endregion
 
   // region MyConnection
@@ -226,6 +239,7 @@ enum ModelDataParsingType {
 
   // region ARModule
   arContentModel,
+  parseDiscussionTopicResponseModel,
   // endregion
 
   //region InApp Purchase
@@ -337,6 +351,7 @@ class ModelDataParser {
     // region Event
     ModelDataParsingType.eventSessionDataResponseModel: parseEventSessionDataResponseModel,
     ModelDataParsingType.tabDataModelList: parseTabDataModelList,
+    ModelDataParsingType.reEnrollmentHistoryResponseModel: parseReEnrollmentHistoryResponseModel,
     //endregion
 
     // region Content Details Module
@@ -368,6 +383,12 @@ class ModelDataParser {
 
     // region Discussion
     ModelDataParsingType.forumListingDTOResponseModel: parseForumListingDTOResponseModel,
+    ModelDataParsingType.ForumUserInfoList: parseForumUserInfoList,
+    ModelDataParsingType.discussionTopicResponseModel: parseDiscussionTopicResponseModel,
+    ModelDataParsingType.RepliesDTOModel: parseRepliesDTOModel,
+    ModelDataParsingType.topicCommentResponseModel: parseTopicCommentsResponseModel,
+    ModelDataParsingType.userLikedList: parseUserLikedListResponseModel,
+    ModelDataParsingType.forumResponseModel: parseForumResponseModel,
     //endregion
 
     // region MyConnection
@@ -880,6 +901,16 @@ class ModelDataParser {
     }
   }
 
+  static ReEnrollmentHistoryResponseModel? parseReEnrollmentHistoryResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return ReEnrollmentHistoryResponseModel.fromJson(json);
+    } else {
+      return null;
+    }
+  }
+
   //endregion
 
   // region Content Details Module
@@ -975,6 +1006,53 @@ class ModelDataParser {
     } else {
       return null;
     }
+  }
+
+  static List<ForumUserInfoModel>? parseForumUserInfoList({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+    return mapsList.map((e) => ForumUserInfoModel.fromJson(e)).toList();
+  }
+
+  static DiscussionTopicDTOResponseModel? parseDiscussionTopicResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return DiscussionTopicDTOResponseModel.fromMap(json);
+    } else {
+      return null;
+    }
+  }
+
+  static RepliesDTOModel? parseRepliesDTOModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return RepliesDTOModel.fromJson(json);
+    } else {
+      return null;
+    }
+  }
+
+  static ForumModel? parseForumResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return ForumModel.fromJson(json);
+    } else {
+      return null;
+    }
+  }
+
+  static List<TopicCommentModel>? parseTopicCommentsResponseModel({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+    MyPrint.logOnConsole("decodedValue :  $mapsList");
+    return mapsList.map((e) => TopicCommentModel.fromJson(e)).toList();
+  }
+
+  static List<ForumUserInfoModel>? parseUserLikedListResponseModel({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+    MyPrint.logOnConsole("decodedValue :  $mapsList");
+    return mapsList.map((e) => ForumUserInfoModel.fromJson(e)).toList();
   }
 
   //endregion

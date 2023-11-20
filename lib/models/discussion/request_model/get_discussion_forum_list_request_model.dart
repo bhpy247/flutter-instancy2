@@ -14,6 +14,7 @@ class GetDiscussionForumListRequestModel {
   String sorttype;
   String CategoryIds;
   String forumcontentId;
+  bool IsMydiscussion;
 
   GetDiscussionForumListRequestModel({
     this.intUserID = 0,
@@ -31,6 +32,7 @@ class GetDiscussionForumListRequestModel {
     this.sorttype = "",
     this.CategoryIds = "",
     this.forumcontentId = "",
+    this.IsMydiscussion = false,
   });
 
   Map<String, String> toJson() {
@@ -40,16 +42,17 @@ class GetDiscussionForumListRequestModel {
       "intCompID" : intCompID.toString(),
       "intCompInsID" : intCompInsID.toString(),
       "intShowPrivateForums" : intShowPrivateForums.toString(),
-      "pageIndex" : pageIndex.toString(),
-      "pageSize" : pageSize.toString(),
-      "RecordsCount" : RecordsCount.toString(),
-      "strLocale" : strLocale,
-      "strSearchText" : strSearchText,
-      "strSortCondition" : strSortCondition,
-      "sortby" : sortby,
-      "sorttype" : sorttype,
-      "CategoryIds" : CategoryIds,
-      "forumcontentId" : forumcontentId,
+      "pageIndex": pageIndex.toString(),
+      "pageSize": pageSize.toString(),
+      "RecordsCount": RecordsCount.toString(),
+      "strLocale": strLocale,
+      "strSearchText": strSearchText,
+      "strSortCondition": strSortCondition,
+      "sortby": sortby,
+      "sorttype": sorttype,
+      "CategoryIds": CategoryIds,
+      "forumcontentId": forumcontentId,
+      "IsMydiscussion": IsMydiscussion.toString(),
     };
   }
 }

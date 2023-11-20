@@ -302,6 +302,7 @@ class CourseDetailsUIActionsController {
       suggestToConnectionsLink: model.SuggesttoConnLink,
       suggestWithFriendLink: model.SuggestwithFriendLink,
       shareLink: model.Sharelink,
+      ReEnrollmentHistoryLink: model.ReEnrollmentHistory,
     );
   }
 

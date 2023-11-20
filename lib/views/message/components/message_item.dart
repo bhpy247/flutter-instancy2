@@ -244,7 +244,7 @@ class _MessageItemWidgetState extends State<MessageItemWidget> {
             Expanded(
               child: Text(
                 message.fileUrl.split("Message/").lastOrNull ?? "pdf",
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: isMessageReceived ? Colors.black : Colors.white),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -255,8 +255,21 @@ class _MessageItemWidgetState extends State<MessageItemWidget> {
     );
   }
 
+  String getStringFormSecond(int seconds) {
+    String displayString = "";
+    Duration duration = Duration(seconds: seconds);
+    if (seconds > 60) {
+      int min = duration.inMinutes - (duration.inHours * 60);
+      int sec = duration.inSeconds - (duration.inMinutes * 60);
+      displayString = "${min.toString().length > 1 ? "$min" : "0$min"} : ${sec.toString().length > 1 ? "$sec" : "0$sec"}";
+    } else {
+      displayString = "00 : ${seconds.toString().length > 1 ? "$seconds" : "0$seconds"}";
+    }
+    return displayString;
+  }
+
   Widget getVideoWidget({required ChatMessageModel message, required bool isMessageReceived}) {
-    if (message.thumbnailImage.isEmpty) return SizedBox();
+    if (message.thumbnailImage.isEmpty) return const SizedBox();
     return InkWell(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(builder: (context) => FileViewer(fileUrl: message.fileUrl)));
@@ -264,25 +277,47 @@ class _MessageItemWidgetState extends State<MessageItemWidget> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Container(
-            width: 250,
-            padding: const EdgeInsets.only(bottom: 8),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(5),
-              child: CommonCachedNetworkImage(
-                imageUrl: message.thumbnailImage,
-                fit: BoxFit.cover,
-                errorHeight: 100,
+          Stack(
+            alignment: Alignment.bottomLeft,
+            children: [
+              Container(
+                width: 250,
+                // padding: const EdgeInsets.only(bottom: 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: CommonCachedNetworkImage(
+                    imageUrl: message.thumbnailImage,
+                    fit: BoxFit.cover,
+                    errorHeight: 100,
+                  ),
+                ),
               ),
-            ),
+              if (message.videoDuration != 0)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(FontAwesomeIcons.video, size: 15, color: Colors.white),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        getStringFormSecond(message.videoDuration),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                )
+            ],
           ),
           Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white38,
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                color: Colors.black38,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 FontAwesomeIcons.play,
                 color: Colors.white,
                 size: 20,
@@ -295,6 +330,7 @@ class _MessageItemWidgetState extends State<MessageItemWidget> {
   Widget getAudioWidget({required ChatMessageModel message, required bool isMessageReceived}) {
     return AudioPlayerWidget(
       url: message.fileUrl,
+      isMessageReceived: isMessageReceived,
     );
     // return InkWell(
     //   onTap: () {
@@ -330,8 +366,8 @@ class FileViewer extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        //title: Text(Uri.parse(fileUrl).path),
-      ),
+          //title: Text(Uri.parse(fileUrl).path),
+          ),
       body: Column(
         children: [
           Expanded(

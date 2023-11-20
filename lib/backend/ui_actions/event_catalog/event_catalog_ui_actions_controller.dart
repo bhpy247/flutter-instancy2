@@ -8,6 +8,7 @@ import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/classroom_events/data_model/event_recodting_mobile_lms_data_model.dart';
 import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../utils/my_print.dart';
+import '../../../utils/parsing_helper.dart';
 import '../../../views/common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import '../primary_secondary_actions/primary_secondary_actions.dart';
 import 'event_catalog_ui_action_callback_model.dart';
@@ -47,7 +48,9 @@ class EventCatalogUIActionsController {
       InstancyContentActionsEnum.ShareWithPeople: showShareWithPeople,
       InstancyContentActionsEnum.Share: showShare,
       InstancyContentActionsEnum.Join: showJoin,
-      InstancyContentActionsEnum.ViewSessions: showViewSession,
+      InstancyContentActionsEnum.ReEnroll: showReEnroll,
+      InstancyContentActionsEnum.ViewSessions: showViewSeries,
+      // InstancyContentActionsEnum.ViewSessions: showViewSessions,
     };
   }
 
@@ -93,12 +96,19 @@ class EventCatalogUIActionsController {
   }
 
   bool showReschedule({required EventCatalogUIActionParameterModel parameterModel}) {
-    bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(parameterModel.eventEndDatetime) ?? true);
-    // MyPrint.printOnConsole("isEventCompleted in showReschedule:$isEventCompleted");
-
-    if (parameterModel.objectTypeId != InstancyObjectTypes.events || !parameterModel.isAddToMyLearning || parameterModel.eventScheduleType != EventScheduleTypes.instance || isEventCompleted) {
-      return false;
+    // (course.InstanceEventReSchedule != undefined && course.InstanceEventReSchedule != null) && course.InstanceEventReSchedule.length>0
+    if (parameterModel.InstanceEventReSchedule.isNotEmpty) {
+      return true;
     }
+
+    return false;
+  }
+
+  bool showReEnroll({required EventCatalogUIActionParameterModel parameterModel}) {
+    // (course.InstanceEventReSchedule != undefined && course.InstanceEventReSchedule != null) && course.InstanceEventReSchedule.length>0
+    // if (parameterModel.InstanceEventReSchedule.isNotEmpty) {
+    //   return true;
+    // }
 
     return true;
   }
@@ -109,6 +119,9 @@ class EventCatalogUIActionsController {
     // if (parameterModel.objectTypeId == InstancyObjectTypes.events && isEventCompleted) {
     //   return true;
     // }
+    if (parameterModel.ReEnrollmentHistory.isNotEmpty) {
+      return true;
+    }
     return false;
   }
 
@@ -146,11 +159,11 @@ class EventCatalogUIActionsController {
   }
 
   bool showViewResources({required EventCatalogUIActionParameterModel parameterModel}) {
-    if (parameterModel.objectTypeId != InstancyObjectTypes.events || !parameterModel.isAddToMyLearning || parameterModel.relatedContentCount <= 0) {
-      return false;
+    if (parameterModel.RelatedContentLink.isNotEmpty) {
+      return true;
     }
 
-    return true;
+    return false;
   }
 
   bool showViewQRCode({required EventCatalogUIActionParameterModel parameterModel}) {
@@ -162,19 +175,16 @@ class EventCatalogUIActionsController {
   }
 
   bool showJoin({required EventCatalogUIActionParameterModel parameterModel}) {
-    bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(
-          parameterModel.eventEndDatetime,
-          dateFormat: "MM/dd/yyyy HH:mm:ss aa",
-        ) ??
-        true);
+    bool isShow = true;
+
+    bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(parameterModel.eventEndDatetime) ?? true);
     MyPrint.printOnConsole("isEventCompleted in showJoin:$isEventCompleted");
 
     if (parameterModel.objectTypeId != InstancyObjectTypes.events || parameterModel.mediaTypeId != InstancyMediaTypes.virtualClassroomEvent || isEventCompleted) {
-      return false;
+      isShow = false;
     }
-    MyPrint.printOnConsole("Show in Join");
 
-    return true;
+    return isShow;
   }
 
   bool showViewRecording({required EventCatalogUIActionParameterModel parameterModel}) {
@@ -199,12 +209,21 @@ class EventCatalogUIActionsController {
     return true;
   }
 
-  bool showViewSession({required EventCatalogUIActionParameterModel parameterModel}) {
-    if (parameterModel.objectTypeId != InstancyObjectTypes.events || parameterModel.eventType != EventTypes.session) {
-      return false;
-    }
+  // bool showViewSession({required EventCatalogUIActionParameterModel parameterModel}) {
+  //   if (parameterModel.objectTypeId != InstancyObjectTypes.events || parameterModel.eventType != EventTypes.session) {
+  //     return false;
+  //   }
+  //
+  //   return true;
+  // }
+  bool showViewSessions({required EventCatalogUIActionParameterModel parameterModel}) {
+    return ParsingHelper.parseStringMethod(parameterModel.ViewSessionsLink) == "True" || (parameterModel.objectTypeId == InstancyObjectTypes.events && parameterModel.EventType == EventTypes.session);
+  }
 
-    return true;
+  bool showViewSeries({required EventCatalogUIActionParameterModel parameterModel}) {
+    // MyPrint.printOnConsole("parameterModel.EventType: showViewSeries${parameterModel.EventType}");
+    return (parameterModel.EventType == EventTypes.session);
+    // return true;
   }
 
   bool showRecommendTo({required EventCatalogUIActionParameterModel parameterModel}) {
@@ -308,7 +327,6 @@ class EventCatalogUIActionsController {
       viewType: courseDTOModel.ViewType,
     );
     MyPrint.printOnConsole("primaryActions:$primaryActions");
-    MyPrint.printOnConsole("secondaryActions:$secondaryActions");
 
     Set<InstancyContentActionsEnum> set = {};
     set.addAll(primaryActions);
@@ -370,6 +388,8 @@ class EventCatalogUIActionsController {
       WaitListLink: model.WaitListLink,
       RelatedContentLink: model.RelatedContentLink,
       eventScheduleType: model.EventScheduleType,
+      ViewSessionsLink: model.ViewSessionsLink,
+      EventType: model.EventType,
       reportaction: "",
       suggestToConnectionsLink: model.SuggesttoConnLink,
       suggestWithFriendLink: model.SuggestwithFriendLink,
@@ -477,7 +497,7 @@ class EventCatalogUIActionsController {
       } else if (action == InstancyContentActionsEnum.ReEnrollmentHistory) {
         if (isShowAction(actionType: InstancyContentActionsEnum.ReEnrollmentHistory, parameterModel: parameterModel) && catalogUIActionCallbackModel.onReEnrollmentHistoryTap != null) {
           model = InstancyUIActionModel(
-            text: localStr.mylearningActionbuttonRescheduleactionbutton,
+            text: localStr.eventsActionSheetReEnrollmentHistoryOption,
             iconData: InstancyIcons.ReEnrollmentHistory,
             onTap: catalogUIActionCallbackModel.onReEnrollmentHistoryTap,
             actionsEnum: InstancyContentActionsEnum.ReEnrollmentHistory,
@@ -559,7 +579,7 @@ class EventCatalogUIActionsController {
       } else if (action == InstancyContentActionsEnum.ViewSessions) {
         if (isShowAction(actionType: InstancyContentActionsEnum.ViewSessions, parameterModel: parameterModel) && catalogUIActionCallbackModel.onViewSessionsTap != null) {
           model = InstancyUIActionModel(
-            text: localStr.viewSessionsLabel,
+            text: localStr.eventsActionSheetViewSeriesOption,
             iconData: InstancyIcons.viewSessions,
             onTap: catalogUIActionCallbackModel.onViewSessionsTap,
             actionsEnum: InstancyContentActionsEnum.ViewSessions,

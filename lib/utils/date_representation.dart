@@ -39,31 +39,45 @@ abstract class DatePresentation {
     return DateFormat('dd-MM-yyyy hh:mm:ss.SSS').format(dateTime);
   }
 
+  static String dateTimeFormatWithSlash(DateTime dateTime) {
+    return DateFormat('dd/MM/yyyy').format(dateTime);
+  }
+
+  static String activeDateFormat(DateTime dateTime) {
+    return DateFormat('dd/MM/yyyy • hh:mm a').format(dateTime);
+  }
+
   static String hhMM(Timestamp timeStamp) {
     DateTime dateTime = timeStamp.toDate();
     return DateFormat('HH:mm a').format(dateTime);
   }
 
   static String hhMMFromString(String timeStamp) {
-    if(timeStamp.isEmpty)return "";
+    if (timeStamp.isEmpty) return "";
     DateTime dateTime = DateFormat("MM/dd/yyyy HH:mm a").parse(timeStamp);
     return DateFormat('HH:mm a').format(dateTime);
   }
 
   static String hhMMFromStringWithSeconds(String timeStamp) {
-    if(timeStamp.isEmpty)return "";
+    if (timeStamp.isEmpty) return "";
     DateTime dateTime = DateFormat("MM/dd/yyyy HH:mm:ss aa").parse(timeStamp);
     return DateFormat('MM/dd/yyyy HH:mm aa').format(dateTime);
   }
 
+  static String reEnrollmentHistoryFromString(String timeStamp) {
+    if (timeStamp.isEmpty) return "";
+    DateTime dateTime = DateFormat("MM/dd/yyyy HH:mm:ss aa").parse(timeStamp);
+    return DateFormat('dd MMMM yyyy HH:mm aa').format(dateTime);
+  }
+
   static String onlyDateFromString(String timeStamp) {
-    if(timeStamp.isEmpty)return "";
+    if (timeStamp.isEmpty) return "";
     DateTime dateTime = DateFormat("MM/dd/yyyy HH:mm a").parse(timeStamp);
     return DateFormat('d MMMM y').format(dateTime);
   }
 
-  static String getDifferenceInHours(DateTime? startDate, DateTime? endDate){
-    if(startDate == null ||endDate == null) return "";
+  static String getDifferenceInHours(DateTime? startDate, DateTime? endDate) {
+    if (startDate == null || endDate == null) return "";
 
     // MyPrint.printOnConsole("StartDate : $startDate end Date: $endDate");
 
@@ -125,6 +139,20 @@ abstract class DatePresentation {
 
   static bool isSameMonth(DateTime dateTime1, DateTime dateTime2) {
     return dateTime1.month == dateTime2.month && dateTime1.year == dateTime2.year;
+  }
+
+  static bool isDayAfter(DateTime dateTime1, DateTime dateTime2) {
+    DateTime new1 = DateTime(dateTime1.year, dateTime1.month, dateTime1.day);
+    DateTime new2 = DateTime(dateTime2.year, dateTime2.month, dateTime2.day);
+
+    return new2.isAfter(new1);
+  }
+
+  static bool isDayBefore(DateTime dateTime1, DateTime dateTime2) {
+    DateTime new1 = DateTime(dateTime1.year, dateTime1.month, dateTime1.day);
+    DateTime new2 = DateTime(dateTime2.year, dateTime2.month, dateTime2.day);
+
+    return new2.isBefore(new1);
   }
 
   static int getDifferenceBetweenDatesInDays(DateTime dateTime1, DateTime dateTime2) {

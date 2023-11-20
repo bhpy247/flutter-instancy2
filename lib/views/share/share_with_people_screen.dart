@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/share/share_controller.dart';
 import 'package:flutter_instancy_2/backend/share/share_provider.dart';
@@ -45,13 +46,14 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
 
   bool isShareWithEmailIds = true;
   List<int> userIds = <int>[];
+  String messageToSendInTheApi = "";
 
   @override
   void initState() {
     super.initState();
 
     appProvider = context.read<AppProvider>();
-    shareProvider = /*widget.arguments.shareProvider ?? */ShareProvider();
+    shareProvider = /*widget.arguments.shareProvider ?? */ ShareProvider();
     shareController = ShareController(shareProvider: shareProvider);
 
     String contentName = widget.arguments.contentName;
@@ -68,25 +70,57 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
     }
 
     String message = "";
-    switch(widget.arguments.shareContentType) {
-      case ShareContentType.discussionForum: {
-        message = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
-            "YouTube site! \n\nContent Name: $contentName. \n\n "
-            "Content Link: $siteUrl/ForumID/${widget.arguments.contentId}/TopicId/$contentName";
-        break;
-      }
-      case ShareContentType.askTheExpertQuestion: {
-        message = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
-            "YouTube site! \n\nContent Name: $contentName. \n\n "
-            "Content Link: $siteUrl/User-Questions-List/QuestionID/${widget.arguments.contentId}";
-        break;
-      }
+    switch (widget.arguments.shareContentType) {
+      case ShareContentType.discussionForum:
+        {
+          String contentLink = "$siteUrl/Discussion-Forums/ForumID/${widget.arguments.forumId}";
+          message = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
+              "YouTube site! \n\nContent Name: $contentName. \n\n "
+              "Content Link: $contentLink";
+          String linkContent = "<a href = $contentLink> ${widget.arguments.contentName} </a>";
+          messageToSendInTheApi = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
+              "YouTube site! \n\nContent Name: $linkContent. \n\n "
+              "Content Link: $contentLink";
+          break;
+        }
+      case ShareContentType.discussionTopic:
+        {
+          String contentLink = "$siteUrl/Discussion-Forums/ForumID/${widget.arguments.forumId}/TopicId/${widget.arguments.topicId}";
+          message = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
+              "YouTube site! \n\nContent Name: $contentName. \n\n "
+              "Content Link: $contentLink";
+          String linkContent = "<a href = $contentLink> ${widget.arguments.contentName} </a>";
+          messageToSendInTheApi = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
+              "YouTube site! \n\nContent Name: $linkContent. \n\n "
+              "Content Link: $contentLink";
+          break;
+        }
+      case ShareContentType.askTheExpertQuestion:
+        {
+          message = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
+              "YouTube site! \n\nContent Name: $contentName. \n\n "
+              "Content Link: $siteUrl/User-Questions-List/QuestionID/${widget.arguments.contentId}";
+          String contentLink = "$siteUrl/User-Questions-List/QuestionID/${widget.arguments.contentId}";
+
+          String linkContent = "<a href = $contentLink> ${widget.arguments.contentName} </a>";
+          messageToSendInTheApi = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
+              "YouTube site! \n\nContent Name: $linkContent. \n\n "
+              "Content Link: $contentLink";
+          break;
+        }
       case ShareContentType.catalogCourse: {
         message = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
-            "YouTube site! \n\nContent Name: $contentName. \n\n "
-            "Content Link: $siteUrl/InviteURLID/contentId/${widget.arguments.contentId}/ComponentId/1.";
-        break;
-      }
+              "YouTube site! \n\nContent Name: $contentName. \n\n "
+              "Content Link: $siteUrl/InviteURLID/contentId/${widget.arguments.contentId}/ComponentId/1.";
+
+          String contentLink = "$siteUrl/InviteURLID/contentId/${widget.arguments.contentId}/ComponentId/1.";
+
+          String linkContent = "<a href = $contentLink> ${widget.arguments.contentName} </a>";
+          messageToSendInTheApi = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
+              "YouTube site! \n\nContent Name: $linkContent. \n\n "
+              "Content Link: $contentLink";
+          break;
+        }
     }
     AuthenticationProvider authenticationProvider = Provider.of<AuthenticationProvider>(context, listen: false);
 
@@ -320,24 +354,25 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
             flex: 3,
             child: CommonButton(
               onPressed: () async {
-                if(_formKey.currentState?.validate() ?? false) {
+                String message = "<p>${messageToSendInTheApi.replaceAll("\n", "<br>")}</p>";
+                MyPrint.printOnConsole("${message}");
+                if (_formKey.currentState?.validate() ?? false) {
                   isLoading = true;
                   mySetState();
 
                   bool isShared;
-                  if(isShareWithEmailIds) {
+                  if (isShareWithEmailIds) {
                     isShared = await shareController.shareWithPeople(
                       userMails: AppConfigurationOperations.getListFromSeparatorJoinedString(parameterString: toEmailsController.text.trim()),
                       subject: subjectController.text.trim(),
-                      message: messageToController.text.trim(),
+                      message: message,
                       contentId: widget.arguments.contentId,
                     );
-                  }
-                  else {
+                  } else {
                     isShared = await shareController.shareWithConnections(
                       userIDList: userIds,
                       subject: subjectController.text.trim(),
-                      message: messageToController.text.trim(),
+                      message: message,
                       contentId: widget.arguments.contentId,
                     );
                   }

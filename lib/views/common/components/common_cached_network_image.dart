@@ -33,7 +33,7 @@ class CommonCachedNetworkImage extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
-      placeholder: placeholder ?? (context, url) => Shimmer.fromColors(
+      placeholder: (context, url) => Shimmer.fromColors(
         baseColor: Styles.shimmerBaseColor,
         highlightColor: Styles.shimmerHighlightColor,
         child: Container(
@@ -42,6 +42,7 @@ class CommonCachedNetworkImage extends StatelessWidget {
           child: Icon(
             Icons.image,
             size: shimmerIconSize,
+            color: Colors.transparent,
           ),
         ),
       ),

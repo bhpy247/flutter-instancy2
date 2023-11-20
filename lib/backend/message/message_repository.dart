@@ -48,6 +48,35 @@ class MessageRepository {
     return apiResponseModel;
   }
 
+  Future<DataResponseModel<String>> setArchiveAndUnArchive(
+      {bool isFromOffline = false, bool isStoreDataInHive = false, bool isArchived = false, int intArchivedUserID = -1, int intDeleteUserID = 0}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.string,
+      url: apiEndpoints.getArchiveAndUnarchive(),
+      queryParameters: {
+        "intUserID": "${apiUrlConfigurationProvider.getCurrentUserId()}",
+        "intArchivedUserID": "${isArchived ? intArchivedUserID : "-1"}",
+        "intDeleteUserID": "$intDeleteUserID",
+      },
+      isGetDataFromHive: isFromOffline,
+      isStoreDataInHive: isStoreDataInHive,
+    );
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
+      apiCallModel: apiCallModel,
+    );
+    MyPrint.printOnConsole("aspi call model: ${apiResponseModel.data}");
+
+    return apiResponseModel;
+  }
+
   Future<DataResponseModel<String>> uploadGenericFiles({required List<InstancyMultipartFileUploadModel> instancyMultipartFileUploadModels, String? filePath}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 

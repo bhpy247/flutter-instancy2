@@ -6,6 +6,7 @@ import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_hive_repository.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/content_review_ratings/content_review_ratings_provider.dart';
+import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 import 'package:flutter_instancy_2/backend/home/home_provider.dart';
@@ -188,6 +189,7 @@ class AuthenticationController {
     context.read<MessageProvider>().resetData();
     context.read<MembershipProvider>().resetData();
     context.read<InAppPurchaseProvider>().resetData();
+    context.read<DiscussionProvider>().resetData();
 
     Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, LoginSignUpSelectionScreen.routeName, (route) => false);
 

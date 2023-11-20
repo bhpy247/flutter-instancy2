@@ -253,6 +253,8 @@ class ApiEndpoints {
 
   String getCancelEnrolledEvent() => '${getBaseApiUrl()}/MobileLMS/CancelEnrolledEvent';
 
+  String getReEnrollmentHistory() => '${getBaseApiUrl()}/Reports/GetSelfScheduleInstanceReport';
+
   String getEventSessionData() => '${getBaseApiUrl()}/EventTrackTabs/getEventSessionData';
 
   String getDynamicTabs() => '${getBaseApiUrl()}/DynamicTab/GetDynamicTabs';
@@ -354,6 +356,52 @@ class ApiEndpoints {
   // region Discussion
   String getDiscussionForumList() => '${getBaseApiUrl()}DiscussionForums/GetForumList';
 
+  String getCreateDiscussionForum() => '${getBaseApiUrl()}DiscussionForums/CreateEditForum';
+
+  //region addTopicComment
+  String getPostCommentApi() => '${getBaseApiUrl()}DiscussionForums/PostComment';
+
+  String getForumTopic() => '${getBaseApiUrl()}DiscussionForums/GetForumTopics';
+
+  String getSingleForumDetails() => '${getBaseApiUrl()}DiscussionForums/GetSingleForumDetails';
+
+  String getUploadForumAttachment() => '${getBaseApiUrl()}DiscussionForums/UploadForumAttachment';
+
+  String apiDiscussionTopicComment() => '${getBaseApiUrl()}DiscussionForums/PostComment';
+
+  String getPostReply() => '${getBaseApiUrl()}DiscussionForums/PostReply';
+
+  String apiAddTopic() => '${getBaseApiUrl()}DiscussionForums/CreateForumTopic';
+
+  String apiGetModerator() => '${getBaseApiUrl()}DiscussionForums/GetUserListBasedOnRoles';
+
+  String apiEditTopic() => '${getBaseApiUrl()}DiscussionForums/EditForumTopic';
+
+  String DeleteForum() => '${getBaseApiUrl()}DiscussionForums/DeleteForum';
+
+  String DeleteForumTopic() => '${getBaseApiUrl()}DiscussionForums/DeleteForumTopic';
+
+  String DeleteForumReply() => '${getBaseApiUrl()}DiscussionForums/DeleteForumReply';
+
+  String apiDeleteComment() => '${getBaseApiUrl()}DiscussionForums/DeleteForumComment';
+
+  String UpdatePinTopic() => '${getBaseApiUrl()}DiscussionForums/UpdatePinTopic';
+
+  String InsertAndGetContentLikes() => '${getBaseApiUrl()}DiscussionForums/InsertAndGetContentLikes';
+
+  String InsertContentLikes() => '${getBaseApiUrl()}Generic/InsertContentLikes';
+
+  String apiLikeCount() => '${getBaseApiUrl()}DiscussionForums/GetTopicCommentLevelLikeList';
+
+  String GetReplies() => '${getBaseApiUrl()}DiscussionForums/GetReplies';
+
+  String apiGetCommentList() => '${getBaseApiUrl()}DiscussionForums/GetCommentList';
+
+  String apiGetForumLevelLikeList() => '${getBaseApiUrl()}DiscussionForums/GetForumLevelLikeList';
+
+  String apiGetTopicCommentLevelLikeList() => '${getBaseApiUrl()}DiscussionForums/GetTopicCommentLevelLikeList';
+
+  //endregion
   //endregion
 
   // region MyConnections
@@ -369,6 +417,8 @@ class ApiEndpoints {
   String genericFileUpload() => '${getBaseApiUrl()}Generic/SaveFiles';
 
   String getUserChatHistory() => '${getBaseApiUrl()}Chat/GetUserChatHistory';
+
+  String getArchiveAndUnarchive() => '${getBaseApiUrl()}Chat/UpdateArchivedUserForChat';
 
   //endregion
 

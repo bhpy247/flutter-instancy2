@@ -16,6 +16,8 @@ import '../../configs/app_constants.dart';
 import '../../models/app_configuration_models/data_models/component_configurations_model.dart';
 import '../../models/catalog/catalogCategoriesForBrowseModel.dart';
 import '../../models/classroom_events/data_model/tab_data_model.dart';
+import '../../models/discussion/data_model/forum_model.dart';
+import '../../models/discussion/data_model/topic_model.dart';
 import '../../models/filter/data_model/content_filter_category_tree_model.dart';
 import '../../models/profile/data_model/user_education_data_model.dart';
 import '../Catalog/catalog_provider.dart';
@@ -164,12 +166,16 @@ class ShareWithConnectionsScreenNavigationArguments extends NavigationArguments 
   final ShareContentType shareContentType;
   final String contentId;
   final String contentName;
+  final String topicId;
+  final int forumId;
   final ShareProvider? shareProvider;
 
   const ShareWithConnectionsScreenNavigationArguments({
     required this.shareContentType,
-    required this.contentId,
-    required this.contentName,
+    this.contentId = '',
+    this.contentName = "",
+    this.topicId = "",
+    this.forumId = 0,
     this.shareProvider,
   });
 }
@@ -178,13 +184,17 @@ class ShareWithPeopleScreenNavigationArguments extends NavigationArguments {
   final ShareContentType shareContentType;
   final String contentId;
   final String contentName;
+  final String topicId;
+  final int forumId;
   final bool isSuggestToConnections;
   final List<int>? userIds;
 
   const ShareWithPeopleScreenNavigationArguments({
     required this.shareContentType,
-    required this.contentId,
-    required this.contentName,
+    this.contentId = "",
+    this.contentName = "",
+    this.topicId = "",
+    this.forumId = 0,
     this.isSuggestToConnections = false,
     this.userIds,
   });
@@ -194,18 +204,22 @@ class RecommendToScreenNavigationArguments extends NavigationArguments {
   final ShareContentType shareContentType;
   final String contentId;
   final String contentName;
-  final bool isSuggestToConnections;
+  final String topicId;
+  final int forumId;
   final int componentId;
+  final bool isSuggestToConnections;
   final List<int>? userIds;
   final ShareProvider? shareProvider;
 
   const RecommendToScreenNavigationArguments({
     required this.shareContentType,
-    required this.contentId,
-    required this.contentName,
+    this.contentId = "",
+    this.contentName = "",
+    this.topicId = "",
+    this.forumId = 0,
+    this.componentId = 0,
     this.isSuggestToConnections = false,
     this.userIds,
-    this.componentId = 0,
     this.shareProvider,
   });
 }
@@ -448,6 +462,70 @@ class SurfaceTrackingKeywordSearchScreenNavigationArguments extends NavigationAr
     required this.componentId,
     required this.componentInsId,
   });
+}
+
+class ReEnrollmentHistoryScreenNavigationArguments extends NavigationArguments {
+  final CourseDTOModel? model;
+
+  const ReEnrollmentHistoryScreenNavigationArguments({
+    required this.model,
+  });
+}
+
+class DiscussionForumScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+
+  const DiscussionForumScreenNavigationArguments({
+    required this.componentId,
+    required this.componentInsId,
+  });
+}
+
+class DiscussionDetailScreenNavigationArguments extends NavigationArguments {
+  final int ForumId;
+  final int componentId;
+  final int componentInsId;
+  final ForumModel? forumModel;
+
+  const DiscussionDetailScreenNavigationArguments({
+    required this.ForumId,
+    required this.componentId,
+    required this.componentInsId,
+    this.forumModel,
+  });
+}
+
+class CreateEditTopicScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+  final ForumModel forumModel;
+  final TopicModel? topicModel;
+  final bool isEdit;
+
+  const CreateEditTopicScreenNavigationArguments({
+    required this.componentId,
+    required this.componentInsId,
+    required this.forumModel,
+    this.topicModel,
+    this.isEdit = false,
+  });
+}
+
+class CreateEditDiscussionForumScreenNavigationArguments extends NavigationArguments {
+  final ForumModel? forumModel;
+  final bool isEdit;
+
+  const CreateEditDiscussionForumScreenNavigationArguments({
+    required this.forumModel,
+    this.isEdit = false,
+  });
+}
+
+class CommonViewImageScreenNavigationArguments extends NavigationArguments {
+  final String imageUrl;
+
+  const CommonViewImageScreenNavigationArguments({this.imageUrl = ""});
 }
 
 class MembershipSelectionScreenNavigationArguments extends NavigationArguments {

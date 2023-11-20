@@ -24,16 +24,17 @@ class MyLearningUIActionParameterModel {
   final String RelatedContentLink;
   final String IsRelatedcontent;
   final String ViewSessionsLink;
+  final String ReEnrollmentHistoryLink;
 
-  const MyLearningUIActionParameterModel({
-    this.objectTypeId = 0,
-    this.mediaTypeId = 0,
-    this.EventType = 0,
-    this.eventScheduleType = 0,
-    this.bit4,
-    this.isArchived = false,
-    this.eventRecording,
-    this.ViewLink = "",
+  const MyLearningUIActionParameterModel(
+      {this.objectTypeId = 0,
+      this.mediaTypeId = 0,
+      this.EventType = 0,
+      this.eventScheduleType = 0,
+      this.bit4,
+      this.isArchived = false,
+      this.eventRecording,
+      this.ViewLink = "",
     this.DetailsLink = "",
     this.CancelEventLink = "",
     this.removeLink = "",
@@ -49,5 +50,5 @@ class MyLearningUIActionParameterModel {
     this.RelatedContentLink = "",
     this.IsRelatedcontent = "",
     this.ViewSessionsLink = "",
-  });
+    this.ReEnrollmentHistoryLink = ""});
 }

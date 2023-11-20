@@ -44,13 +44,14 @@ class AuthenticationHiveRepository {
   }
 
   Future<bool> setLoggedInUserData({required EmailLoginResponseModel? responseModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("AuthenticationHiveRepository().setLoggedInUserData() called with responseModel:$responseModel", tag: tag);
+
     bool isSuccess = false;
 
     Box? box = await getBox();
 
     try {
-      MyPrint.printOnConsole('login req $responseModel');
-
       String hiveKey = HiveKeys.getSuccessfulUserLoginModelHiveKey();
 
       await hiveOperationController.makeCall<void>(
@@ -62,6 +63,8 @@ class AuthenticationHiveRepository {
           value: MyUtils.encodeJson(responseModel?.toJson()),
         ),
       );
+
+      MyPrint.printOnConsole("EmailLoginResponseModel Data Saved in Hive", tag: tag);
 
       isSuccess = true;
     }

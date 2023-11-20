@@ -19,29 +19,31 @@ class CommonTextFormField extends StatelessWidget {
     this.boxConstraints,
     this.focusedBorderColor,
     this.enabled = true,
-    this.autoFocus = false,
-    this.onChanged,
-    this.onSubmitted,
-    this.minLines,
-    this.maxLines = 1,
-    this.textStyle,
-    this.textInputAction,
-    this.inputFormatters,
-    this.isFilled = false,
-    this.fillColor,
-    this.hintStyle
-  }) : super(key: key);
+      this.autoFocus = false,
+      this.onChanged,
+      this.onSubmitted,
+      this.minLines,
+      this.maxLines = 1,
+      this.textStyle,
+      this.textInputAction,
+      this.inputFormatters,
+      this.isFilled = false,
+      this.fillColor,
+      this.hintStyle,
+      this.node})
+      : super(key: key);
 
   final TextEditingController? controller;
   final String hintText;
-  final bool isOutlineInputBorder,isSuffix, obscureText, isFilled, autoFocus;
+  final FocusNode? node;
+  final bool isOutlineInputBorder, isSuffix, obscureText, isFilled, autoFocus;
   final double borderRadius, borderWidth;
   final Color borderColor;
   final Color? focusedBorderColor, fillColor;
   final Widget? suffixWidget, prefixWidget;
   final String? Function(String?)? validator;
   final EdgeInsets? contentPadding;
-  final BoxConstraints ?boxConstraints;
+  final BoxConstraints? boxConstraints;
   final bool enabled;
   final void Function(String)? onChanged, onSubmitted;
   final int? minLines, maxLines;
@@ -61,16 +63,18 @@ class CommonTextFormField extends StatelessWidget {
       validator: validator,
       inputFormatters: inputFormatters,
       textInputAction: textInputAction,
+      focusNode: node,
       decoration: InputDecoration(
         filled: isFilled,
         fillColor: fillColor,
         prefixIcon: prefixWidget,
         prefixIconConstraints: boxConstraints,
         border: inputBorder(borderColor: borderColor),
+        disabledBorder: inputBorder(borderColor: borderColor),
         enabledBorder: inputBorder(borderColor: borderColor),
         focusedBorder: inputBorder(borderColor: focusedBorderColor ?? themeData.primaryColor),
         hintText: hintText,
-        hintStyle:hintStyle ?? themeData.inputDecorationTheme.hintStyle?.copyWith(fontSize: 14),
+        hintStyle: hintStyle ?? themeData.inputDecorationTheme.hintStyle?.copyWith(fontSize: 14),
         // labelStyle: const TextStyle(color: Colors.grey, fontSize: 14),
         suffixIcon: suffixWidget,
         enabled: enabled,

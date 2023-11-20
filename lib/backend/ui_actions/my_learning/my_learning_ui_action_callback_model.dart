@@ -10,6 +10,8 @@ class MyLearningUIActionCallbackModel {
   final void Function()? onAddToCalenderTap;
   final void Function()? onSetCompleteTap;
   final void Function()? onCancelEnrollmentTap;
+  final void Function()? onReEnrollmentHistoryTap;
+
   final void Function()? onArchiveTap;
   final void Function()? onUnArchiveTap;
   final void Function()? onRemoveTap;
@@ -34,6 +36,7 @@ class MyLearningUIActionCallbackModel {
     this.onAddToCalenderTap,
     this.onSetCompleteTap,
     this.onCancelEnrollmentTap,
+    this.onReEnrollmentHistoryTap,
     this.onArchiveTap,
     this.onUnArchiveTap,
     this.onRemoveTap,

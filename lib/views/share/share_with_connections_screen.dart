@@ -9,6 +9,7 @@ import 'package:flutter_instancy_2/views/common/components/common_cached_network
 import 'package:flutter_instancy_2/views/common/components/common_text_form_field.dart';
 import 'package:provider/provider.dart';
 
+import '../../backend/configurations/app_configuration_operations.dart';
 import '../../backend/navigation/navigation.dart';
 import '../../backend/share/share_provider.dart';
 import '../common/components/common_button.dart';
@@ -197,19 +198,15 @@ class _ShareWithConnectionsScreenState extends State<ShareWithConnectionsScreen>
   }
 
   Widget getConnectionUserCard({required ShareConnectionUserModel userModel, required bool isSelected}) {
-    String imageUrl = userModel.usersImage.isEmpty
-      ? 'https://www.insertcart.com/wp-content/uploads/2018/05/thumbnail.jpg'
-      : (userModel.usersImage.startsWith("http")
-          ? userModel.usersImage
-          : "${appProvider.siteConfigurations.siteUrl}${userModel.usersImage}"
-        );
+    String imageUrl = MyUtils.getSecureUrl(
+      AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(
+        imagePath: userModel.usersImage,
+      ),
+    );
     // MyPrint.printOnConsole("imageUrl:$imageUrl");
-
-    // imageUrl = "https://instancylivesites.blob.core.windows.net/upgradedenterprise/content/sitefiles/374/profileimages/374_profile-pic%20(1).png";
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
-      // color: Colors.red,
       child: GestureDetector(
         onTap: () {
           shareProvider.addRemoveUserInSelectedUsersList(userId: userModel.userId, isAdd: !isSelected);
@@ -239,6 +236,7 @@ class _ShareWithConnectionsScreenState extends State<ShareWithConnectionsScreen>
                           width: 35,
                           height: 35,
                           fit: BoxFit.cover,
+                          errorIconSize: 30,
                         ),
                       ),
                       if(isSelected) Container(
@@ -335,6 +333,8 @@ class _ShareWithConnectionsScreenState extends State<ShareWithConnectionsScreen>
                     shareContentType: widget.arguments.shareContentType,
                     contentId: widget.arguments.contentId,
                     contentName: widget.arguments.contentName,
+                    topicId: widget.arguments.topicId,
+                    forumId: widget.arguments.forumId,
                     isSuggestToConnections: true,
                     userIds: shareProvider.selectedConnectionsList.getList(),
                   ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_instancy_2/views/message/components/seekBar.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:just_audio/just_audio.dart';
@@ -8,8 +9,9 @@ import '../../../utils/my_safe_state.dart';
 
 class AudioPlayerWidget extends StatefulWidget {
   final String url;
+  final bool isMessageReceived;
 
-  const AudioPlayerWidget({Key? key, required this.url}) : super(key: key);
+  const AudioPlayerWidget({Key? key, required this.url, required this.isMessageReceived}) : super(key: key);
 
   @override
   _AudioPlayerWidgetState createState() => _AudioPlayerWidgetState();
@@ -54,29 +56,34 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> with MySafeState 
           stream: _player.playerStateStream,
           builder: (BuildContext context, AsyncSnapshot<PlayerState> playerStateSnapshot) {
             PlayerState? playerState = playerStateSnapshot.data;
-
+            MyPrint.printOnConsole("Player state: ${playerState?.processingState} ${playerState?.playing}");
             return Row(
               children: [
                 InkWell(
                   onTap: () async {
                     if (playerState == null) return;
-
-                    if (playerState.playing) {
-                      await _player.pause();
-                    } else {
-                      await _player.play();
-                    }
                     if (playerState.processingState == ProcessingState.completed) {
                       await _player.load();
+                    } else {
+                      if (playerState.playing) {
+                        await _player.pause();
+                      } else {
+                        await _player.play();
+                      }
                     }
+
                     mySetState();
                   },
                   child: Container(
                     padding: const EdgeInsets.all(3),
-                    decoration: const BoxDecoration(color: Colors.white30, shape: BoxShape.circle),
+                    decoration: BoxDecoration(color: widget.isMessageReceived ? Colors.black12 : Colors.white30, shape: BoxShape.circle),
                     child: Icon(
-                      (playerState?.playing ?? false) ? Icons.pause : Icons.play_arrow,
-                      color: Colors.white,
+                      (playerState?.playing ?? false)
+                          ? (playerState?.processingState == ProcessingState.completed)
+                              ? Icons.play_arrow
+                              : Icons.pause
+                          : Icons.play_arrow,
+                      color: widget.isMessageReceived ? Colors.black : Colors.white,
                     ),
                   ),
                 ),
@@ -90,6 +97,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> with MySafeState 
                         position: positionData?.position ?? Duration.zero,
                         bufferedPosition: positionData?.bufferedPosition ?? Duration.zero,
                         onChangeEnd: _player.seek,
+                        isMessageReceived: widget.isMessageReceived,
                       );
                     },
                   ),

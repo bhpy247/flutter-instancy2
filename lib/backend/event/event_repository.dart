@@ -10,6 +10,7 @@ import '../../models/common/app_error_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/common/model_data_parser.dart';
 import '../../models/event/response_model/event_session_data_response_model.dart';
+import '../../models/event/response_model/re_entrollment_history_response_model.dart';
 import '../../utils/my_print.dart';
 
 class EventRepository {
@@ -85,6 +86,46 @@ class EventRepository {
     );
 
     DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<ReEnrollmentHistoryResponseModel>> getReEnrollmentHistory({
+    required String eventId,
+    required String instanceId,
+  }) async {
+    MyPrint.printOnConsole('EventRepository().getReEnrollmentHistory() called with contentID:$eventId');
+
+    if (eventId.isEmpty) {
+      return DataResponseModel(
+        appErrorModel: AppErrorModel(
+          message: "Event ID is empty",
+        ),
+      );
+    }
+
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.reEnrollmentHistoryResponseModel,
+      url: apiEndpoints.getReEnrollmentHistory(),
+      queryParameters: <String, String>{
+        'EventId': eventId,
+        'InstanceID': instanceId,
+        'UserID': apiUrlConfigurationProvider.getCurrentUserId().toString(),
+        'SiteID': apiUrlConfigurationProvider.getCurrentSiteId().toString(),
+        'LocaleID': apiUrlConfigurationProvider.getLocale(),
+      },
+    );
+
+    DataResponseModel<ReEnrollmentHistoryResponseModel> apiResponseModel = await apiController.callApi<ReEnrollmentHistoryResponseModel>(
       apiCallModel: apiCallModel,
     );
 

@@ -10,6 +10,7 @@ class EventCatalogUIActionParameterModel {
   final int waitListEnroll;
   final int waitListLimit;
   final int isWishlistContent;
+  final int EventType;
   final String parentId;
   final String reportaction;
   final String suggestToConnectionsLink;
@@ -45,6 +46,7 @@ class EventCatalogUIActionParameterModel {
   final String RemoveFromWishList;
   final String ShareToRecommend;
   final String IsRelatedcontent;
+  final String ViewSessionsLink;
 
   const EventCatalogUIActionParameterModel(
       {this.objectTypeId = 0,
@@ -56,10 +58,11 @@ class EventCatalogUIActionParameterModel {
       this.waitListEnroll = 0,
       this.waitListLimit = 0,
       this.isWishlistContent = 0,
-    this.parentId = "",
-    this.actualStatus = "",
-    this.reportaction = "",
-    this.suggestToConnectionsLink = "",
+      this.EventType = 0,
+      this.parentId = "",
+      this.actualStatus = "",
+      this.reportaction = "",
+      this.suggestToConnectionsLink = "",
       this.suggestWithFriendLink = "",
       this.shareLink = "",
       this.eventStartDatetime = "",
@@ -67,6 +70,7 @@ class EventCatalogUIActionParameterModel {
       this.actionviewqrcode = "",
       this.WaitListLink = "",
       this.RelatedContentLink = "",
+      this.ViewSessionsLink = "",
       this.isAddToMyLearning = false,
       this.eventRecording = false,
       this.recordingDetails,

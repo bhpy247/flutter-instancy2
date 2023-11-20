@@ -419,6 +419,8 @@ class InstancyComponents {
   static const int DetailsComponentInsId = 3291;
   static const int PeopleListComponentInsId = 3473;
   static const int EventCatalogTabsListComponentInsId = 3497;
+  static const int transferToAgentComponent = 4001;
+  static const int discussionForumComponent = 4005;
   static const int UserSettings = 5000;
 }
 
@@ -490,6 +492,12 @@ class InstancyIcons {
   static const IconData removeFromWishlist = Icons.favorite;
   static const IconData viewProfile = Icons.account_circle;
   static const IconData viewResources = Icons.content_copy;
+  static const IconData addComment = Icons.message_outlined;
+  static const IconData addReply = Icons.reply;
+  static const IconData edit = Icons.edit;
+  static const IconData pin = FontAwesomeIcons.link;
+  static const IconData unpin = FontAwesomeIcons.linkSlash;
+  static const IconData viewLikes = FontAwesomeIcons.thumbsUp;
 }
 
 class InstancySVGImages {
@@ -501,6 +509,7 @@ class InstancySVGImages {
 enum ShareContentType {
   catalogCourse,
   discussionForum,
+  discussionTopic,
   askTheExpertQuestion,
 }
 

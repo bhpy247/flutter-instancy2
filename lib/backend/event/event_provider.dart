@@ -19,6 +19,10 @@ class EventProvider extends CommonProvider {
       map: <String, TabDataModel>{},
       notify: notify,
     );
+    calenderDatesHavingEventMap = CommonProviderMapParameter<String, int>(
+      map: <String, int>{},
+      notify: notify,
+    );
     tabsList = CommonProviderListParameter<String>(
       list: <String>[],
       notify: notify,
@@ -52,6 +56,10 @@ class EventProvider extends CommonProvider {
       list: [],
       notify: notify,
     );
+    selectedCalendarDateEventList = CommonProviderListParameter<CourseDTOModel>(
+      list: [],
+      notify: notify,
+    );
     eventsPaginationModel = CommonProviderPrimitiveParameter<PaginationModel>(
       value: PaginationModel(
         pageIndex: 1,
@@ -62,6 +70,10 @@ class EventProvider extends CommonProvider {
     );
     calenderDate = CommonProviderPrimitiveParameter<DateTime?>(
       value: null,
+      notify: notify,
+    );
+    selectedCalenderDate = CommonProviderPrimitiveParameter<DateTime>(
+      value: DateTime.now(),
       notify: notify,
     );
     scheduleDate = CommonProviderPrimitiveParameter<DateTime?>(
@@ -131,11 +143,14 @@ class EventProvider extends CommonProvider {
   late final CommonProviderPrimitiveParameter<String> searchString;
 
   late final CommonProviderListParameter<CourseDTOModel> eventsList;
+  late final CommonProviderListParameter<CourseDTOModel> selectedCalendarDateEventList;
+  late final CommonProviderMapParameter<String, int> calenderDatesHavingEventMap;
 
   int get eventsListLength => eventsList.getList(isNewInstance: false).length;
 
   late final CommonProviderPrimitiveParameter<PaginationModel> eventsPaginationModel;
   late final CommonProviderPrimitiveParameter<DateTime?> calenderDate;
+  late final CommonProviderPrimitiveParameter<DateTime> selectedCalenderDate;
   late final CommonProviderPrimitiveParameter<DateTime?> scheduleDate;
 
   final FilterProvider filterProvider = FilterProvider();
@@ -145,6 +160,7 @@ class EventProvider extends CommonProvider {
     isLoadingEventSessionData.set(value: false, isNotify: true);
 
     tabsMap.setMap(map: {}, isClear: true, isNotify: false);
+    calenderDatesHavingEventMap.setMap(map: {}, isClear: true, isNotify: false);
     tabsList.setList(list: [], isClear: true, isNotify: false);
     isLoadingTabsList.set(value: false, isNotify: true);
 
@@ -155,6 +171,7 @@ class EventProvider extends CommonProvider {
     currentSearchId.set(value: "", isNotify: false);
     searchString.set(value: "", isNotify: false);
     eventsList.setList(list: [], isNotify: false);
+    selectedCalendarDateEventList.setList(list: [], isNotify: false);
     eventsPaginationModel.set(
       value: PaginationModel(
         pageIndex: 1,
@@ -165,6 +182,7 @@ class EventProvider extends CommonProvider {
     );
     calenderDate.set(value: null, isNotify: false);
     scheduleDate.set(value: null, isNotify: false);
+    selectedCalenderDate.set(value: DateTime.now(), isNotify: false);
     filterProvider.resetData();
   }
 }

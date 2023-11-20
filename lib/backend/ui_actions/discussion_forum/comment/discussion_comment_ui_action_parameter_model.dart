@@ -1,0 +1,3 @@
+class DiscussionCommentUiActionParameterModel {
+  const DiscussionCommentUiActionParameterModel();
+}

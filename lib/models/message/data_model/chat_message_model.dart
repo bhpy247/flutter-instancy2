@@ -19,6 +19,7 @@ class ChatMessageModel {
   int FromUserID = 0;
   int ToUserID = 0;
   int chatId = 0;
+  int videoDuration = 0;
   bool MarkAsRead = false;
   DateTime? SendDatetime;
 
@@ -37,6 +38,7 @@ class ChatMessageModel {
     this.FromUserID = 0,
     this.ToUserID = 0,
     this.chatId = 0,
+    this.videoDuration = 0,
     this.MarkAsRead = false,
     this.SendDatetime,
   });
@@ -56,6 +58,7 @@ class ChatMessageModel {
     FromUserID = ParsingHelper.parseIntMethod(json["FromUserID"]);
     ToUserID = ParsingHelper.parseIntMethod(json["ToUserID"]);
     chatId = ParsingHelper.parseIntMethod(json["chatId"]);
+    videoDuration = ParsingHelper.parseIntMethod(json["videoDuration"]);
     MarkAsRead = ParsingHelper.parseBoolMethod(json["MarkAsRead"]);
 
     SendDatetime = ParsingHelper.parseDateTimeMethod(json["SendDatetime"]);
@@ -78,6 +81,7 @@ class ChatMessageModel {
       "FromUserID": FromUserID,
       "ToUserID": ToUserID,
       "chatId": chatId,
+      "videoDuration": videoDuration,
       "MarkAsRead": MarkAsRead,
       "SendDatetime": toJson ? DatePresentation.getFormattedDate(dateFormat: "yyyy-MM-dd HH:mm:ss aa", dateTime: SendDatetime) : ParsingHelper.parseTimestampMethod(SendDatetime),
     };

@@ -11,6 +11,7 @@ class SendChatMessageRequestModel {
   String MessageType = "";
   DateTime? SendDatetime;
   bool MarkAsRead = false;
+  int videoFileDuration;
   String? fileName;
   Uint8List? fileBytes;
 
@@ -20,6 +21,7 @@ class SendChatMessageRequestModel {
     required this.chatRoomId,
     required this.MessageType,
     required this.SendDatetime,
+    this.videoFileDuration = 0,
     this.Message = "",
     this.MarkAsRead = false,
     this.fileName,
@@ -31,6 +33,7 @@ class SendChatMessageRequestModel {
       "FromUserID": FromUserID.toString(),
       "ToUserID": ToUserID.toString(),
       "MessageType": MessageType,
+      "videoFileDuration": videoFileDuration.toString(),
       "Message": Message,
       "SendDatetime": DatePresentation.getFormattedDate(dateFormat: "yyyy-MM-dd HH:mm:ss aa", dateTime: SendDatetime) ?? "",
       "MarkAsRead": MarkAsRead.toString(),

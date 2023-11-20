@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
@@ -78,7 +77,7 @@ class EventListCard extends StatelessWidget {
 
   Widget detailColumn({required BuildContext context}) {
     ThemeData themeData = Theme.of(context);
-    MyPrint.printOnConsole("model.totalratings : ${model.TotalRatings} Name : ${model.ContentName}");
+    // MyPrint.printOnConsole("model.totalratings : ${model.TotalRatings} Name : ${model.ContentName}");
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -121,10 +120,10 @@ class EventListCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            ratingView(ParsingHelper.parseDoubleMethod(model.TotalRatings)),
-            // Container(
-            //   child: eventStartDateAndTime(model: model, context: context),
-            // ),
+            ratingView(ParsingHelper.parseDoubleMethod(model.RatingID)),
+            Container(
+              child: eventStartDateAndTime(model: model, context: context),
+            ),
             getPrimaryActionButton(
               model: model,
               context: context,
@@ -137,18 +136,29 @@ class EventListCard extends StatelessWidget {
   }
 
   Widget eventStartDateAndTime({required CourseDTOModel model, required BuildContext context}) {
-    // MyPrint.printOnConsole("model. endDateTime: '${model.Title} to ${model.EventEndDateTimeTimeWithoutConvert}'");
-
     AppProvider appProvider = context.read<AppProvider>();
 
-    if (model.EventStartDateTime.isEmpty) return const SizedBox();
+    // if (model.EventStartDateTime.isEmpty) return const SizedBox();
+    // DateTime ds = DateTime.parse(model.EventStartDateTimeWithoutConvert);
+    // MyPrint.printOnConsole("model. startTime: '${ds} ${appProvider.appSystemConfigurationModel.dateTimeFormat}'");
+    //
+    // DateTime? startDateTime = ParsingHelper.parseDateTimeMethod(model.EventStartDateTimeWithoutConvert);
+    //
+    //
+    // startDateTime ??= ParsingHelper.parseDateTimeMethod(startDateTime, dateFormat: appProvider.appSystemConfigurationModel.dateTimeFormat);
+    //
+    // DateTime? endDateTime = ParsingHelper.parseDateTimeMethod(model.EventEndDateTime);
+    //
+    // endDateTime ??= ParsingHelper.parseDateTimeMethod(endDateTime, dateFormat: appProvider.appSystemConfigurationModel.dateTimeFormat);
 
-    DateTime? startDateTime = ParsingHelper.parseDateTimeMethod(model.EventStartDateTime);
-    startDateTime ??= ParsingHelper.parseDateTimeMethod(model.EventStartDateTime, dateFormat: "M/dd/yyyy hh:mm:ss aa");
-    DateTime? endDateTime = ParsingHelper.parseDateTimeMethod(model.EventEndDateTime);
-    endDateTime ??= ParsingHelper.parseDateTimeMethod(model.EventEndDateTime, dateFormat: appProvider.appSystemConfigurationModel.dateTimeFormat);
+    if (model.EventStartDateTimeWithoutConvert.isEmpty || appProvider.appSystemConfigurationModel.dateTimeFormat.isEmpty) return const SizedBox();
 
-    if (startDateTime == null || endDateTime == null) return const SizedBox();
+    DateTime? startDateTime = ParsingHelper.parseDateTimeMethod(model.EventStartDateTimeWithoutConvert, dateFormat: appProvider.appSystemConfigurationModel.dateTimeFormat);
+    DateTime? endDateTime = ParsingHelper.parseDateTimeMethod(model.EventEndDateTimeTimeWithoutConvert, dateFormat: appProvider.appSystemConfigurationModel.dateTimeFormat);
+
+    if (startDateTime == null) return const SizedBox();
+
+    if (endDateTime == null) return const SizedBox();
 
     ThemeData themeData = Theme.of(context);
 
@@ -167,7 +177,7 @@ class EventListCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            "Time: ${DatePresentation.getFormattedDate(dateTime: startDateTime, dateFormat: "hh:mm aa")} - ${DatePresentation.getFormattedDate(dateTime: endDateTime, dateFormat: "hh:mm aa")} (${DatePresentation.getDifferenceBetweenDatesInMinutes(startDateTime, endDateTime)} Min)",
+            "Time: ${DatePresentation.getFormattedDate(dateTime: startDateTime, dateFormat: "hh:mm aa")} - ${DatePresentation.getFormattedDate(dateTime: endDateTime, dateFormat: "hh:mm aa")} (${model.Duration})",
             // "Time: ${DatePresentation.getFormattedDate(dateTime: startDateTime, dateFormat: "hh:mm aa")}",
             style: themeData.textTheme.labelSmall?.copyWith(
               fontSize: 10,

@@ -5,6 +5,7 @@ enum InstancyContentActionsEnum {
   AddToMyLearning,
   Enroll,
   Join,
+  ReEnroll,
   Buy,
   IAmInterested,
   ContactUs,
@@ -42,6 +43,24 @@ enum InstancyContentActionsEnum {
   // qrCode,
   // eventRecording,
   // sendViaEmail,
+
+  //region Discussion Forum
+  //region Forum Actions
+  AddTopic,
+  ViewLikes,
+  //endregion
+
+  //region Topic Actions
+  AddComment,
+  Pin,
+  UnPin,
+  Edit,
+  //endregion
+
+  //region Comment Actions
+  AddReply,
+  //endregion
+  //endregion
 }
 
 enum InstancyContentScreenType {
