@@ -126,17 +126,17 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
           ],
         );
         bool isSuccessUpload = await discussionController.uploadForumAttachment(requestModel: uploadForumAttachmentModel);
-        if (isSuccessUpload && context.mounted) {
-          MyToast.showSuccess(msg: "Topic Created SuccessFully", context: context);
-          Navigator.pop(context);
-        }
+        MyPrint.printOnConsole("isSuccessUpload:$isSuccessUpload");
       }
     }
 
     isLoading = false;
     mySetState();
 
-    if (isSuccess && context.mounted) Navigator.pop(context, isSuccess);
+    if (isSuccess && context.mounted) {
+      MyToast.showSuccess(msg: "Topic Created SuccessFully", context: context);
+      Navigator.pop(context, isSuccess);
+    }
   }
 
   void setEditData() {
