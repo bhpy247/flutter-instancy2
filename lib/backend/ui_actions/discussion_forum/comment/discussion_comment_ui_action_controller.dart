@@ -2,6 +2,7 @@ import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/discussion_forum/comment/dicussion_comment_ui_action_constant.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/topic_comment_model.dart';
 
+import '../../../../api/api_controller.dart';
 import '../../../../configs/app_constants.dart';
 import '../../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../../views/common/components/instancy_ui_actions/instancy_ui_actions.dart';
@@ -49,11 +50,11 @@ class DiscussionCommentUiActionController {
   }
 
   bool showEdit({required DiscussionCommentUiActionParameterModel parameterModel}) {
-    return true;
+    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId();
   }
 
   bool showDelete({required DiscussionCommentUiActionParameterModel parameterModel}) {
-    return true;
+    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId();
   }
 
   bool showViewLikes({required DiscussionCommentUiActionParameterModel parameterModel}) {
@@ -87,7 +88,9 @@ class DiscussionCommentUiActionController {
   DiscussionCommentUiActionParameterModel getParameterModelFromDataModel({
     required TopicCommentModel commentModel,
   }) {
-    return const DiscussionCommentUiActionParameterModel();
+    return DiscussionCommentUiActionParameterModel(
+      CreatedUserID: commentModel.postedby,
+    );
   }
 
   Iterable<InstancyUIActionModel> getInstancyUIActionModelListFromInstancyContentActionsEnumList({

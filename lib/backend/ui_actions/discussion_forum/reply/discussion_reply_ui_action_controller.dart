@@ -2,6 +2,7 @@ import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/discussion_forum/reply/dicussion_reply_ui_action_constant.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/comment_reply_model.dart';
 
+import '../../../../api/api_controller.dart';
 import '../../../../configs/app_constants.dart';
 import '../../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../../views/common/components/instancy_ui_actions/instancy_ui_actions.dart';
@@ -48,11 +49,11 @@ class DiscussionReplyUiActionController {
   }
 
   bool showEdit({required DiscussionReplyUiActionParameterModel parameterModel}) {
-    return true;
+    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId();
   }
 
   bool showDelete({required DiscussionReplyUiActionParameterModel parameterModel}) {
-    return true;
+    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId();
   }
 
   //region Secondary Actions
@@ -82,7 +83,9 @@ class DiscussionReplyUiActionController {
   DiscussionReplyUiActionParameterModel getParameterModelFromDataModel({
     required CommentReplyModel replyModel,
   }) {
-    return const DiscussionReplyUiActionParameterModel();
+    return DiscussionReplyUiActionParameterModel(
+      CreatedUserID: replyModel.postedBy,
+    );
   }
 
   Iterable<InstancyUIActionModel> getInstancyUIActionModelListFromInstancyContentActionsEnumList({

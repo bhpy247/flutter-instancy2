@@ -59,11 +59,11 @@ class DiscussionTopicUiActionController {
   }
 
   bool showEdit({required DiscussionTopicUiActionParameterModel parameterModel}) {
-    return true;
+    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId();
   }
 
   bool showDelete({required DiscussionTopicUiActionParameterModel parameterModel}) {
-    return true;
+    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId();
   }
 
   bool showPin({required DiscussionTopicUiActionParameterModel parameterModel}) {
