@@ -176,10 +176,8 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
   Widget build(BuildContext context) {
     super.pageBuild();
 
-    return WillPopScope(
-      onWillPop: () async {
-        return !isSignInProgress && !isSignUpInProgress;
-      },
+    return PopScope(
+      canPop: !isSignInProgress && !isSignUpInProgress,
       child: GestureDetector(
         onTap: () {
           FocusScope.of(context).requestFocus(FocusNode());

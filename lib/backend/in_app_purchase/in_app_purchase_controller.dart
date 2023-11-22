@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/in_app_purchase/data_model/ecommerce_order_dto_model.dart';
 import 'package:flutter_instancy_2/models/in_app_purchase/request_model/ecommerce_order_request_model.dart';
@@ -17,11 +18,15 @@ import 'package:in_app_purchase_android/src/billing_client_wrappers/billing_clie
 import 'package:in_app_purchase_android/src/types/change_subscription_param.dart';
 import 'package:in_app_purchase_android/src/types/google_play_purchase_details.dart';
 import 'package:in_app_purchase_android/src/types/google_play_purchase_param.dart';
+import 'package:in_app_purchase_storekit/src/types/app_store_product_details.dart';
+import 'package:in_app_purchase_storekit/src/types/app_store_purchase_param.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 
 import '../../api/api_controller.dart';
 import '../../api/api_url_configuration_provider.dart';
 import '../../models/in_app_purchase/request_model/mobile_save_in_app_purchase_details_request_model.dart';
+import '../../views/common/components/app_ui_components.dart';
+import '../../views/common/components/platform_alert_dialog.dart';
 import 'in_app_purchase_provider.dart';
 import 'in_app_purchase_repository.dart';
 
@@ -53,7 +58,13 @@ class InAppPurchaseController {
     return isStoreAvailable;
   }
 
-  Future<PurchaseDetails?> launchInAppPurchase(ProductDetails productDetails, {GooglePlayPurchaseDetails? oldSubscription, bool isConsumable = true}) async {
+  Future<PurchaseDetails?> launchInAppPurchase(
+    ProductDetails productDetails, {
+    GooglePlayPurchaseDetails? oldSubscription,
+    bool isConsumable = true,
+    bool isShowConfirmationDialog = false,
+    BuildContext? context,
+  }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("InAppPurchaseController().launchInAppPurchase() called with product id:${productDetails.id}, oldSubscription:$oldSubscription", tag: tag);
 
@@ -61,8 +72,48 @@ class InAppPurchaseController {
       return null;
     }
 
+    if (isShowConfirmationDialog) {
+      if (context == null || !context.mounted) {
+        MyPrint.printOnConsole("Returning from InAppPurchaseController().launchInAppPurchase() because isShowConfirmationDialog is true but context is null", tag: tag);
+        return null;
+      }
+
+      String productName = "";
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        productName = productDetails.title;
+      } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+        AppStoreProductDetails details = productDetails as AppStoreProductDetails;
+        productName = details.skProduct.localizedTitle;
+      }
+
+      MyPrint.printOnConsole("productName:$productName", tag: tag);
+      MyPrint.printOnConsole("productDetails.title:${productDetails.title}", tag: tag);
+      MyPrint.printOnConsole("productDetails.description:${productDetails.description}", tag: tag);
+      MyPrint.printOnConsole("productDetails.price:${productDetails.price}", tag: tag);
+      MyPrint.printOnConsole("productDetails.rawPrice:${productDetails.rawPrice}", tag: tag);
+      dynamic value = await AppUIComponents.showMyPlatformDialog(
+        context: context,
+        dialog: PlatformAlertDialog(
+          title: 'Confirm Your In App Purchase',
+          content: "Do you want to buy $productName for ${productDetails.price}?",
+          cancelActionText: 'Cancel',
+          defaultActionText: 'Buy',
+        ),
+        barrierDismissible: false,
+      );
+      MyPrint.printOnConsole("value:$value", tag: tag);
+
+      if (value != true) {
+        MyPrint.printOnConsole("Returning from InAppPurchaseController().launchInAppPurchase() because user didn't gave confirmation", tag: tag);
+        return null;
+      }
+    }
+
     bool isStoreAvailable = await checkStoreAvailable();
-    if (!isStoreAvailable) return null;
+    if (!isStoreAvailable) {
+      MyPrint.printOnConsole("Returning from InAppPurchaseController().launchInAppPurchase() because store is not available", tag: tag);
+      return null;
+    }
 
     Map<String, bool> completedPurchases = await _completePendingPurchases();
     MyPrint.printOnConsole("completedPurchases:'$completedPurchases'", tag: tag);
@@ -91,7 +142,7 @@ class InAppPurchaseController {
             : null,
       );
     } else {
-      purchaseParam = PurchaseParam(
+      purchaseParam = AppStorePurchaseParam(
         productDetails: productDetails,
         applicationUserName: null,
       );

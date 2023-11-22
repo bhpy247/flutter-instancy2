@@ -111,9 +111,10 @@ class CatalogController {
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
-        "CatalogController().getCatalogContentsListFromApi() called with isRefresh:$isRefresh, isGetFromCache:$isGetFromCache, "
-            "isNotify:$isNotify, componentId:$componentId, componentInstanceId:$componentInstanceId",
-        tag: tag);
+      "CatalogController().getCatalogContentsListFromApi() called with isRefresh:$isRefresh, isGetFromCache:$isGetFromCache, "
+      "isNotify:$isNotify, componentId:$componentId, componentInstanceId:$componentInstanceId",
+      tag: tag,
+    );
 
     CatalogProvider provider = catalogProvider;
     PaginationModel paginationModel = provider.catalogContentPaginationModel.get();
@@ -354,28 +355,28 @@ class CatalogController {
       sortBy: isWishList ? filterProvider.defaultSort.get() : filterProvider.selectedSort.get(),
       categories: (enabledContentFilterByTypeModel?.categories ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-        list: filterProvider.selectedCategories.getList().map((e) => e.categoryId).toList(),
-      )
+              list: filterProvider.selectedCategories.getList().map((e) => e.categoryId).toList(),
+            )
           : "",
       objecttypes: (enabledContentFilterByTypeModel?.objecttypeid ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-        list: filterProvider.selectedContentTypes.getList().map((e) => e.categoryId).toList(),
-      )
+              list: filterProvider.selectedContentTypes.getList().map((e) => e.categoryId).toList(),
+            )
           : "",
       skillcats: (enabledContentFilterByTypeModel?.skills ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-        list: filterProvider.selectedSkills.getList().map((e) => e.categoryId).toList(),
-      )
+              list: filterProvider.selectedSkills.getList().map((e) => e.categoryId).toList(),
+            )
           : "",
       jobroles: (enabledContentFilterByTypeModel?.jobroles ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-        list: filterProvider.selectedJobRoles.getList().map((e) => e.categoryId).toList(),
-      )
+              list: filterProvider.selectedJobRoles.getList().map((e) => e.categoryId).toList(),
+            )
           : "",
       solutions: (enabledContentFilterByTypeModel?.solutions ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-        list: filterProvider.selectedSolutions.getList().map((e) => e.categoryId).toList(),
-      )
+              list: filterProvider.selectedSolutions.getList().map((e) => e.categoryId).toList(),
+            )
           : "",
       ratings: (enabledContentFilterByTypeModel?.rating ?? false) ? ParsingHelper.parseStringMethod(filterProvider.selectedRating.get()) : "",
       pricerange: (enabledContentFilterByTypeModel?.ecommerceprice ?? false) && filterProvider.minPrice.get() != null && filterProvider.maxPrice.get() != null
@@ -383,8 +384,8 @@ class CatalogController {
           : "",
       instructors: (enabledContentFilterByTypeModel?.instructor ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-        list: filterProvider.selectedInstructor.getList().map((e) => e.UserID).toList(),
-      )
+              list: filterProvider.selectedInstructor.getList().map((e) => e.UserID).toList(),
+            )
           : "",
       filtercredits: filtercredits,
     );
@@ -450,7 +451,7 @@ class CatalogController {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
         "CatalogController().addContentToMyLearning() called with requestModel:$requestModel, context:$context, "
-            "isShowToast:$isShowToast",
+        "isShowToast:$isShowToast",
         tag: tag);
 
     bool isSuccess = false;
@@ -600,7 +601,12 @@ class CatalogController {
       return false;
     }
 
-    PurchaseDetails? purchaseDetails = await InAppPurchaseController().launchInAppPurchase(productDetails);
+    PurchaseDetails? purchaseDetails = await InAppPurchaseController().launchInAppPurchase(
+      productDetails,
+      isShowConfirmationDialog: true,
+      context: context,
+      isConsumable: true,
+    );
     MyPrint.printOnConsole("purchaseDetails.status:${purchaseDetails?.status}", tag: tag);
 
     if (purchaseDetails == null) {
@@ -735,9 +741,10 @@ class CatalogController {
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
-        "CatalogController().enrollWaitListEvent() called with requestModel:$requestModel, context:$context, "
-            "isShowToast:$isShowToast",
-        tag: tag);
+      "CatalogController().enrollWaitListEvent() called with requestModel:$requestModel, context:$context, "
+      "isShowToast:$isShowToast",
+      tag: tag,
+    );
 
     bool isSuccess = false;
 
@@ -795,9 +802,10 @@ class CatalogController {
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
-        "CatalogController().addExpiredEventToMyLearning() called with requestModel:$requestModel, context:$context, "
-            "isShowToast:$isShowToast",
-        tag: tag);
+      "CatalogController().addExpiredEventToMyLearning() called with requestModel:$requestModel, context:$context, "
+      "isShowToast:$isShowToast",
+      tag: tag,
+    );
 
     bool isSuccess = false;
 
@@ -982,8 +990,12 @@ class CatalogController {
   }) async {
     MyPrint.printOnConsole("getAssociatedContent");
 
-    DataResponseModel<AssociatedContentResponseModel> response =
-    await catalogRepository.getAssociatedContent(componentId: componentId, contentId: contentId, componentInstanceId: componentInstanceId, preRequisiteSequencePathId: preRequisiteSequencePathId);
+    DataResponseModel<AssociatedContentResponseModel> response = await catalogRepository.getAssociatedContent(
+      componentId: componentId,
+      contentId: contentId,
+      componentInstanceId: componentInstanceId,
+      preRequisiteSequencePathId: preRequisiteSequencePathId,
+    );
     MyPrint.printOnConsole("return getAssociatedContent");
 
     MyPrint.printOnConsole("response: ${response.data}");

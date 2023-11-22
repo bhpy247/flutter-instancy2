@@ -20,6 +20,8 @@ class MobileGetLearningPortalInfoResponseModel {
   List<Table3> table3 = <Table3>[];
   List<Table4> table4 = <Table4>[];
   List<Table5> table5 = <Table5>[];
+  List<Table6> table6 = <Table6>[];
+  List<Table7> table7 = <Table7>[];
 
   MobileGetLearningPortalInfoResponseModel.fromJson(Map<String, dynamic> json) {
     table = ParsingHelper.parseListMethod(json["table"]).map((x) => Table.fromJson(ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(x))).toList();
@@ -28,6 +30,8 @@ class MobileGetLearningPortalInfoResponseModel {
     table3 = ParsingHelper.parseListMethod(json["table3"]).map((x) => Table3.fromJson(ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(x))).toList();
     table4 = ParsingHelper.parseListMethod(json["table4"]).map((x) => Table4.fromJson(ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(x))).toList();
     table5 = ParsingHelper.parseListMethod(json["table5"]).map((x) => Table5.fromJson(ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(x))).toList();
+    table6 = ParsingHelper.parseListMethod(json["table6"]).map((x) => Table6.fromJson(ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(x))).toList();
+    table7 = ParsingHelper.parseListMethod(json["table7"]).map((x) => Table7.fromJson(ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(x))).toList();
   }
 
   Map<String, dynamic> toJson() {
@@ -39,6 +43,14 @@ class MobileGetLearningPortalInfoResponseModel {
       "table4": table4.map((x) => x.toJson()).toList(),
       "table5": table5.map((x) => x.toJson()).toList(),
     };
+  }
+
+  List<String> getLoginScreenImages() {
+    return table6.map((e) => e.splashimagepath).toList()..removeWhere((element) => element.isEmpty);
+  }
+
+  String getLoginScreenBackgroundImage() {
+    return table7.firstOrNull?.onboardingurl ?? "";
   }
 }
 
@@ -243,3 +255,38 @@ class Table5 {
   }
 }
 
+class Table6 {
+  String splashimagepath = "";
+
+  Table6({
+    this.splashimagepath = "",
+  });
+
+  Table6.fromJson(Map<String, dynamic> json) {
+    splashimagepath = ParsingHelper.parseStringMethod(json["splashimagepath"]);
+  }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      "splashimagepath": splashimagepath,
+    };
+  }
+}
+
+class Table7 {
+  String onboardingurl = "";
+
+  Table7({
+    this.onboardingurl = "",
+  });
+
+  Table7.fromJson(Map<String, dynamic> json) {
+    onboardingurl = ParsingHelper.parseStringMethod(json["onboardingurl"]);
+  }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      "onboardingurl": onboardingurl,
+    };
+  }
+}

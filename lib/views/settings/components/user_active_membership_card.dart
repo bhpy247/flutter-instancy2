@@ -5,8 +5,7 @@ import '../../common/components/common_button.dart';
 
 class UserActiveMembershipCard extends StatelessWidget {
   final UserActiveMembershipDTOModel model;
-  final void Function()? updateMembership;
-  final void Function({required UserActiveMembershipDTOModel model})? cancelMembership;
+  final void Function({required UserActiveMembershipDTOModel model})? updateMembership, cancelMembership;
 
   const UserActiveMembershipCard({
     super.key,
@@ -158,7 +157,7 @@ class UserActiveMembershipCard extends StatelessWidget {
     if (model.IsChangePlan) {
       updateMembershipButton = CommonButton(
         onPressed: () {
-          if (updateMembership != null) updateMembership!();
+          if (updateMembership != null) updateMembership!(model: model);
         },
         text: "Update Membership",
         backGroundColor: themeData.primaryColor,

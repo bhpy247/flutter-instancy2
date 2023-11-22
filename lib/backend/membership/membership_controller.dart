@@ -147,7 +147,11 @@ class MembershipController {
 
     MembershipPlanDetailsModel? membershipPlanDetailsModel = value;
 
-    PurchaseDetails? purchaseDetails = await AuthenticationController(provider: null).launchMembershipPlanInAppPurchase(membershipPlanDetailsModel: membershipPlanDetailsModel);
+    PurchaseDetails? purchaseDetails = await AuthenticationController(provider: null).launchMembershipPlanInAppPurchase(
+      membershipPlanDetailsModel: membershipPlanDetailsModel,
+      isShowConfirmationDialog: true,
+      context: context,
+    );
 
     if (purchaseDetails == null) {
       MyPrint.printOnConsole("Couldn't complete payment", tag: tag);

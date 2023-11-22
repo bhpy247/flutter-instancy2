@@ -173,7 +173,7 @@ class AuthenticationController {
 
     BuildContext context = NavigationController.mainNavigatorKey.currentContext!;
     context.read<MainScreenProvider>().resetData(
-      appProvider: context.read<AppProvider>(),
+          appProvider: context.read<AppProvider>(),
           appThemeProvider: context.read<AppThemeProvider>(),
         );
     context.read<HomeProvider>().resetData();
@@ -330,8 +330,9 @@ class AuthenticationController {
       MemberShipDurationID: membershipPlanDetailsModel?.MemberShipDurationID ?? 0,
     );
 
-    DataResponseModel<SignUpResponseModel> responseModel =
-        await ProfileRepository(apiController: authenticationRepository.apiController).saveProfileData(requestModel: userSaveProfileDataRequestModel);
+    DataResponseModel<SignUpResponseModel> responseModel = await ProfileRepository(apiController: authenticationRepository.apiController).saveProfileData(
+      requestModel: userSaveProfileDataRequestModel,
+    );
 
     SignUpResponseDTOModel? signUpResponseModel = responseModel.data?.Response;
     MyPrint.printOnConsole("signUpResponseModel:'$signUpResponseModel'", tag: tag);
@@ -350,7 +351,11 @@ class AuthenticationController {
 
     //Handle Payment
     if (isPaidPlan) {
-      PurchaseDetails? purchaseDetails = await launchMembershipPlanInAppPurchase(membershipPlanDetailsModel: membershipPlanDetailsModel!);
+      PurchaseDetails? purchaseDetails = await launchMembershipPlanInAppPurchase(
+        membershipPlanDetailsModel: membershipPlanDetailsModel!,
+        isShowConfirmationDialog: true,
+        context: context,
+      );
 
       if (purchaseDetails == null) {
         MyPrint.printOnConsole("Couldn't complete payment", tag: tag);
@@ -394,18 +399,26 @@ class AuthenticationController {
     return signUpResponseModel;
   }
 
-  Future<PurchaseDetails?> launchMembershipPlanInAppPurchase({required MembershipPlanDetailsModel membershipPlanDetailsModel, BuildContext? context}) async {
+  Future<PurchaseDetails?> launchMembershipPlanInAppPurchase({
+    required MembershipPlanDetailsModel membershipPlanDetailsModel,
+    BuildContext? context,
+    bool isShowConfirmationDialog = false,
+  }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("AuthenticationController().launchMembershipPlanInAppPurchase() called for MemberShipDurationID:'${membershipPlanDetailsModel.MemberShipDurationID}'", tag: tag);
 
     String productId = switch (defaultTargetPlatform) {
+      // TargetPlatform.android => "shield_base_basic",
+      // TargetPlatform.android => "test.sub.1",
+      // TargetPlatform.android => "base1",
       // TargetPlatform.android => "com.instancy.shieldbasebasic30days",
+      // TargetPlatform.iOS => "sbb6monthstopup",
       // TargetPlatform.iOS => "com.instancy.signUpSub130Days",
       TargetPlatform.android => membershipPlanDetailsModel.GoogleSubscriptionID,
       TargetPlatform.iOS => membershipPlanDetailsModel.AppleSubscriptionID,
       _ => "",
     };
-    MyPrint.printOnConsole("Product Id:'$productId'", tag: tag);
+    MyPrint.printOnConsole("Product Ids:'$productId'", tag: tag);
 
     if (productId.isEmpty) {
       MyPrint.printOnConsole("Product Id not Available", tag: tag);
@@ -424,7 +437,12 @@ class AuthenticationController {
       return null;
     }
 
-    PurchaseDetails? purchaseDetails = await InAppPurchaseController().launchInAppPurchase(productDetails, isConsumable: false);
+    PurchaseDetails? purchaseDetails = await InAppPurchaseController().launchInAppPurchase(
+      productDetails,
+      isConsumable: false,
+      context: context,
+      isShowConfirmationDialog: isShowConfirmationDialog,
+    );
     MyPrint.printOnConsole("purchaseDetails.status:${purchaseDetails?.status}", tag: tag);
 
     if (purchaseDetails == null) {

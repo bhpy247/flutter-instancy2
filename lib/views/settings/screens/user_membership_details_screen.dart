@@ -31,7 +31,7 @@ class _UserMembershipDetailsScreenState extends State<UserMembershipDetailsScree
 
   bool isLoading = false;
 
-  Future<void> updateMembership() async {
+  Future<void> updateMembership({required UserActiveMembershipDTOModel model}) async {
     isLoading = true;
     mySetState();
 

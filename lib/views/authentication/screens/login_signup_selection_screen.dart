@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
@@ -30,12 +31,79 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
   String thirdImage = "assets/onBoarding/3_image.png";
 
   String circleImageUrl = "";
+  late List<String> onBoardImageUrls = <String>[];
   late List<board.OnBoardModel> onBoardData = [];
 
   late ThemeData themeData;
   final PageController _pageController = PageController();
 
   late AppProvider appProvider;
+
+  void initializeImages({required AppProvider appProvider}) {
+    String backgroundImage = appProvider.loginScreenBackgroundImage.get();
+    if (circleImageUrl != backgroundImage) circleImageUrl = backgroundImage;
+
+    List<String> images = appProvider.loginScreenImages.getList();
+    if (!const ListEquality().equals(onBoardImageUrls, images)) {
+      onBoardImageUrls
+        ..clear()
+        ..addAll(images);
+      onBoardData
+        ..clear()
+        ..addAll(
+          images.map(
+            (String imageUrl) {
+              return board.OnBoardModel(
+                title: "",
+                description: "",
+                imgUrl: imageUrl,
+              );
+            },
+          ),
+        );
+    }
+
+    /*onBoardData = [
+      board.OnBoardModel(
+        title: "",
+        description: "",
+        imgUrl: firstImage,
+      ),
+      board.OnBoardModel(
+        title: "",
+        description: "",
+        imgUrl: secondImage,
+      ),
+      board.OnBoardModel(
+        title: "",
+        description: "",
+        imgUrl: thirdImage,
+      ),
+    ];*/
+
+    /*circleImageUrl = "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/OnboardingImages%2Fenterprisedemo%2FOnboarding_circles.png?alt=media&token=0f3d2a4e-1782-4126-9f15-d50fee754166";
+    // circleImageUrl = "https://upgradedenterprise.instancy.com/content/onboarding/Onboarding_circles.png";
+    onBoardData = [
+      const board.OnBoardModel(
+        title: "",
+        description: "",
+        imgUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/OnboardingImages%2Fenterprisedemo%2F1_image.png?alt=media&token=a739bdce-8337-42e1-a29e-deb7cf4ad190",
+        // imgUrl: "https://upgradedenterprise.instancy.com/content/onboarding/1_image.png",
+      ),
+      const board.OnBoardModel(
+        title: "",
+        description: "",
+        imgUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/OnboardingImages%2Fenterprisedemo%2F2_image.png?alt=media&token=48e483df-c882-4d45-9c53-17dce9da0676",
+        // imgUrl: "https://upgradedenterprise.instancy.com/content/onboarding/2_image.png",
+      ),
+      const board.OnBoardModel(
+        title: "",
+        description: "",
+        imgUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/OnboardingImages%2Fenterprisedemo%2F3_image.png?alt=media&token=4aef780d-87a9-464b-b5ff-ebfc4fbae071",
+        // imgUrl: "https://upgradedenterprise.instancy.com/content/onboarding/3_image.png",
+      ),
+    ];*/
+  }
 
   Future<void> signUp() async {
     MembershipPlanDetailsModel? membershipPlanDetailsModel;
@@ -81,56 +149,18 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
     super.initState();
 
     appProvider = context.read<AppProvider>();
-
-    onBoardData = [
-      board.OnBoardModel(
-        title: "",
-        description: "",
-        imgUrl: firstImage,
-      ),
-      board.OnBoardModel(
-        title: "",
-        description: "",
-        imgUrl: secondImage,
-      ),
-      board.OnBoardModel(
-        title: "",
-        description: "",
-        imgUrl: thirdImage,
-      ),
-    ];
-
-    circleImageUrl =
-        "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/OnboardingImages%2Fenterprisedemo%2FOnboarding_circles.png?alt=media&token=0f3d2a4e-1782-4126-9f15-d50fee754166";
-    // circleImageUrl = "https://upgradedenterprise.instancy.com/content/onboarding/Onboarding_circles.png";
-    onBoardData = [
-      const board.OnBoardModel(
-        title: "",
-        description: "",
-        imgUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/OnboardingImages%2Fenterprisedemo%2F1_image.png?alt=media&token=a739bdce-8337-42e1-a29e-deb7cf4ad190",
-        // imgUrl: "https://upgradedenterprise.instancy.com/content/onboarding/1_image.png",
-      ),
-      const board.OnBoardModel(
-        title: "",
-        description: "",
-        imgUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/OnboardingImages%2Fenterprisedemo%2F2_image.png?alt=media&token=48e483df-c882-4d45-9c53-17dce9da0676",
-        // imgUrl: "https://upgradedenterprise.instancy.com/content/onboarding/2_image.png",
-      ),
-      const board.OnBoardModel(
-        title: "",
-        description: "",
-        imgUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/OnboardingImages%2Fenterprisedemo%2F3_image.png?alt=media&token=4aef780d-87a9-464b-b5ff-ebfc4fbae071",
-        // imgUrl: "https://upgradedenterprise.instancy.com/content/onboarding/3_image.png",
-      ),
-    ];
   }
 
   @override
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
-    return Scaffold(
-      body: getMainBody2(),
-    );
+    return Consumer<AppProvider>(builder: (BuildContext context, AppProvider appProvider, Widget? child) {
+      initializeImages(appProvider: appProvider);
+
+      return Scaffold(
+        body: getMainBody2(),
+      );
+    });
   }
 
   Widget getMainBody2() {
@@ -151,16 +181,12 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
             Expanded(child: Container()),
             getCarouselView(),
             getAppLogo(),
-            const SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
             Text(
               appProvider.localStr.loginScreenOnBoardingMessage,
               style: const TextStyle(color: Colors.black, fontSize: 18),
             ),
-            const SizedBox(
-              height: 30,
-            ),
+            const SizedBox(height: 30),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30.0),
               child: getSignInButton(
@@ -192,25 +218,20 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
   }
 
   Widget getCircles() {
-    if (circleImageUrl.isNotEmpty) {
-      return CommonCachedNetworkImage(
-        imageUrl: circleImageUrl,
-        width: MediaQuery.of(context).size.width,
-        fit: BoxFit.contain,
-        placeholder: (_, __) => SizedBox(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height * 0.3,
-          child: const SizedBox(),
-        ),
-      );
-    } else {
-      return Image.asset(
-        circleUrl,
-        width: MediaQuery.of(context).size.width,
-        fit: BoxFit.cover,
-        color: themeData.primaryColor,
-      );
+    if (circleImageUrl.isEmpty) {
+      return const SizedBox();
     }
+
+    return CommonCachedNetworkImage(
+      imageUrl: circleImageUrl,
+      width: MediaQuery.of(context).size.width,
+      fit: BoxFit.contain,
+      placeholder: (_, __) => SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height * 0.3,
+        child: const SizedBox(),
+      ),
+    );
   }
 
   Widget getAppLogo() {

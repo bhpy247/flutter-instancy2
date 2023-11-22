@@ -237,6 +237,8 @@ class SplashController {
       data: model,
       siteUrlConfigurationModel: siteUrlConfigurationModel,
     );
+    appProvider.loginScreenBackgroundImage.set(value: model.getLoginScreenBackgroundImage(), isNotify: false);
+    appProvider.loginScreenImages.setList(list: model.getLoginScreenImages(), isClear: true, isNotify: false);
     appProvider.setAppSystemConfigurationModel(value: appSystemConfigurationModel, isNotify: true);
   }
 

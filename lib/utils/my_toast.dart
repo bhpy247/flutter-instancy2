@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-class MyToast{
-
+class MyToast {
   static _showToast(BuildContext context, String msg, int duration, Color toastColor, Color textColor) {
     try {
       Widget toast = Container(
@@ -12,11 +11,15 @@ class MyToast{
           borderRadius: BorderRadius.circular(25.0),
           color: toastColor,
         ),
-        child: Text(msg, style: TextStyle(color: textColor),),
+        child: Text(
+          msg,
+          style: TextStyle(color: textColor),
+        ),
       );
 
       FToast fToast = FToast();
       fToast.init(context);
+      fToast.removeCustomToast();
 
       /*fToast.showToast(
         child: toast,
@@ -30,15 +33,14 @@ class MyToast{
         toastDuration: Duration(seconds: duration),
         positionedToastBuilder: (context, child) {
           return Positioned(
-            child: child,
             bottom: 100.0,
             left: 0,
             right: 0,
+            child: child,
           );
         },
       );
-    }
-    catch(e, s) {
+    } catch (e, s) {
       MyPrint.printOnConsole("Error in Showing Toast:$e");
       MyPrint.printOnConsole(s);
     }
@@ -56,6 +58,7 @@ class MyToast{
     ThemeData themeData = Theme.of(context);
     _showToast(context, msg, durationInSeconds, themeData.colorScheme.primary, Colors.white);
   }
+
   static void greyMsg({required BuildContext context, required String msg, int durationInSeconds = 2}) {
     ThemeData themeData = Theme.of(context);
     _showToast(context, msg, durationInSeconds, themeData.colorScheme.onBackground, Colors.white);

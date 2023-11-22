@@ -22,7 +22,7 @@ class PlatformAlertDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     if(kIsWeb || !Platform.isIOS) {
       return AlertDialog(
-        backgroundColor: Colors.white,
+        // backgroundColor: Colors.white,
         // backgroundColor: Color(int.parse(
         //     "0xFF${appBloc.uiSettingModel.appBGColor.substring(1, 7).toUpperCase()}")),
         title: Text(
@@ -40,11 +40,9 @@ class PlatformAlertDialog extends StatelessWidget {
       return CupertinoAlertDialog(
         title: Text(
           title,
-          style: TextStyle(color: Colors.grey.shade600),
         ),
         content: Text(
           content,
-          style: TextStyle(color: Colors.grey.shade600),
         ),
         actions: _buildActions(context),
       );

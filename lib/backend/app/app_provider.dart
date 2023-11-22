@@ -14,9 +14,19 @@ class AppProvider extends CommonProvider {
       value: null,
       notify: notify,
     );
+    loginScreenBackgroundImage = CommonProviderPrimitiveParameter<String>(
+      value: "",
+      notify: notify,
+    );
+    loginScreenImages = CommonProviderListParameter<String>(
+      list: <String>[],
+      notify: notify,
+    );
   }
 
   late CommonProviderPrimitiveParameter<CurrencyModel?> currencyModel;
+  late CommonProviderPrimitiveParameter<String> loginScreenBackgroundImage;
+  late CommonProviderListParameter<String> loginScreenImages;
 
   //region Site Url Configuration Model
   SiteUrlConfigurationModel _siteConfigurations = SiteUrlConfigurationModel();
@@ -193,14 +203,20 @@ class AppProvider extends CommonProvider {
   }
 
   void setMenuComponentModelsListForMenuId({required int menuId, required List<NativeMenuComponentModel>? list, bool isNotify = true}) {
-    if(list != null) {
-      setMenuComponentsListMenuWiseMap(menuComponentsListMenuWiseMap: {menuId : list.map((e) => e.componentid).toList()}, isClear: false, isNotify: false);
+    if (list != null) {
+      setMenuComponentsListMenuWiseMap(menuComponentsListMenuWiseMap: {menuId: list.map((e) => e.componentid).toList()}, isClear: false, isNotify: false);
       setMenuComponentModelsList(list: list, isClear: false, isNotify: false);
-    }
-    else {
+    } else {
       _menuComponentsListMenuWiseMap.remove(menuId);
     }
-    if(isNotify) notifyListeners();
+    if (isNotify) notifyListeners();
   }
+
   //endregion
+
+  void resetData() {
+    currencyModel.set(value: null, isNotify: false);
+    loginScreenBackgroundImage.set(value: "", isNotify: false);
+    loginScreenImages.setList(list: [], isClear: true, isNotify: false);
+  }
 }
