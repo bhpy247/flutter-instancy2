@@ -336,6 +336,7 @@ class InstancyComponents {
   static const int AdminCatalog = 18;
   static const int Category = 19;
   static const int Bookmark = 20;
+  static const int Login = 24;
   static const int ReportByUser = 33;
   static const int ReportByContent = 34;
   static const int ReportByOU = 35;
@@ -399,7 +400,7 @@ class InstancyComponents {
   static const int MyQuiz = 251;
   static const int FeaturedCourses = 265;
   static const int MultiWebPageRenderControl = 281;
-  static const int Login = 24;
+  static const int MyAchievements = 293;
   static const int LeftNavigation = 1001;
   static const int UserMembership = 1002;
   static const int ProfileImageEditor = 1003;

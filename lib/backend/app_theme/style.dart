@@ -53,6 +53,7 @@ class Styles {
   static const Color chatTextBackgroundColor = Color(0xffEBEBEB);
   static const Color iconColor = Color(0xff808080);
   static const Color lightGreyTextColor = Color(0xff757575);
+  static const Color linearProgressBarBackgroundColor = Color(0xffC7D3EB);
 
   // static const Color  = Color(0xffF0C119);
 

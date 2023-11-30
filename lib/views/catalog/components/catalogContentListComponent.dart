@@ -239,23 +239,19 @@ class CatalogContentListComponent extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
-            height: 25,
-            child: CommonButton(
-              height: 25,
-              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-              onPressed: () {
-                if (onPrimaryActionTap != null) {
-                  onPrimaryActionTap!();
-                }
-              },
-              backGroundColor: themeData.primaryColor,
-              child: Text(
-                primaryAction.text,
-                style: themeData.textTheme.labelSmall?.copyWith(
-                  fontSize: 12,
-                  color: themeData.colorScheme.onPrimary,
-                ),
+          CommonButton(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+            onPressed: () {
+              if (onPrimaryActionTap != null) {
+                onPrimaryActionTap!();
+              }
+            },
+            backGroundColor: themeData.primaryColor,
+            child: Text(
+              primaryAction.text,
+              style: themeData.textTheme.labelSmall?.copyWith(
+                fontSize: 11,
+                color: themeData.colorScheme.onPrimary,
               ),
             ),
           ),

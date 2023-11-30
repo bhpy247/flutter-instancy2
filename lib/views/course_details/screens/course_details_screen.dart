@@ -10,6 +10,7 @@ import 'package:flutter_instancy_2/backend/course_details/course_details_control
 import 'package:flutter_instancy_2/backend/course_details/course_details_provider.dart';
 import 'package:flutter_instancy_2/backend/event/event_controller.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_controller.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
@@ -153,6 +154,11 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
       eventController.getEventSessionsList(
         eventId: contentId,
       );
+    }
+
+    MyPrint.printOnConsole("NotifyMessage:${contentDetailsDTOModel?.NotifyMessage}");
+    if ((contentDetailsDTOModel?.NotifyMessage).checkNotEmpty) {
+      GamificationController(provider: null).showGamificationEarnedPopup(notifyMessage: contentDetailsDTOModel!.NotifyMessage);
     }
   }
 
@@ -969,12 +975,12 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             );
           }
 
-          return WillPopScope(
-            onWillPop: () async {
-              if (isLoading) return false;
+          return PopScope(
+            canPop: false,
+            onPopInvoked: (bool didPop) {
+              if (isLoading) return;
 
               Navigator.pop(context, isRefreshOtherPageWhenPop);
-              return false;
             },
             child: ModalProgressHUD(
               inAsyncCall: isLoading,

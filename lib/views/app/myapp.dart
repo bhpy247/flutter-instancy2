@@ -3,8 +3,8 @@ import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_controller.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
-import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
@@ -80,6 +80,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<MembershipProvider>(create: (_) => MembershipProvider()),
         ChangeNotifierProvider<InAppPurchaseProvider>(create: (_) => InAppPurchaseProvider()),
         ChangeNotifierProvider<DiscussionProvider>(create: (_) => DiscussionProvider()),
+        ChangeNotifierProvider<GamificationProvider>(create: (_) => GamificationProvider()),
       ],
       child: const MainApp(),
     );
@@ -128,6 +129,15 @@ class _MainAppState extends State<MainApp> {
               Locale("ar", ""),
               Locale("hi", ""),
             ],
+            builder: (context, child) => Overlay(
+              initialEntries: [
+                if (child != null) ...[
+                  OverlayEntry(
+                    builder: (context) => child,
+                  ),
+                ],
+              ],
+            ),
             // locale: BlocProvider.of<AppBloc>(context).appLocale,
           ),
         );

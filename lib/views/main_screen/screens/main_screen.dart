@@ -6,6 +6,8 @@ import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/home/home_provider.dart';
 import 'package:flutter_instancy_2/backend/instabot/instabot_controller.dart';
 import 'package:flutter_instancy_2/backend/instabot/instabot_provider.dart';
@@ -24,6 +26,7 @@ import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/screens/discussion_forum_list_main_screen.dart';
 import 'package:flutter_instancy_2/views/event/screens/event_catalog_tab_screen.dart';
 import 'package:flutter_instancy_2/views/message/screen/message_screen.dart';
+import 'package:flutter_instancy_2/views/my_achievements/screens/my_achievement_component_widget.dart';
 import 'package:flutter_instancy_2/views/my_learning_plus/screens/my_learning_plus.dart';
 import 'package:flutter_instancy_2/views/transferToAgent/screens/transferToAgentScreen.dart';
 import 'package:provider/provider.dart';
@@ -62,6 +65,7 @@ class _MainScreenState extends State<MainScreen> {
   late ProfileProvider profileProvider;
   late InstaBotProvider instaBotProvider;
   late AppThemeProvider appThemeProvider;
+  late GamificationProvider gamificationProvider;
 
   @override
   void initState() {
@@ -73,6 +77,7 @@ class _MainScreenState extends State<MainScreen> {
     profileProvider = Provider.of<ProfileProvider>(context, listen: false);
     instaBotProvider = Provider.of<InstaBotProvider>(context, listen: false);
     appThemeProvider = Provider.of<AppThemeProvider>(context, listen: false);
+    gamificationProvider = Provider.of<GamificationProvider>(context, listen: false);
 
     List<NativeMenuModel> menusList = appProvider.getMenuModelsList().toList();
     if (menusList.isNotEmpty) {
@@ -91,6 +96,13 @@ class _MainScreenState extends State<MainScreen> {
     );
 
     InstabotController(provider: instaBotProvider).getSiteBotDetails(appThemeProvider: appThemeProvider, isNotify: false);
+
+    NativeMenuComponentModel? myAchievementsComponentModel = appProvider.getMenuComponentModelFromComponentId(componentId: InstancyComponents.MyAchievements);
+    if (myAchievementsComponentModel != null) {
+      gamificationProvider.myAchievementComponentId.set(value: myAchievementsComponentModel.componentid, isNotify: false);
+      gamificationProvider.myAchievementRepositoryId.set(value: myAchievementsComponentModel.repositoryid, isNotify: false);
+    }
+    GamificationController(provider: gamificationProvider).getUserAchievementDataForDrawer();
   }
 
   @override
@@ -112,7 +124,8 @@ class _MainScreenState extends State<MainScreen> {
           if (menuModel != null) {
             components = appProvider.getMenuComponentModelsListFromMenuId(menuId: menuModel.menuid);
           }
-          MyPrint.printOnConsole("components.length:${components.length}");
+          MyPrint.printOnConsole("components.length in MainScreen:${components.length}");
+          MyPrint.printOnConsole("components in MainScreen:${components.map((e) => e.componentid).toList()}");
 
           List<NativeMenuModel> allMenusList = appProvider.getMenuModelsList();
           List<NativeMenuModel> mainMenusList = allMenusList.where((element) => element.parentmenuid == 0).toList();
@@ -142,18 +155,18 @@ class _MainScreenState extends State<MainScreen> {
             floatingActionButtonLocation: bottomBarMenusList.isEmpty ? null : FloatingActionButtonLocation.centerDocked,
             floatingActionButton: getChatBotButton(instaBotProvider: instaBotProvider),
             bottomNavigationBar: getBottomBarWidget(bottomBarMenusList: bottomBarMenusList, hasMoreMenus: hasMoreMenus),
-            body: future != null
+            body: future != null && components.isEmpty
                 ? FutureBuilder(
                     future: future,
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        return getRoundedCornerWidget(
-                          menuModel: menuModel,
-                          components: components,
-                        );
-                      } else {
+                      if (snapshot.connectionState != ConnectionState.done) {
                         return const CommonLoader();
                       }
+
+                      return getRoundedCornerWidget(
+                        menuModel: menuModel,
+                        components: components,
+                      );
                     },
                   )
                 : getRoundedCornerWidget(
@@ -441,6 +454,14 @@ class _MainScreenState extends State<MainScreen> {
         arguments: DiscussionForumScreenNavigationArguments(
           componentId: model.componentid,
           componentInsId: model.repositoryid,
+        ),
+      );
+    } else if (model.componentid == InstancyComponents.MyAchievements) {
+      return MyAchievementComponentWidget(
+        arguments: MyAchievementWidgetNavigationArguments(
+          componentId: model.componentid,
+          componentInsId: model.repositoryid,
+          gamificationProvider: context.read<GamificationProvider>(),
         ),
       );
     } else {

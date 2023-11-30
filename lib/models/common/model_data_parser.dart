@@ -13,6 +13,9 @@ import 'package:flutter_instancy_2/models/discussion/data_model/forum_model.dart
 import 'package:flutter_instancy_2/models/discussion/data_model/topic_comment_model.dart';
 import 'package:flutter_instancy_2/models/event/response_model/re_entrollment_history_response_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_dto_model.dart';
+import 'package:flutter_instancy_2/models/gamification/data_model/games_dto_model.dart';
+import 'package:flutter_instancy_2/models/gamification/response_model/leader_board_dto_model.dart';
+import 'package:flutter_instancy_2/models/gamification/response_model/user_achievement_dto_model.dart';
 import 'package:flutter_instancy_2/models/home/response_model/categorywise_course_dto_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/response_model/page_notes_response_model.dart';
 import 'package:flutter_instancy_2/models/waitlist/response_model/add_to_waitList_response_model.dart';
@@ -251,6 +254,12 @@ enum ModelDataParsingType {
   MemberShipDTOModelList,
   UserActiveMembershipResponseModel,
   //endregion
+
+  // region Gamification
+  GamesDTOModelList,
+  UserAchievementDTOModel,
+  LeaderBoardDTOModel,
+  //endregion
 }
 
 class ModelDataParser {
@@ -424,6 +433,12 @@ class ModelDataParser {
     // region MemberShip
     ModelDataParsingType.MemberShipDTOModelList: parseMemberShipDTOModelList,
     ModelDataParsingType.UserActiveMembershipResponseModel: parseUserActiveMembershipResponseModel,
+    //endregion
+
+    // region Gamification
+    ModelDataParsingType.GamesDTOModelList: parseGamesDTOModelList,
+    ModelDataParsingType.UserAchievementDTOModel: parseUserAchievementDTOModel,
+    ModelDataParsingType.LeaderBoardDTOModel: parseLeaderBoardDTOModel,
     //endregion
   };
 
@@ -1227,6 +1242,33 @@ class ModelDataParser {
 
     if (json.isNotEmpty) {
       return UserActiveMembershipResponseModel.fromMap(json);
+    } else {
+      return null;
+    }
+  }
+
+//endregion
+
+// region Gamification
+  static List<GamesDTOModel> parseGamesDTOModelList({required dynamic decodedValue}) {
+    return ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue).map((e) => GamesDTOModel.fromMap(e)).toList();
+  }
+
+  static UserAchievementDTOModel? parseUserAchievementDTOModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return UserAchievementDTOModel.fromMap(json);
+    } else {
+      return null;
+    }
+  }
+
+  static LeaderBoardDTOModel? parseLeaderBoardDTOModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return LeaderBoardDTOModel.fromMap(json);
     } else {
       return null;
     }

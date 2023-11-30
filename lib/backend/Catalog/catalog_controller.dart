@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_repository.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/models/catalog/catalogCategoriesForBrowseModel.dart';
 import 'package:flutter_instancy_2/models/catalog/request_model/add_associated_content_to_my_learning_request_model.dart';
 import 'package:flutter_instancy_2/models/catalog/request_model/add_expired_event_to_my_learning_request_model.dart';
@@ -552,7 +553,15 @@ class CatalogController {
 
       if (isShowToast && context.mounted) {
         if (isSuccess) {
-          MyToast.showSuccess(context: context, msg: responseDTOModel.Message.replaceAll("~~", ""), durationInSeconds: 5);
+          int index = responseDTOModel.Message.indexOf("~~");
+          MyToast.showSuccess(context: context, msg: index > -1 ? responseDTOModel.Message.substring(0, index) : responseDTOModel.Message, durationInSeconds: 5);
+
+          Future.delayed(const Duration(seconds: 2)).then((value) {
+            MyPrint.printOnConsole("NotifyMessage:${responseDTOModel.Message}", tag: tag);
+            if (responseDTOModel.Message.isNotEmpty) {
+              GamificationController(provider: null).showGamificationEarnedPopup(notifyMessage: responseDTOModel.Message);
+            }
+          });
         } else {
           MyToast.showError(context: context, msg: responseDTOModel.Message);
         }

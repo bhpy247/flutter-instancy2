@@ -16,8 +16,8 @@ class CommonButton extends StatelessWidget {
     this.fontWeight = FontWeight.w400,
     this.highlightColor = Colors.white12,
     this.backGroundColor,
-    this.iconPadding = const EdgeInsets.symmetric(horizontal: 5),
-    this.padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+    this.iconPadding,
+    this.padding,
     this.child,
     this.borderWidth = 0.5,
     this.borderColor,
@@ -37,40 +37,47 @@ class CommonButton extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
 
-    return MaterialButton(
-      onPressed: onPressed,
-      padding: padding,
+    return InkWell(
+      onTap: onPressed,
       highlightColor: highlightColor,
-      minWidth: minWidth,
-      elevation: 0,
-      height: height,
-      highlightElevation: 0,
-      hoverElevation: 0,
-      color: backGroundColor ?? themeData.primaryColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(borderRadius),
-        side: BorderSide(color: borderColor ?? Colors.grey, width: borderWidth),
-      ),
-      child: child ?? Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if(iconData != null) Container(
-            margin: iconPadding,
-            child: Icon(
-              iconData,
-              size: iconSize,
-              color: iconColor,
-            ),
+      child: Container(
+        padding: padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        constraints: BoxConstraints(
+          minWidth: minWidth,
+        ),
+        decoration: BoxDecoration(
+          color: backGroundColor ?? themeData.primaryColor,
+          borderRadius: BorderRadius.circular(borderRadius),
+          border: Border.all(
+            color: borderColor ?? Colors.grey,
+            width: borderWidth,
           ),
-          Text(
-            text,
-            style: TextStyle(
-              color: fontColor,
-              fontSize: fontSize,
-              fontWeight: fontWeight,
-            ),
-          ),
-        ],
+        ),
+        child: Center(
+          child: child ??
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (iconData != null)
+                    Container(
+                      margin: iconPadding ?? const EdgeInsets.symmetric(horizontal: 5),
+                      child: Icon(
+                        iconData,
+                        size: iconSize,
+                        color: iconColor,
+                      ),
+                    ),
+                  Text(
+                    text,
+                    style: TextStyle(
+                      color: fontColor,
+                      fontSize: fontSize,
+                      fontWeight: fontWeight,
+                    ),
+                  ),
+                ],
+              ),
+        ),
       ),
     );
   }

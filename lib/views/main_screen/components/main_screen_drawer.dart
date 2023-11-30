@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
+import 'package:flutter_instancy_2/backend/authentication/authentication_controller.dart';
+import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
@@ -29,8 +31,8 @@ class MainScreenDrawer extends StatelessWidget {
     List<NativeMenuModel> allMenusList = appProvider.getMenuModelsList();
 
     List<NativeMenuModel> finalMenusList = menusList.where((NativeMenuModel menuModel) {
-      // return true;
-      return [
+      return true;
+      /*return [
         "my learning",
         "catalog",
         "learning catalog",
@@ -42,35 +44,43 @@ class MainScreenDrawer extends StatelessWidget {
         "messages",
         "transfer to human agent",
         "discussion forum",
-      ].contains(menuModel.displayname.toLowerCase());
+      ].contains(menuModel.displayname.toLowerCase());*/
     }).toList();
 
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.7,
       // backgroundColor: themeData.primaryColor,
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            const MainScreenDrawerHeaderWidget(),
-            Container(
-              color: themeData.drawerTheme.backgroundColor,
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 0),
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: finalMenusList.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return getSingleMenuItem(
-                    context: context,
-                    themeData: themeData,
-                    nativeMenuModel: finalMenusList[index],
-                    allMenusList: allMenusList,
-                    index: index,
-                  );
-                },
+      child: Container(
+        color: themeData.drawerTheme.backgroundColor,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const MainScreenDrawerHeaderWidget(),
+              Container(
+                // color: Colors.red,
+                color: themeData.drawerTheme.backgroundColor,
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 0),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: finalMenusList.length + 1,
+                  itemBuilder: (BuildContext context, int index) {
+                    if (index == finalMenusList.length) {
+                      return getSignOutButton(context: context);
+                    }
+
+                    return getSingleMenuItem(
+                      context: context,
+                      themeData: themeData,
+                      nativeMenuModel: finalMenusList[index],
+                      allMenusList: allMenusList,
+                      index: index,
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -180,5 +190,50 @@ class MainScreenDrawer extends StatelessWidget {
     }).toList();
 
     return list;
+  }
+
+  Widget getSignOutButton({
+    required BuildContext context,
+  }) {
+    ThemeData themeData = Theme.of(context);
+    AppThemeProvider appThemeProvider = context.watch<AppThemeProvider>();
+
+    return Theme(
+      data: themeData.copyWith(
+        iconTheme: themeData.iconTheme.copyWith(
+          size: 22,
+        ),
+        textTheme: themeData.textTheme.copyWith(
+          labelMedium: themeData.textTheme.labelMedium?.copyWith(
+            color: appThemeProvider.getInstancyThemeColors().menuTextColor.isNotEmpty ? appThemeProvider.getInstancyThemeColors().menuTextColor.getColor() : null,
+          ),
+        ),
+      ),
+      child: InkWell(
+        onTap: () {
+          AuthenticationProvider authenticationProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+          AuthenticationController authenticationController = AuthenticationController(
+            provider: authenticationProvider,
+          );
+
+          authenticationController.logout();
+        },
+        child: Container(
+          // color: Colors.red,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.logout,
+              ),
+              const SizedBox(width: 15),
+              Text(
+                appProvider.localStr.sidemenuTableSignoutlabel,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

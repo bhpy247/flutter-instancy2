@@ -57,7 +57,7 @@ class MainScreenProvider extends ChangeNotifier {
     );
 
     List<NativeMenuComponentModel> components = menuModel != null ? appProvider.getMenuComponentModelsListFromMenuId(menuId: menuModel.menuid) : [];
-    MyPrint.printOnConsole("");
+    MyPrint.printOnConsole("components length:${components.length}");
 
     setFutureGetMenuComponentData(
       future: menuModel != null && components.isEmpty

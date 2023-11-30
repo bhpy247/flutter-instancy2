@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:equatable/equatable.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/in_app_purchase/in_app_purchase_provider.dart';
 import 'package:flutter_instancy_2/backend/lens_feature/lens_provider.dart';
 import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
@@ -28,8 +30,11 @@ import '../instabot/instabot_provider.dart';
 import '../my_learning/my_learning_provider.dart';
 import '../share/share_provider.dart';
 
-class NavigationArguments {
+class NavigationArguments extends Equatable {
   const NavigationArguments();
+
+  @override
+  List<Object?> get props => [];
 }
 
 class ForgotPasswordNavigationArguments extends NavigationArguments {
@@ -480,6 +485,25 @@ class DiscussionForumScreenNavigationArguments extends NavigationArguments {
     required this.componentId,
     required this.componentInsId,
   });
+}
+
+class MyAchievementWidgetNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+  final GamificationProvider? gamificationProvider;
+
+  const MyAchievementWidgetNavigationArguments({
+    required this.componentId,
+    required this.componentInsId,
+    this.gamificationProvider,
+  });
+
+  @override
+  List<Object?> get props => [
+        componentId,
+        componentInsId,
+        gamificationProvider,
+      ];
 }
 
 class DiscussionDetailScreenNavigationArguments extends NavigationArguments {

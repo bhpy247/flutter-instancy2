@@ -9,6 +9,7 @@ import 'package:flutter_instancy_2/backend/content_review_ratings/content_review
 import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/home/home_provider.dart';
 import 'package:flutter_instancy_2/backend/in_app_purchase/in_app_purchase_provider.dart';
 import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
@@ -190,6 +191,7 @@ class AuthenticationController {
     context.read<MembershipProvider>().resetData();
     context.read<InAppPurchaseProvider>().resetData();
     context.read<DiscussionProvider>().resetData();
+    context.read<GamificationProvider>().resetData();
 
     Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, LoginSignUpSelectionScreen.routeName, (route) => false);
 

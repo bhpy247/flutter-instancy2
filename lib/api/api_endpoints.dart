@@ -367,8 +367,6 @@ class ApiEndpoints {
 
   String getUploadForumAttachment() => '${getBaseApiUrl()}DiscussionForums/UploadForumAttachment';
 
-  String apiDiscussionTopicComment() => '${getBaseApiUrl()}DiscussionForums/PostComment';
-
   String getPostReply() => '${getBaseApiUrl()}DiscussionForums/PostReply';
 
   String apiAddTopic() => '${getBaseApiUrl()}DiscussionForums/CreateForumTopic';
@@ -472,6 +470,15 @@ class ApiEndpoints {
   String GetUserActiveMembership() => '${getBaseApiUrl()}MemberShip/GetUserActiveMembership';
 
   String CancelUserMembership() => '${getBaseApiUrl()}MemberShip/CancelUserMembership';
+
+  //endregion
+
+  //region Gamification
+  String GetGameList() => '${getBaseApiUrl()}LeaderBoard/GetGameList';
+
+  String GetUserAchievementData() => '${getBaseApiUrl()}UserAchievement/GetUserAchievementData';
+
+  String GetLeaderboardData() => '${getBaseApiUrl()}LeaderBoard/GetLeaderboardData';
 
   //endregion
 
