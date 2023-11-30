@@ -20,9 +20,9 @@ void main() async {
   await runErrorSafeApp(
     () => runApp(
       MyApp(
-        mainSiteUrl: ClientUrls.shieldBaseClientUrl,
-        appAuthURL: ClientUrls.getAuthUrl(ClientUrls.shieldBaseClientUrl),
-        splashScreenLogo: ClientUrls.getAppIconImageAssetPathFromSiteUrl(ClientUrls.shieldBaseClientUrl),
+        mainSiteUrl: ClientUrls.upgradedEnterpriseClientUrl,
+        appAuthURL: ClientUrls.getAuthUrl(ClientUrls.upgradedEnterpriseClientUrl),
+        splashScreenLogo: ClientUrls.getAppIconImageAssetPathFromSiteUrl(ClientUrls.upgradedEnterpriseClientUrl),
       ),
     ),
   );
