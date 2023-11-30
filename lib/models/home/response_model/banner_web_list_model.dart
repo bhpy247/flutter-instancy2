@@ -1,29 +1,6 @@
 import '../../../utils/parsing_helper.dart';
 
-class BannerWebListModel {
-  List<WebList>? webList;
-
-  BannerWebListModel({this.webList});
-
-  BannerWebListModel.fromJson(Map<String, dynamic> json) {
-    if (json['WebList'] != null) {
-      webList = <WebList>[];
-      json['WebList'].forEach((v) {
-        webList!.add(WebList.fromJson(v));
-      });
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (webList != null) {
-      data['WebList'] = webList!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
-}
-
-class WebList {
+class WebListDTO {
   String webpageTitle = "";
   String imageWithLink = "";
   String shortDesc = "";
@@ -45,18 +22,18 @@ class WebList {
   String? detailsLink = "";
   String? objectTypeID = "";
 
-  WebList(
+  WebListDTO(
       {this.webpageTitle = "",
-        this.imageWithLink = "",
-        this.shortDesc = "",
-        this.titleWithLink = "",
-        this.moreLink = "",
-        this.itemMoreLink = "",
-        this.titleWithURL = "",
-        this.topNews = "",
-        this.daysFromDate = "",
-        this.actionRead = "",
-        this.newsTitleWithLink = "",
+      this.imageWithLink = "",
+      this.shortDesc = "",
+      this.titleWithLink = "",
+      this.moreLink = "",
+      this.itemMoreLink = "",
+      this.titleWithURL = "",
+      this.topNews = "",
+      this.daysFromDate = "",
+      this.actionRead = "",
+      this.newsTitleWithLink = "",
         this.contentID = "",
         this.siteId = "",
         this.siteUserID = "",
@@ -67,17 +44,17 @@ class WebList {
         this.detailsLink = "",
         this.objectTypeID = ""});
 
-  WebList.fromJson(Map<String, dynamic> json) {
-    webpageTitle = ParsingHelper.parseStringMethod(json['WebpageTitle']??"");
-    imageWithLink = ParsingHelper.parseStringMethod(json['ImageWithLink']??"");
-    shortDesc = ParsingHelper.parseStringMethod(json['shortDesc']??"");
-    titleWithLink = ParsingHelper.parseStringMethod(json['TitleWithLink']??"");
-    moreLink = ParsingHelper.parseStringMethod(json['MoreLink']??"");
-    itemMoreLink = ParsingHelper.parseStringMethod(json['ItemMoreLink']??"");
-    titleWithURL = ParsingHelper.parseStringMethod(json['TitleWithURL']??"");
-    topNews = ParsingHelper.parseStringMethod(json['TopNews']??"");
-    daysFromDate = ParsingHelper.parseStringMethod(json['DaysFromDate']??"");
-    actionRead = ParsingHelper.parseStringMethod(json['actionRead']??"");
+  WebListDTO.fromJson(Map<String, dynamic> json) {
+    webpageTitle = ParsingHelper.parseStringMethod(json['WebpageTitle'] ?? "");
+    imageWithLink = ParsingHelper.parseStringMethod(json['ImageWithLink'] ?? "");
+    shortDesc = ParsingHelper.parseStringMethod(json['shortDesc'] ?? "");
+    titleWithLink = ParsingHelper.parseStringMethod(json['TitleWithLink'] ?? "");
+    moreLink = ParsingHelper.parseStringMethod(json['MoreLink'] ?? "");
+    itemMoreLink = ParsingHelper.parseStringMethod(json['ItemMoreLink'] ?? "");
+    titleWithURL = ParsingHelper.parseStringMethod(json['TitleWithURL'] ?? "");
+    topNews = ParsingHelper.parseStringMethod(json['TopNews'] ?? "");
+    daysFromDate = ParsingHelper.parseStringMethod(json['DaysFromDate'] ?? "");
+    actionRead = ParsingHelper.parseStringMethod(json['actionRead'] ?? "");
     newsTitleWithLink = ParsingHelper.parseStringMethod(json['NewsTitleWithLink']??"");
     contentID = ParsingHelper.parseStringMethod(json['ContentID']??"");
     siteId = ParsingHelper.parseStringMethod(json['SiteId']??"");

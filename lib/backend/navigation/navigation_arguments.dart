@@ -105,7 +105,8 @@ class SortingScreenNavigationArguments extends NavigationArguments {
 }
 
 class CatalogContentsListScreenNavigationArguments extends NavigationArguments {
-  final int componentId, componentInstanceId;
+  final int componentId, componentInstanceId, HomeComponentId;
+  final bool isPinnedContent;
   final CatalogProvider? provider;
   final ContentFilterCategoryTreeModel? selectedCategory;
   List<CatalogCategoriesForBrowseModel> categoriesListForPath = [];
@@ -113,6 +114,8 @@ class CatalogContentsListScreenNavigationArguments extends NavigationArguments {
   CatalogContentsListScreenNavigationArguments({
     required this.componentInstanceId,
     required this.componentId,
+    this.isPinnedContent = false,
+    this.HomeComponentId = 0,
     this.provider,
     this.selectedCategory,
     List<CatalogCategoriesForBrowseModel>? categoriesListForPath,

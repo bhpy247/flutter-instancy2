@@ -1,17 +1,27 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/common/common_provider.dart';
+import 'package:flutter_instancy_2/models/home/data_model/web_list_data_dto.dart';
 
 import '../../models/home/data_model/new_course_list_dto.dart';
 import '../../models/home/response_model/banner_web_list_model.dart';
 import '../../models/home/response_model/static_web_page_podel.dart';
 import '../../utils/my_print.dart';
 
-class HomeProvider extends ChangeNotifier {
+class HomeProvider extends CommonProvider {
+  HomeProvider() {
+    webListDataDto = CommonProviderPrimitiveParameter<WebListDataDTO?>(
+      value: WebListDataDTO(),
+      notify: notify,
+    );
+  }
+
+  late final CommonProviderPrimitiveParameter<WebListDataDTO?> webListDataDto;
+
   //region New Learning Resources List
   final List<NewCourseListDTOModel> _newLearningResourcesList = [];
 
   List<NewCourseListDTOModel> get newLearningResourcesList => _newLearningResourcesList;
 
-  void setNewLearningResourcesList ({required List<NewCourseListDTOModel> list , bool isNotify = true}) {
+  void setNewLearningResourcesList({required List<NewCourseListDTOModel> list, bool isNotify = true}) {
     _newLearningResourcesList.clear();
     list.forEach((element) {
       _newLearningResourcesList.add(NewCourseListDTOModel.fromJson(element.toMap()));
@@ -47,22 +57,23 @@ class HomeProvider extends ChangeNotifier {
       _recommendedCourses.add(NewCourseListDTOModel.fromJson(element.toMap()));
     });
     MyPrint.printOnConsole("setListCourseDTOsetListCourseDTO: ${_recommendedCourses.length}");
-    if(isNotify)notifyListeners();
+    if (isNotify) notifyListeners();
   }
+
   //endregion
 
   //region Banner List
-  final List<WebList> _bannerList = [];
+  final List<WebListDTO> _bannerList = [];
 
-  List<WebList> get bannerList  => _bannerList;
+  List<WebListDTO> get bannerList => _bannerList;
 
-  void setBannerList({required List<WebList> list , bool isNotify = true}) {
+  void setBannerList({required List<WebListDTO> list, bool isNotify = true}) {
     _bannerList.clear();
     list.forEach((element) {
-      _bannerList.add(WebList.fromJson(element.toJson()));
+      _bannerList.add(WebListDTO.fromJson(element.toJson()));
     });
     MyPrint.printOnConsole("setListCourseDTOsetListCourseDTO: ${_bannerList.length}");
-    if(isNotify)notifyListeners();
+    if (isNotify) notifyListeners();
   }
   //endregion
 

@@ -107,8 +107,10 @@ class CatalogController {
     bool isRefresh = true,
     bool isGetFromCache = false,
     bool isNotify = true,
+    bool isPinnedContent = false,
     required int componentId,
     required int componentInstanceId,
+    required int HomeComponentId,
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
@@ -175,6 +177,8 @@ class CatalogController {
       componentInstanceId: componentInstanceId,
       apiUrlConfigurationProvider: apiUrlConfigurationProvider,
       isWishList: false,
+      HomecomponentID: HomeComponentId,
+      isPinnedContent: isPinnedContent,
     );
     //endregion
 
@@ -215,8 +219,10 @@ class CatalogController {
     bool isRefresh = true,
     bool isGetFromCache = false,
     bool isNotify = true,
+    bool isPinnedContent = false,
     required int componentId,
     required int componentInstanceId,
+    int HomeComponentId = 0,
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
@@ -282,6 +288,8 @@ class CatalogController {
       componentInstanceId: componentInstanceId,
       apiUrlConfigurationProvider: apiUrlConfigurationProvider,
       isWishList: true,
+      HomecomponentID: HomeComponentId,
+      isPinnedContent: isPinnedContent,
     );
     //endregion
 
@@ -328,6 +336,8 @@ class CatalogController {
     required int componentInstanceId,
     required ApiUrlConfigurationProvider apiUrlConfigurationProvider,
     required bool isWishList,
+    required bool isPinnedContent,
+    int HomecomponentID = 0,
   }) {
     FilterProvider filterProvider = catalogProvider.filterProvider;
     EnabledContentFilterByTypeModel? enabledContentFilterByTypeModel = !isWishList ? filterProvider.getEnabledContentFilterByTypeModel(isNewInstance: false) : null;
@@ -339,57 +349,62 @@ class CatalogController {
     }
 
     return CatalogRequestModel(
-      iswishlistcontent: isWishList ? 1 : 0,
-      componentID: ParsingHelper.parseStringMethod(componentId),
-      componentInsID: ParsingHelper.parseStringMethod(componentInstanceId),
-      searchText: isWishList ? "" : provider.catalogContentSearchString.get(),
-      // userID: "363",
-      userID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentUserId()),
-      siteID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentSiteId()),
-      orgUnitID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentSiteId()),
-      locale: apiUrlConfigurationProvider.getLocale().isNotEmpty ? apiUrlConfigurationProvider.getLocale() : "en-us",
-      pageIndex: paginationModel.pageIndex,
-      // pageSize: 500,
-      pageSize: provider.pageSize.get(),
-      contentID: "",
-      keywords: "",
-      sortBy: isWishList ? filterProvider.defaultSort.get() : filterProvider.selectedSort.get(),
-      categories: (enabledContentFilterByTypeModel?.categories ?? false)
-          ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedCategories.getList().map((e) => e.categoryId).toList(),
-            )
-          : "",
-      objecttypes: (enabledContentFilterByTypeModel?.objecttypeid ?? false)
-          ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedContentTypes.getList().map((e) => e.categoryId).toList(),
-            )
-          : "",
-      skillcats: (enabledContentFilterByTypeModel?.skills ?? false)
-          ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedSkills.getList().map((e) => e.categoryId).toList(),
-            )
-          : "",
-      jobroles: (enabledContentFilterByTypeModel?.jobroles ?? false)
-          ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedJobRoles.getList().map((e) => e.categoryId).toList(),
-            )
-          : "",
-      solutions: (enabledContentFilterByTypeModel?.solutions ?? false)
-          ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedSolutions.getList().map((e) => e.categoryId).toList(),
-            )
-          : "",
-      ratings: (enabledContentFilterByTypeModel?.rating ?? false) ? ParsingHelper.parseStringMethod(filterProvider.selectedRating.get()) : "",
-      pricerange: (enabledContentFilterByTypeModel?.ecommerceprice ?? false) && filterProvider.minPrice.get() != null && filterProvider.maxPrice.get() != null
-          ? "${filterProvider.minPrice.get()},${filterProvider.maxPrice.get()}"
-          : "",
-      instructors: (enabledContentFilterByTypeModel?.instructor ?? false)
-          ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedInstructor.getList().map((e) => e.UserID).toList(),
-            )
-          : "",
-      filtercredits: filtercredits,
-    );
+        iswishlistcontent: isWishList ? 1 : 0,
+        componentID: ParsingHelper.parseStringMethod(componentId),
+        componentInsID: ParsingHelper.parseStringMethod(componentInstanceId),
+        searchText: isWishList ? "" : provider.catalogContentSearchString.get(),
+        // userID: "363",
+        userID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentUserId()),
+        siteID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentSiteId()),
+        orgUnitID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentSiteId()),
+        locale: apiUrlConfigurationProvider.getLocale().isNotEmpty ? apiUrlConfigurationProvider.getLocale() : "en-us",
+        pageIndex: paginationModel.pageIndex,
+        // pageSize: 500,
+        pageSize: provider.pageSize.get(),
+        contentID: "",
+        keywords: "",
+        sortBy: HomecomponentID != 0
+            ? "Publisheddate desc"
+            : isWishList
+                ? filterProvider.defaultSort.get()
+                : filterProvider.selectedSort.get(),
+        categories: (enabledContentFilterByTypeModel?.categories ?? false)
+            ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+                list: filterProvider.selectedCategories.getList().map((e) => e.categoryId).toList(),
+              )
+            : "",
+        objecttypes: (enabledContentFilterByTypeModel?.objecttypeid ?? false)
+            ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+                list: filterProvider.selectedContentTypes.getList().map((e) => e.categoryId).toList(),
+              )
+            : "",
+        skillcats: (enabledContentFilterByTypeModel?.skills ?? false)
+            ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+                list: filterProvider.selectedSkills.getList().map((e) => e.categoryId).toList(),
+              )
+            : "",
+        jobroles: (enabledContentFilterByTypeModel?.jobroles ?? false)
+            ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+                list: filterProvider.selectedJobRoles.getList().map((e) => e.categoryId).toList(),
+              )
+            : "",
+        solutions: (enabledContentFilterByTypeModel?.solutions ?? false)
+            ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+                list: filterProvider.selectedSolutions.getList().map((e) => e.categoryId).toList(),
+              )
+            : "",
+        ratings: (enabledContentFilterByTypeModel?.rating ?? false) ? ParsingHelper.parseStringMethod(filterProvider.selectedRating.get()) : "",
+        pricerange: (enabledContentFilterByTypeModel?.ecommerceprice ?? false) && filterProvider.minPrice.get() != null && filterProvider.maxPrice.get() != null
+            ? "${filterProvider.minPrice.get()},${filterProvider.maxPrice.get()}"
+            : "",
+        instructors: (enabledContentFilterByTypeModel?.instructor ?? false)
+            ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+                list: filterProvider.selectedInstructor.getList().map((e) => e.UserID).toList(),
+              )
+            : "",
+        filtercredits: filtercredits,
+        HomecomponentID: HomecomponentID,
+        PinnedContent: isPinnedContent);
   }
 
   Future<bool> addContentToWishlist({

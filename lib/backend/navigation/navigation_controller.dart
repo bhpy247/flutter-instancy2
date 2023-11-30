@@ -353,6 +353,14 @@ class NavigationController {
           break;
         }
       //endregion
+      //
+      // region Webview screen
+      case WebViewScreen.routeName:
+        {
+          page = parsePurchaseHistoryScreen(settings: settings);
+          break;
+        }
+      //endregion
     }
 
     if (page == null) {

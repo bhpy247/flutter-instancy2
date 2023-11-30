@@ -25,6 +25,7 @@ import 'package:flutter_instancy_2/views/catalog/screens/catalog_categories_list
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/screens/discussion_forum_list_main_screen.dart';
 import 'package:flutter_instancy_2/views/event/screens/event_catalog_tab_screen.dart';
+import 'package:flutter_instancy_2/views/home/components/home_web_list_screen.dart';
 import 'package:flutter_instancy_2/views/message/screen/message_screen.dart';
 import 'package:flutter_instancy_2/views/my_achievements/screens/my_achievement_component_widget.dart';
 import 'package:flutter_instancy_2/views/my_learning_plus/screens/my_learning_plus.dart';
@@ -129,6 +130,7 @@ class _MainScreenState extends State<MainScreen> {
 
           List<NativeMenuModel> allMenusList = appProvider.getMenuModelsList();
           List<NativeMenuModel> mainMenusList = allMenusList.where((element) => element.parentmenuid == 0).toList();
+          MyPrint.logOnConsole("components: ${components}");
 
           List<NativeMenuModel> drawerMenusList = allMenusList.toList();
           List<NativeMenuModel> bottomBarMenusList = [];
@@ -371,7 +373,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget getUIComponentFromMenuComponentModel({required NativeMenuComponentModel model, bool isExpanded = false}) {
-    MyPrint.printOnConsole("Component iddddd: ${model.componentid}");
+    MyPrint.printOnConsole("repositoryid iddddd: ${model.repositoryid}");
     if (model.componentid == InstancyComponents.NewLearningResources) {
       return HomeNewLearningResourcesSlider(
         homeProvider: homeProvider,
@@ -393,7 +395,12 @@ class _MainScreenState extends State<MainScreen> {
     } else if (model.componentid == InstancyComponents.StaticHTMLContent) {
       return StaticWebpageWidget(
         nativeMenuComponentModel: model,
-        homeProvider: Provider.of<HomeProvider>(context, listen: false),
+        homeProvider: context.read<HomeProvider>(),
+      );
+    } else if (model.componentid == InstancyComponents.NewsSlider) {
+      return HomeWebListScreen(
+        nativeMenuComponentModel: model,
+        homeProvider: context.read<HomeProvider>(),
       );
     } else if (model.componentid == InstancyComponents.MyProfile) {
       return UserProfileScreen(
@@ -450,6 +457,9 @@ class _MainScreenState extends State<MainScreen> {
     } else if (model.componentid == InstancyComponents.transferToAgentComponent) {
       return const TransferToAgent();
     } else if (model.componentid == InstancyComponents.discussionForumComponent) {
+      if (!isExpanded) {
+        return const Text("Discussion Forum");
+      }
       return DiscussionForumMainScreen(
         arguments: DiscussionForumScreenNavigationArguments(
           componentId: model.componentid,

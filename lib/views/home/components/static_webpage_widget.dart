@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/home/home_controller.dart';
 import 'package:flutter_instancy_2/backend/home/home_provider.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:webviewx/webviewx.dart';
 
@@ -49,30 +50,23 @@ class _StaticWebpageWidgetState extends State<StaticWebpageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.green,
-      // height: 450,
-      // width: 500,
-      child: FutureBuilder(
+    return FutureBuilder(
         future: getStaticWebPageData,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if(snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.connectionState == ConnectionState.done) {
             Size size = MediaQuery.of(context).size;
-
+            if (homeProvider.staticWebPageModel.webpageHTML.checkEmpty) return SizedBox();
             return WebViewX(
               width: size.width,
               height: size.height,
               initialContent: homeProvider.staticWebPageModel.webpageHTML,
               initialSourceType: SourceType.html,
             );
-          }
-          else {
+          } else {
             return const Center(
               child: CommonLoader(),
             );
           }
-        }
-      ),
-    );
+        });
   }
 }

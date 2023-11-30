@@ -380,6 +380,7 @@ class InstancyComponents {
   static const int EventWaitList = 132;
   static const int ContentManagement = 151;
   static const int CatalogEvents = 153;
+  static const int discussionForumComponent = 156;
   static const int MyProfile = 160;
   static const int AskTheExpert = 161;
   static const int LRSAllActivities = 179;
@@ -417,11 +418,11 @@ class InstancyComponents {
   static const int myProfileComponent = 1009;
   static const int ajaxCourseComponent = 1010;
   static const int NewSignUpFormComponentInsId = 3104;
+  static const int CatalogComponentInsId = 3131;
   static const int DetailsComponentInsId = 3291;
   static const int PeopleListComponentInsId = 3473;
   static const int EventCatalogTabsListComponentInsId = 3497;
   static const int transferToAgentComponent = 4001;
-  static const int discussionForumComponent = 4005;
   static const int UserSettings = 5000;
 }
 

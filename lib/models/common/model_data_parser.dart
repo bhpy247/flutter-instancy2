@@ -583,10 +583,10 @@ class ModelDataParser {
     return mapsList.map((e) => NewCourseListDTOModel.fromJson(e)).toList();
   }
 
-  static List<WebList> parseWebListList({required dynamic decodedValue}) {
+  static List<WebListDTO> parseWebListList({required dynamic decodedValue}) {
     List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
 
-    return mapsList.map((e) => WebList.fromJson(e)).toList();
+    return mapsList.map((e) => WebListDTO.fromJson(e)).toList();
   }
 
   static StaticWebPageModel? parseStaticWebPageModel({required dynamic decodedValue}) {

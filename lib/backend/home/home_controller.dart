@@ -1,5 +1,6 @@
 import 'package:flutter_instancy_2/backend/home/home_provider.dart';
 import 'package:flutter_instancy_2/backend/home/home_repository.dart';
+import 'package:flutter_instancy_2/models/home/data_model/web_list_data_dto.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
 import '../../api/api_controller.dart';
@@ -147,8 +148,24 @@ class HomeController {
       componentId: componentId,
       componentInstanceId: componentInstanceId,
     );
-    if(response.data != null) {
+    if (response.data != null) {
       homeProvider.setStaticWebPage(staticWebPageModel: response.data!);
+    }
+  }
+
+  Future<void> getWebListWebPage({bool isGetFromCache = false, int componentId = 0, int componentInstanceId = 0}) async {
+    MyPrint.printOnConsole("HomeController().getWebListWebPage() called with isGetFromCache:$isGetFromCache, componentId:$componentId, "
+        "componentInstanceId:$componentInstanceId");
+
+    if (isGetFromCache) {
+      return;
+    }
+    DataResponseModel<WebListDataDTO> response = await homeRepository.getWebListWebPages(
+      componentId: componentId,
+      componentInstanceId: componentInstanceId,
+    );
+    if (response.data != null) {
+      homeProvider.webListDataDto.set(value: response.data);
     }
   }
 }

@@ -95,14 +95,7 @@ class ApiEndpoints {
   }) =>
       '${getBaseApiUrl()}WebList/GetWebListContent?ComponentID=$componentId&CompInsID=$componentInstanceId&TabTypeID=374&tabtype=1&PreferenceType=1&DeliveryModeID=1&aintUserID=$userId&aintSiteID=$siteID&astrLocale=$language&astrsorttype=2&externaluser=1&DataSource=1&groupId=-1';
 
-  String apiGetStaticWebPages({
-    required int userId,
-    required int siteID,
-    required String language,
-    required int componentId,
-    required int componentInstanceId,
-  }) =>
-      '${getBaseApiUrl()}Generic/staticWebPage?aintUserID=$userId&aintSiteID=$siteID&astrLocale=$language&astrContentID=-1&ScoID=-1&ComponentID=$componentId&ComponentInstanceID=$componentInstanceId&CurrentPath=09&isFromNativeApp=true';
+  String apiGetStaticWebPages() => '${getBaseApiUrl()}Generic/staticWebPage';
 
   //api/Catalog/getRecomendationContent?siteId=374&userId=467&componentInsId=50079&locale=en-us&componentId=303
   // endregion

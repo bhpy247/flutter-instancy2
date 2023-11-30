@@ -29,7 +29,6 @@ class MyAchievementComponentWidget extends StatefulWidget {
 }
 
 class _MyAchievementComponentWidgetState extends State<MyAchievementComponentWidget> with MySafeState, TickerProviderStateMixin {
-  bool isLoading = false;
   TabController? tabController;
 
   late GamificationProvider gamificationProvider;
@@ -131,7 +130,6 @@ class _MyAchievementComponentWidgetState extends State<MyAchievementComponentWid
     ];
 
     tabController = TabController(vsync: this, length: tabScreensList.length);
-
     mySetState();
   }
 
@@ -240,7 +238,7 @@ class _MyAchievementComponentWidgetState extends State<MyAchievementComponentWid
   }
 
   Widget getMainBody() {
-    if (gamificationProvider.isUserAchievementDataLoading.get()) {
+    if (gamificationProvider.isUserAchievementDataLoading.get() || gamificationProvider.isLeaderBoardDataLoading.get()) {
       return const SizedBox(
         height: 200,
         child: CommonLoader(

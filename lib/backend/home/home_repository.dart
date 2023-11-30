@@ -1,4 +1,5 @@
 import 'package:flutter_instancy_2/api/api_call_model.dart';
+import 'package:flutter_instancy_2/models/home/data_model/web_list_data_dto.dart';
 
 import '../../api/api_controller.dart';
 import '../../api/api_endpoints.dart';
@@ -15,7 +16,8 @@ class HomeRepository {
 
   const HomeRepository({required this.apiController});
 
-  Future<DataResponseModel<CategoryWiseCourseDTOResponseModel>> getNewResourceList({required int componentId, required int componentInstanceId, bool isFromOffline = false, bool isStoreDataInHive = false}) async {
+  Future<DataResponseModel<CategoryWiseCourseDTOResponseModel>> getNewResourceList(
+      {required int componentId, required int componentInstanceId, bool isFromOffline = false, bool isStoreDataInHive = false}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
@@ -43,7 +45,8 @@ class HomeRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<CategoryWiseCourseDTOResponseModel>> getRecommendedCourseList({required int componentId, required int componentInstanceId, bool isFromOffline = false, bool isStoreDataInHive = false}) async {
+  Future<DataResponseModel<CategoryWiseCourseDTOResponseModel>> getRecommendedCourseList(
+      {required int componentId, required int componentInstanceId, bool isFromOffline = false, bool isStoreDataInHive = false}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
@@ -81,18 +84,76 @@ class HomeRepository {
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData(
       restCallType: RestCallType.simpleGetCall,
       parsingType: ModelDataParsingType.staticWebPageModel,
+      queryParameters: {
+        "aintUserID": apiUrlConfigurationProvider.getCurrentUserId().toString(),
+        "aintSiteID": apiUrlConfigurationProvider.getCurrentSiteId().toString(),
+        "astrLocale": apiUrlConfigurationProvider.getLocale(),
+        "astrContentID": "-1",
+        "ScoID": "-1",
+        "ComponentID": "$componentId",
+        "ComponentInstanceID": "$componentInstanceId",
+        "CurrentPath": "09",
+        "isFromNativeApp": "true"
+      },
       url: apiEndpoints.apiGetStaticWebPages(
-        userId: apiUrlConfigurationProvider.getCurrentUserId(),
-        siteID: apiUrlConfigurationProvider.getCurrentSiteId(),
-        language: apiUrlConfigurationProvider.getLocale(),
-        componentId: componentId,
-        componentInstanceId: componentInstanceId,
-      ),
+
+          //     aintUserID: 467  ?aintUserID=$userId&aintSiteID=$siteID&astrLocale=$language&astrContentID=-1&ScoID=-1&ComponentID=$componentId&ComponentInstanceID=$componentInstanceId&CurrentPath=09&isFromNativeApp=true'
+          //     aintSiteID: 374
+          // astrLocale: en-us
+          // astrContentID: -1
+          // ScoID: -1
+          // ComponentID: 51
+          // ComponentInstanceID: 50052
+          //     CurrentPath: 09
+          ),
       isGetDataFromHive: isFromOffline,
       isStoreDataInHive: isStoreDataInHive,
     );
 
     DataResponseModel<StaticWebPageModel> apiResponseModel = await apiController.callApi<StaticWebPageModel>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<WebListDataDTO>> getWebListWebPages({required int componentId, required int componentInstanceId, bool isFromOffline = false, bool isStoreDataInHive = false}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.staticWebPageModel,
+      queryParameters: {
+        "aintUserID": apiUrlConfigurationProvider.getCurrentUserId().toString(),
+        "aintSiteID": apiUrlConfigurationProvider.getCurrentSiteId().toString(),
+        "astrLocale": apiUrlConfigurationProvider.getLocale(),
+        "astrContentID": "-1",
+        "ScoID": "-1",
+        "ComponentID": "$componentId",
+        "ComponentInstanceID": "$componentInstanceId",
+        "CurrentPath": "09",
+        "isFromNativeApp": "true"
+      },
+      url: apiEndpoints.apiGetStaticWebPages(
+
+          //     aintUserID: 467  ?aintUserID=$userId&aintSiteID=$siteID&astrLocale=$language&astrContentID=-1&ScoID=-1&ComponentID=$componentId&ComponentInstanceID=$componentInstanceId&CurrentPath=09&isFromNativeApp=true'
+          //     aintSiteID: 374
+          // astrLocale: en-us
+          // astrContentID: -1
+          // ScoID: -1
+          // ComponentID: 51
+          // ComponentInstanceID: 50052
+          //     CurrentPath: 09
+          ),
+      isGetDataFromHive: isFromOffline,
+      isStoreDataInHive: isStoreDataInHive,
+    );
+
+    DataResponseModel<WebListDataDTO> apiResponseModel = await apiController.callApi<WebListDataDTO>(
       apiCallModel: apiCallModel,
     );
 

@@ -7,13 +7,15 @@ import '../../common/components/common_loader.dart';
 class HomeCourseCard extends StatelessWidget {
   final NewCourseListDTOModel courseDTO;
   final void Function(NewCourseListDTOModel)? onTap;
+
   const HomeCourseCard({Key? key, required this.courseDTO, this.onTap}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    ThemeData themeData = Theme.of(context);
     return GestureDetector(
       onTap: () {
-        if(onTap != null) {
+        if (onTap != null) {
           onTap!(courseDTO);
         }
       },
@@ -56,14 +58,11 @@ class HomeCourseCard extends StatelessWidget {
                       ]),
                 ),
                 child: Center(
-                    child: Text(
-                      courseDTO.name,
-                      style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+                  child: Text(
+                    courseDTO.name,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: themeData.colorScheme.onPrimary),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               )
             ],

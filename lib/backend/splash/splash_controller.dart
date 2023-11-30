@@ -630,11 +630,6 @@ class SplashController {
   void addPredefineMenu() {
     List<NativeMenuModel> data = [
       NativeMenuModel(
-        displayname: "Discussion Forum",
-        menuid: 1003,
-        menuIconData: material.Icons.document_scanner,
-      ),
-      NativeMenuModel(
         displayname: "Settings",
         menuid: 1000,
         menuIconData: material.Icons.settings,
@@ -675,15 +670,6 @@ class SplashController {
       list: [
         NativeMenuComponentModel(
           componentid: InstancyComponents.transferToAgentComponent,
-        ),
-      ],
-      isNotify: false,
-    );
-    appProvider.setMenuComponentModelsListForMenuId(
-      menuId: 1003,
-      list: [
-        NativeMenuComponentModel(
-          componentid: InstancyComponents.discussionForumComponent,
         ),
       ],
       isNotify: false,

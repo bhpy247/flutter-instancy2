@@ -118,24 +118,26 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
 
     if (catalogProvider.wishlistContentsLength == 0) {
       catalogController.getWishListContentsListFromApi(
-        isRefresh: true,
-        componentId: componentId,
-        componentInstanceId: componentInstanceId,
-        isGetFromCache: false,
-        isNotify: true,
-      );
+          isRefresh: true,
+          componentId: componentId,
+          componentInstanceId: componentInstanceId,
+          isGetFromCache: false,
+          isNotify: true,
+          HomeComponentId: widget.arguments.HomeComponentId,
+          isPinnedContent: widget.arguments.isPinnedContent);
     }
   }
 
   Future<void> getCatalogContentsList({bool isRefresh = true, bool isGetFromCache = true, bool isNotify = true}) async {
     await Future.wait([
       catalogController.getCatalogContentsListFromApi(
-        isRefresh: isRefresh,
-        isGetFromCache: isGetFromCache,
-        isNotify: isNotify,
-        componentId: componentId,
-        componentInstanceId: componentInstanceId,
-      ),
+          isRefresh: isRefresh,
+          isGetFromCache: isGetFromCache,
+          isNotify: isNotify,
+          componentId: componentId,
+          componentInstanceId: componentInstanceId,
+          HomeComponentId: widget.arguments.HomeComponentId,
+          isPinnedContent: widget.arguments.isPinnedContent),
       if (isRefresh)
         catalogController.getWishListContentsListFromApi(
           isRefresh: true,
