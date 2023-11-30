@@ -31,8 +31,9 @@ class MainScreenDrawer extends StatelessWidget {
     List<NativeMenuModel> allMenusList = appProvider.getMenuModelsList();
 
     List<NativeMenuModel> finalMenusList = menusList.where((NativeMenuModel menuModel) {
-      return true;
-      /*return [
+      // return true;
+      return [
+        "home",
         "my learning",
         "catalog",
         "learning catalog",
@@ -40,11 +41,13 @@ class MainScreenDrawer extends StatelessWidget {
         "event catalog",
         "profile",
         "my profile",
+        "discussions",
+        "discussion forum",
+        "my dashboard",
         "settings",
         "messages",
-        "transfer to human agent",
-        "discussion forum",
-      ].contains(menuModel.displayname.toLowerCase());*/
+        // "transfer to human agent",
+      ].contains(menuModel.displayname.toLowerCase());
     }).toList();
 
     return Drawer(
