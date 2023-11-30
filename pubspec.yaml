@@ -140,10 +140,10 @@ dependencies:
 
 
 flutter_icons:
-#  image_path: "assets/logo.png"
-  #  image_path_android: "assets/logo.png"
-  image_path: "assets/marketplaceicon.png"
-  image_path_android: "assets/marketplaceicon.png"
+  image_path: "assets/logo.png"
+  image_path_android: "assets/logo.png"
+  #  image_path: "assets/marketplaceicon.png"
+  #  image_path_android: "assets/marketplaceicon.png"
   android: false # can specify file name here e.g. "ic_launcher"
   ios: true # can specify file name here e.g. "My-Launcher-Icon"
   # optionally, as transparency is not allowed on app store
