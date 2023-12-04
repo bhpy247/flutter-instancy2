@@ -46,6 +46,8 @@ dependencies:
   rxdart: ^0.27.7
   video_thumbnail: ^0.5.3
   in_app_purchase: ^3.1.11
+  confetti: ^0.7.0
+  lottie: ^2.7.0
   #endregion
 
   #region State Management:
@@ -81,6 +83,7 @@ dependencies:
   material_design_icons_flutter: ^6.0.7296
   scrollable_positioned_list: ^0.3.8
   syncfusion_flutter_calendar: ^23.1.38
+  syncfusion_flutter_charts: ^23.2.6
 
   #region Loaders:
   flutter_spinkit: ^5.2.0
@@ -185,3 +188,4 @@ flutter:
     - assets/lens_images/
     - lang/
     - assets/my_dashboard/
+    - assets/lottie/

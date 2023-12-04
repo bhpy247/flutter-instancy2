@@ -3,9 +3,11 @@ import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/content_review_ratings/content_review_ratings_controller.dart';
 import 'package:flutter_instancy_2/backend/content_review_ratings/content_review_ratings_provider.dart';
+import 'package:flutter_instancy_2/backend/course_details/course_details_controller.dart';
 import 'package:flutter_instancy_2/backend/progress_report/progress_report_provider.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/configs/ui_configurations.dart';
+import 'package:flutter_instancy_2/models/content_details/request_model/course_details_request_model.dart';
 import 'package:flutter_instancy_2/models/content_review_ratings/data_model/content_user_rating_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_content_model.dart';
@@ -107,6 +109,7 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
           endDate: now,
         ),
       ),
+      getCourseDetailsModelFromId(),
     ]);
 
     MyPrint.printOnConsole('mylearningSummaryDataModel:${progressReportProvider.contentMyLearningSummaryData.get()}', tag: tag);
@@ -154,6 +157,30 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
 
       MyPrint.printOnConsole("Thumbnail Image Raw:${model.thumbnailimagepath}");
       MyPrint.printOnConsole("Thumbnail Image Progress Screen:${progressReportContentModel?.thumbnailImageUrl}");
+    }
+  }
+
+  Future<void> getCourseDetailsModelFromId() async {
+    CourseDTOModel? model = await CourseDetailsController(courseDetailsProvider: null).getCourseDetailsData(
+      requestModel: CourseDetailsRequestModel(
+        ContentID: contentId,
+        intUserID: userId,
+        metadata: 1,
+        ComponentID: componentId,
+        DetailsCompID: InstancyComponents.Details,
+        DetailsCompInsID: InstancyComponents.DetailsComponentInsId,
+      ),
+    );
+
+    if (model != null) {
+      progressReportContentModel = ProgressReportContentModel(
+        name: model.ContentName,
+        author: model.ContentTypeId == InstancyObjectTypes.events ? model.PresenterDisplayName : model.AuthorDisplayName,
+        thumbnailImageUrl: MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: appProvider).getInstancyImageUrlFromImagePath(imagePath: model.ThumbnailImagePath)),
+        createdDate: ParsingHelper.parseDateTimeMethod(model.CreatedOn, dateFormat: "MM/dd/yyyy"),
+        ratingId: model.RatingID,
+        contentTypeId: model.ContentTypeId,
+      );
     }
   }
 

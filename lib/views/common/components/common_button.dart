@@ -41,6 +41,7 @@ class CommonButton extends StatelessWidget {
       onTap: onPressed,
       highlightColor: highlightColor,
       child: Container(
+        height: height,
         padding: padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         constraints: BoxConstraints(
           minWidth: minWidth,

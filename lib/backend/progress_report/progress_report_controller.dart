@@ -1,7 +1,9 @@
+import 'package:flutter_instancy_2/models/progress_report/data_model/consolidated_group_dto.dart';
 import 'package:flutter_instancy_2/models/progress_report/data_model/content_progress_details_question_data_model.dart';
 import 'package:flutter_instancy_2/models/progress_report/data_model/content_progress_summary_data_model.dart.dart';
 import 'package:flutter_instancy_2/models/progress_report/request_model/content_progress_details_data_request_model.dart';
 import 'package:flutter_instancy_2/models/progress_report/request_model/content_progress_summary_data_request_model.dart';
+import 'package:flutter_instancy_2/models/progress_report/request_model/my_progress_report_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 
 import '../../api/api_controller.dart';
@@ -21,8 +23,9 @@ class ProgressReportController {
     _progressReportProvider = progressReportProvider ?? ProgressReportProvider();
     _progressReportRepository = repository ?? ProgressReportRepository(apiController: apiController ?? ApiController());
   }
-  
+
   ProgressReportProvider get progressReportProvider => _progressReportProvider;
+
   ProgressReportRepository get progressReportRepository => _progressReportRepository;
 
   Future<List<ContentProgressDetailsQuestionDataModel>> getContentProgressDetailsData({
@@ -119,5 +122,36 @@ class ProgressReportController {
     provider.contentMyLearningSummaryData.set(value: contentProgressSummaryDataModel);
 
     return contentProgressSummaryDataModel;
+  }
+
+  Future<ConsolidatedGroupDTO?> getMyProgressReportData({
+    required MyProgressReportRequestModel requestModel,
+    bool isNotify = true,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("ProgressReportController().getMyLearningContentProgressSummaryData() called with requestModel:'$requestModel'", tag: tag);
+
+    ProgressReportProvider provider = progressReportProvider;
+
+    ConsolidatedGroupDTO? consolidatedGroupDTO;
+
+    provider.isLoadingMyProgressReportData.set(value: true, isNotify: isNotify);
+
+    DataResponseModel<List<ConsolidatedGroupDTO>> response = await progressReportRepository.getMyProgressReportData(requestModel: requestModel);
+    MyPrint.printOnConsole("getMyProgressReportData response:$response", tag: tag);
+
+    provider.isLoadingMyProgressReportData.set(value: false, isNotify: isNotify);
+
+    if (response.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from ProgressReportController().getMyProgressReportData() because getMyProgressReportData had some error", tag: tag);
+      return consolidatedGroupDTO;
+    }
+
+    consolidatedGroupDTO = response.data?.firstElement;
+    MyPrint.printOnConsole("final consolidatedGroupDTO:$consolidatedGroupDTO", tag: tag);
+
+    provider.consolidatedGroupDTO.set(value: consolidatedGroupDTO);
+
+    return consolidatedGroupDTO;
   }
 }

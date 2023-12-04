@@ -76,6 +76,7 @@ import '../profile/data_model/user_profile_header_dto_model.dart';
 import '../profile/response_model/education_title_response_model.dart';
 import '../profile/response_model/profile_response_model.dart';
 import '../profile/response_model/sign_up_response_model.dart';
+import '../progress_report/data_model/consolidated_group_dto.dart';
 import '../progress_report/data_model/content_progress_summary_data_model.dart.dart';
 import '../progress_report/response_model/content_progress_detail_data_response.dart';
 import '../share/response_model/share_connection_list_response_model.dart';
@@ -260,6 +261,10 @@ enum ModelDataParsingType {
   UserAchievementDTOModel,
   LeaderBoardDTOModel,
   //endregion
+
+  //region MyProgressRepor
+  ConsolidatedGroupDTO
+  //endregion
 }
 
 class ModelDataParser {
@@ -439,6 +444,10 @@ class ModelDataParser {
     ModelDataParsingType.GamesDTOModelList: parseGamesDTOModelList,
     ModelDataParsingType.UserAchievementDTOModel: parseUserAchievementDTOModel,
     ModelDataParsingType.LeaderBoardDTOModel: parseLeaderBoardDTOModel,
+    //endregion
+
+    //region My progress Report
+    ModelDataParsingType.ConsolidatedGroupDTO: parseMyProgressReportDTOModel
     //endregion
   };
 
@@ -1272,6 +1281,13 @@ class ModelDataParser {
     } else {
       return null;
     }
+  }
+
+//endregion
+
+//region
+  static List<ConsolidatedGroupDTO>? parseMyProgressReportDTOModel({required dynamic decodedValue}) {
+    return ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue).map((e) => ConsolidatedGroupDTO.fromJson(e)).toList();
   }
 //endregion
 }

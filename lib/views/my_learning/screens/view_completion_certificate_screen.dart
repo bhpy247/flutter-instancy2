@@ -84,7 +84,6 @@ class _ViewCompletionCertificateScreenState extends State<ViewCompletionCertific
           }
         },
       ),
-      bottomNavigationBar: getDownloadButton(),
     );
   }
 
@@ -95,27 +94,34 @@ class _ViewCompletionCertificateScreenState extends State<ViewCompletionCertific
       );
     }
 
-    return InAppWebView(
-      initialUrlRequest: URLRequest(
-        url: WebUri(certificatePath),
-      ),
-      onWebViewCreated: (InAppWebViewController webViewController) {
-        MyPrint.printOnConsole("onWebViewCreated called with webViewController:$webViewController");
+    return Column(
+      children: [
+        Expanded(
+          child: InAppWebView(
+            initialUrlRequest: URLRequest(
+              url: WebUri(certificatePath),
+            ),
+            onWebViewCreated: (InAppWebViewController webViewController) {
+              MyPrint.printOnConsole("onWebViewCreated called with webViewController:$webViewController");
 
-        this.webViewController = webViewController;
-      },
-      onLoadStart: (InAppWebViewController webViewController, WebUri? webUri) {
-        MyPrint.printOnConsole("onLoadStart called with webViewController:$webViewController, webUri:$webUri");
-        // this.webViewController = webViewController;
-      },
-      onProgressChanged: (InAppWebViewController webViewController, int progress) {
-        MyPrint.printOnConsole("onProgressChanged called with webViewController:$webViewController, progress:$progress");
-        // this.webViewController = webViewController;
-      },
-      onLoadStop: (InAppWebViewController webViewController, WebUri? webUri) {
-        MyPrint.printOnConsole("onLoadStop called with webViewController:$webViewController, webUri:$webUri");
-        // this.webViewController = webViewController;
-      },
+              this.webViewController = webViewController;
+            },
+            onLoadStart: (InAppWebViewController webViewController, WebUri? webUri) {
+              MyPrint.printOnConsole("onLoadStart called with webViewController:$webViewController, webUri:$webUri");
+              // this.webViewController = webViewController;
+            },
+            onProgressChanged: (InAppWebViewController webViewController, int progress) {
+              MyPrint.printOnConsole("onProgressChanged called with webViewController:$webViewController, progress:$progress");
+              // this.webViewController = webViewController;
+            },
+            onLoadStop: (InAppWebViewController webViewController, WebUri? webUri) {
+              MyPrint.printOnConsole("onLoadStop called with webViewController:$webViewController, webUri:$webUri");
+              // this.webViewController = webViewController;
+            },
+          ),
+        ),
+        getDownloadButton(),
+      ],
     );
   }
 
@@ -149,6 +155,7 @@ class _ViewCompletionCertificateScreenState extends State<ViewCompletionCertific
     }
 
     return CommonButton(
+      padding: const EdgeInsets.symmetric(vertical: 15),
       onPressed: () {
         //TODO: Implement Certificate Download Feature
       },

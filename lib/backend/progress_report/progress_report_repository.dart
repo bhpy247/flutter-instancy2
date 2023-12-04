@@ -1,3 +1,5 @@
+import 'package:flutter_instancy_2/models/progress_report/data_model/consolidated_group_dto.dart';
+
 import '../../api/api_call_model.dart';
 import '../../api/api_controller.dart';
 import '../../api/api_endpoints.dart';
@@ -8,6 +10,7 @@ import '../../models/common/model_data_parser.dart';
 import '../../models/progress_report/data_model/content_progress_summary_data_model.dart.dart';
 import '../../models/progress_report/request_model/content_progress_details_data_request_model.dart';
 import '../../models/progress_report/request_model/content_progress_summary_data_request_model.dart';
+import '../../models/progress_report/request_model/my_progress_report_request_model.dart';
 import '../../models/progress_report/request_model/mylearning_content_progress_summary_data_request_model.dart';
 import '../../models/progress_report/response_model/content_progress_detail_data_response.dart';
 
@@ -82,6 +85,31 @@ class ProgressReportRepository {
     );
 
     DataResponseModel<List<ContentProgressSummaryDataModel>> apiResponseModel = await apiController.callApi<List<ContentProgressSummaryDataModel>>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<List<ConsolidatedGroupDTO>>> getMyProgressReportData({
+    required MyProgressReportRequestModel requestModel,
+  }) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+
+    requestModel.aintSiteID = apiUrlConfigurationProvider.getCurrentSiteId();
+    requestModel.aintUserID = apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.astrLocale = apiUrlConfigurationProvider.getLocale();
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      queryParameters: requestModel.toMap(),
+      parsingType: ModelDataParsingType.ConsolidatedGroupDTO,
+      url: apiEndpoints.getMyProgressReportUrl(),
+    );
+
+    DataResponseModel<List<ConsolidatedGroupDTO>> apiResponseModel = await apiController.callApi<List<ConsolidatedGroupDTO>>(
       apiCallModel: apiCallModel,
     );
 

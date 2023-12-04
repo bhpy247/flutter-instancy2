@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/models/gamification/data_model/user_badges_model.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:provider/provider.dart';
@@ -35,9 +36,10 @@ class BadgesTabScreen extends StatelessWidget {
   Widget getListSingleItem({required BuildContext context, required UserBadgesModel userBadgesModel}) {
     ThemeData themeData = Theme.of(context);
 
-    String userImageUrl = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(
+    String badgeImageUrl = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(
       imagePath: userBadgesModel.BadgeImage,
     ));
+    MyPrint.printOnConsole("badgeImageUrl:$badgeImageUrl");
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
@@ -54,7 +56,7 @@ class BadgesTabScreen extends StatelessWidget {
         children: [
           ClipRRect(
             child: CommonCachedNetworkImage(
-              imageUrl: userImageUrl,
+              imageUrl: badgeImageUrl,
               width: 70,
               fit: BoxFit.cover,
             ),

@@ -29,6 +29,7 @@ import 'package:flutter_instancy_2/views/home/components/home_web_list_screen.da
 import 'package:flutter_instancy_2/views/message/screen/message_screen.dart';
 import 'package:flutter_instancy_2/views/my_achievements/screens/my_achievement_component_widget.dart';
 import 'package:flutter_instancy_2/views/my_learning_plus/screens/my_learning_plus.dart';
+import 'package:flutter_instancy_2/views/progress_report/screens/progress_report_main_screen.dart';
 import 'package:flutter_instancy_2/views/transferToAgent/screens/transferToAgentScreen.dart';
 import 'package:provider/provider.dart';
 
@@ -472,6 +473,13 @@ class _MainScreenState extends State<MainScreen> {
           componentId: model.componentid,
           componentInsId: model.repositoryid,
           gamificationProvider: context.read<GamificationProvider>(),
+        ),
+      );
+    } else if (model.componentid == InstancyComponents.ProgressReport) {
+      return ProgressReportMainScreen(
+        arguments: ProgressReportMainScreenNavigationArguments(
+          componentId: model.componentid,
+          componentInsId: model.repositoryid,
         ),
       );
     } else {

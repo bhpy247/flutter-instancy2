@@ -46,6 +46,7 @@ class MainScreenDrawer extends StatelessWidget {
         "my dashboard",
         "settings",
         "messages",
+        "my progress report"
         // "transfer to human agent",
       ].contains(menuModel.displayname.toLowerCase());
     }).toList();

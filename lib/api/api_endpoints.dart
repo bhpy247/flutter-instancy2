@@ -284,6 +284,12 @@ class ApiEndpoints {
 
   //endregion
 
+  //region My Progress report
+
+  String getMyProgressReportUrl() => '${getBaseApiUrl()}/ConsolidatedProgressReport/GetConsolidateRPT';
+
+  //endregion
+
   //region preRequisiteDetails
   String getPrerequisiteDetails({String contentId = "", int userId = 0}) {
     return '${getBaseApiUrl()}catalog/GetPrequisiteDetails?ContentID=$contentId&UserID=$userId';

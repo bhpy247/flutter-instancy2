@@ -509,6 +509,22 @@ class MyAchievementWidgetNavigationArguments extends NavigationArguments {
       ];
 }
 
+class ProgressReportMainScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+
+  const ProgressReportMainScreenNavigationArguments({
+    required this.componentId,
+    required this.componentInsId,
+  });
+
+  @override
+  List<Object?> get props => [
+        componentId,
+        componentInsId,
+      ];
+}
+
 class DiscussionDetailScreenNavigationArguments extends NavigationArguments {
   final int ForumId;
   final int componentId;

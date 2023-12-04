@@ -976,9 +976,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
           }
 
           return PopScope(
-            canPop: false,
+            canPop: !isLoading,
             onPopInvoked: (bool didPop) {
-              if (isLoading) return;
+              if (didPop) return;
 
               Navigator.pop(context, isRefreshOtherPageWhenPop);
             },
