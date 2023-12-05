@@ -58,6 +58,13 @@ To Build qalearning Build Debug   :- flutter build apk --debug -t lib/main-qalea
 To Run qalearning Build Release   :- flutter run --release -t lib/main-qalearning.dart --flavor qalearning2
 To Run qalearning Build Debug     :- flutter run --debug -t lib/main-qalearning.dart --flavor qalearning2
 
+7) nestle
+
+To Build nestle Build Release :- flutter build apk --release -t lib/main-nestle.dart --flavor nestle --no-tree-shake-icons
+To Build nestle Build Debug   :- flutter build apk --debug -t lib/main-nestle.dart --flavor nestle --no-tree-shake-icons
+To Run nestle Build Release   :- flutter run --release -t lib/main-nestle.dart --flavor nestle
+To Run nestle Build Debug     :- flutter run --debug -t lib/main-nestle.dart --flavor nestle
+
 
 //To Build for ios
 1) modify bundle id in xcode

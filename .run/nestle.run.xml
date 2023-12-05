@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration name="nestle" default="false" factoryName="Flutter"
+        type="FlutterRunConfigurationType">
+        <option name="buildFlavor" value="nestle" />
+        <option name="filePath" value="$PROJECT_DIR$/lib/main-nestle.dart" />
+        <method v="2" />
+    </configuration>
+</component>

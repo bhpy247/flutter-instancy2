@@ -16,6 +16,7 @@ class ClientUrls {
   static const String instancyLearningClientUrl = "https://learning.instancy.com/";
   static const String upgradedEnterpriseClientUrl = "https://upgradedenterprise.instancy.com/";
   static const String gurruziClientUrl = "https://www.gurruzi.com/";
+  static const String nestleClientUrl = "https://nestle.instancy.com/";
 
   //App Auth Urls
   static const String STAGING_APP_AUTH_URL = "https://masterapi.instancy.net/api/";
@@ -33,6 +34,7 @@ class ClientUrls {
     instancyLearningClientUrl: LIVE_APP_AUTH_URL,
     upgradedEnterpriseClientUrl: LIVE_APP_AUTH_URL,
     gurruziClientUrl: LIVE_APP_AUTH_URL,
+    nestleClientUrl: LIVE_APP_AUTH_URL,
   };
 
   static String getAuthUrl(String clientUrl) {

@@ -178,6 +178,7 @@ flutter:
     #          weight: 700
   assets:
     - assets/
+    - assets/app-logo/
     - assets/js/
     - assets/images/
     - assets/onBoarding/

@@ -1,14 +1,15 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
     localPropertiesFile.withReader('UTF-8') { reader ->
         localProperties.load(reader)
     }
-}
-
-def flutterRoot = localProperties.getProperty('flutter.sdk')
-if (flutterRoot == null) {
-    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
@@ -26,10 +27,6 @@ def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
-
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
     compileSdkVersion 34
@@ -137,6 +134,14 @@ android {
             versionName "1.0.1"
             resValue "string", "app_name", "Gurruzi"
         }
+
+        nestle {
+            dimension "app"
+            applicationId "com.instancy.nestle"
+            versionCode 1
+            versionName "1.0.0"
+            resValue "string", "app_name", "Nestle Learning Center"
+        }
     }
 
     signingConfigs {
@@ -163,6 +168,8 @@ android {
             debuggable true
         }
     }
+
+//    namespace 'com.instancy.flutter_instancy_2'
 }
 
 flutter {

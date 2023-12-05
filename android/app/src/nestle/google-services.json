@@ -1,0 +1,655 @@
+{
+  "project_info": {
+    "project_number": "639139368781",
+    "firebase_url": "https://instancy-f241d.firebaseio.com",
+    "project_id": "instancy-f241d",
+    "storage_bucket": "instancy-f241d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:7c497ff6ec3bcc05447104",
+        "android_client_info": {
+          "package_name": "com.instancy.elearning"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:9c9c4d66c1249722447104",
+        "android_client_info": {
+          "package_name": "com.instancy.enterpriseapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:0670f2e434e85d56447104",
+        "android_client_info": {
+          "package_name": "com.instancy.enterpriselearninglite"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:533454490b31fecd447104",
+        "android_client_info": {
+          "package_name": "com.instancy.flutterinapptesting"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:3a70958a92565b07447104",
+        "android_client_info": {
+          "package_name": "com.instancy.franklincoveysa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:8641735a624c7c0d447104",
+        "android_client_info": {
+          "package_name": "com.instancy.gurruzi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-uuh47va1hrdpf6asalm2eelo6cv8vos3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.instancy.gurruzi",
+            "certificate_hash": "cc3ba6db21b5c7326a97706adfbb873e53bd9de3"
+          }
+        },
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:d31486198c38d533447104",
+        "android_client_info": {
+          "package_name": "com.instancy.instancy_lite"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:cfb75587b9f3e515447104",
+        "android_client_info": {
+          "package_name": "com.instancy.instancyapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:c90ca163191959de447104",
+        "android_client_info": {
+          "package_name": "com.instancy.instancylearning"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-5nptlij2nfuj915bu7rmqts7cc8ttjp2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.instancy.instancylearning",
+            "certificate_hash": "f2b944836791221f374a93752790eb4c832a9b6e"
+          }
+        },
+        {
+          "client_id": "639139368781-6fiq3j6f6m6kptdmskv9dlck7kf58d92.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.instancy.instancylearning",
+            "certificate_hash": "10baf94637b469ed4162807a4a72466f4381532b"
+          }
+        },
+        {
+          "client_id": "639139368781-l9i6r23beikt4bf5uk52gr3e0b9rc02d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.instancy.instancylearning",
+            "certificate_hash": "7a052e14581995ce74914629c36695f9a5388046"
+          }
+        },
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:ce6a9788ff27bd33447104",
+        "android_client_info": {
+          "package_name": "com.instancy.nestle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:43770c8d6f2e13fa447104",
+        "android_client_info": {
+          "package_name": "com.instancy.qalearning"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:a6e7b524bd29a32d447104",
+        "android_client_info": {
+          "package_name": "com.instancy.qalearning2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:6edc3e81a985b494447104",
+        "android_client_info": {
+          "package_name": "com.instancy.trainingcompany"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:601ca6e2213eb6e8447104",
+        "android_client_info": {
+          "package_name": "com.instancy.trainingcompanyapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:e552e8101fb7bac9447104",
+        "android_client_info": {
+          "package_name": "com.instancy.upgradedenterpriseapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:85ba988b49df839a447104",
+        "android_client_info": {
+          "package_name": "com.instancy.upgradedenterpriseapp2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639139368781:android:db09bf8cc555dd4a447104",
+        "android_client_info": {
+          "package_name": "com.instancy.xyzapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "639139368781-8hpm88ucrhd9mrjt7rrnpfgp2048tt2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXactZUQK_Y9YokmTt1Z-1VtnXJlHQOPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "639139368781-4i3892r444c4vl0kb2pqpp074dkkv76i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "639139368781-1vvpqgi0gjgigh8341duhaev0gqd6c48.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.instancy.instancyLearningMarket.Notification"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
