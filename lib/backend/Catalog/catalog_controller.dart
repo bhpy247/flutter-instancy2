@@ -4,6 +4,7 @@ import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_repository.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/catalog/catalogCategoriesForBrowseModel.dart';
 import 'package:flutter_instancy_2/models/catalog/request_model/add_associated_content_to_my_learning_request_model.dart';
 import 'package:flutter_instancy_2/models/catalog/request_model/add_expired_event_to_my_learning_request_model.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_instancy_2/models/catalog/response_model/enroll_waiting_
 import 'package:flutter_instancy_2/models/catalog/response_model/prerequisiteDetailsResponseModel.dart';
 import 'package:flutter_instancy_2/models/dto/response_dto_model.dart';
 import 'package:flutter_instancy_2/models/filter/data_model/filter_duration_value_model.dart';
+import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -110,7 +112,7 @@ class CatalogController {
     bool isPinnedContent = false,
     required int componentId,
     required int componentInstanceId,
-    required int HomeComponentId,
+    int? HomeComponentId,
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
@@ -222,7 +224,7 @@ class CatalogController {
     bool isPinnedContent = false,
     required int componentId,
     required int componentInstanceId,
-    int HomeComponentId = 0,
+    int? HomeComponentId,
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
@@ -337,7 +339,7 @@ class CatalogController {
     required ApiUrlConfigurationProvider apiUrlConfigurationProvider,
     required bool isWishList,
     required bool isPinnedContent,
-    int HomecomponentID = 0,
+    int? HomecomponentID,
   }) {
     FilterProvider filterProvider = catalogProvider.filterProvider;
     EnabledContentFilterByTypeModel? enabledContentFilterByTypeModel = !isWishList ? filterProvider.getEnabledContentFilterByTypeModel(isNewInstance: false) : null;
@@ -349,62 +351,63 @@ class CatalogController {
     }
 
     return CatalogRequestModel(
-        iswishlistcontent: isWishList ? 1 : 0,
-        componentID: ParsingHelper.parseStringMethod(componentId),
-        componentInsID: ParsingHelper.parseStringMethod(componentInstanceId),
-        searchText: isWishList ? "" : provider.catalogContentSearchString.get(),
-        // userID: "363",
-        userID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentUserId()),
-        siteID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentSiteId()),
-        orgUnitID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentSiteId()),
-        locale: apiUrlConfigurationProvider.getLocale().isNotEmpty ? apiUrlConfigurationProvider.getLocale() : "en-us",
-        pageIndex: paginationModel.pageIndex,
-        // pageSize: 500,
-        pageSize: provider.pageSize.get(),
-        contentID: "",
-        keywords: "",
-        sortBy: HomecomponentID != 0
-            ? "Publisheddate desc"
-            : isWishList
-                ? filterProvider.defaultSort.get()
-                : filterProvider.selectedSort.get(),
-        categories: (enabledContentFilterByTypeModel?.categories ?? false)
-            ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-                list: filterProvider.selectedCategories.getList().map((e) => e.categoryId).toList(),
-              )
-            : "",
-        objecttypes: (enabledContentFilterByTypeModel?.objecttypeid ?? false)
-            ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-                list: filterProvider.selectedContentTypes.getList().map((e) => e.categoryId).toList(),
-              )
-            : "",
-        skillcats: (enabledContentFilterByTypeModel?.skills ?? false)
-            ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-                list: filterProvider.selectedSkills.getList().map((e) => e.categoryId).toList(),
-              )
-            : "",
-        jobroles: (enabledContentFilterByTypeModel?.jobroles ?? false)
-            ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-                list: filterProvider.selectedJobRoles.getList().map((e) => e.categoryId).toList(),
-              )
-            : "",
-        solutions: (enabledContentFilterByTypeModel?.solutions ?? false)
-            ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-                list: filterProvider.selectedSolutions.getList().map((e) => e.categoryId).toList(),
-              )
-            : "",
-        ratings: (enabledContentFilterByTypeModel?.rating ?? false) ? ParsingHelper.parseStringMethod(filterProvider.selectedRating.get()) : "",
-        pricerange: (enabledContentFilterByTypeModel?.ecommerceprice ?? false) && filterProvider.minPrice.get() != null && filterProvider.maxPrice.get() != null
-            ? "${filterProvider.minPrice.get()},${filterProvider.maxPrice.get()}"
-            : "",
-        instructors: (enabledContentFilterByTypeModel?.instructor ?? false)
-            ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-                list: filterProvider.selectedInstructor.getList().map((e) => e.UserID).toList(),
-              )
-            : "",
-        filtercredits: filtercredits,
-        HomecomponentID: HomecomponentID,
-        PinnedContent: isPinnedContent);
+      iswishlistcontent: isWishList ? 1 : 0,
+      componentID: ParsingHelper.parseStringMethod(componentId),
+      componentInsID: ParsingHelper.parseStringMethod(componentInstanceId),
+      searchText: isWishList ? "" : provider.catalogContentSearchString.get(),
+      // userID: "363",
+      userID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentUserId()),
+      siteID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentSiteId()),
+      orgUnitID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentSiteId()),
+      locale: apiUrlConfigurationProvider.getLocale().isNotEmpty ? apiUrlConfigurationProvider.getLocale() : "en-us",
+      pageIndex: paginationModel.pageIndex,
+      // pageSize: 500,
+      pageSize: provider.pageSize.get(),
+      contentID: "",
+      keywords: "",
+      sortBy: HomecomponentID != null
+          ? "Publisheddate desc"
+          : isWishList
+              ? filterProvider.defaultSort.get()
+              : filterProvider.selectedSort.get(),
+      categories: (enabledContentFilterByTypeModel?.categories ?? false)
+          ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+              list: filterProvider.selectedCategories.getList().map((e) => e.categoryId).toList(),
+            )
+          : "",
+      objecttypes: (enabledContentFilterByTypeModel?.objecttypeid ?? false)
+          ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+              list: filterProvider.selectedContentTypes.getList().map((e) => e.categoryId).toList(),
+            )
+          : "",
+      skillcats: (enabledContentFilterByTypeModel?.skills ?? false)
+          ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+              list: filterProvider.selectedSkills.getList().map((e) => e.categoryId).toList(),
+            )
+          : "",
+      jobroles: (enabledContentFilterByTypeModel?.jobroles ?? false)
+          ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+              list: filterProvider.selectedJobRoles.getList().map((e) => e.categoryId).toList(),
+            )
+          : "",
+      solutions: (enabledContentFilterByTypeModel?.solutions ?? false)
+          ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+              list: filterProvider.selectedSolutions.getList().map((e) => e.categoryId).toList(),
+            )
+          : "",
+      ratings: (enabledContentFilterByTypeModel?.rating ?? false) ? ParsingHelper.parseStringMethod(filterProvider.selectedRating.get()) : "",
+      pricerange: (enabledContentFilterByTypeModel?.ecommerceprice ?? false) && filterProvider.minPrice.get() != null && filterProvider.maxPrice.get() != null
+          ? "${filterProvider.minPrice.get()},${filterProvider.maxPrice.get()}"
+          : "",
+      instructors: (enabledContentFilterByTypeModel?.instructor ?? false)
+          ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+              list: filterProvider.selectedInstructor.getList().map((e) => e.UserID).toList(),
+            )
+          : "",
+      filtercredits: filtercredits,
+      HomecomponentID: HomecomponentID,
+      PinnedContent: isPinnedContent,
+    );
   }
 
   Future<bool> addContentToWishlist({
@@ -564,19 +567,21 @@ class CatalogController {
         } else {
           Future.wait(futures);
         }
+
+        GamificationController(provider: null).UpdateContentGamification(
+          requestModel: UpdateContentGamificationRequestModel(
+            contentId: requestModel.SelectedContent,
+            scoId: requestModel.scoId,
+            objecttypeId: requestModel.objecttypeId,
+            GameAction: GamificationActionType.Enrolled,
+          ),
+        );
       }
 
       if (isShowToast && context.mounted) {
         if (isSuccess) {
           int index = responseDTOModel.Message.indexOf("~~");
           MyToast.showSuccess(context: context, msg: index > -1 ? responseDTOModel.Message.substring(0, index) : responseDTOModel.Message, durationInSeconds: 5);
-
-          Future.delayed(const Duration(seconds: 2)).then((value) {
-            MyPrint.printOnConsole("NotifyMessage:${responseDTOModel.Message}", tag: tag);
-            if (responseDTOModel.Message.isNotEmpty) {
-              GamificationController(provider: null).showGamificationEarnedPopup(notifyMessage: responseDTOModel.Message);
-            }
-          });
         } else {
           MyToast.showError(context: context, msg: responseDTOModel.Message);
         }
@@ -693,6 +698,15 @@ class CatalogController {
       } else {
         Future.wait(futures);
       }
+
+      GamificationController(provider: null).UpdateContentGamification(
+        requestModel: UpdateContentGamificationRequestModel(
+          contentId: model.ContentID,
+          scoId: model.ScoID,
+          objecttypeId: model.ContentTypeId,
+          GameAction: GamificationActionType.Purchased,
+        ),
+      );
     }
 
     return isPurchaseSaved;
@@ -744,6 +758,17 @@ class CatalogController {
 
       isSuccess = responseModel.result;
       MyPrint.printOnConsole("isSuccess:$isSuccess", tag: tag);
+
+      if (isSuccess) {
+        GamificationController(provider: null).UpdateContentGamification(
+          requestModel: UpdateContentGamificationRequestModel(
+            contentId: requestModel.SelectedContent,
+            scoId: requestModel.scoId,
+            objecttypeId: requestModel.objecttypeId,
+            GameAction: GamificationActionType.Enrolled,
+          ),
+        );
+      }
 
       if (isShowToast && context.mounted) {
         if (!isSuccess) {
@@ -806,6 +831,17 @@ class CatalogController {
       isSuccess = responseModel.IsSuccess;
       MyPrint.printOnConsole("isSuccess:$isSuccess", tag: tag);
 
+      if (isSuccess) {
+        GamificationController(provider: null).UpdateContentGamification(
+          requestModel: UpdateContentGamificationRequestModel(
+            contentId: requestModel.WLContentID,
+            scoId: 0,
+            objecttypeId: InstancyObjectTypes.events,
+            GameAction: GamificationActionType.Enrolled,
+          ),
+        );
+      }
+
       if (isShowToast && context.mounted) {
         if (!isSuccess) {
           MyToast.showError(context: context, msg: responseModel.Message);
@@ -866,6 +902,17 @@ class CatalogController {
 
       isSuccess = responseModel.result;
       MyPrint.printOnConsole("isSuccess:$isSuccess", tag: tag);
+
+      if (isSuccess) {
+        GamificationController(provider: null).UpdateContentGamification(
+          requestModel: UpdateContentGamificationRequestModel(
+            contentId: requestModel.SelectedContent,
+            scoId: requestModel.scoId,
+            objecttypeId: requestModel.objecttypeId,
+            GameAction: GamificationActionType.Enrolled,
+          ),
+        );
+      }
 
       if (isShowToast && context.mounted) {
         if (!isSuccess) {

@@ -86,14 +86,13 @@ class SignInView extends StatelessWidget {
             obscureText: !isSignInPasswordVisible,
             prefixWidget: prefixIcon(Icons.lock),
             validator: (String? text) {
-              if((text?.trim()).checkNotEmpty) {
-                if(text!.length <= 2) {
+              if ((text?.trim()).checkNotEmpty) {
+                if (text!.length <= 2) {
                   return "Passwords length should be greater than 3";
                 }
 
                 return null;
-              }
-              else {
+              } else {
                 return appProvider.localStr.loginAlertsubtitleUsernameorpasswordcannotbeempty;
               }
             },
@@ -170,8 +169,7 @@ class SignInView extends StatelessWidget {
         },
         child: Text(
           '${appProvider.localStr.loginButtonForgotpasswordbutton}?',
-          style: TextStyle(
-              fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.5, color: Theme.of(context).primaryColor, decoration: TextDecoration.underline),
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.5, color: Theme.of(context).primaryColor, decoration: TextDecoration.underline),
         ),
       ),
     );
@@ -194,10 +192,12 @@ class SignInView extends StatelessWidget {
               color: themeData.colorScheme.onPrimary,
               lineWidth: 2,
             )
-          : Text(
-              appProvider.localStr.loginButtonSigninbutton,
-              style: themeData.textTheme.titleSmall?.copyWith(
-                color: themeData.colorScheme.onPrimary,
+          : Center(
+              child: Text(
+                appProvider.localStr.loginButtonSigninbutton,
+                style: themeData.textTheme.titleSmall?.copyWith(
+                  color: themeData.colorScheme.onPrimary,
+                ),
               ),
             ),
     );

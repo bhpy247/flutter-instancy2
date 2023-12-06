@@ -4,6 +4,7 @@ import 'package:flutter_instancy_2/backend/Catalog/content_launch_controller.dar
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/request_model/get_completion_certificate_params_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
+import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 
@@ -24,7 +25,7 @@ class ViewCompletionCertificateScreen extends StatefulWidget {
   State<ViewCompletionCertificateScreen> createState() => _ViewCompletionCertificateScreenState();
 }
 
-class _ViewCompletionCertificateScreenState extends State<ViewCompletionCertificateScreen> {
+class _ViewCompletionCertificateScreenState extends State<ViewCompletionCertificateScreen> with MySafeState {
   late MyLearningController myLearningController;
 
   late Future<void> futureGet;
@@ -56,7 +57,7 @@ class _ViewCompletionCertificateScreenState extends State<ViewCompletionCertific
       certificatePath: (dataResponseModel.data ?? ""),
       siteUrl: myLearningController.myLearningRepository.apiController.apiDataProvider.getCurrentSiteUrl(),
     );
-    setState(() {});
+    mySetState();
   }
 
   @override
@@ -68,6 +69,8 @@ class _ViewCompletionCertificateScreenState extends State<ViewCompletionCertific
 
   @override
   Widget build(BuildContext context) {
+    super.pageBuild();
+
     MyPrint.printOnConsole("certificateUrl:$certificateUrl");
     MyPrint.printOnConsole("certificateViewUrl:$certificateViewUrl");
     MyPrint.printOnConsole("certificateDownloadUrl:$certificateDownloadUrl");
@@ -159,7 +162,8 @@ class _ViewCompletionCertificateScreenState extends State<ViewCompletionCertific
       onPressed: () {
         //TODO: Implement Certificate Download Feature
       },
-      child: const Text("Download"),
+      text: "Download",
+      fontColor: themeData.colorScheme.onPrimary,
     );
   }
 }

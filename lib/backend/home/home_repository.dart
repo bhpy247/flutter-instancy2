@@ -126,29 +126,23 @@ class HomeRepository {
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData(
       restCallType: RestCallType.simpleGetCall,
-      parsingType: ModelDataParsingType.staticWebPageModel,
+      parsingType: ModelDataParsingType.listWebListModel,
       queryParameters: {
         "aintUserID": apiUrlConfigurationProvider.getCurrentUserId().toString(),
         "aintSiteID": apiUrlConfigurationProvider.getCurrentSiteId().toString(),
         "astrLocale": apiUrlConfigurationProvider.getLocale(),
-        "astrContentID": "-1",
-        "ScoID": "-1",
         "ComponentID": "$componentId",
-        "ComponentInstanceID": "$componentInstanceId",
-        "CurrentPath": "09",
-        "isFromNativeApp": "true"
+        "CompInsID": "$componentInstanceId",
+        "TabTypeID": apiUrlConfigurationProvider.getCurrentSiteId().toString(),
+        "tabtype": "1",
+        "PreferenceType": "1",
+        "DeliveryModeID": "1",
+        "astrsorttype": "2",
+        "externaluser": "1",
+        "DataSource": "1",
+        "groupId": "-1",
       },
-      url: apiEndpoints.apiGetStaticWebPages(
-
-          //     aintUserID: 467  ?aintUserID=$userId&aintSiteID=$siteID&astrLocale=$language&astrContentID=-1&ScoID=-1&ComponentID=$componentId&ComponentInstanceID=$componentInstanceId&CurrentPath=09&isFromNativeApp=true'
-          //     aintSiteID: 374
-          // astrLocale: en-us
-          // astrContentID: -1
-          // ScoID: -1
-          // ComponentID: 51
-          // ComponentInstanceID: 50052
-          //     CurrentPath: 09
-          ),
+      url: apiEndpoints.apiGetWebListApi(),
       isGetDataFromHive: isFromOffline,
       isStoreDataInHive: isStoreDataInHive,
     );
@@ -156,7 +150,6 @@ class HomeRepository {
     DataResponseModel<WebListDataDTO> apiResponseModel = await apiController.callApi<WebListDataDTO>(
       apiCallModel: apiCallModel,
     );
-
     return apiResponseModel;
   }
 }

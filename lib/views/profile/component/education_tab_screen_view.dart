@@ -209,10 +209,8 @@ class _EducationTabScreenViewState extends State<EducationTabScreenView> {
         backGroundColor: themeData.primaryColor,
         minWidth: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 13),
-        child: Text(
-          "Add Education",
-          style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.white),
-        ),
+        text: "Add Education",
+        fontColor: themeData.colorScheme.onPrimary,
       ),
     );
   }

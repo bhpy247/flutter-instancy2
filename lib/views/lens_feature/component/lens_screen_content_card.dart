@@ -243,7 +243,7 @@ class LensScreenContentCard extends StatelessWidget {
               onPressed: () {
                 if (onLaunchARTap != null) onLaunchARTap!(model);
               },
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
               backGroundColor: themeData.primaryColor,
               borderColor: themeData.primaryColor,
               borderWidth: 1,

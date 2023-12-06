@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:intl/intl.dart';
 import 'package:open_file_plus/open_file_plus.dart';
 
 import '../../api/api_url_configuration_provider.dart';
 import '../../models/app_configuration_models/data_models/app_ststem_configurations.dart';
 import '../../models/app_configuration_models/data_models/tincan_data_model.dart';
-import '../../models/authentication/data_model/successful_user_login_model.dart';
 import '../../models/course_launch/data_model/course_launch_model.dart';
 import '../../utils/my_print.dart';
 import '../../views/common/components/common_button.dart';
@@ -25,7 +25,7 @@ class GotoCourseLaunch {
   final AppSystemConfigurationModel appSystemConfigurationModel;
   final TinCanDataModel tinCanDataModel;
   final ApiUrlConfigurationProvider apiUrlConfigurationProvider;
-  final SuccessfulUserLoginModel successfulUserLoginModel;
+  final NativeLoginDTOModel successfulUserLoginModel;
 
   String urlForView = "";
 
@@ -35,7 +35,7 @@ class GotoCourseLaunch {
     required AppSystemConfigurationModel appSystemConfigurationModel,
     required TinCanDataModel tinCanDataModel,
     required ApiUrlConfigurationProvider apiUrlConfigurationProvider,
-    required SuccessfulUserLoginModel successfulUserLoginModel,
+    required NativeLoginDTOModel successfulUserLoginModel,
   }) {
     return GotoCourseLaunch._internal(
       context: context,
@@ -115,7 +115,7 @@ class GotoCourseLaunch {
     String lrsAuthorizationKey = "";
     String autKey = base64lrsAuthKey;
 
-    Uint8List encrpt = utf8.encode(autKey) as Uint8List;
+    Uint8List encrpt = utf8.encode(autKey);
     String base64 = base64Encode(encrpt);
     lrsAuthorizationKey = "Basic%20$base64";
 

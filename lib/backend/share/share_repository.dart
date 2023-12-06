@@ -1,4 +1,5 @@
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/gamification/response_model/content_game_activity_response_model.dart';
 import 'package:intl/intl.dart';
 
 import '../../api/api_call_model.dart';
@@ -18,7 +19,7 @@ class ShareRepository {
 
   const ShareRepository({required this.apiController});
 
-  Future<DataResponseModel<String>> shareWithPeople({
+  Future<DataResponseModel<ContentGameActivityResponseModel>> shareWithPeople({
     required ShareWithPeopleRequestModel peopleRequestModel,
   }) async {
     MyPrint.printOnConsole('ShareRepository().shareWithPeople() called with peopleRequestModel:$peopleRequestModel');
@@ -35,12 +36,12 @@ class ShareRepository {
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
       restCallType: RestCallType.simplePostCall,
-      parsingType: ModelDataParsingType.string,
+      parsingType: ModelDataParsingType.ContentGameActivityResponseModel,
       url: apiEndpoints.getSendMailToPeopleUrl(),
       requestBody: MyUtils.encodeJson(peopleRequestModel.toMap()),
     );
 
-    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
+    DataResponseModel<ContentGameActivityResponseModel> apiResponseModel = await apiController.callApi<ContentGameActivityResponseModel>(
       apiCallModel: apiCallModel,
     );
 

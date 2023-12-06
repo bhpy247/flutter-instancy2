@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
@@ -40,8 +39,6 @@ class AddEditExperienceScreen extends StatefulWidget {
 }
 
 class _AddEditExperienceScreenState extends State<AddEditExperienceScreen> with MySafeState {
-  late ThemeData themeData;
-
   bool isLoading = false;
 
   late AppProvider appProvider;
@@ -140,10 +137,7 @@ class _AddEditExperienceScreenState extends State<AddEditExperienceScreen> with 
     if (responseModel.data == true) {
       if (pageMounted && context.mounted) {
         MyToast.showSuccess(
-            context: context,
-            msg: isEdit
-                ? appProvider.localStr.profileAlertsubtitleExperienceprofileupdatesuccessfully
-                : appProvider.localStr.profileAlertsubtitleExperienceaddedsuccessfully);
+            context: context, msg: isEdit ? appProvider.localStr.profileAlertsubtitleExperienceprofileupdatesuccessfully : appProvider.localStr.profileAlertsubtitleExperienceaddedsuccessfully);
         Navigator.pop(context, true);
       }
     } else {
@@ -168,8 +162,7 @@ class _AddEditExperienceScreenState extends State<AddEditExperienceScreen> with 
       displayNo: model.displayno.toString(),
     );
 
-    DataResponseModel<bool> responseModel =
-        await ProfileRepository(apiController: ApiController()).removeExperience(removeExperienceRequestModel: requestModel);
+    DataResponseModel<bool> responseModel = await ProfileRepository(apiController: ApiController()).removeExperience(removeExperienceRequestModel: requestModel);
     MyPrint.printOnConsole("Delete responseModel:$responseModel");
 
     isLoading = false;
@@ -330,9 +323,7 @@ class _AddEditExperienceScreenState extends State<AddEditExperienceScreen> with 
                   size: 21,
                   color: isCurrentlyWorking ? themeData.primaryColor : Colors.black54,
                 ),
-                SizedBox(
-                  width: 10,
-                ),
+                const SizedBox(width: 10),
                 Text(appProvider.localStr.profileLabelExperienceiscurrentlyworkingtilldatelabel),
               ],
             ),
@@ -404,6 +395,8 @@ class _AddEditExperienceScreenState extends State<AddEditExperienceScreen> with 
             if (fromDate.isAfter(toDate)) {
               return appProvider.localStr.profilefromYearIsGreaterThanToYearValidation;
             }
+
+            return null;
           },
           onTap: () {
             FocusScope.of(context).requestFocus(FocusNode());
@@ -492,11 +485,8 @@ class _AddEditExperienceScreenState extends State<AddEditExperienceScreen> with 
       backGroundColor: themeData.primaryColor,
       minWidth: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 13),
-      child: Text(
-        appProvider.localStr.profileButtonExperiencesavebutton,
-        // "Save Changes",
-        style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.white),
-      ),
+      text: appProvider.localStr.profileButtonExperiencesavebutton,
+      fontColor: themeData.colorScheme.onPrimary,
     );
   }
 }

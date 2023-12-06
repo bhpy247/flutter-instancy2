@@ -8,7 +8,7 @@ import 'package:flutter_instancy_2/backend/authentication/authentication_provide
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_controller.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
-import 'package:flutter_instancy_2/models/authentication/data_model/successful_user_login_model.dart';
+import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/content_status_model.dart';
@@ -325,7 +325,7 @@ class CourseLaunchController {
           return false;
         }
 
-        SuccessfulUserLoginModel? successfulUserLoginModel = authenticationProvider.getSuccessfulUserLoginModel();
+        NativeLoginDTOModel? successfulUserLoginModel = authenticationProvider.getEmailLoginResponseModel();
         if (successfulUserLoginModel == null) {
           MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourse() because successfulUserLoginModel is null");
           return false;
@@ -423,7 +423,7 @@ class CourseLaunchController {
         );
       } else if (AppConfigurationOperations.isARContent(contentTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeId)) {
         String url = "";
-        SuccessfulUserLoginModel? successfulUserLoginModel = authenticationProvider.getSuccessfulUserLoginModel();
+        NativeLoginDTOModel? successfulUserLoginModel = authenticationProvider.getEmailLoginResponseModel();
         if (successfulUserLoginModel != null) {
           GotoCourseLaunch courseLaunch = GotoCourseLaunch(
             context: context,
@@ -451,7 +451,7 @@ class CourseLaunchController {
         }
       } else {
         String url = "";
-        SuccessfulUserLoginModel? successfulUserLoginModel = authenticationProvider.getSuccessfulUserLoginModel();
+        NativeLoginDTOModel? successfulUserLoginModel = authenticationProvider.getEmailLoginResponseModel();
         if (successfulUserLoginModel != null) {
           GotoCourseLaunch courseLaunch = GotoCourseLaunch(
             context: context,
@@ -540,7 +540,7 @@ class CourseLaunchController {
 
     String token = "";
 
-    SuccessfulUserLoginModel? successfulUserLoginModel = authenticationProvider.getSuccessfulUserLoginModel();
+    NativeLoginDTOModel? successfulUserLoginModel = authenticationProvider.getEmailLoginResponseModel();
 
     if (successfulUserLoginModel == null) {
       MyPrint.printOnConsole("Returning from CourseLaunchController().getCourseLaunchTokenId() because successfulUserLoginModel is null", tag: tag);
@@ -754,7 +754,7 @@ class CourseLaunchController {
   Future<String> getARContentUrl({required BuildContext context, required CourseDTOModel courseModel}) async {
     String url = "";
 
-    SuccessfulUserLoginModel? successfulUserLoginModel = authenticationProvider.getSuccessfulUserLoginModel();
+    NativeLoginDTOModel? successfulUserLoginModel = authenticationProvider.getEmailLoginResponseModel();
     if (successfulUserLoginModel == null) {
       return url;
     }

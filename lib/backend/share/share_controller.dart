@@ -1,4 +1,8 @@
+import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/backend/share/share_repository.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
+import 'package:flutter_instancy_2/models/gamification/response_model/content_game_activity_response_model.dart';
 import 'package:flutter_instancy_2/models/share/data_model/share_connection_user_model.dart';
 import 'package:flutter_instancy_2/models/share/request_model/share_with_people_request_model.dart';
 import 'package:flutter_instancy_2/models/share/response_model/share_connection_list_response_model.dart';
@@ -33,7 +37,7 @@ class ShareController {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("ShareController().shareWithPeople() called with contentId:'$contentId'", tag: tag);
 
-    DataResponseModel response = await shareRepository.shareWithPeople(
+    DataResponseModel<ContentGameActivityResponseModel> response = await shareRepository.shareWithPeople(
       peopleRequestModel: ShareWithPeopleRequestModel(
         userMails: userMails,
         subject: subject,
@@ -58,11 +62,13 @@ class ShareController {
     String contentId = "",
     String forumId = "",
     String questionId = "",
+    int scoId = 0,
+    int objecttypeId = 0,
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("ShareController().shareWithConnections() called with contentId:'$contentId'", tag: tag);
 
-    DataResponseModel response = await shareRepository.shareWithPeople(
+    DataResponseModel<ContentGameActivityResponseModel> response = await shareRepository.shareWithPeople(
       peopleRequestModel: ShareWithPeopleRequestModel(
         userIDList: userIDList,
         subject: subject,
@@ -77,7 +83,20 @@ class ShareController {
     );
     MyPrint.printOnConsole("ShareWithConnections Response Data:${response.data}", tag: tag);
 
-    return response.statusCode == 200;
+    bool isSuccess = response.statusCode == 200;
+
+    if (isSuccess) {
+      GamificationController(provider: null).UpdateContentGamification(
+        requestModel: UpdateContentGamificationRequestModel(
+          contentId: contentId,
+          scoId: scoId,
+          objecttypeId: objecttypeId,
+          GameAction: GamificationActionType.ShareContentWithConnection,
+        ),
+      );
+    }
+
+    return isSuccess;
   }
 
   Future<List<ShareConnectionUserModel>> getConnectionsList({
@@ -114,8 +133,7 @@ class ShareController {
     return connections;
   }
 
-  Future<List<ShareConnectionUserModel>> getRecommendToUserList(
-      {bool isRefresh = true, bool isGetFromCache = false, bool isNotify = true, String contentId = ""}) async {
+  Future<List<ShareConnectionUserModel>> getRecommendToUserList({bool isRefresh = true, bool isGetFromCache = false, bool isNotify = true, String contentId = ""}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("ShareController().getConnectionsList() called with isRefresh:'$isRefresh', isGetFromCache:$isGetFromCache", tag: tag);
 
@@ -189,13 +207,8 @@ class ShareController {
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("ShareController().insertRecommendedContent() called with contentId:'$contentId'", tag: tag);
-    ShareProvider provider = shareProvider;
-    DataResponseModel response = await shareRepository.insertRecommendedContent(
-      contentId: contentId,
-      componentId: componentId,
-      addToMyLearning: addtoMyLearning,
-      recommendedTo: recommendedTo
-    );
+    // ShareProvider provider = shareProvider;
+    DataResponseModel response = await shareRepository.insertRecommendedContent(contentId: contentId, componentId: componentId, addToMyLearning: addtoMyLearning, recommendedTo: recommendedTo);
     MyPrint.printOnConsole("ShareWithConnections Response Data:${response.data}", tag: tag);
 
     return response.statusCode == 200;
@@ -230,12 +243,7 @@ class ShareController {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("ShareController().sendMailToRecommendedUsers() called with contentId:'$contentId'", tag: tag);
 
-    DataResponseModel response = await shareRepository.sendRecommendedUserMail(
-      contentId: contentId,
-      selectedUser: selectedUser,
-      componentId: componentId,
-      contentName: contentName
-    );
+    DataResponseModel response = await shareRepository.sendRecommendedUserMail(contentId: contentId, selectedUser: selectedUser, componentId: componentId, contentName: contentName);
     MyPrint.printOnConsole("ShareWithConnections Response Data:${response.data}", tag: tag);
 
     return response.statusCode == 200;

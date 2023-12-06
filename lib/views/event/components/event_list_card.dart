@@ -263,13 +263,9 @@ class EventListCard extends StatelessWidget {
                 }
               },
               backGroundColor: themeData.primaryColor,
-              child: Text(
-                primaryAction.text,
-                style: themeData.textTheme.labelSmall?.copyWith(
-                  fontSize: 12,
-                  color: themeData.colorScheme.onPrimary,
-                ),
-              ),
+              text: primaryAction.text,
+              fontSize: 12,
+              fontColor: themeData.colorScheme.onPrimary,
             ),
           ),
           primaryAction.actionsEnum == InstancyContentActionsEnum.Buy

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/content_review_ratings/content_review_ratings_provider.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/common/pagination/pagination_model.dart';
 import 'package:flutter_instancy_2/models/content_review_ratings/request_model/add_delete_content_user_ratings_request_model.dart';
 import 'package:flutter_instancy_2/models/content_review_ratings/request_model/content_user_ratings_data_request_model.dart';
 import 'package:flutter_instancy_2/models/content_review_ratings/response_model/content_user_ratings_data_response_model.dart';
+import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 
 import '../../api/api_controller.dart';
 import '../../models/common/data_response_model.dart';
@@ -126,6 +128,8 @@ class ContentReviewRatingsController {
 
   Future<bool> addEditReview({
     required String contentId,
+    required int scoId,
+    required int objecttypeId,
     required String description,
     required int rating,
   }) async {
@@ -144,6 +148,15 @@ class ContentReviewRatingsController {
 
       if(responseModel.statusCode == 204) {
         isReviewAdded = true;
+
+        GamificationController(provider: null).UpdateContentGamification(
+          requestModel: UpdateContentGamificationRequestModel(
+            contentId: contentId,
+            scoId: scoId,
+            objecttypeId: objecttypeId,
+            GameAction: GamificationActionType.Rated,
+          ),
+        );
       }
     }
     catch (e, s) {
@@ -185,8 +198,9 @@ class ContentReviewRatingsController {
   Future<void> showAddEditDeleteReviewDialog({
     required BuildContext context,
     required String contentId,
+    required int scoId,
     ContentUserRatingModel? userLastReviewModel,
-    void Function({required String contentId, required String description, required int rating})? onAddEditReview,
+    void Function({required String contentId, required int scoId, required String description, required int rating})? onAddEditReview,
     void Function({required String contentId, required int userId})? onDeleteReview,
   }) async {
     dynamic value = await showModalBottomSheet(
@@ -208,6 +222,7 @@ class ContentReviewRatingsController {
       if(onAddEditReview != null) {
         onAddEditReview(
           contentId: contentId,
+          scoId: scoId,
           description: value.description,
           rating: value.ratingId,
         );

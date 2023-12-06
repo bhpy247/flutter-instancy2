@@ -7,6 +7,7 @@ import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/app_ststem_configurations.dart';
+import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:intl/intl.dart';
@@ -14,7 +15,6 @@ import 'package:open_file_plus/open_file_plus.dart';
 
 import '../../configs/app_constants.dart';
 import '../../models/app_configuration_models/data_models/tincan_data_model.dart';
-import '../../models/authentication/data_model/successful_user_login_model.dart';
 import '../../models/course_launch/data_model/course_launch_model.dart';
 
 class GotoCourseLaunchContentisolation {
@@ -23,7 +23,7 @@ class GotoCourseLaunchContentisolation {
   final AppSystemConfigurationModel appSystemConfigurationModel;
   final TinCanDataModel tinCanDataModel;
   final ApiUrlConfigurationProvider apiUrlConfigurationProvider;
-  final SuccessfulUserLoginModel successfulUserLoginModel;
+  final NativeLoginDTOModel successfulUserLoginModel;
 
   String urlForView = "";
 
@@ -33,7 +33,7 @@ class GotoCourseLaunchContentisolation {
     required AppSystemConfigurationModel appSystemConfigurationModel,
     required TinCanDataModel tinCanDataModel,
     required ApiUrlConfigurationProvider apiUrlConfigurationProvider,
-    required SuccessfulUserLoginModel successfulUserLoginModel,
+    required NativeLoginDTOModel successfulUserLoginModel,
   }) {
     return GotoCourseLaunchContentisolation._internal(
       context: context,
@@ -109,11 +109,12 @@ class GotoCourseLaunchContentisolation {
     String authPassword = tinCanDataModel.lrsauthorizationpassword;
     String base64lrsAuthKey = "$authKey:$authPassword";
     String lrsEndPoint = tinCanDataModel.lrsendpoint;
-    String lrsActor = "${"{\"name\":[\"$userName\"],\"account\":[{\"accountServiceHomePage\":\"" + apiUrlConfigurationProvider.getCurrentSiteUrl()}\",\"accountName\":\"$password|$strUserID\"}],\"objectType\":\"Agent\"}&activity_id=$activityid&grouping=$activityid";
+    String lrsActor =
+        "${"{\"name\":[\"$userName\"],\"account\":[{\"accountServiceHomePage\":\"${apiUrlConfigurationProvider.getCurrentSiteUrl()}"}\",\"accountName\":\"$password|$strUserID\"}],\"objectType\":\"Agent\"}&activity_id=$activityid&grouping=$activityid";
     String lrsAuthorizationKey = "";
     String autKey = base64lrsAuthKey;
 
-    Uint8List encrpt = utf8.encode(autKey) as Uint8List;
+    Uint8List encrpt = utf8.encode(autKey);
     String base64 = base64Encode(encrpt);
     lrsAuthorizationKey = "Basic%20$base64";
 

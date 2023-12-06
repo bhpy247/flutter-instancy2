@@ -5,7 +5,7 @@ import 'package:flutter_instancy_2/backend/configurations/app_configuration_oper
 import 'package:flutter_instancy_2/backend/profile/profile_controller.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
-import 'package:flutter_instancy_2/models/authentication/data_model/successful_user_login_model.dart';
+import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/data_field_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_profile_details_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
@@ -113,17 +113,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
     if (futures.isNotEmpty) await Future.wait(futures);
   }
 
-  Future<void> setImageInProfileProvider(ProfileProvider profileProvider) async {
+  void setImageInProfileProvider(ProfileProvider profileProvider) {
     UserProfileDetailsModel? userProfileDetailsModel = profileProvider.userProfileDetails.getList(isNewInstance: false).firstElement;
 
     if (userProfileDetailsModel != null) {
       AuthenticationProvider authenticationProvider = Provider.of<AuthenticationProvider>(context, listen: false);
-      SuccessfulUserLoginModel? successfulUserLoginModel = authenticationProvider.getSuccessfulUserLoginModel();
+      NativeLoginDTOModel? successfulUserLoginModel = authenticationProvider.getEmailLoginResponseModel();
       if (successfulUserLoginModel != null) {
         successfulUserLoginModel.image = "${ApiController().apiDataProvider.getCurrentBaseApiUrl().replaceAll("/api/", "")}${userProfileDetailsModel.picture}";
       }
       MyPrint.printOnConsole('successfulUserLoginModel.img : ${successfulUserLoginModel?.image}');
-      authenticationProvider.setSuccessfulUserLoginModel(successfulUserLoginModel: successfulUserLoginModel);
+      authenticationProvider.setEmailLoginResponseModel(emailLoginResponseModel: successfulUserLoginModel);
     }
   }
 
@@ -459,7 +459,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
         isLoading = true;
         mySetState();
         AuthenticationProvider authenticationProvider = Provider.of<AuthenticationProvider>(context, listen: false);
-        SuccessfulUserLoginModel? successfulUserLoginModel = authenticationProvider.getSuccessfulUserLoginModel();
+        NativeLoginDTOModel? successfulUserLoginModel = authenticationProvider.getEmailLoginResponseModel();
         if (successfulUserLoginModel != null) {
           String userName = successfulUserLoginModel.username;
           for (var element in list) {
@@ -476,7 +476,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
           }
           successfulUserLoginModel.username = userName;
         }
-        authenticationProvider.setSuccessfulUserLoginModel(successfulUserLoginModel: successfulUserLoginModel);
+        authenticationProvider.setEmailLoginResponseModel(emailLoginResponseModel: successfulUserLoginModel);
         bool isUpdated = await profileController.updateProfileDetails(list);
 
         isLoading = false;

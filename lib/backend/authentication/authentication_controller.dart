@@ -9,6 +9,7 @@ import 'package:flutter_instancy_2/backend/content_review_ratings/content_review
 import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/home/home_provider.dart';
 import 'package:flutter_instancy_2/backend/in_app_purchase/in_app_purchase_provider.dart';
@@ -23,7 +24,7 @@ import 'package:flutter_instancy_2/backend/share/share_provider.dart';
 import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/currency_model.dart';
-import 'package:flutter_instancy_2/models/authentication/data_model/successful_user_login_model.dart';
+import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/user_sign_up_details_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/forgot_password_response_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/mobile_create_sign_up_response_model.dart';
@@ -44,7 +45,6 @@ import '../../hive/hive_operation_controller.dart';
 import '../../models/authentication/data_model/profile_config_data_model.dart';
 import '../../models/authentication/data_model/profile_config_data_ui_control_model.dart';
 import '../../models/authentication/request_model/email_login_request_model.dart';
-import '../../models/authentication/response_model/email_login_response_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/in_app_purchase/request_model/ecommerce_process_payment_request_model.dart';
 import '../../models/membership/data_model/membership_plan_details_model.dart';
@@ -71,20 +71,73 @@ class AuthenticationController {
 
     bool isLoggedIn = false;
 
-    EmailLoginResponseModel? emailLoginResponseModel = await authenticationHiveRepository.getLoggedInUserData();
-    SuccessfulUserLoginModel? successfulUserLoginModel = emailLoginResponseModel?.successFullUserLogin.firstElement;
-    MyPrint.printOnConsole("successfulUserLoginModel:$successfulUserLoginModel", tag: tag);
+    NativeLoginDTOModel? emailLoginResponseModel = await authenticationHiveRepository.getLoggedInUserData();
+    MyPrint.printOnConsole("successfulUserLoginModel:$emailLoginResponseModel", tag: tag);
 
-    isLoggedIn = successfulUserLoginModel != null;
+    isLoggedIn = emailLoginResponseModel != null;
     MyPrint.printOnConsole("isLoggedIn:$isLoggedIn", tag: tag);
 
-    authenticationProvider.setSuccessfulUserLoginModel(successfulUserLoginModel: successfulUserLoginModel);
-    _initializeUserDataInApiControllerFromSuccessfulUserLoginModel(successfulUserLoginModel: successfulUserLoginModel);
+    authenticationProvider.setEmailLoginResponseModel(emailLoginResponseModel: emailLoginResponseModel);
+    _initializeUserDataInApiControllerFromNativeLoginDTOModel(nativeLoginDTOModel: emailLoginResponseModel);
 
     return isLoggedIn;
   }
 
   Future<bool> loginWithEmailEnaPassword({
+    required String username,
+    required String password,
+    String downloadContent = "",
+    bool isFromSignup = false,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("AuthenticationController().loginWithEmailEnaPassword() called with username:'$username', password:'$password'", tag: tag);
+
+    bool isUserLoggedId = false;
+    // EmailLoginResponseModel? emailLoginResponseModel;
+
+    try {
+      ApiUrlConfigurationProvider apiUrlConfigurationProvider = authenticationRepository.apiController.apiDataProvider;
+
+      EmailLoginRequestModel login = EmailLoginRequestModel(
+        userName: username,
+        password: password,
+        mobileSiteUrl: apiUrlConfigurationProvider.getCurrentSiteUrl(),
+        downloadContent: downloadContent,
+        siteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+        isFromSignUp: isFromSignup,
+      );
+
+      DataResponseModel<NativeLoginDTOModel> responseModel = await authenticationRepository.loginWithEmailAndPassword(login: login);
+
+      NativeLoginDTOModel? emailLoginResponseModel = responseModel.data;
+
+      isUserLoggedId = emailLoginResponseModel != null && emailLoginResponseModel.userid > 0 && emailLoginResponseModel.userstatus == "Active";
+
+      if (isUserLoggedId) {
+        emailLoginResponseModel.email = username;
+        emailLoginResponseModel.password = password;
+        MyPrint.printOnConsole("emailLoginResponseModel:$emailLoginResponseModel", tag: tag);
+        emailLoginResponseModel.image = emailLoginResponseModel.image.isNotEmpty && !emailLoginResponseModel.image.startsWith("http://") && !emailLoginResponseModel.image.startsWith("https://")
+            ? '${apiUrlConfigurationProvider.getCurrentSiteUrl()}/Content/SiteFiles/374/ProfileImages/${emailLoginResponseModel.image}'
+            : emailLoginResponseModel.image;
+      } else {
+        emailLoginResponseModel = null;
+      }
+
+      authenticationProvider.setEmailLoginResponseModel(emailLoginResponseModel: emailLoginResponseModel);
+      _initializeUserDataInApiControllerFromNativeLoginDTOModel(nativeLoginDTOModel: emailLoginResponseModel);
+      authenticationHiveRepository.saveLoggedInUserDataInHive(responseModel: emailLoginResponseModel);
+
+      if (emailLoginResponseModel?.GameActivities.isNotEmpty ?? false) GamificationController(provider: null).showGamificationEarnedPopup(GameActivities: emailLoginResponseModel!.GameActivities);
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in AuthenticationController().loginWithEmailEnaPassword():$e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+    }
+
+    return isUserLoggedId;
+  }
+
+  /*Future<bool> loginWithEmailEnaPassword({
     required String username,
     required String password,
     String downloadContent = "",
@@ -121,14 +174,14 @@ class AuthenticationController {
       authenticationProvider.setSuccessfulUserLoginModel(successfulUserLoginModel: successfulUserLoginModel);
       _initializeUserDataInApiControllerFromSuccessfulUserLoginModel(successfulUserLoginModel: successfulUserLoginModel);
 
-      authenticationHiveRepository.setLoggedInUserData(responseModel: emailLoginResponseModel);
+      authenticationHiveRepository.saveLoggedInUserDataInHive(responseModel: emailLoginResponseModel);
     } catch (e, s) {
       MyPrint.printOnConsole("Error in AuthenticationController().loginWithEmailEnaPassword():$e");
       MyPrint.printOnConsole(s);
     }
 
     return isUserLoggedId;
-  }
+  }*/
 
   Future<bool> forgotPassword({required String email}) async {
     bool isMailSent = false;
@@ -169,8 +222,8 @@ class AuthenticationController {
   Future<bool> logout() async {
     bool isLoggedOut = false;
 
-    authenticationHiveRepository.setLoggedInUserData(responseModel: null);
-    authenticationProvider.setSuccessfulUserLoginModel(successfulUserLoginModel: null);
+    authenticationHiveRepository.saveLoggedInUserDataInHive(responseModel: null);
+    authenticationProvider.setEmailLoginResponseModel(emailLoginResponseModel: null);
 
     BuildContext context = NavigationController.mainNavigatorKey.currentContext!;
     context.read<MainScreenProvider>().resetData(
@@ -198,12 +251,12 @@ class AuthenticationController {
     return isLoggedOut;
   }
 
-  void _initializeUserDataInApiControllerFromSuccessfulUserLoginModel({required SuccessfulUserLoginModel? successfulUserLoginModel}) {
+  void _initializeUserDataInApiControllerFromNativeLoginDTOModel({required NativeLoginDTOModel? nativeLoginDTOModel}) {
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = ApiController().apiDataProvider;
 
-    if (successfulUserLoginModel != null) {
-      apiUrlConfigurationProvider.setCurrentUserId(successfulUserLoginModel.userid);
-      apiUrlConfigurationProvider.setAuthToken(successfulUserLoginModel.jwttoken);
+    if (nativeLoginDTOModel != null) {
+      apiUrlConfigurationProvider.setCurrentUserId(nativeLoginDTOModel.userid);
+      apiUrlConfigurationProvider.setAuthToken(nativeLoginDTOModel.jwttoken);
     } else {
       apiUrlConfigurationProvider.setCurrentUserId(-1);
       apiUrlConfigurationProvider.setAuthToken("");

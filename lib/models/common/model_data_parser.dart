@@ -2,6 +2,7 @@ import 'package:flutter_chat_bot/models/authorization/response_model/bot_details
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_model.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/response_model/currency_data_response_model.dart';
+import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/forgot_password_response_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/signup_field_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/associated_content_response_model.dart';
@@ -14,8 +15,10 @@ import 'package:flutter_instancy_2/models/discussion/data_model/topic_comment_mo
 import 'package:flutter_instancy_2/models/event/response_model/re_entrollment_history_response_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_dto_model.dart';
 import 'package:flutter_instancy_2/models/gamification/data_model/games_dto_model.dart';
+import 'package:flutter_instancy_2/models/gamification/response_model/content_game_activity_response_model.dart';
 import 'package:flutter_instancy_2/models/gamification/response_model/leader_board_dto_model.dart';
 import 'package:flutter_instancy_2/models/gamification/response_model/user_achievement_dto_model.dart';
+import 'package:flutter_instancy_2/models/home/data_model/web_list_data_dto.dart';
 import 'package:flutter_instancy_2/models/home/response_model/categorywise_course_dto_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/response_model/page_notes_response_model.dart';
 import 'package:flutter_instancy_2/models/waitlist/response_model/add_to_waitList_response_model.dart';
@@ -62,7 +65,6 @@ import '../filter/response_model/filter_duration_values_response_model.dart';
 import '../filter/response_model/instructor_list_filter_response_model.dart';
 import '../filter/response_model/learning_provider_filter_response_model.dart';
 import '../home/data_model/new_course_list_dto.dart';
-import '../home/response_model/banner_web_list_model.dart';
 import '../home/response_model/static_web_page_podel.dart';
 import '../in_app_purchase/response_model/ecommerce_order_response_model.dart';
 import '../in_app_purchase/response_model/ecommerce_process_payment_response_model.dart';
@@ -103,6 +105,7 @@ enum ModelDataParsingType {
 
   //region Authentication Module
   emailLoginResponseModel,
+  NativeLoginDTOModel,
   successfulUserLoginModel,
   MobileCreateSignUpResponseModel,
   //endregion
@@ -260,6 +263,7 @@ enum ModelDataParsingType {
   GamesDTOModelList,
   UserAchievementDTOModel,
   LeaderBoardDTOModel,
+  ContentGameActivityResponseModel,
   //endregion
 
   //region MyProgressRepor
@@ -288,6 +292,7 @@ class ModelDataParser {
 
     //region Authentication Module
     ModelDataParsingType.emailLoginResponseModel: parseEmailLoginResponseModel,
+    ModelDataParsingType.NativeLoginDTOModel: parseNativeLoginDTOModel,
     ModelDataParsingType.successfulUserLoginModel: parseSuccessfulUserLoginModel,
     ModelDataParsingType.MobileCreateSignUpResponseModel: parseMobileCreateSignUpResponseModel,
     //endregion
@@ -444,6 +449,7 @@ class ModelDataParser {
     ModelDataParsingType.GamesDTOModelList: parseGamesDTOModelList,
     ModelDataParsingType.UserAchievementDTOModel: parseUserAchievementDTOModel,
     ModelDataParsingType.LeaderBoardDTOModel: parseLeaderBoardDTOModel,
+    ModelDataParsingType.ContentGameActivityResponseModel: parseContentGameActivityResponseModel,
     //endregion
 
     //region My progress Report
@@ -553,6 +559,16 @@ class ModelDataParser {
     }
   }
 
+  static NativeLoginDTOModel? parseNativeLoginDTOModel({required dynamic decodedValue}) {
+    Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
+
+    if (map.isNotEmpty) {
+      return NativeLoginDTOModel.fromMap(map);
+    } else {
+      return null;
+    }
+  }
+
   static SuccessfulUserLoginModel? parseSuccessfulUserLoginModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
@@ -592,10 +608,19 @@ class ModelDataParser {
     return mapsList.map((e) => NewCourseListDTOModel.fromJson(e)).toList();
   }
 
-  static List<WebListDTO> parseWebListList({required dynamic decodedValue}) {
-    List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+  // static List<WebListDTO> parseWebListList({required dynamic decodedValue}) {
+  //   List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+  //
+  //   return mapsList.map((e) => WebListDTO.fromJson(e)).toList();
+  // }
+  static WebListDataDTO? parseWebListList({required dynamic decodedValue}) {
+    Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
-    return mapsList.map((e) => WebListDTO.fromJson(e)).toList();
+    if (map.isNotEmpty) {
+      return WebListDataDTO.fromJson(map);
+    } else {
+      return null;
+    }
   }
 
   static StaticWebPageModel? parseStaticWebPageModel({required dynamic decodedValue}) {
@@ -1278,6 +1303,16 @@ class ModelDataParser {
 
     if (json.isNotEmpty) {
       return LeaderBoardDTOModel.fromMap(json);
+    } else {
+      return null;
+    }
+  }
+
+  static ContentGameActivityResponseModel? parseContentGameActivityResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return ContentGameActivityResponseModel.fromMap(json);
     } else {
       return null;
     }

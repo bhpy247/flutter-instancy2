@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import '../../../backend/progress_report/progress_report_controller.dart';
 import '../../../backend/progress_report/progress_report_provider.dart';
+import '../../../configs/app_configurations.dart';
 import '../../../models/progress_report/data_model/consolidated_group_dto.dart';
 import '../../../models/progress_report/request_model/my_progress_report_request_model.dart';
 import '../../common/components/common_loader.dart';
@@ -59,6 +60,10 @@ class _ContentTabScreenState extends State<ContentTabScreen> with MySafeState {
         builder: (context, ProgressReportProvider progressReportProvider, _) {
           if (progressReportProvider.isLoadingMyProgressReportData.get()) {
             return const CommonLoader();
+          } else if (progressReportProvider.consolidatedGroupDTO.get() == null) {
+            return Center(
+              child: AppConfigurations.commonNoDataView(),
+            );
           }
           ConsolidatedGroupDTO? consolidatedGroupDTO = progressReportProvider.consolidatedGroupDTO.get();
           List<ParentDataDto> parentDataDtoList = consolidatedGroupDTO?.parentData ?? [];

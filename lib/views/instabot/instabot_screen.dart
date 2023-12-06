@@ -3,7 +3,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/instabot/instabot_provider.dart';
-import 'package:flutter_instancy_2/models/authentication/data_model/successful_user_login_model.dart';
+import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:provider/provider.dart';
 
@@ -39,8 +39,8 @@ class _InstaBotScreenState extends State<InstaBotScreen> {
     instabotController = InstabotController(provider: context.read<InstaBotProvider>());
 
     AuthenticationProvider authenticationProvider = context.read<AuthenticationProvider>();
-    SuccessfulUserLoginModel? successfulUserLoginModel = authenticationProvider.getSuccessfulUserLoginModel();
-    if(successfulUserLoginModel != null) {
+    NativeLoginDTOModel? successfulUserLoginModel = authenticationProvider.getEmailLoginResponseModel();
+    if (successfulUserLoginModel != null) {
       getInstabotUrlFuture = instabotController.getInstabotUrl(
         appProvider: appProvider,
         successfulUserLoginModel: successfulUserLoginModel,

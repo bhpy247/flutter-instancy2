@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/models/gamification/data_model/user_badges_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
@@ -19,6 +20,10 @@ class BadgesTabScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (badgesData.isEmpty) {
+      return AppConfigurations.commonNoDataView();
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 10),
       itemCount: badgesData.length,

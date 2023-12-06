@@ -12,6 +12,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../backend/progress_report/progress_report_controller.dart';
 import '../../../backend/progress_report/progress_report_provider.dart';
+import '../../../configs/app_configurations.dart';
 import '../../../configs/ui_configurations.dart';
 import '../../../models/progress_report/data_model/credit_dto.dart';
 import '../../../models/progress_report/data_model/status_count_dto.dart';
@@ -59,9 +60,14 @@ class _SummaryTabScreenState extends State<SummaryTabScreen> {
         if (progressReportProvider.isLoadingMyProgressReportData.get()) {
           return const CommonLoader();
         }
-        List<StatusCountDTO> statusCountDTOs = consolidatedGroupDTO?.statusCountData ?? [];
-        List<ScoreMaxDTO> scoreMaxDTOs = consolidatedGroupDTO?.scoreMaxCount ?? [];
-        List<ContentCountDTO> contentCountDTOs = consolidatedGroupDTO?.contentCountData ?? [];
+        if (consolidatedGroupDTO == null) {
+          return Center(
+            child: AppConfigurations.commonNoDataView(),
+          );
+        }
+        List<StatusCountDTO> statusCountDTOs = consolidatedGroupDTO.statusCountData;
+        List<ScoreMaxDTO> scoreMaxDTOs = consolidatedGroupDTO.scoreMaxCount;
+        List<ContentCountDTO> contentCountDTOs = consolidatedGroupDTO.contentCountData;
         return ModalProgressHUD(
           inAsyncCall: progressReportProvider.isLoadingMyProgressReportData.get(),
           child: Scaffold(
@@ -82,10 +88,6 @@ class _SummaryTabScreenState extends State<SummaryTabScreen> {
                   title: "Content Type",
                   seriesList: _getContentTypeDoughnutSeries(contentCountDto: contentCountDTOs),
                 ),
-                // _buildDefaultDoughnutChart(
-                //   title: "Content Type",
-                //   seriesList: _getDefaultDoughnutSeries(),
-                // ),
               ],
             ),
           )),
@@ -125,28 +127,6 @@ class _SummaryTabScreenState extends State<SummaryTabScreen> {
     );
   }
 
-  /// Returns the doughnut series which need to be render.
-  List<DoughnutSeries<ChartSampleData, String>> _getDefaultDoughnutSeries() {
-    return <DoughnutSeries<ChartSampleData, String>>[
-      DoughnutSeries<ChartSampleData, String>(
-          radius: '110%',
-          explode: true,
-          explodeOffset: '10%',
-          dataSource: <ChartSampleData>[
-            ChartSampleData(x: 'Chlorine', y: 55, text: '55%'),
-            ChartSampleData(x: 'Sodium', y: 31, text: '31%'),
-            ChartSampleData(x: 'Magnesium', y: 7.7, text: '7.7%'),
-            ChartSampleData(x: 'Sulfur', y: 3.7, text: '3.7%'),
-            ChartSampleData(x: 'Calcium', y: 1.2, text: '1.2%'),
-            ChartSampleData(x: 'Others', y: 1.4, text: '1.4%'),
-            ChartSampleData(x: 'Others', y: 1.4, text: '1.4%'),
-          ],
-          xValueMapper: (ChartSampleData data, _) => data.x as String,
-          yValueMapper: (ChartSampleData data, _) => data.y,
-          dataLabelMapper: (ChartSampleData data, _) => data.text,
-          dataLabelSettings: const DataLabelSettings(isVisible: true))
-    ];
-  }
 
   List<DoughnutSeries<ChartSampleData, String>> _getStatusDoughnutSeries({required List<StatusCountDTO> statusCountDto}) {
     return <DoughnutSeries<ChartSampleData, String>>[
@@ -165,7 +145,7 @@ class _SummaryTabScreenState extends State<SummaryTabScreen> {
   List<DoughnutSeries<ChartSampleData, String>> _getContentTypeDoughnutSeries({required List<ContentCountDTO> contentCountDto}) {
     return <DoughnutSeries<ChartSampleData, String>>[
       DoughnutSeries<ChartSampleData, String>(
-          // radius: '50%',
+        // radius: '50%',
           explode: true,
           explodeOffset: '10%',
           legendIconType: LegendIconType.circle,

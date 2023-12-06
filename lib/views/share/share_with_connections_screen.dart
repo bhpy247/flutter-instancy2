@@ -337,6 +337,8 @@ class _ShareWithConnectionsScreenState extends State<ShareWithConnectionsScreen>
                     forumId: widget.arguments.forumId,
                     isSuggestToConnections: true,
                     userIds: shareProvider.selectedConnectionsList.getList(),
+                    scoId: widget.arguments.scoId,
+                    objecttypeId: widget.arguments.objecttypeId,
                   ),
                 );
               },

@@ -329,9 +329,9 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
               isLoading = true;
               mySetState();
 
-              await discussionController.showTopicLikedUserList(
+              await discussionController.showCommentLikedUserList(
                 context: context,
-                topicModel: topicModel,
+                topicCommentModel: commentModel,
               );
 
               isLoading = false;

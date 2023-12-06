@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/models/gamification/data_model/users_leader_board_dto_model.dart';
 import 'package:flutter_instancy_2/models/gamification/response_model/leader_board_dto_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
@@ -29,8 +31,8 @@ class LeadersTabScreen extends StatelessWidget {
         height: 200,
         child: CommonLoader(),
       );
-    } else if (leaderBoardDTOModel == null) {
-      return const SizedBox();
+    } else if ((leaderBoardDTOModel?.LeaderBoardList).checkEmpty) {
+      return AppConfigurations.commonNoDataView();
     }
 
     return Column(

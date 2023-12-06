@@ -518,6 +518,8 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
             contentId: model.ContentID,
             contentName: model.ContentName,
             shareProvider: context.read<ShareProvider>(),
+            scoId: model.ScoID,
+            objecttypeId: model.ContentTypeId,
           ),
         );
       },
@@ -533,6 +535,8 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
             shareContentType: ShareContentType.catalogCourse,
             contentId: model.ContentID,
             contentName: model.ContentName,
+            scoId: model.ScoID,
+            objecttypeId: model.ContentTypeId,
           ),
         );
       },
@@ -628,6 +632,8 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         MultiInstanceEventEnroll: "",
         ComponentID: componentId,
         ComponentInsID: componentInsId,
+        scoId: model.ScoID,
+        objecttypeId: model.ContentTypeId,
       ),
       context: context,
       onPrerequisiteDialogShowEnd: () {

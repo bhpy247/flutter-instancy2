@@ -4,6 +4,8 @@ import 'package:flutter_instancy_2/api/api_endpoints.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/api/rest_client.dart';
 import 'package:flutter_instancy_2/models/common/model_data_parser.dart';
+import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
+import 'package:flutter_instancy_2/models/gamification/response_model/content_game_activity_response_model.dart';
 import 'package:flutter_instancy_2/models/gamification/response_model/leader_board_dto_model.dart';
 import 'package:flutter_instancy_2/models/gamification/response_model/user_achievement_dto_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
@@ -87,6 +89,30 @@ class GamificationRepository {
     );
 
     DataResponseModel<LeaderBoardDTOModel> apiResponseModel = await apiController.callApi<LeaderBoardDTOModel>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<ContentGameActivityResponseModel>> UpdateContentGamification({
+    required UpdateContentGamificationRequestModel requestModel,
+  }) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+
+    requestModel.userId = apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.siteId = apiUrlConfigurationProvider.getCurrentSiteId();
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      url: apiEndpoints.UpdateContentGamification(),
+      restCallType: RestCallType.simpleGetCall,
+      queryParameters: requestModel.toMap(),
+      parsingType: ModelDataParsingType.ContentGameActivityResponseModel,
+    );
+
+    DataResponseModel<ContentGameActivityResponseModel> apiResponseModel = await apiController.callApi<ContentGameActivityResponseModel>(
       apiCallModel: apiCallModel,
     );
 

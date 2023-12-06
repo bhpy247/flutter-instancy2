@@ -23,10 +23,10 @@ import '../../backend/event_track/event_track_provider.dart';
 import '../../backend/home/home_provider.dart';
 import '../../backend/in_app_purchase/in_app_purchase_provider.dart';
 import '../../backend/instabot/instabot_provider.dart';
-import '../../backend/navigation/navigation_controller.dart';
 import '../../backend/profile/profile_provider.dart';
 import '../../backend/progress_report/progress_report_provider.dart';
 import '../../backend/wiki_component/wiki_provider.dart';
+import 'main_navigator_screen.dart';
 
 class MyApp extends StatefulWidget {
   final String mainSiteUrl, appAuthURL, splashScreenLogo;
@@ -110,11 +110,10 @@ class _MainAppState extends State<MainApp> {
         // MyPrint.printOnConsole("appThemeProvider:${appThemeProvider.darkThemeMode}");
         return OverlaySupport.global(
           child: MaterialApp(
-            navigatorKey: NavigationController.mainNavigatorKey,
+            home: const MainNavigatorScreen(),
             debugShowCheckedModeBanner: false,
             title: 'Instancy',
             theme: appThemeProvider.getThemeData(),
-            onGenerateRoute: NavigationController.onMainGeneratedRoutes,
             localizationsDelegates: const [
               /*AppTranslationsDelegate(
                   newLocale:

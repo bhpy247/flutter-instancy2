@@ -1,5 +1,5 @@
 import 'package:flutter_instancy_2/api/api_call_model.dart';
-import 'package:flutter_instancy_2/models/authentication/response_model/email_login_response_model.dart';
+import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/forgot_password_response_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/mobile_create_sign_up_response_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/signup_field_response_model.dart';
@@ -21,41 +21,47 @@ class AuthenticationRepository {
 
   const AuthenticationRepository({required this.apiController});
 
-  Future<DataResponseModel<EmailLoginResponseModel>> loginWithEmailAndPassword({required EmailLoginRequestModel login}) async {
-    try {
-      print('login req $login');
+  Future<DataResponseModel<NativeLoginDTOModel>> loginWithEmailAndPassword({required EmailLoginRequestModel login}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
-      ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
 
-      MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.NativeLoginDTOModel,
+      url: apiEndpoints.apiPostLoginDetails(),
+      requestBody: MyUtils.encodeJson(login.toJson()),
+      isAuthenticatedApiCall: false,
+    );
 
-      ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
-        restCallType: RestCallType.simplePostCall,
-        parsingType: ModelDataParsingType.emailLoginResponseModel,
-        url: apiEndpoints.apiPostLoginDetails(),
-        requestBody: MyUtils.encodeJson(login.toJson()),
-        isAuthenticatedApiCall: false,
-      );
+    DataResponseModel<NativeLoginDTOModel> apiResponseModel = await apiController.callApi<NativeLoginDTOModel>(
+      apiCallModel: apiCallModel,
+    );
 
-      DataResponseModel<EmailLoginResponseModel> apiResponseModel = await apiController.callApi<EmailLoginResponseModel>(
-        apiCallModel: apiCallModel,
-      );
-
-      return apiResponseModel;
-    }
-    catch (e, s) {
-      MyPrint.printOnConsole("Error in AuthenticationRepository.loginWithEmailAndPassword():$e");
-      MyPrint.printOnConsole(s);
-      return DataResponseModel<EmailLoginResponseModel>(
-        appErrorModel: AppErrorModel(
-          exception: e as Exception,
-          stackTrace: s,
-        ),
-      );
-    }
+    return apiResponseModel;
   }
 
-  Future<DataResponseModel<ForgotPasswordResponseModel>> getForgotPasswordStatus({required  String email}) async {
+  /*Future<DataResponseModel<EmailLoginResponseModel>> loginWithEmailAndPassword({required EmailLoginRequestModel login}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.emailLoginResponseModel,
+      url: apiEndpoints.apiPostLoginDetails(),
+      requestBody: MyUtils.encodeJson(login.toJson()),
+      isAuthenticatedApiCall: false,
+    );
+
+    DataResponseModel<EmailLoginResponseModel> apiResponseModel = await apiController.callApi<EmailLoginResponseModel>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }*/
+
+  Future<DataResponseModel<ForgotPasswordResponseModel>> getForgotPasswordStatus({required String email}) async {
     try {
       print('email req $email');
 

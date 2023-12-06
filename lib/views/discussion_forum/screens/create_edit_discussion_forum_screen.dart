@@ -281,13 +281,9 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
         child: Column(
           children: [
             getCommonTextFormField(controller: titleTextEditingController, hintext: "Title", prefixIconData: FontAwesomeIcons.fileLines),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             getCommonTextFormField(controller: descriptionTextEditingController, hintext: "Description", prefixIconData: FontAwesomeIcons.fileLines),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             InkWell(
               onTap: () async {
                 fileName = await openFileExplorer(FileType.image, false);
@@ -297,9 +293,7 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
               child: getCommonTextFormField(enable: false, hintext: "Upload file", prefixIconData: FontAwesomeIcons.arrowUpFromBracket, suffix: Icons.add, controller: uploadFileTextEditingController),
             ),
             // getCommonTextFormField(hintext: "Upload file", prefixIconData: FontAwesomeIcons.arrowUpFromBracket, suffix: Icons.add),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             InkWell(
                 onTap: () {
                   showModeratorList();
@@ -316,18 +310,12 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
             //     suffix: Icons.add,
             //   ),
             // ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             getSettingSectionWidget(),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             getPrivacyPolicyWidget(),
-            const SizedBox(
-              height: 40,
-            ),
-            getCreateDiscussionButton()
+            const SizedBox(height: 40),
+            getCreateDiscussionButton(),
           ],
         ),
       ),
@@ -421,7 +409,7 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
       text: widget.arguments.isEdit ? "Edit Discussion" : "Create Discussion",
       fontColor: Colors.white,
       fontSize: 16,
-      padding: const EdgeInsets.symmetric(vertical: 15),
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
     );
   }
 

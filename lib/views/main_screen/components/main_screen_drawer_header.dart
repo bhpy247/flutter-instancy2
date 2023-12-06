@@ -31,8 +31,8 @@ class _MainScreenDrawerHeaderWidgetState extends State<MainScreenDrawerHeaderWid
   Future<void> getUserDetails() async {
     AuthenticationProvider authenticationProvider = Provider.of<AuthenticationProvider>(context, listen: false);
 
-    String name = authenticationProvider.getSuccessfulUserLoginModel()?.username ?? "";
-    String imageurl = authenticationProvider.getSuccessfulUserLoginModel()?.image ?? "";
+    String name = authenticationProvider.getEmailLoginResponseModel()?.username ?? "";
+    String imageurl = authenticationProvider.getEmailLoginResponseModel()?.image ?? "";
     MyPrint.printOnConsole("name:$name");
     MyPrint.printOnConsole("imageurl:$imageurl");
 
@@ -62,6 +62,7 @@ class _MainScreenDrawerHeaderWidgetState extends State<MainScreenDrawerHeaderWid
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
 
+    MyPrint.printOnConsole("userimageUrl:$userimageUrl");
     String userImageUrlInDrawerHeader = MyUtils.getSecureUrl(userimageUrl.isEmpty ? imgUrl : userimageUrl);
     MyPrint.printOnConsole("userImageUrlInDrawerHeader:$userImageUrlInDrawerHeader");
 

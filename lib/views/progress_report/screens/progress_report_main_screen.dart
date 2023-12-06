@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/progress_report/progress_report_controller.dart';
 import 'package:flutter_instancy_2/backend/progress_report/progress_report_provider.dart';
+import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/progress_report/components/content_tab_screen.dart';
 import 'package:flutter_instancy_2/views/progress_report/components/summary_tab_screen.dart';
 import 'package:provider/provider.dart';
@@ -18,19 +19,19 @@ class ProgressReportMainScreen extends StatefulWidget {
   State<ProgressReportMainScreen> createState() => _ProgressReportMainScreenState();
 }
 
-class _ProgressReportMainScreenState extends State<ProgressReportMainScreen> with SingleTickerProviderStateMixin {
+class _ProgressReportMainScreenState extends State<ProgressReportMainScreen> with SingleTickerProviderStateMixin, MySafeState {
   TabController? controller;
-  late ThemeData themeData;
 
   late ProgressReportController progressReportController;
   late ProgressReportProvider progressReportProvider;
 
-  void getData() async {
+  void getData({bool isNotify = true}) async {
     await progressReportController.getMyProgressReportData(
       requestModel: MyProgressReportRequestModel(
         aintComponentID: widget.arguments.componentId,
         aintCompInsID: widget.arguments.componentInsId,
       ),
+      isNotify: isNotify,
     );
   }
 
@@ -40,12 +41,15 @@ class _ProgressReportMainScreenState extends State<ProgressReportMainScreen> wit
     progressReportProvider = context.read<ProgressReportProvider>();
     progressReportController = ProgressReportController(progressReportProvider: progressReportProvider);
     controller = TabController(vsync: this, length: 2);
-    getData();
+    if (progressReportProvider.consolidatedGroupDTO.get() == null) {
+      getData(isNotify: false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    themeData = Theme.of(context);
+    super.pageBuild();
+
     return Scaffold(
       appBar: AppBar(
         bottom: PreferredSize(

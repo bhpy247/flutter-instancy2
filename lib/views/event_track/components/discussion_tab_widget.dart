@@ -304,10 +304,9 @@ class _DiscussionTabWidgetState extends State<DiscussionTabWidget> {
       minWidth: 70,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       height: 30,
-      child: Text(
-        "Add Topic",
-        style: themeData.textTheme.bodySmall?.copyWith(color: Colors.white),
-      ),
+      text: "Add Topic",
+      fontSize: themeData.textTheme.bodySmall?.fontSize,
+      fontColor: themeData.colorScheme.onPrimary,
     );
   }
 //endregion

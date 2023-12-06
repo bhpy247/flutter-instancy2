@@ -431,17 +431,15 @@ class _ProfileDataFieldsScreenState extends State<ProfileDataFieldsScreen> with 
     return CommonButton(
       onPressed: () {
         FocusScope.of(context).unfocus();
-        if((_formKey.currentState?.validate() ?? false) && validate(widget.list)) {
+        if ((_formKey.currentState?.validate() ?? false) && validate(widget.list)) {
           widget.onSaveChanges(widget.list);
         }
       },
       backGroundColor: themeData.primaryColor,
       minWidth: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 13),
-      child: Text(
-        "Save Changes",
-        style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.white),
-      ),
+      text: "Save Changes",
+      fontColor: themeData.colorScheme.onPrimary,
     );
   }
 

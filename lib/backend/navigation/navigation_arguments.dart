@@ -105,7 +105,8 @@ class SortingScreenNavigationArguments extends NavigationArguments {
 }
 
 class CatalogContentsListScreenNavigationArguments extends NavigationArguments {
-  final int componentId, componentInstanceId, HomeComponentId;
+  final int componentId, componentInstanceId;
+  final int? HomeComponentId;
   final bool isPinnedContent;
   final CatalogProvider? provider;
   final ContentFilterCategoryTreeModel? selectedCategory;
@@ -115,7 +116,7 @@ class CatalogContentsListScreenNavigationArguments extends NavigationArguments {
     required this.componentInstanceId,
     required this.componentId,
     this.isPinnedContent = false,
-    this.HomeComponentId = 0,
+    this.HomeComponentId,
     this.provider,
     this.selectedCategory,
     List<CatalogCategoriesForBrowseModel>? categoriesListForPath,
@@ -176,6 +177,8 @@ class ShareWithConnectionsScreenNavigationArguments extends NavigationArguments 
   final String contentName;
   final String topicId;
   final int forumId;
+  final int scoId;
+  final int objecttypeId;
   final ShareProvider? shareProvider;
 
   const ShareWithConnectionsScreenNavigationArguments({
@@ -184,6 +187,8 @@ class ShareWithConnectionsScreenNavigationArguments extends NavigationArguments 
     this.contentName = "",
     this.topicId = "",
     this.forumId = 0,
+    this.scoId = 0,
+    this.objecttypeId = 0,
     this.shareProvider,
   });
 }
@@ -194,6 +199,8 @@ class ShareWithPeopleScreenNavigationArguments extends NavigationArguments {
   final String contentName;
   final String topicId;
   final int forumId;
+  final int scoId;
+  final int objecttypeId;
   final bool isSuggestToConnections;
   final List<int>? userIds;
 
@@ -203,6 +210,8 @@ class ShareWithPeopleScreenNavigationArguments extends NavigationArguments {
     this.contentName = "",
     this.topicId = "",
     this.forumId = 0,
+    this.scoId = 0,
+    this.objecttypeId = 0,
     this.isSuggestToConnections = false,
     this.userIds,
   });

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:flutter_instancy_2/views/common/components/common_text_form_field.dart';
-import 'package:provider/provider.dart';
 
 class AboutTabView extends StatefulWidget {
   const AboutTabView({Key? key}) : super(key: key);
@@ -13,7 +11,6 @@ class AboutTabView extends StatefulWidget {
 }
 
 class _AboutTabViewState extends State<AboutTabView> {
-
   late ThemeData themeData;
   TextEditingController firstNameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
@@ -22,13 +19,11 @@ class _AboutTabViewState extends State<AboutTabView> {
   TextEditingController aboutMeController = TextEditingController();
   TextEditingController jobTitleController = TextEditingController();
   FocusNode firstNamefn = FocusNode();
-  
-  void setDataForTheAbout(){
-    ProfileProvider profileProvider = Provider.of(context, listen: false);
+
+  void setDataForTheAbout() {
+    // ProfileProvider profileProvider = Provider.of(context, listen: false);
     // setProfileDataFieldNameModelList
     // profileProvider.
-        
-        
   }
 
   @override
@@ -37,112 +32,113 @@ class _AboutTabViewState extends State<AboutTabView> {
     MyPrint.printOnConsole("foccuss: ${firstNamefn.hasFocus}");
     return Padding(
       padding: const EdgeInsets.all(13.0),
-      child: Container(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              editButton(),
-              getFirstNameTextField(),
-              SizedBox(height: 19,),
-              getLastNameTextField(),
-              SizedBox(height: 19,),
-              getDisplayNameTextField(),
-              SizedBox(height: 19,),
-              getEmailTextField(),
-              SizedBox(height: 19,),
-              getAboutMeTextField(),
-              SizedBox(height: 19,),
-              getJobTitleTextField(),
-              SizedBox(height: 24,),
-              getSaveChangesButton()
-            ],
-          ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            editButton(),
+            getFirstNameTextField(),
+            const SizedBox(height: 19),
+            getLastNameTextField(),
+            const SizedBox(height: 19),
+            getDisplayNameTextField(),
+            const SizedBox(height: 19),
+            getEmailTextField(),
+            const SizedBox(height: 19),
+            getAboutMeTextField(),
+            const SizedBox(height: 19),
+            getJobTitleTextField(),
+            const SizedBox(height: 24),
+            getSaveChangesButton()
+          ],
         ),
       ),
     );
   }
 
-  Widget editButton(){
+  Widget editButton() {
     return InkWell(
-      onTap: (){},
+      onTap: () {},
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Icon(Icons.edit,size: 18,),
-          SizedBox(width: 2,),
-          Text("Edit",style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.black,fontWeight: FontWeight.w600, fontSize: 14),)
+          const Icon(
+            Icons.edit,
+            size: 18,
+          ),
+          const SizedBox(
+            width: 2,
+          ),
+          Text(
+            "Edit",
+            style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 14),
+          )
         ],
       ),
     );
   }
 
   //region getFirstname
-  Widget getFirstNameTextField(){
+  Widget getFirstNameTextField() {
     return getCommonTextField(
-        controller: firstNameController,
-        labelText: "First Name",
+      controller: firstNameController,
+      labelText: "First Name",
     );
   }
+
   //endregion
 
-
   //region getLastName
-  Widget getLastNameTextField(){
+  Widget getLastNameTextField() {
     return getCommonTextField(
-        controller: lastNameController,
-        labelText: "Last Name",
+      controller: lastNameController,
+      labelText: "Last Name",
     );
   }
+
   //endregion
 
   //region getDisplayName
-  Widget getDisplayNameTextField(){
+  Widget getDisplayNameTextField() {
     return getCommonTextField(
-        controller: displayNameController,
-        labelText: "Display Name",
+      controller: displayNameController,
+      labelText: "Display Name",
     );
   }
-  //endregion
 
+  //endregion
 
   //region getEmail
-  Widget getEmailTextField(){
+  Widget getEmailTextField() {
     return getCommonTextField(
-        controller: emailController,
-        labelText: "Email",
+      controller: emailController,
+      labelText: "Email",
     );
   }
+
   //endregion
-
-
 
   //region getAboutMeWidget
-  Widget getAboutMeTextField(){
+  Widget getAboutMeTextField() {
     return getCommonTextField(
-        controller: aboutMeController,
-        labelText: "About Me",
+      controller: aboutMeController,
+      labelText: "About Me",
     );
   }
+
   //endregion
 
-
   //region getJobTitleWidget
-  Widget getJobTitleTextField(){
+  Widget getJobTitleTextField() {
     return getCommonTextField(
-        controller: jobTitleController,
-        labelText: "Job Title",
+      controller: jobTitleController,
+      labelText: "Job Title",
     );
   }
+
   //endregion
 
   //region commonTextField
-  Widget getCommonTextField({
-    required TextEditingController controller,
-    String labelText = "",
-    FocusNode? focusNode,
-    bool isRequired = false,
-    Color? floatingLabelColor
-  }){
+  Widget getCommonTextField({required TextEditingController controller, String labelText = "", FocusNode? focusNode, bool isRequired = false, Color? floatingLabelColor}) {
     return CommonTextFormFieldWithLabel(
       // maxLines: 5,
       // minLines: 5,
@@ -154,13 +150,13 @@ class _AboutTabViewState extends State<AboutTabView> {
           style: themeData.inputDecorationTheme.labelStyle,
           children: isRequired
               ? [
-            TextSpan(
-              text: " *",
-              style: themeData.textTheme.titleMedium?.copyWith(
-                color: Colors.red,
-              ),
-            ),
-          ]
+                  TextSpan(
+                    text: " *",
+                    style: themeData.textTheme.titleMedium?.copyWith(
+                      color: Colors.red,
+                    ),
+                  ),
+                ]
               : [],
         ),
       ),
@@ -169,19 +165,23 @@ class _AboutTabViewState extends State<AboutTabView> {
       focusNode: focusNode,
       floatingLabelColor: floatingLabelColor,
 
-      contentPadding: const EdgeInsets.symmetric(horizontal: 5,vertical: 10),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
     );
   }
+
   //endregion
 
   //region saveChangesButton
-  Widget getSaveChangesButton(){
-    return CommonButton(onPressed: (){},
+  Widget getSaveChangesButton() {
+    return CommonButton(
+      onPressed: () {},
       backGroundColor: themeData.primaryColor,
       minWidth: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 13),
-      child: Text("Save Changes", style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.white),),
+      padding: const EdgeInsets.symmetric(vertical: 13),
+      text: "Save Changes",
+      fontColor: themeData.colorScheme.onPrimary,
+      fontSize: themeData.textTheme.bodyMedium?.fontSize,
     );
   }
-  //endregion
+//endregion
 }

@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/parsing_helper.dart';
 import 'package:flutter_chat_bot/view/common/components/common_cached_network_image.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
+import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/message/message_controller.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
@@ -187,7 +189,7 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
   void getLoggedInUserData() {
     AuthenticationProvider authenticationProvider = context.read<AuthenticationProvider>();
 
-    String imageurl = authenticationProvider.getSuccessfulUserLoginModel()?.image ?? "";
+    String imageurl = authenticationProvider.getEmailLoginResponseModel()?.image ?? "";
     MyPrint.printOnConsole("imageurl:$imageurl");
 
     userImageUrl = imageurl;
@@ -266,14 +268,15 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
     super.pageBuild();
 
     deviceData = MediaQuery.of(context).size;
-    return WillPopScope(
-      onWillPop: () async {
-        MyPrint.printOnConsole("onWillPop called");
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (bool didPop) {
+        MyPrint.printOnConsole("onPopInvoked called with didPop:$didPop");
+
         FirebaseFirestore.instance.collection(AppConstants.kAppFlavour).doc('messages').collection(chatRoom).doc("messageStatus").update({fromUserID.toString(): ""});
         if (widget.toUser.LatestMessage != lastMessage) {
           messageController.updateLastMessageInChat(fromUserId: fromUserID, toUserId: toUserId, lastMessage: lastMessage);
         }
-        return true;
       },
       child: Scaffold(
         appBar: getAppBar(),
@@ -284,9 +287,9 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
             builder: (BuildContext context, AsyncSnapshot<MyFirestoreQuerySnapshot> snapshot) {
               if (snapshot.connectionState == ConnectionState.active) {
                 messages = snapshot.data?.docs.map((i) {
-                  ChatMessageModel chatMessageModel = ChatMessageModel.fromJson(i.data());
-                  return chatMessageModel;
-                }).toList() ??
+                      ChatMessageModel chatMessageModel = ChatMessageModel.fromJson(i.data());
+                      return chatMessageModel;
+                    }).toList() ??
                     [];
                 ChatMessageModel? lastMessageModel = messages.firstOrNull;
                 lastMessage = lastMessageModel?.Message ?? "";
@@ -342,6 +345,10 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
   }
 
   AppBar getAppBar() {
+    // MyPrint.printOnConsole("UserName:${chatUser.FullName}, last message:${chatUser.LatestMessage}, ProfPic:${chatUser.ProfPic}, index:${chatUser.hashCode}");
+
+    String imageUrl = AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: widget.toUser.ProfPic);
+
     return AppBar(
       automaticallyImplyLeading: true,
       // leading: ,
@@ -349,17 +356,17 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
       centerTitle: false,
       title: Row(
         children: [
-          Visibility(
-            visible: widget.toUser.ProfPic.isNotEmpty,
-            child: Stack(
+          if (imageUrl.isNotEmpty)
+            Stack(
               alignment: Alignment.bottomRight,
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(150),
                   child: CommonCachedNetworkImage(
-                    imageUrl: widget.toUser.ProfPic,
-                    height: 30,
-                    width: 30,
+                    imageUrl: imageUrl,
+                    height: 40,
+                    width: 40,
+                    errorIconSize: 30,
                   ),
                 ),
                 if (widget.toUser.ConnectionStatus == 1)
@@ -373,10 +380,7 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
                   )
               ],
             ),
-          ),
-          const SizedBox(
-            width: 10,
-          ),
+          const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

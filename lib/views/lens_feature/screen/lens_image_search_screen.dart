@@ -451,6 +451,8 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
             contentId: model.ContentID,
             contentName: model.Title,
             shareProvider: context.read<ShareProvider>(),
+            scoId: model.ScoID,
+            objecttypeId: model.ContentTypeId,
           ),
         );
       },
@@ -466,6 +468,8 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
             shareContentType: ShareContentType.catalogCourse,
             contentId: model.ContentID,
             contentName: model.Title,
+            scoId: model.ScoID,
+            objecttypeId: model.ContentTypeId,
           ),
         );
       },
@@ -561,6 +565,8 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
         MultiInstanceEventEnroll: "",
         ComponentID: componentId,
         ComponentInsID: componentInstanceId,
+        objecttypeId: model.ContentTypeId,
+        scoId: model.ScoID,
       ),
       context: context,
       onPrerequisiteDialogShowEnd: () {

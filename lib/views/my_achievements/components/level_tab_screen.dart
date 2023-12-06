@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/models/gamification/data_model/user_level_model.dart';
 
 import '../../../backend/app_theme/style.dart';
@@ -14,6 +15,10 @@ class LevelTabScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
+
+    if (levelData.isEmpty) {
+      return AppConfigurations.commonNoDataView();
+    }
 
     return ListView.builder(
       itemCount: levelData.length,

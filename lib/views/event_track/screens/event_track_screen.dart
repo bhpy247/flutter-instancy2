@@ -256,14 +256,8 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
       ],
       child: Consumer3<EventTrackProvider, DiscussionProvider, MyConnectionsProvider>(
         builder: (BuildContext context, EventTrackProvider eventTrackProvider, DiscussionProvider discussionProvider, MyConnectionsProvider myConnectionsProvider, _) {
-          return WillPopScope(
-            onWillPop: () async {
-              if(isLoading) {
-                return false;
-              }
-
-              return true;
-            },
+          return PopScope(
+            canPop: !isLoading,
             child: ModalProgressHUD(
               inAsyncCall: isLoading,
               child: Scaffold(

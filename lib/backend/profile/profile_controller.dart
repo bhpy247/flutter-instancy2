@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_controller.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_repository.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/common/instancy_picked_file_model.dart';
+import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/data_field_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/education_title_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/profile_group_model.dart';
@@ -17,7 +20,6 @@ import 'package:flutter_instancy_2/views/profile/component/confirm_remove_experi
 import 'package:intl/intl.dart';
 
 import '../../models/app_configuration_models/data_models/local_str.dart';
-import '../../models/authentication/data_model/successful_user_login_model.dart';
 import '../../models/authentication/response_model/country_response_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/profile/data_model/user_profile_details_model.dart';
@@ -45,7 +47,7 @@ class ProfileController {
     MyPrint.printOnConsole("HomeController().getNewLearningResourcesListMain() called with isGetFromCache:$isGetFromCache", tag: tag);
 
     if (isGetFromCache) {
-      await getProfileInfo(userId: userId, isGetFromCache: true, isNotify: true,authenticationProvider: authenticationProvider);
+      await getProfileInfo(userId: userId, isGetFromCache: true, isNotify: true, authenticationProvider: authenticationProvider);
 
       if (profileProvider.userExperienceData.getList(isNewInstance: false).isNotEmpty ||
           profileProvider.userEducationData.getList(isNewInstance: false).isNotEmpty ||
@@ -53,10 +55,10 @@ class ProfileController {
           profileProvider.userPrivilegeData.getList(isNewInstance: false).isNotEmpty) {
         getProfileInfo(userId: userId, isGetFromCache: false, isNotify: true, authenticationProvider: authenticationProvider);
       } else {
-        await getProfileInfo(userId: userId, isGetFromCache: false, isNotify: true,authenticationProvider: authenticationProvider);
+        await getProfileInfo(userId: userId, isGetFromCache: false, isNotify: true, authenticationProvider: authenticationProvider);
       }
     } else {
-      await getProfileInfo(userId: userId, isGetFromCache: false, isNotify: true,authenticationProvider: authenticationProvider);
+      await getProfileInfo(userId: userId, isGetFromCache: false, isNotify: true, authenticationProvider: authenticationProvider);
     }
   }
 
@@ -85,13 +87,13 @@ class ProfileController {
 
       UserProfileDetailsModel? userProfileDetailsModel = profileResponseModel.userProfileDetails.firstElement;
 
-      if(userProfileDetailsModel != null){
-        SuccessfulUserLoginModel? successfulUserLoginModel = authenticationProvider.getSuccessfulUserLoginModel();
+      if (userProfileDetailsModel != null) {
+        NativeLoginDTOModel? successfulUserLoginModel = authenticationProvider.getEmailLoginResponseModel();
         if (successfulUserLoginModel != null) {
           successfulUserLoginModel.image = "${ApiController().apiDataProvider.getCurrentBaseApiUrl().replaceAll("/api/", "")}${userProfileDetailsModel.picture}";
         }
-        print('successfulUserLoginModel.img : ${successfulUserLoginModel?.image}');
-        authenticationProvider.setSuccessfulUserLoginModel(successfulUserLoginModel: successfulUserLoginModel);
+        MyPrint.printOnConsole('successfulUserLoginModel.img : ${successfulUserLoginModel?.image}');
+        authenticationProvider.setEmailLoginResponseModel(emailLoginResponseModel: successfulUserLoginModel);
       }
       //region Personal Info, Contact Info and Back Office Info Initialization
       Map<String, dynamic> profileDetailsMap = profileResponseModel.userProfileDetails.firstElement?.toJson() ?? <String, dynamic>{};
@@ -116,7 +118,6 @@ class ProfileController {
           profileProvider.userBackOfficeInfoDataList.setList(list: data, isNotify: false);
         }
       }
-
 
       //endregion
     }
@@ -193,7 +194,6 @@ class ProfileController {
         requestValue = '$requestValue${dataFieldModel.datafieldname.toLowerCase()}=${fieldValue.trim()},';
 
         MyPrint.printOnConsole('fieldValue  $fieldValue, Profile Val:$requestValue', tag: tag);
-
       }
 
       DataResponseModel<String> responseModel = await profileRepository.updateProfileInfo(
@@ -208,6 +208,16 @@ class ProfileController {
       }
 
       isSuccess = responseModel.data == "success";
+
+      if (isSuccess) {
+        GamificationController(provider: null).UpdateContentGamification(
+          requestModel: UpdateContentGamificationRequestModel(
+            contentId: "",
+            scoId: 0,
+            GameAction: GamificationActionType.Updated,
+          ),
+        );
+      }
     } catch (e, s) {
       MyPrint.printOnConsole("Error in ProfileController().updateProfileDetails():$e");
       MyPrint.printOnConsole(s);
@@ -342,8 +352,7 @@ class ProfileController {
     try {
       if (isFromCache && profileProvider.headerDTOModel.get() != null) {
         headerDTOModel = profileProvider.headerDTOModel.get();
-      }
-      else {
+      } else {
         DataResponseModel<UserProfileHeaderDTOModel> responseModel = await profileRepository.getProfileHeaderData(requestModel: requestModel);
         if (responseModel.data != null) {
           headerDTOModel = responseModel.data!;

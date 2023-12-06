@@ -777,3 +777,32 @@ class MembershipRenewType {
 class EcommerceTransactionType {
   static const String membership = "membership";
 }
+
+class GamificationActionType {
+  static int Clicked = 1;
+  static int Enrolled = 2;
+  static int Purchased = 3;
+  static int AddedContent = 4;
+  static int Launched = 5;
+  static int Completed = 6;
+  static int Passed = 7;
+  static int Rated = 8;
+  static int Attended = 9;
+  static int AddedTopic = 10;
+  static int AddedComment = 11;
+  static int Liked = 12;
+  static int Asked = 13;
+  static int Voted = 14;
+  static int Answered = 15;
+  static int Updated = 16;
+  static int FirstTimeLogin = 17;
+  static int SpentTime = 18;
+  static int AnyTimeLogin = 19;
+  static int Earned = 20;
+  static int RequestedConnection = 21;
+  static int AcceptRequest = 22;
+  static int DirectLaunched = 23;
+  static int ShareContentWithConnection = 24;
+  static int AnyDayLogin = 25;
+  static int Certification = 26;
+}

@@ -243,7 +243,7 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
       text: widget.arguments.isEdit ? "Edit Topic" : "Create Topic",
       fontColor: Colors.white,
       fontSize: 16,
-      padding: const EdgeInsets.symmetric(vertical: 15),
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
     );
   }
 

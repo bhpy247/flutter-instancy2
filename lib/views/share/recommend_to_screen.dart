@@ -237,14 +237,20 @@ class _RecommendToScreenState extends State<RecommendToScreen> with MySafeState 
       margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
       // color: Colors.red,
       child: GestureDetector(
-        onTap: isAlreadyAddedToMyLearning ? null : () {
-          shareProvider.addRemoveUserInRecommendSelectedUserList(userId: userModel.userId, isAdd: !isSelected);
-        },
+        onTap: isAlreadyAddedToMyLearning
+            ? null
+            : () {
+                shareProvider.addRemoveUserInRecommendSelectedUserList(userId: userModel.userId, isAdd: !isSelected);
+              },
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(7),
             border: Border.all(
-              color: isAlreadyAddedToMyLearning?Colors.grey.shade400: isSelected ? Colors.grey.shade400 : Colors.grey,
+              color: isAlreadyAddedToMyLearning
+                  ? Colors.grey.shade400
+                  : isSelected
+                      ? Colors.grey.shade400
+                      : Colors.grey,
             ),
             color: isSelected ? Colors.grey.shade200 : null,
           ),
@@ -293,7 +299,7 @@ class _RecommendToScreenState extends State<RecommendToScreen> with MySafeState 
                           children: [
                             Text(
                               userModel.userName,
-                              style: themeData.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: isAlreadyAddedToMyLearning ? Colors.grey : Colors.black ),
+                              style: themeData.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: isAlreadyAddedToMyLearning ? Colors.grey : Colors.black),
                               /*style: TextStyle(
                               color: Color(int.parse("0xFF${appBloc.uiSettingModel.appTextColor.substring(1, 7).toUpperCase()}")),
                               fontWeight: FontWeight.bold,
@@ -362,9 +368,7 @@ class _RecommendToScreenState extends State<RecommendToScreen> with MySafeState 
               text: "Cancel",
             ),
           ),
-          const SizedBox(
-            width: 25,
-          ),
+          const SizedBox(width: 25),
           Expanded(
             flex: 3,
             // child: CommonPrimarySecondaryButton(

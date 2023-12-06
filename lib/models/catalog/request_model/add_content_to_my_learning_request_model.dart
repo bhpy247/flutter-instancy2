@@ -15,6 +15,8 @@ class AddContentToMyLearningRequestModel {
   int OrgUnitID = AppConstants.defaultSiteId;
   int ComponentID = 0;
   int ComponentInsID = 0;
+  int scoId = 0;
+  int objecttypeId = 0;
 
   AddContentToMyLearningRequestModel({
     required this.SelectedContent,
@@ -30,6 +32,8 @@ class AddContentToMyLearningRequestModel {
     this.OrgUnitID = AppConstants.defaultSiteId,
     required this.ComponentID,
     required this.ComponentInsID,
+    required this.scoId,
+    required this.objecttypeId,
   });
 
   Map<String, String> toJson() {

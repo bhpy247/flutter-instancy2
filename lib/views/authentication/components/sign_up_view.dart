@@ -168,10 +168,12 @@ class SignUpView extends StatelessWidget {
               color: themeData?.colorScheme.onPrimary,
               lineWidth: 2,
             )
-          : Text(
-        "Sign Up",
-              style: themeData?.textTheme.titleSmall?.copyWith(
-                color: themeData?.colorScheme.onPrimary,
+          : Center(
+              child: Text(
+                "Sign Up",
+                style: themeData?.textTheme.titleSmall?.copyWith(
+                  color: themeData?.colorScheme.onPrimary,
+                ),
               ),
             ),
     );

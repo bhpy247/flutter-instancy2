@@ -232,6 +232,8 @@ class _SurfaceTrackingKeywordSearchScreenState extends State<SurfaceTrackingKeyw
             contentId: model.ContentID,
             contentName: model.Title,
             shareProvider: context.read<ShareProvider>(),
+            scoId: model.ScoID,
+            objecttypeId: model.ContentTypeId,
           ),
         );
       },
@@ -247,6 +249,8 @@ class _SurfaceTrackingKeywordSearchScreenState extends State<SurfaceTrackingKeyw
             shareContentType: ShareContentType.catalogCourse,
             contentId: model.ContentID,
             contentName: model.Title,
+            scoId: model.ScoID,
+            objecttypeId: model.ContentTypeId,
           ),
         );
       },
@@ -330,6 +334,8 @@ class _SurfaceTrackingKeywordSearchScreenState extends State<SurfaceTrackingKeyw
         MultiInstanceEventEnroll: "",
         ComponentID: componentId,
         ComponentInsID: componentInstanceId,
+        objecttypeId: model.ContentTypeId,
+        scoId: model.ScoID,
       ),
       context: context,
       onPrerequisiteDialogShowEnd: () {

@@ -52,7 +52,7 @@ class _ModeratorBottomSheetState extends State<ModeratorBottomSheet> with MySafe
                   },
                   text: "Done",
                   fontColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                   fontSize: 16,
                 ),
               )

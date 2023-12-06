@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-
-import '../../models/authentication/data_model/profile_config_data_model.dart';
-import '../../models/authentication/data_model/successful_user_login_model.dart';
-import '../../utils/my_print.dart';
+import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
+import 'package:flutter_instancy_2/models/authentication/data_model/profile_config_data_model.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
 
 class AuthenticationProvider extends ChangeNotifier {
-  //region SuccessfulUserLoginModel
-  SuccessfulUserLoginModel? _successfulUserLoginModel;
+  //region EmailLoginResponseModel
+  NativeLoginDTOModel? _emailLoginResponseModel;
 
-  SuccessfulUserLoginModel? getSuccessfulUserLoginModel() => _successfulUserLoginModel;
+  NativeLoginDTOModel? getEmailLoginResponseModel() => _emailLoginResponseModel;
 
-  void setSuccessfulUserLoginModel({SuccessfulUserLoginModel? successfulUserLoginModel, bool isNotify = true}) {
-    _successfulUserLoginModel = successfulUserLoginModel;
-    if(isNotify) notifyListeners();
+  void setEmailLoginResponseModel({NativeLoginDTOModel? emailLoginResponseModel, bool isNotify = true}) {
+    _emailLoginResponseModel = emailLoginResponseModel;
+    if (isNotify) notifyListeners();
   }
+
   //endregion
 
   //region ProfileConfigDataList

@@ -124,7 +124,7 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
     }
     AuthenticationProvider authenticationProvider = Provider.of<AuthenticationProvider>(context, listen: false);
 
-    String name = authenticationProvider.getSuccessfulUserLoginModel()?.username ?? "";
+    String name = authenticationProvider.getEmailLoginResponseModel()?.username ?? "";
 
     messageToController = TextEditingController(text: message);
     subjectController = TextEditingController(text: "${name} Has Shared Content with You");
@@ -374,6 +374,8 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
                       subject: subjectController.text.trim(),
                       message: message,
                       contentId: widget.arguments.contentId,
+                      scoId: widget.arguments.scoId,
+                      objecttypeId: widget.arguments.objecttypeId,
                     );
                   }
 

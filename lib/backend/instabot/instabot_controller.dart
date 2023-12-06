@@ -1,7 +1,7 @@
 import 'package:flutter_chat_bot/models/authorization/response_model/bot_details_model.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/instabot/instabot_repository.dart';
-import 'package:flutter_instancy_2/models/authentication/data_model/successful_user_login_model.dart';
+import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 
 import '../../api/api_controller.dart';
@@ -23,7 +23,7 @@ class InstabotController {
 
   Future<String> getInstabotUrl({
     required AppProvider appProvider,
-    required SuccessfulUserLoginModel successfulUserLoginModel,
+    required NativeLoginDTOModel successfulUserLoginModel,
   }) async {
     MyPrint.printOnConsole("InstabotController().getInstabotUrl() called");
 

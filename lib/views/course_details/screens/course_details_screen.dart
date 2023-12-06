@@ -27,6 +27,7 @@ import 'package:flutter_instancy_2/models/content_details/request_model/course_d
 import 'package:flutter_instancy_2/models/content_details/request_model/course_details_schedule_data_request_model.dart';
 import 'package:flutter_instancy_2/models/content_review_ratings/data_model/content_user_rating_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
+import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
@@ -142,6 +143,17 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     MyPrint.printOnConsole("contentDetailsDTOModel.ContentTypeId:${contentDetailsDTOModel?.ContentTypeId}");
     MyPrint.printOnConsole("contentDetailsDTOModel.EventScheduleType:${contentDetailsDTOModel?.EventScheduleType}");
 
+    if (contentDetailsDTOModel != null) {
+      GamificationController(provider: null).UpdateContentGamification(
+        requestModel: UpdateContentGamificationRequestModel(
+          contentId: contentDetailsDTOModel.ContentID,
+          scoId: contentDetailsDTOModel.ScoID,
+          objecttypeId: contentDetailsDTOModel.ContentTypeId,
+          GameAction: GamificationActionType.Clicked,
+        ),
+      );
+    }
+
     if (contentDetailsDTOModel?.ContentTypeId == InstancyObjectTypes.events && [EventTypes.regular].contains(contentDetailsDTOModel!.EventScheduleType)) {
       courseDetailsController.getCourseDetailsScheduleData(
         requestModel: CourseDetailsScheduleDataRequestModel(
@@ -154,11 +166,6 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
       eventController.getEventSessionsList(
         eventId: contentId,
       );
-    }
-
-    MyPrint.printOnConsole("NotifyMessage:${contentDetailsDTOModel?.NotifyMessage}");
-    if ((contentDetailsDTOModel?.NotifyMessage).checkNotEmpty) {
-      GamificationController(provider: null).showGamificationEarnedPopup(notifyMessage: contentDetailsDTOModel!.NotifyMessage);
     }
   }
 
@@ -176,6 +183,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
               if (model.ViewType == ViewTypesForContent.ViewAndAddToMyLearning && !ParsingHelper.parseBoolMethod(model.isContentEnrolled)) {
                 await addContentToMyLearning(
                   contentIdToAddToMyLearning: model.ContentID,
+                  ContentTypeId: model.ContentTypeId,
+                  ScoID: model.ScoID,
                   contentIdToLoadInScreen: model.ContentID,
                   hasPrerequisites: model.hasPrerequisiteContents(),
                 );
@@ -189,6 +198,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
               if (isSecondaryAction) Navigator.pop(context);
               addContentToMyLearning(
                 contentIdToAddToMyLearning: model.ContentID,
+                ContentTypeId: model.ContentTypeId,
+                ScoID: model.ScoID,
                 contentIdToLoadInScreen: model.ContentID,
                 hasPrerequisites: model.hasPrerequisiteContents(),
               );
@@ -205,6 +216,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
         addContentToMyLearning(
           contentIdToAddToMyLearning: model.ContentID,
+          ContentTypeId: model.ContentTypeId,
+          ScoID: model.ScoID,
           contentIdToLoadInScreen: model.ContentID,
           hasPrerequisites: model.hasPrerequisiteContents(),
         );
@@ -332,6 +345,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             contentId: model.ContentID,
             contentName: model.Title,
             shareProvider: context.read<ShareProvider>(),
+            scoId: model.ScoID,
+            objecttypeId: model.ContentTypeId,
           ),
         );
       },
@@ -347,6 +362,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             shareContentType: ShareContentType.catalogCourse,
             contentId: model.ContentID,
             contentName: model.Title,
+            scoId: model.ScoID,
+            objecttypeId: model.ContentTypeId,
           ),
         );
       },
@@ -616,6 +633,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             shareContentType: ShareContentType.catalogCourse,
             contentId: model.ContentID,
             contentName: model.Title,
+            scoId: model.ScoID,
+            objecttypeId: model.ContentTypeId,
           ),
         );
       },
@@ -632,6 +651,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             contentId: model.ContentID,
             contentName: model.Title,
             shareProvider: context.read<ShareProvider>(),
+            scoId: model.ScoID,
+            objecttypeId: model.ContentTypeId,
           ),
         );
       },
@@ -648,6 +669,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
       onAddToMyLearningTap: () async {
         await addContentToMyLearning(
           contentIdToAddToMyLearning: model.ContentID,
+          ContentTypeId: model.ContentTypeId,
+          ScoID: model.ScoID,
           contentIdToLoadInScreen: model.ContentID,
           hasPrerequisites: model.hasPrerequisiteContents(),
         );
@@ -655,6 +678,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
       onEnrollTap: () async {
         await addContentToMyLearning(
           contentIdToAddToMyLearning: model.ContentID,
+          ContentTypeId: model.ContentTypeId,
+          ScoID: model.ScoID,
           contentIdToLoadInScreen: model.ContentID,
           hasPrerequisites: model.hasPrerequisiteContents(),
         );
@@ -739,12 +764,19 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     await contentReviewRatingsController.showAddEditDeleteReviewDialog(
       context: context,
       contentId: contentId,
+      scoId: courseDetailsProvider.contentDetailsDTOModel.get()?.ScoID ?? 0,
       userLastReviewModel: userLastReviewModel,
-      onAddEditReview: ({required String contentId, required String description, required int rating}) async {
+      onAddEditReview: ({required String contentId, required int scoId, required String description, required int rating}) async {
         isLoading = true;
         mySetState();
 
-        bool isAdded = await contentReviewRatingsController.addEditReview(contentId: contentId, description: description, rating: rating);
+        bool isAdded = await contentReviewRatingsController.addEditReview(
+          contentId: contentId,
+          scoId: scoId,
+          objecttypeId: courseDetailsProvider.contentDetailsDTOModel.get()?.ContentTypeId ?? 0,
+          description: description,
+          rating: rating,
+        );
         MyPrint.printOnConsole('isAdded review:$isAdded');
 
         isLoading = false;
@@ -789,6 +821,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
   Future<void> addContentToMyLearning({
     required String contentIdToAddToMyLearning,
+    required int ContentTypeId,
+    required int ScoID,
     String multiInstanceParentId = "",
     required String contentIdToLoadInScreen,
     String MultiInstanceEventEnroll = "",
@@ -808,6 +842,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         MultiInstanceEventEnroll: MultiInstanceEventEnroll,
         ComponentID: InstancyComponents.Details,
         ComponentInsID: InstancyComponents.DetailsComponentInsId,
+        objecttypeId: ContentTypeId,
+        scoId: ScoID,
       ),
       context: context,
       onPrerequisiteDialogShowEnd: () {
@@ -1116,7 +1152,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             // color: AppConfigurations.getContentStatusColor(status: contentDetailsDTOModel.ContentStatus),
             // color: InstancyColors.progressBarFillColor,
             color: AppConfigurations.getContentStatusColorFromActualStatus(status: contentDetailsDTOModel.ActualStatus),
-            percentCompleted: contentDetailsDTOModel.PercentCompleted,
+            percentCompleted: contentDetailsDTOModel.percentagecompleted,
             objectTypeId: contentDetailsDTOModel.ContentTypeId,
             contentStatus: contentDetailsDTOModel.ContentStatus,
           ),
@@ -1456,15 +1492,20 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: getWidgetWithTitle(
-          title: "URL",
-          widget: InkWell(
-              onTap: () {
-                MyUtils.launchUrl(url: ParsingHelper.parseStringMethod(contentDetailsDTOModel.DirectionURL));
-              },
-              child: Text(
-                ParsingHelper.parseStringMethod(contentDetailsDTOModel.DirectionURL),
-                style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
-              ))),
+        title: "URL",
+        widget: InkWell(
+          onTap: () {
+            MyUtils.launchUrl(url: ParsingHelper.parseStringMethod(contentDetailsDTOModel.DirectionURL));
+          },
+          child: Text(
+            ParsingHelper.parseStringMethod(contentDetailsDTOModel.DirectionURL),
+            style: const TextStyle(
+              color: Colors.blue,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -1806,6 +1847,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             onEnrollTap: () async {
               addContentToMyLearning(
                 contentIdToAddToMyLearning: catalogCourseDtoModel.ContentID,
+                ContentTypeId: catalogCourseDtoModel.ContentTypeId,
+                ScoID: catalogCourseDtoModel.ScoID,
                 multiInstanceParentId: catalogCourseDtoModel.InstanceParentContentID,
                 contentIdToLoadInScreen: catalogCourseDtoModel.ContentID,
                 hasPrerequisites: catalogCourseDtoModel.hasPrerequisiteContents(),

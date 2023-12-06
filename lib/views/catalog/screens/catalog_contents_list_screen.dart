@@ -4,11 +4,13 @@ import 'package:flutter_instancy_2/backend/Catalog/catalog_controller.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_controller.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/catalog/catalog_ui_action_callback_model.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/models/catalog/request_model/add_content_to_my_learning_request_model.dart';
 import 'package:flutter_instancy_2/models/filter/data_model/content_filter_category_tree_model.dart';
+import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
@@ -118,31 +120,35 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
 
     if (catalogProvider.wishlistContentsLength == 0) {
       catalogController.getWishListContentsListFromApi(
-          isRefresh: true,
-          componentId: componentId,
-          componentInstanceId: componentInstanceId,
-          isGetFromCache: false,
-          isNotify: true,
-          HomeComponentId: widget.arguments.HomeComponentId,
-          isPinnedContent: widget.arguments.isPinnedContent);
+        isRefresh: true,
+        componentId: componentId,
+        componentInstanceId: componentInstanceId,
+        isGetFromCache: false,
+        isNotify: true,
+        HomeComponentId: widget.arguments.HomeComponentId,
+        isPinnedContent: widget.arguments.isPinnedContent,
+      );
     }
   }
 
   Future<void> getCatalogContentsList({bool isRefresh = true, bool isGetFromCache = true, bool isNotify = true}) async {
     await Future.wait([
       catalogController.getCatalogContentsListFromApi(
-          isRefresh: isRefresh,
-          isGetFromCache: isGetFromCache,
-          isNotify: isNotify,
-          componentId: componentId,
-          componentInstanceId: componentInstanceId,
-          HomeComponentId: widget.arguments.HomeComponentId,
-          isPinnedContent: widget.arguments.isPinnedContent),
+        isRefresh: isRefresh,
+        isGetFromCache: isGetFromCache,
+        isNotify: isNotify,
+        componentId: componentId,
+        componentInstanceId: componentInstanceId,
+        HomeComponentId: widget.arguments.HomeComponentId,
+        isPinnedContent: widget.arguments.isPinnedContent,
+      ),
       if (isRefresh)
         catalogController.getWishListContentsListFromApi(
           isRefresh: true,
           componentId: componentId,
           componentInstanceId: componentInstanceId,
+          HomeComponentId: widget.arguments.HomeComponentId,
+          isPinnedContent: widget.arguments.isPinnedContent,
           isGetFromCache: false,
           isNotify: true,
         ),
@@ -381,6 +387,8 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
             contentId: model.ContentID,
             contentName: model.Title,
             shareProvider: context.read<ShareProvider>(),
+            scoId: model.ScoID,
+            objecttypeId: model.ContentTypeId,
           ),
         );
       },
@@ -396,6 +404,8 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
             shareContentType: ShareContentType.catalogCourse,
             contentId: model.ContentID,
             contentName: model.Title,
+            scoId: model.ScoID,
+            objecttypeId: model.ContentTypeId,
           ),
         );
       },
@@ -498,6 +508,8 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
         MultiInstanceEventEnroll: "",
         ComponentID: componentId,
         ComponentInsID: componentInstanceId,
+        objecttypeId: model.ContentTypeId,
+        scoId: model.ScoID,
       ),
       context: context,
       onPrerequisiteDialogShowEnd: () {
@@ -542,6 +554,16 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
 
     isLoading = true;
     mySetState();
+
+    GamificationController(provider: null).UpdateContentGamification(
+      requestModel: UpdateContentGamificationRequestModel(
+        contentId: model.ContentID,
+        scoId: model.ScoID,
+        objecttypeId: model.ContentTypeId,
+        GameAction: GamificationActionType.Launched,
+        isCourseLaunch: true,
+      ),
+    );
 
     bool isLaunched = await CourseLaunchController(
       appProvider: appProvider,

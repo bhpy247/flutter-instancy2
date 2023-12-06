@@ -6,6 +6,8 @@ class AddExpiredEventToMyLearningRequestModel {
   int UserID = 0;
   int SiteID = AppConstants.defaultSiteId;
   int OrgUnitID = AppConstants.defaultSiteId;
+  int scoId = 0;
+  int objecttypeId = 0;
 
   AddExpiredEventToMyLearningRequestModel({
     this.SelectedContent = "",
@@ -13,6 +15,8 @@ class AddExpiredEventToMyLearningRequestModel {
     this.UserID = 0,
     this.SiteID = AppConstants.defaultSiteId,
     this.OrgUnitID = AppConstants.defaultSiteId,
+    this.scoId = 0,
+    this.objecttypeId = 0,
   });
 
   Map<String, dynamic> toJson() {

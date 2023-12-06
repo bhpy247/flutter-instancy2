@@ -17,7 +17,6 @@ import 'package:provider/provider.dart';
 import '../../../backend/Catalog/catalog_controller.dart';
 import '../../../backend/Catalog/catalog_provider.dart';
 import '../../../backend/app/app_provider.dart';
-import '../../../backend/app_theme/style.dart';
 import '../../../backend/navigation/navigation_arguments.dart';
 import '../../../backend/navigation/navigation_controller.dart';
 import '../../../backend/navigation/navigation_operation_parameters.dart';
@@ -93,8 +92,7 @@ class _PrerequisiteScreenState extends State<PrerequisiteScreen> with MySafeStat
       }
     }
     MyPrint.printOnConsole("length of the _prerequisiteModelArrayListRecommended ${_prerequisiteModelArrayListRecommended.length}");
-    MyPrint.printOnConsole(
-        "length of the _prerequisiteModelArrayListRe bg6yuuuygttggggggggggggggggggggggggggquired ${_prerequisiteModelArrayListRequired.length}");
+    MyPrint.printOnConsole("length of the _prerequisiteModelArrayListRe bg6yuuuygttggggggggggggggggggggggggggquired ${_prerequisiteModelArrayListRequired.length}");
     MyPrint.printOnConsole("length of the _prerequisiteModelArrayListCompletion ${_prerequisiteModelArrayListCompletion.length}");
   }
 
@@ -186,16 +184,13 @@ class _PrerequisiteScreenState extends State<PrerequisiteScreen> with MySafeStat
     ];
 
     if (parentPreRequisiteModel.ContentTypeId == InstancyObjectTypes.events) {
-      DateTime? PartentCourseStartDate = ParsingHelper.parseDateTimeMethod(parentPreRequisiteModel.EventStartDateTime,
-          dateFormat: appProvider.appSystemConfigurationModel.eventDateTimeFormat);
+      DateTime? PartentCourseStartDate = ParsingHelper.parseDateTimeMethod(parentPreRequisiteModel.EventStartDateTime, dateFormat: appProvider.appSystemConfigurationModel.eventDateTimeFormat);
       if (PartentCourseStartDate != null) {
         List<AssociatedContentCourseDTOModel> selectedPrerequisites = allPrerequisites.where((AssociatedContentCourseDTOModel courseDTOModel) {
           if (courseDTOModel.ContentTypeId == InstancyObjectTypes.events) {
-            DateTime? recommendedCourseEndDate =
-                ParsingHelper.parseDateTimeMethod(courseDTOModel.EventEndDateTime, dateFormat: appProvider.appSystemConfigurationModel.eventDateTimeFormat);
+            DateTime? recommendedCourseEndDate = ParsingHelper.parseDateTimeMethod(courseDTOModel.EventEndDateTime, dateFormat: appProvider.appSystemConfigurationModel.eventDateTimeFormat);
 
-            if (recommendedCourseEndDate != null &&
-                (recommendedCourseEndDate.isAfter(PartentCourseStartDate) || DatePresentation.isSameDay(recommendedCourseEndDate, PartentCourseStartDate))) {
+            if (recommendedCourseEndDate != null && (recommendedCourseEndDate.isAfter(PartentCourseStartDate) || DatePresentation.isSameDay(recommendedCourseEndDate, PartentCourseStartDate))) {
               return true;
             }
           }
@@ -258,10 +253,7 @@ class _PrerequisiteScreenState extends State<PrerequisiteScreen> with MySafeStat
           isMultiInstanceEnrollmentAlertShow = true;
         }
 
-        if (!isMultiInstanceEnrollmentAlertShow &&
-            prerequisiteModel.EventScheduleType == "1" &&
-            !prerequisiteModel.NoInstanceAvailable &&
-            prerequisiteModel.EventselectedinstanceID.isEmpty) {
+        if (!isMultiInstanceEnrollmentAlertShow && prerequisiteModel.EventScheduleType == "1" && !prerequisiteModel.NoInstanceAvailable && prerequisiteModel.EventselectedinstanceID.isEmpty) {
           isMultiInstanceEnrollmentAlertShow = true;
         }
 
@@ -345,15 +337,13 @@ class _PrerequisiteScreenState extends State<PrerequisiteScreen> with MySafeStat
 
       //Check 6
       PrerequisiteEnrolledDTOModel? prerequisiteEnrolledContent = prerequisiteModel.PrerequisiteEnrolledContent;
-      if (prerequisiteEnrolledContent != null &&
-          (prerequisiteEnrolledContent.ShowPrerequisiteEventDate || prerequisiteEnrolledContent.ShowParentPrerequisiteEventDate)) {
+      if (prerequisiteEnrolledContent != null && (prerequisiteEnrolledContent.ShowPrerequisiteEventDate || prerequisiteEnrolledContent.ShowParentPrerequisiteEventDate)) {
         CheckEnrolledChildsConfictDate(course: prerequisiteEnrolledContent);
         return;
       }
 
       if (prerequisiteModel.Ischecked && !prerequisiteModel.IsLearnerContent && !prerequisiteModel.NoInstanceAvailable) {
-        if (prerequisiteModel.SalePrice.isNotEmpty &&
-            [InstancyContentPrerequisiteType.required, InstancyContentPrerequisiteType.completion].contains(prerequisiteModel.ContentTypeId)) {
+        if (prerequisiteModel.SalePrice.isNotEmpty && [InstancyContentPrerequisiteType.required, InstancyContentPrerequisiteType.completion].contains(prerequisiteModel.ContentTypeId)) {
           IsRequiredwithcart = true;
         }
 
@@ -547,8 +537,7 @@ class _PrerequisiteScreenState extends State<PrerequisiteScreen> with MySafeStat
       }
 
       PrerequisiteEnrolledDTOModel? prerequisiteEnrolledContent = model.PrerequisiteEnrolledContent;
-      if (prerequisiteEnrolledContent != null &&
-          (prerequisiteEnrolledContent.ShowPrerequisiteEventDate || prerequisiteEnrolledContent.ShowParentPrerequisiteEventDate)) {
+      if (prerequisiteEnrolledContent != null && (prerequisiteEnrolledContent.ShowPrerequisiteEventDate || prerequisiteEnrolledContent.ShowParentPrerequisiteEventDate)) {
         CheckEnrolledChildsConfictDate(course: prerequisiteEnrolledContent);
         return;
       }
@@ -567,6 +556,8 @@ class _PrerequisiteScreenState extends State<PrerequisiteScreen> with MySafeStat
           MultiInstanceEventEnroll: "",
           ComponentID: widget.arguments.componentId,
           ComponentInsID: widget.arguments.componentInstanceId,
+          objecttypeId: model.ContentTypeId,
+          scoId: model.ScoID,
         ),
         hasPrerequisites: model.hasPrerequisiteContents(),
         isShowToast: true,
@@ -724,8 +715,7 @@ class _PrerequisiteScreenState extends State<PrerequisiteScreen> with MySafeStat
                 mySetState();
               },
               child: Container(
-                decoration: const BoxDecoration(
-                    shape: BoxShape.circle, color: Colors.white, boxShadow: [BoxShadow(color: Colors.black12, spreadRadius: 1, blurRadius: 2)]),
+                decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white, boxShadow: [BoxShadow(color: Colors.black12, spreadRadius: 1, blurRadius: 2)]),
                 height: 30,
                 width: 30,
                 child: const Icon(Icons.arrow_back_ios_outlined, size: 15),
@@ -758,8 +748,7 @@ class _PrerequisiteScreenState extends State<PrerequisiteScreen> with MySafeStat
                 mySetState();
               },
               child: Container(
-                decoration: const BoxDecoration(
-                    shape: BoxShape.circle, color: Colors.white, boxShadow: [BoxShadow(color: Colors.black12, spreadRadius: 1, blurRadius: 2)]),
+                decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white, boxShadow: [BoxShadow(color: Colors.black12, spreadRadius: 1, blurRadius: 2)]),
                 height: 30,
                 width: 30,
                 child: const Icon(Icons.arrow_forward_ios_outlined, size: 15),
@@ -1211,9 +1200,7 @@ class _PreRequisiteComponentState extends State<PreRequisiteComponent> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  coursesIcon(
-                      assetName: AppConfigurations.getContentIconFromObjectAndMediaType(
-                          mediaTypeId: widget.model.MediaTypeID, objectTypeId: widget.model.ContentTypeId)),
+                  coursesIcon(assetName: AppConfigurations.getContentIconFromObjectAndMediaType(mediaTypeId: widget.model.MediaTypeID, objectTypeId: widget.model.ContentTypeId)),
                   const SizedBox(width: 10),
                   Text(
                     widget.model.ContentType,
@@ -1420,10 +1407,8 @@ class _PreRequisiteComponentState extends State<PreRequisiteComponent> {
           }
         },
         backGroundColor: themeData.primaryColor,
-        child: Text(
-          text,
-          style: themeData.textTheme.bodySmall?.copyWith(color: Styles.textColor, fontSize: 12),
-        ),
+        text: text,
+        fontSize: 12,
       ),
     );
   }

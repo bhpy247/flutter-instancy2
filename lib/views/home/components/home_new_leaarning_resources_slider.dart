@@ -91,7 +91,10 @@ class _HomeNewLearningResourcesSliderState extends State<HomeNewLearningResource
                 NavigationController.navigateToCatalogContentsListScreen(
                   navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
                   arguments: CatalogContentsListScreenNavigationArguments(
-                      componentInstanceId: InstancyComponents.CatalogComponentInsId, componentId: InstancyComponents.Catalog, HomeComponentId: InstancyComponents.NewLearningResources),
+                    componentInstanceId: InstancyComponents.CatalogComponentInsId,
+                    componentId: InstancyComponents.Catalog,
+                    HomeComponentId: InstancyComponents.NewLearningResources,
+                  ),
                 );
               },
               child: SizedBox(

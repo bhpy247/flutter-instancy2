@@ -199,6 +199,7 @@ class CourseDTOModel {
   int Required = 0;
   int TypeofEvent = 0;
   double PercentCompleted = 0;
+  double percentagecompleted = 0;
   double RatingID = 0;
   bool ShowMembershipExpiryAlert = false;
   bool bit5 = false;
@@ -410,6 +411,7 @@ class CourseDTOModel {
     this.CategoryID = 0,
     this.TotalRatings = 0,
     this.PercentCompleted = 0,
+    this.percentagecompleted = 0,
     this.RatingID = 0,
     this.Count = 0,
     this.isWishListContent = 0,
@@ -634,6 +636,7 @@ class CourseDTOModel {
     GoogleProductId = ParsingHelper.parseStringMethod(map["GoogleProductId"]);
     ItunesProductId = ParsingHelper.parseStringMethod(map["ItunesProductId"]);
     PercentCompleted = ParsingHelper.parseDoubleMethod(map["PercentCompleted"]);
+    percentagecompleted = ParsingHelper.parseDoubleMethod(map["percentagecompleted"]);
     WaitListLimit = ParsingHelper.parseIntMethod(map['WaitListLimit']);
     WaitListEnrolls = ParsingHelper.parseIntMethod(map['WaitListEnrolls']);
     FilterId = ParsingHelper.parseIntMethod(map["FilterId"]);
@@ -859,6 +862,7 @@ class CourseDTOModel {
       "GoogleProductId": GoogleProductId,
       "ItunesProductId": ItunesProductId,
       "PercentCompleted": PercentCompleted,
+      "percentagecompleted": percentagecompleted,
       "WaitListLimit": WaitListLimit,
       "WaitListEnrolls": WaitListEnrolls,
       "FilterId": FilterId,

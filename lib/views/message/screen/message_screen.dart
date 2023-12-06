@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_chat_bot/view/common/components/bottom_sheet_dragger.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
+import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/message/message_controller.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/message/components/roleFilterWidget.dart';
-import 'package:flutter_instancy_2/views/message/screen/user_message_list.dart';
+import 'package:flutter_instancy_2/views/message/screen/user_message_list_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -283,7 +285,9 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
   }
 
   Widget getSingleUserItem(ChatUserModel chatUser) {
-    MyPrint.printOnConsole("UserName:${chatUser.FullName}, last message:${chatUser.LatestMessage}, index:${chatUser.hashCode}");
+    MyPrint.printOnConsole("UserName:${chatUser.FullName}, last message:${chatUser.LatestMessage}, ProfPic:${chatUser.ProfPic}, index:${chatUser.hashCode}");
+
+    String imageUrl = AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: chatUser.ProfPic);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 30),
@@ -301,14 +305,15 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            if (chatUser.ProfPic.isNotEmpty) ...[
+            if (imageUrl.isNotEmpty) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(100),
                 child: CommonCachedNetworkImage(
-                  imageUrl: chatUser.ProfPic,
+                  imageUrl: imageUrl,
                   height: 50,
                   width: 50,
                   fit: BoxFit.cover,
+                  errorIconSize: 30,
                 ),
               ),
               const SizedBox(width: 10),

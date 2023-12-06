@@ -43,6 +43,7 @@ class MainScreenDrawer extends StatelessWidget {
         "my profile",
         "discussions",
         "discussion forum",
+        "discussion forums",
         "my dashboard",
         "settings",
         "messages",

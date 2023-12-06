@@ -5,7 +5,7 @@ import 'package:flutter_instancy_2/backend/authentication/authentication_provide
 import 'package:flutter_instancy_2/backend/instabot/instabot_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_arguments.dart';
 import 'package:flutter_instancy_2/configs/client_urls.dart';
-import 'package:flutter_instancy_2/models/authentication/data_model/successful_user_login_model.dart';
+import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:provider/provider.dart';
 
 import '../../api/api_controller.dart';
@@ -53,7 +53,7 @@ class _InstaBotScreen2State extends State<InstaBotScreen2> {
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = ApiController().apiDataProvider;
     InstaBotProvider instaBotProvider = arguments.instaBotProvider ?? InstaBotProvider();
-    SuccessfulUserLoginModel? successfulUserLoginModel = context.read<AuthenticationProvider>().getSuccessfulUserLoginModel();
+    NativeLoginDTOModel? successfulUserLoginModel = context.read<AuthenticationProvider>().getEmailLoginResponseModel();
     String imageUrl = successfulUserLoginModel?.image ?? "";
 
     String tokenUrl = ClientUrls.getChatBotTokenApiUrl(apiUrlConfigurationProvider.getCurrentSiteUrl());

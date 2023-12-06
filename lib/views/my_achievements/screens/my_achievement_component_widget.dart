@@ -252,10 +252,8 @@ class _MyAchievementComponentWidgetState extends State<MyAchievementComponentWid
 
     return Column(
       children: [
-        if (userOverAllDataModel != null) ...[
-          UserOverallDataWidget(userOverAllDataModel: userOverAllDataModel),
-          const SizedBox(height: 10),
-        ],
+        if (userOverAllDataModel != null) UserOverallDataWidget(userOverAllDataModel: userOverAllDataModel),
+        const SizedBox(height: 10),
         Divider(
           height: .5,
           color: Colors.grey.withOpacity(.5),

@@ -1,17 +1,27 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
-import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
+import 'package:flutter_instancy_2/models/gamification/data_model/game_activity_badge_data_model.dart';
+import 'package:flutter_instancy_2/models/gamification/data_model/game_activity_data_model.dart';
+import 'package:flutter_instancy_2/models/gamification/data_model/game_activity_level_data_model.dart';
+import 'package:flutter_instancy_2/models/gamification/data_model/game_activity_points_data_model.dart';
 import 'package:flutter_instancy_2/models/gamification/data_model/games_dto_model.dart';
 import 'package:flutter_instancy_2/models/gamification/request_model/leaderboard_request_model.dart';
+import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/models/gamification/request_model/user_achievements_request_model.dart';
+import 'package:flutter_instancy_2/models/gamification/response_model/content_game_activity_response_model.dart';
 import 'package:flutter_instancy_2/models/gamification/response_model/leader_board_dto_model.dart';
 import 'package:flutter_instancy_2/models/gamification/response_model/user_achievement_dto_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
-import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
+import '../../views/my_achievements/components/badge_earned_dialog.dart';
+import '../../views/my_achievements/components/level_up_dialog.dart';
+import '../../views/my_achievements/components/point_earned_dialog.dart';
 import 'gamification_provider.dart';
 import 'gamification_repository.dart';
 
@@ -228,23 +238,86 @@ class GamificationController {
 
 //endregion
 
-  Future<void> showGamificationEarnedPopup({required String notifyMessage}) async {
+  Future<void> showGamificationEarnedPopup({required List<GameActivityDataModel> GameActivities}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("GamificationController().showGamificationEarnedPopup() called with notifyMessage:'$notifyMessage'", tag: tag);
+    MyPrint.printOnConsole("GamificationController().showGamificationEarnedPopup() called with GameActivities length:${GameActivities.length}", tag: tag);
 
-    int indexOfSeparator = notifyMessage.indexOf("~~");
-    MyPrint.printOnConsole("indexOfSeparator:$indexOfSeparator", tag: tag);
+    for (GameActivityDataModel activity in GameActivities) {
+      for (GameActivityPointsDataModel pointModel in activity.pointsData) {
+        await _showGamificationPopupOverlay(
+          widget: PointEarnDialog(
+            pointDataList: pointModel,
+            gameName: activity.gameName,
+          ),
+        );
+      }
 
-    if (indexOfSeparator > -1) notifyMessage = notifyMessage.substring(indexOfSeparator + 2);
-    MyPrint.printOnConsole("notifyMessage:'$notifyMessage'", tag: tag);
+      for (GameActivityBadgeDataModel badgeModel in activity.badgeData) {
+        await _showGamificationPopupOverlay(
+          widget: BadgeEarnDialog(
+            badgeDataModel: badgeModel,
+            gameName: activity.gameName,
+          ),
+        );
+      }
 
-    List<String> messages = notifyMessage.split("###");
-    MyPrint.printOnConsole("messages:'$messages'", tag: tag);
-
-    for (String message in messages) {
-      BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
-      if (context != null && context.mounted) MyToast.showSuccess(context: context, msg: message);
-      await Future.delayed(const Duration(seconds: 2));
+      for (GameActivityLevelDataModel levelModel in activity.levelData) {
+        await _showGamificationPopupOverlay(
+          widget: LevelUpDialog(
+            gameActivityLevelDataModel: levelModel,
+            gameName: activity.gameName,
+          ),
+        );
+      }
     }
+  }
+
+  Future<void> _showGamificationPopupOverlay({
+    required Widget widget,
+    Duration showTime = const Duration(seconds: 4),
+  }) async {
+    OverlayState? overlayState = NavigationController.mainNavigatorKey.currentState?.overlay;
+    if (overlayState == null) {
+      return;
+    }
+
+    OverlayEntry overlayEntry = OverlayEntry(
+      builder: (BuildContext context) {
+        return Dialog(
+          shadowColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          backgroundColor: Colors.transparent,
+          child: Container(
+            foregroundDecoration: const BoxDecoration(),
+            child: widget,
+          ),
+        );
+      },
+    );
+    overlayState.insert(overlayEntry);
+    await Future.delayed(showTime);
+    overlayEntry.remove();
+    await Future.delayed(const Duration(milliseconds: 400));
+  }
+
+  Future<void> UpdateContentGamification({required UpdateContentGamificationRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("GamificationController().UpdateContentGamification() called with requestModel:$requestModel", tag: tag);
+
+    DataResponseModel<ContentGameActivityResponseModel> responseModel = await gamificationRepository.UpdateContentGamification(requestModel: requestModel);
+    MyPrint.printOnConsole("UpdateContentGamification:\n${responseModel.data}", tag: tag);
+
+    if (responseModel.statusCode != 200 || responseModel.appErrorModel != null || responseModel.data == null) {
+      MyPrint.printOnConsole("Returning from GamificationController().UpdateContentGamification() because couldn't get data", tag: tag);
+      return;
+    }
+
+    ContentGameActivityResponseModel model = responseModel.data!;
+    MyPrint.printOnConsole("Activities Length:${model.GameActivities.length}", tag: tag);
+
+    await showGamificationEarnedPopup(GameActivities: model.GameActivities);
   }
 }

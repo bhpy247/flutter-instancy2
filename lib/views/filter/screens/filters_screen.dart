@@ -849,9 +849,7 @@ class _FiltersScreenState extends State<FiltersScreen> with MySafeState {
               ),
               child: DropdownButton<String>(
                 onChanged: (String? type) {
-                  EventDateModel? model = type.checkNotEmpty ? eventDatesList
-                      .where((element) => element.type == type)
-                      .firstElement : null;
+                  EventDateModel? model = type.checkNotEmpty ? eventDatesList.where((element) => element.type == type).firstElement : null;
                   selectedEventDateType = model;
                   mySetState();
                 },
@@ -870,8 +868,8 @@ class _FiltersScreenState extends State<FiltersScreen> with MySafeState {
                     child: Text(
                       e.title,
                       style: themeData.textTheme.labelLarge?.copyWith(
-                        // color: themeData.colorScheme.onPrimary,
-                      ),
+                          // color: themeData.colorScheme.onPrimary,
+                          ),
                     ),
                   );
                 }).toList(),
@@ -1049,8 +1047,7 @@ class _FiltersScreenState extends State<FiltersScreen> with MySafeState {
                     itemSize: 25,
                     glow: false,
                     ignoreGestures: true,
-                    itemBuilder: (context, _) =>
-                    const Icon(
+                    itemBuilder: (context, _) => const Icon(
                       Icons.star,
                       color: Colors.amber,
                     ),
@@ -1162,8 +1159,7 @@ class _FiltersScreenState extends State<FiltersScreen> with MySafeState {
               size: 24,
             ),
             const SizedBox(
-              width: 15,
-            ),
+                width: 15),
             Expanded(
               child: Text(
                 categoryName,
@@ -1180,14 +1176,13 @@ class _FiltersScreenState extends State<FiltersScreen> with MySafeState {
 
   //region Apply and reset button
   Widget getApplyAndResetButton() {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           Expanded(
-            flex: 3,
-            // child: CommonPrimarySecondaryButton(
+            flex: 1,
             child: CommonButton(
               onPressed: () {
                 resetFilterData();
@@ -1200,12 +1195,9 @@ class _FiltersScreenState extends State<FiltersScreen> with MySafeState {
               text: "Reset",
             ),
           ),
-          const SizedBox(
-            width: 25,
-          ),
+          const SizedBox(width: 25),
           Expanded(
-            flex: 3,
-            // child: CommonPrimarySecondaryButton(
+            flex: 1,
             child: CommonButton(
               onPressed: () {
                 applyFilterData();

@@ -80,8 +80,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
       MyPrint.printOnConsole("Got file Name:${file.name}");
       MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
       fileBytes = file.bytes;
-    }
-    else {
+    } else {
       fileName = "";
       fileBytes = null;
     }
@@ -91,17 +90,13 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
   FileType? getFileTypeFromMediaTypeId({required int mediaTypeId}) {
     if (mediaTypeId == InstancyMediaTypes.image) {
       return FileType.image;
-    }
-    else if (mediaTypeId == InstancyMediaTypes.audio) {
+    } else if (mediaTypeId == InstancyMediaTypes.audio) {
       return FileType.audio;
-    }
-    else if (mediaTypeId == InstancyMediaTypes.video) {
+    } else if (mediaTypeId == InstancyMediaTypes.video) {
       return FileType.video;
-    }
-    else if (mediaTypeId == InstancyMediaTypes.pDF) {
+    } else if (mediaTypeId == InstancyMediaTypes.pDF) {
       return FileType.custom;
-    }
-    else {
+    } else {
       // return FileType.custom;
       return null;
     }
@@ -117,8 +112,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
     if (isUrl) {
       url = websiteUrlController.text;
       if (titleName.isEmpty) titleName = url;
-    }
-    else {
+    } else {
       fileBytes = this.fileBytes;
       fileName = this.fileName;
 
@@ -130,8 +124,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
     if (!isUrl && (fileBytes.checkEmpty)) {
       MyToast.showError(context: context, msg: "Choose file");
       return;
-    }
-    else if (titleName.isEmpty) {
+    } else if (titleName.isEmpty) {
       MyToast.showError(context: context, msg: "Enter file name");
       return;
     }
@@ -141,7 +134,8 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
       setState(() {});
     }
 
-    DataResponseModel<String> responseModel = await WikiController(wikiProvider: null).addContent(wikiUploadRequestModel: WikiUploadRequestModel(
+    DataResponseModel<String> responseModel = await WikiController(wikiProvider: null).addContent(
+        wikiUploadRequestModel: WikiUploadRequestModel(
       isUrl: isUrl,
       url: url,
       fileUploads: [
@@ -174,8 +168,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
       if (context.mounted) {
         MyToast.showError(context: context, msg: message);
       }
-    }
-    else {
+    } else {
       MyPrint.printOnConsole("Content Added Successfully:${responseModel.data}");
       if (context.mounted) {
         MyToast.showSuccess(context: context, msg: '$titleName Submitted Successfully');
@@ -233,9 +226,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
               const SizedBox(
                 height: 19,
               ),
-              isUrl
-                  ? getWebsiteUrlTextFormField()
-                  : getWidgetFromFileType(fileType),
+              isUrl ? getWebsiteUrlTextFormField() : getWidgetFromFileType(fileType),
               // getImagePickerView(),
               const SizedBox(
                 height: 19,
@@ -244,7 +235,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
               const SizedBox(
                 height: 30,
               ),
-              getAddContentButton()
+              getAddContentButton(),
             ],
           ),
         ),
@@ -253,9 +244,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
   }
 
   //region imageView
-  Widget getImageView({String url = "assets/addContentLogo.png",
-    double height = 159,
-    double width = 135}) {
+  Widget getImageView({String url = "assets/addContentLogo.png", double height = 159, double width = 135}) {
     return Image.asset(
       url,
       height: height,
@@ -308,9 +297,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
         if (val == null || val.isEmpty) {
           return "Please enter website url";
         }
-        if (!Uri
-            .parse(val)
-            .isAbsolute) {
+        if (!Uri.parse(val).isAbsolute) {
           return "Please enter valid url";
         }
         return null;
@@ -328,9 +315,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
     return Consumer<WikiProvider>(
       builder: (BuildContext context, WikiProvider provider, _) {
         return Container(
-          decoration: BoxDecoration(
-              border: Border.all(width: 0.5, color: Colors.black45),
-              borderRadius: BorderRadius.circular(5)),
+          decoration: BoxDecoration(border: Border.all(width: 0.5, color: Colors.black45), borderRadius: BorderRadius.circular(5)),
           child: Theme(
             data: themeData.copyWith(dividerColor: Colors.transparent),
             child: ExpansionTile(
@@ -340,20 +325,14 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
                 tilePadding: const EdgeInsets.symmetric(horizontal: 14),
                 title: Row(
                   children: [
-                    getImageView(
-                        url: "assets/catalog/categories.png",
-                        height: 15,
-                        width: 15),
+                    getImageView(url: "assets/catalog/categories.png", height: 15, width: 15),
                     const SizedBox(
                       width: 10,
                     ),
                     Expanded(
                       child: Text(
-                        selectedCategoriesString.isEmpty
-                            ? "Categories"
-                            : selectedCategoriesString,
-                        style: themeData.textTheme.titleSmall
-                            ?.copyWith(color: Colors.black45),
+                        selectedCategoriesString.isEmpty ? "Categories" : selectedCategoriesString,
+                        style: themeData.textTheme.titleSmall?.copyWith(color: Colors.black45),
                       ),
                     ),
                   ],
@@ -369,8 +348,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
                         bool isChecked = !selectedCategoriesList.contains(e);
                         if (isChecked) {
                           selectedCategoriesList.add(e);
-                        }
-                        else {
+                        } else {
                           selectedCategoriesList.remove(e);
                         }
 
@@ -400,8 +378,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
                               bool isChecked = value ?? false;
                               if (isChecked) {
                                 selectedCategoriesList.add(e);
-                              }
-                              else {
+                              } else {
                                 selectedCategoriesList.remove(e);
                               }
 
@@ -433,10 +410,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
   Widget getAddContentButton() {
     return CommonButton(
       backGroundColor: themeData.primaryColor,
-      minWidth: MediaQuery
-          .of(context)
-          .size
-          .width,
+      minWidth: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.symmetric(vertical: 15),
       onPressed: () {
         if (formKey.currentState!.validate()) {
@@ -444,10 +418,8 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
           addCatalogContent();
         }
       },
-      child: Text(
-        "Add Content",
-        style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.white),
-      ),
+      text: "Add Content",
+      fontColor: themeData.colorScheme.onPrimary,
     );
   }
 
@@ -463,9 +435,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-          decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey, width: .5),
-              borderRadius: BorderRadius.circular(5)),
+          decoration: BoxDecoration(border: Border.all(color: Colors.grey, width: .5), borderRadius: BorderRadius.circular(5)),
           child: Row(
             children: [
               getImageView(url: "assets/imageUpload.png", height: 15, width: 15),
@@ -475,9 +445,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
               Expanded(
                 child: labelWithStar(
                   fileName.isEmpty ? "Upload ${widget.addWikiContentScreenNavigationArguments.title}" : fileName,
-                  style: fileName.isNotEmpty
-                      ? themeData.textTheme.titleSmall
-                      : themeData.inputDecorationTheme.hintStyle,
+                  style: fileName.isNotEmpty ? themeData.textTheme.titleSmall : themeData.inputDecorationTheme.hintStyle,
                 ),
               ),
               const Icon(Icons.add)
@@ -485,52 +453,41 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
           ),
         ),
       );
-    }
-    else {
+    } else {
       return const SizedBox();
     }
   }
 
   //endregion
 
-
   //Supporting Widgets
   //region textFieldView
-  Widget getTexFormField({
-    TextEditingController? controller,
-    String iconUrl = "",
-    String? Function(String?)? validator,
-    String labelText = "Label",
-    Widget? suffixWidget,
-    required bool isMandatory
-  }) {
+  Widget getTexFormField({TextEditingController? controller, String iconUrl = "", String? Function(String?)? validator, String labelText = "Label", Widget? suffixWidget, required bool isMandatory}) {
     return CommonTextFormFieldWithLabel(
       controller: controller,
       label: isMandatory ? labelWithStar(labelText) : null,
       labelText: isMandatory ? null : labelText,
       validator: validator,
       isOutlineInputBorder: true,
-      prefixWidget: iconUrl.isNotEmpty
-          ? getImageView(url: iconUrl, height: 15, width: 15)
-          : const Icon(FontAwesomeIcons.globe),
+      prefixWidget: iconUrl.isNotEmpty ? getImageView(url: iconUrl, height: 15, width: 15) : const Icon(FontAwesomeIcons.globe),
       suffixWidget: suffixWidget,
     );
   }
 
-  Widget labelWithStar(String labelText,{TextStyle? style}) {
+  Widget labelWithStar(String labelText, {TextStyle? style}) {
     return RichText(
       text: TextSpan(
         text: labelText,
-        style: style ?? const TextStyle(
-            color: Colors.grey),
+        style: style ?? const TextStyle(color: Colors.grey),
         children: const [
           TextSpan(
               text: ' *',
               style: TextStyle(
                 color: Colors.red,
-              )
-          )
-        ],),);
+              ))
+        ],
+      ),
+    );
   }
 //endregion
 }

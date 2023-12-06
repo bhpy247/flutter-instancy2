@@ -1,7 +1,13 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/utils/my_utils.dart';
+import 'package:flutter_chat_bot/utils/parsing_helper.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
+import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/home/home_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +30,7 @@ class HomeWebListScreen extends StatefulWidget {
   State<HomeWebListScreen> createState() => _HomeWebListScreenState();
 }
 
-class _HomeWebListScreenState extends State<HomeWebListScreen> {
+class _HomeWebListScreenState extends State<HomeWebListScreen> with MySafeState {
   late NativeMenuComponentModel nativeMenuComponentModel;
   late HomeProvider homeProvider;
   late HomeController homeController;
@@ -47,91 +53,73 @@ class _HomeWebListScreenState extends State<HomeWebListScreen> {
     super.initState();
     homeProvider = context.read<HomeProvider>();
     homeController = HomeController(homeProvider: homeProvider);
+
+    nativeMenuComponentModel = widget.nativeMenuComponentModel;
+
     getWebListPageData = getData();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (BuildContext context, HomeProvider homeProvider, _) {
-      List<WebListDTO>? webList = homeProvider.webListDataDto.get()?.webList ?? [];
-      return CarouselSlider(
-        items: ["https://picsum.photos/300", "https://picsum.photos/300"]
-            .map(
-              (e) => InkWell(
-                onTap: () {
-                  NavigationController.navigateToWebViewScreen(
-                    navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-                    arguments: WebViewScreenNavigationArguments(
-                      title: e,
-                      url: e,
-                    ),
-                  );
-                },
-                child: const CommonCachedNetworkImage(
-                  imageUrl: "https://picsum.photos/300",
-                  fit: BoxFit.cover,
-                ),
-              ),
-            )
-            .toList(),
-        carouselController: _controller,
-        options: CarouselOptions(
+    super.pageBuild();
+
+    return Consumer(
+      builder: (BuildContext context, HomeProvider homeProvider, _) {
+        List<WebListDTO>? webList = homeProvider.webListDataDto.get()?.webList ?? [];
+        return CarouselSlider(
+          items: webList.map((e) => Container(child: getWebItemWidget(webListDTO: e))).toList(),
+          carouselController: _controller,
+          options: CarouselOptions(
             autoPlay: true,
             enlargeCenterPage: true,
-            aspectRatio: 2.0,
+            // height: 250,
+            aspectRatio: 1.8,
+            viewportFraction: .7,
             onPageChanged: (index, reason) {
-              setState(() {
-                _current = index;
-              });
-            }),
-      );
-      return CarouselSlider.builder(
-        options: CarouselOptions(
-          autoPlay: false,
-          enableInfiniteScroll: false,
-          enlargeCenterPage: false,
-          initialPage: 0,
-          viewportFraction: 1,
-          aspectRatio: 1,
-          padEnds: false,
-          // initialPage: 2,
-        ),
-        itemCount: 2,
-        itemBuilder: (BuildContext context, int index, int pageViewIndex) {
-          return const CommonCachedNetworkImage(
-            imageUrl: "https://picsum.photos/300",
-            fit: BoxFit.cover,
-          );
-        },
-      );
-    });
+              _current = index;
+              mySetState();
+            },
+          ),
+        );
+      },
+    );
   }
 
-// Widget dotIndicator() {
-//   return Row(
-//     mainAxisAlignment: MainAxisAlignment.center,
-//     children: imgList
-//         .asMap()
-//         .entries
-//         .map((entry) {
-//       return GestureDetector(
-//         onTap: () => _controller.animateToPage(entry.key),
-//         child: Container(
-//           width: 12.0,
-//           height: 12.0,
-//           margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-//           decoration: BoxDecoration(
-//               shape: BoxShape.circle,
-//               color: (Theme
-//                   .of(context)
-//                   .brightness == Brightness.dark
-//                   ? Colors.white
-//                   : Colors.black)
-//                   .withOpacity(_current == entry.key ? 0.9 : 0.4)),
-//         ),
-//       );
-//     }).toList(),
-//   )
-//   ,
-// }
+  Widget getWebItemWidget({required WebListDTO webListDTO}) {
+    String imageUrl = AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: webListDTO.thumbnailImagePath ?? "");
+    return InkWell(
+      onTap: () {
+        if (ParsingHelper.parseIntMethod(webListDTO.objectTypeID) == InstancyObjectTypes.webPage) {
+          String previewUrl = AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: webListDTO.previewPath ?? "");
+          NavigationController.navigateToWebViewScreen(
+            navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+            arguments: WebViewScreenNavigationArguments(
+              title: webListDTO.webpageTitle,
+              url: previewUrl,
+            ),
+          );
+        } else if (ParsingHelper.parseIntMethod(webListDTO.objectTypeID) == InstancyObjectTypes.reference) {
+          String imageUrl = AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: webListDTO.imageWithLink ?? "");
+          MyUtils.launchWebUrl(url: imageUrl);
+        } else {
+          NavigationController.navigateToCourseDetailScreen(
+            navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+            arguments: CourseDetailScreenNavigationArguments(
+              contentId: webListDTO.contentID,
+              componentId: widget.nativeMenuComponentModel.repositoryid,
+              componentInstanceId: ParsingHelper.parseIntMethod(webListDTO.compInsID),
+              userId: ParsingHelper.parseIntMethod(webListDTO.siteUserID),
+            ),
+          );
+        }
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: CommonCachedNetworkImage(
+          imageUrl: imageUrl,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
 }

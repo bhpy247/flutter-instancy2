@@ -1,8 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
+import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
+import 'package:provider/provider.dart';
 
 import '../../../models/home/data_model/new_course_list_dto.dart';
-import '../../common/components/common_loader.dart';
 
 class HomeCourseCard extends StatelessWidget {
   final NewCourseListDTOModel courseDTO;
@@ -13,6 +15,10 @@ class HomeCourseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
+
+    String imageUrl = AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: courseDTO.strThumbUrl);
+    // MyPrint.printOnConsole("HomeCourseCard imageUrl:$imageUrl");
+
     return GestureDetector(
       onTap: () {
         if (onTap != null) {
@@ -36,12 +42,9 @@ class HomeCourseCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: CachedNetworkImage(
-                    imageUrl: courseDTO.strThumbUrl,
+                  child: CommonCachedNetworkImage(
+                    imageUrl: imageUrl,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) {
-                      return const CommonLoader(size: 30,);
-                    },
                   ),
                 ),
               ),

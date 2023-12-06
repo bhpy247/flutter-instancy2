@@ -197,10 +197,8 @@ class _ExperienceTabScreenViewState extends State<ExperienceTabScreenView> {
         backGroundColor: themeData.primaryColor,
         minWidth: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 13),
-        child: Text(
-          "Add Experience",
-          style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.white),
-        ),
+        text: "Add Experience",
+        fontColor: themeData.colorScheme.onPrimary,
       ),
     );
   }

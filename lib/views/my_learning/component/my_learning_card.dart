@@ -402,10 +402,8 @@ class _MyLearningCardState extends State<MyLearningCard> {
                 }
               },
               backGroundColor: themeData.primaryColor,
-              child: Text(
-                primaryAction.text,
-                style: themeData.textTheme.bodySmall?.copyWith(fontSize: 12),
-              ),
+              text: primaryAction.text,
+              fontSize: 12,
             ),
           ),
           primaryAction.actionsEnum == InstancyContentActionsEnum.Buy

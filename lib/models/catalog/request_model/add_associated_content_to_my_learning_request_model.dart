@@ -13,6 +13,8 @@ class AddAssociatedContentToMyLearningRequestModel {
   int UserID = 0;
   int SiteID = AppConstants.defaultSiteId;
   int OrgUnitID = AppConstants.defaultSiteId;
+  int scoId = 0;
+  int objecttypeId = 0;
 
   AddAssociatedContentToMyLearningRequestModel({
     this.SelectedContent = "",
@@ -27,6 +29,8 @@ class AddAssociatedContentToMyLearningRequestModel {
     this.UserID = 0,
     this.SiteID = AppConstants.defaultSiteId,
     this.OrgUnitID = AppConstants.defaultSiteId,
+    this.scoId = 0,
+    this.objecttypeId = 0,
   });
 
   Map<String, dynamic> toJson() {

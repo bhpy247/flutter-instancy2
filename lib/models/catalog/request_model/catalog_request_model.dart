@@ -3,7 +3,7 @@ import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 class CatalogRequestModel {
   int pageIndex = 0;
   int pageSize = 0;
-  int HomecomponentID = 0;
+  int? HomecomponentID;
   int iswishlistcontent = 0;
 
   String searchText = "";
@@ -39,7 +39,7 @@ class CatalogRequestModel {
   CatalogRequestModel({
     this.pageIndex = 0,
     this.pageSize = 0,
-    this.HomecomponentID = 0,
+    this.HomecomponentID,
     this.iswishlistcontent = 0,
     this.searchText = "",
     this.contentID = "",
@@ -76,7 +76,7 @@ class CatalogRequestModel {
     pageIndex = ParsingHelper.parseIntMethod(json['pageIndex']);
     pageSize = ParsingHelper.parseIntMethod(json['pageSize']);
     iswishlistcontent = ParsingHelper.parseIntMethod(json['iswishlistcontent']);
-    HomecomponentID = ParsingHelper.parseIntMethod(json['HomecomponentID']);
+    HomecomponentID = ParsingHelper.parseIntNullableMethod(json['HomecomponentID']);
     PinnedContent = ParsingHelper.parseBoolMethod(json['PinnedContent']);
     searchText = ParsingHelper.parseStringMethod(json['SearchText']);
     contentID = ParsingHelper.parseStringMethod(json['ContentID']);

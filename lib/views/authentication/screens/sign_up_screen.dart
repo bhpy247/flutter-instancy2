@@ -8,6 +8,7 @@ import '../../common/components/common_text_form_field.dart';
 
 class SignUpScreen extends StatefulWidget {
   static const String routeName = "/SignUpScreen";
+
   const SignUpScreen({Key? key}) : super(key: key);
 
   @override
@@ -27,8 +28,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-
-
   @override
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
@@ -38,34 +37,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        title: const Text(AppStrings.signUp,
-        style: const TextStyle(
-        fontSize: 18,
-        color: Colors.black
-          )
-        ),
+        title: const Text(AppStrings.signUp, style: TextStyle(fontSize: 18, color: Colors.black)),
       ),
       body: getMainBody(),
     );
   }
 
-  Widget getMainBody(){
+  Widget getMainBody() {
     return Padding(
       padding: const EdgeInsets.all(18.0),
-      child: Container(
+      child: SizedBox(
         height: MediaQuery.of(context).size.height,
         // color: Colors.orange,
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children:  [
+            children: [
               getHeadLine(),
-              const SizedBox(height: 20,),
+              const SizedBox(
+                height: 20,
+              ),
               getTextFormFields(),
-
-              getSignInButton(AppStrings.signUp, themeData.primaryColor,
-                onPressed: (){
-                  if(formKey.currentState!.validate()){
+              getSignInButton(
+                AppStrings.signUp,
+                themeData.primaryColor,
+                onPressed: () {
+                  if (formKey.currentState!.validate()) {
                     MyPrint.printOnConsole("succes");
                   }
                   // Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
@@ -78,28 +75,48 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Widget getHeadLine(){
-    return const Text(AppStrings.pleaseFillTheFormToCreateAccount,style: TextStyle(
-      color: Colors.black,
-      fontSize: 14,
-    ));
+  Widget getHeadLine() {
+    return const Text(AppStrings.pleaseFillTheFormToCreateAccount,
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 14,
+        ));
   }
 
-  Widget getTextFormFields(){
+  Widget getTextFormFields() {
     return Form(
       key: formKey,
       child: Column(
         children: [
-          getTextFormField(fNameController, AppStrings.fName, ),
-          const SizedBox(height: 10,),
-          getTextFormField(lNameController, AppStrings.lName, ),
-          const SizedBox(height: 10,),
-          getTextFormField(emailController, AppStrings.email, ),
-          const SizedBox(height: 10,),
-          getTextFormField(passController, AppStrings.pass, maxLength: 15, widget: eyeVisibleInvisibleForPass(),isSuffix: true,obscureText: isPassObscure),
-          const SizedBox(height: 10,),
-          getTextFormField(confirmPassController, AppStrings.confirmPass, maxLength: 15, widget: eyeVisibleInvisibleForConfirmPass(),isSuffix: true,obscureText: isConfirmPassObscure),
-          const SizedBox(height: 10,)
+          getTextFormField(
+            fNameController,
+            AppStrings.fName,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          getTextFormField(
+            lNameController,
+            AppStrings.lName,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          getTextFormField(
+            emailController,
+            AppStrings.email,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          getTextFormField(passController, AppStrings.pass, maxLength: 15, widget: eyeVisibleInvisibleForPass(), isSuffix: true, obscureText: isPassObscure),
+          const SizedBox(
+            height: 10,
+          ),
+          getTextFormField(confirmPassController, AppStrings.confirmPass, maxLength: 15, widget: eyeVisibleInvisibleForConfirmPass(), isSuffix: true, obscureText: isConfirmPassObscure),
+          const SizedBox(
+            height: 10,
+          )
         ],
       ),
     );
@@ -113,7 +130,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         });
       },
       child: Icon(
-        !isPassObscure? FontAwesomeIcons.solidEye: FontAwesomeIcons.solidEyeSlash,
+        !isPassObscure ? FontAwesomeIcons.solidEye : FontAwesomeIcons.solidEyeSlash,
         size: 15,
       ),
     );
@@ -122,47 +139,51 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget eyeVisibleInvisibleForConfirmPass() {
     return InkWell(
       onTap: () {
-        print("hiiiiiiii");
+        MyPrint.printOnConsole("hiiiiiiii");
         setState(() {
           isConfirmPassObscure = !isConfirmPassObscure;
         });
-      }
-      ,
+      },
       child: Icon(
-        !isConfirmPassObscure? FontAwesomeIcons.solidEye: FontAwesomeIcons.solidEyeSlash,
+        !isConfirmPassObscure ? FontAwesomeIcons.solidEye : FontAwesomeIcons.solidEyeSlash,
         size: 15,
       ),
     );
   }
 
-  Widget getSignInButton(String text, Color color, {Function()? onPressed}){
+  Widget getSignInButton(String text, Color color, {Function()? onPressed}) {
     return CommonButton(
       onPressed: onPressed,
       text: text,
       fontColor: Colors.black,
       backGroundColor: color,
       borderRadius: 3,
-      padding: const EdgeInsets.symmetric(vertical: 25,horizontal: 0),
+      padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 0),
       minWidth: MediaQuery.of(context).size.width,
     );
   }
 
-  Widget getTextFormField(TextEditingController controller, String hintText,{bool isSuffix = false, Widget? widget, bool obscureText = false,String? Function(String?)? validator, int maxLength = 50}){
+  Widget getTextFormField(TextEditingController controller, String hintText,
+      {bool isSuffix = false, Widget? widget, bool obscureText = false, String? Function(String?)? validator, int maxLength = 50}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         labelText(hintText),
-        const SizedBox(height: 10,),
+        const SizedBox(
+          height: 10,
+        ),
         CommonTextFormFieldWithLabel(
-          contentPadding: const EdgeInsets.symmetric(vertical: 20,horizontal: 10),
+          contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
           controller: controller,
           obscureText: obscureText,
           suffixWidget: widget,
           borderRadius: 3,
-          validator: (String? val){
-            if(val == null || val.isEmpty){
+          validator: (String? val) {
+            if (val == null || val.isEmpty) {
               return "Please fill the mandatory field";
             }
+
+            return null;
           },
           maxLength: maxLength,
           labelText: hintText,
@@ -172,27 +193,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Widget labelText(String text){
+  Widget labelText(String text) {
     return RichText(
-      text:  TextSpan(
-          text: text,
-          style:  const TextStyle(
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(fontSize: 14, color: Colors.black),
+        children: const [
+          TextSpan(
+            text: " *",
+            style: TextStyle(
               fontSize: 14,
-              color: Colors.black
-          ),
-          children: [
-            const TextSpan(
-              text: " *",
-              style:  const TextStyle(
-                fontSize: 14,
-                color: Colors.red,
-                // height: 5
-              ),
-            )
-          ]
+              color: Colors.red,
+              // height: 5
+            ),
+          )
+        ],
       ),
     );
   }
 }
-
-

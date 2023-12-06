@@ -93,10 +93,11 @@ class _HomePopularLearningResourcesSliderState extends State<HomePopularLearning
               NavigationController.navigateToCatalogContentsListScreen(
                 navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
                 arguments: CatalogContentsListScreenNavigationArguments(
-                    componentInstanceId: InstancyComponents.CatalogComponentInsId,
-                    componentId: InstancyComponents.Catalog,
-                    HomeComponentId: InstancyComponents.PopularLearningResources,
-                    isPinnedContent: false),
+                  componentInstanceId: InstancyComponents.CatalogComponentInsId,
+                  componentId: InstancyComponents.Catalog,
+                  HomeComponentId: InstancyComponents.PopularLearningResources,
+                  isPinnedContent: false,
+                ),
               );
             },
             child: SizedBox(

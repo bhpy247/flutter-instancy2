@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/models/gamification/data_model/user_points_model.dart';
 
 import '../../../backend/app_theme/style.dart';
@@ -14,6 +15,10 @@ class PointTabScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
+
+    if (pointsData.isEmpty) {
+      return AppConfigurations.commonNoDataView();
+    }
 
     return Column(
       children: [
@@ -66,13 +71,6 @@ class PointTabScreen extends StatelessWidget {
   }
 
   Widget getListPointList({required ThemeData themeData}) {
-    if (pointsData.isEmpty) {
-      return const SizedBox(
-        height: 200,
-        child: Text("No Points"),
-      );
-    }
-
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 10),
       itemCount: pointsData.length,

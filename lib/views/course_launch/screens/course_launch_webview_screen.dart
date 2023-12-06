@@ -42,14 +42,15 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) {
+        MyPrint.printOnConsole("onPopInvoked called with didPop:$didPop");
+        if (didPop) return;
+
         if (!isFullScreen()) {
           Navigator.pop(context, true);
         }
-
-        return false;
-        // return true;
       },
       child: ModalProgressHUD(
         inAsyncCall: !isPageLoaded,

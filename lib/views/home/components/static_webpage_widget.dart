@@ -1,10 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_instancy_2/backend/home/home_controller.dart';
 import 'package:flutter_instancy_2/backend/home/home_provider.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
-import 'package:webviewx/webviewx.dart';
 
 import '../../../utils/my_print.dart';
 
@@ -54,13 +56,30 @@ class _StaticWebpageWidgetState extends State<StaticWebpageWidget> {
         future: getStaticWebPageData,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            Size size = MediaQuery.of(context).size;
-            if (homeProvider.staticWebPageModel.webpageHTML.checkEmpty) return SizedBox();
-            return WebViewX(
-              width: size.width,
-              height: size.height,
-              initialContent: homeProvider.staticWebPageModel.webpageHTML,
-              initialSourceType: SourceType.html,
+            if (homeProvider.staticWebPageModel.webpageHTML.checkEmpty) return const SizedBox();
+            return Container(
+              margin: const EdgeInsets.symmetric(vertical: 25),
+              child: AspectRatio(
+                aspectRatio: 16 / 4,
+                child: InAppWebView(
+                  initialUrlRequest: URLRequest(
+                    url: WebUri.uri(
+                      Uri.dataFromString(
+                        homeProvider.staticWebPageModel.webpageHTML,
+                        mimeType: "text/html",
+                        encoding: Encoding.getByName("utf-8"),
+                      ),
+                    ),
+                  ),
+                  initialSettings: InAppWebViewSettings(
+                    preferredContentMode: UserPreferredContentMode.MOBILE,
+                  ),
+                  // width: size.width,
+                  // height: size.height,
+                  // initialContent: homeProvider.staticWebPageModel.webpageHTML,
+                  // initialSourceType: SourceType.html,
+                ),
+              ),
             );
           } else {
             return const Center(

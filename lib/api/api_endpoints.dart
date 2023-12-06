@@ -97,6 +97,8 @@ class ApiEndpoints {
 
   String apiGetStaticWebPages() => '${getBaseApiUrl()}Generic/staticWebPage';
 
+  String apiGetWebListApi() => '${getBaseApiUrl()}WebList/GetWebListContent';
+
   //api/Catalog/getRecomendationContent?siteId=374&userId=467&componentInsId=50079&locale=en-us&componentId=303
   // endregion
 
@@ -478,6 +480,8 @@ class ApiEndpoints {
   String GetUserAchievementData() => '${getBaseApiUrl()}UserAchievement/GetUserAchievementData';
 
   String GetLeaderboardData() => '${getBaseApiUrl()}LeaderBoard/GetLeaderboardData';
+
+  String UpdateContentGamification() => '${getBaseApiUrl()}Game/UpdateContentGamification';
 
   //endregion
 

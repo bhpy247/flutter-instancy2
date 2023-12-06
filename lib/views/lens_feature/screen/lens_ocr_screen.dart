@@ -407,6 +407,8 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
             contentId: model.ContentID,
             contentName: model.Title,
             shareProvider: context.read<ShareProvider>(),
+            scoId: model.ScoID,
+            objecttypeId: model.ContentTypeId,
           ),
         );
       },
@@ -422,6 +424,8 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
             shareContentType: ShareContentType.catalogCourse,
             contentId: model.ContentID,
             contentName: model.Title,
+            scoId: model.ScoID,
+            objecttypeId: model.ContentTypeId,
           ),
         );
       },
@@ -517,6 +521,8 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
         MultiInstanceEventEnroll: "",
         ComponentID: componentId,
         ComponentInsID: componentInstanceId,
+        objecttypeId: model.ContentTypeId,
+        scoId: model.ScoID,
       ),
       context: context,
       onPrerequisiteDialogShowEnd: () {

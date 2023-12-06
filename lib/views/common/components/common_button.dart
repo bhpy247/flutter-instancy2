@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
 
 class CommonButton extends StatelessWidget {
+  final Function()? onPressed;
+  final String text;
+  final IconData? iconData;
+  final EdgeInsets? iconPadding, padding;
+  final Widget? child;
+  final FontWeight fontWeight;
+  final Color? iconColor, backGroundColor, fontColor, borderColor, highlightColor;
+  final double? iconSize, fontSize, minWidth, borderRadius, borderWidth;
+  final double? height;
+
   const CommonButton({
     Key? key,
     required this.onPressed,
     this.text = "",
     this.iconData,
     this.borderRadius = 5,
-    this.minWidth = 80,
+    this.minWidth,
     this.height,
     this.iconSize = 20,
-    this.iconColor = Colors.black,
+    this.iconColor,
     this.fontSize = 14,
-    this.fontColor = Colors.black,
+    this.fontColor,
     this.fontWeight = FontWeight.w400,
     this.highlightColor = Colors.white12,
     this.backGroundColor,
@@ -23,19 +33,46 @@ class CommonButton extends StatelessWidget {
     this.borderColor,
   }) : super(key: key);
 
-  final Function()? onPressed;
-  final String text;
-  final IconData? iconData;
-  final EdgeInsets? iconPadding, padding;
-  final Widget? child;
-  final FontWeight fontWeight;
-  final Color? iconColor, backGroundColor, fontColor, borderColor, highlightColor;
-  final double iconSize, fontSize, minWidth, borderRadius, borderWidth;
-  final double? height;
-
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
+
+    /*return MaterialButton(
+      onPressed: onPressed,
+      padding: padding,
+      highlightColor: highlightColor,
+      minWidth: minWidth,
+      elevation: 0,
+      height: height,
+      highlightElevation: 0,
+      hoverElevation: 0,
+      color: backGroundColor ?? themeData.primaryColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: borderRadius != null ? BorderRadius.circular(borderRadius!) : BorderRadius.zero,
+        side: BorderSide(color: borderColor ?? Colors.grey, width: borderWidth ?? 0.5),
+      ),
+      child: child ?? Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if(iconData != null) Container(
+            margin: iconPadding,
+            child: Icon(
+              iconData,
+              size: iconSize,
+              color: iconColor,
+            ),
+          ),
+          Text(
+            text,
+            style: TextStyle(
+              color: fontColor,
+              fontSize: fontSize,
+              fontWeight: fontWeight,
+            ),
+          ),
+        ],
+      ),
+    );*/
 
     return InkWell(
       onTap: onPressed,
@@ -44,41 +81,39 @@ class CommonButton extends StatelessWidget {
         height: height,
         padding: padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         constraints: BoxConstraints(
-          minWidth: minWidth,
+          minWidth: minWidth ?? 0,
         ),
         decoration: BoxDecoration(
           color: backGroundColor ?? themeData.primaryColor,
-          borderRadius: BorderRadius.circular(borderRadius),
+          borderRadius: borderRadius != null ? BorderRadius.circular(borderRadius!) : null,
           border: Border.all(
             color: borderColor ?? Colors.grey,
-            width: borderWidth,
+            width: borderWidth ?? 0.5,
           ),
         ),
-        child: Center(
-          child: child ??
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (iconData != null)
-                    Container(
-                      margin: iconPadding ?? const EdgeInsets.symmetric(horizontal: 5),
-                      child: Icon(
-                        iconData,
-                        size: iconSize,
-                        color: iconColor,
-                      ),
-                    ),
-                  Text(
-                    text,
-                    style: TextStyle(
-                      color: fontColor,
-                      fontSize: fontSize,
-                      fontWeight: fontWeight,
+        child: child ??
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (iconData != null)
+                  Container(
+                    margin: iconPadding ?? const EdgeInsets.symmetric(horizontal: 5),
+                    child: Icon(
+                      iconData,
+                      size: iconSize,
+                      color: iconColor,
                     ),
                   ),
-                ],
-              ),
-        ),
+                Text(
+                  text,
+                  style: TextStyle(
+                    color: fontColor,
+                    fontSize: fontSize,
+                    fontWeight: fontWeight,
+                  ),
+                ),
+              ],
+            ),
       ),
     );
   }

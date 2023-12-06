@@ -2,7 +2,7 @@ import 'package:flutter_chat_bot/models/authorization/response_model/bot_details
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
-import 'package:flutter_instancy_2/models/authentication/data_model/successful_user_login_model.dart';
+import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 
 import '../../api/api_call_model.dart';
 import '../../api/api_endpoints.dart';
@@ -17,7 +17,7 @@ class InstabotRepository {
 
   const InstabotRepository({required this.apiController});
 
-  Future<DataResponseModel<String>> insertBotData({required AppProvider appProvider, required SuccessfulUserLoginModel successfulUserLoginModel}) async {
+  Future<DataResponseModel<String>> insertBotData({required AppProvider appProvider, required NativeLoginDTOModel successfulUserLoginModel}) async {
     MyPrint.printOnConsole("InstabotRepository().insertBotData() called");
 
     // MyPrint.printOnConsole("appProvider.profilePic:${appProvider.profilePic}");
