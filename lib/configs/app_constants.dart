@@ -17,6 +17,12 @@ class AppConstants {
   static const String defaultVideoUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
 }
 
+class ClientUrlTypes {
+  static const int STAGING = 0;
+  static const int QA = 1;
+  static const int PRODUCTION = 2;
+}
+
 class SharedPreferenceVariables {
   static const String darkThemeModeEnabled = "darkThemeModeEnabled";
   static const String isUserLoggedIn = "isUserLoggedIn";

@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/component_configurations_model.dart';
 import 'package:flutter_instancy_2/models/common/pagination/pagination_model.dart';
+import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/request_model/my_learning_data_request_model.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
@@ -458,9 +461,9 @@ class MyLearningController {
     return response.data == "1";
   }
 
-  Future<bool> setComplete({required String contentId, required int scoId}) async {
+  Future<bool> setComplete({required String contentId, required int scoId, required int contentTypeId}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("MyLearningController().setComplete() called with contentId:'$contentId', scoId:'$scoId'", tag: tag);
+    MyPrint.printOnConsole("MyLearningController().setComplete() called with contentId:'$contentId', scoId:'$scoId', contentTypeId:'$contentTypeId'", tag: tag);
 
     DataResponseModel response = await myLearningRepository.setCompleteStatus(
       contentID: contentId,
@@ -468,7 +471,22 @@ class MyLearningController {
     );
     MyPrint.printOnConsole("Set Complete Response Data:$response", tag: tag);
 
-    return response.statusCode == 200;
+    bool isSuccess = response.statusCode == 200;
+
+    if (isSuccess) {
+      await GamificationController(provider: null).UpdateContentGamification(
+        requestModel: UpdateContentGamificationRequestModel(
+          contentId: contentId,
+          scoId: scoId,
+          objecttypeId: contentTypeId,
+          GameAction: GamificationActionType.Completed,
+          isCourseLaunch: false,
+          CanTrack: false,
+        ),
+      );
+    }
+
+    return isSuccess;
   }
   // Future<bool> setCompleteMyLearning({required String contentId, required int scoId}) async {
   //   String tag = MyUtils.getNewId();

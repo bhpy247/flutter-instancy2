@@ -9,6 +9,7 @@ class UpdateContentGamificationRequestModel {
   int GameAction = 0;
   bool CanTrack = false;
   bool isCourseLaunch = false;
+  bool IsFromNativeApp = true;
 
   UpdateContentGamificationRequestModel({
     required this.contentId,
@@ -19,6 +20,7 @@ class UpdateContentGamificationRequestModel {
     this.GameAction = 0,
     this.CanTrack = false,
     this.isCourseLaunch = false,
+    this.IsFromNativeApp = true,
   });
 
   Map<String, String> toMap() {
@@ -31,6 +33,7 @@ class UpdateContentGamificationRequestModel {
       "CanTrack": CanTrack.toString(),
       "isCourseLaunch": isCourseLaunch.toString(),
       "GameAction": GameAction.toString(),
+      "IsFromNativeApp": IsFromNativeApp.toString(),
     };
   }
 

@@ -102,10 +102,12 @@ class GamificationController {
 
     provider.isUserAchievementDataLoading.set(value: true, isNotify: isNotify);
 
+    int selectedGameId = provider.selectedGameModel.get()?.GameID ?? -1;
+
     UserAchievementsRequestModel requestModel = UserAchievementsRequestModel(
       ComponentID: provider.myAchievementComponentId.get(),
       ComponentInsID: provider.myAchievementRepositoryId.get(),
-      GameID: provider.selectedGameModel.get()?.GameID ?? -1,
+      GameID: selectedGameId,
     );
 
     //region Make Api Call
@@ -121,6 +123,11 @@ class GamificationController {
     userAchievementDTOModel = response.data;
     provider.userAchievementData.set(value: userAchievementDTOModel, isNotify: false);
     provider.isUserAchievementDataLoading.set(value: false, isNotify: true);
+
+    if (selectedGameId == provider.selectedGameModel.get()?.GameID) {
+      provider.userAchievementDataForDrawer.set(value: userAchievementDTOModel, isNotify: false);
+      provider.isUserAchievementDataForDrawerLoading.set(value: false, isNotify: true);
+    }
 
     return userAchievementDTOModel;
   }
@@ -168,7 +175,7 @@ class GamificationController {
   //endregion
 
   //region For Home Screen Drawer
-  Future<void> getUserAchievementDataForDrawer() async {
+  Future<void> getUserAchievementDataForDrawer({bool isNotify = false}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("GamificationController().getUserAchievementDataForDrawer() called", tag: tag);
 
@@ -177,7 +184,7 @@ class GamificationController {
     if (provider.userGamesList.length == 0) {
       await getUserGamesList(
         isRefresh: true,
-        isNotify: false,
+        isNotify: isNotify,
       );
     }
 
@@ -188,6 +195,7 @@ class GamificationController {
       return;
     }
 
+    provider.gameIdForDrawer.set(value: gameModel.GameID, isNotify: false);
     await getUserAchievementsDataForDrawer(
       gameId: gameModel.GameID,
       isRefresh: true,
@@ -318,6 +326,40 @@ class GamificationController {
     ContentGameActivityResponseModel model = responseModel.data!;
     MyPrint.printOnConsole("Activities Length:${model.GameActivities.length}", tag: tag);
 
+    List<int> gameIds = model.GameActivities.map((e) => e.gameId).toList();
+    checkGamificationUpdateForGameIds(gameIds: gameIds);
+
     await showGamificationEarnedPopup(GameActivities: model.GameActivities);
+  }
+
+  Future<void> checkGamificationUpdateForGameIds({required List<int> gameIds}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("GamificationController().checkGamificationUpdateForGameIds() called with gameIds:$gameIds", tag: tag);
+
+    if (gameIds.isEmpty) {
+      MyPrint.printOnConsole("Returning from GamificationController().checkGamificationUpdateForGameIds() because gameIds empty", tag: tag);
+    }
+
+    GamificationProvider provider = gamificationProvider;
+
+    int? selectedGameIdForDrawer = provider.gameIdForDrawer.get();
+    int? selectedGameIdForMyAchievements = provider.selectedGameModel.get()?.GameID;
+
+    if (selectedGameIdForDrawer != null && gameIds.contains(selectedGameIdForDrawer)) {
+      MyPrint.printOnConsole("Updating Drawer Data", tag: tag);
+      getUserAchievementsDataForDrawer(gameId: selectedGameIdForDrawer);
+    }
+
+    if (selectedGameIdForMyAchievements != null && gameIds.contains(selectedGameIdForMyAchievements)) {
+      MyPrint.printOnConsole("Updating MyAchievements Data", tag: tag);
+      getUserAchievementsData(
+        isRefresh: true,
+        isNotify: false,
+      );
+      getLeaderBoardData(
+        isRefresh: true,
+        isNotify: false,
+      );
+    }
   }
 }

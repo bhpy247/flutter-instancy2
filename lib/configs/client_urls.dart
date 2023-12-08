@@ -1,4 +1,4 @@
-import '../utils/my_print.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 
 class ClientUrls {
   //Staging Sites
@@ -23,22 +23,20 @@ class ClientUrls {
   static const String QA_APP_AUTH_URL = "https://newazureplatform.instancy.com/api/";
   static const String LIVE_APP_AUTH_URL = "https://masterapilive.instancy.com/api/";
 
-  static const Map<String, String> siteAuthUrlMap = <String, String>{
-    elearningStagingClientUrl: STAGING_APP_AUTH_URL,
-    enterpriseDemoStagingClientUrl: STAGING_APP_AUTH_URL,
-    qaLearningClientUrl: QA_APP_AUTH_URL,
-    shieldBaseClientUrl: QA_APP_AUTH_URL,
-    elearningProductionClientUrl: LIVE_APP_AUTH_URL,
-    enterpriseDemoClientUrl: LIVE_APP_AUTH_URL,
-    franklinClientUrl: LIVE_APP_AUTH_URL,
-    instancyLearningClientUrl: LIVE_APP_AUTH_URL,
-    upgradedEnterpriseClientUrl: LIVE_APP_AUTH_URL,
-    gurruziClientUrl: LIVE_APP_AUTH_URL,
-    nestleClientUrl: LIVE_APP_AUTH_URL,
+  static const Map<int, String> siteAuthUrlMap = <int, String>{
+    ClientUrlTypes.STAGING: STAGING_APP_AUTH_URL,
+    ClientUrlTypes.QA: QA_APP_AUTH_URL,
+    ClientUrlTypes.PRODUCTION: LIVE_APP_AUTH_URL,
   };
 
-  static String getAuthUrl(String clientUrl) {
-    String authUrl = siteAuthUrlMap[clientUrl] ?? "";
+  static const Map<int, String> chatBotTokenApiUrlMap = <int, String>{
+    ClientUrlTypes.STAGING: "",
+    ClientUrlTypes.QA: "https://instancywebappbot.azurewebsites.net/api/DLToken",
+    ClientUrlTypes.PRODUCTION: "https://inst-chatbot-webapp-dev.azurewebsites.net/api/DLToken",
+  };
+
+  static String getAuthUrl(int clientUrlType) {
+    String authUrl = siteAuthUrlMap[clientUrlType] ?? "";
 
     return authUrl;
   }
@@ -50,24 +48,16 @@ class ClientUrls {
       upgradedEnterpriseClientUrl,
     ];
 
-    if(enterpriseSiteList.contains(siteUrl)) {
+    if (enterpriseSiteList.contains(siteUrl)) {
       return "assets/images/playgroundlogo.png";
-    }
-    else {
+    } else {
       return "assets/images/marketplacelogo.png";
     }
   }
 
-  static String getChatBotTokenApiUrl(String siteUrl) {
-    siteUrl = siteUrl.replaceFirst("http://", "https://");
-    MyPrint.printOnConsole("siteUrl:$siteUrl");
+  static String getChatBotTokenApiUrl(int clientUrlType) {
+    String tokenApiUrl = chatBotTokenApiUrlMap[clientUrlType] ?? "";
 
-    if (siteUrl == enterpriseDemoClientUrl) {
-      return "https://inst-chatbot-webapp-dev.azurewebsites.net/api/DLToken";
-    } else if ([qaLearningClientUrl, shieldBaseClientUrl].contains(siteUrl)) {
-      return "https://instancywebappbot.azurewebsites.net/api/DLToken";
-    } else {
-      return "";
-    }
+    return tokenApiUrl;
   }
 }

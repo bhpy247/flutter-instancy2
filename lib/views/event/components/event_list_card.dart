@@ -252,25 +252,21 @@ class EventListCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
-            height: 25,
-            child: CommonButton(
-              height: 25,
-              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-              onPressed: () {
-                if (onPrimaryActionTap != null) {
-                  onPrimaryActionTap!();
-                }
-              },
-              backGroundColor: themeData.primaryColor,
-              text: primaryAction.text,
-              fontSize: 12,
-              fontColor: themeData.colorScheme.onPrimary,
-            ),
+          CommonButton(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+            onPressed: () {
+              if (onPrimaryActionTap != null) {
+                onPrimaryActionTap!();
+              }
+            },
+            backGroundColor: themeData.primaryColor,
+            text: primaryAction.text,
+            fontSize: 12,
+            fontColor: themeData.colorScheme.onPrimary,
           ),
           primaryAction.actionsEnum == InstancyContentActionsEnum.Buy
               ? Text(
-            "${model.Currency}${model.SalePrice}",
+                  "${model.Currency}${model.SalePrice}",
                   style: themeData.textTheme.labelMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),

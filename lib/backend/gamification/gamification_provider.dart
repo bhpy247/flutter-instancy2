@@ -47,6 +47,10 @@ class GamificationProvider extends CommonProvider {
       notify: notify,
     );
 
+    gameIdForDrawer = CommonProviderPrimitiveParameter<int?>(
+      value: null,
+      notify: notify,
+    );
     isUserAchievementDataForDrawerLoading = CommonProviderPrimitiveParameter<bool>(
       value: false,
       notify: notify,
@@ -71,6 +75,7 @@ class GamificationProvider extends CommonProvider {
   late CommonProviderPrimitiveParameter<bool> isLeaderBoardDataLoading;
   late CommonProviderPrimitiveParameter<LeaderBoardDTOModel?> leaderBoardData;
 
+  late CommonProviderPrimitiveParameter<int?> gameIdForDrawer;
   late CommonProviderPrimitiveParameter<bool> isUserAchievementDataForDrawerLoading;
   late CommonProviderPrimitiveParameter<UserAchievementDTOModel?> userAchievementDataForDrawer;
 
@@ -89,6 +94,7 @@ class GamificationProvider extends CommonProvider {
     isLeaderBoardDataLoading.set(value: false, isNotify: false);
     leaderBoardData.set(value: null, isNotify: false);
 
+    gameIdForDrawer.set(value: null, isNotify: false);
     isUserAchievementDataForDrawerLoading.set(value: false, isNotify: false);
     userAchievementDataForDrawer.set(value: null, isNotify: false);
 

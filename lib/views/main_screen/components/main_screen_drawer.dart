@@ -31,7 +31,11 @@ class MainScreenDrawer extends StatelessWidget {
     List<NativeMenuModel> allMenusList = appProvider.getMenuModelsList();
 
     List<NativeMenuModel> finalMenusList = menusList.where((NativeMenuModel menuModel) {
-      // return true;
+      if (["transfer to human agent"].contains(menuModel.displayname.toLowerCase())) {
+        return false;
+      }
+      return true;
+      /*// return true;
       return [
         "home",
         "my learning",
@@ -49,7 +53,7 @@ class MainScreenDrawer extends StatelessWidget {
         "messages",
         "my progress report"
         // "transfer to human agent",
-      ].contains(menuModel.displayname.toLowerCase());
+      ].contains(menuModel.displayname.toLowerCase());*/
     }).toList();
 
     return Drawer(
@@ -153,10 +157,12 @@ class MainScreenDrawer extends StatelessWidget {
               color: isMenuSelected ? themeData.primaryColor : null,
             ),
             const SizedBox(width: 15),
-            Text(
-              nativeMenuModel.displayname,
-              style: themeData.textTheme.labelMedium?.copyWith(
-                color: isMenuSelected ? themeData.primaryColor : null,
+            Expanded(
+              child: Text(
+                nativeMenuModel.displayname,
+                style: themeData.textTheme.labelMedium?.copyWith(
+                  color: isMenuSelected ? themeData.primaryColor : null,
+                ),
               ),
             ),
           ],

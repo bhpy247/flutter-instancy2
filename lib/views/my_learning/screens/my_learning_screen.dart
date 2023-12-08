@@ -5,7 +5,6 @@ import 'package:flutter_instancy_2/backend/authentication/authentication_provide
 import 'package:flutter_instancy_2/backend/course_launch/course_launch_controller.dart';
 import 'package:flutter_instancy_2/backend/event/event_controller.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_controller.dart';
-import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_controller.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
@@ -15,7 +14,6 @@ import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
 import 'package:flutter_instancy_2/models/common/pagination/pagination_model.dart';
-import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/response_model/page_notes_response_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
@@ -311,6 +309,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
         bool isSuccess = await myLearningController.setComplete(
           contentId: model.ContentID,
           scoId: model.ScoID,
+          contentTypeId: model.ContentTypeId,
         );
         MyPrint.printOnConsole("SetComplete isSuccess:$isSuccess");
 
@@ -591,16 +590,6 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
 
     isLoading = true;
     mySetState();
-
-    GamificationController(provider: null).UpdateContentGamification(
-      requestModel: UpdateContentGamificationRequestModel(
-        contentId: model.ContentID,
-        scoId: model.ScoID,
-        objecttypeId: model.ContentTypeId,
-        GameAction: GamificationActionType.DirectLaunched,
-        isCourseLaunch: true,
-      ),
-    );
 
     bool isLaunched = await CourseLaunchController(
       appProvider: appProvider,

@@ -6,6 +6,7 @@ import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_controller.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
@@ -17,6 +18,7 @@ import 'package:flutter_instancy_2/models/course_launch/request_model/initial_co
 import 'package:flutter_instancy_2/models/course_launch/request_model/insert_course_data_by_token_request_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/request_model/web_api_initialize_tracking_request_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/response_model/content_status_response_model.dart';
+import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
@@ -71,107 +73,43 @@ class CourseLaunchController {
   }) async {
     MyPrint.printOnConsole("CourseLaunchController().viewCourse() called");
 
-    if (![InstancyObjectTypes.events, InstancyObjectTypes.externalTraining, InstancyObjectTypes.physicalProduct].contains(model.ContentTypeId)) {
-      // if (AppConfigurationOperations.isValidString(model.viewprerequisitecontentstatus ?? '')) {
-      if (false) {
-        // String alertMessage = appProvider.localStr.prerequistesalerttitle6Alerttitle6;
-        // alertMessage = alertMessage;
-        // '  \"' +
-        // appBloc.localstr.prerequisLabelContenttypelabel +
-        // '\" ' +
-        // appBloc.localstr.prerequistesalerttitle5Alerttitle7;
-
-        if (context != null) {
-          /*showDialog(
-            context: context,
-            builder: (BuildContext context) => AlertDialog(
-              title: Text(
-                'Pre-requisite Sequence',
-                style: TextStyle(
-                    color: Color(
-                      int.parse(
-                          '0xFF${appBloc.uiSettingModel.appTextColor.substring(1, 7).toUpperCase()}'),
-                    ),
-                    fontWeight: FontWeight.bold),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(alertMessage,
-                      style: TextStyle(
-                          color: Color(
-                            int.parse(
-                                '0xFF${appBloc.uiSettingModel.appTextColor.substring(1, 7).toUpperCase()}'),
-                          ))),
-                  Text(
-                      '\n' +
-                          model.viewprerequisitecontentstatus
-                              .toString()
-                              .split('#%')[1]
-                              .split('\$;')[0],
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.blue,
-                      )),
-                  Text(
-                      model.viewprerequisitecontentstatus
-                          .toString()
-                          .split('#%')[1]
-                          .split('\$;')[1],
-                      style: TextStyle(
-                          color: Color(
-                            int.parse(
-                                '0xFF${appBloc.uiSettingModel.appTextColor.substring(1, 7).toUpperCase()}'),
-                          )))
-                ],
-              ),
-              backgroundColor: InsColor(appBloc).appBGColor,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5)),
-              actions: <Widget>[
-                TextButton(
-                  child:
-                  Text(appBloc.localstr.eventsAlertbuttonOkbutton),
-                  style: textButtonStyle,
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ),
-          );*/
-        }
-      } else {
-        bool result = await decideCourseLaunchMethod(
-          context: context,
-          model: model,
-          isContentisolation: false,
-        );
-
-        if (!result) {
-          // model.isdownloaded = false;
-          // setState(() {});
-        }
-
-        return result;
-        // bool networkAvailable =
-        //     await AppDirectory.checkInternetConnectivity();
-        // if (networkAvailable) {
-        //   await MyLearningController().launchCourse(table2: table2, context: context, isContentisolation: false);
-        // } else {
-        //   bool isShownOffline = await MyLearningController()
-        //       .launchCourseOffline(context: context, table2: table2);
-        //   if (!isShownOffline) {
-        //     table2.isdownloaded = false;
-        //     setState(() {});
-        //   }
-        // }
-        // refreshContent(model);
-      }
+    if (![InstancyObjectTypes.track, InstancyObjectTypes.events].contains(model.ContentTypeId)) {
+      await GamificationController(provider: null).UpdateContentGamification(
+        requestModel: UpdateContentGamificationRequestModel(
+          contentId: model.ContentID,
+          scoId: model.ScoID,
+          objecttypeId: model.ContentTypeId,
+          GameAction: GamificationActionType.DirectLaunched,
+          isCourseLaunch: true,
+          CanTrack: true,
+        ),
+      );
     }
 
-    return false;
+    bool result = false;
+
+    if (![InstancyObjectTypes.events, InstancyObjectTypes.externalTraining, InstancyObjectTypes.physicalProduct].contains(model.ContentTypeId)) {
+      result = await decideCourseLaunchMethod(
+        context: context,
+        model: model,
+        isContentisolation: false,
+      );
+    }
+
+    if (![InstancyObjectTypes.track, InstancyObjectTypes.events].contains(model.ContentTypeId)) {
+      await GamificationController(provider: null).UpdateContentGamification(
+        requestModel: UpdateContentGamificationRequestModel(
+          contentId: model.ContentID,
+          scoId: model.ScoID,
+          objecttypeId: model.ContentTypeId,
+          GameAction: GamificationActionType.Completed,
+          isCourseLaunch: false,
+          CanTrack: false,
+        ),
+      );
+    }
+
+    return result;
   }
 
   Future<bool> decideCourseLaunchMethod({required BuildContext context, required CourseLaunchModel model, bool isContentisolation = false}) async {
@@ -660,7 +598,11 @@ class CourseLaunchController {
       }
       //endregion
 
-      await MyLearningController(provider: null).setComplete(contentId: model.ContentID, scoId: model.ScoID);
+      await MyLearningController(provider: null).setComplete(
+        contentId: model.ContentID,
+        scoId: model.ScoID,
+        contentTypeId: model.ContentTypeId,
+      );
     } else {
       MyPrint.printOnConsole("Have to update status to In Progress", tag: tag);
 

@@ -56,7 +56,7 @@ class _InstaBotScreen2State extends State<InstaBotScreen2> {
     NativeLoginDTOModel? successfulUserLoginModel = context.read<AuthenticationProvider>().getEmailLoginResponseModel();
     String imageUrl = successfulUserLoginModel?.image ?? "";
 
-    String tokenUrl = ClientUrls.getChatBotTokenApiUrl(apiUrlConfigurationProvider.getCurrentSiteUrl());
+    String tokenUrl = ClientUrls.getChatBotTokenApiUrl(apiUrlConfigurationProvider.getClientUrlType());
     MyPrint.printOnConsole("tokenUrl:$tokenUrl");
     MyPrint.printOnConsole("siteBotDetailsModel _InstaBotScreen2State :${instaBotProvider.botDetailsModel.get()?.BotSettings.botIconBytes?.length}");
 

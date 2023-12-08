@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_repository.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
@@ -18,6 +20,7 @@ import 'package:flutter_instancy_2/models/profile/response_model/profile_respons
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/views/profile/component/confirm_remove_experience_by_user_dialog.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/app_configuration_models/data_models/local_str.dart';
 import '../../models/authentication/response_model/country_response_model.dart';
@@ -210,13 +213,24 @@ class ProfileController {
       isSuccess = responseModel.data == "success";
 
       if (isSuccess) {
-        GamificationController(provider: null).UpdateContentGamification(
+        GamificationController(provider: null)
+            .UpdateContentGamification(
           requestModel: UpdateContentGamificationRequestModel(
             contentId: "",
             scoId: 0,
             GameAction: GamificationActionType.Updated,
           ),
-        );
+        )
+            .then((value) {
+          BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
+          MyPrint.printOnConsole("context:$context", tag: tag);
+          if (context != null) {
+            GamificationController gamificationController = GamificationController(provider: context.read<GamificationProvider>());
+            gamificationController.getUserAchievementDataForDrawer(isNotify: false);
+            gamificationController.getUserAchievementsData(isRefresh: true, isNotify: false);
+            gamificationController.getLeaderBoardData(isRefresh: true, isNotify: false);
+          }
+        });
       }
     } catch (e, s) {
       MyPrint.printOnConsole("Error in ProfileController().updateProfileDetails():$e");

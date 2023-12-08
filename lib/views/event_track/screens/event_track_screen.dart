@@ -633,6 +633,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         bool isSuccess = await myLearningController.setComplete(
           contentId: model.contentid,
           scoId: model.scoid,
+          contentTypeId: model.objecttypeid,
         );
         MyPrint.printOnConsole("SetComplete isSuccess:$isSuccess");
 

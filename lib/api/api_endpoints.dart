@@ -481,7 +481,7 @@ class ApiEndpoints {
 
   String GetLeaderboardData() => '${getBaseApiUrl()}LeaderBoard/GetLeaderboardData';
 
-  String UpdateContentGamification() => '${getBaseApiUrl()}Game/UpdateContentGamification';
+  String UpdateGamificationForMobile() => '${getBaseApiUrl()}Game/UpdateGamificationForMobile';
 
   //endregion
 

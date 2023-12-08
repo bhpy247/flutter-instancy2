@@ -452,6 +452,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         bool isSuccess = await myLearningController.setComplete(
           contentId: model.ContentID,
           scoId: model.ScoID,
+          contentTypeId: model.ContentTypeId,
         );
         MyPrint.printOnConsole("SetComplete isSuccess:$isSuccess");
 

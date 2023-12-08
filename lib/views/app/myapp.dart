@@ -9,6 +9,7 @@ import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart
 import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/share/share_provider.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
@@ -26,16 +27,17 @@ import '../../backend/instabot/instabot_provider.dart';
 import '../../backend/profile/profile_provider.dart';
 import '../../backend/progress_report/progress_report_provider.dart';
 import '../../backend/wiki_component/wiki_provider.dart';
-import 'main_navigator_screen.dart';
 
 class MyApp extends StatefulWidget {
   final String mainSiteUrl, appAuthURL, splashScreenLogo;
+  final int clientUrlType;
 
   const MyApp({
     Key? key,
     required this.mainSiteUrl,
     required this.appAuthURL,
     required this.splashScreenLogo,
+    required this.clientUrlType,
   }) : super(key: key);
 
   @override
@@ -49,6 +51,7 @@ class _MyAppState extends State<MyApp> {
     apiDataProvider.setMainSiteUrl(widget.mainSiteUrl);
     apiDataProvider.setAuthUrl(widget.appAuthURL);
     apiDataProvider.setSplashLogo(widget.splashScreenLogo);
+    apiDataProvider.setClientUrlType(widget.clientUrlType);
 
     // apiDataProvider.setCurrentSiteUrl(widget.mainSiteUrl);
     // apiDataProvider.setCurrentBaseApiUrl("https://upgradedenterpriseapi.instancy.com/api/");
@@ -60,7 +63,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<AppProvider>(create: (_) => AppProvider(),),
+        ChangeNotifierProvider<AppProvider>(create: (_) => AppProvider()),
         ChangeNotifierProvider<AppThemeProvider>(create: (_) => AppThemeProvider()),
         ChangeNotifierProvider<AuthenticationProvider>(create: (_) => AuthenticationProvider()),
         ChangeNotifierProvider<MainScreenProvider>(create: (_) => MainScreenProvider()),
@@ -110,7 +113,8 @@ class _MainAppState extends State<MainApp> {
         // MyPrint.printOnConsole("appThemeProvider:${appThemeProvider.darkThemeMode}");
         return OverlaySupport.global(
           child: MaterialApp(
-            home: const MainNavigatorScreen(),
+            navigatorKey: NavigationController.mainNavigatorKey,
+            onGenerateRoute: NavigationController.onMainGeneratedRoutes,
             debugShowCheckedModeBanner: false,
             title: 'Instancy',
             theme: appThemeProvider.getThemeData(),

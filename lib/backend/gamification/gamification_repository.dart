@@ -106,7 +106,7 @@ class GamificationRepository {
     requestModel.siteId = apiUrlConfigurationProvider.getCurrentSiteId();
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
-      url: apiEndpoints.UpdateContentGamification(),
+      url: apiEndpoints.UpdateGamificationForMobile(),
       restCallType: RestCallType.simpleGetCall,
       queryParameters: requestModel.toMap(),
       parsingType: ModelDataParsingType.ContentGameActivityResponseModel,

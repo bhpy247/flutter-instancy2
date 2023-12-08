@@ -60,7 +60,7 @@ class _StaticWebpageWidgetState extends State<StaticWebpageWidget> {
             return Container(
               margin: const EdgeInsets.symmetric(vertical: 25),
               child: AspectRatio(
-                aspectRatio: 16 / 4,
+                aspectRatio: 16 / 11,
                 child: InAppWebView(
                   initialUrlRequest: URLRequest(
                     url: WebUri.uri(

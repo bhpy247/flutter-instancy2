@@ -21,6 +21,7 @@ class ApiUrlConfigurationProvider {
   String getSplashLogo() => _splashlogo;
 
   void setSplashLogo(String logo) => _splashlogo = logo;
+
   //endregion
 
   //region App Name
@@ -29,9 +30,17 @@ class ApiUrlConfigurationProvider {
   String getAppName() => _appName;
 
   void setAppName(String name) => _appName = name;
+
   //endregion
 
+  //region App Name
+  int _clientUrlType = -1;
 
+  int getClientUrlType() => _clientUrlType;
+
+  void setClientUrlType(int type) => _clientUrlType = type;
+
+  //endregion
 
   //region Current Base Api Url
   String _currentBaseApiUrl = "";
@@ -39,6 +48,7 @@ class ApiUrlConfigurationProvider {
   String getCurrentBaseApiUrl() => _currentBaseApiUrl;
 
   void setCurrentBaseApiUrl(String url) => _currentBaseApiUrl = url;
+
   //endregion
 
   //region Current Site Url
