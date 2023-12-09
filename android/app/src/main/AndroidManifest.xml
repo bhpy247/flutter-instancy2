@@ -17,6 +17,19 @@
     <uses-permission android:name="android.permission.AUDIO_CAPTURE" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
 
+    <!--  Added this line because open_file package was adding this extra permission to final manifest
+    which is not useful in the app, so it was rejecting on play store, so to remove this permission
+    from "build/intermediates/merged_manifests/AndroidManifest.xml", we added 'tools:node="remove"' -->
+    <uses-permission
+        android:name="android.permission.REQUEST_INSTALL_PACKAGES"
+        tools:node="remove" />
+    <uses-permission
+        android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.ACCESS_ADSERVICES_AD_ID"
+        tools:node="remove" />
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
