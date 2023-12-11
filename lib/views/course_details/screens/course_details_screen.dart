@@ -1333,13 +1333,30 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
       catalogProvider: catalogProvider,
     );
 
-    List<InstancyUIActionModel> options = courseDetailsUIActionsController
+    /*List<InstancyUIActionModel> options = courseDetailsUIActionsController
         .getCourseDetailsPrimaryActions(
           contentDetailsDTOModel: contentDetailsDTOModel,
           screenType: widget.arguments.screenType,
           localStr: localStr,
           callBackModel: getCourseDetailsUIActionCallbackModel(
             model: contentDetailsDTOModel,
+          ),
+        )
+        .toList();*/
+    List<InstancyUIActionModel> options = courseDetailsUIActionsController
+        .getCourseDetailsPrimaryActions(
+          contentDetailsDTOModel: contentDetailsDTOModel,
+          screenType: widget.arguments.screenType,
+          localStr: localStr,
+          myLearningUIActionCallbackModel: getMyLearningUIActionCallbackModel(
+            model: contentDetailsDTOModel,
+            primaryAction: null,
+            isSecondaryAction: false,
+          ),
+          catalogUIActionCallbackModel: getCatalogUIActionCallbackModel(
+            model: contentDetailsDTOModel,
+            primaryAction: null,
+            isSecondaryAction: false,
           ),
         )
         .toList();

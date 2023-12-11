@@ -65,7 +65,6 @@ class CourseDetailsUIActionsController {
 
   bool isShowAction({required InstancyContentActionsEnum actionType, required CourseDetailsUIActionParameterModel parameterModel}) {
     CourseDetailsUIActionTypeDef? type = _actionsMap[actionType];
-
     if (type != null) {
       return type(parameterModel: parameterModel);
     } else {
@@ -94,12 +93,20 @@ class CourseDetailsUIActionsController {
   }
 
   bool showEnroll({required CourseDetailsUIActionParameterModel parameterModel}) {
+    /*if ((parameterModel.EnrollNowLink.isNotEmpty || (parameterModel.AddLink.isNotEmpty && parameterModel.objectTypeId == InstancyObjectTypes.events && parameterModel.TitleExpired.isEmpty))) {
+      return true;
+    }
+
+    return false;*/
+
     bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(
           parameterModel.eventEndDateTime,
           dateFormat: "MM/dd/yyyy HH:mm:ss aa",
         ) ??
         true);
     MyPrint.printOnConsole("isEventCompleted in showEnroll:$isEventCompleted");
+    MyPrint.printOnConsole("eventScheduleType in showEnroll:${parameterModel.eventScheduleType}");
+    MyPrint.printOnConsole("isContentEnrolled in showEnroll:${parameterModel.isContentEnrolled}");
 
     if (parameterModel.objectTypeId != InstancyObjectTypes.events ||
         isEventCompleted ||
@@ -200,13 +207,13 @@ class CourseDetailsUIActionsController {
   //   }
   // }
 
-  Iterable<InstancyUIActionModel> getCourseDetailsPrimaryActions({
+  /*Iterable<InstancyUIActionModel> getCourseDetailsPrimaryActions({
     required CourseDTOModel contentDetailsDTOModel,
     required InstancyContentScreenType screenType,
     required LocalStr localStr,
     required CourseDetailsUIActionCallbackModel callBackModel,
   }) sync* {
-    MyPrint.printOnConsole("getCourseDetailsSecondaryActions called with objectTypeId:${contentDetailsDTOModel.ContentTypeId},"
+    MyPrint.printOnConsole("getCourseDetailsPrimaryActions called with objectTypeId:${contentDetailsDTOModel.ContentTypeId},"
         " mediaTypeID:${contentDetailsDTOModel.MediaTypeID}, ViewType:${contentDetailsDTOModel.ViewType}, screenType:$screenType");
     List<InstancyContentActionsEnum> primaryActions = [
       InstancyContentActionsEnum.Buy,
@@ -233,11 +240,48 @@ class CourseDetailsUIActionsController {
       ),
       callbackModel: callBackModel,
     );
+    MyPrint.printOnConsole("actionsList:${actionsList.length}");
 
     if (actionsList.length > 1) {
       yield* actionsList.take(1);
     } else {
       yield* actionsList;
+    }
+  }*/
+
+  Iterable<InstancyUIActionModel> getCourseDetailsPrimaryActions({
+    required CourseDTOModel contentDetailsDTOModel,
+    required InstancyContentScreenType screenType,
+    required LocalStr localStr,
+    required MyLearningUIActionCallbackModel myLearningUIActionCallbackModel,
+    required CatalogUIActionCallbackModel catalogUIActionCallbackModel,
+  }) sync* {
+    MyPrint.printOnConsole("getCourseDetailsPrimaryActions called with objectTypeId:${contentDetailsDTOModel.ContentTypeId},"
+        " mediaTypeID:${contentDetailsDTOModel.MediaTypeID}");
+
+    if (screenType == InstancyContentScreenType.MyLearning) {
+      yield* MyLearningUIActionsController(
+        appProvider: appProvider,
+        profileProvider: profileProvider,
+        myLearningProvider: myLearningProvider,
+      ).getMyLearningScreenPrimaryActionsFromMyLearningUIActionParameterModel(
+        objectTypeId: contentDetailsDTOModel.ContentTypeId,
+        mediaTypeId: contentDetailsDTOModel.MediaTypeID,
+        viewType: contentDetailsDTOModel.ViewType,
+        localStr: localStr,
+        myLearningUIActionCallbackModel: myLearningUIActionCallbackModel,
+        parameterModel: getMyLearningUIActionParameterModelFromCourseDTOModel(model: contentDetailsDTOModel),
+      );
+    } else if (screenType == InstancyContentScreenType.Catalog) {
+      yield* CatalogUIActionsController(appProvider: appProvider).getCatalogScreenPrimaryActionsFromCatalogUIActionParameterModel(
+        objectTypeId: contentDetailsDTOModel.ContentTypeId,
+        mediaTypeId: contentDetailsDTOModel.MediaTypeID,
+        viewType: contentDetailsDTOModel.ViewType,
+        isContentEnrolled: contentDetailsDTOModel.isContentEnrolled.toLowerCase() == "1" || contentDetailsDTOModel.isContentEnrolled.toLowerCase() == "true",
+        localStr: localStr,
+        catalogUIActionCallbackModel: catalogUIActionCallbackModel,
+        parameterModel: getCatalogUIActionParameterModelFromCourseDTOModel(contentDetailsDTOModel: contentDetailsDTOModel),
+      );
     }
   }
 

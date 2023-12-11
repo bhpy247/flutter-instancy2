@@ -169,7 +169,7 @@ class SignInView extends StatelessWidget {
         },
         child: Text(
           '${appProvider.localStr.loginButtonForgotpasswordbutton}?',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.5, color: Theme.of(context).primaryColor, decoration: TextDecoration.underline),
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.5, color: Theme.of(context).primaryColor),
         ),
       ),
     );
