@@ -62,11 +62,34 @@ class _ClientSelectionDialogState extends State<ClientSelectionDialog> with MySa
     super.pageBuild();
 
     return AlertDialog(
-      title: Text(
-        "Client Configuration",
-        style: themeData.textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.bold,
-        ),
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(
+              "Client Configuration",
+              style: themeData.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(color: themeData.primaryColor, shape: BoxShape.circle),
+              child: const Icon(
+                Icons.close,
+                size: 15,
+                color: Colors.white,
+              ),
+            ),
+          )
+        ],
       ),
       content: Form(
         key: formKey,
@@ -94,19 +117,6 @@ class _ClientSelectionDialogState extends State<ClientSelectionDialog> with MySa
             style: themeData.textTheme.bodyMedium?.copyWith(
               color: themeData.colorScheme.onPrimary,
             ),
-          ),
-        ),
-        MaterialButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: themeData.primaryColor),
-            borderRadius: BorderRadius.circular(3),
-          ),
-          child: Text(
-            "Cancel",
-            style: themeData.textTheme.bodyMedium,
           ),
         ),
         MaterialButton(
@@ -223,7 +233,7 @@ class _ClientSelectionDialogState extends State<ClientSelectionDialog> with MySa
                 value: value,
                 child: Text(
                   value,
-                  style: TextStyle(fontSize: 14, letterSpacing: .5),
+                  style: const TextStyle(fontSize: 14, letterSpacing: .5),
                 ),
               ),
             )
