@@ -43,9 +43,10 @@ class _MainScreenBottomBarState extends State<MainScreenBottomBar> with MySafeSt
       shadowColor: Colors.black,
       notchMargin: 6,
       elevation: 10,
-      height: 70,
+      height: 65,
       shape: const CircularNotchedRectangle(),
-      child: Padding(
+      padding: EdgeInsets.zero,
+      child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -108,11 +109,16 @@ class _MainScreenBottomBarState extends State<MainScreenBottomBar> with MySafeSt
     double? iconSize,
     void Function()? onTap,
   }) {
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         if (onTap != null) onTap();
       },
+      focusColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      splashColor: Colors.transparent,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
@@ -124,7 +130,7 @@ class _MainScreenBottomBarState extends State<MainScreenBottomBar> with MySafeSt
             ),
           ),
           const SizedBox(height: 5),
-          Expanded(
+          Flexible(
             child: Text(
               // "",
               text,

@@ -152,6 +152,12 @@ class _MainScreenState extends State<MainScreen> {
             if (bottomBarMenusList.length != 3 || hasMoreMenus == true) floatingActionButtonLocation = FloatingActionButtonLocation.centerDocked;
           }
 
+          Widget? floatingActionButton = getChatBotButton(instaBotProvider: instaBotProvider);
+          bool isCenterDocked = floatingActionButton != null && floatingActionButtonLocation == FloatingActionButtonLocation.centerDocked;
+
+          mainScreenProvider.isChatBotButtonCenterDocked.set(value: isCenterDocked, isNotify: false);
+          mainScreenProvider.isChatBotButtonEnabled.set(value: floatingActionButton != null, isNotify: false);
+
           return Scaffold(
             key: _scaffoldKey,
             appBar: getAppBar(
@@ -160,11 +166,11 @@ class _MainScreenState extends State<MainScreen> {
             ),
             drawer: getDrawerWidget(drawerMenusList: drawerMenusList),
             floatingActionButtonLocation: floatingActionButtonLocation,
-            floatingActionButton: getChatBotButton(instaBotProvider: instaBotProvider),
+            floatingActionButton: floatingActionButton,
             bottomNavigationBar: getBottomBarWidget(
               bottomBarMenusList: bottomBarMenusList,
               hasMoreMenus: hasMoreMenus,
-              isCenterDocked: floatingActionButtonLocation == FloatingActionButtonLocation.centerDocked,
+              isCenterDocked: isCenterDocked,
             ),
             body: future != null && components.isEmpty
                 ? FutureBuilder(

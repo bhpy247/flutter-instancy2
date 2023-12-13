@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/my_safe_state.dart';
 import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
+import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/discussion_forum/forum/discussion_forum_ui_action_callback_model.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/discussion_forum/forum/discussion_forum_ui_action_controller.dart';
@@ -11,8 +12,6 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../../backend/app/app_provider.dart';
 import '../../../backend/discussion/discussion_controller.dart';
 import '../../../backend/discussion/discussion_provider.dart';
-import '../../../backend/instabot/instabot_controller.dart';
-import '../../../backend/instabot/instabot_provider.dart';
 import '../../../backend/share/share_provider.dart';
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import '../../../configs/app_configurations.dart';
@@ -282,44 +281,45 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
       providers: [
         ChangeNotifierProvider<DiscussionProvider>.value(value: discussionProvider),
       ],
-      child: Consumer2<DiscussionProvider, InstaBotProvider>(builder: (context, DiscussionProvider discussionProvider, InstaBotProvider instaBotProvider, _) {
-        bool isChatBotEnabled = InstabotController(provider: instaBotProvider).enableMarginForChatBotButtonEnabled();
-        return ModalProgressHUD(
-          inAsyncCall: isLoading,
-          child: Scaffold(
-            floatingActionButton: Padding(
-              padding: EdgeInsets.only(
-                bottom: isChatBotEnabled ? 70 : 0,
-              ),
-              child: FloatingActionButton(
-                child: const Icon(Icons.add),
-                onPressed: () async {
-                  dynamic value = await NavigationController.navigateToCreateEditDiscussionForumScreen(
-                    navigationOperationParameters: NavigationOperationParameters(
-                      context: context,
-                      navigationType: NavigationType.pushNamed,
-                    ),
-                    arguments: const CreateEditDiscussionForumScreenNavigationArguments(forumModel: null),
-                  );
-                  if (value != true) return;
+      child: Consumer2<DiscussionProvider, MainScreenProvider>(
+        builder: (context, DiscussionProvider discussionProvider, MainScreenProvider mainScreenProvider, _) {
+          return ModalProgressHUD(
+            inAsyncCall: isLoading,
+            child: Scaffold(
+              floatingActionButton: Padding(
+                padding: EdgeInsets.only(
+                  bottom: mainScreenProvider.isChatBotButtonEnabled.get() && !mainScreenProvider.isChatBotButtonCenterDocked.get() ? 70 : 0,
+                ),
+                child: FloatingActionButton(
+                  child: const Icon(Icons.add),
+                  onPressed: () async {
+                    dynamic value = await NavigationController.navigateToCreateEditDiscussionForumScreen(
+                      navigationOperationParameters: NavigationOperationParameters(
+                        context: context,
+                        navigationType: NavigationType.pushNamed,
+                      ),
+                      arguments: const CreateEditDiscussionForumScreenNavigationArguments(forumModel: null),
+                    );
+                    if (value != true) return;
 
-                  discussionController.getForumsList(
-                    isRefresh: true,
-                    isGetFromCache: false,
-                    isNotify: false,
-                  );
-                  discussionController.getMyDiscussionForumsList(
-                    isRefresh: true,
-                    isGetFromCache: false,
-                    isNotify: true,
-                  );
-                },
+                    discussionController.getForumsList(
+                      isRefresh: true,
+                      isGetFromCache: false,
+                      isNotify: false,
+                    );
+                    discussionController.getMyDiscussionForumsList(
+                      isRefresh: true,
+                      isGetFromCache: false,
+                      isNotify: true,
+                    );
+                  },
+                ),
               ),
+              body: getMainWidget(),
             ),
-            body: getMainWidget(),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 

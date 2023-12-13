@@ -6,6 +6,7 @@ import 'package:flutter_instancy_2/backend/Catalog/catalog_controller.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/instabot/instabot_provider.dart';
+import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/backend/wiki_component/wiki_controller.dart';
 import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
 import 'package:flutter_instancy_2/models/catalog/catalogCategoriesForBrowseModel.dart';
@@ -17,7 +18,6 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/app_theme/style.dart';
-import '../../../backend/instabot/instabot_controller.dart';
 import '../../../backend/navigation/navigation.dart';
 import '../../../configs/app_constants.dart';
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
@@ -196,7 +196,9 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
       componentInstanceId: componentInstanceId,
     );
 
-    getCategoriesFuture = getCategories();
+    if (catalogProvider.catalogCategoriesForBrowserList.length == 0) {
+      getCategoriesFuture = getCategories();
+    }
   }
 
   @override
@@ -215,24 +217,25 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
           FocusScope.of(context).requestFocus(FocusNode());
         },
         child: Scaffold(
-          body: AppUIComponents.getBackGroundBordersRounded(child: getMainWidget(), context: context),
           floatingActionButton: getWikiUploadButton(),
+          body: AppUIComponents.getBackGroundBordersRounded(
+            context: context,
+            child: Column(
+              children: [
+                const SizedBox(height: 24),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: getSearchTextFormField(),
+                ),
+                const SizedBox(height: 15),
+                Expanded(
+                  child: getCategoriesView(),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-    );
-  }
-
-  Widget getMainWidget() {
-    return Column(
-      children: [
-        const SizedBox(height: 24),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: getSearchTextFormField(),
-        ),
-        const SizedBox(height: 15),
-        Expanded(child: getCategoriesView()),
-      ],
     );
   }
 
@@ -280,37 +283,43 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
         ),
         const SizedBox(height: 10),
         Expanded(
-          child: FutureBuilder(
-            future: getCategoriesFuture,
-            builder: (BuildContext context, AsyncSnapshot asyncSnapshot) {
-              if (asyncSnapshot.connectionState != ConnectionState.done) {
-                return const Center(child: CommonLoader());
-              }
+          child: getCategoriesFuture != null
+              ? FutureBuilder(
+                  future: getCategoriesFuture,
+                  builder: (BuildContext context, AsyncSnapshot asyncSnapshot) {
+                    if (asyncSnapshot.connectionState != ConnectionState.done) {
+                      return const Center(child: CommonLoader());
+                    }
 
-              return Consumer<CatalogProvider>(
-                builder: (BuildContext context, CatalogProvider provider, _) {
-                  List<CatalogCategoriesForBrowseModel> categoriesList = provider.catalogCategoriesForBrowserList.getList(isNewInstance: true);
-
-                  String searchText = searchController.text.trim();
-                  if (searchController.text.trim().isNotEmpty) {
-                    categoriesList.removeWhere((CatalogCategoriesForBrowseModel categoryModel) => !categoryModel.categoryName.toLowerCase().startsWith(searchText.toLowerCase()));
-                  }
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      getCategoriesListSliderWidget(categoriesList: categoriesList),
-                      Expanded(
-                        child: getAllTabCategoryList(categoriesList: categoriesList),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
+                    return getMainBody();
+                  },
+                )
+              : getMainBody(),
         ),
       ],
+    );
+  }
+
+  Widget getMainBody() {
+    return Consumer<CatalogProvider>(
+      builder: (BuildContext context, CatalogProvider provider, _) {
+        List<CatalogCategoriesForBrowseModel> categoriesList = provider.catalogCategoriesForBrowserList.getList(isNewInstance: true);
+
+        String searchText = searchController.text.trim();
+        if (searchController.text.trim().isNotEmpty) {
+          categoriesList.removeWhere((CatalogCategoriesForBrowseModel categoryModel) => !categoryModel.categoryName.toLowerCase().startsWith(searchText.toLowerCase()));
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            getCategoriesListSliderWidget(categoriesList: categoriesList),
+            Expanded(
+              child: getAllTabCategoryList(categoriesList: categoriesList),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -345,59 +354,6 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
           );
         },
       ),
-
-      //   DefaultTabController(
-      //   length: provider.wikiCategoriesList.length,
-      //   child: Scaffold(
-      //     backgroundColor: Colors.transparent,
-      //     appBar: PreferredSize(
-      //       preferredSize: Size(double.infinity,40),
-      //       child: AppBar(
-      //         backgroundColor: Colors.transparent,
-      //         elevation: 0,
-      //         bottom: TabBar(
-      //           controller: tabController,
-      //         unselectedLabelColor: Colors.black,
-      //         labelColor: Colors.white,
-      //         indicatorPadding: EdgeInsets.zero,
-      //         padding: EdgeInsets.zero,
-      //         indicator: BoxDecoration(
-      //           color: Styles.chipTextColor,
-      //             border: Border.all(),
-      //             borderRadius: BorderRadius.circular(25)
-      //           ),
-      //           labelPadding: EdgeInsets.symmetric(horizontal: 9),
-      //           isScrollable: true,
-      //           // onTap: (int index){
-      //           //   selected = index;
-      //           //   setState(() {});
-      //           // },
-      //           tabs: List.generate(provider.wikiCategoriesList.length, (listIndex) {
-      //             return Container(
-      //               // width: 70,
-      //               // margin: const EdgeInsets.only(left: 10),
-      //               padding: EdgeInsets.symmetric(horizontal: 20, vertical: selected == listIndex ? 5 : 7),
-      //               decoration: BoxDecoration(
-      //                 // color: selected != index  ? Colors.transparent : Styles.chipTextColor,
-      //                   border: Border.all(color: Styles.chipTextColor),
-      //                   borderRadius: BorderRadius.circular(25)),
-      //               child: Text(
-      //                 provider.wikiCategoriesList[listIndex].name,
-      //                 textAlign: TextAlign.center,
-      //               ),
-      //             );
-      //           })
-      //         ),
-      //       ),
-      //     ),
-      //     body: TabBarView(
-      //       controller: tabController,
-      //       children: List.generate(provider.wikiCategoriesList.length, (index) {
-      //         return getAllTabCategoryList();
-      //       }),
-      //     ),
-      //   ),
-      // );
     );
   }
 
@@ -524,22 +480,20 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
       return null;
     }
 
-    return Consumer<InstaBotProvider>(builder: (context, InstaBotProvider instaBotProvider, _) {
-      bool isChatBotEnabled = InstabotController(provider: instaBotProvider).enableMarginForChatBotButtonEnabled();
-      return Padding(
-        padding: EdgeInsets.only(bottom: isChatBotEnabled ? 70 : 0.0),
-        child: FutureBuilder(
-          future: getFileUploadControlFuture,
-          builder: (BuildContext context, AsyncSnapshot snapShot) {
-            if (snapShot.connectionState != ConnectionState.done) {
-              return const SizedBox();
-            }
+    return Consumer2<InstaBotProvider, MainScreenProvider>(
+      builder: (context, InstaBotProvider instaBotProvider, MainScreenProvider mainScreenProvider, _) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: mainScreenProvider.isChatBotButtonEnabled.get() && !mainScreenProvider.isChatBotButtonCenterDocked.get() ? 70 : 0.0,
+          ),
+          child: FutureBuilder(
+            future: getFileUploadControlFuture,
+            builder: (BuildContext context, AsyncSnapshot snapShot) {
+              if (snapShot.connectionState != ConnectionState.done) {
+                return const SizedBox();
+              }
 
-            // MyPrint.printOnConsole("isDialOpen:${isDialOpen.value}");
-
-            return Container(
-              margin: EdgeInsets.only(bottom: appProvider.appSystemConfigurationModel.enableChatBot ? 70 : 0),
-              child: SpeedDial(
+              return SpeedDial(
                 icon: Icons.add,
                 activeIcon: Icons.close,
                 spacing: 3,
@@ -548,19 +502,19 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
                 childPadding: const EdgeInsets.all(5),
                 spaceBetweenChildren: 4,
                 /*dialRoot: customDialRoot
-                      ? (ctx, open, toggleChildren) {
-                          return ElevatedButton(
-                            onPressed: toggleChildren,
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
-                            ),
-                            child: const Text(
-                              "Custom Dial Root",
-                              style: TextStyle(fontSize: 17),
-                            ),
-                          );
-                        }
-                      : null,*/
+                    ? (ctx, open, toggleChildren) {
+                        return ElevatedButton(
+                          onPressed: toggleChildren,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
+                          ),
+                          child: const Text(
+                            "Custom Dial Root",
+                            style: TextStyle(fontSize: 17),
+                          ),
+                        );
+                      }
+                    : null,*/
                 buttonSize: buttonSize,
                 // it's the SpeedDial size which defaults to 56 itself
                 /// The below button size defaults to 56 itself, its the SpeedDial childrens size
@@ -591,12 +545,12 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
                 // shape: customDialRoot ? const RoundedRectangleBorder() : const StadiumBorder(),
                 // childMargin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 children: _getWikiOption(),
-              ),
-            );
-          },
-        ),
-      );
-    });
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 
   List<SpeedDialChild> _getWikiOption() {

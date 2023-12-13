@@ -31,15 +31,17 @@ class _DiscussionForumMainScreenState extends State<DiscussionForumMainScreen> w
   @override
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
-    return Consumer<DiscussionProvider>(builder: (BuildContext context, DiscussionProvider discussionProvider, Widget? child) {
-      return ModalProgressHUD(
-        inAsyncCall: discussionProvider.isLoading.get(),
-        child: Scaffold(
-          appBar: getAppBar(),
-          body: getMainBody(),
-        ),
-      );
-    });
+    return Consumer<DiscussionProvider>(
+      builder: (BuildContext context, DiscussionProvider discussionProvider, Widget? child) {
+        return ModalProgressHUD(
+          inAsyncCall: discussionProvider.isLoading.get(),
+          child: Scaffold(
+            appBar: getAppBar(),
+            body: getMainBody(),
+          ),
+        );
+      },
+    );
   }
 
   PreferredSize? getAppBar() {

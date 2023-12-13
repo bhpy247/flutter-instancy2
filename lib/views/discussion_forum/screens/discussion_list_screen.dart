@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/my_safe_state.dart';
 import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
-import 'package:flutter_instancy_2/backend/instabot/instabot_controller.dart';
-import 'package:flutter_instancy_2/backend/instabot/instabot_provider.dart';
+import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/discussion_forum/forum/discussion_forum_ui_action_callback_model.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/discussion_forum/forum/discussion_forum_ui_action_controller.dart';
@@ -283,15 +282,14 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
       providers: [
         ChangeNotifierProvider<DiscussionProvider>.value(value: discussionProvider),
       ],
-      child: Consumer2<DiscussionProvider, InstaBotProvider>(
-        builder: (context, DiscussionProvider discussionProvider, InstaBotProvider instaBotProvider, _) {
-          bool isChatBotEnabled = InstabotController(provider: instaBotProvider).enableMarginForChatBotButtonEnabled();
+      child: Consumer2<DiscussionProvider, MainScreenProvider>(
+        builder: (context, DiscussionProvider discussionProvider, MainScreenProvider mainScreenProvider, _) {
           return ModalProgressHUD(
             inAsyncCall: isLoading,
             child: Scaffold(
               floatingActionButton: Padding(
                 padding: EdgeInsets.only(
-                  bottom: isChatBotEnabled ? 70 : 0,
+                  bottom: mainScreenProvider.isChatBotButtonEnabled.get() && !mainScreenProvider.isChatBotButtonCenterDocked.get() ? 70 : 0,
                 ),
                 child: FloatingActionButton(
                   child: const Icon(Icons.add),
