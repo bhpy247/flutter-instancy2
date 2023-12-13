@@ -137,8 +137,10 @@ class _MainScreenState extends State<MainScreen> {
           List<NativeMenuModel> bottomBarMenusList = [];
           bool hasMoreMenus = false;
 
-          if (appProvider.appSystemConfigurationModel.mobileAppMenuPosition == "bottom") {
-            hasMoreMenus = mainMenusList.length >= InstancyUIConfigurations.maxBottomBarItemsCount;
+          FloatingActionButtonLocation? floatingActionButtonLocation;
+
+          if (appProvider.appSystemConfigurationModel.mobileAppMenuPosition == "bottom" && mainMenusList.length >= 2) {
+            hasMoreMenus = mainMenusList.length > InstancyUIConfigurations.maxBottomBarItemsCount;
             int bottomMenusLength = hasMoreMenus ? InstancyUIConfigurations.maxBottomBarItemsCount : mainMenusList.length;
 
             for (int i = 0; i < bottomMenusLength; i++) {
@@ -146,6 +148,8 @@ class _MainScreenState extends State<MainScreen> {
             }
 
             drawerMenusList.removeWhere((element) => bottomBarMenusList.contains(element));
+
+            if (bottomBarMenusList.length != 3 || hasMoreMenus == true) floatingActionButtonLocation = FloatingActionButtonLocation.centerDocked;
           }
 
           return Scaffold(
@@ -155,9 +159,13 @@ class _MainScreenState extends State<MainScreen> {
               components: components,
             ),
             drawer: getDrawerWidget(drawerMenusList: drawerMenusList),
-            floatingActionButtonLocation: bottomBarMenusList.isEmpty ? null : FloatingActionButtonLocation.centerDocked,
+            floatingActionButtonLocation: floatingActionButtonLocation,
             floatingActionButton: getChatBotButton(instaBotProvider: instaBotProvider),
-            bottomNavigationBar: getBottomBarWidget(bottomBarMenusList: bottomBarMenusList, hasMoreMenus: hasMoreMenus),
+            bottomNavigationBar: getBottomBarWidget(
+              bottomBarMenusList: bottomBarMenusList,
+              hasMoreMenus: hasMoreMenus,
+              isCenterDocked: floatingActionButtonLocation == FloatingActionButtonLocation.centerDocked,
+            ),
             body: future != null && components.isEmpty
                 ? FutureBuilder(
                     future: future,
@@ -293,11 +301,16 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     return FloatingActionButton(
-      shape: CircleBorder(),
+      shape: CircleBorder(
+        side: BorderSide(
+          color: themeData.primaryColor,
+        ),
+      ),
       splashColor: Colors.transparent,
       hoverColor: Colors.transparent,
       focusColor: Colors.transparent,
       hoverElevation: 0,
+      backgroundColor: Colors.white,
       highlightElevation: 0,
       focusElevation: 0,
       disabledElevation: 0,
@@ -310,10 +323,9 @@ class _MainScreenState extends State<MainScreen> {
           arguments: InstaBotScreen2NavigationArguments(instaBotProvider: instaBotProvider),
         );
       },
-      backgroundColor: Colors.white,
-      elevation: 0,
+      elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
+        padding: const EdgeInsets.all(10),
         child: ClipRRect(
           // borderRadius: BorderRadius.circular(100),
           child: botIconWidget,
@@ -322,7 +334,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget? getBottomBarWidget({required List<NativeMenuModel> bottomBarMenusList, required bool hasMoreMenus}) {
+  Widget? getBottomBarWidget({required List<NativeMenuModel> bottomBarMenusList, required bool hasMoreMenus, bool isCenterDocked = false}) {
     if (bottomBarMenusList.isEmpty) {
       return null;
     }
@@ -330,6 +342,7 @@ class _MainScreenState extends State<MainScreen> {
     return MainScreenBottomBar(
       selectedMenuModel: mainScreenProvider.selectedMenuModel,
       menusList: bottomBarMenusList,
+      isCenterDocked: isCenterDocked,
       hasMoreMenus: hasMoreMenus,
       onMenuTap: ({required NativeMenuModel nativeMenuModel}) {
         mainScreenProvider.setSelectedMenu(

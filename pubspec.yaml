@@ -84,6 +84,8 @@ dependencies:
   scrollable_positioned_list: ^0.3.8
   syncfusion_flutter_calendar: ^23.1.38
   syncfusion_flutter_charts: ^23.2.6
+  stylish_bottom_bar: ^1.0.3
+  awesome_bottom_bar: ^1.2.4
 
   #region Loaders:
   flutter_spinkit: ^5.2.0
