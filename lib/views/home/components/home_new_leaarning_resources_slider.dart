@@ -81,42 +81,45 @@ class _HomeNewLearningResourcesSliderState extends State<HomeNewLearningResource
       value: homeProvider,
       child: Consumer<HomeProvider>(
         builder: (BuildContext context, HomeProvider homeProvider, Widget? child) {
-          return SizedBox(
-            height: 220,
-            width: double.infinity,
-            child: HeaderWithSeeAllWidget(
-              title: "New Learning resources",
-              isSeeAll: true,
-              onSeeAllTap: () {
-                NavigationController.navigateToCatalogContentsListScreen(
-                  navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-                  arguments: CatalogContentsListScreenNavigationArguments(
-                    componentInstanceId: InstancyComponents.CatalogComponentInsId,
-                    componentId: InstancyComponents.Catalog,
-                    HomeComponentId: InstancyComponents.NewLearningResources,
-                  ),
-                );
-              },
-              child: SizedBox(
-                height: 220,
-                width: double.infinity,
-                child: futureGetData != null
-                    ? FutureBuilder(
-                        future: futureGetData,
-                        builder: (BuildContext context, AsyncSnapshot snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done) {
-                            MyPrint.printOnConsole("newLearningResourcesList length:${homeProvider.newLearningResourcesList.length}");
+          return Padding(
+            padding: const EdgeInsets.only(top: 10.0),
+            child: SizedBox(
+              height: 220,
+              width: double.infinity,
+              child: HeaderWithSeeAllWidget(
+                title: "New Learning resources",
+                isSeeAll: true,
+                onSeeAllTap: () {
+                  NavigationController.navigateToCatalogContentsListScreen(
+                    navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+                    arguments: CatalogContentsListScreenNavigationArguments(
+                      componentInstanceId: InstancyComponents.CatalogComponentInsId,
+                      componentId: InstancyComponents.Catalog,
+                      HomeComponentId: InstancyComponents.NewLearningResources,
+                    ),
+                  );
+                },
+                child: SizedBox(
+                  height: 220,
+                  width: double.infinity,
+                  child: futureGetData != null
+                      ? FutureBuilder(
+                          future: futureGetData,
+                          builder: (BuildContext context, AsyncSnapshot snapshot) {
+                            if (snapshot.connectionState == ConnectionState.done) {
+                              MyPrint.printOnConsole("newLearningResourcesList length:${homeProvider.newLearningResourcesList.length}");
 
-                            return getCoursesSlider(
-                              list: homeProvider.newLearningResourcesList,
-                            );
-                          } else {
-                            return const Center(child: CommonLoader());
-                          }
-                        })
-                    : getCoursesSlider(
-                        list: homeProvider.newLearningResourcesList,
-                      ),
+                              return getCoursesSlider(
+                                list: homeProvider.newLearningResourcesList,
+                              );
+                            } else {
+                              return const Center(child: CommonLoader());
+                            }
+                          })
+                      : getCoursesSlider(
+                          list: homeProvider.newLearningResourcesList,
+                        ),
+                ),
               ),
             ),
           );

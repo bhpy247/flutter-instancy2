@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
+import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
 import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/backend/splash/splash_controller.dart';
 import 'package:flutter_instancy_2/models/membership/data_model/membership_plan_details_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
@@ -158,6 +160,7 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
       initializeImages(appProvider: appProvider);
 
       return Scaffold(
+        resizeToAvoidBottomInset: false,
         body: getMainBody2(),
       );
     });
@@ -240,12 +243,17 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
 
     // return CachedNetworkImage(imageUrl: logoUrl);
 
-    return CommonCachedNetworkImage(
-      imageUrl: logoUrl,
-      height: 80,
-      width: 250,
-      errorIconSize: 60,
-      placeholder: (_, __) => const SizedBox(),
+    return InkWell(
+      onLongPress: () {
+        SplashController(appProvider: appProvider, appThemeProvider: context.read<AppThemeProvider>()).changeCurrentSite(context: context);
+      },
+      child: CommonCachedNetworkImage(
+        imageUrl: logoUrl,
+        height: 80,
+        width: 250,
+        errorIconSize: 60,
+        placeholder: (_, __) => const SizedBox(),
+      ),
     );
   }
 

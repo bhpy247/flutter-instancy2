@@ -4,8 +4,12 @@ import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_controller.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_controller.dart';
+import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
+import 'package:flutter_instancy_2/backend/common/main_hive_controller.dart';
 import 'package:flutter_instancy_2/backend/common/shared_preference_controller.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/splash/splash_hive_repository.dart';
+import 'package:flutter_instancy_2/configs/client_urls.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/app_ststem_configurations.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/instancy_theme_colors.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/local_str.dart';
@@ -17,6 +21,8 @@ import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
+import 'package:flutter_instancy_2/views/app/components/client_selection_dialog.dart';
+import 'package:provider/provider.dart';
 
 import '../../configs/app_constants.dart';
 import '../../hive/hive_operation_controller.dart';
@@ -26,6 +32,8 @@ import '../../models/app_configuration_models/response_model/mobile_get_learning
 import '../app/app_provider.dart';
 import '../configurations/app_configuration_operations.dart';
 import 'splash_repository.dart';
+
+typedef ClientSelectionResponse = ({String siteUrl, int clientUrlType});
 
 class SplashController {
   final AppProvider appProvider;
@@ -54,9 +62,11 @@ class SplashController {
     String apiUrl = splashRepository.apiController.apiDataProvider.getCurrentBaseApiUrl();
     String learnerUrl = splashRepository.apiController.apiDataProvider.getCurrentSiteLearnerUrl();
     String lmsUrl = splashRepository.apiController.apiDataProvider.getCurrentSiteLMSUrl();
+    int clientUrlType = splashRepository.apiController.apiDataProvider.getMainClientUrlType();
+
     // String apiUrl = "";
     MyPrint.printOnConsole("apiUrl:$apiUrl", tag: newId);
-    if (apiUrl.isNotEmpty && learnerUrl.isNotEmpty && lmsUrl.isNotEmpty) {
+    if (apiUrl.isNotEmpty && learnerUrl.isNotEmpty && lmsUrl.isNotEmpty && clientUrlType > -1) {
       isHavingSiteData = true;
     } else {
       isHavingSiteData = await getSiteApiUrlConfigurationData();
@@ -82,37 +92,144 @@ class SplashController {
 
   //region 1) CurrentSiteUrlData Section
   Future<void> getCurrentSiteUrlData() async {
-    String uid = MyUtils.getNewId();
-    MyPrint.printOnConsole('getCurrentSiteUrlData called', tag: uid);
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole('getCurrentSiteUrlData called', tag: tag);
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = splashRepository.apiController.apiDataProvider;
 
     String currentSiteUrl = apiUrlConfigurationProvider.getCurrentSiteUrl();
-    MyPrint.printOnConsole("currentSiteUrl from apiUrlConfigurationProvider:'$currentSiteUrl'", tag: uid);
+    MyPrint.printOnConsole("currentSiteUrl from apiUrlConfigurationProvider:'$currentSiteUrl'", tag: tag);
 
     if (currentSiteUrl.isEmpty) {
       currentSiteUrl = await SharedPreferenceController.getCurrentSiteUrlFromSharedPreference();
+      MyPrint.printOnConsole("currentSiteUrl from SharedPreference:'$currentSiteUrl'", tag: tag);
     }
-    MyPrint.printOnConsole("currentSiteUrl from SharedPreference:'$currentSiteUrl'", tag: uid);
 
     if (currentSiteUrl.isNotEmpty) {
       String apiUrl = await SharedPreferenceController.getCurrentSiteApiUrlFromSharedPreference();
-      MyPrint.printOnConsole("apiUrl:'$apiUrl'", tag: uid);
+      MyPrint.printOnConsole("apiUrl:'$apiUrl'", tag: tag);
       apiUrlConfigurationProvider.setCurrentBaseApiUrl(apiUrl);
 
       String learnerUrl = await SharedPreferenceController.getCurrentSiteLearnerUrlFromSharedPreference();
-      MyPrint.printOnConsole("learnerUrl:'$learnerUrl'", tag: uid);
+      MyPrint.printOnConsole("learnerUrl:'$learnerUrl'", tag: tag);
       apiUrlConfigurationProvider.setCurrentSiteLearnerUrl(learnerUrl);
 
       String lmsUrl = await SharedPreferenceController.getCurrentSiteLMSUrlFromSharedPreference();
-      MyPrint.printOnConsole("lmsUrl:'$lmsUrl'", tag: uid);
+      MyPrint.printOnConsole("lmsUrl:'$lmsUrl'", tag: tag);
       apiUrlConfigurationProvider.setCurrentSiteLMSUrl(lmsUrl);
     } else {
       currentSiteUrl = apiUrlConfigurationProvider.getMainSiteUrl();
     }
-    MyPrint.printOnConsole("final currentSiteUrl:'$currentSiteUrl'", tag: uid);
-
+    MyPrint.printOnConsole("final currentSiteUrl:'$currentSiteUrl'", tag: tag);
     apiUrlConfigurationProvider.setCurrentSiteUrl(currentSiteUrl);
+
+    int currentClientUrlType = apiUrlConfigurationProvider.getCurrentClientUrlType();
+    MyPrint.printOnConsole("currentClientUrlType from apiUrlConfigurationProvider:'$currentClientUrlType'", tag: tag);
+
+    if (currentClientUrlType == -1) {
+      currentClientUrlType = await SharedPreferenceController.getClientUrlTypeFromSharedPreference();
+      MyPrint.printOnConsole("currentClientUrlType from SharedPreference:'$currentClientUrlType'", tag: tag);
+    }
+    if (currentClientUrlType == -1) {
+      currentClientUrlType = apiUrlConfigurationProvider.getMainClientUrlType();
+    }
+    MyPrint.printOnConsole("Final currentClientUrlType:'$currentClientUrlType'", tag: tag);
+    apiUrlConfigurationProvider.setCurrentClientUrlType(currentClientUrlType);
+    SharedPreferenceController.setClientUrlTypeInSharedPreference(currentClientUrlType);
+
+    apiUrlConfigurationProvider.setCurrentAuthUrl(ClientUrls.getAuthUrl(apiUrlConfigurationProvider.getCurrentClientUrlType()));
+  }
+
+  Future<bool> changeCurrentSite({required material.BuildContext context}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole('SplashController().changeCurrentSite() called', tag: tag);
+
+    AuthenticationProvider authenticationProvider = context.read<AuthenticationProvider>();
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = splashRepository.apiController.apiDataProvider;
+
+    ClientSelectionResponse? value;
+
+    try {
+      value = await material.showDialog<ClientSelectionResponse>(
+        context: context,
+        barrierDismissible: false,
+        builder: (material.BuildContext context) {
+          return ClientSelectionDialog(
+            clientUrl: apiUrlConfigurationProvider.getCurrentSiteUrl(),
+            clientUrlType: apiUrlConfigurationProvider.getCurrentClientUrlType(),
+          );
+        },
+      );
+    } catch (e, s) {
+      MyPrint.printOnConsole('Error in SplashController().changeCurrentSite():$e', tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+    }
+
+    MyPrint.printOnConsole("ClientSelectionResponse:$value", tag: tag);
+    if (value == null) {
+      MyPrint.printOnConsole('Returning from SplashController().changeCurrentSite() because ClientSelectionResponse is null', tag: tag);
+      return false;
+    }
+
+    if (value.siteUrl.isEmpty || value.clientUrlType < 0) {
+      MyPrint.printOnConsole('Returning from SplashController().changeCurrentSite() because ClientSelectionResponse is null', tag: tag);
+      return false;
+    }
+
+    AuthenticationController authenticationController = AuthenticationController(provider: authenticationProvider);
+
+    bool isLoggedOut = await authenticationController.logout(isNavigateToLoginScreen: false);
+    MyPrint.printOnConsole("isLoggedOut:$isLoggedOut", tag: tag);
+
+    await resetApiConfigurationData();
+
+    apiUrlConfigurationProvider.setCurrentSiteUrl(value.siteUrl);
+    apiUrlConfigurationProvider.setCurrentClientUrlType(value.clientUrlType);
+
+    {
+      material.BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        MyPrint.printOnConsole("Navigating To SplashScreen", tag: tag);
+        NavigationController.navigateToSplashScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamedAndRemoveUntil,
+          ),
+        );
+      } else {
+        MyPrint.printOnConsole("Not Navigating To SplashScreen", tag: tag);
+      }
+    }
+
+    return true;
+  }
+
+  Future<void> resetApiConfigurationData() async {
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = splashRepository.apiController.apiDataProvider;
+
+    apiUrlConfigurationProvider.setCurrentBaseApiUrl("");
+    apiUrlConfigurationProvider.setCurrentSiteUrl("");
+    apiUrlConfigurationProvider.setCurrentAuthUrl("");
+    apiUrlConfigurationProvider.setCurrentSiteLearnerUrl("");
+    apiUrlConfigurationProvider.setCurrentSiteLMSUrl("");
+    apiUrlConfigurationProvider.setCurrentClientUrlType(-1);
+    appProvider.setLocalStr(value: LocalStr(), isNotify: false);
+    appProvider.setTinCanDataModel(value: TinCanDataModel(), isNotify: false);
+    appProvider.setMenuModelsList(list: [], isClear: true, isNotify: false);
+    appProvider.setMenusMap(menusMap: {}, isClear: true, isNotify: false);
+    appProvider.setMenuModelsList(list: [], isClear: true, isNotify: false);
+    appProvider.setMenuComponentsMap(menuComponentsMap: {}, isClear: true, isNotify: false);
+    appProvider.setMenuComponentsListMenuWiseMap(menuComponentsListMenuWiseMap: {}, isClear: true, isNotify: false);
+
+    await Future.wait([
+      SharedPreferenceController.setCurrentSiteUrlInSharedPreference(""),
+      SharedPreferenceController.setCurrentSiteApiUrlInSharedPreference(""),
+      SharedPreferenceController.setCurrentSiteLearnerUrlInSharedPreference(""),
+      SharedPreferenceController.setCurrentSiteLMSUrlInSharedPreference(""),
+      SharedPreferenceController.setClientUrlTypeInSharedPreference(-1),
+      initializeAppConfigurationsFromMobileGetLearningPortalInfoResponseModel(model: MobileGetLearningPortalInfoResponseModel()),
+      MainHiveController().clearCurrentSiteBox(),
+    ]);
   }
 
   //endregion
@@ -315,6 +432,7 @@ class SplashController {
     instancyThemeColors.menuBGAlternativeColor = "";
     instancyThemeColors.fileUploadButtonColor = "";
     instancyThemeColors.appButtonTextColor = ParsingHelper.parseStringMethod(colorsMap['BUTTON TEXT COLOR']);
+    instancyThemeColors.footerBackgroundColor = ParsingHelper.parseStringMethod(colorsMap['FOOTER BACKGROUND']);
     instancyThemeColors.appLogoBackgroundColor = "";
 
     return instancyThemeColors;

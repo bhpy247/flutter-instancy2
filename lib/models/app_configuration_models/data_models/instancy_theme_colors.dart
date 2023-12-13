@@ -125,14 +125,25 @@ class InstancyThemeColors {
   }
 
   String _appTextColor = "";
+
   String get appTextColor => _appTextColor;
 
   set appTextColor(String value) {
     _appTextColor = value;
   }
 
+  String _footerBackgroundColor = "";
+
+  String get footerBackgroundColor => _footerBackgroundColor;
+
+  set footerBackgroundColor(String value) {
+    _footerBackgroundColor = value;
+  }
+
   double _buttonBorderRadius = 5;
+
   double get buttonBorderRadius => _buttonBorderRadius;
+
   set buttonBorderRadius(double value) {
     _buttonBorderRadius = value;
   }

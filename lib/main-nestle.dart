@@ -8,10 +8,8 @@ import 'views/app/myapp.dart';
 void main() async {
   runErrorSafeApp(
     () => runApp(
-      MyApp(
+      const MyApp(
         mainSiteUrl: ClientUrls.nestleClientUrl,
-        appAuthURL: ClientUrls.getAuthUrl(ClientUrlTypes.PRODUCTION),
-        splashScreenLogo: "assets/app-logo/nestle-logo.png",
         clientUrlType: ClientUrlTypes.PRODUCTION,
       ),
     ),

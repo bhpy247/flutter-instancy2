@@ -62,6 +62,7 @@ class UserOverallDataWidget extends StatelessWidget {
                     getPointAndSkillRowWidget(themeData: themeData),
                     const SizedBox(height: 11),
                     getLinearProgressBarWidget(
+                      context: context,
                       themeData: themeData,
                       progress: progress.toInt(),
                     ),
@@ -90,7 +91,7 @@ class UserOverallDataWidget extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            userOverAllDataModel.UserLevel,
+            userOverAllDataModel.UserLevel == "--" ? "" : userOverAllDataModel.UserLevel,
             style: themeData.textTheme.bodySmall?.copyWith(
               color: themeData.textTheme.bodySmall?.color?.withAlpha(150),
               fontWeight: FontWeight.w600,
@@ -127,7 +128,7 @@ class UserOverallDataWidget extends StatelessWidget {
     );
   }
 
-  Widget getLinearProgressBarWidget({required ThemeData themeData, required int progress}) {
+  Widget getLinearProgressBarWidget({required BuildContext context, required ThemeData themeData, required int progress}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -30,9 +30,9 @@ class ApiController {
 
   ApiEndpoints get apiEndpoints => ApiEndpoints(
     siteUrl: apiDataProvider.getCurrentSiteUrl(),
-    authUrl: apiDataProvider.getAuthUrl(),
-    apiUrl: apiDataProvider.getCurrentBaseApiUrl(),
-  );
+        authUrl: apiDataProvider.getCurrentAuthUrl(),
+        apiUrl: apiDataProvider.getCurrentBaseApiUrl(),
+      );
 
   //(1) This is the main method which is responsible for Making the API Call and Handle That
   Future<DataResponseModel<T>> callApi<T>({required ApiCallModel apiCallModel, bool isLogoutOnAuthorizationExpired = true, bool isIsolateCall = true}) async {

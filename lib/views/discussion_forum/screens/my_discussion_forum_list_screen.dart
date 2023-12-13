@@ -11,6 +11,8 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../../backend/app/app_provider.dart';
 import '../../../backend/discussion/discussion_controller.dart';
 import '../../../backend/discussion/discussion_provider.dart';
+import '../../../backend/instabot/instabot_controller.dart';
+import '../../../backend/instabot/instabot_provider.dart';
 import '../../../backend/share/share_provider.dart';
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import '../../../configs/app_configurations.dart';
@@ -280,33 +282,39 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
       providers: [
         ChangeNotifierProvider<DiscussionProvider>.value(value: discussionProvider),
       ],
-      child: Consumer<DiscussionProvider>(builder: (context, DiscussionProvider discussionProvider, _) {
+      child: Consumer2<DiscussionProvider, InstaBotProvider>(builder: (context, DiscussionProvider discussionProvider, InstaBotProvider instaBotProvider, _) {
+        bool isChatBotEnabled = InstabotController(provider: instaBotProvider).enableMarginForChatBotButtonEnabled();
         return ModalProgressHUD(
           inAsyncCall: isLoading,
           child: Scaffold(
-            floatingActionButton: FloatingActionButton(
-              child: const Icon(Icons.add),
-              onPressed: () async {
-                dynamic value = await NavigationController.navigateToCreateEditDiscussionForumScreen(
-                  navigationOperationParameters: NavigationOperationParameters(
-                    context: context,
-                    navigationType: NavigationType.pushNamed,
-                  ),
-                  arguments: const CreateEditDiscussionForumScreenNavigationArguments(forumModel: null),
-                );
-                if (value != true) return;
+            floatingActionButton: Padding(
+              padding: EdgeInsets.only(
+                bottom: isChatBotEnabled ? 70 : 0,
+              ),
+              child: FloatingActionButton(
+                child: const Icon(Icons.add),
+                onPressed: () async {
+                  dynamic value = await NavigationController.navigateToCreateEditDiscussionForumScreen(
+                    navigationOperationParameters: NavigationOperationParameters(
+                      context: context,
+                      navigationType: NavigationType.pushNamed,
+                    ),
+                    arguments: const CreateEditDiscussionForumScreenNavigationArguments(forumModel: null),
+                  );
+                  if (value != true) return;
 
-                discussionController.getForumsList(
-                  isRefresh: true,
-                  isGetFromCache: false,
-                  isNotify: false,
-                );
-                discussionController.getMyDiscussionForumsList(
-                  isRefresh: true,
-                  isGetFromCache: false,
-                  isNotify: true,
-                );
-              },
+                  discussionController.getForumsList(
+                    isRefresh: true,
+                    isGetFromCache: false,
+                    isNotify: false,
+                  );
+                  discussionController.getMyDiscussionForumsList(
+                    isRefresh: true,
+                    isGetFromCache: false,
+                    isNotify: true,
+                  );
+                },
+              ),
             ),
             body: getMainWidget(),
           ),

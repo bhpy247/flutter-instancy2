@@ -344,6 +344,17 @@ class GamificationController {
 
     int? selectedGameIdForDrawer = provider.gameIdForDrawer.get();
     int? selectedGameIdForMyAchievements = provider.selectedGameModel.get()?.GameID;
+    List<int> userGameIdsList = provider.userGamesList.getList(isNewInstance: false).map((e) => e.GameID).toList();
+
+    if (gameIds.toSet().intersection(userGameIdsList.toSet()).length < gameIds.toSet().length) {
+      MyPrint.printOnConsole("Game not Exist in User Games List", tag: tag);
+
+      await getUserGamesList(
+        isRefresh: true,
+        isNotify: false,
+      );
+      getUserAchievementDataForDrawer();
+    }
 
     if (selectedGameIdForDrawer != null && gameIds.contains(selectedGameIdForDrawer)) {
       MyPrint.printOnConsole("Updating Drawer Data", tag: tag);

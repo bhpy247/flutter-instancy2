@@ -57,6 +57,9 @@ To Build qalearning Build Release :- flutter build apk --release -t lib/main-qal
 To Build qalearning Build Debug   :- flutter build apk --debug -t lib/main-qalearning.dart --flavor qalearning2 --no-tree-shake-icons
 To Run qalearning Build Release   :- flutter run --release -t lib/main-qalearning.dart --flavor qalearning2
 To Run qalearning Build Debug     :- flutter run --debug -t lib/main-qalearning.dart --flavor qalearning2
+To Build qalearning Build Web Release :- flutter build web --release -t lib/main-qalearning.dart --no-tree-shake-icons --web-renderer canvaskit
+To Run qalearning Build Web Release :- flutter run -d chrome --release -t lib/main-qalearning.dart
+To Rub qalearning Web Server :- flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0 -t lib/main-qalearning.dart --web-renderer canvaskit
 
 7) nestle
 
@@ -64,6 +67,9 @@ To Build nestle Build Release :- flutter build apk --release -t lib/main-nestle.
 To Build nestle Build Debug   :- flutter build apk --debug -t lib/main-nestle.dart --flavor nestle --no-tree-shake-icons
 To Run nestle Build Release   :- flutter run --release -t lib/main-nestle.dart --flavor nestle
 To Run nestle Build Debug     :- flutter run --debug -t lib/main-nestle.dart --flavor nestle
+To Build nestle Build Web Release :- flutter build web --release -t lib/main-nestle.dart --no-tree-shake-icons --web-renderer canvaskit
+To Run nestle Build Web Release :- flutter run -d chrome --release -t lib/main-nestle.dart
+To Rub nestle Web Server :- flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0 -t lib/main-nestle.dart --web-renderer canvaskit
 
 
 //To Build for ios

@@ -208,6 +208,9 @@ class _MainScreenDrawerHeaderWidgetState extends State<MainScreenDrawerHeaderWid
     int totalPoints = userOverAllDataModel.OverAllPoints + userOverAllDataModel.NeededPoints;
     double progress = userOverAllDataModel.OverAllPoints / totalPoints;
 
+    String colorCode = context.read<AppThemeProvider>().getInstancyThemeColors().footerBackgroundColor;
+    Color? color = colorCode.isNotEmpty ? HexColor.fromHex(colorCode) : null;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -215,7 +218,7 @@ class _MainScreenDrawerHeaderWidgetState extends State<MainScreenDrawerHeaderWid
           minHeight: 8,
           backgroundColor: themeData.colorScheme.background,
           valueColor: AlwaysStoppedAnimation<Color>(
-            themeData.colorScheme.onBackground,
+            color ?? themeData.colorScheme.onBackground,
           ),
           value: progress,
           borderRadius: BorderRadius.circular(100),
@@ -224,7 +227,7 @@ class _MainScreenDrawerHeaderWidgetState extends State<MainScreenDrawerHeaderWid
         Row(
           children: [
             Text(
-              userOverAllDataModel.UserLevel,
+              userOverAllDataModel.UserLevel == "--" ? "" : userOverAllDataModel.UserLevel,
               style: themeData.textTheme.bodySmall?.copyWith(
                 color: themeData.colorScheme.onPrimary,
                 fontWeight: FontWeight.bold,

@@ -8,10 +8,8 @@ import 'views/app/myapp.dart';
 void main() async {
   await runErrorSafeApp(
         () => runApp(
-      MyApp(
+      const MyApp(
         mainSiteUrl: ClientUrls.enterpriseDemoClientUrl,
-        appAuthURL: ClientUrls.getAuthUrl(ClientUrlTypes.PRODUCTION),
-        splashScreenLogo: "assets/images/playgroundlogo.png",
         clientUrlType: ClientUrlTypes.PRODUCTION,
       ),
     ),

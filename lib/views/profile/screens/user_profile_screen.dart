@@ -191,6 +191,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
         const SizedBox(
           height: 16,
         ),
+        // Divider(),
         Expanded(child: getTabBarView())
       ],
     );
@@ -345,17 +346,23 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        backgroundColor: themeData.primaryColor,
+        backgroundColor: Colors.white,
         appBar: AppBar(
+          backgroundColor: Colors.transparent,
           automaticallyImplyLeading: false,
-          elevation: 5,
           shadowColor: Colors.black.withOpacity(0.3),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(10),
             child: Container(
-              decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10))),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  top: BorderSide(color: themeData.primaryColor.withOpacity(.5), width: .5),
+                ),
+              ),
               child: SafeArea(
                 child: Container(
+                  padding: const EdgeInsets.only(top: 5),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border(bottom: BorderSide(color: Colors.black.withOpacity(0.5), width: 0.2)),
@@ -374,8 +381,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
                         },
                         // unselectedLabelStyle: TextStyle(color: Colors.lightGreenAccent),
                         padding: const EdgeInsets.symmetric(vertical: 0),
-                        labelPadding: const EdgeInsets.only(bottom: 10, left: 8, right: 8),
-                        indicatorPadding: const EdgeInsets.only(top: 42),
+                        labelPadding: const EdgeInsets.only(bottom: 7, left: 8, right: 8),
+                        indicatorPadding: const EdgeInsets.only(top: 40),
                         indicator: BoxDecoration(color: themeData.primaryColor, borderRadius: const BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10))),
                         indicatorSize: TabBarIndicatorSize.label,
                         labelStyle: themeData.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w500, letterSpacing: 0.5),
@@ -422,8 +429,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
               padding: const EdgeInsets.only(right: 5.0),
               child: Image.asset(
                 assetPath,
-                height: 12,
-                width: 12,
+                height: 15,
+                width: 15,
+                fit: BoxFit.cover,
                 color: controller?.index == index ? themeData.primaryColor : Styles.indicatorIconColor,
               ),
             ),

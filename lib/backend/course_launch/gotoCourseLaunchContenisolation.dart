@@ -9,6 +9,7 @@ import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/app_ststem_configurations.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
+import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:intl/intl.dart';
 import 'package:open_file_plus/open_file_plus.dart';
@@ -53,16 +54,19 @@ class GotoCourseLaunchContentisolation {
     required this.apiUrlConfigurationProvider,
     required this.successfulUserLoginModel,
   }) {
-    MyPrint.printOnConsole("i am in it of GotoCourseLaunch");
+    MyPrint.printOnConsole("i am in it of GotoCourseLaunchContentisolation");
   }
 
   Future<String> getCourseUrl() async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("GotoCourseLaunchContentisolation().getCourseUrl() called", tag: tag);
+
     String retUrl = "";
 
     String strUserID = apiUrlConfigurationProvider.getCurrentUserId().toString();
     String userName = successfulUserLoginModel.email;
     String password = successfulUserLoginModel.password;
-    MyPrint.printOnConsole("Password:$password");
+    MyPrint.printOnConsole("Password:$password", tag: tag);
 
     int objectTypeId = courseLaunchModel.ContentTypeId;
     // String siteurl = ApiEndpoints.strSiteUrl;
@@ -88,7 +92,7 @@ class GotoCourseLaunchContentisolation {
 
       finalDownloadedFilePath = "$downloadDestFolderPath/$startPage";
 
-      MyPrint.printOnConsole('downlaodedfile $finalDownloadedFilePath');
+      MyPrint.printOnConsole('downlaodedfile $finalDownloadedFilePath', tag: tag);
 
       myFile = File(finalDownloadedFilePath);
       isDownloadFileExists = await myFile.exists();
@@ -123,15 +127,16 @@ class GotoCourseLaunchContentisolation {
     bool enabletincanSupportforlt = tinCanDataModel.enabletincansupportforlt;
     bool isTinCan = tinCanDataModel.istincan;
 
-    MyPrint.printOnConsole("isTinCan:$isTinCan");
-    MyPrint.printOnConsole("enabletincanSupportforco:$enabletincanSupportforco");
-    MyPrint.printOnConsole("enabletincanSupportforao:$enabletincanSupportforao");
-    MyPrint.printOnConsole("enabletincanSupportforlt:$enabletincanSupportforlt");
+    MyPrint.printOnConsole("isTinCan:$isTinCan", tag: tag);
+    MyPrint.printOnConsole("enabletincanSupportforco:$enabletincanSupportforco", tag: tag);
+    MyPrint.printOnConsole("enabletincanSupportforao:$enabletincanSupportforao", tag: tag);
+    MyPrint.printOnConsole("enabletincanSupportforlt:$enabletincanSupportforlt", tag: tag);
+
     ///End TIN CAN OPTIONS
 
     /// this is offline part
     if (isDownloadFileExists && objectTypeId != InstancyObjectTypes.events) {
-      MyPrint.printOnConsole('if___course_launch_ogjtypr $objectTypeId');
+      MyPrint.printOnConsole('if___course_launch_ogjtypr $objectTypeId', tag: tag);
 
       /// Generate Offline Path
       if ([InstancyObjectTypes.contentObject, InstancyObjectTypes.assessment, InstancyObjectTypes.track].contains(objectTypeId)) {
@@ -199,19 +204,17 @@ class GotoCourseLaunchContentisolation {
           );*/
 
           ///databaseH.insertUserSession(learnerSessionModel);
-
         }
-      }
-      else {
+      } else {
         offlinePath = "file://$finalDownloadedFilePath";
       }
 
       String offlinePathEncode = offlinePath.replaceAll(" ", "%20");
 
-      MyPrint.printOnConsole("final....offlinePathEncode....path.....$offlinePathEncode");
-      MyPrint.printOnConsole("final....finalDownloadedFilePath....path.....$finalDownloadedFilePath");
+      MyPrint.printOnConsole("final....offlinePathEncode....path.....$offlinePathEncode", tag: tag);
+      MyPrint.printOnConsole("final....finalDownloadedFilePath....path.....$finalDownloadedFilePath", tag: tag);
 
-      if(finalDownloadedFilePath.contains(".pdf")) {
+      if (finalDownloadedFilePath.contains(".pdf")) {
         NavigationController.navigateToPDFLaunchScreen(
           navigationOperationParameters: NavigationOperationParameters(
             context: context,
@@ -247,7 +250,7 @@ class GotoCourseLaunchContentisolation {
         await openFile(finalDownloadedFilePath);
       }
       else {
-        MyPrint.printOnConsole('finalDownloadedFilePath $finalDownloadedFilePath');
+        MyPrint.printOnConsole('finalDownloadedFilePath $finalDownloadedFilePath', tag: tag);
 
         alertDialog(context);
       }
@@ -255,7 +258,7 @@ class GotoCourseLaunchContentisolation {
 
     /// this is online part
     else {
-      MyPrint.printOnConsole('else___course_launch_ogjtypr GotoCourseLaunchContentisolation $objectTypeId');
+      MyPrint.printOnConsole('else___course_launch_ogjtypr GotoCourseLaunchContentisolation $objectTypeId', tag: tag);
 
       if (objectTypeId == InstancyObjectTypes.track && courseLaunchModel.bit5) {
         // Need to open EventTrackListTabsActivity
@@ -269,13 +272,13 @@ class GotoCourseLaunchContentisolation {
       }
       else {
         if (
-          [
-            InstancyObjectTypes.mediaResource,
-            InstancyObjectTypes.document,
-            InstancyObjectTypes.html,
-            InstancyObjectTypes.reference,
-            InstancyObjectTypes.webPage,
-          ].contains(objectTypeId)
+        [
+          InstancyObjectTypes.mediaResource,
+          InstancyObjectTypes.document,
+          InstancyObjectTypes.html,
+          InstancyObjectTypes.reference,
+          InstancyObjectTypes.webPage,
+        ].contains(objectTypeId)
         ) {
           if (courseLaunchModel.ActualStatus == "Not Started" || courseLaunchModel.ActualStatus.isEmpty) {
             // need to save CMI model
@@ -342,15 +345,14 @@ class GotoCourseLaunchContentisolation {
           if (objectTypeId == InstancyObjectTypes.mediaResource && isValidString(jwvideokey)) {
             String jwstartpage = "";
             if (isValidString(courseLaunchModel.startPage)) {
-              jwstartpage = courseLaunchModel.startPage;
-            }
-            else {
+              jwstartpage = courseLaunchModel.jwstartpage;
+            } else {
               jwstartpage = startPage;
             }
 
             jwstartpage = jwstartpage.replaceAll("/", "/");
 
-            urlForView = "/Content/PublishFiles/$folderpath/$jwstartpage?nativeappURL=true/JWVideoParentID/$contentid/jwvideokey/$jwvideokey";
+            urlForView = "/Content/PublishFiles/$folderpath/$jwstartpage?nativeappURL=true";
           }
           else {
             urlForView = "/Content/PublishFiles/$folderpath/$startPage";
@@ -383,15 +385,17 @@ class GotoCourseLaunchContentisolation {
           encodedString = lrsActor.replaceAll(" ", "%20");
 
           if (isValidString(folderpath) && folderpath != "0") {
-            urlForView = "Content/PublishFiles/$folderpath/$startPage?endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$encodedString&registration=$folderpath&ContentID=$contentid&ObjectTypeID=$objectTypeId&CanTrack=YES";
-          }
-          else {
-            urlForView = "Content/PublishFiles/$folderpath/$startPage?endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$encodedString&ContentID=$contentid&ObjectTypeID=$objectTypeId&CanTrack=YES";
+            urlForView =
+                "Content/PublishFiles/$folderpath/$startPage?endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$encodedString&registration=$folderpath&ContentID=$contentid&ObjectTypeID=$objectTypeId&CanTrack=YES";
+          } else {
+            urlForView =
+                "Content/PublishFiles/$folderpath/$startPage?endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$encodedString&ContentID=$contentid&ObjectTypeID=$objectTypeId&CanTrack=YES";
           }
 
-          MyPrint.printOnConsole("isCloudStorageEnabled:${appSystemConfigurationModel.isCloudStorageEnabled}");
+          MyPrint.printOnConsole("isCloudStorageEnabled:${appSystemConfigurationModel.isCloudStorageEnabled}", tag: tag);
           if (appSystemConfigurationModel.isCloudStorageEnabled) {
-            urlForView = "Content/PublishFiles/$folderpath/$startPage?endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$encodedString&ContentID=$contentid&ObjectTypeID=$objectTypeId&CanTrack=NO&nativeappURL=true";
+            urlForView =
+                "Content/PublishFiles/$folderpath/$startPage?endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$encodedString&ContentID=$contentid&ObjectTypeID=$objectTypeId&CanTrack=NO&nativeappURL=true";
 
             /*urlForView = "Content/PublishFiles/" +
                 folderpath +
@@ -448,14 +452,14 @@ class GotoCourseLaunchContentisolation {
             encodedStr.toLowerCase().contains(".pdf") ||
             encodedStr.toLowerCase().contains(".doc") ||
             encodedStr.toLowerCase().contains(".docx")) {
-          MyPrint.printOnConsole("......xxxxxxx.....");
+          MyPrint.printOnConsole("......xxxxxxx.....", tag: tag);
           encodedStr = "https://docs.google.com/gview?embedded=true&url=$encodedStr";
         }
 
-        MyPrint.printOnConsole("..............this is final URL..........");
-        MyPrint.printOnConsole("..............SAGAR..........");
-        MyPrint.printOnConsole("......$objectTypeId.......................");
-        MyPrint.printOnConsole("...URL...$encodedStr");
+        MyPrint.printOnConsole("..............this is final URL..........", tag: tag);
+        MyPrint.printOnConsole("..............SAGAR..........", tag: tag);
+        MyPrint.printOnConsole("......$objectTypeId.......................", tag: tag);
+        MyPrint.printOnConsole("...URL...$encodedStr", tag: tag);
 
         ///return string value
 

@@ -31,12 +31,18 @@ class MainHiveController {
       String host = MyUtils.getHostNameFromSiteUrl(currentSiteUrl);
       MyPrint.printOnConsole("host:$host");
 
-      if(host.isNotEmpty) {
+      if (host.isNotEmpty) {
         _currentSiteBox = await HiveManager().openBox(boxName: host);
       }
     }
 
     return _currentSiteBox;
+  }
+
+  Future<void> clearCurrentSiteBox() async {
+    MyPrint.printOnConsole("MainHiveController().clearCurrentSiteBox() called");
+
+    await _currentSiteBox?.clear();
   }
 
   Future<Box?> initializeAppConfigurationBox() async {

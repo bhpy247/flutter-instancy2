@@ -49,6 +49,19 @@ class SharedPreferenceController {
     bool isSuccess = await SharedPrefManager().setString(SharedPreferenceVariables.currentSiteLMSUrl, url);
     return isSuccess;
   }
+
 //endregion
-  //endregion
+
+//region Client Url Type
+  static Future<int> getClientUrlTypeFromSharedPreference() async {
+    int type = (await SharedPrefManager().getInt(SharedPreferenceVariables.clientUrlType)) ?? -1;
+    return type;
+  }
+
+  static Future<bool> setClientUrlTypeInSharedPreference(int type) async {
+    bool isSuccess = await SharedPrefManager().setInt(SharedPreferenceVariables.clientUrlType, type);
+    return isSuccess;
+  }
+//endregion
+//endregion
 }

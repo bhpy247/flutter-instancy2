@@ -3,22 +3,24 @@ import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/instabot/instabot_repository.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
+import 'package:provider/provider.dart';
 
 import '../../api/api_controller.dart';
 import '../../utils/my_print.dart';
 import '../../utils/my_utils.dart';
 import '../app_theme/app_theme_provider.dart';
+import '../navigation/navigation_controller.dart';
 import 'instabot_provider.dart';
 
 class InstabotController {
   late InstabotRepository instabotRepository;
   late InstaBotProvider _instaBotProvider;
 
-
-  InstabotController({ required InstaBotProvider? provider,InstabotRepository? repository, ApiController? apiController}) {
+  InstabotController({required InstaBotProvider? provider, InstabotRepository? repository, ApiController? apiController}) {
     instabotRepository = repository ?? InstabotRepository(apiController: apiController ?? ApiController());
     _instaBotProvider = provider ?? InstaBotProvider();
   }
+
   InstaBotProvider get instaBotProvider => _instaBotProvider;
 
   Future<String> getInstabotUrl({
@@ -35,12 +37,12 @@ class InstabotController {
     );
     guid = responseModel.data ?? "";
 
-    if(guid.isEmpty) {
+    if (guid.isEmpty) {
       return url;
     }
 
     url = "${instabotRepository.apiController.apiDataProvider.getCurrentSiteUrl()}/chatbot.html?ChatBotToken=$guid";
-    if(url.startsWith("http://")) {
+    if (url.startsWith("http://")) {
       url = url.replaceFirst("http://", "https://");
     }
     // url = "https://upgradedenterprise.instancy.com//chatbot.html?ChatBotToken=5cbead55-4d69-4990-99fd-381b323b12e6";
@@ -78,4 +80,21 @@ class InstabotController {
     return siteBotDetailsModel;
   }
 
+  bool enableMarginForChatBotButtonEnabled() {
+    AppProvider? appProvider = NavigationController.mainNavigatorKey.currentContext?.read<AppProvider>();
+    if (!(appProvider?.appSystemConfigurationModel.enableChatBot ?? true)) {
+      return false;
+    }
+
+    if (appProvider?.appSystemConfigurationModel.mobileAppMenuPosition == "bottom") {
+      return false;
+    }
+
+    if (instaBotProvider.isSiteBotDetailsLoading.get()) return false;
+
+    BotDetailsModel? botDetailsModel = instaBotProvider.botDetailsModel.get();
+    if (botDetailsModel == null) return false;
+
+    return true;
+  }
 }

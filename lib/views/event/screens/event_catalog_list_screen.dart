@@ -37,7 +37,6 @@ import '../../../utils/my_print.dart';
 import '../../../utils/my_toast.dart';
 import '../../../utils/my_utils.dart';
 import '../../../utils/parsing_helper.dart';
-import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_loader.dart';
 import '../../common/components/common_text_form_field.dart';
 import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
@@ -737,10 +736,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
               inAsyncCall: isLoading,
               child: Scaffold(
                 appBar: widget.arguments.isShowAppBar ? getAppBar() : null,
-                body: AppUIComponents.getBackGroundBordersRounded(
-                  context: context,
-                  child: getMainWidget(),
-                ),
+                body: getMainWidget(),
               ),
             );
           },

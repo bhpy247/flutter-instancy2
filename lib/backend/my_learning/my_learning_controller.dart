@@ -3,6 +3,7 @@ import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_instancy_2/models/common/pagination/pagination_model.dar
 import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/request_model/my_learning_data_request_model.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
+import 'package:provider/provider.dart';
 
 import '../../api/api_controller.dart';
 import '../../models/common/data_response_model.dart';
@@ -474,7 +476,7 @@ class MyLearningController {
     bool isSuccess = response.statusCode == 200;
 
     if (isSuccess) {
-      await GamificationController(provider: null).UpdateContentGamification(
+      await GamificationController(provider: NavigationController.mainNavigatorKey.currentContext?.read<GamificationProvider>()).UpdateContentGamification(
         requestModel: UpdateContentGamificationRequestModel(
           contentId: contentId,
           scoId: scoId,

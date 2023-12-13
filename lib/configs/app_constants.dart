@@ -21,6 +21,12 @@ class ClientUrlTypes {
   static const int STAGING = 0;
   static const int QA = 1;
   static const int PRODUCTION = 2;
+
+  static const List<int> values = [
+    STAGING,
+    QA,
+    PRODUCTION,
+  ];
 }
 
 class SharedPreferenceVariables {
@@ -32,6 +38,7 @@ class SharedPreferenceVariables {
   static const String currentSiteApiUrl = 'currentSiteApiUrl';
   static const String currentSiteLearnerUrl = 'currentSiteLearnerUrl';
   static const String currentSiteLMSUrl = 'currentSiteLMSUrl';
+  static const String clientUrlType = 'clientUrlType';
   static const String currentAppLogoUrl = 'currentAppLogoUrl';
 }
 

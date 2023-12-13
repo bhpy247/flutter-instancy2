@@ -219,7 +219,7 @@ class AuthenticationController {
     return isMailSent;
   }
 
-  Future<bool> logout() async {
+  Future<bool> logout({bool isNavigateToLoginScreen = true}) async {
     bool isLoggedOut = false;
 
     authenticationHiveRepository.saveLoggedInUserDataInHive(responseModel: null);
@@ -246,7 +246,11 @@ class AuthenticationController {
     context.read<DiscussionProvider>().resetData();
     context.read<GamificationProvider>().resetData();
 
-    Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, LoginSignUpSelectionScreen.routeName, (route) => false);
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = authenticationRepository.apiController.apiDataProvider;
+    apiUrlConfigurationProvider.setCurrentUserId(-1);
+    apiUrlConfigurationProvider.setAuthToken("");
+
+    if (isNavigateToLoginScreen) Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, LoginSignUpSelectionScreen.routeName, (route) => false);
 
     return isLoggedOut;
   }

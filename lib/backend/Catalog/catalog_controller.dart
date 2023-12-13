@@ -4,6 +4,7 @@ import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_repository.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/catalog/catalogCategoriesForBrowseModel.dart';
 import 'package:flutter_instancy_2/models/catalog/request_model/add_associated_content_to_my_learning_request_model.dart';
@@ -20,6 +21,7 @@ import 'package:flutter_instancy_2/models/gamification/request_model/update_cont
 import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:provider/provider.dart';
 
 import '../../api/api_controller.dart';
 import '../../configs/app_configurations.dart';
@@ -568,7 +570,7 @@ class CatalogController {
           Future.wait(futures);
         }
 
-        GamificationController(provider: null).UpdateContentGamification(
+        GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
           requestModel: UpdateContentGamificationRequestModel(
             contentId: requestModel.SelectedContent,
             scoId: requestModel.scoId,
@@ -699,7 +701,7 @@ class CatalogController {
         Future.wait(futures);
       }
 
-      GamificationController(provider: null).UpdateContentGamification(
+      GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
         requestModel: UpdateContentGamificationRequestModel(
           contentId: model.ContentID,
           scoId: model.ScoID,
@@ -760,7 +762,7 @@ class CatalogController {
       MyPrint.printOnConsole("isSuccess:$isSuccess", tag: tag);
 
       if (isSuccess) {
-        GamificationController(provider: null).UpdateContentGamification(
+        GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
           requestModel: UpdateContentGamificationRequestModel(
             contentId: requestModel.SelectedContent,
             scoId: requestModel.scoId,
@@ -832,7 +834,7 @@ class CatalogController {
       MyPrint.printOnConsole("isSuccess:$isSuccess", tag: tag);
 
       if (isSuccess) {
-        GamificationController(provider: null).UpdateContentGamification(
+        GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
           requestModel: UpdateContentGamificationRequestModel(
             contentId: requestModel.WLContentID,
             scoId: 0,
@@ -904,7 +906,7 @@ class CatalogController {
       MyPrint.printOnConsole("isSuccess:$isSuccess", tag: tag);
 
       if (isSuccess) {
-        GamificationController(provider: null).UpdateContentGamification(
+        GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
           requestModel: UpdateContentGamificationRequestModel(
             contentId: requestModel.SelectedContent,
             scoId: requestModel.scoId,

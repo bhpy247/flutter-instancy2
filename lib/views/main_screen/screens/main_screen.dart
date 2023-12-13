@@ -293,6 +293,14 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     return FloatingActionButton(
+      shape: CircleBorder(),
+      splashColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      focusColor: Colors.transparent,
+      hoverElevation: 0,
+      highlightElevation: 0,
+      focusElevation: 0,
+      disabledElevation: 0,
       onPressed: () {
         NavigationController.navigateToInstaBotScreen2(
           navigationOperationParameters: NavigationOperationParameters(
@@ -302,11 +310,14 @@ class _MainScreenState extends State<MainScreen> {
           arguments: InstaBotScreen2NavigationArguments(instaBotProvider: instaBotProvider),
         );
       },
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
       elevation: 0,
-      child: ClipRRect(
-        // borderRadius: BorderRadius.circular(100),
-        child: botIconWidget,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: ClipRRect(
+          // borderRadius: BorderRadius.circular(100),
+          child: botIconWidget,
+        ),
       ),
     );
   }

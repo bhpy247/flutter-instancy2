@@ -20,10 +20,8 @@ import 'views/app/myapp.dart';
 void main() async {
   await runErrorSafeApp(
     () => runApp(
-      MyApp(
+      const MyApp(
         mainSiteUrl: ClientUrls.upgradedEnterpriseClientUrl,
-        appAuthURL: ClientUrls.getAuthUrl(ClientUrlTypes.PRODUCTION),
-        splashScreenLogo: ClientUrls.getAppIconImageAssetPathFromSiteUrl(ClientUrls.upgradedEnterpriseClientUrl),
         clientUrlType: ClientUrlTypes.PRODUCTION,
       ),
     ),

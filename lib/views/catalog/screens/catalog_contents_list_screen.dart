@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_controller.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/catalog/catalog_ui_action_callback_model.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
@@ -555,7 +556,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
     isLoading = true;
     mySetState();
 
-    GamificationController(provider: null).UpdateContentGamification(
+    GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
       requestModel: UpdateContentGamificationRequestModel(
         contentId: model.ContentID,
         scoId: model.ScoID,
@@ -737,6 +738,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const SizedBox(height: 20),
         getBreadcrumbWidget(),
         getSearchTextFormField(),
         const SizedBox(height: 10),

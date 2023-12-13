@@ -26,18 +26,17 @@ class MainScreenBottomBar extends StatelessWidget {
     if(currentIndex < 0 || currentIndex >= menusList.length) {
       currentIndex = 0;
     }
-
     return BottomNavigationBar(
       showSelectedLabels: true,
       showUnselectedLabels: true,
-      backgroundColor: themeData.appBarTheme.backgroundColor,
+      // backgroundColor: themeData.appBarTheme.backgroundColor,
+      backgroundColor: Colors.white,
       elevation: 20,
       onTap: (int index) {
-        if(index < menusList.length) {
-          if(onMenuTap != null) onMenuTap!(nativeMenuModel: menusList[index]);
-        }
-        else {
-          if(onMoreMenuTap != null) onMoreMenuTap!();
+        if (index < menusList.length) {
+          if (onMenuTap != null) onMenuTap!(nativeMenuModel: menusList[index]);
+        } else {
+          if (onMoreMenuTap != null) onMoreMenuTap!();
         }
       },
       currentIndex: currentIndex,

@@ -175,6 +175,9 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
           builder: (BuildContext context, MessageProvider messageProvider, Widget? child) {
             return Column(
               children: [
+                const SizedBox(
+                  height: 20,
+                ),
                 Row(
                   children: [
                     Expanded(child: getSearchTextFormField()),

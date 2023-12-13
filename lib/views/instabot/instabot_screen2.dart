@@ -3,7 +3,7 @@ import 'package:flutter_chat_bot/backend/chatbot/chatbot_provider.dart';
 import 'package:flutter_chat_bot/chatbot.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/instabot/instabot_provider.dart';
-import 'package:flutter_instancy_2/backend/navigation/navigation_arguments.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/configs/client_urls.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:provider/provider.dart';
@@ -56,7 +56,7 @@ class _InstaBotScreen2State extends State<InstaBotScreen2> {
     NativeLoginDTOModel? successfulUserLoginModel = context.read<AuthenticationProvider>().getEmailLoginResponseModel();
     String imageUrl = successfulUserLoginModel?.image ?? "";
 
-    String tokenUrl = ClientUrls.getChatBotTokenApiUrl(apiUrlConfigurationProvider.getClientUrlType());
+    String tokenUrl = ClientUrls.getChatBotTokenApiUrl(apiUrlConfigurationProvider.getCurrentClientUrlType());
     MyPrint.printOnConsole("tokenUrl:$tokenUrl");
     MyPrint.printOnConsole("siteBotDetailsModel _InstaBotScreen2State :${instaBotProvider.botDetailsModel.get()?.BotSettings.botIconBytes?.length}");
 
@@ -84,7 +84,31 @@ class _InstaBotScreen2State extends State<InstaBotScreen2> {
         apiUrlConfigurationProvider.getCurrentSiteLMSUrl().replaceFirst("http://", "https://"),
       ],
       chatBotProvider: chatBotProvider,
-    );
+      onDetailsTap: ({required String contentId, required int componentId, required int componentInsId}) {
+        MyPrint.printOnConsole("InstaBotScreen2().onDetailsTap called with contentId:'$contentId', componentId:$componentId, componentInsId:$componentInsId");
+
+        NavigationController.navigateToCourseDetailScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+              navigationType: NavigationType.pushNamed,
+            ),
+            arguments: CourseDetailScreenNavigationArguments(
+              contentId: contentId,
+              componentId: componentId,
+              componentInstanceId: componentInsId,
+              userId: apiUrlConfigurationProvider.getCurrentUserId(),
+            ),
+          );
+        },
+        onLaunchUrl: ({required String url, String? text}) {
+          NavigationController.navigateToWebViewScreen(
+            navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+            arguments: WebViewScreenNavigationArguments(
+              title: text ?? "Url",
+              url: url,
+            ),
+          );
+        });
   }
 
   @override

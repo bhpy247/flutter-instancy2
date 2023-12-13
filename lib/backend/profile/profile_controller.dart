@@ -213,7 +213,7 @@ class ProfileController {
       isSuccess = responseModel.data == "success";
 
       if (isSuccess) {
-        GamificationController(provider: null)
+        GamificationController(provider: NavigationController.mainNavigatorKey.currentContext?.read<GamificationProvider>())
             .UpdateContentGamification(
           requestModel: UpdateContentGamificationRequestModel(
             contentId: "",

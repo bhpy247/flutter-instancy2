@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_controller.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
+import 'package:flutter_instancy_2/backend/instabot/instabot_provider.dart';
 import 'package:flutter_instancy_2/backend/wiki_component/wiki_controller.dart';
 import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
 import 'package:flutter_instancy_2/models/catalog/catalogCategoriesForBrowseModel.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/app_theme/style.dart';
+import '../../../backend/instabot/instabot_controller.dart';
 import '../../../backend/navigation/navigation.dart';
 import '../../../configs/app_constants.dart';
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
@@ -126,7 +128,7 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
   Future<void> onCategoryTap({required CatalogCategoriesForBrowseModel categoryModel}) async {
     FocusScope.of(context).requestFocus(FocusNode());
 
-    if(categoryModel.children.isNotEmpty) {
+    if (categoryModel.children.isNotEmpty) {
       NavigationController.navigateToCatalogSubcategoriesListScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -141,8 +143,7 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
           ],
         ),
       );
-    }
-    else {
+    } else {
       NavigationController.navigateToCatalogContentsListScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -151,11 +152,13 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
         arguments: CatalogContentsListScreenNavigationArguments(
           componentId: componentId,
           componentInstanceId: componentInstanceId,
-          selectedCategory: categoryModel.categoryID != -1 ? ContentFilterCategoryTreeModel(
-            categoryId: categoryModel.categoryID.toString(),
-            categoryName: categoryModel.categoryName,
-            parentId: categoryModel.parentID.toString(),
-          ) : null,
+          selectedCategory: categoryModel.categoryID != -1
+              ? ContentFilterCategoryTreeModel(
+                  categoryId: categoryModel.categoryID.toString(),
+                  categoryName: categoryModel.categoryName,
+                  parentId: categoryModel.parentID.toString(),
+                )
+              : null,
           categoriesListForPath: categoryModel.categoryID != -1 ? [categoryModel] : null,
         ),
       );
@@ -183,7 +186,7 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
         componentConfigurationsModel: componentModel.componentConfigurationsModel,
       );
 
-      if(componentModel.componentConfigurationsModel.DefaultRepositoryID) {
+      if (componentModel.componentConfigurationsModel.DefaultRepositoryID) {
         getFileUploadControlFuture = getInitialWikiComponentData();
       }
     }
@@ -289,7 +292,7 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
                   List<CatalogCategoriesForBrowseModel> categoriesList = provider.catalogCategoriesForBrowserList.getList(isNewInstance: true);
 
                   String searchText = searchController.text.trim();
-                  if(searchController.text.trim().isNotEmpty) {
+                  if (searchController.text.trim().isNotEmpty) {
                     categoriesList.removeWhere((CatalogCategoriesForBrowseModel categoryModel) => !categoryModel.categoryName.toLowerCase().startsWith(searchText.toLowerCase()));
                   }
 
@@ -312,7 +315,7 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
   }
 
   Widget getCategoriesListSliderWidget({required List<CatalogCategoriesForBrowseModel> categoriesList}) {
-    if(categoriesList.isEmpty) return const SizedBox();
+    if (categoriesList.isEmpty) return const SizedBox();
 
     return Container(
       height: 30,
@@ -499,15 +502,17 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
       hintText: "Search",
       textInputAction: TextInputAction.search,
       prefixWidget: const Icon(Icons.search),
-      suffixWidget: searchController.text.isNotEmpty ? IconButton(
-        onPressed: () async {
-          searchController.clear();
-          mySetState();
-        },
-        icon: const Icon(
-          Icons.close,
-        ),
-      ) : null,
+      suffixWidget: searchController.text.isNotEmpty
+          ? IconButton(
+              onPressed: () async {
+                searchController.clear();
+                mySetState();
+              },
+              icon: const Icon(
+                Icons.close,
+              ),
+            )
+          : null,
     );
   }
 
@@ -515,77 +520,83 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
 
   //region floating action button
   Widget? getWikiUploadButton() {
-    if(getFileUploadControlFuture == null) {
+    if (getFileUploadControlFuture == null) {
       return null;
     }
 
-    return FutureBuilder(
-      future: getFileUploadControlFuture,
-      builder: (BuildContext context, AsyncSnapshot snapShot) {
-        if (snapShot.connectionState != ConnectionState.done) {
-          return const SizedBox();
-        }
+    return Consumer<InstaBotProvider>(builder: (context, InstaBotProvider instaBotProvider, _) {
+      bool isChatBotEnabled = InstabotController(provider: instaBotProvider).enableMarginForChatBotButtonEnabled();
+      return Padding(
+        padding: EdgeInsets.only(bottom: isChatBotEnabled ? 70 : 0.0),
+        child: FutureBuilder(
+          future: getFileUploadControlFuture,
+          builder: (BuildContext context, AsyncSnapshot snapShot) {
+            if (snapShot.connectionState != ConnectionState.done) {
+              return const SizedBox();
+            }
 
-        // MyPrint.printOnConsole("isDialOpen:${isDialOpen.value}");
+            // MyPrint.printOnConsole("isDialOpen:${isDialOpen.value}");
 
-        return Container(
-          margin: EdgeInsets.only(bottom: appProvider.appSystemConfigurationModel.enableChatBot ? 70 : 0),
-          child: SpeedDial(
-            icon: Icons.add,
-            activeIcon: Icons.close,
-            spacing: 3,
-            mini: false,
-            openCloseDial: isDialOpen,
-            childPadding: const EdgeInsets.all(5),
-            spaceBetweenChildren: 4,
-            /*dialRoot: customDialRoot
-                ? (ctx, open, toggleChildren) {
-                    return ElevatedButton(
-                      onPressed: toggleChildren,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
-                      ),
-                      child: const Text(
-                        "Custom Dial Root",
-                        style: TextStyle(fontSize: 17),
-                      ),
-                    );
-                  }
-                : null,*/
-            buttonSize: buttonSize,
-            // it's the SpeedDial size which defaults to 56 itself
-            /// The below button size defaults to 56 itself, its the SpeedDial childrens size
-            childrenButtonSize: const Size(70, 70),
-            visible: visible,
-            direction: speedDialDirection,
-            switchLabelPosition: switchLabelPosition,
+            return Container(
+              margin: EdgeInsets.only(bottom: appProvider.appSystemConfigurationModel.enableChatBot ? 70 : 0),
+              child: SpeedDial(
+                icon: Icons.add,
+                activeIcon: Icons.close,
+                spacing: 3,
+                mini: false,
+                openCloseDial: isDialOpen,
+                childPadding: const EdgeInsets.all(5),
+                spaceBetweenChildren: 4,
+                /*dialRoot: customDialRoot
+                      ? (ctx, open, toggleChildren) {
+                          return ElevatedButton(
+                            onPressed: toggleChildren,
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
+                            ),
+                            child: const Text(
+                              "Custom Dial Root",
+                              style: TextStyle(fontSize: 17),
+                            ),
+                          );
+                        }
+                      : null,*/
+                buttonSize: buttonSize,
+                // it's the SpeedDial size which defaults to 56 itself
+                /// The below button size defaults to 56 itself, its the SpeedDial childrens size
+                childrenButtonSize: const Size(70, 70),
+                visible: visible,
+                direction: speedDialDirection,
+                switchLabelPosition: switchLabelPosition,
 
-            /// If true user is forced to close dial manually
-            closeManually: false,
+                /// If true user is forced to close dial manually
+                closeManually: false,
 
-            /// If false, backgroundOverlay will not be rendered.
-            renderOverlay: false,
-            onOpen: () {
-              debugPrint('OPENING DIAL');
-              // setState(() {});
-            },
-            onClose: () {
-              debugPrint('DIAL CLOSED');
-              // isDialOpen.value = false;
-            },
-            useRotationAnimation: useRAnimation,
-            tooltip: 'Open Speed Dial',
-            // heroTag: 'speed-dial-hero-tag',
-            elevation: 1.0,
-            animationCurve: Curves.easeIn,
-            isOpenOnStart: false,
-            // shape: customDialRoot ? const RoundedRectangleBorder() : const StadiumBorder(),
-            // childMargin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            children: _getWikiOption(),
-          ),
-        );
-      },
-    );
+                /// If false, backgroundOverlay will not be rendered.
+                renderOverlay: false,
+                onOpen: () {
+                  debugPrint('OPENING DIAL');
+                  // setState(() {});
+                },
+                onClose: () {
+                  debugPrint('DIAL CLOSED');
+                  // isDialOpen.value = false;
+                },
+                useRotationAnimation: useRAnimation,
+                tooltip: 'Open Speed Dial',
+                // heroTag: 'speed-dial-hero-tag',
+                elevation: 1.0,
+                animationCurve: Curves.easeIn,
+                isOpenOnStart: false,
+                // shape: customDialRoot ? const RoundedRectangleBorder() : const StadiumBorder(),
+                // childMargin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                children: _getWikiOption(),
+              ),
+            );
+          },
+        ),
+      );
+    });
   }
 
   List<SpeedDialChild> _getWikiOption() {

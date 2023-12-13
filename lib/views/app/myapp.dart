@@ -29,14 +29,12 @@ import '../../backend/progress_report/progress_report_provider.dart';
 import '../../backend/wiki_component/wiki_provider.dart';
 
 class MyApp extends StatefulWidget {
-  final String mainSiteUrl, appAuthURL, splashScreenLogo;
+  final String mainSiteUrl;
   final int clientUrlType;
 
   const MyApp({
     Key? key,
     required this.mainSiteUrl,
-    required this.appAuthURL,
-    required this.splashScreenLogo,
     required this.clientUrlType,
   }) : super(key: key);
 
@@ -49,12 +47,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     ApiUrlConfigurationProvider apiDataProvider = ApiController().apiDataProvider;
     apiDataProvider.setMainSiteUrl(widget.mainSiteUrl);
-    apiDataProvider.setAuthUrl(widget.appAuthURL);
-    apiDataProvider.setSplashLogo(widget.splashScreenLogo);
-    apiDataProvider.setClientUrlType(widget.clientUrlType);
-
-    // apiDataProvider.setCurrentSiteUrl(widget.mainSiteUrl);
-    // apiDataProvider.setCurrentBaseApiUrl("https://upgradedenterpriseapi.instancy.com/api/");
+    apiDataProvider.setMainClientUrlType(widget.clientUrlType);
 
     super.initState();
   }

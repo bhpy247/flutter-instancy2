@@ -11,6 +11,7 @@ import 'package:flutter_instancy_2/backend/course_details/course_details_provide
 import 'package:flutter_instancy_2/backend/event/event_controller.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_controller.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
@@ -144,7 +145,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     MyPrint.printOnConsole("contentDetailsDTOModel.EventScheduleType:${contentDetailsDTOModel?.EventScheduleType}");
 
     if (contentDetailsDTOModel != null) {
-      GamificationController(provider: null).UpdateContentGamification(
+      GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
         requestModel: UpdateContentGamificationRequestModel(
           contentId: contentDetailsDTOModel.ContentID,
           scoId: contentDetailsDTOModel.ScoID,

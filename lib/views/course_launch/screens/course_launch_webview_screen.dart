@@ -26,6 +26,7 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> {
   bool isPageLoaded = false;
 
   bool isFullScreen() {
+    MyPrint.printOnConsole("contentTypeId:${widget.arguments.contentTypeId}");
     if ([InstancyObjectTypes.contentObject, InstancyObjectTypes.assessment, InstancyObjectTypes.track].contains(widget.arguments.contentTypeId)) {
       return true;
     } else {
@@ -48,7 +49,9 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> {
         MyPrint.printOnConsole("onPopInvoked called with didPop:$didPop");
         if (didPop) return;
 
-        if (!isFullScreen()) {
+        bool isFS = isFullScreen();
+        MyPrint.printOnConsole("isFS:$isFS");
+        if (!isFS) {
           Navigator.pop(context, true);
         }
       },

@@ -116,7 +116,7 @@ dependencies:
   #endregion
 
   #region Webview:
-  flutter_inappwebview: ^6.0.0-beta.24+1
+  flutter_inappwebview: ^6.0.0-beta.31
   webviewx: ^0.2.2
   #endregion
 
@@ -133,8 +133,8 @@ dependencies:
 
   flutter_chat_bot:
     git:
-      url: https://github.com/bhpy247/chatBot
-      ref: master
+      url: https://Instancy@dev.azure.com/Instancy/Mobile%20Platform/_git/ChatBot
+      ref: my_dev
 
   arcore_flutter_plugin:
     git:

@@ -7,6 +7,7 @@ import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_controller.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
@@ -21,6 +22,7 @@ import 'package:flutter_instancy_2/models/course_launch/response_model/content_s
 import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
+import 'package:provider/provider.dart';
 
 import '../../api/api_call_model.dart';
 import '../../api/api_url_configuration_provider.dart';
@@ -74,7 +76,7 @@ class CourseLaunchController {
     MyPrint.printOnConsole("CourseLaunchController().viewCourse() called");
 
     if (![InstancyObjectTypes.track, InstancyObjectTypes.events].contains(model.ContentTypeId)) {
-      await GamificationController(provider: null).UpdateContentGamification(
+      await GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
         requestModel: UpdateContentGamificationRequestModel(
           contentId: model.ContentID,
           scoId: model.ScoID,
@@ -97,7 +99,7 @@ class CourseLaunchController {
     }
 
     if (![InstancyObjectTypes.track, InstancyObjectTypes.events].contains(model.ContentTypeId)) {
-      await GamificationController(provider: null).UpdateContentGamification(
+      await GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
         requestModel: UpdateContentGamificationRequestModel(
           contentId: model.ContentID,
           scoId: model.ScoID,
@@ -197,6 +199,8 @@ class CourseLaunchController {
     }*/
 
     MyPrint.printOnConsole('Table2 Objet Id:${model.ContentTypeId}');
+    MyPrint.printOnConsole('Table2 Media Id:${model.MediaTypeId}');
+    MyPrint.printOnConsole('Table2 JWVideoKey:${model.JWVideoKey}');
     MyPrint.printOnConsole('Table2 Start Page:${model.startPage}');
 
     try {
@@ -255,9 +259,15 @@ class CourseLaunchController {
         );
 
         return value == true;
-      } else if ([InstancyObjectTypes.contentObject, InstancyObjectTypes.assessment, InstancyObjectTypes.scorm1_2, InstancyObjectTypes.reference, InstancyObjectTypes.xApi]
-              .contains(model.ContentTypeId) ||
-          (model.ContentTypeId == InstancyObjectTypes.track && !model.bit5)) {
+      } else if ([
+            InstancyObjectTypes.contentObject,
+            InstancyObjectTypes.assessment,
+            InstancyObjectTypes.scorm1_2,
+            InstancyObjectTypes.reference,
+            InstancyObjectTypes.xApi,
+          ].contains(model.ContentTypeId) ||
+          (model.ContentTypeId == InstancyObjectTypes.track && !model.bit5) ||
+          (model.ContentTypeId == InstancyObjectTypes.mediaResource && model.MediaTypeId == InstancyMediaTypes.video && model.JWVideoKey.isNotEmpty)) {
         if (isContentisolation) {
           MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourse() because isContentisolation is true");
           return false;
@@ -312,7 +322,7 @@ class CourseLaunchController {
           MyPrint.printOnConsole("Azure Path:'$azureRootPath'");
           if (AppConfigurationOperations.isValidString(azureRootPath)) {
             MyPrint.printOnConsole("Taking Azure Path");
-            courseLaunchUrl = '${azureRootPath}content/index.html?coursetoken=$courseTrackingToken&TokenAPIURL=${apiDataProvider.getAuthUrl()}';
+            courseLaunchUrl = '${azureRootPath}content/index.html?coursetoken=$courseTrackingToken&TokenAPIURL=${apiDataProvider.getCurrentAuthUrl()}';
 
             // assignmenturl = await '${ApiEndpoints.strSiteUrl}assignmentdialog/ContentID/${table2.contentid}/SiteID/${table2.usersiteid}/ScoID/${table2.scoid}/UserID/${table2.userid}';
           } else {
@@ -320,7 +330,7 @@ class CourseLaunchController {
 
             String siteUrl = apiDataProvider.getCurrentSiteUrl();
             MyPrint.printOnConsole("siteUrl:$siteUrl");
-            courseLaunchUrl = '${siteUrl}content/index.html?coursetoken=$courseTrackingToken&TokenAPIURL=${apiDataProvider.getAuthUrl()}';
+            courseLaunchUrl = '${siteUrl}content/index.html?coursetoken=$courseTrackingToken&TokenAPIURL=${apiDataProvider.getCurrentAuthUrl()}';
 
             //assignmenturl = await '${ApiEndpoints.strSiteUrl}assignmentdialog/ContentID/${table2.contentid}/SiteID/${table2.usersiteid}/ScoID/${table2.scoid}/UserID/${table2.userid}';
           }
@@ -578,12 +588,12 @@ class CourseLaunchController {
     }
     //endregion
 
-    //region JWKey Validation
+    /*//region JWKey Validation
     if (model.JWVideoKey.isNotEmpty) {
       MyPrint.printOnConsole("Returning from CourseLaunchController().checkNonTrackableContentStatusUpdate() because JWVideoKey is not empty", tag: tag);
       return;
     }
-    //endregion
+    //endregion*/
 
     bool autocompleteNonTrackableContent = appProvider.appSystemConfigurationModel.autocompleteNonTrackableContent;
     MyPrint.printOnConsole("autocompleteNonTrackableContent:$autocompleteNonTrackableContent", tag: tag);

@@ -386,21 +386,32 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
             children: [
               Text(
                 widget.toUser.FullName,
-                style: themeData.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600, letterSpacing: .3),
+                style: themeData.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: .3,
+                  color: themeData.appBarTheme.titleTextStyle?.color,
+                ),
               ),
               Row(
                 children: [
                   if (messageStatus[toUserId] == MessageStatusTypes.typing)
                     Text(
                       MessageStatusTypes.typing,
-                      style: themeData.textTheme.bodyMedium?.copyWith(fontSize: 13),
+                      style: themeData.textTheme.bodyMedium?.copyWith(
+                        fontSize: 13,
+                        color: themeData.appBarTheme.titleTextStyle?.color,
+                      ),
                     ),
                   if (widget.toUser.JobTitle.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Text(
                         widget.toUser.JobTitle,
-                        style: themeData.textTheme.bodyMedium?.copyWith(fontStyle: FontStyle.italic, fontSize: 13),
+                        style: themeData.textTheme.bodyMedium?.copyWith(
+                          fontStyle: FontStyle.italic,
+                          fontSize: 13,
+                          color: themeData.appBarTheme.titleTextStyle?.color,
+                        ),
                       ),
                     ),
                 ],

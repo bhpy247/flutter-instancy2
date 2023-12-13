@@ -52,39 +52,37 @@ class _ProgressReportMainScreenState extends State<ProgressReportMainScreen> wit
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(10),
-          child: Container(
-            decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10))),
-            child: SafeArea(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border(bottom: BorderSide(color: Colors.black.withOpacity(0.5), width: 0.2)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    TabBar(
-                      controller: controller,
-                      padding: const EdgeInsets.symmetric(vertical: 0),
-                      labelPadding: const EdgeInsets.only(bottom: 1, left: 8, right: 8),
-                      indicatorPadding: const EdgeInsets.only(top: 44),
-                      indicator: BoxDecoration(color: themeData.primaryColor, borderRadius: const BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10))),
-                      indicatorSize: TabBarIndicatorSize.label,
-                      labelStyle: themeData.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600, letterSpacing: 1.1),
-                      tabs: const [
-                        Tab(
-                          text: "Summary",
-                        ),
-                        Tab(
-                          text: "Content",
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+          preferredSize: const Size.fromHeight(0),
+          child: SafeArea(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                border: Border(bottom: BorderSide(color: Colors.black.withOpacity(0.5), width: 0.2)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  TabBar(
+                    controller: controller,
+                    padding: const EdgeInsets.symmetric(vertical: 0),
+                    labelPadding: const EdgeInsets.only(bottom: 1, left: 8, right: 8),
+                    indicatorPadding: const EdgeInsets.only(top: 44),
+                    indicator: BoxDecoration(color: themeData.primaryColor, borderRadius: const BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10))),
+                    indicatorSize: TabBarIndicatorSize.label,
+                    labelStyle: themeData.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600, letterSpacing: 1.1),
+                    tabs: const [
+                      Tab(
+                        text: "Summary",
+                      ),
+                      Tab(
+                        text: "Content",
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),

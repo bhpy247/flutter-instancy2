@@ -162,6 +162,7 @@ class MainScreenDrawer extends StatelessWidget {
                 nativeMenuModel.displayname,
                 style: themeData.textTheme.labelMedium?.copyWith(
                   color: isMenuSelected ? themeData.primaryColor : null,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -231,7 +232,7 @@ class MainScreenDrawer extends StatelessWidget {
         },
         child: Container(
           // color: Colors.red,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 10),
           child: Row(
             children: [
               const Icon(
@@ -240,6 +241,7 @@ class MainScreenDrawer extends StatelessWidget {
               const SizedBox(width: 15),
               Text(
                 appProvider.localStr.sidemenuTableSignoutlabel,
+                style: themeData.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),

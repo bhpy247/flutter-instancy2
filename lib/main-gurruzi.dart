@@ -8,10 +8,8 @@ import 'views/app/myapp.dart';
 void main() async {
   runErrorSafeApp(
     () => runApp(
-      MyApp(
+      const MyApp(
         mainSiteUrl: ClientUrls.gurruziClientUrl,
-        appAuthURL: ClientUrls.getAuthUrl(ClientUrlTypes.PRODUCTION),
-        splashScreenLogo: "assets/images/gurruzi_logo_2.png",
         clientUrlType: ClientUrlTypes.PRODUCTION,
       ),
     ),

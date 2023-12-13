@@ -169,7 +169,7 @@ class NavigationController {
           page = parseSortingScreen(settings: settings);
           break;
         }
-    //endregion
+      //endregion
 
       case CatalogContentsListScreen.routeName:
         {
@@ -837,6 +837,17 @@ class NavigationController {
   //endregion
 
   //region Navigation Methods
+  //region Common
+  static Future<dynamic> navigateToSplashScreen({required NavigationOperationParameters navigationOperationParameters}) async {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: SplashScreen.routeName,
+      ),
+    );
+  }
+
+  //endregion
+
   //region Authentication
   static Future<dynamic> navigateToLoginScreen({
     required NavigationOperationParameters navigationOperationParameters,

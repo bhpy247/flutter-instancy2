@@ -281,6 +281,7 @@ class _MyAchievementComponentWidgetState extends State<MyAchievementComponentWid
           appBar: tabsList.length <= 1
               ? null
               : AppBar(
+            backgroundColor: Colors.transparent,
                   bottom: PreferredSize(
                     preferredSize: const Size(double.infinity, 0),
                     child: Column(
@@ -292,17 +293,17 @@ class _MyAchievementComponentWidgetState extends State<MyAchievementComponentWid
                           padding: const EdgeInsets.symmetric(vertical: 0),
                           indicatorSize: TabBarIndicatorSize.tab,
                           labelPadding: const EdgeInsets.only(bottom: 2, left: 8, right: 8),
-                          indicatorPadding: const EdgeInsets.only(top: 46),
-                          indicator: BoxDecoration(color: themeData.primaryColor, borderRadius: const BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10))),
-                          labelStyle: themeData.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
-                          ),
-                          tabs: tabsList,
-                        ),
-                      ],
+                    indicatorPadding: const EdgeInsets.only(top: 46),
+                    indicator: BoxDecoration(color: themeData.primaryColor, borderRadius: const BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10))),
+                    labelStyle: themeData.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
                     ),
+                    tabs: tabsList,
                   ),
+                ],
+              ),
+            ),
                 ),
           body: Container(
             color: Colors.white,

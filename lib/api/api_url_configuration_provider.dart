@@ -5,40 +5,15 @@ class ApiUrlConfigurationProvider {
   String getMainSiteUrl() => _mainSiteUrl;
 
   void setMainSiteUrl(String url) => _mainSiteUrl = url;
-  //endregion
-
-  //region Auth Url
-  String _authUrl = "";
-
-  String getAuthUrl() => _authUrl;
-
-  void setAuthUrl(String token) => _authUrl = token;
-  //endregion
-
-  //region Splash Logo
-  String _splashlogo = "";
-
-  String getSplashLogo() => _splashlogo;
-
-  void setSplashLogo(String logo) => _splashlogo = logo;
 
   //endregion
 
-  //region App Name
-  String _appName = "";
+  //region Main Client Url Type
+  int _mainClientUrlType = -1;
 
-  String getAppName() => _appName;
+  int getMainClientUrlType() => _mainClientUrlType;
 
-  void setAppName(String name) => _appName = name;
-
-  //endregion
-
-  //region App Name
-  int _clientUrlType = -1;
-
-  int getClientUrlType() => _clientUrlType;
-
-  void setClientUrlType(int type) => _clientUrlType = type;
+  void setMainClientUrlType(int type) => _mainClientUrlType = type;
 
   //endregion
 
@@ -57,6 +32,16 @@ class ApiUrlConfigurationProvider {
   String getCurrentSiteUrl() => _currentSiteUrl;
 
   void setCurrentSiteUrl(String url) => _currentSiteUrl = url;
+
+  //endregion
+
+  //region Current Auth Url
+  String _currentAuthUrl = "";
+
+  String getCurrentAuthUrl() => _currentAuthUrl;
+
+  void setCurrentAuthUrl(String token) => _currentAuthUrl = token;
+
   //endregion
 
   //region Current Site Learner Url
@@ -65,6 +50,7 @@ class ApiUrlConfigurationProvider {
   String getCurrentSiteLearnerUrl() => _currentSiteLearnerUrl;
 
   void setCurrentSiteLearnerUrl(String url) => _currentSiteLearnerUrl = url;
+
   //endregion
 
   //region Current Site LMS Url
@@ -73,6 +59,16 @@ class ApiUrlConfigurationProvider {
   String getCurrentSiteLMSUrl() => _currentSiteLMSUrl;
 
   void setCurrentSiteLMSUrl(String url) => _currentSiteLMSUrl = url;
+
+  //endregion
+
+  //region Current Client Url Type
+  int _currentClientUrlType = -1;
+
+  int getCurrentClientUrlType() => _currentClientUrlType;
+
+  void setCurrentClientUrlType(int type) => _currentClientUrlType = type;
+
   //endregion
 
   //region UserId
@@ -81,6 +77,7 @@ class ApiUrlConfigurationProvider {
   int getCurrentUserId() => _currentUserId;
 
   void setCurrentUserId(int id) => _currentUserId = id;
+
   //endregion
 
   //region SiteId

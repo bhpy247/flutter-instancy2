@@ -1,4 +1,6 @@
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/share/share_repository.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
@@ -6,6 +8,7 @@ import 'package:flutter_instancy_2/models/gamification/response_model/content_ga
 import 'package:flutter_instancy_2/models/share/data_model/share_connection_user_model.dart';
 import 'package:flutter_instancy_2/models/share/request_model/share_with_people_request_model.dart';
 import 'package:flutter_instancy_2/models/share/response_model/share_connection_list_response_model.dart';
+import 'package:provider/provider.dart';
 
 import '../../api/api_controller.dart';
 import '../../models/common/data_response_model.dart';
@@ -86,7 +89,7 @@ class ShareController {
     bool isSuccess = response.statusCode == 200;
 
     if (isSuccess) {
-      GamificationController(provider: null).UpdateContentGamification(
+      GamificationController(provider: NavigationController.mainNavigatorKey.currentContext?.read<GamificationProvider>()).UpdateContentGamification(
         requestModel: UpdateContentGamificationRequestModel(
           contentId: contentId,
           scoId: scoId,
