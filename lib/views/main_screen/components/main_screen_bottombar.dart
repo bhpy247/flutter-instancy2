@@ -1,4 +1,3 @@
-import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app_theme/style.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_model.dart';
@@ -117,7 +116,7 @@ class _MainScreenBottomBarState extends State<MainScreenBottomBar> with MySafeSt
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
-            height: iconSize != null ? (iconSize ?? 18) - 3 : null,
+            height: iconSize != null ? iconSize - 3 : null,
             child: Icon(
               icon,
               color: Styles.chipTextColor,
@@ -137,48 +136,6 @@ class _MainScreenBottomBarState extends State<MainScreenBottomBar> with MySafeSt
           ),
         ],
       ),
-    );
-  }
-
-  Widget newBottomBar(context) {
-    int currentIndex = widget.selectedMenuModel != null ? widget.menusList.indexOf(widget.selectedMenuModel!) : 0;
-    if (currentIndex < 0 || currentIndex >= widget.menusList.length) {
-      currentIndex = 0;
-    }
-    return BottomBarCreative(
-      items: [
-        ...widget.menusList.map((e) {
-          String icon = e.image;
-          return TabItem(
-            title: e.displayname,
-
-            icon: (icon.isNotEmpty)
-                ? icon.contains("-")
-                    ? IconDataSolid(int.parse('0x${"f02d"}'))
-                    : IconDataSolid(int.parse('0x$icon'))
-                : IconDataSolid(int.parse('0x${"f02d"}')),
-            // color: selectedMenuModel == e ? themeData.primaryColor : null,
-          );
-        }).toList(),
-        if (widget.hasMoreMenus)
-          const TabItem(
-            title: "More",
-            icon: Icons.apps,
-          ),
-      ],
-      backgroundColor: Colors.green.withOpacity(0.21),
-      color: const Color(0XFF7AC0FF),
-      colorSelected: const Color(0XFF0686F8),
-      indexSelected: currentIndex,
-      // highlightStyle: widget.highlightStyle,
-      // isFloating: widget.isFloating ?? false,
-      onTap: (int index) {
-        if (index < widget.menusList.length) {
-          if (widget.onMenuTap != null) widget.onMenuTap!(nativeMenuModel: widget.menusList[index]);
-        } else {
-          if (widget.onMoreMenuTap != null) widget.onMoreMenuTap!();
-        }
-      },
     );
   }
 }
