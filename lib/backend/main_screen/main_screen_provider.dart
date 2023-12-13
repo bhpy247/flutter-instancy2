@@ -1,13 +1,27 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
+import 'package:flutter_instancy_2/backend/common/common_provider.dart';
 import 'package:flutter_instancy_2/backend/splash/splash_controller.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
 
 import '../../models/app_configuration_models/data_models/native_menu_model.dart';
 import '../../utils/my_print.dart';
 
-class MainScreenProvider extends ChangeNotifier {
+class MainScreenProvider extends CommonProvider {
+  MainScreenProvider() {
+    isChatBotButtonCenterDocked = CommonProviderPrimitiveParameter<bool>(
+      value: false,
+      notify: notify,
+    );
+    isChatBotButtonEnabled = CommonProviderPrimitiveParameter<bool>(
+      value: false,
+      notify: notify,
+    );
+  }
+
+  late CommonProviderPrimitiveParameter<bool> isChatBotButtonCenterDocked;
+  late CommonProviderPrimitiveParameter<bool> isChatBotButtonEnabled;
+
   //region Selected Menu Model
   NativeMenuModel? _selectedMenuModel;
 
@@ -15,7 +29,7 @@ class MainScreenProvider extends ChangeNotifier {
 
   void setSelectedMenuModel({required NativeMenuModel? value, bool isNotify = true}) {
     _selectedMenuModel = value;
-    if(isNotify) notifyListeners();
+    if (isNotify) notifyListeners();
   }
   //endregion
 
