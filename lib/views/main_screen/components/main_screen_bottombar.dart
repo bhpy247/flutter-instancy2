@@ -84,6 +84,7 @@ class _MainScreenBottomBarState extends State<MainScreenBottomBar> with MySafeSt
           ),*/
           child: getBottomBarButton(
             text: model.displayname,
+            selected: widget.selectedMenuModel == model,
             icon: (icon.isNotEmpty)
                 ? icon.contains("-")
                     ? IconDataSolid(int.parse('0x${"f02d"}'))
@@ -107,6 +108,7 @@ class _MainScreenBottomBarState extends State<MainScreenBottomBar> with MySafeSt
     required IconData icon,
     double? fontSize,
     double? iconSize,
+    bool? selected,
     void Function()? onTap,
   }) {
     return InkWell(
@@ -125,7 +127,7 @@ class _MainScreenBottomBarState extends State<MainScreenBottomBar> with MySafeSt
             height: iconSize != null ? iconSize - 3 : null,
             child: Icon(
               icon,
-              color: Styles.chipTextColor,
+              color: (selected ?? false) ? themeData.primaryColor : Styles.chipTextColor,
               size: iconSize ?? 18,
             ),
           ),
@@ -135,7 +137,7 @@ class _MainScreenBottomBarState extends State<MainScreenBottomBar> with MySafeSt
               // "",
               text,
               style: themeData.textTheme.labelSmall?.copyWith(
-                color: Styles.chipTextColor,
+                color: (selected ?? false) ? themeData.primaryColor : Styles.chipTextColor,
                 fontSize: fontSize,
               ),
             ),
