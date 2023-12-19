@@ -16,6 +16,7 @@ import 'package:flutter_instancy_2/views/main_screen/screens/main_screen.dart';
 import 'package:flutter_instancy_2/views/membership/screens/membership_selection_screen.dart';
 import 'package:flutter_instancy_2/views/my_learning_plus/screens/my_learning_plus.dart';
 import 'package:flutter_instancy_2/views/profile/component/add_education_screen.dart';
+import 'package:flutter_instancy_2/views/progress_report/screens/progress_report_detail_screen.dart';
 import 'package:flutter_instancy_2/views/share/recommend_to_screen.dart';
 import 'package:flutter_instancy_2/views/wiki_component/screens/add_wiki_content_screen.dart';
 import 'package:flutter_instancy_2/views/wishlist/screen/wishlist_screen.dart';
@@ -221,7 +222,7 @@ class NavigationController {
           page = parseCourseDetailScreen(settings: settings);
           break;
         }
-    //endregion
+      //endregion
 
       // region Progress Report Module
       case MyLearningContentProgressScreen.routeName:
@@ -229,7 +230,12 @@ class NavigationController {
           page = parseMyLearningContentProgressScreen(settings: settings);
           break;
         }
-    //endregion
+      case ProgressReportDetailScreen.routeName:
+        {
+          page = parseProgressReportDetailScreen(settings: settings);
+          break;
+        }
+      //endregion
 
       // region Profile Module
       case UserProfileScreen.routeName:
@@ -589,6 +595,18 @@ class NavigationController {
       MyLearningContentProgressScreenNavigationArguments arguments = settings.arguments as MyLearningContentProgressScreenNavigationArguments;
 
       return MyLearningContentProgressScreen(
+        arguments: arguments,
+      );
+    } else {
+      return null;
+    }
+  }
+
+  static Widget? parseProgressReportDetailScreen({required RouteSettings settings}) {
+    if (settings.arguments is MyLearningContentProgressScreenNavigationArguments) {
+      MyLearningContentProgressScreenNavigationArguments arguments = settings.arguments as MyLearningContentProgressScreenNavigationArguments;
+
+      return ProgressReportDetailScreen(
         arguments: arguments,
       );
     } else {
@@ -1043,6 +1061,17 @@ class NavigationController {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
       routeName: MyLearningContentProgressScreen.routeName,
+      arguments: arguments,
+    ));
+  }
+
+  static Future<dynamic> navigateToProgressReportDetailScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required MyLearningContentProgressScreenNavigationArguments arguments,
+  }) {
+    return NavigationOperation.navigate(
+        navigationOperationParameters: navigationOperationParameters.copyWith(
+      routeName: ProgressReportDetailScreen.routeName,
       arguments: arguments,
     ));
   }

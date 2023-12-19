@@ -568,7 +568,13 @@ class CourseLaunchController {
     MyPrint.printOnConsole("model.ContentTypeId:${model.ContentTypeId}", tag: tag);
 
     if (![
+      InstancyObjectTypes.dictionaryGlossary,
+      InstancyObjectTypes.html,
+      InstancyObjectTypes.webPage,
       InstancyObjectTypes.mediaResource,
+      InstancyObjectTypes.xApi,
+      InstancyObjectTypes.cmi5,
+      InstancyObjectTypes.scorm1_2,
       InstancyObjectTypes.reference,
       InstancyObjectTypes.document,
     ].contains(model.ContentTypeId)) {

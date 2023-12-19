@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_controller.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/progress_report/data_model/parent_data_dto.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
@@ -120,18 +121,16 @@ class _ContentTabScreenState extends State<ContentTabScreen> with MySafeState {
   }
 
   Widget getContentList({required List<ParentDataDto> parentDataDtoList}) {
-    return Container(
-      child: ListView.builder(
-          itemCount: parentDataDtoList.length,
-          padding: EdgeInsets.zero,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (BuildContext context, int index) {
-            return getSingleItem(
-              parentDataDto: parentDataDtoList[index],
-            );
-          }),
-    );
+    return ListView.builder(
+        itemCount: parentDataDtoList.length,
+        padding: EdgeInsets.zero,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (BuildContext context, int index) {
+          return getSingleItem(
+            parentDataDto: parentDataDtoList[index],
+          );
+        });
   }
 
   Widget getSingleItem({required ParentDataDto parentDataDto, bool isChildrenWidget = false}) {
@@ -150,17 +149,19 @@ class _ContentTabScreenState extends State<ContentTabScreen> with MySafeState {
       child: Column(
         children: [
           InkWell(
-            onTap: () {
-              NavigationController.navigateToMyLearningContentProgressScreen(
-                navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-                arguments: MyLearningContentProgressScreenNavigationArguments(
-                  contentId: parentDataDto.ObjectID,
-                  userId: parentDataDto.userid,
-                  contentTypeId: parentDataDto.ObjectTypeID,
-                  componentId: widget.componentId,
-                ),
-              );
-            },
+            onTap: [InstancyObjectTypes.events, InstancyObjectTypes.track].contains(parentDataDto.ObjectTypeID)
+                ? null
+                : () {
+                    NavigationController.navigateToProgressReportDetailScreen(
+                      navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+                      arguments: MyLearningContentProgressScreenNavigationArguments(
+                        contentId: parentDataDto.ObjectID,
+                        userId: parentDataDto.userid,
+                        contentTypeId: parentDataDto.ObjectTypeID,
+                        componentId: widget.componentId,
+                      ),
+                    );
+                  },
             child: Container(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,6 +202,7 @@ class _ContentTabScreenState extends State<ContentTabScreen> with MySafeState {
                     height: 13,
                   ),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(child: getTitleAndText(title: "Started", text: parentDataDto.datestarted.checkEmpty ? "N/A" : parentDataDto.datestarted)),
                       Expanded(child: getTitleAndText(title: "Completed", text: parentDataDto.datecompleted.checkEmpty ? "N/A" : parentDataDto.datecompleted)),

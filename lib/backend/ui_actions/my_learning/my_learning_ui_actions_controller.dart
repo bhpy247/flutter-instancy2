@@ -363,7 +363,7 @@ class MyLearningUIActionsController {
     required LocalStr localStr,
     required MyLearningUIActionCallbackModel myLearningUIActionCallbackModel,
   }) sync* {
-    // MyPrint.printOnConsole("getMyLearningScreenSecondaryActionsFromMyLearningUIActionParameterModel called with parameterModel:$parameterModel");
+    MyPrint.printOnConsole("getMyLearningScreenSecondaryActionsFromMyLearningUIActionParameterModel called with parameterModel:$parameterModel");
 
     List<InstancyContentActionsEnum> actions1 = PrimarySecondaryActionsController.getPrimaryActionForMyLearningContent(
       mediaTypeId: mediaTypeId,

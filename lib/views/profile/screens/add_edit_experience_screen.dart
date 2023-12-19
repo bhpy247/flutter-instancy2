@@ -249,22 +249,28 @@ class _AddEditExperienceScreenState extends State<AddEditExperienceScreen> with 
             padding: const EdgeInsets.all(13.0),
             child: Form(
               key: _formKey,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    getJobTitleTextField(),
-                    getCompanyNameTextField(),
-                    getLocationTextField(),
-                    getCurrentlyWorkingCheckBox(),
-                    getFromDateTextField(),
-                    getToDateTextField(),
-                    getDescriptionTextField(),
-                    const SizedBox(
-                      height: 24,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          getJobTitleTextField(),
+                          getCompanyNameTextField(),
+                          getLocationTextField(),
+                          getCurrentlyWorkingCheckBox(),
+                          getFromDateTextField(),
+                          getToDateTextField(),
+                          getDescriptionTextField(),
+                          const SizedBox(
+                            height: 24,
+                          ),
+                          getSaveChangesButton(),
+                        ],
+                      ),
                     ),
-                    getSaveChangesButton()
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

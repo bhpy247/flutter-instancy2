@@ -3,6 +3,7 @@ import 'package:flutter_chat_bot/view/common/components/common_loader.dart';
 import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/models/progress_report/data_model/consolidated_group_dto.dart';
 import 'package:flutter_instancy_2/models/progress_report/data_model/overall_score_dto.dart';
+import 'package:flutter_instancy_2/models/progress_report/data_model/parent_data_dto.dart';
 import 'package:flutter_instancy_2/models/progress_report/request_model/my_progress_report_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
@@ -68,15 +69,33 @@ class _SummaryTabScreenState extends State<SummaryTabScreen> {
         List<StatusCountDTO> statusCountDTOs = consolidatedGroupDTO.statusCountData;
         List<ScoreMaxDTO> scoreMaxDTOs = consolidatedGroupDTO.scoreMaxCount;
         List<ContentCountDTO> contentCountDTOs = consolidatedGroupDTO.contentCountData;
+        List<ParentDataDto> parentDTOs = consolidatedGroupDTO.parentData;
         return ModalProgressHUD(
           inAsyncCall: progressReportProvider.isLoadingMyProgressReportData.get(),
           child: Scaffold(
               body: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (contentCountDTOs.checkNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0, left: 15),
+                    child: RichText(
+                      text: TextSpan(
+                        text: "${parentDTOs.length} ",
+                        style: TextStyle(fontSize: 20, color: Color(0xff3A3A3A), fontWeight: FontWeight.bold),
+                        children: const [
+                          TextSpan(
+                            text: "Content",
+                            style: TextStyle(fontSize: 16, color: Color(0xff3A3A3A), fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 _buildDefaultDoughnutChart(
-                  title: "Status",
-                  seriesList: _getStatusDoughnutSeries(statusCountDto: statusCountDTOs),
+                  title: "Content Types",
+                  seriesList: _getContentTypeDoughnutSeries(contentCountDto: contentCountDTOs),
                 ),
                 getStatisticsScoreWidget(
                   scoreMaxCount: scoreMaxDTOs.firstElement,
@@ -85,8 +104,8 @@ class _SummaryTabScreenState extends State<SummaryTabScreen> {
                   ),
                 ),
                 _buildDefaultDoughnutChart(
-                  title: "Content Type",
-                  seriesList: _getContentTypeDoughnutSeries(contentCountDto: contentCountDTOs),
+                  title: "Status",
+                  seriesList: _getStatusDoughnutSeries(statusCountDto: statusCountDTOs),
                 ),
               ],
             ),
@@ -126,7 +145,6 @@ class _SummaryTabScreenState extends State<SummaryTabScreen> {
       ),
     );
   }
-
 
   List<DoughnutSeries<ChartSampleData, String>> _getStatusDoughnutSeries({required List<StatusCountDTO> statusCountDto}) {
     return <DoughnutSeries<ChartSampleData, String>>[
@@ -220,5 +238,3 @@ class ChartSampleData {
 
   ChartSampleData({this.x = "", this.text = "", this.y = 0.0});
 }
-
-

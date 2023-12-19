@@ -431,15 +431,27 @@ class AppSystemConfigurationModel {
   }
 
   List<LocalizationSelectionModel> _localeList = [];
+
   List<LocalizationSelectionModel> get localeList => _localeList;
+
   void setLocaleList(List<LocalizationSelectionModel> value) {
     _localeList = value;
   }
 
   bool _isMsgMenuExist = false;
+
   bool get isMsgMenuExist => _isMsgMenuExist;
+
   void setIsMsgMenuExist(bool value) {
     _isMsgMenuExist = value;
+  }
+
+  bool _isContentRecommendationEnabled = false;
+
+  bool get isContentRecommendationEnabled => _isContentRecommendationEnabled;
+
+  void setIsContentRecommendationEnabled(bool value) {
+    _isContentRecommendationEnabled = value;
   }
 
   AppSystemConfigurationModel.fromMap(Map<String, dynamic> map) {
@@ -508,6 +520,7 @@ class AppSystemConfigurationModel {
     setMinimumRatingRequiredToShowRating(ParsingHelper.parseIntMethod(map['MinimimRatingRequiredToShowRating']));
     setNoOfDaysForCourseTargetDate(ParsingHelper.parseIntMethod(map['NoOfDaysForCourseTargetDate']));
     setDaysBeforeMembershipExpiry(ParsingHelper.parseIntMethod(map['DaysBeforemembershipexpiry'], defaultValue: -1));
+    setIsContentRecommendationEnabled(ParsingHelper.parseBoolMethod(map['IsRecommendationContentEnable'], defaultValue: false));
   }
 
   void initializeAppLogoUrlFromSiteConfiguration({required SiteUrlConfigurationModel siteUrlConfigurationModel}) {

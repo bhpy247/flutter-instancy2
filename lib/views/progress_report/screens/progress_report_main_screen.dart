@@ -41,9 +41,9 @@ class _ProgressReportMainScreenState extends State<ProgressReportMainScreen> wit
     progressReportProvider = context.read<ProgressReportProvider>();
     progressReportController = ProgressReportController(progressReportProvider: progressReportProvider);
     controller = TabController(vsync: this, length: 2);
-    if (progressReportProvider.consolidatedGroupDTO.get() == null) {
-      getData(isNotify: false);
-    }
+    // if (progressReportProvider.consolidatedGroupDTO.get() == null) {
+    getData(isNotify: false);
+    // }
   }
 
   @override

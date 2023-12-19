@@ -656,6 +656,7 @@ class _AddEducationScreenState extends State<AddEducationScreen> with MySafeStat
       child: Text(
         appProvider.localStr.profileButtonEducationsavebutton,
         style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.white),
+        textAlign: TextAlign.center,
       ),
     );
   }

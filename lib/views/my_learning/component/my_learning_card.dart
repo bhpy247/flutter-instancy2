@@ -165,8 +165,8 @@ class _MyLearningCardState extends State<MyLearningCard> {
         ),
         eventStartDateAndTime(model),
         const SizedBox(height: 8),
-        // if (model.ContentTypeId != InstancyObjectTypes.events)
         linearProgressBar(
+          ContentTypeId: model.ContentTypeId,
           actualStatus: model.ActualStatus,
           percentCompleted: model.PercentCompleted,
           contentStatus: model.ContentStatus,
@@ -259,10 +259,14 @@ class _MyLearningCardState extends State<MyLearningCard> {
   }
 
   Widget linearProgressBar({
+    required int ContentTypeId,
     required double percentCompleted,
     required String contentStatus,
     required String actualStatus,
   }) {
+    if ([InstancyObjectTypes.aICC].contains(ContentTypeId)) {
+      return const SizedBox();
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,

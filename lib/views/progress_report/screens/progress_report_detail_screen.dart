@@ -11,9 +11,11 @@ import 'package:flutter_instancy_2/models/content_details/request_model/course_d
 import 'package:flutter_instancy_2/models/content_review_ratings/data_model/content_user_rating_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_content_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
+import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
@@ -32,22 +34,26 @@ import '../../../utils/my_print.dart';
 import '../../common/components/common_rating_bar_widget.dart';
 import '../../common/components/common_svg_network_image.dart';
 
-class MyLearningContentProgressScreen extends StatefulWidget {
-  static const String routeName = "/MyLearningContentProgressScreen";
+class ProgressReportDetailScreen extends StatefulWidget {
+  static const String routeName = "/ProgressReportDetailScreen";
 
   final MyLearningContentProgressScreenNavigationArguments arguments;
 
-  const MyLearningContentProgressScreen({
+  const ProgressReportDetailScreen({
     Key? key,
     required this.arguments,
   }) : super(key: key);
 
   @override
-  State<MyLearningContentProgressScreen> createState() => _MyLearningContentProgressScreenState();
+  State<ProgressReportDetailScreen> createState() => _ProgressReportDetailScreenState();
 }
 
-class _MyLearningContentProgressScreenState extends State<MyLearningContentProgressScreen> with MySafeState, SingleTickerProviderStateMixin {
+class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen> with MySafeState, SingleTickerProviderStateMixin {
   bool isLoading = false;
+  final TextEditingController _fromDateController = TextEditingController();
+  final TextEditingController _toDateController = TextEditingController();
+  DateTime _selectedFromDate = DateTime.now().subtract(const Duration(days: 7));
+  DateTime _selectedToDate = DateTime.now();
 
   String contentId = "";
   int userId = 0;
@@ -70,6 +76,27 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
   late TabController tabController;
   int selectedTabMenuForReviewAndReport = 0;
 
+  Future<void> _selectDate(BuildContext context, bool isFromDate) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null) {
+      setState(() {
+        if (isFromDate) {
+          _selectedFromDate = picked;
+          _fromDateController.text = "${picked.toLocal()}".split(' ')[0];
+        } else {
+          _selectedToDate = picked;
+          _toDateController.text = "${picked.toLocal()}".split(' ')[0];
+        }
+      });
+    }
+  }
+
   Future<void> getContentProgressData() async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("_MyLearningContentProgressScreenState().getContentProgressData() called", tag: tag);
@@ -82,7 +109,7 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
     DateTime now = DateTime.now();
 
     DateTime? startDate = progressReportContentModel?.createdDate;
-
+    //
     progressReportController.getContentProgressDetailsData(
       requestModel: ContentProgressDetailsDataRequestModel(
         userID: userId,
@@ -91,8 +118,8 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
         eventID: widget.arguments.eventId,
         sequenceId: widget.arguments.seqId,
         objectTypeId: contentTypeId,
-        startDate: startDate,
-        endDate: now,
+        startDate: _selectedFromDate,
+        endDate: _selectedToDate,
       ),
     );
 
@@ -105,8 +132,8 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
           trackID: widget.arguments.trackId,
           eventID: widget.arguments.eventId,
           sequenceId: widget.arguments.seqId,
-          startDate: startDate,
-          endDate: now,
+          startDate: _selectedFromDate,
+          endDate: _selectedToDate,
         ),
       ),
       getCourseDetailsModelFromId(),
@@ -120,13 +147,15 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("initializeData called", tag: tag);
 
+    _fromDateController.text = "${_selectedFromDate.toLocal()}".split(' ')[0];
+    _toDateController.text = "${_selectedToDate.toLocal()}".split(' ')[0];
+
     if (widget.arguments.courseDTOModel != null) {
       CourseDTOModel model = widget.arguments.courseDTOModel!;
       progressReportContentModel = ProgressReportContentModel(
         name: model.ContentName,
         author: model.ContentTypeId == InstancyObjectTypes.events ? model.PresenterDisplayName : model.AuthorDisplayName,
-        thumbnailImageUrl:
-            MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: appProvider).getInstancyImageUrlFromImagePath(imagePath: model.ThumbnailImagePath)),
+        thumbnailImageUrl: MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: appProvider).getInstancyImageUrlFromImagePath(imagePath: model.ThumbnailImagePath)),
         createdDate: ParsingHelper.parseDateTimeMethod(model.CreatedOn, dateFormat: "MM/dd/yyyy"),
         ratingId: model.RatingID,
         contentTypeId: model.ContentTypeId,
@@ -216,8 +245,7 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
         ChangeNotifierProvider<ContentReviewRatingsProvider>.value(value: contentReviewRatingsProvider),
       ],
       child: Consumer2<ProgressReportProvider, ContentReviewRatingsProvider>(
-        builder:
-            (BuildContext context, ProgressReportProvider progressReportProvider, ContentReviewRatingsProvider contentReviewRatingsProvider, Widget? child) {
+        builder: (BuildContext context, ProgressReportProvider progressReportProvider, ContentReviewRatingsProvider contentReviewRatingsProvider, Widget? child) {
           return ModalProgressHUD(
             inAsyncCall: isLoading,
             child: Scaffold(
@@ -256,11 +284,12 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            getContentDetailsCardWidget(
-              contentModel: progressReportContentModel,
-              mylearningSummaryDataModel: mylearningSummaryDataModel,
-            ),
-            const Divider(color: InstancyColors.border, height: 0, thickness: 1),
+            getTheDateFilter(),
+            // getContentDetailsCardWidget(
+            //   contentModel: progressReportContentModel,
+            //   mylearningSummaryDataModel: mylearningSummaryDataModel,
+            // ),
+            // const Divider(color: InstancyColors.border, height: 0, thickness: 1),
             getStatisticsMainWidget(mylearningSummaryDataModel: mylearningSummaryDataModel),
             getProgressTimingMainWidget(
               dateStarted: mylearningSummaryDataModel?.dateStarted ?? "",
@@ -401,13 +430,6 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
 
   //region Progress Statistics
   Widget getStatisticsMainWidget({required ContentProgressSummaryDataModel? mylearningSummaryDataModel}) {
-    double score = ParsingHelper.parseDoubleMethod(mylearningSummaryDataModel?.score);
-    if (score < 0) {
-      score = 0;
-    } else if (score > 100) {
-      score = 100;
-    }
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 18),
       child: Column(
@@ -425,7 +447,6 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
             height: 10,
           ),
           getStatisticsScoreWidget(
-            score: score,
             mylearningSummaryDataModel: mylearningSummaryDataModel,
           ),
         ],
@@ -433,56 +454,59 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
     );
   }
 
-  Widget getStatisticsScoreWidget({required double score, required ContentProgressSummaryDataModel? mylearningSummaryDataModel}) {
+  Widget getStatisticsScoreWidget({required ContentProgressSummaryDataModel? mylearningSummaryDataModel}) {
+    double score = ParsingHelper.parseDoubleMethod(mylearningSummaryDataModel?.score);
+    if (score < 0) {
+      score = 0;
+    } else if (score > 100) {
+      score = 100;
+    }
     return Row(
       children: [
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox.square(
-                dimension: 120,
-                child: CircularStepProgressIndicator(
-                  totalSteps: 10,
-                  currentStep: (score / 10).round(),
-                  selectedStepSize: 20.0,
-                  unselectedStepSize: 20.0,
-                  selectedColor: InstancyColors.green,
-                  unselectedColor: InstancyColors.grey.withAlpha(150),
-                  padding: 0.04,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        "${score.round()}%",
-                        style: themeData.textTheme.titleLarge?.copyWith(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        appProvider.localStr.myprogressreportLabelScorelabel,
-                        style: themeData.textTheme.labelSmall,
-                      ),
-                    ],
+        if (mylearningSummaryDataModel?.score.checkNotEmpty ?? false)
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox.square(
+                  dimension: 120,
+                  child: CircularStepProgressIndicator(
+                    totalSteps: 10,
+                    currentStep: (score / 10).round(),
+                    selectedStepSize: 20.0,
+                    unselectedStepSize: 20.0,
+                    selectedColor: InstancyColors.green,
+                    unselectedColor: InstancyColors.grey.withAlpha(150),
+                    padding: 0.04,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          "${score.round()}%",
+                          style: themeData.textTheme.titleLarge?.copyWith(fontSize: 20, fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          appProvider.localStr.myprogressreportLabelScorelabel,
+                          style: themeData.textTheme.labelSmall,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: [
                 getStatisticsScoreItemWidget(
-                  title: "Accessed",
-                  value: mylearningSummaryDataModel?.numberOfTimesAccessedInThisPeriod.toString() ?? "0",
-                ),
+                    title: "Accessed",
+                    value: mylearningSummaryDataModel?.numberOfTimesAccessedInThisPeriod.toString() ?? "0",
+                    isScoreAvailable: mylearningSummaryDataModel?.score.checkNotEmpty ?? false),
                 getStatisticsScoreItemWidget(
-                  title: "Attempts",
-                  value: mylearningSummaryDataModel?.numberOfAttemptsInThisPeriod ?? "0",
-                ),
+                    title: "Attempts", value: (mylearningSummaryDataModel?.numberOfAttemptsInThisPeriod) ?? "0", isScoreAvailable: mylearningSummaryDataModel?.score.checkNotEmpty ?? false),
               ],
             ),
           ),
@@ -491,20 +515,28 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
     );
   }
 
-  Widget getStatisticsScoreItemWidget({required String title, required String value}) {
+  Widget getStatisticsScoreItemWidget({required String title, required String value, bool isScoreAvailable = false}) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text(
-            title,
-            style: themeData.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+          Expanded(
+            child: Text(
+              "$title",
+              style: themeData.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+            ),
           ),
           Text(
-            value,
+            value.checkEmpty ? "0" : value,
             style: themeData.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+            textAlign: TextAlign.right,
           ),
+          Expanded(
+              flex: isScoreAvailable ? 0 : 2,
+              child: const SizedBox(
+                width: 30,
+              )),
         ],
       ),
     );
@@ -513,31 +545,30 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
   //endregion
 
   //region Progress Timings
-  Widget getProgressTimingMainWidget({
-    required String dateStarted,
-    required String timeSpent,
-    required String dateCompleted,
-    required String status
-  }) {
+  Widget getProgressTimingMainWidget({required String dateStarted, required String timeSpent, required String dateCompleted, required String status}) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 18),
       child: Row(
         children: [
-          Expanded(
+          if (dateStarted.checkNotEmpty)
+            Expanded(
               child: getProgressTimingItemWidget(
-            title: "Started",
-            value: dateStarted,
-          )),
+                title: "Started",
+                value: dateStarted,
+              ),
+            ),
           Expanded(
-              child: getProgressTimingItemWidget(
-            title: "Time Spent",
-            value: timeSpent,
-          )),
+            child: getProgressTimingItemWidget(
+              title: status,
+              value: dateStarted,
+            ),
+          ),
           Expanded(
-              child: getProgressTimingItemWidget(
-            title: status,
-            value: dateStarted,
-          )),
+            child: getProgressTimingItemWidget(
+              title: "Time Spent",
+              value: timeSpent,
+            ),
+          ),
         ],
       ),
     );
@@ -562,7 +593,7 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            value,
+            value.checkEmpty ? "N/A" : value,
             textAlign: TextAlign.center,
             style: themeData.textTheme.labelMedium?.copyWith(
               fontWeight: FontWeight.w600,
@@ -625,14 +656,23 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
           selectedTabMenuForReviewAndReport = index;
           mySetState();
         },
-        tabs: const [
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              "Report",
+        tabs: [
+          if (![
+            InstancyObjectTypes.dictionaryGlossary,
+            InstancyObjectTypes.html,
+            InstancyObjectTypes.webPage,
+            InstancyObjectTypes.document,
+            InstancyObjectTypes.mediaResource,
+            InstancyObjectTypes.aICC,
+            InstancyObjectTypes.htmlModules
+          ].contains(progressReportContentModel?.contentTypeId))
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                "Report",
+              ),
             ),
-          ),
-          Padding(
+          const Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
               "Review",
@@ -645,6 +685,21 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
 
   Widget getSelectedTabPageForReviewAndReportWidget({required int index}) {
     if (index == 0) {
+      if ([
+        InstancyObjectTypes.dictionaryGlossary,
+        InstancyObjectTypes.html,
+        InstancyObjectTypes.webPage,
+        InstancyObjectTypes.document,
+        InstancyObjectTypes.mediaResource,
+        InstancyObjectTypes.aICC,
+        InstancyObjectTypes.htmlModules
+      ].contains(progressReportContentModel?.contentTypeId)) {
+        return getReviewListWidget(
+          userReviewsList: contentReviewRatingsProvider.userReviewsList.getList(isNewInstance: false),
+          isLoadingReviewData: contentReviewRatingsProvider.paginationModel.get().isLoading,
+        );
+      }
+
       return getReportQuestionsListWidget(
         progressDetails: progressReportProvider.contentProgressDetailsQuestionsData.getList(isNewInstance: false),
         isLoadingProgressDetails: progressReportProvider.isLoadingContentProgressDetailsQuestionsData.get(),
@@ -677,9 +732,7 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 40),
-          Center(
-              child: Image.asset("assets/myLearning/reportNotDataView.png", height: 155,width: 155)
-          ),
+          Center(child: Image.asset("assets/myLearning/reportNotDataView.png", height: 155, width: 155)),
         ],
       );
     }
@@ -700,6 +753,7 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
     required bool isLoadingProgressDetails,
     required int objectTypeId,
   }) {
+    MyPrint.printOnConsole("progressReportProvider.contentProgressDetailsQuestionsData :${progressReportProvider.contentProgressDetailsQuestionsData.getList().length}");
     if (isLoadingProgressDetails) {
       return const SizedBox(
         height: 150,
@@ -713,9 +767,7 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 40),
-          Center(
-            child: Image.asset("assets/myLearning/reportNotDataView.png", height: 155,width: 155)
-          ),
+          Center(child: Image.asset("assets/myLearning/reportNotDataView.png", height: 155, width: 155)),
         ],
       );
     }
@@ -818,6 +870,95 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
           ),
         ],
       ),
+    );
+  }
+
+  Widget getTheDateFilter() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(child: getStartDateTextFromField()),
+          const SizedBox(
+            width: 20,
+          ),
+          Expanded(child: getToDateTextFromField()),
+          const SizedBox(
+            width: 20,
+          ),
+          datApplyButton()
+        ],
+      ),
+    );
+  }
+
+  Widget getStartDateTextFromField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "From Date:",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(
+          height: 3,
+        ),
+        GestureDetector(
+          onTap: () => _selectDate(context, true),
+          child: AbsorbPointer(
+            child: TextFormField(
+              controller: _fromDateController,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                isDense: true,
+                hintText: 'Select Date',
+              ),
+              readOnly: true,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget getToDateTextFromField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "To Date:",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(
+          height: 3,
+        ),
+        GestureDetector(
+          onTap: () => _selectDate(context, false),
+          child: AbsorbPointer(
+            child: TextFormField(
+              controller: _toDateController,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                isDense: true,
+                hintText: 'Select Date',
+              ),
+              readOnly: true,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget datApplyButton() {
+    return CommonButton(
+      onPressed: () {
+        futureGetData = getContentProgressData();
+        mySetState();
+      },
+      text: "Apply",
+      fontColor: themeData.cardColor,
     );
   }
 //endregion
