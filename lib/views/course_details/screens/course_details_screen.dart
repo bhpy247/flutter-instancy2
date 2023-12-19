@@ -183,11 +183,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
               if (model.ViewType == ViewTypesForContent.ViewAndAddToMyLearning && !ParsingHelper.parseBoolMethod(model.isContentEnrolled)) {
                 await addContentToMyLearning(
-                  contentIdToAddToMyLearning: model.ContentID,
-                  ContentTypeId: model.ContentTypeId,
-                  ScoID: model.ScoID,
+                  courseDTOModel: model,
                   contentIdToLoadInScreen: model.ContentID,
-                  hasPrerequisites: model.hasPrerequisiteContents(),
                 );
               }
 
@@ -198,11 +195,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
           : () async {
               if (isSecondaryAction) Navigator.pop(context);
               addContentToMyLearning(
-                contentIdToAddToMyLearning: model.ContentID,
-                ContentTypeId: model.ContentTypeId,
-                ScoID: model.ScoID,
+                courseDTOModel: model,
                 contentIdToLoadInScreen: model.ContentID,
-                hasPrerequisites: model.hasPrerequisiteContents(),
               );
             },
       onBuyTap: primaryAction == InstancyContentActionsEnum.Buy
@@ -216,11 +210,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         if (isSecondaryAction) Navigator.pop(context);
 
         addContentToMyLearning(
-          contentIdToAddToMyLearning: model.ContentID,
-          ContentTypeId: model.ContentTypeId,
-          ScoID: model.ScoID,
+          courseDTOModel: model,
           contentIdToLoadInScreen: model.ContentID,
-          hasPrerequisites: model.hasPrerequisiteContents(),
         );
       },
       onIAmInterestedTap: () async {},
@@ -670,20 +661,14 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
       },
       onAddToMyLearningTap: () async {
         await addContentToMyLearning(
-          contentIdToAddToMyLearning: model.ContentID,
-          ContentTypeId: model.ContentTypeId,
-          ScoID: model.ScoID,
+          courseDTOModel: model,
           contentIdToLoadInScreen: model.ContentID,
-          hasPrerequisites: model.hasPrerequisiteContents(),
         );
       },
       onEnrollTap: () async {
         await addContentToMyLearning(
-          contentIdToAddToMyLearning: model.ContentID,
-          ContentTypeId: model.ContentTypeId,
-          ScoID: model.ScoID,
+          courseDTOModel: model,
           contentIdToLoadInScreen: model.ContentID,
-          hasPrerequisites: model.hasPrerequisiteContents(),
         );
       },
       onJoinTap: () async {
@@ -822,20 +807,17 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
   }
 
   Future<void> addContentToMyLearning({
-    required String contentIdToAddToMyLearning,
-    required int ContentTypeId,
-    required int ScoID,
-    String multiInstanceParentId = "",
+    required CourseDTOModel courseDTOModel,
     required String contentIdToLoadInScreen,
+    String multiInstanceParentId = "",
     String MultiInstanceEventEnroll = "",
-    bool hasPrerequisites = false,
   }) async {
     isLoading = true;
     mySetState();
 
     bool isSuccess = await CatalogController(provider: null).addContentToMyLearning(
       requestModel: AddContentToMyLearningRequestModel(
-        SelectedContent: contentIdToAddToMyLearning,
+        SelectedContent: courseDTOModel.ContentID,
         multiInstanceParentId: multiInstanceParentId,
         ERitems: "",
         HideAdd: "",
@@ -844,8 +826,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         MultiInstanceEventEnroll: MultiInstanceEventEnroll,
         ComponentID: InstancyComponents.Details,
         ComponentInsID: InstancyComponents.DetailsComponentInsId,
-        objecttypeId: ContentTypeId,
-        scoId: ScoID,
+        objecttypeId: courseDTOModel.ContentTypeId,
+        scoId: courseDTOModel.ScoID,
+        courseDTOModel: courseDTOModel,
       ),
       context: context,
       onPrerequisiteDialogShowEnd: () {
@@ -859,7 +842,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         isLoading = false;
         mySetState();
       },
-      hasPrerequisites: hasPrerequisites,
+      hasPrerequisites: courseDTOModel.hasPrerequisiteContents(),
       isShowToast: true,
       isWaitForOtherProcesses: true,
     );
@@ -867,8 +850,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     isLoading = false;
 
     if (isSuccess) {
-      contentId = contentIdToLoadInScreen;
-      futureGetData = getContentDetailsData();
+      if (multiInstanceParentId.isNotEmpty) {
+        contentId = contentIdToLoadInScreen;
+        futureGetData = getContentDetailsData();
+      }
       isRefreshOtherPageWhenPop = true;
     }
 
@@ -1865,12 +1850,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             catalogCourseDtoModel: catalogCourseDtoModel,
             onEnrollTap: () async {
               addContentToMyLearning(
-                contentIdToAddToMyLearning: catalogCourseDtoModel.ContentID,
-                ContentTypeId: catalogCourseDtoModel.ContentTypeId,
-                ScoID: catalogCourseDtoModel.ScoID,
-                multiInstanceParentId: catalogCourseDtoModel.InstanceParentContentID,
+                courseDTOModel: catalogCourseDtoModel,
                 contentIdToLoadInScreen: catalogCourseDtoModel.ContentID,
-                hasPrerequisites: catalogCourseDtoModel.hasPrerequisiteContents(),
+                multiInstanceParentId: catalogCourseDtoModel.InstanceParentContentID,
                 MultiInstanceEventEnroll: widget.arguments.isRescheduleEvent ? "rescheduleenroll" : "",
               );
             },

@@ -502,11 +502,13 @@ class DiscussionForumScreenNavigationArguments extends NavigationArguments {
 class MyAchievementWidgetNavigationArguments extends NavigationArguments {
   final int componentId;
   final int componentInsId;
+  final bool isRenderedAsScreen;
   final GamificationProvider? gamificationProvider;
 
   const MyAchievementWidgetNavigationArguments({
     required this.componentId,
     required this.componentInsId,
+    this.isRenderedAsScreen = true,
     this.gamificationProvider,
   });
 

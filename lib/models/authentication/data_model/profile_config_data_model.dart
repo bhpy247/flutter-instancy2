@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
+import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:provider/provider.dart';
 
 import '../../../configs/app_constants.dart';
 import '../../../utils/parsing_helper.dart';
@@ -164,17 +168,36 @@ class ProfileConfigDataModel {
 
       if(isrequired) {
         model.validator = (String? text) {
-          if(text.checkEmpty) {
+          if (text.checkEmpty) {
             return "$displaytext cannot be empty";
-          }
-          else {
+          } else {
             return null;
           }
         };
       }
 
+      AppProvider? appProvider;
+      BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
+      if (context != null) {
+        appProvider = context.read<AppProvider>();
+      }
+
+      //For Email
+      if (uicontroltypeid == UIControlTypes.emailTextField) {
+        model.validator = (String? text) {
+          if (text.checkEmpty) {
+            return "$displaytext cannot be empty";
+          }
+
+          if (!AppConfigurationOperations.isValidEmailString(text!.trim())) {
+            return appProvider?.localStr.signupAlertsubtitleInvalidemail ?? "Invalid Email Address";
+          }
+
+          return null;
+        };
+      }
       //For Password
-      if ([UIControlTypes.passwordField].contains(uicontroltypeid)) {
+      else if ([UIControlTypes.passwordField].contains(uicontroltypeid)) {
         model.confirmPasswordTextEditingController = TextEditingController();
 
         if (isrequired) {

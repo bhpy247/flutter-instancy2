@@ -439,6 +439,7 @@ class CatalogUIActionsController {
         }
       }
       else if(action == InstancyContentActionsEnum.AddToMyLearning) {
+        // MyPrint.printOnConsole("Content Name:${parameterModel.ContentName}");
         // MyPrint.printOnConsole("isShowAction(actionType: InstancyContentActionsEnum.AddToMyLearning, parameterModel: parameterModel):${isShowAction(actionType: InstancyContentActionsEnum.AddToMyLearning, parameterModel: parameterModel)}");
         // MyPrint.printOnConsole("showAddToMyLearning(parameterModel: parameterModel):${showAddToMyLearning(parameterModel: parameterModel)}");
         if (isShowAction(actionType: InstancyContentActionsEnum.AddToMyLearning, parameterModel: parameterModel) && catalogUIActionCallbackModel.onAddToMyLearningTap != null) {

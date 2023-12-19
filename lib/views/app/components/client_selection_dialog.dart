@@ -91,16 +91,19 @@ class _ClientSelectionDialogState extends State<ClientSelectionDialog> with MySa
           )
         ],
       ),
-      content: Form(
-        key: formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              getSiteUrlTextField(),
-              const SizedBox(height: 20),
-              getClientUrlTypeSelectionWidget(),
-            ],
+      content: SizedBox(
+        width: double.maxFinite,
+        child: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                getSiteUrlTextField(),
+                const SizedBox(height: 20),
+                getClientUrlTypeSelectionWidget(),
+              ],
+            ),
           ),
         ),
       ),

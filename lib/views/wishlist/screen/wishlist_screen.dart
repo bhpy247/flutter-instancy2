@@ -365,6 +365,7 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
         ComponentInsID: componentInstanceId,
         objecttypeId: model.ContentTypeId,
         scoId: model.ScoID,
+        courseDTOModel: model,
       ),
       context: context,
       isShowToast: true,
@@ -376,11 +377,11 @@ class _WishListScreenState extends State<WishListScreen> with MySafeState {
     mySetState();
 
     if (isSuccess) {
-      getCatalogContentsList(
+      /*getCatalogContentsList(
         isRefresh: true,
         isGetFromCache: false,
         isNotify: true,
-      );
+      );*/
     }
   }
 

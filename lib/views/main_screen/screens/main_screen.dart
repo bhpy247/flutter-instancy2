@@ -502,6 +502,7 @@ class _MainScreenState extends State<MainScreen> {
         arguments: MyAchievementWidgetNavigationArguments(
           componentId: model.componentid,
           componentInsId: model.repositoryid,
+          isRenderedAsScreen: isExpanded,
           gamificationProvider: context.read<GamificationProvider>(),
         ),
       );

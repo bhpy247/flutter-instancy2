@@ -549,6 +549,14 @@ class CatalogController {
       MyPrint.printOnConsole("isSuccess:$isSuccess", tag: tag);
 
       if (isSuccess) {
+        if (requestModel.courseDTOModel != null) {
+          if (responseDTOModel.CourseObject != null) {
+            requestModel.courseDTOModel!.updateFromMap(responseDTOModel.CourseObject!.toMap());
+          } else if (responseDTOModel.DetailsObject != null) {
+            requestModel.courseDTOModel!.updateFromMap(responseDTOModel.DetailsObject!.toMap());
+          }
+        }
+
         CatalogController.isAddedContentToMyLearning = true;
 
         List<Future> futures = <Future>[
@@ -570,7 +578,7 @@ class CatalogController {
           Future.wait(futures);
         }
 
-        GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
+        await GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
           requestModel: UpdateContentGamificationRequestModel(
             contentId: requestModel.SelectedContent,
             scoId: requestModel.scoId,
@@ -608,6 +616,9 @@ class CatalogController {
 
     String productId = switch (defaultTargetPlatform) {
       // TargetPlatform.android => "1_dollar_product",
+      // TargetPlatform.android => "product_1",
+      // TargetPlatform.android => "com.instancy.instancylearningmarket_assessment25dollar",
+      // TargetPlatform.android => "com.instancy.instancylearningmarket_e_commerce_event_multi_05dec2023_1600",
       // TargetPlatform.iOS => "com.instancy.instancyLearningMarket_product1",
       TargetPlatform.android => model.GoogleProductId,
       TargetPlatform.iOS => model.ItunesProductId,

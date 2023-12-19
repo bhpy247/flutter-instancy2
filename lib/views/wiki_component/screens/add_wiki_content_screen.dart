@@ -21,7 +21,6 @@ import '../../../backend/navigation/navigation_arguments.dart';
 import '../../../models/common/data_response_model.dart';
 import '../../../models/wiki_component/request_model/wiki_upload_request_model.dart';
 import '../../../models/wiki_component/response_model/wikiCategoriesModel.dart';
-import '../../common/components/app_ui_components.dart';
 
 class AddWikiContentScreen extends StatefulWidget {
   static const String routeName = "/AddWikiContentScreen";
@@ -135,24 +134,25 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
     }
 
     DataResponseModel<String> responseModel = await WikiController(wikiProvider: null).addContent(
-        wikiUploadRequestModel: WikiUploadRequestModel(
-      isUrl: isUrl,
-      url: url,
-      fileUploads: [
-        InstancyMultipartFileUploadModel(
-          fieldName: "file",
-          fileName: fileName,
-          bytes: fileBytes,
-        ),
-      ],
-      mediaTypeID: widget.addWikiContentScreenNavigationArguments.mediaTypeId,
-      objectTypeID: widget.addWikiContentScreenNavigationArguments.objectTypeId,
-      title: titleName,
-      shortDesc: description,
-      componentID: 1,
-      cMSGroupId: 1,
-      categories: selectedCategoriesList.map((e) => e.categoryID.toString()).toList(),
-    ));
+      wikiUploadRequestModel: WikiUploadRequestModel(
+        isUrl: isUrl,
+        url: url,
+        fileUploads: [
+          InstancyMultipartFileUploadModel(
+            fieldName: "file",
+            fileName: fileName,
+            bytes: fileBytes,
+          ),
+        ],
+        mediaTypeID: widget.addWikiContentScreenNavigationArguments.mediaTypeId,
+        objectTypeID: widget.addWikiContentScreenNavigationArguments.objectTypeId,
+        title: titleName,
+        shortDesc: description,
+        componentID: 1,
+        cMSGroupId: 1,
+        categories: selectedCategoriesList.map((e) => e.categoryID.toString()).toList(),
+      ),
+    );
 
     isLoading = false;
     if (context.mounted) {
@@ -200,7 +200,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
           appBar: AppConfigurations().commonAppBar(
             title: "Add Content",
           ),
-          body: AppUIComponents.getBackGroundBordersRounded(child: mainWidget(), context: context),
+          body: mainWidget(),
         ),
       ),
     );
@@ -389,10 +389,10 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
                               setState(() {});
                             },
                           ),
-                          const SizedBox(
-                            width: 10,
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(e.name),
                           ),
-                          Text(e.name)
                         ],
                       ),
                     ),

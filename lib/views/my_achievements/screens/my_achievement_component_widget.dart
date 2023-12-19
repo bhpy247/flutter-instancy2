@@ -158,15 +158,13 @@ class _MyAchievementComponentWidgetState extends State<MyAchievementComponentWid
       child: Consumer<GamificationProvider>(
         builder: (BuildContext context, GamificationProvider gamificationProvider, Widget? child) {
           if (gamificationProvider.isUserGamesListLoading.get()) {
-            return const SizedBox(
-              height: 200,
-              child: CommonLoader(
-                isCenter: true,
-              ),
+            return SizedBox(
+              height: widget.arguments.isRenderedAsScreen ? double.maxFinite : 200,
+              child: const CommonLoader(isCenter: true),
             );
           } else if (gamificationProvider.userGamesList.length == 0) {
             return SizedBox(
-              height: 200,
+              height: widget.arguments.isRenderedAsScreen ? double.maxFinite : 200,
               child: Center(
                 child: Text(
                   "No Games",
@@ -293,17 +291,17 @@ class _MyAchievementComponentWidgetState extends State<MyAchievementComponentWid
                           padding: const EdgeInsets.symmetric(vertical: 0),
                           indicatorSize: TabBarIndicatorSize.tab,
                           labelPadding: const EdgeInsets.only(bottom: 2, left: 8, right: 8),
-                    indicatorPadding: const EdgeInsets.only(top: 46),
-                    indicator: BoxDecoration(color: themeData.primaryColor, borderRadius: const BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10))),
-                    labelStyle: themeData.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
+                          indicatorPadding: const EdgeInsets.only(top: 46),
+                          indicator: BoxDecoration(color: themeData.primaryColor, borderRadius: const BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10))),
+                          labelStyle: themeData.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                          tabs: tabsList,
+                        ),
+                      ],
                     ),
-                    tabs: tabsList,
                   ),
-                ],
-              ),
-            ),
                 ),
           body: Container(
             color: Colors.white,

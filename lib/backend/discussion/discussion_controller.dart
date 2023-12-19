@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_repository.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/comment_reply_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/forum_info_user_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/forum_model.dart';
@@ -15,7 +19,9 @@ import 'package:flutter_instancy_2/models/discussion/request_model/like_dislike_
 import 'package:flutter_instancy_2/models/discussion/request_model/post_reply_request_model.dart';
 import 'package:flutter_instancy_2/models/discussion/request_model/update_pin_topic_request_model.dart';
 import 'package:flutter_instancy_2/models/discussion/response_model/forum_listing_dto_response_model.dart';
+import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:provider/provider.dart';
 
 import '../../api/api_controller.dart';
@@ -366,7 +372,7 @@ class DiscussionController {
 
   //endregion
 
-  Future<String> addTopic({
+  Future<bool> addTopic({
     required int componentId,
     required int componentInstanceId,
     required AddTopicRequestModel requestModel,
@@ -380,13 +386,56 @@ class DiscussionController {
 
     if (dataResponseModel.appErrorModel != null) {
       MyPrint.printOnConsole("Returning from DiscussionController().addTopic() because addTopic had some error", tag: tag);
-      return "";
+      return false;
     }
 
-    return dataResponseModel.data ?? "";
+    String response = dataResponseModel.data ?? "";
+
+    List<String> splitResponse = response.split("#\$#");
+    if (splitResponse.checkEmpty) {
+      return false;
+    }
+
+    bool isSuccess = ParsingHelper.parseBoolMethod(splitResponse.firstOrNull == "success");
+    String topicId = splitResponse.elementAtOrNull(1).checkNotEmpty ? splitResponse[1] : "";
+    MyPrint.printOnConsole("topicId: $topicId, isSuccess $isSuccess", tag: tag);
+
+    if (!isSuccess) {
+      return false;
+    }
+
+    if (requestModel.strAttachFileBytes != null) {
+      UploadForumAttachmentModel uploadForumAttachmentModel = UploadForumAttachmentModel(
+        topicId: topicId,
+        isTopic: true,
+        fileUploads: [
+          InstancyMultipartFileUploadModel(
+            fieldName: "Image",
+            fileName: requestModel.strAttachFile,
+            bytes: requestModel.strAttachFileBytes,
+          )
+        ],
+      );
+      bool isSuccessUpload = await uploadForumAttachment(requestModel: uploadForumAttachmentModel);
+      MyPrint.printOnConsole("isSuccessUpload:$isSuccessUpload", tag: tag);
+    }
+
+    BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
+    if (context != null) {
+      await GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
+        requestModel: UpdateContentGamificationRequestModel(
+          contentId: "",
+          scoId: 0,
+          objecttypeId: 0,
+          GameAction: GamificationActionType.AddedTopic,
+        ),
+      );
+    }
+
+    return true;
   }
 
-  Future<String> editTopic({
+  Future<bool> editTopic({
     required String contentId,
     required int componentId,
     required int componentInstanceId,
@@ -401,10 +450,33 @@ class DiscussionController {
 
     if (dataResponseModel.appErrorModel != null) {
       MyPrint.printOnConsole("Returning from DiscussionController().editTopic() because editTopic had some error", tag: tag);
-      return "";
+      return false;
     }
 
-    return dataResponseModel.data ?? "";
+    bool isSuccess = dataResponseModel.data == "success";
+    MyPrint.printOnConsole("isSuccess $isSuccess", tag: tag);
+
+    if (!isSuccess) {
+      return false;
+    }
+
+    if (requestModel.strAttachFileBytes != null) {
+      UploadForumAttachmentModel uploadForumAttachmentModel = UploadForumAttachmentModel(
+        topicId: contentId,
+        isTopic: true,
+        fileUploads: [
+          InstancyMultipartFileUploadModel(
+            fieldName: "Image",
+            fileName: requestModel.strAttachFile,
+            bytes: requestModel.strAttachFileBytes,
+          )
+        ],
+      );
+      bool isSuccessUpload = await uploadForumAttachment(requestModel: uploadForumAttachmentModel);
+      MyPrint.printOnConsole("isSuccessUpload:$isSuccessUpload", tag: tag);
+    }
+
+    return true;
   }
 
   Future<bool> createDiscussionForum({
@@ -521,6 +593,18 @@ class DiscussionController {
       );
       bool isUploadSuccess = await uploadForumAttachment(requestModel: uploadForumAttachmentModel);
       MyPrint.printOnConsole("isUploadSuccess:$isUploadSuccess", tag: tag);
+    }
+
+    BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
+    if (context != null) {
+      await GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
+        requestModel: UpdateContentGamificationRequestModel(
+          contentId: "",
+          scoId: 0,
+          objecttypeId: 0,
+          GameAction: GamificationActionType.AddedComment,
+        ),
+      );
     }
 
     return isSuccess;
@@ -842,6 +926,20 @@ class DiscussionController {
         }
       }
       mySetState?.call();
+    } else {
+      if (topicModel.likeState) {
+        BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
+        if (context != null) {
+          await GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
+            requestModel: UpdateContentGamificationRequestModel(
+              contentId: "",
+              scoId: 0,
+              objecttypeId: 0,
+              GameAction: GamificationActionType.Liked,
+            ),
+          );
+        }
+      }
     }
 
     return isSuccess;
@@ -883,6 +981,20 @@ class DiscussionController {
         commentModel.CommentLikes--;
       }
       mySetState?.call();
+    } else {
+      if (commentModel.likeState) {
+        BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
+        if (context != null) {
+          await GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
+            requestModel: UpdateContentGamificationRequestModel(
+              contentId: "",
+              scoId: 0,
+              objecttypeId: 0,
+              GameAction: GamificationActionType.Liked,
+            ),
+          );
+        }
+      }
     }
 
     return isSuccess;
@@ -914,6 +1026,20 @@ class DiscussionController {
     if (!isSuccess) {
       replyModel.likeState = !replyModel.likeState;
       mySetState?.call();
+    } else {
+      if (replyModel.likeState) {
+        BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
+        if (context != null) {
+          await GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
+            requestModel: UpdateContentGamificationRequestModel(
+              contentId: "",
+              scoId: 0,
+              objecttypeId: 0,
+              GameAction: GamificationActionType.Liked,
+            ),
+          );
+        }
+      }
     }
 
     return isSuccess;

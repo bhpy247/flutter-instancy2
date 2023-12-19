@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 
 import '../../../utils/parsing_helper.dart';
 import '../../common/Instancy_multipart_file_upload_model.dart';
@@ -13,7 +14,7 @@ class AddTopicRequestModel {
   int userID = 0;
   int orgID = 0;
   int forumID = 0;
-  List<InstancyMultipartFileUploadModel>? fileUploads;
+  Uint8List? strAttachFileBytes;
 
   AddTopicRequestModel({
     this.strAttachFile = "",
@@ -26,7 +27,7 @@ class AddTopicRequestModel {
     this.userID = 0,
     this.orgID = 0,
     this.forumID = 0,
-    this.fileUploads,
+    this.strAttachFileBytes,
   });
 
   AddTopicRequestModel.fromJson(Map<String, dynamic> json) {

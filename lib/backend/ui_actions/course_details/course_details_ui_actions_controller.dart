@@ -256,8 +256,8 @@ class CourseDetailsUIActionsController {
     required MyLearningUIActionCallbackModel myLearningUIActionCallbackModel,
     required CatalogUIActionCallbackModel catalogUIActionCallbackModel,
   }) sync* {
-    MyPrint.printOnConsole("getCourseDetailsPrimaryActions called with objectTypeId:${contentDetailsDTOModel.ContentTypeId},"
-        " mediaTypeID:${contentDetailsDTOModel.MediaTypeID}");
+    MyPrint.printOnConsole(
+        "getCourseDetailsPrimaryActions called with objectTypeId:${contentDetailsDTOModel.ContentTypeId}, mediaTypeID:${contentDetailsDTOModel.MediaTypeID}, screenType:$screenType");
 
     if (screenType == InstancyContentScreenType.MyLearning) {
       yield* MyLearningUIActionsController(
@@ -273,6 +273,7 @@ class CourseDetailsUIActionsController {
         parameterModel: getMyLearningUIActionParameterModelFromCourseDTOModel(model: contentDetailsDTOModel),
       );
     } else if (screenType == InstancyContentScreenType.Catalog) {
+      // MyPrint.printOnConsole("contentDetailsDTOModel.isContentEnrolled:${contentDetailsDTOModel.isContentEnrolled}");
       yield* CatalogUIActionsController(appProvider: appProvider).getCatalogScreenPrimaryActionsFromCatalogUIActionParameterModel(
         objectTypeId: contentDetailsDTOModel.ContentTypeId,
         mediaTypeId: contentDetailsDTOModel.MediaTypeID,

@@ -1,4 +1,5 @@
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
 class AddContentToMyLearningRequestModel {
@@ -17,6 +18,7 @@ class AddContentToMyLearningRequestModel {
   int ComponentInsID = 0;
   int scoId = 0;
   int objecttypeId = 0;
+  CourseDTOModel? courseDTOModel;
 
   AddContentToMyLearningRequestModel({
     required this.SelectedContent,
@@ -34,6 +36,7 @@ class AddContentToMyLearningRequestModel {
     required this.ComponentInsID,
     required this.scoId,
     required this.objecttypeId,
+    this.courseDTOModel,
   });
 
   Map<String, String> toJson() {

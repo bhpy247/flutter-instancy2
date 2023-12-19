@@ -152,7 +152,6 @@ class SplashController {
     try {
       value = await material.showDialog<ClientSelectionResponse>(
         context: context,
-        barrierDismissible: false,
         builder: (material.BuildContext context) {
           return ClientSelectionDialog(
             clientUrl: apiUrlConfigurationProvider.getCurrentSiteUrl(),

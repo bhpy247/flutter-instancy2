@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/currency_model.dart';
 import 'package:flutter_instancy_2/models/membership/data_model/member_ship_dto_model.dart';
@@ -72,12 +73,12 @@ class MembershipSelectionCard extends StatelessWidget {
                 ),
                 if (memberShipDTOModel.MemberShipShortDesc.isNotEmpty) ...[
                   const SizedBox(height: 20),
-                  Text(
-                    memberShipDTOModel.MemberShipShortDesc,
-                    style: themeData.textTheme.labelMedium?.copyWith(
+                  Html(
+                    data: memberShipDTOModel.MemberShipShortDesc,
+                    /*style: themeData.textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: themeData.textTheme.labelMedium!.color?.withAlpha(150),
-                    ),
+                    ),*/
                   ),
                 ],
               ],
@@ -140,9 +141,12 @@ class MembershipSelectionCard extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(width: 5),
               Flexible(
+                flex: 3,
                 child: Text(
                   durationString,
+                  textAlign: TextAlign.end,
                   //We have kept DurationType for Free Plan, because in Free Plan we are getting DurationType as "Free"
                   // memberShipDetailsModel.DurationName.checkNotEmpty ? memberShipDetailsModel.DurationName : memberShipDetailsModel.DurationType,
                   style: themeData.textTheme.bodyMedium?.copyWith(

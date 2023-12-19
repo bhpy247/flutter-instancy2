@@ -68,6 +68,9 @@ class MyLearningUIActionConfigs {
           InstancyObjectTypes.mediaResource,
           InstancyObjectTypes.reference,
           InstancyObjectTypes.document,
+          InstancyObjectTypes.dictionaryGlossary,
+          InstancyObjectTypes.webPage,
+          InstancyObjectTypes.html,
         ].contains(objectTypeId) ||
         [
           InstancyMediaTypes.corpAcademy,

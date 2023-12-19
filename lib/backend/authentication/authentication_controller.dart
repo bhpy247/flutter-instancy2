@@ -433,6 +433,7 @@ class AuthenticationController {
           DurationID: userSaveProfileDataRequestModel.MemberShipDurationID.toString(),
           IsNativeApp: true,
           CurrencySign: currencyModel?.UserCurrency ?? "",
+          TotalPrice: membershipPlanDetailsModel.Amount,
         ),
       );
 

@@ -633,6 +633,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         ComponentInsID: componentInsId,
         scoId: model.ScoID,
         objecttypeId: model.ContentTypeId,
+        courseDTOModel: model,
       ),
       context: context,
       onPrerequisiteDialogShowEnd: () {
@@ -656,11 +657,11 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
     mySetState();
 
     if (isSuccess) {
-      await getEventCatalogContentsList(
+      /*await getEventCatalogContentsList(
         isRefresh: true,
         isGetFromCache: false,
         isNotify: true,
-      );
+      );*/
     }
   }
 

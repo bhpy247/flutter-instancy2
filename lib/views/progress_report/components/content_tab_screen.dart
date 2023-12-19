@@ -264,6 +264,7 @@ class _ContentTabScreenState extends State<ContentTabScreen> with MySafeState {
         Text(
           text,
           style: themeData.textTheme.bodyMedium,
+          textAlign: TextAlign.center,
         ),
       ],
     );

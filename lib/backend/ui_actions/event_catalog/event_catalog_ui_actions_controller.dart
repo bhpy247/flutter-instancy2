@@ -50,7 +50,6 @@ class EventCatalogUIActionsController {
       InstancyContentActionsEnum.Join: showJoin,
       InstancyContentActionsEnum.ReEnroll: showReEnroll,
       InstancyContentActionsEnum.ViewSessions: showViewSeries,
-      // InstancyContentActionsEnum.ViewSessions: showViewSessions,
     };
   }
 

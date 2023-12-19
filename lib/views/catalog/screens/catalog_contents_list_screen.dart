@@ -511,6 +511,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
         ComponentInsID: componentInstanceId,
         objecttypeId: model.ContentTypeId,
         scoId: model.ScoID,
+        courseDTOModel: model,
       ),
       context: context,
       onPrerequisiteDialogShowEnd: () {
@@ -532,22 +533,6 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
 
     isLoading = false;
     mySetState();
-
-    if (isSuccess) {
-      await getCatalogContentsList(
-        isRefresh: true,
-        isGetFromCache: false,
-        isNotify: true,
-      );
-
-      /*WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        catalogContentScrollController.scrollTo(
-          index: index,
-          duration: const Duration(milliseconds: 2000),
-          curve: Curves.easeInOutCubic,
-        );
-      });*/
-    }
   }
 
   Future<void> onContentLaunchTap({required CourseDTOModel model}) async {

@@ -8,7 +8,6 @@ import 'package:flutter_instancy_2/models/discussion/request_model/like_dislike_
 import 'package:flutter_instancy_2/models/discussion/request_model/post_comment_request_model.dart';
 import 'package:flutter_instancy_2/models/discussion/request_model/update_pin_topic_request_model.dart';
 import 'package:flutter_instancy_2/models/discussion/response_model/forum_listing_dto_response_model.dart';
-import 'package:flutter_instancy_2/models/discussion/response_model/like_dislike_list_response_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
@@ -435,30 +434,6 @@ class DiscussionRepository {
     );
 
     DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
-      apiCallModel: apiCallModel,
-    );
-
-    return apiResponseModel;
-  }
-
-  Future<DataResponseModel<List<LikeDislikeListResponse>>> likeCount({String objectId = "", String typeId = ""}) async {
-    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
-
-    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
-
-    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<Map<String, String>>(
-        restCallType: RestCallType.simplePostCall,
-        parsingType: ModelDataParsingType.string,
-        url: apiEndpoints.InsertAndGetContentLikes(),
-        queryParameters: {
-          'strObjectID': objectId,
-          'intUserID': apiUrlConfigurationProvider.getCurrentUserId().toString(),
-          'intSiteID': apiUrlConfigurationProvider.getCurrentSiteId().toString(),
-          'strLocale': apiUrlConfigurationProvider.getLocale(),
-          'intTypeID': typeId
-        });
-
-    DataResponseModel<List<LikeDislikeListResponse>> apiResponseModel = await apiController.callApi<List<LikeDislikeListResponse>>(
       apiCallModel: apiCallModel,
     );
 

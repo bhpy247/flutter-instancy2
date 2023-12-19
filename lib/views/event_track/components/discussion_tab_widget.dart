@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_controller.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
@@ -253,9 +254,12 @@ class _DiscussionTabWidgetState extends State<DiscussionTabWidget> {
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5),
-      child: Text(
-        description,
-        style: themeData.textTheme.bodySmall,
+      child: Html(
+        data: description,
+        style: {
+          "body": Style(fontSize: FontSize.small),
+        },
+        // style: themeData.textTheme.bodySmall,
       ),
     );
   }

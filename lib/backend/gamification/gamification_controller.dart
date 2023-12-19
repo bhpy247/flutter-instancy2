@@ -77,6 +77,9 @@ class GamificationController {
     userGamesList = response.data ?? <GamesDTOModel>[];
     MyPrint.printOnConsole("User Games List Length got in Api:${userGamesList.length}", tag: tag);
 
+    //TODO: Remove this line when Implementing Other Achievements Section
+    userGamesList.removeWhere((element) => element.GameID == -1);
+
     provider.userGamesList.setList(list: userGamesList, isClear: true, isNotify: false);
     provider.isUserGamesListLoading.set(value: false, isNotify: true);
 

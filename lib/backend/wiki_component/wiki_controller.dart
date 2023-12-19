@@ -1,6 +1,13 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
+import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
 import 'package:flutter_instancy_2/backend/wiki_component/wiki_repository.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/common/app_error_model.dart';
+import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
+import 'package:provider/provider.dart';
 
 import '../../api/api_controller.dart';
 import '../../api/api_url_configuration_provider.dart';
@@ -19,8 +26,9 @@ class WikiController {
     _wikiProvider = wikiProvider ?? WikiProvider();
     _wikiRepository = repository ?? WikiRepository(apiController: apiController ?? ApiController());
   }
-  
+
   WikiProvider get wikiProvider => _wikiProvider;
+
   WikiRepository get wikiRepository => _wikiRepository;
 
   Future<List<FileUploadControlsModel>> getFileUploadControlsFromApi({bool isRefresh = true, bool isGetFromCache = false, bool isNotify = true, required int componentId, required int componentInstanceId}) async {
@@ -40,14 +48,14 @@ class WikiController {
     //region Set Provider Data After Getting Data From Api
     // if (contentsList.length < provider.pageSize) provider.setHasMoreMyLearningData(value: false);
     // if(contentsList.isNotEmpty) provider.setMyLearningPageIndex(value: provider.myLearningPageIndex + 1);
-       provider.setFileUploadControlsModelList(fileUploadControlsModelList);
+    provider.setFileUploadControlsModelList(fileUploadControlsModelList);
     // provider.addMyLearningContentsInList(myLearningContentModels: contentsList, isClear: false, isNotify: false);
     // provider.setIsMyLearningContentsFirstTimeLoading(false, isNotify: false);
     // provider.setIsMyLearningContentsLoading(false, isNotify: true);
     // //endregion
 
     return fileUploadControlList;
-   }
+  }
 
   Future<WikiCategoriesModel> getWikiCategoriesFromApi({bool isRefresh = true, bool isGetFromCache = false, bool isNotify = true, required int componentId, required int componentInstanceId}) async {
     WikiCategoriesModel wikiCategoriesModel = WikiCategoriesModel();
@@ -92,6 +100,18 @@ class WikiController {
     }
     else {
       newResponse = response;
+
+      BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        GamificationController(provider: context!.read<GamificationProvider>()).UpdateContentGamification(
+          requestModel: UpdateContentGamificationRequestModel(
+            contentId: "",
+            scoId: -1,
+            objecttypeId: -1,
+            GameAction: GamificationActionType.AddedContent,
+          ),
+        );
+      }
     }
 
     return newResponse;

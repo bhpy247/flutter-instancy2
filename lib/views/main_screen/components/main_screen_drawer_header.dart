@@ -126,7 +126,7 @@ class _MainScreenDrawerHeaderWidgetState extends State<MainScreenDrawerHeaderWid
                         children: [
                           Text(
                             username,
-                            maxLines: 1,
+                            maxLines: 2,
                             style: themeData.textTheme.titleMedium?.copyWith(
                               color: themeData.colorScheme.onPrimary,
                               fontWeight: FontWeight.bold,

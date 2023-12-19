@@ -200,31 +200,22 @@ class AppConfigurations {
     //endregion
 
     //region Events
-    else if (objectTypeId == 70) {
+    else if (objectTypeId == InstancyObjectTypes.events) {
       path = "assets/myLearning/online.png";
       // type = InstancyContentTypeEnum.Event;
 
-      if (mediaTypeId == 46) {
+      if (mediaTypeId == InstancyMediaTypes.classroomEvent) {
         path = "assets/myLearning/classroom.png";
-        // subType = InstancyContentSubTypeEnum.Classroom_IN_Person;
-      } else if (mediaTypeId == 47) {
-        // subType = InstancyContentSubTypeEnum.Virtual_Class_Online;
-      } else if (mediaTypeId == 48) {
+      } else if (mediaTypeId == InstancyMediaTypes.virtualClassroomEvent) {
+        path = "assets/myLearning/online.png";
+      } else if (mediaTypeId == InstancyMediaTypes.networkingInPersonEvent) {
         path = "assets/myLearning/classroom.png";
-
-        // subType = InstancyContentSubTypeEnum.Networking_In_Person;
-      } else if (mediaTypeId == 49) {
+      } else if (mediaTypeId == InstancyMediaTypes.labInPersonEvent) {
         path = "assets/myLearning/classroom.png";
-
-        // subType = InstancyContentSubTypeEnum.Lab_In_Person;
-      } else if (mediaTypeId == 50) {
+      } else if (mediaTypeId == InstancyMediaTypes.projectInPersonEvent) {
         path = "assets/myLearning/classroom.png";
-
-        // subType = InstancyContentSubTypeEnum.Project_In_Person;
-      } else if (mediaTypeId == 51) {
+      } else if (mediaTypeId == InstancyMediaTypes.fieldTripInPersonEvent) {
         path = "assets/myLearning/classroom.png";
-
-        // subType = InstancyContentSubTypeEnum.Field_Trip_In_Person;
       }
     }
     //endregion

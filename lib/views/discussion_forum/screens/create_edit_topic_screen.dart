@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/mmy_toast.dart';
 import 'package:flutter_chat_bot/utils/my_safe_state.dart';
-import 'package:flutter_chat_bot/utils/parsing_helper.dart';
 import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_controller.dart';
@@ -19,7 +18,6 @@ import 'package:provider/provider.dart';
 
 import '../../../backend/discussion/discussion_provider.dart';
 import '../../../backend/navigation/navigation_arguments.dart';
-import '../../../models/common/Instancy_multipart_file_upload_model.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_utils.dart';
 
@@ -90,9 +88,10 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
       forumName: forumModel.Name,
       strAttachFile: fileName,
       strContentID: widget.arguments.topicModel?.ContentID ?? "",
+      strAttachFileBytes: fileBytes,
     );
 
-    String response = widget.arguments.isEdit
+    bool isSuccess = widget.arguments.isEdit
         ? await discussionController.editTopic(
             requestModel: addTopicRequestModel,
             componentId: widget.arguments.componentId,
@@ -103,38 +102,14 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
             componentId: widget.arguments.componentId,
             componentInstanceId: widget.arguments.componentInsId,
           );
-    MyPrint.printOnConsole("Successss: $response");
-
-    bool isSuccess = false;
-
-    List<String> splitResponse = response.split("#\$#");
-    if (splitResponse.checkNotEmpty) {
-      isSuccess = ParsingHelper.parseBoolMethod(splitResponse.firstOrNull == "success");
-      String topicId = splitResponse.elementAtOrNull(1).checkNotEmpty ? splitResponse[1] : "";
-      MyPrint.printOnConsole("topicId: $topicId, isSuccess $isSuccess");
-
-      if (isSuccess) {
-        UploadForumAttachmentModel uploadForumAttachmentModel = UploadForumAttachmentModel(
-          topicId: topicId,
-          isTopic: true,
-          fileUploads: [
-            InstancyMultipartFileUploadModel(
-              fieldName: "Image",
-              fileName: fileName,
-              bytes: fileBytes,
-            )
-          ],
-        );
-        bool isSuccessUpload = await discussionController.uploadForumAttachment(requestModel: uploadForumAttachmentModel);
-        MyPrint.printOnConsole("isSuccessUpload:$isSuccessUpload");
-      }
-    }
+    MyPrint.printOnConsole("isSuccess: $isSuccess");
 
     isLoading = false;
     mySetState();
 
+    MyPrint.printOnConsole("context.mounted:${context.mounted}");
     if (isSuccess && context.mounted) {
-      MyToast.showSuccess(msg: "Topic Created SuccessFully", context: context);
+      MyToast.showSuccess(msg: widget.arguments.isEdit ? "Topic Edited SuccessFully" : "Topic Created SuccessFully", context: context);
       Navigator.pop(context, isSuccess);
     }
   }
@@ -162,6 +137,7 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
+
     return PopScope(
       canPop: !isLoading,
       child: ModalProgressHUD(
