@@ -46,6 +46,12 @@ class _WebViewScreenState extends State<WebViewScreen> {
       );
     }
 
+    if (url.startsWith("www")) {
+      url = 'https://$url';
+    } else if (url.startsWith("http://")) {
+      url = url.replaceFirst("http://", "https://");
+    }
+
     return InAppWebView(
       initialUrlRequest: URLRequest(
         url: WebUri(url),

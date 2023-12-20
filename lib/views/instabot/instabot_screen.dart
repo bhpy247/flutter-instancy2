@@ -116,6 +116,13 @@ class _InstaBotScreenState extends State<InstaBotScreen> {
         height: double.maxFinite,
       );
     }*/
+
+    if (url.startsWith("www")) {
+      url = 'https://$url';
+    } else if (url.startsWith("http://")) {
+      url = url.replaceFirst("http://", "https://");
+    }
+
     return InAppWebView(
       initialUrlRequest: URLRequest(
         url: WebUri(url),

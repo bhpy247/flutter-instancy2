@@ -948,11 +948,12 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
     } else if (!paginationModel.isLoading && contentsLength == 0) {
       child = RefreshIndicator(
         onRefresh: onRefresh,
-        child: Center(
-          child: AppConfigurations.commonNoDataView(),
-          // child: Text(
-          //   appProvider.localStr.commoncomponentLabelNodatalabel,
-          // ),
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            SizedBox(height: context.sizeData.height * 0.2),
+            AppConfigurations.commonNoDataView(),
+          ],
         ),
       );
     } else {

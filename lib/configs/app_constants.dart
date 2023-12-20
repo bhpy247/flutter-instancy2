@@ -819,3 +819,8 @@ class GamificationActionType {
   static int AnyDayLogin = 25;
   static int Certification = 26;
 }
+
+class CatalogLandingPageType {
+  static const int contentsListScreen = 0;
+  static const int categoriesListScreen = 1;
+}

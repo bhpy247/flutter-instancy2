@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../backend/app_theme/style.dart';
@@ -28,8 +29,38 @@ class CommonCachedNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String url = MyUtils.getSecureUrl(imageUrl);
+
+    if (imageUrl.endsWith("svg")) {
+      return SvgPicture.network(
+        url,
+        width: width,
+        height: height,
+        fit: fit ?? BoxFit.contain,
+        placeholderBuilder: (context) {
+          if (placeholder != null) {
+            return placeholder!(context, url);
+          }
+
+          return Shimmer.fromColors(
+            baseColor: Styles.shimmerBaseColor,
+            highlightColor: Styles.shimmerHighlightColor,
+            child: Container(
+              alignment: Alignment.center,
+              color: Styles.shimmerContainerColor,
+              child: Icon(
+                Icons.image,
+                size: shimmerIconSize,
+                color: Colors.transparent,
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return CachedNetworkImage(
-      imageUrl: MyUtils.getSecureUrl(imageUrl),
+      imageUrl: url,
       width: width,
       height: height,
       fit: fit,
@@ -41,11 +72,11 @@ class CommonCachedNetworkImage extends StatelessWidget {
           color: Styles.shimmerContainerColor,
           child: Icon(
             Icons.image,
-            size: shimmerIconSize,
-            color: Colors.transparent,
+                size: shimmerIconSize,
+                color: Colors.transparent,
+              ),
+            ),
           ),
-        ),
-      ),
       /*progressIndicatorBuilder: (BuildContext context, String url, DownloadProgress progress) {
         MyPrint.printOnConsole("url:$url");
         MyPrint.printOnConsole("progress.downloaded:${progress.downloaded}");
@@ -64,18 +95,19 @@ class CommonCachedNetworkImage extends StatelessWidget {
           ),
         );
       },*/
-      errorWidget: errorWidget ?? (context, url, error) {
-        return Container(
-          width: errorHeight ?? MediaQuery.of(context).size.width,
-          height: errorHeight ?? MediaQuery.of(context).size.height,
-          color: Colors.grey[200],
-          child: Icon(
-            Icons.image_outlined,
-            color: Colors.grey[400],
-            size: errorIconSize,
-          ),
-        );
-      },
+      errorWidget: errorWidget ??
+          (context, url, error) {
+            return Container(
+              width: errorHeight ?? MediaQuery.of(context).size.width,
+              height: errorHeight ?? MediaQuery.of(context).size.height,
+              color: Colors.grey[200],
+              child: Icon(
+                Icons.image_outlined,
+                color: Colors.grey[400],
+                size: errorIconSize,
+              ),
+            );
+          },
     );
   }
 }

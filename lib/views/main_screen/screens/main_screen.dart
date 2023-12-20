@@ -454,12 +454,14 @@ class _MainScreenState extends State<MainScreen> {
         return const Text("My Learning");
       }
     } else if (model.componentid == InstancyComponents.Catalog) {
-      if (model.landingpagetype == 2 || model.landingpagetype == 0) {
+      if (model.landingpagetype == CatalogLandingPageType.contentsListScreen) {
         return CatalogContentsListScreen(
           isShowAppBar: false,
           arguments: CatalogContentsListScreenNavigationArguments(
             componentInstanceId: model.repositoryid,
             componentId: model.componentid,
+            catalogProvider: context.read<CatalogProvider>(),
+            wikiProvider: context.read<WikiProvider>(),
           ),
         );
       } else {

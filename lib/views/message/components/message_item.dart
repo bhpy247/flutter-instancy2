@@ -364,6 +364,14 @@ class FileViewer extends StatelessWidget {
   Widget build(BuildContext context) {
     MyPrint.printOnConsole("FileViewer build called with fileUrl:$fileUrl");
 
+    String url = fileUrl;
+
+    if (url.startsWith("www")) {
+      url = 'https://$url';
+    } else if (url.startsWith("http://")) {
+      url = url.replaceFirst("http://", "https://");
+    }
+
     return Scaffold(
       appBar: AppBar(
           //title: Text(Uri.parse(fileUrl).path),
@@ -372,7 +380,7 @@ class FileViewer extends StatelessWidget {
         children: [
           Expanded(
             child: flutter_inappwebview.InAppWebView(
-              initialUrlRequest: flutter_inappwebview.URLRequest(url: flutter_inappwebview.WebUri(fileUrl)),
+              initialUrlRequest: flutter_inappwebview.URLRequest(url: flutter_inappwebview.WebUri(url)),
             ),
           ),
         ],

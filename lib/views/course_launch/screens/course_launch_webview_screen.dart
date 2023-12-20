@@ -86,11 +86,15 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> {
       );
     }
 
+    if (courseUrl.startsWith("www")) {
+      courseUrl = 'https://$courseUrl';
+    } else if (courseUrl.startsWith("http://")) {
+      courseUrl = courseUrl.replaceFirst("http://", "https://");
+    }
+
     return InAppWebView(
       initialUrlRequest: URLRequest(
-        url: WebUri(
-          courseUrl.startsWith('www') ? 'https://$courseUrl' : courseUrl,
-        ),
+        url: WebUri(courseUrl),
       ),
       initialSettings: InAppWebViewSettings(
         allowFileAccess: true,
@@ -122,6 +126,11 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> {
       onLoadStop: (InAppWebViewController webViewController, WebUri? webUri) {
         MyPrint.printOnConsole("onLoadStop called with webViewController:$webViewController, webUri:$webUri");
         // this.webViewController = webViewController;
+      },
+      onReceivedServerTrustAuthRequest: (controller, URLAuthenticationChallenge challenge) async {
+        MyPrint.printOnConsole("onReceivedServerTrustAuthRequest called with webViewController:$webViewController, challenge:$challenge");
+        //Do some checks here to decide if CANCELS or PROCEEDS
+        return ServerTrustAuthResponse(action: ServerTrustAuthResponseAction.PROCEED);
       },
       onReceivedError: (InAppWebViewController controller, WebResourceRequest request, WebResourceError error) {
         MyPrint.printOnConsole("InAppWebView onReceivedError called for:${request.url}, Type:${error.type}, Message:${error.description}");

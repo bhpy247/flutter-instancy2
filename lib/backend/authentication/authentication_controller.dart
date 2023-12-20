@@ -29,6 +29,7 @@ import 'package:flutter_instancy_2/models/authentication/data_model/user_sign_up
 import 'package:flutter_instancy_2/models/authentication/response_model/forgot_password_response_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/mobile_create_sign_up_response_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/signup_field_response_model.dart';
+import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/sign_up_response_dto_model.dart';
 import 'package:flutter_instancy_2/models/profile/request_model/user_save_profile_data_request_model.dart';
 import 'package:flutter_instancy_2/models/profile/response_model/sign_up_response_model.dart';
@@ -222,10 +223,24 @@ class AuthenticationController {
   Future<bool> logout({bool isNavigateToLoginScreen = true}) async {
     bool isLoggedOut = false;
 
+    BuildContext context = NavigationController.mainNavigatorKey.currentContext!;
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = authenticationRepository.apiController.apiDataProvider;
+
+    if (apiUrlConfigurationProvider.getCurrentUserId() > 0) {
+      GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
+        requestModel: UpdateContentGamificationRequestModel(
+          contentId: "",
+          scoId: 0,
+          GameAction: GamificationActionType.SpentTime,
+        ),
+        isCheckForGamificationUpdates: false,
+        isShowGamificationActivity: false,
+      );
+    }
+
     authenticationHiveRepository.saveLoggedInUserDataInHive(responseModel: null);
     authenticationProvider.setEmailLoginResponseModel(emailLoginResponseModel: null);
 
-    BuildContext context = NavigationController.mainNavigatorKey.currentContext!;
     context.read<MainScreenProvider>().resetData(
           appProvider: context.read<AppProvider>(),
           appThemeProvider: context.read<AppThemeProvider>(),
@@ -246,7 +261,6 @@ class AuthenticationController {
     context.read<DiscussionProvider>().resetData();
     context.read<GamificationProvider>().resetData();
 
-    ApiUrlConfigurationProvider apiUrlConfigurationProvider = authenticationRepository.apiController.apiDataProvider;
     apiUrlConfigurationProvider.setCurrentUserId(-1);
     apiUrlConfigurationProvider.setAuthToken("");
 

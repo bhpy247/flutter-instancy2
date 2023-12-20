@@ -314,7 +314,7 @@ class GamificationController {
     await Future.delayed(const Duration(milliseconds: 400));
   }
 
-  Future<void> UpdateContentGamification({required UpdateContentGamificationRequestModel requestModel}) async {
+  Future<void> UpdateContentGamification({required UpdateContentGamificationRequestModel requestModel, bool isShowGamificationActivity = true, bool isCheckForGamificationUpdates = true}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("GamificationController().UpdateContentGamification() called with requestModel:$requestModel", tag: tag);
 
@@ -329,10 +329,12 @@ class GamificationController {
     ContentGameActivityResponseModel model = responseModel.data!;
     MyPrint.printOnConsole("Activities Length:${model.GameActivities.length}", tag: tag);
 
-    List<int> gameIds = model.GameActivities.map((e) => e.gameId).toList();
-    checkGamificationUpdateForGameIds(gameIds: gameIds);
+    if (isCheckForGamificationUpdates) {
+      List<int> gameIds = model.GameActivities.map((e) => e.gameId).toList();
+      checkGamificationUpdateForGameIds(gameIds: gameIds);
+    }
 
-    await showGamificationEarnedPopup(GameActivities: model.GameActivities);
+    if (isShowGamificationActivity) await showGamificationEarnedPopup(GameActivities: model.GameActivities);
   }
 
   Future<void> checkGamificationUpdateForGameIds({required List<int> gameIds}) async {

@@ -8,6 +8,7 @@ import 'package:flutter_instancy_2/backend/gamification/gamification_controller.
 import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/catalog/catalog_ui_action_callback_model.dart';
+import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/models/catalog/request_model/add_content_to_my_learning_request_model.dart';
 import 'package:flutter_instancy_2/models/filter/data_model/content_filter_category_tree_model.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_instancy_2/models/gamification/request_model/update_cont
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
+import 'package:flutter_instancy_2/views/catalog/components/add_wiki_button_component.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/views/filter/components/selected_filters_listview_component.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -66,12 +68,16 @@ class CatalogContentsListScreen extends StatefulWidget {
 class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> with MySafeState {
   TextEditingController textEditingController = TextEditingController();
 
-  Future? getContentData;
+  Future? getContentData, getFileUploadControlFuture;
+
   late CatalogProvider catalogProvider;
   late CatalogController catalogController;
+
+  late WikiProvider wikiProvider;
+
   late AppProvider appProvider;
 
-  bool isLoading = false;
+  bool isLoading = false, isWikiButtonEnabled = false;
 
   int componentId = 0, componentInstanceId = 0;
 
@@ -85,8 +91,11 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
   final ScrollOffsetListener scrollOffsetListener = ScrollOffsetListener.create();
 
   void initialization() {
-    catalogProvider = widget.arguments.provider ?? CatalogProvider();
+    catalogProvider = widget.arguments.catalogProvider ?? CatalogProvider();
     catalogController = CatalogController(provider: catalogProvider);
+
+    wikiProvider = widget.arguments.wikiProvider ?? WikiProvider();
+
     appProvider = Provider.of<AppProvider>(context, listen: false);
 
     componentId = widget.arguments.componentId;
@@ -109,6 +118,10 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
       catalogController.initializeCatalogConfigurationsFromComponentConfigurationsModel(
         componentConfigurationsModel: componentModel.componentConfigurationsModel,
       );
+
+      if (componentModel.componentConfigurationsModel.DefaultRepositoryID) {
+        isWikiButtonEnabled = true;
+      }
     }
 
     if (catalogProvider.catalogContentLength == 0) {
@@ -645,6 +658,14 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
               inAsyncCall: isLoading,
               child: Scaffold(
                 appBar: widget.isShowAppBar ? getAppBar() : null,
+                floatingActionButton: isWikiButtonEnabled
+                    ? AddWikiButtonComponent(
+                        componentId: componentId,
+                        componentInstanceId: componentInstanceId,
+                        wikiProvider: wikiProvider,
+                        isHandleChatBotSpaceMargin: !widget.isShowAppBar,
+                      )
+                    : null,
                 body: AppUIComponents.getBackGroundBordersRounded(
                   context: context,
                   child: getMainWidget(),

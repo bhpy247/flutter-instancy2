@@ -109,7 +109,7 @@ dependencies:
 
   #region Social Login
   google_sign_in: ^5.4.4
-  flutter_facebook_auth: ^5.0.11     #TODO: Need Android and IOS Setup
+#  flutter_facebook_auth: ^6.0.3    #TODO: Need Android and IOS Setup
   #endregion
 
   #region Api Operations:
@@ -117,7 +117,7 @@ dependencies:
   #endregion
 
   #region Webview:
-  flutter_inappwebview: ^6.0.0-beta.31
+  flutter_inappwebview: ^6.0.0-rc.2
   webviewx: ^0.2.2
   #endregion
 

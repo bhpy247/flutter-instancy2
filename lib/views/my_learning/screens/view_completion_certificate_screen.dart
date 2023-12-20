@@ -97,6 +97,12 @@ class _ViewCompletionCertificateScreenState extends State<ViewCompletionCertific
       );
     }
 
+    if (certificatePath.startsWith("www")) {
+      certificatePath = 'https://$certificatePath';
+    } else if (certificatePath.startsWith("http://")) {
+      certificatePath = certificatePath.replaceFirst("http://", "https://");
+    }
+
     return Column(
       children: [
         Expanded(

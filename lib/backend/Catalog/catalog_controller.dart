@@ -687,6 +687,7 @@ class CatalogController {
         ContentID: model.ContentID,
         token: purchaseDetails.purchaseID ?? "",
         CurrencySign: model.Currency,
+        TotalPrice: ParsingHelper.parseDoubleMethod(model.SalePrice),
       ),
     );
 

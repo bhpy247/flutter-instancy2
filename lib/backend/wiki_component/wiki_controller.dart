@@ -31,7 +31,13 @@ class WikiController {
 
   WikiRepository get wikiRepository => _wikiRepository;
 
-  Future<List<FileUploadControlsModel>> getFileUploadControlsFromApi({bool isRefresh = true, bool isGetFromCache = false, bool isNotify = true, required int componentId, required int componentInstanceId}) async {
+  Future<List<FileUploadControlsModel>> getFileUploadControlsFromApi({
+    bool isRefresh = true,
+    bool isGetFromCache = false,
+    bool isNotify = true,
+    required int componentId,
+    required int componentInstanceId,
+  }) async {
     List<FileUploadControlsModel> fileUploadControlList = [];
 
     WikiProvider provider = wikiProvider;
@@ -67,7 +73,7 @@ class WikiController {
     );
     wikiCategoriesModel = response.data ?? WikiCategoriesModel();
     MyPrint.printOnConsole("wikiCategoriesModel length:${wikiCategoriesModel.wikiCategoriesList.length}");
-    if(wikiCategoriesModel.wikiCategoriesList.isNotEmpty) {
+    if (wikiCategoriesModel.wikiCategoriesList.isNotEmpty) {
       provider.setWikiCategoriesList(wikiCategoriesModel.wikiCategoriesList);
     }
     return wikiCategoriesModel;
@@ -89,7 +95,7 @@ class WikiController {
     DataResponseModel<String> newResponse;
 
     String data = response.data ?? "";
-    if(data.startsWith("failed") || data.startsWith("A content item already exists with this name.")) {
+    if (data.startsWith("failed") || data.startsWith("A content item already exists with this name.")) {
       // MyPrint.printOnConsole("")
       newResponse = DataResponseModel<String>(
         data: response.data,
@@ -97,8 +103,7 @@ class WikiController {
           message: response.data!,
         ),
       );
-    }
-    else {
+    } else {
       newResponse = response;
 
       BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
