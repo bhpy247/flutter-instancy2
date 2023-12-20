@@ -55,23 +55,32 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
       multiPick: multiPick,
       getBytes: true,
     );
-
-    if (paths.isNotEmpty) {
-      PlatformFile file = paths.first;
-      if (!kIsWeb) {
-        MyPrint.printOnConsole("File Path:${file.path}");
+    try {
+      if (paths.isNotEmpty) {
+        PlatformFile file = paths.first;
+        if (!kIsWeb) {
+          MyPrint.printOnConsole("File Path:${file.path}");
+        }
+        int _fileSizeInBytes = file.bytes?.length ?? 0;
+        double fileSizeInMb = _fileSizeInBytes / (1024 * 1024);
+        if (fileSizeInMb <= 5) {
+          MyPrint.printOnConsole("Got file Name:${file.name}");
+          MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
+          fileBytes = file.bytes;
+        } else {
+          // File size exceeds 5 MB, show an error message or handle accordingly.
+          print('File size exceeds 5 MB');
+          if (context.mounted) {
+            MyToast.showError(context: context, msg: "Maximum allowed file size : 5Mb");
+          }
+        }
+      } else {
+        fileName = "";
+        fileBytes = null;
       }
-      fileName = file.name;
-      // fileName = file.name.replaceAll('(', ' ').replaceAll(')', '');
-      // fileName = fileName.trim();
-      // fileName = Uuid().v1() + fileName.substring(fileName.indexOf("."));
-
-      MyPrint.printOnConsole("Got file Name:${file.name}");
-      MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
-      fileBytes = file.bytes;
-    } else {
-      fileName = "";
-      fileBytes = null;
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in selecting the file: $e");
+      MyPrint.printOnConsole(s);
     }
     return fileName;
   }
@@ -161,7 +170,10 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
         child: Column(
           children: [
             getCommonTextFormField(
-              hintext: "Title*",
+              hintext: "Title",
+              maxLines: 3,
+              minLines: 1,
+              isStarVisible: true,
               prefixIconData: FontAwesomeIcons.fileLines,
               textEditingController: titleTextEditingController,
               validator: (String? val) {
@@ -172,11 +184,17 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
               },
             ),
             const SizedBox(height: 20),
-            getCommonTextFormField(hintext: "Description", prefixIconData: FontAwesomeIcons.fileLines, textEditingController: descriptionTextEditingController),
+            getCommonTextFormField(
+              hintext: "Description",
+              prefixIconData: FontAwesomeIcons.fileLines,
+              textEditingController: descriptionTextEditingController,
+              maxLines: 4,
+              minLines: 1,
+            ),
             const SizedBox(height: 20),
             InkWell(
               onTap: () async {
-                fileName = await openFileExplorer(FileType.image, false);
+                fileName = await openFileExplorer(FileType.any, false);
                 uploadFileTextEditingController.text = fileName;
                 mySetState();
               },
@@ -228,8 +246,11 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
     IconData? prefixIconData,
     IconData? suffix,
     bool enable = true,
+    bool isStarVisible = false,
     required TextEditingController textEditingController,
     final String? Function(String?)? validator,
+    int? maxLines,
+    int? minLines,
   }) {
     return CommonTextFormField(
       isOutlineInputBorder: true,
@@ -237,8 +258,23 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
       borderColor: Colors.grey,
       controller: textEditingController,
       enabled: enable,
-      contentPadding: EdgeInsets.zero,
-      hintText: hintext,
+      maxLines: maxLines,
+      minLines: minLines,
+      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      // hintText: hintext,
+      label: RichText(
+        text: TextSpan(
+          text: "$hintext ",
+          style: const TextStyle(color: Colors.black),
+          children: [
+            if (isStarVisible)
+              const TextSpan(
+                text: "*",
+                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
+          ],
+        ),
+      ),
       validator: validator,
       prefixWidget: prefixIconData == null
           ? const SizedBox()
@@ -248,7 +284,7 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
               color: Colors.grey,
             ),
       suffixWidget: suffix == null
-          ? const SizedBox()
+          ? null
           : Icon(
               suffix,
               color: Colors.grey,

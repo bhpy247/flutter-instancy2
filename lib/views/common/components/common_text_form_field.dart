@@ -2,23 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class CommonTextFormField extends StatelessWidget {
-  const CommonTextFormField({
-    Key? key,
-    this.controller,
-    this.hintText = "",
-    this.borderColor = Colors.grey,
-    this.borderRadius = 5,
-    this.borderWidth = 0.5,
-    this.contentPadding,
-    this.isOutlineInputBorder = false,
-    this.isSuffix = false,
-    this.obscureText = false,
-    this.validator,
-    this.prefixWidget,
-    this.suffixWidget,
-    this.boxConstraints,
-    this.focusedBorderColor,
-    this.enabled = true,
+  const CommonTextFormField(
+      {Key? key,
+      this.controller,
+      this.hintText = "",
+      this.borderColor = Colors.grey,
+      this.borderRadius = 5,
+      this.borderWidth = 0.5,
+      this.contentPadding,
+      this.isOutlineInputBorder = false,
+      this.isSuffix = false,
+      this.obscureText = false,
+      this.validator,
+      this.prefixWidget,
+      this.suffixWidget,
+      this.boxConstraints,
+      this.focusedBorderColor,
+      this.enabled = true,
       this.autoFocus = false,
       this.onChanged,
       this.onSubmitted,
@@ -30,6 +30,9 @@ class CommonTextFormField extends StatelessWidget {
       this.isFilled = false,
       this.fillColor,
       this.hintStyle,
+      this.maxLength,
+      this.label,
+      this.prefixIcon,
       this.node})
       : super(key: key);
 
@@ -40,13 +43,13 @@ class CommonTextFormField extends StatelessWidget {
   final double borderRadius, borderWidth;
   final Color borderColor;
   final Color? focusedBorderColor, fillColor;
-  final Widget? suffixWidget, prefixWidget;
+  final Widget? suffixWidget, prefixWidget, label, prefixIcon;
   final String? Function(String?)? validator;
   final EdgeInsets? contentPadding;
   final BoxConstraints? boxConstraints;
   final bool enabled;
   final void Function(String)? onChanged, onSubmitted;
-  final int? minLines, maxLines;
+  final int? minLines, maxLines, maxLength;
   final TextStyle? textStyle, hintStyle;
   final TextInputAction? textInputAction;
   final List<TextInputFormatter>? inputFormatters;
@@ -58,6 +61,7 @@ class CommonTextFormField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       autofocus: autoFocus,
+      maxLength: maxLength,
       obscureText: obscureText,
       style: textStyle ?? themeData.textTheme.titleSmall,
       validator: validator,
@@ -67,6 +71,8 @@ class CommonTextFormField extends StatelessWidget {
       decoration: InputDecoration(
         filled: isFilled,
         fillColor: fillColor,
+        label: label,
+        isDense: true,
         prefixIcon: prefixWidget,
         prefixIconConstraints: boxConstraints,
         border: inputBorder(borderColor: borderColor),
@@ -88,13 +94,12 @@ class CommonTextFormField extends StatelessWidget {
   }
 
   InputBorder inputBorder({required Color borderColor}) {
-    if(isOutlineInputBorder) {
+    if (isOutlineInputBorder) {
       return OutlineInputBorder(
         borderRadius: BorderRadius.circular(borderRadius),
         borderSide: BorderSide(color: borderColor, width: borderWidth),
       );
-    }
-    else {
+    } else {
       return UnderlineInputBorder(
         borderRadius: BorderRadius.circular(borderRadius),
         borderSide: BorderSide(color: borderColor, width: borderWidth),
@@ -142,7 +147,7 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
   final TextEditingController? controller;
   final String? labelText;
   final Widget? label;
-  final bool isOutlineInputBorder,isSuffix, obscureText, enabled, isFilled;
+  final bool isOutlineInputBorder, isSuffix, obscureText, enabled, isFilled;
   final double borderRadius, borderWidth;
   final int maxLength;
   final Color? borderColor, enabledBorderColor, disabledBorderColor, focusColor, floatingLabelColor, fillColor;
@@ -210,13 +215,12 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
   }
 
   InputBorder inputBorder(Color borderColor) {
-    if(isOutlineInputBorder) {
+    if (isOutlineInputBorder) {
       return OutlineInputBorder(
         borderRadius: BorderRadius.circular(borderRadius),
         borderSide: BorderSide(color: borderColor, width: borderWidth),
       );
-    }
-    else {
+    } else {
       return UnderlineInputBorder(
         borderRadius: BorderRadius.circular(borderRadius),
         borderSide: BorderSide(color: borderColor, width: borderWidth),

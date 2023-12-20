@@ -410,7 +410,7 @@ class AppConfigurations {
     }
   }
 
-  static Widget commonNoDataView({String url = "assets/noDataView.png", String bottomText = "Nothings here!", double height = 250, double width = 300}) {
+  static Widget commonNoDataView({String url = "assets/noDataView.png", String bottomText = "Nothings here!", double height = 250, double width = 300, double sizeBetweenImageAndText = 38}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -420,7 +420,7 @@ class AppConfigurations {
           height: height,
           width: width,
         ),
-        const SizedBox(height: 38),
+        SizedBox(height: sizeBetweenImageAndText),
         Text(
           bottomText,
           style: const TextStyle(

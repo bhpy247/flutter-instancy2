@@ -495,8 +495,8 @@ class InstancyIcons {
   static const IconData reschedule = FontAwesomeIcons.calendarDay;
   static const IconData ReEnrollmentHistory = FontAwesomeIcons.calendarDay;
   static const IconData RecommendTo = FontAwesomeIcons.shareNodes;
-  static const IconData shareWithConnection = FontAwesomeIcons.shareNodes;
-  static const IconData shareWithPeople = FontAwesomeIcons.retweet;
+  static const IconData shareWithConnection = FontAwesomeIcons.userGroup;
+  static const IconData shareWithPeople = Icons.share;
   static const IconData waitList = MdiIcons.humanQueue;
   static const IconData download = MdiIcons.download;
   static const IconData delete = FontAwesomeIcons.xmark;
@@ -510,7 +510,7 @@ class InstancyIcons {
   static const IconData addComment = Icons.message_outlined;
   static const IconData addReply = Icons.reply;
   static const IconData edit = Icons.edit;
-  static const IconData pin = FontAwesomeIcons.link;
+  static const IconData pin = FontAwesomeIcons.thumbtack;
   static const IconData unpin = FontAwesomeIcons.linkSlash;
   static const IconData viewLikes = FontAwesomeIcons.thumbsUp;
 }

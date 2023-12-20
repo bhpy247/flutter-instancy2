@@ -96,12 +96,15 @@ class _DiscussionCardState extends State<DiscussionCard> with MySafeState {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (forumModel.ForumThumbnailPath.checkNotEmpty) thumbNailWidget(forumModel.ForumThumbnailPath),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   profileView(),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  if (forumModel.ForumThumbnailPath.checkNotEmpty) thumbNailWidget(forumModel.ForumThumbnailPath),
                   const SizedBox(
                     height: 12,
                   ),

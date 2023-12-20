@@ -67,35 +67,35 @@ class DiscussionTopicUiActionController {
   }
 
   bool showPin({required DiscussionTopicUiActionParameterModel parameterModel}) {
-    if (!parameterModel.AllowPin || parameterModel.isPin) {
+    if (!parameterModel.AllowPinEditValue || parameterModel.isPin) {
       return false;
     }
     return true;
   }
 
   bool showUnPin({required DiscussionTopicUiActionParameterModel parameterModel}) {
-    if (!parameterModel.AllowPin || !parameterModel.isPin) {
+    if (!parameterModel.AllowPinEditValue || !parameterModel.isPin) {
       return false;
     }
     return true;
   }
 
   bool showViewLikes({required DiscussionTopicUiActionParameterModel parameterModel}) {
-    if (!parameterModel.LikePosts) {
+    if (!parameterModel.LikePostsEditValue) {
       return false;
     }
     return true;
   }
 
   bool showShareWithConnection({required DiscussionTopicUiActionParameterModel parameterModel}) {
-    if (!parameterModel.AllowShare) {
+    if (!parameterModel.AllowShareEditValue) {
       return false;
     }
     return true;
   }
 
   bool showShareWithPeople({required DiscussionTopicUiActionParameterModel parameterModel}) {
-    if (!parameterModel.AllowShare) {
+    if (!parameterModel.AllowShareEditValue) {
       return false;
     }
     return true;
@@ -159,6 +159,11 @@ class DiscussionTopicUiActionController {
       AttachFile: forumModel.AttachFile,
       LikePosts: forumModel.LikePosts,
       CreateNewTopic: forumModel.CreateNewTopic,
+      CreateNewTopicEditValue: forumModel.CreateNewTopicEditValue,
+      LikePostsEditValue: forumModel.LikePostsEditValue,
+      AttachFileEditValue: forumModel.AttachFileEditValue,
+      AllowShareEditValue: forumModel.AllowShareEditValue,
+      AllowPinEditValue: forumModel.AllowPinEditValue,
     );
   }
 
@@ -212,7 +217,8 @@ class DiscussionTopicUiActionController {
         if (isShowAction(actionType: InstancyContentActionsEnum.UnPin, parameterModel: parameterModel) && catalogUIActionCallbackModel.onUnPinTap != null) {
           model = InstancyUIActionModel(
             text: "UnPin",
-            iconData: InstancyIcons.unpin,
+            // iconData: InstancyIcons.unpin,
+            svgImageUrl: "assets/unpin.svg",
             onTap: catalogUIActionCallbackModel.onUnPinTap,
             actionsEnum: InstancyContentActionsEnum.UnPin,
           );

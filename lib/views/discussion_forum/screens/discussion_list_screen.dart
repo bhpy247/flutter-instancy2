@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_chat_bot/utils/my_safe_state.dart';
 import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
@@ -143,6 +144,7 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
         mySetState();
       },
       onShareWithConnectionTap: () {
+        MyPrint.printOnConsole("Forum Id: ${model.ForumID}");
         if (isSecondaryAction) Navigator.pop(context);
 
         NavigationController.navigateToShareWithConnectionsScreen(
@@ -152,7 +154,6 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
           ),
           arguments: ShareWithConnectionsScreenNavigationArguments(
             shareContentType: ShareContentType.discussionForum,
-            contentId: model.ForumID.toString(),
             contentName: model.Name,
             forumId: model.ForumID,
             shareProvider: context.read<ShareProvider>(),
@@ -169,7 +170,6 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
           ),
           arguments: ShareWithPeopleScreenNavigationArguments(
             shareContentType: ShareContentType.discussionForum,
-            contentId: model.ForumID.toString(),
             contentName: model.Name,
             forumId: model.ForumID,
           ),
@@ -292,6 +292,7 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
                   bottom: mainScreenProvider.isChatBotButtonEnabled.get() && !mainScreenProvider.isChatBotButtonCenterDocked.get() ? 70 : 0,
                 ),
                 child: FloatingActionButton(
+                  shape: CircleBorder(),
                   child: const Icon(Icons.add),
                   onPressed: () async {
                     dynamic value = await NavigationController.navigateToCreateEditDiscussionForumScreen(

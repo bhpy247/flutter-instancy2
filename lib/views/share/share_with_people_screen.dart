@@ -366,6 +366,7 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
                       userMails: AppConfigurationOperations.getListFromSeparatorJoinedString(parameterString: toEmailsController.text.trim()),
                       subject: subjectController.text.trim(),
                       message: message,
+                      forumId: widget.arguments.forumId.toString(),
                       contentId: widget.arguments.contentId,
                     );
                   } else {
@@ -373,6 +374,7 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
                       userIDList: userIds,
                       subject: subjectController.text.trim(),
                       message: message,
+                      forumId: widget.arguments.forumId.toString(),
                       contentId: widget.arguments.contentId,
                       scoId: widget.arguments.scoId,
                       objecttypeId: widget.arguments.objecttypeId,

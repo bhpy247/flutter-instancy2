@@ -291,6 +291,7 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
                   bottom: mainScreenProvider.isChatBotButtonEnabled.get() && !mainScreenProvider.isChatBotButtonCenterDocked.get() ? 70 : 0,
                 ),
                 child: FloatingActionButton(
+                  shape: CircleBorder(),
                   child: const Icon(Icons.add),
                   onPressed: () async {
                     dynamic value = await NavigationController.navigateToCreateEditDiscussionForumScreen(

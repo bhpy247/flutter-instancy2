@@ -27,6 +27,11 @@ class DiscussionTopicUiActionParameterModel {
   final bool AllowShare;
   final bool AttachFile;
   final bool LikePosts;
+  final bool CreateNewTopicEditValue;
+  final bool LikePostsEditValue;
+  final bool AttachFileEditValue;
+  final bool AllowShareEditValue;
+  final bool AllowPinEditValue;
 
   const DiscussionTopicUiActionParameterModel({
     this.contentID = "",
@@ -57,5 +62,10 @@ class DiscussionTopicUiActionParameterModel {
     this.AllowShare = false,
     this.AttachFile = false,
     this.LikePosts = false,
+    this.CreateNewTopicEditValue = false,
+    this.LikePostsEditValue = false,
+    this.AttachFileEditValue = false,
+    this.AllowShareEditValue = false,
+    this.AllowPinEditValue = false,
   });
 }

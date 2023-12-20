@@ -8,7 +8,11 @@ import 'package:flutter_instancy_2/views/common/components/common_cached_network
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../backend/app/app_provider.dart';
+import '../../../backend/configurations/app_configuration_operations.dart';
+import '../../../configs/app_configurations.dart';
 import '../../../utils/my_safe_state.dart';
+import '../../../utils/my_utils.dart';
 import '../../common/components/common_text_form_field.dart';
 
 class ModeratorBottomSheet extends StatefulWidget {
@@ -23,6 +27,7 @@ class ModeratorBottomSheet extends StatefulWidget {
 class _ModeratorBottomSheetState extends State<ModeratorBottomSheet> with MySafeState {
   List<ForumUserInfoModel> selectedModeratorList = [];
   List<ForumUserInfoModel> searchedList = [];
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
@@ -74,6 +79,7 @@ class _ModeratorBottomSheetState extends State<ModeratorBottomSheet> with MySafe
           mySetState();
         },
         borderRadius: 6,
+        controller: searchController,
         contentPadding: EdgeInsets.zero,
         hintText: "Search",
         prefixWidget: Icon(Icons.search),
@@ -82,6 +88,13 @@ class _ModeratorBottomSheetState extends State<ModeratorBottomSheet> with MySafe
   }
 
   Widget getModeratorList({required List<ForumUserInfoModel> modelList}) {
+    if (searchController.text.checkNotEmpty) {
+      if (searchedList.checkEmpty) {
+        return Center(
+          child: AppConfigurations.commonNoDataView(height: 150, width: 150, sizeBetweenImageAndText: 10),
+        );
+      }
+    }
     return Container(
       margin: const EdgeInsets.all(24),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(6), border: Border.all(color: Colors.grey, width: .5)),
@@ -98,6 +111,11 @@ class _ModeratorBottomSheetState extends State<ModeratorBottomSheet> with MySafe
   }
 
   Widget getSingleItem({required ForumUserInfoModel model}) {
+    String profileImageUrl = MyUtils.getSecureUrl(
+      AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(
+        imagePath: model.UserThumb,
+      ),
+    );
     return InkWell(
       onTap: () {
         if (selectedModeratorList.contains(model)) {
@@ -119,7 +137,7 @@ class _ModeratorBottomSheetState extends State<ModeratorBottomSheet> with MySafe
                   errorWidget: (context, url, error) {
                     return Container();
                   },
-                  imageUrl: model.UserThumb,
+                  imageUrl: profileImageUrl,
                   height: 40,
                   width: 40,
                 ),

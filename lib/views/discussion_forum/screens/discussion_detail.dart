@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/utils/mmy_toast.dart';
 import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_chat_bot/utils/my_safe_state.dart';
 import 'package:flutter_chat_bot/view/common/components/common_cached_network_image.dart';
@@ -91,23 +92,33 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
       multiPick: multiPick,
       getBytes: true,
     );
-
-    if (paths.isNotEmpty) {
-      PlatformFile file = paths.first;
-      if (!kIsWeb) {
-        MyPrint.printOnConsole("File Path:${file.path}");
+    try {
+      if (paths.isNotEmpty) {
+        PlatformFile file = paths.first;
+        if (!kIsWeb) {
+          MyPrint.printOnConsole("File Path:${file.path}");
+        }
+        int _fileSizeInBytes = file.bytes?.length ?? 0;
+        double fileSizeInMb = _fileSizeInBytes / (1024 * 1024);
+        if (fileSizeInMb <= 5) {
+          fileName = file.name;
+          MyPrint.printOnConsole("Got file Name:${file.name}");
+          MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
+          fileBytes = file.bytes;
+        } else {
+          // File size exceeds 5 MB, show an error message or handle accordingly.
+          print('File size exceeds 5 MB');
+          if (context.mounted) {
+            MyToast.showError(context: context, msg: "Maximum allowed file size : 5Mb");
+          }
+        }
+      } else {
+        fileName = "";
+        fileBytes = null;
       }
-      fileName = file.name;
-      // fileName = file.name.replaceAll('(', ' ').replaceAll(')', '');
-      // fileName = fileName.trim();
-      // fileName = Uuid().v1() + fileName.substring(fileName.indexOf("."));
-
-      MyPrint.printOnConsole("Got file Name:${file.name}");
-      MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
-      fileBytes = file.bytes;
-    } else {
-      fileName = "";
-      fileBytes = null;
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in selecting the file: $e");
+      MyPrint.printOnConsole(s);
     }
     mySetState();
     return fileName;
@@ -837,7 +848,13 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
           ),
           Row(
             children: [
-              if (topicModel.UploadFileName.checkNotEmpty) Container(child: thumbNailWidget(topicModel.UploadFileName)),
+              if (topicModel.UploadFileName.checkNotEmpty)
+                Container(
+                  child: thumbNailWidget(
+                    topicModel.UploadFileName,
+                    uploadedImageName: topicModel.UploadedImageName,
+                  ),
+                ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -921,42 +938,68 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
     );
   }
 
-  Widget thumbNailWidget(String url, {double height = 45, double width = 45}) {
+  Widget thumbNailWidget(String url, {double height = 45, double width = 45, String uploadedImageName = ""}) {
     url = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: url));
     // MyPrint.printOnConsole('thumbnailImageUrl:$url');
+    if (url.checkEmpty || uploadedImageName.checkEmpty) return const SizedBox();
+    String extension = uploadedImageName.split(".").last;
+    MyPrint.printOnConsole("extension: ${extension}: Url ${url}");
 
-    if (url.checkEmpty) return const SizedBox();
-    return InkWell(
-      onTap: () {
-        NavigationController.navigateToCommonViewImageScreen(
-          navigationOperationParameters: NavigationOperationParameters(
-            context: context,
-            navigationType: NavigationType.pushNamed,
-          ),
-          arguments: CommonViewImageScreenNavigationArguments(
+    if (["jpeg", "png", "jpg"].contains(extension)) {
+      return InkWell(
+        onTap: () {
+          NavigationController.navigateToCommonViewImageScreen(
+            navigationOperationParameters: NavigationOperationParameters(
+              context: context,
+              navigationType: NavigationType.pushNamed,
+            ),
+            arguments: CommonViewImageScreenNavigationArguments(
+              imageUrl: url,
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.only(right: 15.0),
+          child: CommonCachedNetworkImage(
             imageUrl: url,
+            height: height,
+            width: width,
+            fit: BoxFit.cover,
+            placeholder: (_, __) {
+              return const SizedBox();
+            },
+            errorWidget: (_, __, ___) {
+              return const Icon(
+                Icons.image,
+                color: Colors.grey,
+              );
+            },
           ),
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.only(right: 15.0),
-        child: CommonCachedNetworkImage(
-          imageUrl: url,
-          height: height,
-          width: width,
-          fit: BoxFit.cover,
-          placeholder: (_, __) {
-            return const SizedBox();
-          },
-          errorWidget: (_, __, ___) {
-            return const Icon(
-              Icons.image,
-              color: Colors.grey,
-            );
-          },
         ),
-      ),
-    );
+      );
+    } else if (extension == "mp3") {
+      return InkWell(
+        onTap: () {
+          MyUtils.launchUrl(url: url);
+        },
+        child: const Padding(
+          padding: EdgeInsets.only(right: 15.0),
+          child: Icon(FontAwesomeIcons.fileAudio, size: 30),
+        ),
+      );
+    } else if (["doc", "pdf", "xlsx"].contains(extension)) {
+      return InkWell(
+        onTap: () {
+          MyUtils.launchUrl(url: url);
+        },
+        child: const Padding(
+          padding: EdgeInsets.only(right: 15.0),
+          child: Icon(FontAwesomeIcons.fileLines, size: 30),
+        ),
+      );
+    } else {
+      return Container();
+    }
     //for video thumbnail
     /*return Padding(
       padding: const EdgeInsets.only(right: 15.0),
@@ -1117,7 +1160,7 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
                 if (commentModel.CommentFileUploadPath.checkNotEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 5.0),
-                    child: thumbNailWidget(commentModel.CommentFileUploadPath),
+                    child: thumbNailWidget(commentModel.CommentFileUploadPath, uploadedImageName: commentModel.CommentFileUploadName),
                   ),
               ],
             ),
@@ -1136,6 +1179,15 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
               iconTextButton(
                 iconData: Icons.turn_left_outlined,
                 iconSize: 22,
+                onTap: () {
+                  isCommentTextFormFieldVisible = false;
+                  isReplyTextFormFieldVisible = true;
+                  selectedTopicForComment = null;
+                  selectedCommentModelForReply = commentModel;
+                  replyFocusNode = FocusNode();
+                  replyFocusNode.requestFocus();
+                  mySetState();
+                },
                 text: "Reply ${commentModel.CommentRepliesCount}",
               ),
             ],
@@ -1322,114 +1374,130 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
     );
   }
 
+  final formKey = GlobalKey<FormState>();
+
   Widget commentTextFormField({
     required TopicModel? selectedTopicModel,
   }) {
     if (!isCommentTextFormFieldVisible || selectedTopicModel == null) return const SizedBox();
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-      child: Column(
-        children: [
-          CommonTextFormField(
-            node: commentFocusNode,
-            controller: commentTextEditingController,
-            borderColor: Colors.black54,
-            hintText: "Add Comment",
-            contentPadding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-            fillColor: Colors.grey,
-            prefixWidget: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(100),
-                  child: CommonCachedNetworkImage(
-                    imageUrl: selectedTopicModel.TopicUserProfile,
-                    height: 30,
-                    width: 30,
-                    fit: BoxFit.cover,
-                    errorIconSize: 20,
+    return Form(
+      key: formKey,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: Column(
+          children: [
+            CommonTextFormField(
+              node: commentFocusNode,
+              controller: commentTextEditingController,
+              borderColor: Colors.black54,
+              hintText: "Add Comment",
+              // validator: (String? val){
+              //   if(val == null || val.checkEmpty){
+              //     return "Please add a comment";
+              //   }
+              //   return null;
+              // },
+              contentPadding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+              fillColor: Colors.grey,
+              prefixWidget: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: CommonCachedNetworkImage(
+                      imageUrl: selectedTopicModel.TopicUserProfile,
+                      height: 30,
+                      width: 30,
+                      fit: BoxFit.cover,
+                      errorIconSize: 20,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
+              suffixWidget: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  InkWell(
+                    onTap: () async {
+                      fileName = await openFileExplorer(FileType.any, false);
+                      mySetState();
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(
+                        Icons.attach_file,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 0),
+                  InkWell(
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                      if (commentTextEditingController.text.trim().checkEmpty) {
+                        MyToast.showError(context: context, msg: "Please add comment");
+                        commentTextEditingController.clear();
+                        return;
+                      }
+                      addComment(selectedTopicModel: selectedTopicModel);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "Post",
+                        style: themeData.textTheme.titleSmall!.copyWith(color: themeData.primaryColor),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      isCommentTextFormFieldVisible = false;
+                      isReplyTextFormFieldVisible = false;
+                      commentTextEditingController.clear();
+                      replyTextEditingController.clear();
+                      selectedTopicForComment = null;
+                      selectedCommentModelForReply = null;
+                      mySetState();
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.all(5.0),
+                      child: Icon(Icons.clear),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            suffixWidget: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                InkWell(
-                  onTap: () async {
-                    fileName = await openFileExplorer(FileType.image, false);
-                    mySetState();
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Icon(
-                      Icons.attach_file,
-                      size: 20,
+            if (fileName.checkNotEmpty)
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        fileName,
+                        style: themeData.textTheme.bodyMedium,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 0),
-                InkWell(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    addComment(selectedTopicModel: selectedTopicModel);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "Post",
-                      style: themeData.textTheme.titleSmall!.copyWith(color: themeData.primaryColor),
+                  InkWell(
+                    onTap: () {
+                      fileName = "";
+                      fileBytes = null;
+                      mySetState();
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.clear,
+                        size: 18,
+                      ),
                     ),
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    isCommentTextFormFieldVisible = false;
-                    isReplyTextFormFieldVisible = false;
-                    commentTextEditingController.clear();
-                    replyTextEditingController.clear();
-                    selectedTopicForComment = null;
-                    selectedCommentModelForReply = null;
-                    mySetState();
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(5.0),
-                    child: Icon(Icons.clear),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (fileName.checkNotEmpty)
-            Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      fileName,
-                      style: themeData.textTheme.bodyMedium,
-                    ),
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    fileName = "";
-                    fileBytes = null;
-                    mySetState();
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(
-                      Icons.clear,
-                      size: 18,
-                    ),
-                  ),
-                )
-              ],
-            )
-        ],
+                  )
+                ],
+              )
+          ],
+        ),
       ),
     );
   }
@@ -1472,6 +1540,11 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
                 InkWell(
                   onTap: () {
                     FocusScope.of(context).unfocus();
+                    if (replyTextEditingController.text.trim().checkEmpty) {
+                      MyToast.showError(context: context, msg: "Please add reply");
+                      replyTextEditingController.clear();
+                      return;
+                    }
                     addReply(selectedCommentModel: selectedCommentModel);
                   },
                   child: Padding(
