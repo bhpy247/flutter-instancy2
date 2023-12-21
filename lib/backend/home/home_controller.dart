@@ -167,7 +167,7 @@ class HomeController {
     MyPrint.printOnConsole("HomeController().getStaticWebPage() called with isGetFromCache:$isGetFromCache, componentId:$componentId, "
         "componentInstanceId:$componentInstanceId");
 
-    if (isGetFromCache) {
+    if (isGetFromCache && homeProvider.staticWebPageModel.webpageHTML.isNotEmpty) {
       return;
     }
     DataResponseModel<StaticWebPageModel> response = await homeRepository.getStaticWebPages(
