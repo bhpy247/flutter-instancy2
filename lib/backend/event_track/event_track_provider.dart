@@ -62,6 +62,10 @@ class EventTrackProvider extends CommonProvider {
       list: <TrackBlockModel>[],
       notify: notify,
     );
+    assignmentsData = CommonProviderListParameter<TrackBlockModel>(
+      list: <TrackBlockModel>[],
+      notify: notify,
+    );
   }
 
   late CommonProviderPrimitiveParameter<bool> isHeaderDataLoading;
@@ -82,5 +86,5 @@ class EventTrackProvider extends CommonProvider {
 
   late CommonProviderPrimitiveParameter<bool> isContentsDataLoading;
   late final CommonProviderListParameter<TrackBlockModel> contentsData;
-
+  late final CommonProviderListParameter<TrackBlockModel> assignmentsData;
 }

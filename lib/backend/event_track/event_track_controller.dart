@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:document_file_save_plus/document_file_save_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/common/app_error_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/gloassary_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_content_model.dart';
@@ -183,6 +184,7 @@ class EventTrackController {
     required int objectTypeId,
     int trackScoId = 0,
     required bool isRelatedContent,
+    bool isAssignmentTabEnabled = false,
     bool isNotify = true,
   }) async {
     String tag = MyUtils.getNewId();
@@ -191,7 +193,8 @@ class EventTrackController {
     EventTrackProvider provider = eventTrackProvider;
     provider.isContentsDataLoading.set(value: true, isNotify: isNotify);
 
-    List<TrackBlockModel> blocksList = <TrackBlockModel>[];
+    List<TrackBlockModel> contentsBlocksList = <TrackBlockModel>[];
+    List<TrackBlockModel> assignmentsBlocksList = <TrackBlockModel>[];
     AppErrorModel? appErrorModel;
 
     if (isRelatedContent) {
@@ -210,9 +213,20 @@ class EventTrackController {
       if (dataResponseModel.data != null) {
         EventRelatedContentDataResponseModel responseModel = dataResponseModel.data!;
 
-        TrackBlockModel defaultBlockModel = TrackBlockModel();
-        defaultBlockModel.contents.addAll(responseModel.eventrelatedcontentdata);
-        blocksList.add(defaultBlockModel);
+        TrackBlockModel defaultContentBlockModel = TrackBlockModel();
+        defaultContentBlockModel.contents.addAll(responseModel.eventrelatedcontentdata);
+        contentsBlocksList.add(defaultContentBlockModel);
+
+        if (isAssignmentTabEnabled) {
+          defaultContentBlockModel.contents.removeWhere((element) => element.objecttypeid == InstancyObjectTypes.assignment);
+
+          TrackBlockModel defaultAssignmentBlockModel = TrackBlockModel();
+          defaultAssignmentBlockModel.contents.addAll(responseModel.eventrelatedcontentdata.where((element) => element.objecttypeid == InstancyObjectTypes.assignment));
+          assignmentsBlocksList.add(defaultAssignmentBlockModel);
+          assignmentsBlocksList.removeWhere((element) => element.contents.isEmpty);
+        }
+
+        contentsBlocksList.removeWhere((element) => element.contents.isEmpty);
       }
     } else {
       DataResponseModel<TrackContentDataResponseModel> dataResponseModel = await eventTrackRepository.getTrackContentData(
@@ -233,17 +247,25 @@ class EventTrackController {
       if (dataResponseModel.data != null) {
         TrackContentDataResponseModel responseModel = dataResponseModel.data!;
 
-        TrackBlockModel defaultBlockModel = TrackBlockModel();
-        Map<String, TrackBlockModel> blocksMap = <String, TrackBlockModel>{};
+        TrackBlockModel defaultContentBlockModel = TrackBlockModel();
+        TrackBlockModel defaultAssignmentBlockModel = TrackBlockModel();
+        Map<String, TrackBlockModel> contentsBlocksMap = <String, TrackBlockModel>{};
+        Map<String, TrackBlockModel> assignmentsBlocksMap = <String, TrackBlockModel>{};
 
         //region Initialize Mapping of Blocks with Their Id
-        blocksList.add(defaultBlockModel);
+        contentsBlocksList.add(defaultContentBlockModel);
+        assignmentsBlocksList.add(defaultAssignmentBlockModel);
 
         for (TrackBlockModel element in responseModel.table8) {
-          if (element.blockid.isEmpty || blocksMap.containsKey(element.blockid)) continue;
+          if (element.blockid.isEmpty || contentsBlocksMap.containsKey(element.blockid)) continue;
 
-          blocksMap[element.blockid] = element;
-          blocksList.add(element);
+          TrackBlockModel contentBlockModel = TrackBlockModel.fromJson(element.toJson());
+          contentsBlocksMap[element.blockid] = contentBlockModel;
+          contentsBlocksList.add(contentBlockModel);
+
+          TrackBlockModel assignmentBlockModel = TrackBlockModel.fromJson(element.toJson());
+          assignmentsBlocksMap[element.blockid] = assignmentBlockModel;
+          assignmentsBlocksList.add(assignmentBlockModel);
         }
         //endregion
 
@@ -261,11 +283,22 @@ class EventTrackController {
           if (element.objectid.isNotEmpty) element.recordingModel = recordingsMap[element.objectid];
 
           if (element.parentid.isNotEmpty) {
-            blocksMap[element.parentid]?.contents.add(element);
+            if (isAssignmentTabEnabled && element.objecttypeid == InstancyObjectTypes.assignment) {
+              assignmentsBlocksMap[element.parentid]?.contents.add(element);
+            } else {
+              contentsBlocksMap[element.parentid]?.contents.add(element);
+            }
           } else {
-            defaultBlockModel.contents.add(element);
+            if (isAssignmentTabEnabled && element.objecttypeid == InstancyObjectTypes.assignment) {
+              defaultAssignmentBlockModel.contents.add(element);
+            } else {
+              defaultContentBlockModel.contents.add(element);
+            }
           }
         }
+
+        contentsBlocksList.removeWhere((element) => element.contents.isEmpty);
+        assignmentsBlocksList.removeWhere((element) => element.contents.isEmpty);
         //endregion
 
         /*//region Sort Contents in Blocks According to Their sequencenumber
@@ -278,7 +311,8 @@ class EventTrackController {
 
     // MyPrint.printOnConsole("Blocks List:${blocksList.map((e) => e.blockname).toList()}");
 
-    provider.contentsData.setList(list: blocksList, isClear: true, isNotify: false);
+    provider.contentsData.setList(list: contentsBlocksList, isClear: true, isNotify: false);
+    provider.assignmentsData.setList(list: assignmentsBlocksList, isClear: true, isNotify: false);
     provider.isContentsDataLoading.set(value: false, isNotify: true);
 
     if (appErrorModel != null) {
@@ -288,13 +322,12 @@ class EventTrackController {
     return true;
   }
 
-
   //region Simple File Download
- Future<bool> simpleDownloadFileAndSave({required String downloadUrl, required String downloadFileName, String downloadFolderPath = ""}) async {
+  Future<bool> simpleDownloadFileAndSave({required String downloadUrl, required String downloadFileName, String downloadFolderPath = ""}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
       "EventTrackController.simpleDownloadFileAndSave() called with downloadUrl:'$downloadUrl', "
-          "downloadFileName:'$downloadFileName', downloadFolderPath:'$downloadFolderPath'",
+      "downloadFileName:'$downloadFileName', downloadFolderPath:'$downloadFolderPath'",
       tag: tag,
     );
 
@@ -479,9 +512,8 @@ class EventTrackController {
         MyPrint.printOnConsole("Returning from EventTrackController.saveBytesInFile2() because downloadFilePath is empty", tag: tag);
         return false;
       }
-    }
-    else {
-      if(downloadFileName.isEmpty) {
+    } else {
+      if (downloadFileName.isEmpty) {
         MyPrint.printOnConsole("Returning from EventTrackController.saveBytesInFile2() because downloadFileName is empty", tag: tag);
         return false;
       }
@@ -542,8 +574,7 @@ class EventTrackController {
         try {
           await file.delete(recursive: true);
           MyPrint.printOnConsole("File Deleted", tag: tag);
-        }
-        catch(e, s) {
+        } catch (e, s) {
           MyPrint.printOnConsole("Error in Deleting File in EventTrackController.saveBytesInFile2():$e", tag: tag);
           MyPrint.printOnConsole(s, tag: tag);
         }
@@ -579,5 +610,4 @@ class EventTrackController {
     }
   }
 //endregion
-
 }
