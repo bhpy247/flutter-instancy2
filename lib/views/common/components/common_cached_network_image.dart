@@ -22,7 +22,7 @@ class CommonCachedNetworkImage extends StatelessWidget {
     this.errorIconSize = 100,
     this.errorHeight,
     this.errorWidth,
-    this.fit,
+    this.fit = BoxFit.cover,
     this.placeholder,
     this.errorWidget,
   }) : super(key: key);
@@ -36,7 +36,7 @@ class CommonCachedNetworkImage extends StatelessWidget {
         url,
         width: width,
         height: height,
-        fit: fit ?? BoxFit.contain,
+        fit: fit ?? BoxFit.cover,
         placeholderBuilder: (context) {
           if (placeholder != null) {
             return placeholder!(context, url);

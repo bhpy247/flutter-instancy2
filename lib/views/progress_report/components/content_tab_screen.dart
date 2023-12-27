@@ -91,31 +91,40 @@ class _ContentTabScreenState extends State<ContentTabScreen> with MySafeState {
   }
 
   Widget getFilterDropDown() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey), // Set border color here
-        borderRadius: BorderRadius.circular(8), // Set border radius here
-      ),
-      child: DropdownButton<String>(
-        value: selectedValue,
-        isDense: true,
-        underline: const SizedBox(),
-        onChanged: (String? newValue) {
-          setState(() {
-            selectedValue = newValue!;
-          });
-        },
-        items: dropdownItems.map((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(
-              value,
-              style: themeData.textTheme.titleSmall,
-            ),
-          );
-        }).toList(),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey), // Set border color here
+          borderRadius: BorderRadius.circular(8), // Set border radius here
+        ),
+        child: ButtonTheme(
+          alignedDropdown: true,
+          child: DropdownButton<String>(
+            value: selectedValue,
+            isDense: true,
+            underline: const SizedBox(),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValue = newValue!;
+              });
+            },
+            items: dropdownItems.map((String value) {
+              return DropdownMenuItem<String>(
+                alignment: Alignment.centerLeft,
+                value: value,
+                child: SizedBox(
+                  width: 100,
+                  child: Text(
+                    value,
+                    style: themeData.textTheme.titleSmall,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
       ),
     );
   }
@@ -155,11 +164,7 @@ class _ContentTabScreenState extends State<ContentTabScreen> with MySafeState {
                     NavigationController.navigateToProgressReportDetailScreen(
                       navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
                       arguments: MyLearningContentProgressScreenNavigationArguments(
-                        contentId: parentDataDto.ObjectID,
-                        userId: parentDataDto.userid,
-                        contentTypeId: parentDataDto.ObjectTypeID,
-                        componentId: widget.componentId,
-                      ),
+                          contentId: parentDataDto.ObjectID, userId: parentDataDto.userid, contentTypeId: parentDataDto.ObjectTypeID, componentId: widget.componentId, eventId: parentDataDto.ParentID),
                     );
                   },
             child: Container(

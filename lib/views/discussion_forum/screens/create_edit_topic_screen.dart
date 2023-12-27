@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_chat_bot/utils/mmy_toast.dart';
 import 'package:flutter_chat_bot/utils/my_safe_state.dart';
 import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
@@ -61,19 +64,19 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
         if (!kIsWeb) {
           MyPrint.printOnConsole("File Path:${file.path}");
         }
-        int _fileSizeInBytes = file.bytes?.length ?? 0;
-        double fileSizeInMb = _fileSizeInBytes / (1024 * 1024);
-        if (fileSizeInMb <= 5) {
-          MyPrint.printOnConsole("Got file Name:${file.name}");
-          MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
-          fileBytes = file.bytes;
-        } else {
-          // File size exceeds 5 MB, show an error message or handle accordingly.
-          print('File size exceeds 5 MB');
+        File fileNew = File(file.path!);
+        if (fileNew.lengthSync() > 5 * 1024 * 1024) {
+          // 5 MB in bytes
           if (context.mounted) {
             MyToast.showError(context: context, msg: "Maximum allowed file size : 5Mb");
           }
+          return "";
         }
+        MyPrint.printOnConsole("Got file Name:${file.name}");
+        MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
+        fileName = file.name;
+        fileBytes = file.bytes;
+        mySetState();
       } else {
         fileName = "";
         fileBytes = null;
@@ -102,15 +105,15 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
 
     bool isSuccess = widget.arguments.isEdit
         ? await discussionController.editTopic(
-            requestModel: addTopicRequestModel,
-            componentId: widget.arguments.componentId,
-            componentInstanceId: widget.arguments.componentInsId,
-            contentId: widget.arguments.topicModel?.ContentID ?? "")
+        requestModel: addTopicRequestModel,
+        componentId: widget.arguments.componentId,
+        componentInstanceId: widget.arguments.componentInsId,
+        contentId: widget.arguments.topicModel?.ContentID ?? "")
         : await discussionController.addTopic(
-            requestModel: addTopicRequestModel,
-            componentId: widget.arguments.componentId,
-            componentInstanceId: widget.arguments.componentInsId,
-          );
+      requestModel: addTopicRequestModel,
+      componentId: widget.arguments.componentId,
+      componentInstanceId: widget.arguments.componentInsId,
+    );
     MyPrint.printOnConsole("isSuccess: $isSuccess");
 
     isLoading = false;
@@ -171,13 +174,16 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
           children: [
             getCommonTextFormField(
               hintext: "Title",
+              inputFormatter: [
+                LengthLimitingTextInputFormatter(200),
+              ],
               maxLines: 3,
               minLines: 1,
               isStarVisible: true,
               prefixIconData: FontAwesomeIcons.fileLines,
               textEditingController: titleTextEditingController,
               validator: (String? val) {
-                if (val == null || val.checkEmpty) {
+                if (val == null || val.trim().checkEmpty) {
                   return "Please enter the title";
                 }
                 return null;
@@ -191,21 +197,24 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
               maxLines: 4,
               minLines: 1,
             ),
-            const SizedBox(height: 20),
-            InkWell(
-              onTap: () async {
-                fileName = await openFileExplorer(FileType.any, false);
-                uploadFileTextEditingController.text = fileName;
-                mySetState();
-              },
-              child: getCommonTextFormField(
-                enable: false,
-                hintext: "Upload file",
-                prefixIconData: FontAwesomeIcons.arrowUpFromBracket,
-                suffix: Icons.add,
-                textEditingController: uploadFileTextEditingController,
+            if (widget.arguments.forumModel.AttachFileEditValue)
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: InkWell(
+                  onTap: () async {
+                    fileName = await openFileExplorer(FileType.any, false);
+                    uploadFileTextEditingController.text = fileName;
+                    mySetState();
+                  },
+                  child: getCommonTextFormField(
+                    enable: false,
+                    hintext: "Upload file",
+                    prefixIconData: FontAwesomeIcons.arrowUpFromBracket,
+                    suffix: Icons.add,
+                    textEditingController: uploadFileTextEditingController,
+                  ),
+                ),
               ),
-            ),
             const SizedBox(height: 40),
             getCreateTopicButton(),
           ],
@@ -251,6 +260,7 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
     final String? Function(String?)? validator,
     int? maxLines,
     int? minLines,
+    List<TextInputFormatter> inputFormatter = const [],
   }) {
     return CommonTextFormField(
       isOutlineInputBorder: true,
@@ -260,6 +270,7 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
       enabled: enable,
       maxLines: maxLines,
       minLines: minLines,
+      inputFormatters: inputFormatter,
       contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       // hintText: hintext,
       label: RichText(
@@ -279,16 +290,16 @@ class _CreateEditTopicScreenState extends State<CreateEditTopicScreen> with MySa
       prefixWidget: prefixIconData == null
           ? const SizedBox()
           : Icon(
-              prefixIconData,
-              size: 15,
-              color: Colors.grey,
-            ),
+        prefixIconData,
+        size: 15,
+        color: Colors.grey,
+      ),
       suffixWidget: suffix == null
           ? null
           : Icon(
-              suffix,
-              color: Colors.grey,
-            ),
+        suffix,
+        color: Colors.grey,
+      ),
     );
   }
 }

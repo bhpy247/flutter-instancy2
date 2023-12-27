@@ -1570,7 +1570,7 @@ class LocalStr {
   });
 
   LocalStr.fromJson(Map<String, dynamic> json) {
-    viewSessionsLabel = ParsingHelper.parseStringMethod(json['viewSessionLabel']);
+    viewSessionsLabel = ParsingHelper.parseStringMethod(json['viewSessionsLabel']);
     commoncomponentLabelPulltorefreshlabel = ParsingHelper.parseStringMethod(json['commoncomponent_label_pulltorefreshlabel']);
     commoncomponentLabelNodatalabel = ParsingHelper.parseStringMethod(json['commoncomponent_label_nodatalabel']);
     commoncomponentLabelLastupdatelabel = ParsingHelper.parseStringMethod(json['commoncomponent_label_lastupdatelabel']);
@@ -2360,7 +2360,7 @@ class LocalStr {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['viewSessionLabel'] = viewSessionsLabel;
+    data['viewSessionsLabel'] = viewSessionsLabel;
     data['commoncomponent_label_pulltorefreshlabel'] = commoncomponentLabelPulltorefreshlabel;
     data['commoncomponent_label_nodatalabel'] = commoncomponentLabelNodatalabel;
     data['commoncomponent_label_lastupdatelabel'] = commoncomponentLabelLastupdatelabel;

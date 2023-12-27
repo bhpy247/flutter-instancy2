@@ -452,7 +452,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         mySetState();
 
         if (isSuccess) {
-          if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "SetComplete was successful");
+          if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "Set Complete was successful");
           futureGetData = getContentDetailsData();
           mySetState();
         }

@@ -48,7 +48,7 @@ class _DiscussionCardState extends State<DiscussionCard> with MySafeState {
       parameterModel: DiscussionForumUiActionParameterModel(
         CreatedUserID: forumModel.CreatedUserID,
         CreateNewTopic: forumModel.CreateNewTopic,
-      ),
+        CreateNewTopicEditValue: forumModel.CreateNewTopicEditValue),
     );
     MyPrint.printOnConsole("addTopicEnabled:$addTopicEnabled");
     mySetState();
@@ -285,7 +285,7 @@ class _DiscussionCardState extends State<DiscussionCard> with MySafeState {
   }
 
   Widget addTopicButton() {
-    if (!addTopicEnabled) return const SizedBox();
+    if (!addTopicEnabled || !forumModel.CreateNewTopicEditValue) return const SizedBox();
 
     return CommonButton(
       onPressed: widget.onAddTopicTap,

@@ -19,6 +19,7 @@ import '../../api/rest_client.dart';
 import '../../models/common/Instancy_multipart_file_upload_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/common/model_data_parser.dart';
+import '../../models/discussion/data_model/category_model.dart';
 import '../../models/discussion/data_model/forum_info_user_model.dart';
 import '../../models/discussion/request_model/delete_forum_request_model.dart';
 import '../../models/discussion/request_model/get_create_discussion_forum_request_model.dart';
@@ -96,7 +97,7 @@ class DiscussionRepository {
     requestModel.UpdatedUserID = apiUrlConfigurationProvider.getCurrentUserId();
     requestModel.CreatedUserID = apiUrlConfigurationProvider.getCurrentUserId();
     requestModel.locale = apiUrlConfigurationProvider.getLocale();
-    requestModel.ModeratorID = "${requestModel.ModeratorID},${apiUrlConfigurationProvider.getCurrentUserId()}";
+    requestModel.ModeratorID = requestModel.ModeratorID;
 
     List<InstancyMultipartFileUploadModel> files = [];
 
@@ -550,6 +551,38 @@ class DiscussionRepository {
     );
 
     DataResponseModel<List<ForumUserInfoModel>> apiResponseModel = await apiController.callApi<List<ForumUserInfoModel>>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<CategoriesDtoModel>> getCategories({required int componentId, required int componentInstanceId, bool isFromOffline = false, bool isStoreDataInHive = false}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole(" getWikiCategories Site Url:${apiEndpoints.siteUrl}  ");
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+    // {"intUserID":"363","intSiteID":"374","intComponentID":1,"Locale":"en-us","strType":"cat"}
+    int userID = apiUrlConfigurationProvider.getCurrentUserId();
+    int siteID = apiUrlConfigurationProvider.getCurrentSiteId();
+    String localeID = apiUrlConfigurationProvider.getLocale();
+    Map<String, String> request = {
+      "intUserID": userID.toString(),
+      "intSiteID": siteID.toString(),
+      "strLocale": localeID,
+      "intCompID": componentId.toString(),
+      "intCompInsID": componentInstanceId.toString(),
+    };
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      requestBody: MyUtils.encodeJson(request),
+      parsingType: ModelDataParsingType.categoriesDtoModel,
+      url: apiEndpoints.getCategoriesDiscussionForum(),
+      isGetDataFromHive: isFromOffline,
+      isStoreDataInHive: isStoreDataInHive,
+    );
+
+    DataResponseModel<CategoriesDtoModel> apiResponseModel = await apiController.callApi<CategoriesDtoModel>(
       apiCallModel: apiCallModel,
     );
 

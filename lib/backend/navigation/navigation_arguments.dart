@@ -572,9 +572,13 @@ class CreateEditTopicScreenNavigationArguments extends NavigationArguments {
 class CreateEditDiscussionForumScreenNavigationArguments extends NavigationArguments {
   final ForumModel? forumModel;
   final bool isEdit;
+  final int componentId;
+  final int componentInsId;
 
   const CreateEditDiscussionForumScreenNavigationArguments({
     required this.forumModel,
+    required this.componentId,
+    required this.componentInsId,
     this.isEdit = false,
   });
 }
@@ -583,6 +587,12 @@ class CommonViewImageScreenNavigationArguments extends NavigationArguments {
   final String imageUrl;
 
   const CommonViewImageScreenNavigationArguments({this.imageUrl = ""});
+}
+
+class DiscussionForumCategoriesSearchScreenNavigationArguments extends NavigationArguments {
+  final bool isFromMyDiscussion;
+
+  const DiscussionForumCategoriesSearchScreenNavigationArguments({this.isFromMyDiscussion = false});
 }
 
 class MembershipSelectionScreenNavigationArguments extends NavigationArguments {

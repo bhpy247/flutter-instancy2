@@ -31,6 +31,7 @@ import '../../models/app_configuration_models/data_models/local_str.dart';
 import '../../models/common/Instancy_multipart_file_upload_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/common/pagination/pagination_model.dart';
+import '../../models/discussion/data_model/category_model.dart';
 import '../../models/discussion/request_model/delete_discussion_topic_request_model.dart';
 import '../../models/discussion/request_model/get_add_topic_request_model.dart';
 import '../../models/discussion/request_model/like_dislike_topic_and_comment_request_model.dart';
@@ -214,12 +215,9 @@ class DiscussionController {
       forumcontentId: provider.forumContentId.get(),
       // userID: "363",
       pageIndex: paginationModel.pageIndex,
+
       pageSize: provider.pageSize.get(),
-      CategoryIds: enabledContentFilterByTypeModel.categories
-          ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedCategories.getList().map((e) => e.categoryId).toList(),
-            )
-          : "",
+      CategoryIds: provider.filterCategoriesIds.get(),
     );
   }
 
@@ -350,8 +348,7 @@ class DiscussionController {
     required int componentId,
     required int componentInstanceId,
   }) {
-    FilterProvider filterProvider = provider.filterProvider;
-    EnabledContentFilterByTypeModel? enabledContentFilterByTypeModel = filterProvider.getEnabledContentFilterByTypeModel(isNewInstance: false);
+    // EnabledContentFilterByTypeModel? enabledContentFilterByTypeModel = filterProvider.getEnabledContentFilterByTypeModel(isNewInstance: false);
 
     return GetDiscussionForumListRequestModel(
       intCompID: componentId,
@@ -362,11 +359,12 @@ class DiscussionController {
       // userID: "363",
       pageIndex: paginationModel.pageIndex,
       pageSize: provider.pageSize.get(),
-      CategoryIds: enabledContentFilterByTypeModel.categories
-          ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedCategories.getList().map((e) => e.categoryId).toList(),
-            )
-          : "",
+      CategoryIds: provider.myFilterCategoriesIds.get(),
+      // CategoryIds: enabledContentFilterByTypeModel.categories
+      //     ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+      //         list: filterProvider.selectedCategories.getList().map((e) => e.categoryId).toList(),
+      //       )
+      //     : "",
     );
   }
 
@@ -1153,5 +1151,25 @@ class DiscussionController {
         );
       },
     );
+  }
+
+  Future<bool> getCategoriesList({required int componentId, required int componentInstanceId}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("DiscussionController().getUserListBaseOnUserInfo() called '", tag: tag);
+
+    DataResponseModel<CategoriesDtoModel> dataResponseModel = await _discussionRepository.getCategories(componentId: componentId, componentInstanceId: componentInstanceId);
+
+    MyPrint.printOnConsole("addTopicComment response:$dataResponseModel", tag: tag);
+
+    if (dataResponseModel.data != null || dataResponseModel.data!.categoriesList.checkNotEmpty) {
+      discussionProvider.categoriesList.setList(list: dataResponseModel.data?.categoriesList ?? []);
+    }
+
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from DiscussionController().getUserListBaseOnUserInfo() because addTopic had some error", tag: tag);
+      return false;
+    }
+
+    return dataResponseModel.data?.categoriesList.checkNotEmpty ?? false;
   }
 }

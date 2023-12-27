@@ -25,6 +25,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_configuration_models/data_models/local_str.dart';
 import '../../models/authentication/response_model/country_response_model.dart';
 import '../../models/common/data_response_model.dart';
+import '../../models/profile/data_model/user_privilege_model.dart';
 import '../../models/profile/data_model/user_profile_details_model.dart';
 import '../../utils/my_print.dart';
 import '../../utils/my_utils.dart';
@@ -381,5 +382,22 @@ class ProfileController {
     MyPrint.printOnConsole("Final headerDTOModel:$headerDTOModel", tag: tag);
 
     return headerDTOModel;
+  }
+
+  bool isShowAddForumButton() {
+    MyPrint.printOnConsole("isShowAddForumButton called");
+
+    bool showPrivilege = false;
+    List<UserPrivilegeModel> userPrivilege = profileProvider.userPrivilegeData.getList();
+    MyPrint.printOnConsole("userPrivilege called ${userPrivilege.length}");
+
+    if (userPrivilege.checkNotEmpty) {
+      for (var element in userPrivilege) {
+        if (element.privilegeid == DiscussionForumPrivileges.showAddForumButton) {
+          return true;
+        }
+      }
+    }
+    return showPrivilege;
   }
 }

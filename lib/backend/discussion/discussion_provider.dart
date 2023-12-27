@@ -2,6 +2,7 @@ import 'package:flutter_instancy_2/models/discussion/data_model/forum_info_user_
 import 'package:flutter_instancy_2/models/discussion/data_model/forum_model.dart';
 
 import '../../models/common/pagination/pagination_model.dart';
+import '../../models/discussion/response_model/CategoriesModel.dart';
 import '../common/common_provider.dart';
 import '../filter/filter_provider.dart';
 
@@ -96,6 +97,18 @@ class DiscussionProvider extends CommonProvider {
       list: [],
       notify: notify,
     );
+    categoriesList = CommonProviderListParameter<CategoriesModel>(
+      list: [],
+      notify: notify,
+    );
+    filterCategoriesIds = CommonProviderPrimitiveParameter<String>(
+      value: "",
+      notify: notify,
+    );
+    myFilterCategoriesIds = CommonProviderPrimitiveParameter<String>(
+      value: "",
+      notify: notify,
+    );
   }
 
   //region Configurations
@@ -110,6 +123,8 @@ class DiscussionProvider extends CommonProvider {
   late CommonProviderListParameter<ForumModel> forumsList;
   late final CommonProviderPrimitiveParameter<String> forumContentId;
   late final CommonProviderPrimitiveParameter<String> forumListSearchString;
+  late final CommonProviderPrimitiveParameter<String> filterCategoriesIds;
+  late final CommonProviderPrimitiveParameter<String> myFilterCategoriesIds;
   late final CommonProviderPrimitiveParameter<int> maxForumListCount;
   late final CommonProviderPrimitiveParameter<PaginationModel> forumListPaginationModel;
 
@@ -125,6 +140,7 @@ class DiscussionProvider extends CommonProvider {
   late final CommonProviderPrimitiveParameter<bool> isLoading;
 
   late final CommonProviderListParameter<ForumUserInfoModel> moderatorsList;
+  late final CommonProviderListParameter<CategoriesModel> categoriesList;
 
   final FilterProvider filterProvider = FilterProvider();
 
@@ -137,7 +153,9 @@ class DiscussionProvider extends CommonProvider {
 
     forumsList.setList(list: [], isNotify: false);
     forumContentId.set(value: "", isNotify: false);
+    filterCategoriesIds.set(value: "", isNotify: false);
     forumListSearchString.set(value: "", isNotify: false);
+    myFilterCategoriesIds.set(value: "", isNotify: false);
     maxForumListCount.set(value: 0, isNotify: false);
     forumListPaginationModel.set(
       value: PaginationModel(
@@ -167,6 +185,7 @@ class DiscussionProvider extends CommonProvider {
     isLoading.set(value: false, isNotify: false);
 
     moderatorsList.setList(list: [], isClear: true, isNotify: true);
+    categoriesList.setList(list: [], isClear: true, isNotify: true);
 
     filterProvider.resetData();
   }

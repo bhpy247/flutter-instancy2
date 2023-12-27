@@ -6,6 +6,7 @@ import 'package:flutter_instancy_2/views/authentication/screens/sign_up_screen.d
 import 'package:flutter_instancy_2/views/catalog/screens/PrerequisiteScreen.dart';
 import 'package:flutter_instancy_2/views/common/screen/common_view_image_screen.dart';
 import 'package:flutter_instancy_2/views/course_details/screens/course_details_screen.dart';
+import 'package:flutter_instancy_2/views/discussion_forum/component/categories_search_screen.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/screens/create_edit_discussion_forum_screen.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/screens/create_edit_topic_screen.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/screens/discussion_detail.dart';
@@ -334,6 +335,12 @@ class NavigationController {
       case CommonViewImageScreen.routeName:
         {
           page = parseCommonViewImageScreen(settings: settings);
+          break;
+        }
+
+      case CategoriesSearchScreen.routeName:
+        {
+          page = parseCategoriesSearchScreen(settings: settings);
           break;
         }
 
@@ -847,6 +854,16 @@ class NavigationController {
     return CommonViewImageScreen(arguments: argument);
   }
 
+  static Widget? parseCategoriesSearchScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! DiscussionForumCategoriesSearchScreenNavigationArguments) {
+      return null;
+    }
+    return CategoriesSearchScreen(
+      arguments: argument,
+    );
+  }
+
   //region Camera
 
   //endregion
@@ -1338,6 +1355,15 @@ class NavigationController {
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: CommonViewImageScreen.routeName,
         arguments: arguments,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToCategoriesSearchScreen({required NavigationOperationParameters navigationOperationParameters}) {
+    MyPrint.printOnConsole("navigateToCategoriesSearchScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: CategoriesSearchScreen.routeName,
       ),
     );
   }

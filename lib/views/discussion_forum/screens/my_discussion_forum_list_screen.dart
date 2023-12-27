@@ -6,12 +6,15 @@ import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/discussion_forum/forum/discussion_forum_ui_action_callback_model.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/discussion_forum/forum/discussion_forum_ui_action_controller.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/forum_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../backend/app/app_provider.dart';
 import '../../../backend/discussion/discussion_controller.dart';
 import '../../../backend/discussion/discussion_provider.dart';
+import '../../../backend/profile/profile_controller.dart';
+import '../../../backend/profile/profile_provider.dart';
 import '../../../backend/share/share_provider.dart';
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import '../../../configs/app_configurations.dart';
@@ -39,6 +42,7 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
   late AppProvider appProvider;
   int componentId = 0, componentInstanceId = 0;
   bool isLoading = false;
+  bool isShowAddForumFloatingButton = false;
 
   late DiscussionProvider discussionProvider;
   late DiscussionController discussionController;
@@ -82,6 +86,8 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
           arguments: CreateEditDiscussionForumScreenNavigationArguments(
             forumModel: model,
             isEdit: true,
+            componentId: componentId,
+            componentInsId: componentInstanceId,
           ),
         );
         if (value != true) return;
@@ -238,6 +244,9 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
     componentId = widget.componentId;
     componentInstanceId = widget.componentInstanceId;
 
+    ProfileController profileController = ProfileController(profileProvider: context.read<ProfileProvider>());
+    isShowAddForumFloatingButton = profileController.isShowAddForumButton();
+
     NativeMenuComponentModel? componentModel = appProvider.getMenuComponentModelFromComponentId(componentId: componentId);
     if (componentModel != null) {
       discussionController.initializeConfigurationsFromComponentConfigurationsModel(
@@ -286,34 +295,37 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
           return ModalProgressHUD(
             inAsyncCall: isLoading,
             child: Scaffold(
-              floatingActionButton: Padding(
-                padding: EdgeInsets.only(
-                  bottom: mainScreenProvider.isChatBotButtonEnabled.get() && !mainScreenProvider.isChatBotButtonCenterDocked.get() ? 70 : 0,
-                ),
-                child: FloatingActionButton(
-                  shape: CircleBorder(),
-                  child: const Icon(Icons.add),
-                  onPressed: () async {
-                    dynamic value = await NavigationController.navigateToCreateEditDiscussionForumScreen(
-                      navigationOperationParameters: NavigationOperationParameters(
-                        context: context,
-                        navigationType: NavigationType.pushNamed,
-                      ),
-                      arguments: const CreateEditDiscussionForumScreenNavigationArguments(forumModel: null),
-                    );
-                    if (value != true) return;
+              floatingActionButton: Visibility(
+                visible: isShowAddForumFloatingButton,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: mainScreenProvider.isChatBotButtonEnabled.get() && !mainScreenProvider.isChatBotButtonCenterDocked.get() ? 70 : 0,
+                  ),
+                  child: FloatingActionButton(
+                    shape: CircleBorder(),
+                    child: const Icon(Icons.add),
+                    onPressed: () async {
+                      dynamic value = await NavigationController.navigateToCreateEditDiscussionForumScreen(
+                        navigationOperationParameters: NavigationOperationParameters(
+                          context: context,
+                          navigationType: NavigationType.pushNamed,
+                        ),
+                        arguments: CreateEditDiscussionForumScreenNavigationArguments(forumModel: null, componentId: componentId, componentInsId: componentInstanceId),
+                      );
+                      if (value != true) return;
 
-                    discussionController.getForumsList(
-                      isRefresh: true,
-                      isGetFromCache: false,
-                      isNotify: false,
-                    );
-                    discussionController.getMyDiscussionForumsList(
-                      isRefresh: true,
-                      isGetFromCache: false,
-                      isNotify: true,
-                    );
-                  },
+                      discussionController.getForumsList(
+                        isRefresh: true,
+                        isGetFromCache: false,
+                        isNotify: false,
+                      );
+                      discussionController.getMyDiscussionForumsList(
+                        isRefresh: true,
+                        isGetFromCache: false,
+                        isNotify: true,
+                      );
+                    },
+                  ),
                 ),
               ),
               body: getMainWidget(),
@@ -337,12 +349,62 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: const CommonTextFormField(
+      child: CommonTextFormField(
         isOutlineInputBorder: true,
         borderRadius: 30,
         contentPadding: EdgeInsets.zero,
         hintText: "Search",
+        suffixWidget: getCategoriesFilterIcon(provider: discussionProvider),
         prefixWidget: Icon(Icons.search),
+        onSubmitted: (String? val) {
+          discussionProvider.forumListSearchString.set(value: val ?? "");
+          discussionController.getForumsList(
+            isRefresh: true,
+            isGetFromCache: false,
+            isNotify: false,
+          );
+          mySetState();
+        },
+      ),
+    );
+  }
+
+  Widget getCategoriesFilterIcon({required DiscussionProvider provider}) {
+    return InkWell(
+      onTap: () async {
+        bool? isTrue = await NavigationController.navigateToCategoriesSearchScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+              context: context, navigationType: NavigationType.pushNamed, arguments: const DiscussionForumCategoriesSearchScreenNavigationArguments(isFromMyDiscussion: true)),
+        );
+        if (isTrue == null) return;
+        if (isTrue) {
+          discussionController.getMyDiscussionForumsList(
+            isRefresh: true,
+            isGetFromCache: false,
+            isNotify: false,
+          );
+        }
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Stack(
+            alignment: Alignment.topRight,
+            children: [
+              const Column(
+                children: [
+                  Icon(Icons.category),
+                ],
+              ),
+              if (provider.myFilterCategoriesIds.get().checkNotEmpty)
+                Container(
+                  height: 5,
+                  width: 5,
+                  decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                )
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -34,11 +34,11 @@ class ShareRepository {
     peopleRequestModel.siteID = apiUrlConfigurationProvider.getCurrentSiteId();
     peopleRequestModel.locale = apiUrlConfigurationProvider.getLocale();
 
-    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
-      restCallType: RestCallType.simplePostCall,
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<Map<String, String>>(
+      restCallType: RestCallType.xxxUrlEncodedFormDataRequestCall,
       parsingType: ModelDataParsingType.ContentGameActivityResponseModel,
       url: apiEndpoints.getSendMailToPeopleUrl(),
-      requestBody: MyUtils.encodeJson(peopleRequestModel.toMap()),
+      requestBody: peopleRequestModel.toMap(),
     );
 
     DataResponseModel<ContentGameActivityResponseModel> apiResponseModel = await apiController.callApi<ContentGameActivityResponseModel>(

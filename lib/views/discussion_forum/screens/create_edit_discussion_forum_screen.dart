@@ -8,6 +8,7 @@ import 'package:flutter_instancy_2/models/common/Instancy_multipart_file_upload_
 import 'package:flutter_instancy_2/models/discussion/data_model/forum_info_user_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/forum_model.dart';
 import 'package:flutter_instancy_2/models/discussion/request_model/get_create_discussion_forum_request_model.dart';
+import 'package:flutter_instancy_2/models/discussion/response_model/CategoriesModel.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
@@ -42,6 +43,7 @@ class CreateEditDiscussionForumScreen extends StatefulWidget {
 class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionForumScreen> with MySafeState {
   late DiscussionController discussionController;
   late DiscussionProvider discussionProvider;
+  late ThemeData themeData;
 
   bool newTopicCheckBox = true, attachFilesCheckBox = true, likeCheckBox = true, shareCheckBox = true, pinCheckBox = true, privacyForumCheckBox = false;
 
@@ -49,11 +51,15 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
 
   bool isUrl = true, isLoading = false;
   FileType? fileType;
+  FocusNode fn = FocusNode();
 
   TextEditingController titleTextEditingController = TextEditingController();
   TextEditingController descriptionTextEditingController = TextEditingController();
   TextEditingController uploadFileTextEditingController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  String selectedCategoriesString = "";
+  List<CategoriesModel> selectedCategoriesList = [];
+  final GlobalKey expansionTile = GlobalKey();
 
   bool isExpanded = false;
   String fileName = "";
@@ -114,6 +120,7 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
 
   Future<void> createDiscussion() async {
     List<int> ids = selectedModerator.map((model) => model.UserID).toList();
+    List<int> categoryids = selectedCategoriesList.map((model) => model.id).toList();
     if (ids.isEmpty) {
       MyToast.showError(context: context, msg: "Please Select Moderators");
       return;
@@ -123,6 +130,7 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
     mySetState();
 
     String commaSeparatedIds = ids.join(', ');
+    String commaSeparatedCategoriesIds = categoryids.join(', ');
 
     List<InstancyMultipartFileUploadModel>? list;
     if (fileBytes != null) {
@@ -146,7 +154,7 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
       Description: descriptionTextEditingController.text.trim(),
       ForumID: -1,
       ForumThumbnailName: fileName,
-      CategoryIDs: "",
+      CategoryIDs: commaSeparatedCategoriesIds,
       IsPrivate: privacyForumCheckBox,
       LikePosts: likeCheckBox,
       Moderation: false,
@@ -241,8 +249,11 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
     setGroupValueBaseOnTheString(forumModel.SendEmail);
 
     List<String> idsFromString = createDiscussionForumRequestModel.ModeratorID.split(",").toList();
+    List<String> categoriesidsFromString = createDiscussionForumRequestModel.CategoryIDs.split(",").toList();
     List<ForumUserInfoModel> moderators = discussionProvider.moderatorsList.getList();
+    List<CategoriesModel> categoriesList = discussionProvider.categoriesList.getList();
     selectedModerator = moderators.where((element) => idsFromString.contains(element.UserID.toString())).toList();
+    selectedCategoriesList = categoriesList.where((element) => categoriesidsFromString.contains(element.id.toString())).toList();
     mySetState();
   }
 
@@ -253,6 +264,7 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
     if (userId == 0) return;
     String name = authenticationProvider.getEmailLoginResponseModel()?.username ?? "";
     String imageUrl = authenticationProvider.getEmailLoginResponseModel()?.image ?? "";
+    MyPrint.printOnConsole("authenticationProvider.  : ${authenticationProvider.getEmailLoginResponseModel()?.toMap()}");
 
     ForumUserInfoModel forumUserInfoModel = ForumUserInfoModel(
       UserID: userId,
@@ -260,6 +272,7 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
       UserThumb: imageUrl,
     );
     selectedModerator.add(forumUserInfoModel);
+    MyPrint.printOnConsole("forumUserInfoModel : ${forumUserInfoModel.toJson()}");
   }
 
   @override
@@ -268,6 +281,8 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
     discussionProvider = context.read<DiscussionProvider>();
     discussionController = DiscussionController(discussionProvider: discussionProvider);
     discussionController.getUserListBaseOnUserInfo();
+    discussionController.getCategoriesList(componentId: widget.arguments.componentId, componentInstanceId: widget.arguments.componentInsId);
+
     if (widget.arguments.isEdit) {
       setTheValueWhenEdit();
     }
@@ -276,6 +291,7 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
 
   @override
   Widget build(BuildContext context) {
+    themeData = Theme.of(context);
     super.pageBuild();
 
     return PopScope(
@@ -283,6 +299,7 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
       child: ModalProgressHUD(
         inAsyncCall: isLoading,
         child: Scaffold(
+          backgroundColor: Colors.white,
           appBar: appBar(),
           body: AppUIComponents.getBackGroundBordersRounded(
             context: context,
@@ -309,80 +326,181 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
     );
   }
 
-  FocusNode fn = FocusNode();
 
   Widget mainWidget() {
     return Form(
       key: formKey,
-      child: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            children: [
-              getCommonTextFormField(
-                  fn: fn,
-                  controller: titleTextEditingController,
-                  hintext: "Title",
-                  maxLines: 3,
-                  minLines: 1,
-                  iconAssetString: "assets/title_icon.png",
-                  prefixIconData: FontAwesomeIcons.fileLines,
-                  inputFormatters: [
-                    LengthLimitingTextInputFormatter(200),
+      child: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Container(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  children: [
+                    getCommonTextFormField(
+                        fn: fn,
+                        controller: titleTextEditingController,
+                        hintext: "Title",
+                        maxLines: 3,
+                        minLines: 1,
+                        iconAssetString: "assets/title_icon.png",
+                        prefixIconData: FontAwesomeIcons.fileLines,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(200),
+                        ],
+                        validator: (String? val) {
+                          if (val == null || val.trim().checkEmpty) {
+                            return "Please enter the title";
+                          }
+                          return null;
+                        }),
+                    const SizedBox(height: 20),
+                    getCommonTextFormField(
+                      controller: descriptionTextEditingController,
+                      hintext: "Description",
+                      maxLines: 5,
+                      minLines: 1,
+                      prefixIconData: FontAwesomeIcons.solidFileLines,
+                      isStarVisible: false,
+                    ),
+                    const SizedBox(height: 20),
+                    InkWell(
+                      onTap: () async {
+                        fileName = await openFileExplorer(FileType.any, false);
+                        uploadFileTextEditingController.text = fileName;
+                        mySetState();
+                      },
+                      child: getCommonTextFormField(
+                          enable: false,
+                          hintext: "Upload file",
+                          prefixIconData: FontAwesomeIcons.arrowUpFromBracket,
+                          suffix: Icons.add,
+                          controller: uploadFileTextEditingController,
+                          isStarVisible: false),
+                    ),
+                    const SizedBox(height: 20),
+                    InkWell(
+                        onTap: () {
+                          showModeratorList();
+                        },
+                        child: moderatorExpansionTile()),
+                    const SizedBox(height: 20),
+                    getCategoryExpansionTile(),
+                    const SizedBox(height: 20),
+                    getSettingSectionWidget(),
+                    const SizedBox(height: 20),
+                    getPrivacyPolicyWidget(),
+                    const SizedBox(height: 40),
+                    getCreateDiscussionButton(),
                   ],
-                  validator: (String? val) {
-                    if (val == null || val.checkEmpty) {
-                      return "Please enter the title";
-                    }
-                    return null;
-                  }),
-              const SizedBox(height: 20),
-              getCommonTextFormField(
-                controller: descriptionTextEditingController,
-                hintext: "Description",
-                maxLines: 5,
-                minLines: 1,
-                prefixIconData: FontAwesomeIcons.solidFileLines,
-                isStarVisible: false,
+                ),
               ),
-              const SizedBox(height: 20),
-              InkWell(
-                onTap: () async {
-                  fileName = await openFileExplorer(FileType.image, false);
-                  uploadFileTextEditingController.text = fileName;
-                  mySetState();
-                },
-                child: getCommonTextFormField(
-                    enable: false, hintext: "Upload file", prefixIconData: FontAwesomeIcons.arrowUpFromBracket, suffix: Icons.add, controller: uploadFileTextEditingController, isStarVisible: false),
-              ),
-              // getCommonTextFormField(hintext: "Upload file", prefixIconData: FontAwesomeIcons.arrowUpFromBracket, suffix: Icons.add),
-              const SizedBox(height: 20),
-              InkWell(
-                  onTap: () {
-                    showModeratorList();
-                  },
-                  child: moderatorExpansionTile()),
-              // InkWell(
-              //   onTap: () {
-              //     showModeratorList();
-              //   },
-              //   child: getCommonTextFormField(
-              //     hintext: "Moderators",
-              //     enable: false,
-              //     prefixIconData: FontAwesomeIcons.solidUser,
-              //     suffix: Icons.add,
-              //   ),
-              // ),
-              const SizedBox(height: 20),
-              getSettingSectionWidget(),
-              const SizedBox(height: 20),
-              getPrivacyPolicyWidget(),
-              const SizedBox(height: 40),
-              getCreateDiscussionButton(),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
+    );
+  }
+
+  Widget getCategoryExpansionTile() {
+    return Consumer<DiscussionProvider>(
+      builder: (BuildContext context, DiscussionProvider provider, _) {
+        return Container(
+          decoration: BoxDecoration(border: Border.all(width: 0.5, color: Colors.black45), borderRadius: BorderRadius.circular(5)),
+          child: Theme(
+            data: themeData.copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+                key: expansionTile,
+                backgroundColor: const Color(0xffF8F8F8),
+                initiallyExpanded: isExpanded,
+                tilePadding: const EdgeInsets.symmetric(horizontal: 14),
+                title: Row(
+                  children: [
+                    getImageView(url: "assets/catalog/categories.png", height: 15, width: 15),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                      child: Text(
+                        selectedCategoriesString.isEmpty ? "Categories" : selectedCategoriesString,
+                        style: themeData.textTheme.titleSmall?.copyWith(color: Colors.black45),
+                      ),
+                    ),
+                  ],
+                ),
+                onExpansionChanged: (bool? newVal) {
+                  FocusScope.of(context).unfocus();
+                },
+                children: provider.categoriesList.getList().map((e) {
+                  return Container(
+                    color: Colors.white,
+                    child: InkWell(
+                      onTap: () {
+                        bool isChecked = !selectedCategoriesList.contains(e);
+                        if (isChecked) {
+                          selectedCategoriesList.add(e);
+                        } else {
+                          selectedCategoriesList.remove(e);
+                        }
+
+                        selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+                          list: selectedCategoriesList.map((e) => e.CategoryName).toList(),
+                          separator: ", ",
+                        );
+                        setState(() {});
+
+                        // if (isChecked) {
+                        //   // selectedCategory = e.name;
+                        //   selectedCategoriesList.add(e);
+                        //   setState(() {});
+                        //
+                        // } else {
+                        //   // selectedCategory = "";
+                        //   selectedCategoriesList.remove(e);
+                        // }
+                        // print(isChecked);
+                      },
+                      child: Row(
+                        children: [
+                          Checkbox(
+                            activeColor: themeData.primaryColor,
+                            value: selectedCategoriesList.contains(e),
+                            onChanged: (bool? value) {
+                              bool isChecked = value ?? false;
+                              if (isChecked) {
+                                selectedCategoriesList.add(e);
+                              } else {
+                                selectedCategoriesList.remove(e);
+                              }
+
+                              selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+                                list: selectedCategoriesList.map((e) => e.CategoryName).toList(),
+                                separator: ",",
+                              );
+                              setState(() {});
+                            },
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(e.CategoryName),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList()),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget getImageView({String url = "assets/addContentLogo.png", double height = 159, double width = 135}) {
+    return Image.asset(
+      url,
+      height: height,
+      width: width,
     );
   }
 
@@ -486,7 +604,7 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
           await createDiscussion();
         }
       },
-      text: widget.arguments.isEdit ? "Edit Discussion" : "Create Discussion",
+      text: widget.arguments.isEdit ? "Update Forum" : "Create Discussion",
       fontColor: Colors.white,
       fontSize: 16,
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
@@ -642,7 +760,7 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
         ),
         getCheckListView(
-          listTileControlAffinity: ListTileControlAffinity.trailing,
+          listTileControlAffinity: ListTileControlAffinity.leading,
           title: "Private Forum",
           value: privacyForumCheckBox,
           onChanged: (bool? val) {

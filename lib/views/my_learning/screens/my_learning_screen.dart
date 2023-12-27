@@ -317,7 +317,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
         mySetState();
 
         if (isSuccess) {
-          if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "SetComplete was successful");
+          if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "Set Complete was successful");
 
           refreshMyLearningData();
         }

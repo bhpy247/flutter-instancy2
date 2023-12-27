@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 
+import '../../../backend/discussion/discussion_controller.dart';
 import 'discussion_list_screen.dart';
 import 'my_discussion_forum_list_screen.dart';
 
@@ -21,11 +22,16 @@ class _DiscussionForumMainScreenState extends State<DiscussionForumMainScreen> w
   late ThemeData themeData;
 
   TabController? tabController;
+  late DiscussionController discussionController;
+  late DiscussionProvider discussionProvider;
 
   @override
   void initState() {
     super.initState();
     tabController = TabController(vsync: this, length: 2);
+    discussionProvider = context.read<DiscussionProvider>();
+    discussionController = DiscussionController(discussionProvider: discussionProvider);
+    discussionController.getCategoriesList(componentId: widget.arguments.componentId, componentInstanceId: widget.arguments.componentInsId);
   }
 
   @override

@@ -1,11 +1,11 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/mmy_toast.dart';
 import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_chat_bot/utils/my_safe_state.dart';
-import 'package:flutter_chat_bot/view/common/components/common_cached_network_image.dart';
-import 'package:flutter_chat_bot/view/common/components/common_loader.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_controller.dart';
@@ -45,6 +45,8 @@ import '../../../models/discussion/response_model/discussion_topic_dto_response_
 import '../../../models/discussion/response_model/replies_dto_model.dart';
 import '../../../utils/my_utils.dart';
 import '../../common/components/app_ui_components.dart';
+import '../../common/components/common_cached_network_image.dart';
+import '../../common/components/common_loader.dart';
 import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
 
 class DiscussionDetailScreen extends StatefulWidget {
@@ -98,20 +100,19 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
         if (!kIsWeb) {
           MyPrint.printOnConsole("File Path:${file.path}");
         }
-        int _fileSizeInBytes = file.bytes?.length ?? 0;
-        double fileSizeInMb = _fileSizeInBytes / (1024 * 1024);
-        if (fileSizeInMb <= 5) {
-          fileName = file.name;
-          MyPrint.printOnConsole("Got file Name:${file.name}");
-          MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
-          fileBytes = file.bytes;
-        } else {
-          // File size exceeds 5 MB, show an error message or handle accordingly.
-          print('File size exceeds 5 MB');
+        File fileNew = File(file.path!);
+        if (fileNew.lengthSync() > 5 * 1024 * 1024) {
+          // 5 MB in bytes
           if (context.mounted) {
             MyToast.showError(context: context, msg: "Maximum allowed file size : 5Mb");
           }
+          return "";
         }
+        // if (fileSizeInMb <= 5) {
+        MyPrint.printOnConsole("Got file Name:${file.name}");
+        MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
+        fileName = file.name;
+        fileBytes = file.bytes;
       } else {
         fileName = "";
         fileBytes = null;
@@ -267,14 +268,14 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
 
     List<InstancyUIActionModel> options = uiActionController
         .getDiscussionTopicScreenSecondaryActions(
-          forumModel: forumModel!,
-          topicModel: model,
-          localStr: localStr,
-          uiActionCallbackModel: getDiscussionTopicUIActionCallbackModel(
-            model: model,
-            primaryAction: primaryAction,
-          ),
-        )
+      forumModel: forumModel!,
+      topicModel: model,
+      localStr: localStr,
+      uiActionCallbackModel: getDiscussionTopicUIActionCallbackModel(
+        model: model,
+        primaryAction: primaryAction,
+      ),
+    )
         .toList();
 
     if (options.isEmpty) {
@@ -297,59 +298,59 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
     DiscussionCommentUiActionController uiActionController = DiscussionCommentUiActionController(appProvider: appProvider);
     List<InstancyUIActionModel> options = uiActionController
         .getSecondaryActions(
-          commentModel: commentModel,
-          localStr: localStr,
-          uiActionCallbackModel: DiscussionCommentUIActionCallbackModel(
-            onAddReplyTap: () {
-              Navigator.pop(context);
+      commentModel: commentModel,
+      localStr: localStr,
+      uiActionCallbackModel: DiscussionCommentUIActionCallbackModel(
+        onAddReplyTap: () {
+          Navigator.pop(context);
 
-              isCommentTextFormFieldVisible = false;
-              isReplyTextFormFieldVisible = true;
-              selectedTopicForComment = null;
-              selectedCommentModelForReply = commentModel;
-              replyFocusNode = FocusNode();
-              replyFocusNode.requestFocus();
-              mySetState();
-            },
-            onEditTap: () {
-              Navigator.pop(context);
+          isCommentTextFormFieldVisible = false;
+          isReplyTextFormFieldVisible = true;
+          selectedTopicForComment = null;
+          selectedCommentModelForReply = commentModel;
+          replyFocusNode = FocusNode();
+          replyFocusNode.requestFocus();
+          mySetState();
+        },
+        onEditTap: () {
+          Navigator.pop(context);
 
-              isCommentTextFormFieldVisible = true;
-              isReplyTextFormFieldVisible = false;
-              selectedCommentModelForReply = null;
-              selectedTopicForComment = topicModel;
-              selectedCommentModelForEdit = commentModel;
-              commentTextEditingController.text = commentModel.message;
-              replyTextEditingController.clear();
-              fileName = commentModel.CommentFileUploadName;
-              mySetState();
-            },
-            onDeleteTap: () async {
-              Navigator.pop(context);
+          isCommentTextFormFieldVisible = true;
+          isReplyTextFormFieldVisible = false;
+          selectedCommentModelForReply = null;
+          selectedTopicForComment = topicModel;
+          selectedCommentModelForEdit = commentModel;
+          commentTextEditingController.text = commentModel.message;
+          replyTextEditingController.clear();
+          fileName = commentModel.CommentFileUploadName;
+          mySetState();
+        },
+        onDeleteTap: () async {
+          Navigator.pop(context);
 
-              await discussionController.deleteComment(
-                context: context,
-                commentModel: commentModel,
-                topicModel: topicModel,
-                mySetState: mySetState,
-              );
-            },
-            onViewLikesTap: () async {
-              Navigator.pop(context);
+          await discussionController.deleteComment(
+            context: context,
+            commentModel: commentModel,
+            topicModel: topicModel,
+            mySetState: mySetState,
+          );
+        },
+        onViewLikesTap: () async {
+          Navigator.pop(context);
 
-              isLoading = true;
-              mySetState();
+          isLoading = true;
+          mySetState();
 
-              await discussionController.showCommentLikedUserList(
-                context: context,
-                topicCommentModel: commentModel,
-              );
+          await discussionController.showCommentLikedUserList(
+            context: context,
+            topicCommentModel: commentModel,
+          );
 
-              isLoading = false;
-              mySetState();
-            },
-          ),
-        )
+          isLoading = false;
+          mySetState();
+        },
+      ),
+    )
         .toList();
 
     if (options.isEmpty) {
@@ -372,44 +373,44 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
     DiscussionReplyUiActionController uiActionController = DiscussionReplyUiActionController(appProvider: appProvider);
     List<InstancyUIActionModel> options = uiActionController
         .getSecondaryActions(
-          replyModel: replyModel,
-          localStr: localStr,
-          uiActionCallbackModel: DiscussionReplyUIActionCallbackModel(
-            onAddReplyTap: () {
-              Navigator.pop(context);
+      replyModel: replyModel,
+      localStr: localStr,
+      uiActionCallbackModel: DiscussionReplyUIActionCallbackModel(
+        onAddReplyTap: () {
+          Navigator.pop(context);
 
-              isCommentTextFormFieldVisible = false;
-              isReplyTextFormFieldVisible = true;
-              selectedTopicForComment = null;
-              selectedCommentModelForReply = commentModel;
-              replyFocusNode = FocusNode();
-              replyFocusNode.requestFocus();
-              mySetState();
-            },
-            onEditTap: () {
-              Navigator.pop(context);
+          isCommentTextFormFieldVisible = false;
+          isReplyTextFormFieldVisible = true;
+          selectedTopicForComment = null;
+          selectedCommentModelForReply = commentModel;
+          replyFocusNode = FocusNode();
+          replyFocusNode.requestFocus();
+          mySetState();
+        },
+        onEditTap: () {
+          Navigator.pop(context);
 
-              isCommentTextFormFieldVisible = false;
-              isReplyTextFormFieldVisible = true;
-              selectedCommentModelForReply = commentModel;
-              selectedTopicForComment = null;
-              selectedReplyModelForEdit = replyModel;
-              commentTextEditingController.clear();
-              replyTextEditingController.text = replyModel.message;
-              mySetState();
-            },
-            onDeleteTap: () async {
-              Navigator.pop(context);
+          isCommentTextFormFieldVisible = false;
+          isReplyTextFormFieldVisible = true;
+          selectedCommentModelForReply = commentModel;
+          selectedTopicForComment = null;
+          selectedReplyModelForEdit = replyModel;
+          commentTextEditingController.clear();
+          replyTextEditingController.text = replyModel.message;
+          mySetState();
+        },
+        onDeleteTap: () async {
+          Navigator.pop(context);
 
-              await discussionController.deleteReply(
-                context: context,
-                replyModel: replyModel,
-                commentModel: commentModel,
-                mySetState: mySetState,
-              );
-            },
-          ),
-        )
+          await discussionController.deleteReply(
+            context: context,
+            replyModel: replyModel,
+            commentModel: commentModel,
+            mySetState: mySetState,
+          );
+        },
+      ),
+    )
         .toList();
 
     if (options.isEmpty) {
@@ -524,6 +525,8 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
 
     isLoading = false;
     if (isSuccess) {
+      fileName = "";
+      fileBytes = null;
       isCommentTextFormFieldVisible = false;
       isReplyTextFormFieldVisible = false;
       selectedTopicForComment = null;
@@ -660,15 +663,15 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
           context: context,
           child: future != null
               ? FutureBuilder(
-                  future: future,
-                  builder: (BuildContext context, AsyncSnapshot snapshot) {
-                    if (snapshot.connectionState != ConnectionState.done) {
-                      return const CommonLoader();
-                    }
+            future: future,
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const CommonLoader();
+              }
 
-                    return mainWidget();
-                  },
-                )
+              return mainWidget();
+            },
+          )
               : mainWidget(),
         ),
       ),
@@ -763,7 +766,7 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
                 Column(
                   children: List.generate(
                     forumModel!.PinnedTopicsList.length,
-                    (index) {
+                        (index) {
                       TopicModel topicModel = forumModel!.PinnedTopicsList[index];
 
                       return getTopicCardWidget(topicModel: topicModel);
@@ -823,7 +826,7 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
                 ),
                 ...List.generate(
                   forumModel!.UnpinnedTopicsList.length,
-                  (index) {
+                      (index) {
                     TopicModel topicModel = forumModel!.UnpinnedTopicsList[index];
 
                     return getTopicCardWidget(topicModel: topicModel);
@@ -892,13 +895,22 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
                 onTap: () {
                   likeDislikeTopic(topicModel: topicModel, forumModel: forumModel);
                 },
+                isVisible: forumModel?.LikePostsEditValue ?? false,
                 iconData: topicModel.likeState ? Icons.thumb_up_alt_rounded : Icons.thumb_up_alt_outlined,
                 text: topicModel.Likes.toString(),
               ),
-              const SizedBox(
-                width: 10,
-              ),
               iconTextButton(
+                onTap: () {
+                  isCommentTextFormFieldVisible = true;
+                  isReplyTextFormFieldVisible = false;
+                  selectedTopicForComment = topicModel;
+                  selectedCommentModelForReply = null;
+                  commentFocusNode = FocusNode();
+                  commentFocusNode.requestFocus();
+
+                  mySetState();
+                },
+                isVisible: forumModel?.LikePostsEditValue ?? false,
                 iconData: FontAwesomeIcons.comment,
                 text: topicModel.NoOfReplies.toString(),
               ),
@@ -997,8 +1009,21 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
           child: Icon(FontAwesomeIcons.fileLines, size: 30),
         ),
       );
+    } else if (["mp4", "avi", "mov"].contains(extension)) {
+      return InkWell(
+        onTap: () {
+          MyUtils.launchUrl(url: url);
+        },
+        child: const Padding(
+          padding: EdgeInsets.only(right: 15.0),
+          child: Icon(FontAwesomeIcons.fileVideo, size: 30),
+        ),
+      );
     } else {
-      return Container();
+      return const Padding(
+        padding: EdgeInsets.only(right: 15.0),
+        child: Icon(FontAwesomeIcons.file, size: 30),
+      );
     }
     //for video thumbnail
     /*return Padding(
@@ -1150,13 +1175,16 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Html(data: commentModel.message, style: {
-                  "body": Style(
-                    margin: Margins.all(0),
-                    padding: HtmlPaddings.zero,
-                  ),
-                  "p": Style(padding: HtmlPaddings.zero, margin: Margins.zero),
-                }),
+                Html(
+                  data: commentModel.message,
+                  style: {
+                    "body": Style(
+                      margin: Margins.all(0),
+                      padding: HtmlPaddings.zero,
+                    ),
+                    "p": Style(padding: HtmlPaddings.zero, margin: Margins.zero),
+                  },
+                ),
                 if (commentModel.CommentFileUploadPath.checkNotEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -1282,6 +1310,7 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
                 fontWeight: FontWeight.w400,
                 fontSize: FontSize(themeData.textTheme.bodyMedium?.fontSize ?? 16),
               ),
+              "p": Style(padding: HtmlPaddings.zero, margin: Margins.zero),
             },
           ),
           Row(
@@ -1380,6 +1409,7 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
     required TopicModel? selectedTopicModel,
   }) {
     if (!isCommentTextFormFieldVisible || selectedTopicModel == null) return const SizedBox();
+    String url = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: selectedTopicModel.TopicUserProfile));
 
     return Form(
       key: formKey,
@@ -1406,7 +1436,7 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
                   ClipRRect(
                     borderRadius: BorderRadius.circular(100),
                     child: CommonCachedNetworkImage(
-                      imageUrl: selectedTopicModel.TopicUserProfile,
+                      imageUrl: url,
                       height: 30,
                       width: 30,
                       fit: BoxFit.cover,
@@ -1506,6 +1536,7 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
     required TopicCommentModel? selectedCommentModel,
   }) {
     if (!isReplyTextFormFieldVisible || selectedCommentModel == null) return const SizedBox();
+    String url = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: selectedCommentModel.CommentUserProfile));
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -1522,7 +1553,7 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
             ClipRRect(
               borderRadius: BorderRadius.circular(100),
               child: CommonCachedNetworkImage(
-                imageUrl: selectedCommentModel.CommentUserProfile,
+                imageUrl: url,
                 height: 30,
                 width: 30,
                 fit: BoxFit.cover,
@@ -1575,21 +1606,25 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
     );
   }
 
-  Widget iconTextButton({required IconData iconData, String text = " ", Function()? onTap, double iconSize = 18}) {
-    return Row(
-      children: [
-        InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Icon(iconData, color: Styles.iconColor, size: iconSize),
-          ),
+  Widget iconTextButton({required IconData iconData, String text = " ", Function()? onTap, double iconSize = 18, bool isVisible = true}) {
+    if (!isVisible) return const SizedBox();
+    return Padding(
+      padding: const EdgeInsets.only(right: 10.0),
+      child: InkWell(
+        onTap: onTap,
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Icon(iconData, color: Styles.iconColor, size: iconSize),
+            ),
+            Text(
+              text,
+              style: themeData.textTheme.bodySmall,
+            )
+          ],
         ),
-        Text(
-          text,
-          style: themeData.textTheme.bodySmall,
-        )
-      ],
+      ),
     );
   }
 }

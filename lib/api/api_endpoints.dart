@@ -359,6 +359,8 @@ class ApiEndpoints {
 
   String getCreateDiscussionForum() => '${getBaseApiUrl()}DiscussionForums/CreateEditForum';
 
+  String getCategoriesDiscussionForum() => '${getBaseApiUrl()}DiscussionForums/GetCategories';
+
   //region addTopicComment
   String getPostCommentApi() => '${getBaseApiUrl()}DiscussionForums/PostComment';
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_chat_bot/view/common/components/bottom_sheet_dragger.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/forum_info_user_model.dart';
@@ -29,10 +30,21 @@ class _ModeratorBottomSheetState extends State<ModeratorBottomSheet> with MySafe
   List<ForumUserInfoModel> searchedList = [];
   TextEditingController searchController = TextEditingController();
 
+  bool checkIsModeratorSelected(int UserId) {
+    bool isSelected = false;
+    for (var element in selectedModeratorList) {
+      if (element.UserID == UserId) {
+        isSelected = true;
+        break;
+      }
+    }
+    return isSelected;
+  }
+
   @override
   void initState() {
     super.initState();
-    selectedModeratorList = widget.selectedModeratorList;
+    selectedModeratorList.addAll(widget.selectedModeratorList.map((e) => ForumUserInfoModel.fromJson(e.toJson())).toList());
   }
 
   @override
@@ -49,21 +61,30 @@ class _ModeratorBottomSheetState extends State<ModeratorBottomSheet> with MySafe
               Expanded(
                 child: getModeratorList(modelList: searchedList.isEmpty ? userList : searchedList),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: CommonButton(
-                  onPressed: () {
-                    Navigator.pop(context, selectedModeratorList);
-                  },
-                  text: "Done",
-                  fontColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  fontSize: 16,
-                ),
-              )
+              getBottomButton()
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget getBottomButton() {
+    if (searchController.text.checkNotEmpty) {
+      if (searchedList.checkEmpty) {
+        return SizedBox();
+      }
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: CommonButton(
+        onPressed: () {
+          Navigator.pop(context, selectedModeratorList);
+        },
+        text: "Done",
+        fontColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        fontSize: 16,
       ),
     );
   }
@@ -104,13 +125,13 @@ class _ModeratorBottomSheetState extends State<ModeratorBottomSheet> with MySafe
         itemCount: modelList.length,
         itemBuilder: (BuildContext context, int index) {
           ForumUserInfoModel model = modelList[index];
-          return getSingleItem(model: model);
+          return getSingleItem(model: model, index: index);
         },
       ),
     );
   }
 
-  Widget getSingleItem({required ForumUserInfoModel model}) {
+  Widget getSingleItem({required ForumUserInfoModel model, int index = 0}) {
     String profileImageUrl = MyUtils.getSecureUrl(
       AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(
         imagePath: model.UserThumb,
@@ -118,8 +139,9 @@ class _ModeratorBottomSheetState extends State<ModeratorBottomSheet> with MySafe
     );
     return InkWell(
       onTap: () {
-        if (selectedModeratorList.contains(model)) {
-          selectedModeratorList.remove(model);
+        MyPrint.printOnConsole("model : ${index}");
+        if (checkIsModeratorSelected(model.UserID)) {
+          selectedModeratorList.removeAt(index);
         } else {
           selectedModeratorList.add(model);
         }
@@ -150,7 +172,8 @@ class _ModeratorBottomSheetState extends State<ModeratorBottomSheet> with MySafe
             Padding(
               padding: const EdgeInsets.all(2.0),
               child: Icon(
-                selectedModeratorList.contains(model) ? FontAwesomeIcons.solidSquareMinus : FontAwesomeIcons.solidSquarePlus,
+                // selectedModeratorList.contains(model) ? FontAwesomeIcons.solidSquareMinus : FontAwesomeIcons.solidSquarePlus,
+                checkIsModeratorSelected(model.UserID) ? FontAwesomeIcons.solidSquareMinus : FontAwesomeIcons.solidSquarePlus,
                 size: 20,
               ),
             )

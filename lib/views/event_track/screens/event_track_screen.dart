@@ -297,13 +297,15 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
   }
 
   Widget getMainBodyWidget() {
-    return Column(
-      children: [
-        getHeaderWidget(),
-        Expanded(
-          child: tabBarView(),
-        ),
-      ],
+    return Container(
+      child: Column(
+        children: [
+          getHeaderWidget(),
+          Expanded(
+            child: tabBarView(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -319,21 +321,24 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
       return const SizedBox();
     }
 
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              imageWidget(headerDTOModel.ThumbnailImagePath),
-              const SizedBox(width: 20),
-              Expanded(child: detailColumn(headerDTOModel)),
-            ],
+    return Container(
+      color: Colors.white,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                imageWidget(headerDTOModel.ThumbnailImagePath),
+                const SizedBox(width: 20),
+                Expanded(child: detailColumn(headerDTOModel)),
+              ],
+            ),
           ),
-        ),
-        const Divider(height: 1, thickness: 1.5),
-      ],
+          const Divider(height: 1, thickness: 1.5),
+        ],
+      ),
     );
   }
 
@@ -488,15 +493,15 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
       );
 
       tabBar = PreferredSize(
-        preferredSize: const Size.fromHeight(10),
+        preferredSize: const Size.fromHeight(0),
         child: Container(
-          decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topRight: Radius.circular(10), topLeft: Radius.circular(10))),
+          decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topRight: Radius.circular(0), topLeft: Radius.circular(0))),
           child: SafeArea(
             child: TabBar(
                 controller: controller,
                 isScrollable: controller!.length > 3,
-                padding: const EdgeInsets.symmetric(vertical: 0),
-                labelPadding: const EdgeInsets.symmetric(horizontal: 5).copyWith(bottom: 10),
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                labelPadding: const EdgeInsets.symmetric(horizontal: 5).copyWith(bottom: 7),
                 indicatorPadding: const EdgeInsets.only(top: 20),
                 // indicatorWeight:0,
                 indicatorSize: TabBarIndicatorSize.label,
@@ -538,6 +543,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
     return Scaffold(
       appBar: controller != null
           ? AppBar(
+        backgroundColor: Colors.white,
               automaticallyImplyLeading: false,
               elevation: 1,
               bottom: tabBar,
@@ -664,7 +670,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         mySetState();
 
         if (isSuccess) {
-          if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "SetComplete was successful");
+          if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "Set Complete was successful");
           getLearningPathHeaderData();
           eventTrackController.getContentsData(
             contentId: widget.arguments.parentContentId,

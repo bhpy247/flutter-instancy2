@@ -48,7 +48,7 @@ class DiscussionForumUiActionController {
   }
 
   bool showAddToTopic({required DiscussionForumUiActionParameterModel parameterModel}) {
-    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId() || parameterModel.CreateNewTopic;
+    return parameterModel.CreateNewTopicEditValue;
   }
 
   bool showEdit({required DiscussionForumUiActionParameterModel parameterModel}) {
@@ -60,15 +60,15 @@ class DiscussionForumUiActionController {
   }
 
   bool showViewLikes({required DiscussionForumUiActionParameterModel parameterModel}) {
-    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId() || parameterModel.LikePosts;
+    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId() || parameterModel.LikePostsEditValue;
   }
 
   bool showShareWithConnection({required DiscussionForumUiActionParameterModel parameterModel}) {
-    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId() || parameterModel.AllowShare;
+    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId() || parameterModel.AllowShareEditValue;
   }
 
   bool showShareWithPeople({required DiscussionForumUiActionParameterModel parameterModel}) {
-    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId() || parameterModel.AllowShare;
+    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId() || parameterModel.AllowShareEditValue;
   }
 
   //region Secondary Actions
@@ -98,11 +98,15 @@ class DiscussionForumUiActionController {
     required ForumModel model,
   }) {
     return DiscussionForumUiActionParameterModel(
-      CreatedUserID: model.CreatedUserID,
-      CreateNewTopic: model.CreateNewTopic,
-      LikePosts: model.LikePosts,
-      AllowShare: model.AllowShare,
-    );
+        CreatedUserID: model.CreatedUserID,
+        CreateNewTopic: model.CreateNewTopic,
+        LikePosts: model.LikePosts,
+        AllowShare: model.AllowShare,
+        CreateNewTopicEditValue: model.CreateNewTopicEditValue,
+        AllowPinEditValue: model.AllowPinEditValue,
+        AllowShareEditValue: model.AllowShareEditValue,
+        AttachFileEditValue: model.AttachFileEditValue,
+        LikePostsEditValue: model.LikePostsEditValue);
   }
 
   //endregion

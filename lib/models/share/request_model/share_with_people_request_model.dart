@@ -42,25 +42,25 @@ class ShareWithPeopleRequestModel {
     this.userIDList = userIDList ?? <int>[];
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, String> toMap() {
     return {
       'astrUserEmail': astrUserEmail,
       'astrUserName': astrUserName,
-      'isSuggesttoConnections': isSuggestToConnections,
-      'SiteID': siteID,
-      'UserID': userID,
+      'isSuggesttoConnections': isSuggestToConnections.toString(),
+      'SiteID': siteID.toString(),
+      'UserID': userID.toString(),
       'UserIDList': AppConfigurationOperations.getSeparatorJoinedStringFromStringList(list: userIDList.map((e) => e.toString()).toList()),
       'UserMails': AppConfigurationOperations.getSeparatorJoinedStringFromStringList(list: userMails),
-      'LocaleID': locale,
       'Subject': subject,
       'Message': message,
       'Contentid': contentId,
       'ForumID': forumID,
       'TopicID': topicID,
       'quesID': quesID,
-      "AskQuestionLink": askQuestionLink,
-      "DiscusssionForumLink": discussionForumLink,
-      'GameNotify': gameNotify,
+      "AskQuestionLink": askQuestionLink.toString(),
+      "DiscusssionForumLink": discussionForumLink.toString(),
+      'LocaleID': locale,
+      'GameNotify': gameNotify.toString(),
     };
   }
 

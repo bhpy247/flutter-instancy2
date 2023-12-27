@@ -51,11 +51,11 @@ class DiscussionTopicUiActionController {
   }
 
   bool showAddComment({required DiscussionTopicUiActionParameterModel parameterModel}) {
-    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId() || parameterModel.CreateNewTopic;
+    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId() || parameterModel.LikePostsEditValue;
   }
 
   bool showLike({required DiscussionTopicUiActionParameterModel parameterModel}) {
-    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId() || parameterModel.LikePosts;
+    return parameterModel.CreatedUserID == ApiController().apiDataProvider.getCurrentUserId() || parameterModel.LikePostsEditValue;
   }
 
   bool showEdit({required DiscussionTopicUiActionParameterModel parameterModel}) {

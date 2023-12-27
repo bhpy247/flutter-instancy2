@@ -3,8 +3,6 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_bot/utils/parsing_helper.dart';
-import 'package:flutter_chat_bot/view/common/components/common_cached_network_image.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/message/message_controller.dart';
@@ -26,7 +24,9 @@ import '../../../models/message/data_model/chat_message_model.dart';
 import '../../../models/message/data_model/chat_user_model.dart';
 import '../../../models/message/request_model/send_chat_message_request_model.dart';
 import '../../../utils/my_print.dart';
+import '../../../utils/parsing_helper.dart';
 import '../../common/components/app_ui_components.dart';
+import '../../common/components/common_cached_network_image.dart';
 import '../../common/components/common_loader.dart';
 import '../components/attachment_icon.dart';
 import '../components/message_input.dart';

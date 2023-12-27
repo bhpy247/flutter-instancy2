@@ -499,7 +499,7 @@ class InstancyIcons {
   static const IconData shareWithPeople = Icons.share;
   static const IconData waitList = MdiIcons.humanQueue;
   static const IconData download = MdiIcons.download;
-  static const IconData delete = FontAwesomeIcons.xmark;
+  static const IconData delete = FontAwesomeIcons.trash;
   static const IconData buy = FontAwesomeIcons.cartShopping;
   static const IconData share = Icons.share;
   static const IconData addToMyLearning = Icons.add_circle;
@@ -561,6 +561,10 @@ class MyCatalogPrivileges {
   static int showNotelink = 1075;
   static int showRelatedContentlink = 1076;
   static int downloadCalender = 1169;
+}
+
+class DiscussionForumPrivileges {
+  static int showAddForumButton = 434;
 }
 
 class EventTrackTabs {
