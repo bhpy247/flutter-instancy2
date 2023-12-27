@@ -81,7 +81,7 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
 
     DateTime now = DateTime.now();
 
-    DateTime? startDate = progressReportContentModel?.createdDate;
+    DateTime? startDate = progressReportContentModel?.createdDate ?? DateTime.now().subtract(const Duration(days: 365));
 
     progressReportController.getContentProgressDetailsData(
       requestModel: ContentProgressDetailsDataRequestModel(
