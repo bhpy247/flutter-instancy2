@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
+import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 
 import '../../../../backend/navigation/navigation.dart';
@@ -20,13 +22,16 @@ class CourseLaunchWebViewScreen extends StatefulWidget {
   State<CourseLaunchWebViewScreen> createState() => _CourseLaunchWebViewScreenState();
 }
 
-class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> {
+class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> with MySafeState {
   InAppWebViewController? webViewController;
 
   bool isPageLoaded = false;
 
   bool isFullScreen() {
     MyPrint.printOnConsole("contentTypeId:${widget.arguments.contentTypeId}");
+    if (kIsWeb) {
+      return false;
+    }
     if ([InstancyObjectTypes.contentObject, InstancyObjectTypes.assessment, InstancyObjectTypes.track].contains(widget.arguments.contentTypeId)) {
       return true;
     } else {
@@ -43,6 +48,8 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.pageBuild();
+
     return PopScope(
       canPop: false,
       onPopInvoked: (bool didPop) {
@@ -109,6 +116,12 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> {
         MyPrint.printOnConsole("onWebViewCreated called with webViewController:$webViewController");
 
         this.webViewController = webViewController;
+
+        //Because onProgressChanged not implemented for Web
+        if (kIsWeb) {
+          isPageLoaded = true;
+          mySetState();
+        }
       },
       onLoadStart: (InAppWebViewController webViewController, WebUri? webUri) {
         MyPrint.printOnConsole("onLoadStart called with webViewController:$webViewController, webUri:$webUri");
@@ -120,7 +133,7 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> {
 
         if (!isPageLoaded && progress == 100) {
           isPageLoaded = true;
-          setState(() {});
+          mySetState();
         }
       },
       onLoadStop: (InAppWebViewController webViewController, WebUri? webUri) {
