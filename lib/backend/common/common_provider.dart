@@ -37,15 +37,24 @@ class CommonProviderListParameter<T> {
           return e;
         }
       }).toList();
-    }
-    else {
+    } else {
       return _list;
     }
   }
 
   void setList({required List<T> list, bool isClear = true, bool isNotify = true}) {
-    if(isClear) _list.clear();
+    if (isClear) _list.clear();
     _list.addAll(list);
+    _notify(isNotify: isNotify);
+  }
+
+  void insertAt({required int index, required T element, bool isNotify = true}) {
+    _list.insert(index, element);
+    _notify(isNotify: isNotify);
+  }
+
+  void removeItems({required List<T> items, bool isNotify = true}) {
+    _list.removeWhere((element) => items.contains(element));
     _notify(isNotify: isNotify);
   }
 }

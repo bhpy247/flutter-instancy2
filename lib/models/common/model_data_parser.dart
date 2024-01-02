@@ -15,6 +15,8 @@ import 'package:flutter_instancy_2/models/discussion/data_model/forum_model.dart
 import 'package:flutter_instancy_2/models/discussion/data_model/topic_comment_model.dart';
 import 'package:flutter_instancy_2/models/event/response_model/re_entrollment_history_response_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/response_model/resource_content_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/response_model/track_list_view_data_response_model.dart';
 import 'package:flutter_instancy_2/models/gamification/data_model/games_dto_model.dart';
 import 'package:flutter_instancy_2/models/gamification/response_model/content_game_activity_response_model.dart';
 import 'package:flutter_instancy_2/models/gamification/response_model/leader_board_dto_model.dart';
@@ -57,9 +59,7 @@ import '../dto/response_dto_model.dart';
 import '../event/response_model/event_session_data_response_model.dart';
 import '../event_track/data_model/event_track_header_dto_model.dart';
 import '../event_track/data_model/event_track_tab_dto_model.dart';
-import '../event_track/response_model/event_related_content_data_response_model.dart';
 import '../event_track/response_model/event_track_resourse_response_model.dart';
-import '../event_track/response_model/track_content_data_response_model.dart';
 import '../filter/data_model/content_filter_category_tree_model.dart';
 import '../filter/response_model/component_sort_options_response_model.dart';
 import '../filter/response_model/filter_duration_values_response_model.dart';
@@ -211,8 +211,8 @@ enum ModelDataParsingType {
   eventTrackDTOModelList,
   glossaryModelList,
   eventTrackResourceResponseModel,
-  trackContentDataResponseModel,
-  eventRelatedContentDataResponseModel,
+  TrackListViewDataResponseModel,
+  ResourceContentDTOModel,
   //endregion
 
   // region Discussion
@@ -398,8 +398,8 @@ class ModelDataParser {
     ModelDataParsingType.eventTrackDTOModelList: parseEventTrackDTOModelList,
     ModelDataParsingType.glossaryModelList: parseGlossaryModelList,
     ModelDataParsingType.eventTrackResourceResponseModel: parseEventTrackResourceResponseModel,
-    ModelDataParsingType.trackContentDataResponseModel: parseTrackContentDataResponseModel,
-    ModelDataParsingType.eventRelatedContentDataResponseModel: parseEventRelatedContentDataResponseModel,
+    ModelDataParsingType.TrackListViewDataResponseModel: parseTrackListViewDataResponseModel,
+    ModelDataParsingType.ResourceContentDTOModel: parseResourceContentDTOModel,
     //endregion
 
     // region Discussion
@@ -1027,21 +1027,21 @@ class ModelDataParser {
     }
   }
 
-  static TrackContentDataResponseModel? parseTrackContentDataResponseModel({required dynamic decodedValue}) {
+  static TrackListViewDataResponseModel? parseTrackListViewDataResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
     if (json.isNotEmpty) {
-      return TrackContentDataResponseModel.fromJson(json);
+      return TrackListViewDataResponseModel.fromMap(json);
     } else {
       return null;
     }
   }
 
-  static EventRelatedContentDataResponseModel? parseEventRelatedContentDataResponseModel({required dynamic decodedValue}) {
+  static ResourceContentDTOModel? parseResourceContentDTOModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
     if (json.isNotEmpty) {
-      return EventRelatedContentDataResponseModel.fromJson(json);
+      return ResourceContentDTOModel.fromMap(json);
     } else {
       return null;
     }

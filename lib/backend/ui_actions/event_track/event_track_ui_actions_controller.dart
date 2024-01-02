@@ -3,8 +3,9 @@ import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
-import 'package:flutter_instancy_2/models/classroom_events/data_model/event_recodting_mobile_lms_data_model.dart';
-import 'package:flutter_instancy_2/models/event_track/data_model/event_track_content_model.dart';
+import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
 
 import '../../../configs/app_constants.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
@@ -145,25 +146,7 @@ class EventTrackUIActionsController {
   }
 
   bool showReport({required EventTrackUIActionParameterModel parameterModel}) {
-    bool isShow = false;
-
-    if ([
-      InstancyObjectTypes.mediaResource,
-      InstancyObjectTypes.document,
-      InstancyObjectTypes.dictionaryGlossary,
-      InstancyObjectTypes.html,
-      InstancyObjectTypes.aICC,
-      InstancyObjectTypes.reference,
-      InstancyObjectTypes.webPage,
-      InstancyObjectTypes.certificate,
-      InstancyObjectTypes.events,
-      InstancyObjectTypes.externalTraining,
-    ].contains(parameterModel.objectTypeId)) {
-    } else {
-      isShow = true;
-    }
-
-    return isShow;
+    return parameterModel.showReportAction;
   }
 
   bool showJoin({required EventTrackUIActionParameterModel parameterModel}) {
@@ -182,7 +165,7 @@ class EventTrackUIActionsController {
   bool showViewResources({required EventTrackUIActionParameterModel parameterModel}) {
     bool isShow = true;
 
-    if (parameterModel.objectTypeId != InstancyObjectTypes.events || parameterModel.relatedConentCount <= 0) {
+    if (parameterModel.objectTypeId != InstancyObjectTypes.events || !parameterModel.showRelatedContents) {
       isShow = false;
     }
 
@@ -200,7 +183,7 @@ class EventTrackUIActionsController {
   }
 
   bool showViewRecording({required EventTrackUIActionParameterModel parameterModel}) {
-    EventRecordingMobileLMSDataModel? recordingDetails = parameterModel.recordingDetails;
+    EventRecordingDetailsModel? recordingDetails = parameterModel.recordingDetails;
 
     if (recordingDetails == null) {
       MyPrint.printOnConsole("recordingDetails are null");
@@ -209,12 +192,12 @@ class EventTrackUIActionsController {
 
     bool isShowRecordingButton = true;
 
-    if (recordingDetails.recordingtype == "URL") {
-      if (recordingDetails.eventrecordingurl.isEmpty) {
+    if (recordingDetails.RecordingType == "URL") {
+      if (recordingDetails.EventRecordingURL.isEmpty) {
         MyPrint.printOnConsole("eventrecordingurl is empty");
         isShowRecordingButton = false;
       }
-    } else if (recordingDetails.recordingtype == "video") {
+    } else if (recordingDetails.RecordingType == "video") {
     } else {
       MyPrint.printOnConsole("recordingtype is invalid");
       isShowRecordingButton = false;
@@ -223,12 +206,13 @@ class EventTrackUIActionsController {
     return isShowRecordingButton;
   }
 
-  Iterable<InstancyUIActionModel> getPrimaryActions({
-    required EventTrackContentModel contentModel,
+  // region Track Contents Actions
+  Iterable<InstancyUIActionModel> getTrackContentsPrimaryActions({
+    required TrackCourseDTOModel contentModel,
     required LocalStr localStr,
     required EventTrackUIActionCallbackModel myLearningUIActionCallbackModel,
   }) sync* {
-    // MyPrint.printOnConsole("getMyLearningScreenPrimaryActionsFromMyLearningUIActionParameterModel called with parameterModel:$parameterModel");
+    // MyPrint.printOnConsole("getTrackContentsPrimaryActions called with parameterModel:$parameterModel");
 
     List<InstancyContentActionsEnum> primaryActions = [
       InstancyContentActionsEnum.Enroll,
@@ -243,11 +227,11 @@ class EventTrackUIActionsController {
     // MyPrint.printOnConsole("primaryActions:$primaryActions");
 
     Iterable<InstancyUIActionModel> actionsList = getInstancyUIActionModelListFromInstancyContentActionsEnumList(
-      viewType: contentModel.viewtype,
-      objectTypeId: contentModel.objecttypeid,
+      viewType: contentModel.ViewTypeValue,
+      objectTypeId: contentModel.ContentTypeId,
       actions: primaryActions,
       localStr: localStr,
-      parameterModel: getParameterModelFromEventTrackContentModel(model: contentModel),
+      parameterModel: getParameterModelFromTrackCourseDTOModel(model: contentModel),
       callbackModel: myLearningUIActionCallbackModel,
     );
 
@@ -258,12 +242,12 @@ class EventTrackUIActionsController {
     }
   }
 
-  Iterable<InstancyUIActionModel> getSecondaryActions({
-    required EventTrackContentModel contentModel,
+  Iterable<InstancyUIActionModel> getTrackContentsSecondaryActions({
+    required TrackCourseDTOModel contentModel,
     required LocalStr localStr,
     required EventTrackUIActionCallbackModel myLearningUIActionCallbackModel,
   }) sync* {
-    // MyPrint.printOnConsole("getMyLearningScreenPrimaryActionsFromMyLearningUIActionParameterModel called with parameterModel:$parameterModel");
+    // MyPrint.printOnConsole("getTrackContentsSecondaryActions called with parameterModel:$parameterModel");
 
     List<InstancyContentActionsEnum> secondaryActions = [
       InstancyContentActionsEnum.Enroll,
@@ -272,44 +256,111 @@ class EventTrackUIActionsController {
       InstancyContentActionsEnum.View,
       InstancyContentActionsEnum.Play,
       InstancyContentActionsEnum.Join,
+      InstancyContentActionsEnum.Report,
       InstancyContentActionsEnum.ViewResources,
       InstancyContentActionsEnum.ViewQRCode,
       InstancyContentActionsEnum.ViewRecording,
       InstancyContentActionsEnum.SetComplete,
-
     ];
     // MyPrint.printOnConsole("primaryActions:$primaryActions");
 
     Iterable<InstancyUIActionModel> actionModels = getInstancyUIActionModelListFromInstancyContentActionsEnumList(
-      viewType: contentModel.viewtype,
-      objectTypeId: contentModel.objecttypeid,
+      viewType: contentModel.ViewTypeValue,
+      objectTypeId: contentModel.ContentTypeId,
       actions: secondaryActions,
       localStr: localStr,
-      parameterModel: getParameterModelFromEventTrackContentModel(model: contentModel),
+      parameterModel: getParameterModelFromTrackCourseDTOModel(model: contentModel),
       callbackModel: myLearningUIActionCallbackModel,
     );
 
     yield* actionModels;
   }
 
-  EventTrackUIActionParameterModel getParameterModelFromEventTrackContentModel({required EventTrackContentModel model}) {
-    MyPrint.printOnConsole("EventTrackContentModel status: ${model.corelessonstatus} actual status : ${model.actualstatus}  status: ${model.status}`");
+  EventTrackUIActionParameterModel getParameterModelFromTrackCourseDTOModel({required TrackCourseDTOModel model}) {
+    MyPrint.printOnConsole("EventTrackContentModel status: ${model.ContentStatus} actual status : ${model.CoreLessonStatus}");
     return EventTrackUIActionParameterModel(
-      objectTypeId: model.objecttypeid,
-      mediaTypeId: model.mediatypeid,
-      viewType: model.viewtype,
-      relatedConentCount: model.relatedconentcount,
-      eventScheduleType: model.eventscheduletype,
-      reportaction: "",
-      suggestToConnectionsLink: " ",
-      suggestWithFriendLink: " ",
-      shareLink: " ",
-      actualStatus: model.actualstatus,
-      eventEndDatetime: model.eventenddatetime,
-      actionviewqrcode: model.actionviewqrcode,
-      recordingDetails: model.recordingModel,
+      objectTypeId: model.ContentTypeId,
+      mediaTypeId: model.MediaTypeID,
+      viewType: model.ViewTypeValue,
+      eventScheduleType: model.EventScheduleType,
+      actualStatus: model.CoreLessonStatus,
+      eventEndDatetime: model.EventEndDateTime,
+      actionviewqrcode: model.ActionViewQRcode,
+      showRelatedContents: ["true", "1"].contains(model.RelatedContentLink.toLowerCase()),
+      showReportAction: ["true", "1"].contains(model.ReportLink.toLowerCase()),
+      recordingDetails: model.RecordingDetails,
     );
   }
+
+  // endregion
+
+  // region Event Related Contents Actions
+  Iterable<InstancyUIActionModel> getEventRelatedContentsPrimaryActions({
+    required RelatedTrackDataDTOModel contentModel,
+    required LocalStr localStr,
+    required EventTrackUIActionCallbackModel myLearningUIActionCallbackModel,
+  }) sync* {
+    // MyPrint.printOnConsole("getTrackContentsPrimaryActions called with parameterModel:$parameterModel");
+
+    List<InstancyContentActionsEnum> primaryActions = [
+      InstancyContentActionsEnum.View,
+      InstancyContentActionsEnum.Play,
+    ];
+    // MyPrint.printOnConsole("primaryActions:$primaryActions");
+
+    Iterable<InstancyUIActionModel> actionsList = getInstancyUIActionModelListFromInstancyContentActionsEnumList(
+      viewType: contentModel.ViewType,
+      objectTypeId: contentModel.ContentTypeId,
+      actions: primaryActions,
+      localStr: localStr,
+      parameterModel: getParameterModelFromRelatedTrackDataDTOModel(model: contentModel),
+      callbackModel: myLearningUIActionCallbackModel,
+    );
+
+    if (actionsList.length > 1) {
+      yield* actionsList.take(1);
+    } else {
+      yield* actionsList;
+    }
+  }
+
+  Iterable<InstancyUIActionModel> getEventRelatedContentsSecondaryActions({
+    required RelatedTrackDataDTOModel contentModel,
+    required LocalStr localStr,
+    required EventTrackUIActionCallbackModel myLearningUIActionCallbackModel,
+  }) sync* {
+    // MyPrint.printOnConsole("getTrackContentsSecondaryActions called with parameterModel:$parameterModel");
+
+    List<InstancyContentActionsEnum> secondaryActions = [
+      InstancyContentActionsEnum.View,
+      InstancyContentActionsEnum.Play,
+      InstancyContentActionsEnum.SetComplete,
+    ];
+    // MyPrint.printOnConsole("primaryActions:$primaryActions");
+
+    Iterable<InstancyUIActionModel> actionModels = getInstancyUIActionModelListFromInstancyContentActionsEnumList(
+      viewType: contentModel.ViewType,
+      objectTypeId: contentModel.ContentTypeId,
+      actions: secondaryActions,
+      localStr: localStr,
+      parameterModel: getParameterModelFromRelatedTrackDataDTOModel(model: contentModel),
+      callbackModel: myLearningUIActionCallbackModel,
+    );
+
+    yield* actionModels;
+  }
+
+  EventTrackUIActionParameterModel getParameterModelFromRelatedTrackDataDTOModel({required RelatedTrackDataDTOModel model}) {
+    MyPrint.printOnConsole("RelatedTrackDataDTOModel status: ${model.ContentDisplayStatus} actual status : ${model.CoreLessonStatus}");
+    return EventTrackUIActionParameterModel(
+      objectTypeId: model.ContentTypeId,
+      mediaTypeId: model.MediaTypeID,
+      viewType: model.ViewType,
+      actualStatus: model.CoreLessonStatus,
+    );
+  }
+
+  // endregion
 
   Iterable<InstancyUIActionModel> getInstancyUIActionModelListFromInstancyContentActionsEnumList({
     required int viewType,

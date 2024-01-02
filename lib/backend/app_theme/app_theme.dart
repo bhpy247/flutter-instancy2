@@ -208,6 +208,7 @@ class AppTheme {
         unselectedLabelColor: styles.lightTextColor,
         labelColor: styles.lightPrimaryColor,
         indicatorSize: TabBarIndicatorSize.label,
+        indicatorColor: styles.lightPrimaryColor,
         indicator: UnderlineTabIndicator(
           borderSide: BorderSide(color: styles.lightPrimaryColor, width: 2.0),
         ),
@@ -339,12 +340,13 @@ class AppTheme {
       bottomAppBarTheme: const BottomAppBarTheme(color: Color(0xff292929), elevation: 2),
       tabBarTheme: TabBarTheme(
         unselectedLabelColor: styles.lightTextColor,
-        labelColor: const Color(0xff10bbf0),
-        indicatorSize: TabBarIndicatorSize.label,
-        indicator: const UnderlineTabIndicator(
-          borderSide: BorderSide(color: Color(0xff10bbf0), width: 2.0),
+          labelColor: const Color(0xff10bbf0),
+          indicatorSize: TabBarIndicatorSize.label,
+          indicatorColor: const Color(0xff10bbf0),
+          indicator: const UnderlineTabIndicator(
+            borderSide: BorderSide(color: Color(0xff10bbf0), width: 2.0),
+          ),
         ),
-      ),
       sliderTheme: SliderThemeData(
         activeTrackColor: const Color(0xff10bbf0),
         inactiveTrackColor: styles.darkPrimaryColor.withAlpha(100),

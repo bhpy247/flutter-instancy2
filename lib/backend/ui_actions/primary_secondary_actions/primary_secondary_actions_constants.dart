@@ -61,6 +61,13 @@ enum InstancyContentActionsEnum {
   AddReply,
   //endregion
   //endregion
+
+  // region Course Download
+  RemoveFromDownloads,
+  CancelDownload,
+  PauseDownload,
+  ResumeDownload,
+  // endregion
 }
 
 enum InstancyContentScreenType {

@@ -437,6 +437,7 @@ class InstancyComponents {
   static const int EventCatalogTabsListComponentInsId = 3497;
   static const int transferToAgentComponent = 4001;
   static const int UserSettings = 5000;
+  static const int MyCourseDownloads = 5001;
 }
 
 class ViewTypesForContent {
@@ -452,6 +453,13 @@ class ViewTypesForContent {
   //We will show "view" to user,
   //But will first Add this content to myLearning and then Launch It
   static const int ViewAndAddToMyLearning = 5;
+}
+
+class EventTrackViewTypesForContent {
+  static const String View = "View";
+  static const String Subscription = "Subscription";
+  static const String ECommerce = "ECommerce";
+  static const String ViewAndAddtoMyLearning = "ViewAndAddtoMyLearning";
 }
 
 enum InstancyIconType { shareWithConnection, shareViaEmail, shareWithPeople, pause, archived }
@@ -513,6 +521,13 @@ class InstancyIcons {
   static const IconData pin = FontAwesomeIcons.thumbtack;
   static const IconData unpin = FontAwesomeIcons.linkSlash;
   static const IconData viewLikes = FontAwesomeIcons.thumbsUp;
+
+  // region Course Download
+  static const IconData removeFromDownload = FontAwesomeIcons.trash;
+  static const IconData cancelDownload = FontAwesomeIcons.ban;
+  static const IconData pauseDownload = FontAwesomeIcons.circlePause;
+  static const IconData resumeDownload = FontAwesomeIcons.play;
+// endregion
 }
 
 class InstancySVGImages {

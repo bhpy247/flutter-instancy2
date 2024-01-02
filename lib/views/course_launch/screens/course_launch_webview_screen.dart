@@ -50,6 +50,14 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> w
   Widget build(BuildContext context) {
     super.pageBuild();
 
+    String courseUrl = widget.arguments.courseUrl;
+
+    if (courseUrl.startsWith("www")) {
+      courseUrl = 'https://$courseUrl';
+    } else if (courseUrl.startsWith("http://")) {
+      courseUrl = courseUrl.replaceFirst("http://", "https://");
+    }
+
     return PopScope(
       canPop: false,
       onPopInvoked: (bool didPop) {
@@ -65,16 +73,16 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> w
       child: ModalProgressHUD(
         inAsyncCall: !isPageLoaded,
         child: Scaffold(
-          appBar: getAppBar(),
+          appBar: getAppBar(courseUrl: courseUrl),
           body: SafeArea(
-            child: getMainBody(courseUrl: widget.arguments.courseUrl),
+            child: getMainBody(courseUrl: courseUrl),
           ),
         ),
       ),
     );
   }
 
-  PreferredSizeWidget? getAppBar() {
+  PreferredSizeWidget? getAppBar({required String courseUrl}) {
     if (isFullScreen()) {
       return null;
     }
@@ -83,6 +91,19 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> w
       title: Text(
         widget.arguments.courseName.isNotEmpty ? widget.arguments.courseName : "Course",
       ),
+      /*actions: [
+        if (courseUrl.isNotEmpty && webViewController != null)
+          IconButton(
+            onPressed: () {
+              webViewController?.loadUrl(
+                urlRequest: URLRequest(
+                  url: WebUri(courseUrl),
+                ),
+              );
+            },
+            icon: const Icon(Icons.refresh),
+          ),
+      ],*/
     );
   }
 

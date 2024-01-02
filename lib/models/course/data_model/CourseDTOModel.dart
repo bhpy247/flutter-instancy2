@@ -916,4 +916,8 @@ class CourseDTOModel {
   bool hasPrerequisiteContents() {
     return AppConfigurationOperations.hasPrerequisiteContents(AddLink);
   }
+
+  bool isCourseEnrolled() {
+    return ["true", "1"].contains(isContentEnrolled.toLowerCase());
+  }
 }

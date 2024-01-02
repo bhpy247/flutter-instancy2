@@ -790,6 +790,11 @@ class LocalStr {
   String profilefromYearIsGreaterThanToYearValidation = "";
   String viewSessionsLabel = "";
 
+  String courseDownloadActionSheetRemoveFromDownloadAction = "";
+  String courseDownloadActionSheetCancelDownloadAction = "";
+  String courseDownloadActionSheetPauseDownloadAction = "";
+  String courseDownloadActionSheetResumeDownloadAction = "";
+
   /*String reminder1lbl;
   String reminder1lbl = "";*/
 
@@ -1567,6 +1572,10 @@ class LocalStr {
     this.loginScreenWelcomeDescription = "",
     this.profilefromYearIsGreaterThanToYearValidation = "",
     this.eventsActionSheetViewSeriesOption = "",
+    this.courseDownloadActionSheetRemoveFromDownloadAction = "",
+    this.courseDownloadActionSheetCancelDownloadAction = "",
+    this.courseDownloadActionSheetPauseDownloadAction = "",
+    this.courseDownloadActionSheetResumeDownloadAction = "",
   });
 
   LocalStr.fromJson(Map<String, dynamic> json) {
@@ -2356,6 +2365,11 @@ class LocalStr {
     loginScreenWelcomeTitle = ParsingHelper.parseStringMethod(json["loginScreenWelcomeTitle"]);
     loginScreenWelcomeDescription = ParsingHelper.parseStringMethod(json["loginScreenWelcomeDescription"]);
     eventsActionSheetViewSeriesOption = ParsingHelper.parseStringMethod(json["eventsActionSheetViewSeriesOption"]);
+
+    courseDownloadActionSheetRemoveFromDownloadAction = ParsingHelper.parseStringMethod(json['courseDownloadActionSheetRemoveFromDownloadAction']);
+    courseDownloadActionSheetCancelDownloadAction = ParsingHelper.parseStringMethod(json['courseDownloadActionSheetCancelDownloadAction']);
+    courseDownloadActionSheetPauseDownloadAction = ParsingHelper.parseStringMethod(json['courseDownloadActionSheetPauseDownloadAction']);
+    courseDownloadActionSheetResumeDownloadAction = ParsingHelper.parseStringMethod(json['courseDownloadActionSheetResumeDownloadAction']);
   }
 
   Map<String, dynamic> toJson() {
@@ -3144,6 +3158,11 @@ class LocalStr {
     data['loginScreenWelcomeTitle'] = loginScreenWelcomeTitle;
     data['loginScreenWelcomeDescription'] = loginScreenWelcomeDescription;
     data['eventsActionSheetViewSeriesOption'] = eventsActionSheetViewSeriesOption;
+
+    data["courseDownloadActionSheetRemoveFromDownloadAction"] = courseDownloadActionSheetRemoveFromDownloadAction;
+    data["courseDownloadActionSheetCancelDownloadAction"] = courseDownloadActionSheetCancelDownloadAction;
+    data["courseDownloadActionSheetPauseDownloadAction"] = courseDownloadActionSheetPauseDownloadAction;
+    data["courseDownloadActionSheetResumeDownloadAction"] = courseDownloadActionSheetResumeDownloadAction;
 
     return data;
   }

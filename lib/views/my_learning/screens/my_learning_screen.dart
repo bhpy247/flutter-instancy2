@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/course_launch/course_launch_controller.dart';
 import 'package:flutter_instancy_2/backend/event/event_controller.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_controller.dart';
@@ -9,11 +11,14 @@ import 'package:flutter_instancy_2/backend/my_learning/my_learning_controller.da
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/backend/share/share_provider.dart';
+import 'package:flutter_instancy_2/backend/ui_actions/my_course_download/my_course_download_ui_action_callback_model.dart';
+import 'package:flutter_instancy_2/backend/ui_actions/my_course_download/my_course_download_ui_actions_controller.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_callback_model.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
 import 'package:flutter_instancy_2/models/common/pagination/pagination_model.dart';
+import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/response_model/page_notes_response_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
@@ -62,6 +67,9 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
   late AppProvider appProvider;
   late ProfileProvider profileProvider;
 
+  late CourseDownloadProvider courseDownloadProvider;
+  late CourseDownloadController courseDownloadController;
+
   bool isLoading = false;
 
   int componentId = 0, componentInstanceId = 0;
@@ -78,6 +86,9 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
     myLearningController = MyLearningController(provider: myLearningProvider);
     appProvider = Provider.of<AppProvider>(context, listen: false);
     profileProvider = context.read<ProfileProvider>();
+
+    courseDownloadProvider = context.read<CourseDownloadProvider>();
+    courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
 
     searchController.text = myLearningProvider.myLearningSearchString;
     archivedSearchController.text = myLearningProvider.myLearningArchivedSearchString;
@@ -545,6 +556,34 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
     );
   }
 
+  MyCourseDownloadUIActionCallbackModel getMyCourseDownloadUIActionCallbackModel({
+    required CourseDownloadDataModel model,
+    bool isSecondaryAction = true,
+  }) {
+    return MyCourseDownloadUIActionCallbackModel(
+      onRemoveFromDownloadTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        courseDownloadController.removeFromDownload(downloadId: model.id);
+      },
+      onCancelDownloadTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        courseDownloadController.cancelDownload(downloadId: model.id);
+      },
+      onPauseDownloadTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        courseDownloadController.pauseDownload(downloadId: model.id);
+      },
+      onResumeDownloadTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        courseDownloadController.resumeDownload(downloadId: model.id);
+      },
+    );
+  }
+
   Future<void> showMoreAction({
     required CourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
@@ -552,13 +591,35 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
   }) async {
     LocalStr localStr = appProvider.localStr;
 
+    List<InstancyUIActionModel> options = <InstancyUIActionModel>[];
+
+    CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: CourseDownloadDataModel.getDownloadId(contentId: model.ContentID));
+    if (courseDownloadDataModel != null) {
+      MyCourseDownloadUIActionsController courseDownloadUIActionsController = MyCourseDownloadUIActionsController(appProvider: appProvider);
+
+      List<InstancyUIActionModel> courseDownloadOptions = courseDownloadUIActionsController
+          .getMyCourseDownloadsScreenSecondaryActions(
+            courseDownloadDataModel: courseDownloadDataModel,
+            localStr: localStr,
+            myCourseDownloadUIActionCallbackModel: getMyCourseDownloadUIActionCallbackModel(
+              model: courseDownloadDataModel,
+              isSecondaryAction: true,
+            ),
+          )
+          .toSet()
+          .toList();
+      // MyPrint.printOnConsole("courseDownloadOptions length:${courseDownloadOptions.length}");
+
+      options.addAll(courseDownloadOptions);
+    }
+
     MyLearningUIActionsController myLearningUIActionsController = MyLearningUIActionsController(
       appProvider: appProvider,
       myLearningProvider: myLearningProvider,
       profileProvider: profileProvider,
     );
 
-    List<InstancyUIActionModel> options = myLearningUIActionsController
+    options.addAll(myLearningUIActionsController
         .getMyLearningScreenSecondaryActions(
           myLearningCourseDTOModel: model,
           localStr: localStr,
@@ -570,7 +631,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
           ),
         )
         .toSet()
-        .toList();
+        .toList());
 
     if (options.isEmpty) {
       return;
@@ -580,6 +641,28 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
       context: context,
       actions: options,
     );
+  }
+
+  Future<void> onDownloadButtonTapped({required CourseDTOModel model}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("onDownloadTap called", tag: tag);
+
+    String downloadId = CourseDownloadDataModel.getDownloadId(contentId: model.ContentID);
+
+    CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: downloadId);
+
+    if (courseDownloadDataModel == null) {
+      MyPrint.printOnConsole("Course Not Downloaded", tag: tag);
+      courseDownloadController.downloadCourse(courseDTOModel: model);
+    } else if (courseDownloadDataModel.isFileDownloading) {
+      MyPrint.printOnConsole("Course Downloading", tag: tag);
+      courseDownloadController.pauseDownload(downloadId: downloadId);
+    } else if (courseDownloadDataModel.isFileDownloadingPaused) {
+      MyPrint.printOnConsole("Course Paused", tag: tag);
+      courseDownloadController.resumeDownload(downloadId: downloadId);
+    } else {
+      MyPrint.printOnConsole("Invalid Download Command", tag: tag);
+    }
   }
 
   Future<void> onContentLaunchTap({
@@ -1091,6 +1174,9 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
         }
 
         if (primaryAction?.onTap != null) primaryAction!.onTap!();
+      },
+      onDownloadTap: () async {
+        onDownloadButtonTapped(model: model);
       },
     );
   }

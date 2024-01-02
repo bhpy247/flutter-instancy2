@@ -1,7 +1,9 @@
+import 'package:flutter_instancy_2/models/common/pagination/pagination_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/gloassary_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_reference_item_model.dart';
-import 'package:flutter_instancy_2/models/event_track/data_model/track_block_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_dto_model.dart';
 
 import '../../models/event_track/data_model/event_track_header_dto_model.dart';
 import '../../models/event_track/data_model/event_track_tab_dto_model.dart';
@@ -54,16 +56,47 @@ class EventTrackProvider extends CommonProvider {
       notify: notify,
     );
 
-    isContentsDataLoading = CommonProviderPrimitiveParameter<bool>(
+    isTrackContentsDataLoading = CommonProviderPrimitiveParameter<bool>(
       value: false,
       notify: notify,
     );
-    contentsData = CommonProviderListParameter<TrackBlockModel>(
-      list: <TrackBlockModel>[],
+    trackContentsData = CommonProviderListParameter<TrackDTOModel>(
+      list: <TrackDTOModel>[],
       notify: notify,
     );
-    assignmentsData = CommonProviderListParameter<TrackBlockModel>(
-      list: <TrackBlockModel>[],
+
+    isTrackAssignmentsDataLoading = CommonProviderPrimitiveParameter<bool>(
+      value: false,
+      notify: notify,
+    );
+    trackAssignmentsData = CommonProviderListParameter<TrackDTOModel>(
+      list: <TrackDTOModel>[],
+      notify: notify,
+    );
+
+    eventRelatedContentsData = CommonProviderListParameter<RelatedTrackDataDTOModel>(
+      list: <RelatedTrackDataDTOModel>[],
+      notify: notify,
+    );
+    eventRelatedContentsDataPaginationModel = CommonProviderPrimitiveParameter<PaginationModel>(
+      value: PaginationModel(
+        pageIndex: 1,
+        pageSize: 10,
+        refreshLimit: 3,
+      ),
+      notify: notify,
+    );
+
+    eventRelatedAssignmentsData = CommonProviderListParameter<RelatedTrackDataDTOModel>(
+      list: <RelatedTrackDataDTOModel>[],
+      notify: notify,
+    );
+    eventRelatedAssignmentsDataPaginationModel = CommonProviderPrimitiveParameter<PaginationModel>(
+      value: PaginationModel(
+        pageIndex: 1,
+        pageSize: 10,
+        refreshLimit: 3,
+      ),
       notify: notify,
     );
   }
@@ -73,6 +106,7 @@ class EventTrackProvider extends CommonProvider {
 
   late CommonProviderPrimitiveParameter<bool> isTabListLoading;
   late final CommonProviderListParameter<EventTrackTabDTOModel> eventTrackTabList;
+
   int get eventTrackTabListLength => eventTrackTabList.getList(isNewInstance: false).length;
 
   late CommonProviderPrimitiveParameter<bool> isOverviewDataLoading;
@@ -84,7 +118,15 @@ class EventTrackProvider extends CommonProvider {
   late CommonProviderPrimitiveParameter<bool> isResourcesDataLoading;
   late final CommonProviderListParameter<EventTrackReferenceItemModel> resourcesData;
 
-  late CommonProviderPrimitiveParameter<bool> isContentsDataLoading;
-  late final CommonProviderListParameter<TrackBlockModel> contentsData;
-  late final CommonProviderListParameter<TrackBlockModel> assignmentsData;
+  late CommonProviderPrimitiveParameter<bool> isTrackContentsDataLoading;
+  late final CommonProviderListParameter<TrackDTOModel> trackContentsData;
+
+  late CommonProviderPrimitiveParameter<bool> isTrackAssignmentsDataLoading;
+  late final CommonProviderListParameter<TrackDTOModel> trackAssignmentsData;
+
+  late final CommonProviderListParameter<RelatedTrackDataDTOModel> eventRelatedContentsData;
+  late CommonProviderPrimitiveParameter<PaginationModel> eventRelatedContentsDataPaginationModel;
+
+  late final CommonProviderListParameter<RelatedTrackDataDTOModel> eventRelatedAssignmentsData;
+  late CommonProviderPrimitiveParameter<PaginationModel> eventRelatedAssignmentsDataPaginationModel;
 }

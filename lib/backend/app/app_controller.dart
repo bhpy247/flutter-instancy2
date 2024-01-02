@@ -246,6 +246,13 @@ class AppController {
     return directory?.path ?? "";
   }
 
+  static String? getPathSeparator() {
+    if (kIsWeb) {
+      return null;
+    }
+    return Platform.pathSeparator;
+  }
+
   Future<CurrencyModel?> getCurrencyModel({
     String country = "",
     bool isRefresh = true,

@@ -2,15 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
-import 'package:flutter_instancy_2/configs/app_constants.dart';
-import 'package:flutter_instancy_2/models/classroom_events/data_model/event_recodting_mobile_lms_data_model.dart';
-import 'package:flutter_instancy_2/models/event_track/data_model/event_track_content_model.dart';
-import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
-import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:flutter_instancy_2/views/common/components/common_icon_button.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -20,15 +15,15 @@ import '../../../utils/my_print.dart';
 import '../../common/components/common_button.dart';
 import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
 
-class EventTrackContentCard extends StatefulWidget {
-  final EventTrackContentModel eventTrackContentModel;
+class EventRelatedContentCard extends StatefulWidget {
+  final RelatedTrackDataDTOModel contentModel;
   final InstancyUIActionModel? primaryAction;
   final void Function()? onMoreButtonTap, onPrimaryActionTap;
   final bool isShowMoreOption;
 
-  const EventTrackContentCard({
+  const EventRelatedContentCard({
     Key? key,
-    required this.eventTrackContentModel,
+    required this.contentModel,
     this.primaryAction,
     this.onMoreButtonTap,
     this.onPrimaryActionTap,
@@ -36,10 +31,10 @@ class EventTrackContentCard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<EventTrackContentCard> createState() => _EventTrackContentCardState();
+  State<EventRelatedContentCard> createState() => _EventRelatedContentCardState();
 }
 
-class _EventTrackContentCardState extends State<EventTrackContentCard> {
+class _EventRelatedContentCardState extends State<EventRelatedContentCard> {
   late ThemeData themeData;
 
   @override
@@ -58,9 +53,9 @@ class _EventTrackContentCardState extends State<EventTrackContentCard> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            imageWidget(widget.eventTrackContentModel.thumbnailimagepath),
+            imageWidget(widget.contentModel.ThumbnailImagePath),
             const SizedBox(width: 10),
-            Expanded(child: detailColumn(widget.eventTrackContentModel)),
+            Expanded(child: detailColumn(widget.contentModel)),
           ],
         ),
       ),
@@ -88,16 +83,10 @@ class _EventTrackContentCardState extends State<EventTrackContentCard> {
     );
   }
 
-  Widget detailColumn(EventTrackContentModel model) {
-    int percentageCompleted = ParsingHelper.parseIntMethod(model.percentcompleted);
-    String contentStatus = model.corelessonstatus;
-    String actualStatus = model.actualstatus;
-
-    if (model.objecttypeid == InstancyObjectTypes.events && (model.recordingModel?.contentid).checkNotEmpty) {
-      EventRecordingMobileLMSDataModel recordingMobileLMSDataModel = model.recordingModel!;
-      percentageCompleted = ParsingHelper.parseIntMethod(recordingMobileLMSDataModel.contentprogress);
-      actualStatus = recordingMobileLMSDataModel.eventrecordstatus;
-    }
+  Widget detailColumn(RelatedTrackDataDTOModel model) {
+    double percentageCompleted = model.PercentCompleted;
+    String contentStatus = model.ContentDisplayStatus;
+    String actualStatus = model.CoreLessonStatus;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,15 +100,13 @@ class _EventTrackContentCardState extends State<EventTrackContentCard> {
                 children: [
                   coursesIcon(
                     assetName: AppConfigurations.getContentIconFromObjectAndMediaType(
-                      mediaTypeId: model.mediatypeid,
-                      objectTypeId: model.objecttypeid,
+                      mediaTypeId: model.MediaTypeID,
+                      objectTypeId: model.ContentTypeId,
                     ),
                   ),
-                  const SizedBox(
-                    width: 10,
-                  ),
+                  const SizedBox(width: 10),
                   Text(
-                    model.medianame,
+                    model.ContentType,
                     style: const TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: 12,
@@ -134,7 +121,7 @@ class _EventTrackContentCardState extends State<EventTrackContentCard> {
         ),
         const SizedBox(height: 5),
         Text(
-          model.name,
+          model.Name,
           style: themeData.textTheme.titleSmall?.copyWith(
             color: const Color(0xff1D293F),
           ),
@@ -147,16 +134,13 @@ class _EventTrackContentCardState extends State<EventTrackContentCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    model.author,
+                    model.AuthorDisplayName,
                     style: themeData.textTheme.bodySmall?.copyWith(
                       fontSize: 12,
                       color: const Color(0xff9AA0A6),
                     ),
                   ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  ratingView(model.ratingid.toDouble()),
+                  const SizedBox(height: 8),
                 ],
               ),
             ),
@@ -165,7 +149,7 @@ class _EventTrackContentCardState extends State<EventTrackContentCard> {
         ),
         const SizedBox(height: 8),
         linearProgressBar(
-          percentCompleted: percentageCompleted,
+          percentCompleted: percentageCompleted.toInt(),
           contentStatus: contentStatus,
           actualStatus: actualStatus,
         ),
@@ -184,20 +168,6 @@ class _EventTrackContentCardState extends State<EventTrackContentCard> {
       height: 13,
       width: 13,
       fit: BoxFit.cover,
-    );
-  }
-
-  Widget ratingView(double ratings) {
-    return RatingBarIndicator(
-      rating: ratings,
-      itemBuilder: (context, index) => const Icon(
-        Icons.star,
-        color: Colors.black,
-      ),
-      itemCount: 5,
-      unratedColor: const Color(0xffCBCBD4),
-      itemSize: 15.0,
-      direction: Axis.horizontal,
     );
   }
 

@@ -1,12 +1,16 @@
 class HiveKeys {
-  static const String appConfigurationBox  = "appConfigurationBox";
+  static const String appConfigurationBox = "appConfigurationBox";
+  static const String myCourseDownloadModelsBox = "myCourseDownloadModelsBox";
+  static const String myCourseDownloadIdsBox = "myCourseDownloadIdsBox";
 
-  static const String mobileGetLearningPortalInfoResponseModelHiveKey  = "mobileGetLearningPortalInfoResponseModelHiveKey";
+  static const String mobileGetLearningPortalInfoResponseModelHiveKey = "mobileGetLearningPortalInfoResponseModelHiveKey";
+
   static String getMobileGetLearningPortalInfoResponseModelHiveKey() {
     return mobileGetLearningPortalInfoResponseModelHiveKey;
   }
 
-  static const String languageJsonFileHiveKey  = "languageJsonFileHiveKey";
+  static const String languageJsonFileHiveKey = "languageJsonFileHiveKey";
+
   static String getLanguageJsonFileHiveKey({required String langCode}) {
     return "${languageJsonFileHiveKey}_$langCode";
   }

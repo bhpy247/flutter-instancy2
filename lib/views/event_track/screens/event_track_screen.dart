@@ -13,15 +13,19 @@ import 'package:flutter_instancy_2/models/event_track/data_model/event_track_dto
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_header_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_reference_item_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_tab_dto_model.dart';
-import 'package:flutter_instancy_2/models/event_track/data_model/track_block_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/request_model/event_track_headers_request_model.dart';
 import 'package:flutter_instancy_2/models/event_track/request_model/event_track_overview_request_model.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
+import 'package:flutter_instancy_2/views/event_track/components/event_related_content_tab_widget.dart';
 import 'package:flutter_instancy_2/views/event_track/components/overview_tab_widget.dart';
 import 'package:flutter_instancy_2/views/event_track/components/resource_tab_widget.dart';
+import 'package:flutter_instancy_2/views/event_track/components/track_content_tab_widget.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:provider/provider.dart';
@@ -39,13 +43,11 @@ import '../../../backend/navigation/navigation.dart';
 import '../../../backend/profile/profile_provider.dart';
 import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../models/course_launch/data_model/course_launch_model.dart';
-import '../../../models/event_track/data_model/event_track_content_model.dart';
 import '../../../models/event_track/request_model/event_track_tab_request_model.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_toast.dart';
 import '../../../utils/my_utils.dart';
 import '../../common/components/common_cached_network_image.dart';
-import '../components/content_tab_widget.dart';
 import '../components/discussion_tab_widget.dart';
 import '../components/glossary_tab_widget.dart';
 import '../components/people_tab_widget.dart';
@@ -80,6 +82,11 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
   late MyLearningController myLearningController;
 
   late EventProvider eventProvider;
+
+  int componentId = 0;
+  int componentInstanceId = 0;
+
+  bool isAssignmentTabEnabled = false;
 
   CourseDTOModel courseDTOModel = CourseDTOModel();
 
@@ -127,8 +134,18 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
           length: tabsList.length,
         );
       }
+
+      controller!.addListener(() {
+        if (selectedIndex != controller!.index) {
+          selectedIndex = controller!.index;
+          mySetState();
+        }
+      });
       mySetState();
     }
+
+    isAssignmentTabEnabled = tabsList.where((element) => element.tabidName == EventTrackTabs.trackAssignments).isNotEmpty;
+
     getContentDataFromTabsList(tabsList: tabsList);
   }
 
@@ -149,52 +166,36 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
           }
         case EventTrackTabs.trackContents:
           {
-            eventTrackController.getContentsData(
-              contentId: widget.arguments.parentContentId,
-              objectTypeId: widget.arguments.objectTypeId,
-              trackScoId: widget.arguments.scoId,
-              isRelatedContent: false,
-              isAssignmentTabEnabled: tabsList.where((element) => element.tabidName == EventTrackTabs.trackAssignments).isNotEmpty,
-              isNotify: false,
+            getTrackContentsData(
+              isRefresh: false,
+              isNotify: true,
             );
             break;
           }
         case EventTrackTabs.eventContents:
           {
-            eventTrackController.getContentsData(
-              contentId: widget.arguments.parentContentId,
-              objectTypeId: widget.arguments.objectTypeId,
-              isRelatedContent: true,
-              isNotify: false,
+            getEventRelatedContentsData(
+              isRefresh: false,
+              isNotify: true,
+              isGetFromCache: false,
             );
             break;
           }
         case EventTrackTabs.trackAssignments:
           {
-            if (tabsList.where((element) => element.tabidName == EventTrackTabs.trackContents).isEmpty) {
-              eventTrackController.getContentsData(
-                contentId: widget.arguments.parentContentId,
-                objectTypeId: widget.arguments.objectTypeId,
-                trackScoId: widget.arguments.scoId,
-                isRelatedContent: false,
-                isAssignmentTabEnabled: true,
-                isNotify: false,
-              );
-            }
+            getTrackAssignmentsData(
+              isRefresh: false,
+              isNotify: true,
+            );
             break;
           }
         case EventTrackTabs.eventAssignments:
           {
-            if (tabsList.where((element) => element.tabidName == EventTrackTabs.eventContents).isEmpty) {
-              eventTrackController.getContentsData(
-                contentId: widget.arguments.parentContentId,
-                objectTypeId: widget.arguments.objectTypeId,
-                trackScoId: widget.arguments.scoId,
-                isRelatedContent: true,
-                isAssignmentTabEnabled: true,
-                isNotify: false,
-              );
-            }
+            getEventRelatedAssignmentsData(
+              isRefresh: false,
+              isNotify: true,
+              isGetFromCache: false,
+            );
             break;
           }
         case EventTrackTabs.session:
@@ -241,6 +242,63 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
     }
   }
 
+  Future<void> getTrackContentsData({bool isRefresh = true, bool isNotify = true}) async {
+    MyPrint.printOnConsole("getTrackContentsData() called");
+
+    await eventTrackController.getTrackContentsData(
+      isRefresh: isRefresh,
+      contentId: widget.arguments.parentContentId,
+      objectTypeId: widget.arguments.objectTypeId,
+      trackScoId: widget.arguments.scoId,
+      componentId: componentId,
+      componentInsId: componentId,
+      isAssignmentTabEnabled: isAssignmentTabEnabled,
+      isNotify: isNotify,
+    );
+  }
+
+  Future<void> getTrackAssignmentsData({bool isRefresh = true, bool isNotify = true}) async {
+    MyPrint.printOnConsole("getTrackAssignmentsData() called");
+
+    await eventTrackController.getTrackAssignmentsData(
+      isRefresh: isRefresh,
+      contentId: widget.arguments.parentContentId,
+      objectTypeId: widget.arguments.objectTypeId,
+      trackScoId: widget.arguments.scoId,
+      componentId: componentId,
+      componentInsId: componentId,
+      isAssignmentTabEnabled: isAssignmentTabEnabled,
+      isNotify: isNotify,
+    );
+  }
+
+  Future<void> getEventRelatedContentsData({bool isRefresh = true, bool isGetFromCache = false, bool isNotify = true}) async {
+    MyPrint.printOnConsole("getEventRelatedContentsData() called");
+
+    await eventTrackController.getEventRelatedContentsData(
+      isRefresh: isRefresh,
+      isGetFromCache: isGetFromCache,
+      contentId: widget.arguments.parentContentId,
+      componentId: componentId,
+      componentInstanceId: componentId,
+      isAssignmentTabEnabled: isAssignmentTabEnabled,
+      isNotify: isNotify,
+    );
+  }
+
+  Future<void> getEventRelatedAssignmentsData({bool isRefresh = true, bool isGetFromCache = false, bool isNotify = true}) async {
+    MyPrint.printOnConsole("getEventRelatedAssignmentsData() called");
+
+    await eventTrackController.getEventRelatedAssignmentsData(
+      isRefresh: isRefresh,
+      isGetFromCache: isGetFromCache,
+      contentId: widget.arguments.parentContentId,
+      componentId: componentId,
+      componentInstanceId: componentId,
+      isAssignmentTabEnabled: isAssignmentTabEnabled,
+      isNotify: isNotify,
+    );
+  }
 
   @override
   void initState() {
@@ -257,6 +315,9 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
 
     eventProvider = EventProvider();
     profileProvider = context.read<ProfileProvider>();
+
+    componentId = widget.arguments.componentId;
+    componentInstanceId = widget.arguments.componentInstanceId;
 
     myLearningProvider = MyLearningProvider();
     myLearningController = MyLearningController(provider: myLearningProvider);
@@ -297,15 +358,13 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
   }
 
   Widget getMainBodyWidget() {
-    return Container(
-      child: Column(
-        children: [
-          getHeaderWidget(),
-          Expanded(
-            child: tabBarView(),
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        getHeaderWidget(),
+        Expanded(
+          child: tabBarView(),
+        ),
+      ],
     );
   }
 
@@ -336,7 +395,11 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
               ],
             ),
           ),
-          const Divider(height: 1, thickness: 1.5),
+          Divider(
+            height: 1,
+            thickness: 1.5,
+            color: themeData.colorScheme.onBackground.withAlpha(40),
+          ),
         ],
       ),
     );
@@ -472,84 +535,67 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
 
   Widget tabBarView() {
     if (eventTrackProvider.isTabListLoading.get()) {
-      return const Center(
-        child: CommonLoader(),
+      return const CommonLoader(
+        isCenter: true,
       );
     }
 
     List<EventTrackTabDTOModel> learningPathTabList = eventTrackProvider.eventTrackTabList.getList();
-    Widget child;
-    PreferredSize? tabBar;
-    if (controller != null) {
-      child = Container(
-        color: Colors.white,
-        child: TabBarView(
-          controller: controller,
-          children: learningPathTabList.map((e) {
-            MyPrint.printOnConsole("element:$e");
-            return getWidgetAccordingToTabs(e);
-          }).toList(),
-        ),
-      );
 
-      tabBar = PreferredSize(
-        preferredSize: const Size.fromHeight(0),
-        child: Container(
-          decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topRight: Radius.circular(0), topLeft: Radius.circular(0))),
-          child: SafeArea(
-            child: TabBar(
-                controller: controller,
-                isScrollable: controller!.length > 3,
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                labelPadding: const EdgeInsets.symmetric(horizontal: 5).copyWith(bottom: 7),
-                indicatorPadding: const EdgeInsets.only(top: 20),
-                // indicatorWeight:0,
-                indicatorSize: TabBarIndicatorSize.label,
-                onTap: (int index) {
-                  selectedIndex = index;
-                  mySetState();
-                },
-                labelStyle: themeData.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w500, letterSpacing: 0.5),
-                tabs: List.generate(
-                  learningPathTabList.length,
-                  (index) => tabTitleWidget(
-                    title: learningPathTabList[index].tabName,
-                    assetPath: "assets/myLearning/${learningPathTabList[index].tabName.toLowerCase()}.png",
-                    index: index,
-                  ),
-                )
-
-                // tabs: learningPathTabList.map((e) {
-                //   return tabTitleWidget(
-                //     title: e.tabName,
-                //     assetPath: "assets/myLearning/${e.tabName.toLowerCase()}.png",
-                //     // index: e.tabID,
-                //
-                //   );
-                // }).toList(),
-                ),
-          ),
-        ),
-      );
-    } else {
-      if (learningPathTabList.isNotEmpty) {
-        child = getWidgetAccordingToTabs(learningPathTabList.first);
-      } else {
-        child = Center(
+    if (controller == null) {
+      if (learningPathTabList.isEmpty) {
+        return Center(
           child: Text(appProvider.localStr.commoncomponentLabelNodatalabel),
         );
       }
+
+      return getWidgetAccordingToTabs(learningPathTabList.first);
     }
-    return Scaffold(
-      appBar: controller != null
-          ? AppBar(
-        backgroundColor: Colors.white,
-              automaticallyImplyLeading: false,
-              elevation: 1,
-              bottom: tabBar,
-            )
-          : null,
-      body: child,
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TabBar(
+          controller: controller,
+          isScrollable: controller!.length > 3,
+          tabAlignment: controller!.length > 3 ? TabAlignment.start : TabAlignment.fill,
+          physics: const AlwaysScrollableScrollPhysics(),
+          labelPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5).copyWith(bottom: 10),
+          indicatorSize: TabBarIndicatorSize.tab,
+          indicator: UnderlineTabIndicator(
+            borderSide: BorderSide(width: 4, color: themeData.tabBarTheme.indicatorColor ?? themeData.primaryColor),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(100),
+              topRight: Radius.circular(100),
+            ),
+          ),
+          onTap: (int index) {
+            selectedIndex = index;
+            mySetState();
+          },
+          tabs: List.generate(
+            learningPathTabList.length,
+            (index) => tabTitleWidget(
+              title: learningPathTabList[index].tabName,
+              assetPath: "assets/myLearning/${learningPathTabList[index].tabName.toLowerCase()}.png",
+              index: index,
+            ),
+          ),
+          labelStyle: themeData.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.5,
+          ),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: controller,
+            children: learningPathTabList.map((e) {
+              MyPrint.printOnConsole("element:$e");
+              return getWidgetAccordingToTabs(e);
+            }).toList(),
+          ),
+        ),
+      ],
     );
   }
 
@@ -569,15 +615,23 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
           break;
         }
       case EventTrackTabs.trackContents:
+        {
+          resultWidget = getTrackContentsTabWidget();
+          break;
+        }
       case EventTrackTabs.eventContents:
         {
-          resultWidget = getContentTabWidget();
+          resultWidget = getEventContentTabWidget();
           break;
         }
       case EventTrackTabs.trackAssignments:
+        {
+          resultWidget = getTrackAssignmentsTabWidget();
+          break;
+        }
       case EventTrackTabs.eventAssignments:
         {
-          resultWidget = getAssignmentsTabWidget();
+          resultWidget = getEventAssignmentsTabWidget();
           break;
         }
       case EventTrackTabs.resources:
@@ -641,28 +695,27 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
     return OverViewTabWidget(overviewData: overviewData);
   }
 
-  Widget getContentTabWidget() {
-    if (eventTrackProvider.isContentsDataLoading.get()) {
+  Widget getTrackContentsTabWidget() {
+    if (eventTrackProvider.isTrackContentsDataLoading.get()) {
       return const CommonLoader(isCenter: true);
     }
 
-    List<TrackBlockModel> contentBlocksList = eventTrackProvider.contentsData.getList(isNewInstance: false);
+    List<TrackDTOModel> contentBlocksList = eventTrackProvider.trackContentsData.getList(isNewInstance: false);
 
-    return ContentTabWidget(
+    return TrackContentTabWidget(
       contentBlocksList: contentBlocksList,
-      trackId: widget.arguments.objectTypeId == InstancyObjectTypes.track ? widget.arguments.parentContentId : "",
-      eventId: widget.arguments.objectTypeId == InstancyObjectTypes.events ? widget.arguments.parentContentId : "",
+      trackId: widget.arguments.parentContentId,
       userId: eventTrackController.eventTrackRepository.apiController.apiDataProvider.getCurrentUserId(),
       componentId: widget.arguments.componentId,
       componentInsId: widget.arguments.componentInstanceId,
-      onSetCompleteTap: ({required EventTrackContentModel model}) async {
+      onSetCompleteTap: ({required TrackCourseDTOModel model}) async {
         isLoading = true;
         mySetState();
 
         bool isSuccess = await myLearningController.setComplete(
-          contentId: model.contentid,
-          scoId: model.scoid,
-          contentTypeId: model.objecttypeid,
+          contentId: model.ContentID,
+          scoId: model.ScoID,
+          contentTypeId: model.ContentTypeId,
         );
         MyPrint.printOnConsole("SetComplete isSuccess:$isSuccess");
 
@@ -672,35 +725,30 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         if (isSuccess) {
           if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "Set Complete was successful");
           getLearningPathHeaderData();
-          eventTrackController.getContentsData(
-            contentId: widget.arguments.parentContentId,
-            objectTypeId: widget.arguments.objectTypeId,
-            trackScoId: widget.arguments.scoId,
-            isRelatedContent: widget.arguments.objectTypeId == InstancyObjectTypes.events,
+          getTrackContentsData(
+            isRefresh: true,
+            isNotify: true,
+          );
+          getTrackContentsData(
+            isRefresh: true,
             isNotify: true,
           );
         }
       },
       onPulledTORefresh: () {
-        eventTrackController.getContentsData(
-          contentId: widget.arguments.parentContentId,
-          objectTypeId: widget.arguments.objectTypeId,
-          trackScoId: widget.arguments.scoId,
-          isRelatedContent: widget.arguments.objectTypeId == InstancyObjectTypes.events,
+        getTrackContentsData(
+          isRefresh: true,
           isNotify: true,
         );
       },
       refreshParentAndChildContentsCallback: () {
         getLearningPathHeaderData(isNotify: false);
-        eventTrackController.getContentsData(
-          contentId: widget.arguments.parentContentId,
-          objectTypeId: widget.arguments.objectTypeId,
-          trackScoId: widget.arguments.scoId,
-          isRelatedContent: widget.arguments.objectTypeId == InstancyObjectTypes.events,
+        getTrackContentsData(
+          isRefresh: true,
           isNotify: true,
         );
       },
-      onContentViewTap: ({required EventTrackContentModel model}) async {
+      onContentViewTap: ({required TrackCourseDTOModel model}) async {
         ApiUrlConfigurationProvider apiUrlConfigurationProvider = eventTrackController.eventTrackRepository.apiController.apiDataProvider;
 
         isLoading = true;
@@ -714,20 +762,20 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         ).viewCourse(
           context: context,
           model: CourseLaunchModel(
-            ContentTypeId: model.objecttypeid,
-            MediaTypeId: model.mediatypeid,
-            ScoID: model.scoid,
+            ContentTypeId: model.ContentTypeId,
+            MediaTypeId: model.MediaTypeID,
+            ScoID: model.ScoID,
             SiteUserID: apiUrlConfigurationProvider.getCurrentUserId(),
             SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
-            ContentID: model.contentid,
+            ContentID: model.ContentID,
             locale: apiUrlConfigurationProvider.getLocale(),
-            ActivityId: model.activityid,
-            ActualStatus: model.actualstatus,
-            ContentName: model.name,
-            FolderPath: model.folderpath,
-            JWVideoKey: model.jwvideokey,
-            jwstartpage: model.jwstartpage,
-            startPage: model.startpage,
+            ActivityId: model.ActivityId,
+            ActualStatus: model.CoreLessonStatus,
+            ContentName: model.ContentName,
+            FolderPath: model.FolderPath,
+            JWVideoKey: model.JWVideoKey,
+            jwstartpage: model.JwStartPage,
+            startPage: model.StartPage,
             bit5: model.bit5,
           ),
         );
@@ -736,41 +784,36 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         mySetState();
 
         if (isLaunched) {
-          if (widget.arguments.objectTypeId == InstancyObjectTypes.track) getLearningPathHeaderData(isNotify: false);
-          eventTrackController.getContentsData(
-            contentId: widget.arguments.parentContentId,
-            objectTypeId: widget.arguments.objectTypeId,
-            trackScoId: widget.arguments.scoId,
-            isRelatedContent: widget.arguments.objectTypeId == InstancyObjectTypes.events,
+          getLearningPathHeaderData(isNotify: false);
+          getTrackContentsData(
+            isRefresh: true,
             isNotify: true,
           );
         }
       },
-      onReportContentTap: ({required EventTrackContentModel model}) {
-        NavigationController.navigateToMyLearningContentProgressScreen(
+      onReportContentTap: ({required TrackCourseDTOModel model}) {
+        NavigationController.navigateToProgressReportDetailScreen(
           navigationOperationParameters: NavigationOperationParameters(
             context: context,
             navigationType: NavigationType.pushNamed,
           ),
           arguments: MyLearningContentProgressScreenNavigationArguments(
-            contentId: model.contentid,
-            eventTrackContentModel: model,
+            contentId: model.ContentID,
             userId: eventTrackController.eventTrackRepository.apiController.apiDataProvider.getCurrentUserId(),
-            contentTypeId: model.objecttypeid,
-            componentId: widget.arguments.componentId,
-            trackId: widget.arguments.objectTypeId == InstancyObjectTypes.track ? widget.arguments.parentContentId : "",
-            eventId: widget.arguments.objectTypeId == InstancyObjectTypes.events ? widget.arguments.parentContentId : "",
-            seqId: model.sequencenumber.toString(),
+            contentTypeId: model.ContentTypeId,
+            componentId: componentId,
+            seqId: model.SequenceID.toString(),
+            trackId: widget.arguments.parentContentId,
           ),
         );
       },
-      onCancelEnrollmentTap: ({required EventTrackContentModel model}) async {
+      onCancelEnrollmentTap: ({required TrackCourseDTOModel model}) async {
         isLoading = true;
         mySetState();
 
         bool isCancelled = await EventController(eventProvider: null).cancelEventEnrollment(
           context: context,
-          eventId: model.contentid,
+          eventId: model.ContentID,
           isBadCancellationEnabled: model.isBadCancellationEnabled == true,
         );
         MyPrint.printOnConsole("isCancelled:$isCancelled");
@@ -781,12 +824,10 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         if (isCancelled) {
           if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "Your enrollment for the course has been successfully canceled");
 
-          if (widget.arguments.objectTypeId == InstancyObjectTypes.track) getLearningPathHeaderData(isNotify: false);
-          eventTrackController.getContentsData(
-            contentId: widget.arguments.parentContentId,
-            objectTypeId: widget.arguments.objectTypeId,
-            trackScoId: widget.arguments.scoId,
-            isRelatedContent: widget.arguments.objectTypeId == InstancyObjectTypes.events,
+          getLearningPathHeaderData(isNotify: false);
+
+          getTrackContentsData(
+            isRefresh: true,
             isNotify: true,
           );
         }
@@ -794,28 +835,27 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
     );
   }
 
-  Widget getAssignmentsTabWidget() {
-    if (eventTrackProvider.isContentsDataLoading.get()) {
+  Widget getTrackAssignmentsTabWidget() {
+    if (eventTrackProvider.isTrackAssignmentsDataLoading.get()) {
       return const CommonLoader(isCenter: true);
     }
 
-    List<TrackBlockModel> contentBlocksList = eventTrackProvider.assignmentsData.getList(isNewInstance: false);
+    List<TrackDTOModel> contentBlocksList = eventTrackProvider.trackAssignmentsData.getList(isNewInstance: false);
 
-    return ContentTabWidget(
+    return TrackContentTabWidget(
       contentBlocksList: contentBlocksList,
-      trackId: widget.arguments.objectTypeId == InstancyObjectTypes.track ? widget.arguments.parentContentId : "",
-      eventId: widget.arguments.objectTypeId == InstancyObjectTypes.events ? widget.arguments.parentContentId : "",
+      trackId: widget.arguments.parentContentId,
       userId: eventTrackController.eventTrackRepository.apiController.apiDataProvider.getCurrentUserId(),
       componentId: widget.arguments.componentId,
       componentInsId: widget.arguments.componentInstanceId,
-      onSetCompleteTap: ({required EventTrackContentModel model}) async {
+      onSetCompleteTap: ({required TrackCourseDTOModel model}) async {
         isLoading = true;
         mySetState();
 
         bool isSuccess = await myLearningController.setComplete(
-          contentId: model.contentid,
-          scoId: model.scoid,
-          contentTypeId: model.objecttypeid,
+          contentId: model.ContentID,
+          scoId: model.ScoID,
+          contentTypeId: model.ContentTypeId,
         );
         MyPrint.printOnConsole("SetComplete isSuccess:$isSuccess");
 
@@ -823,40 +863,32 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         mySetState();
 
         if (isSuccess) {
-          if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "SetComplete was successful");
+          if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "Set Complete was successful");
           getLearningPathHeaderData();
-          eventTrackController.getContentsData(
-            contentId: widget.arguments.parentContentId,
-            objectTypeId: widget.arguments.objectTypeId,
-            trackScoId: widget.arguments.scoId,
-            isRelatedContent: widget.arguments.objectTypeId == InstancyObjectTypes.events,
-            isAssignmentTabEnabled: true,
+          getTrackContentsData(
+            isRefresh: true,
+            isNotify: true,
+          );
+          getTrackContentsData(
+            isRefresh: true,
             isNotify: true,
           );
         }
       },
       onPulledTORefresh: () {
-        eventTrackController.getContentsData(
-          contentId: widget.arguments.parentContentId,
-          objectTypeId: widget.arguments.objectTypeId,
-          trackScoId: widget.arguments.scoId,
-          isRelatedContent: widget.arguments.objectTypeId == InstancyObjectTypes.events,
-          isAssignmentTabEnabled: true,
+        getTrackAssignmentsData(
+          isRefresh: true,
           isNotify: true,
         );
       },
       refreshParentAndChildContentsCallback: () {
         getLearningPathHeaderData(isNotify: false);
-        eventTrackController.getContentsData(
-          contentId: widget.arguments.parentContentId,
-          objectTypeId: widget.arguments.objectTypeId,
-          trackScoId: widget.arguments.scoId,
-          isRelatedContent: widget.arguments.objectTypeId == InstancyObjectTypes.events,
-          isAssignmentTabEnabled: true,
+        getTrackAssignmentsData(
+          isRefresh: true,
           isNotify: true,
         );
       },
-      onContentViewTap: ({required EventTrackContentModel model}) async {
+      onContentViewTap: ({required TrackCourseDTOModel model}) async {
         ApiUrlConfigurationProvider apiUrlConfigurationProvider = eventTrackController.eventTrackRepository.apiController.apiDataProvider;
 
         isLoading = true;
@@ -870,20 +902,20 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         ).viewCourse(
           context: context,
           model: CourseLaunchModel(
-            ContentTypeId: model.objecttypeid,
-            MediaTypeId: model.mediatypeid,
-            ScoID: model.scoid,
+            ContentTypeId: model.ContentTypeId,
+            MediaTypeId: model.MediaTypeID,
+            ScoID: model.ScoID,
             SiteUserID: apiUrlConfigurationProvider.getCurrentUserId(),
             SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
-            ContentID: model.contentid,
+            ContentID: model.ContentID,
             locale: apiUrlConfigurationProvider.getLocale(),
-            ActivityId: model.activityid,
-            ActualStatus: model.actualstatus,
-            ContentName: model.name,
-            FolderPath: model.folderpath,
-            JWVideoKey: model.jwvideokey,
-            jwstartpage: model.jwstartpage,
-            startPage: model.startpage,
+            ActivityId: model.ActivityId,
+            ActualStatus: model.CoreLessonStatus,
+            ContentName: model.ContentName,
+            FolderPath: model.FolderPath,
+            JWVideoKey: model.JWVideoKey,
+            jwstartpage: model.JwStartPage,
+            startPage: model.StartPage,
             bit5: model.bit5,
           ),
         );
@@ -892,42 +924,36 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         mySetState();
 
         if (isLaunched) {
-          if (widget.arguments.objectTypeId == InstancyObjectTypes.track) getLearningPathHeaderData(isNotify: false);
-          eventTrackController.getContentsData(
-            contentId: widget.arguments.parentContentId,
-            objectTypeId: widget.arguments.objectTypeId,
-            trackScoId: widget.arguments.scoId,
-            isRelatedContent: widget.arguments.objectTypeId == InstancyObjectTypes.events,
-            isAssignmentTabEnabled: true,
+          getLearningPathHeaderData(isNotify: false);
+          getTrackAssignmentsData(
+            isRefresh: true,
             isNotify: true,
           );
         }
       },
-      onReportContentTap: ({required EventTrackContentModel model}) {
-        NavigationController.navigateToMyLearningContentProgressScreen(
+      onReportContentTap: ({required TrackCourseDTOModel model}) {
+        NavigationController.navigateToProgressReportDetailScreen(
           navigationOperationParameters: NavigationOperationParameters(
             context: context,
             navigationType: NavigationType.pushNamed,
           ),
           arguments: MyLearningContentProgressScreenNavigationArguments(
-            contentId: model.contentid,
-            eventTrackContentModel: model,
+            contentId: model.ContentID,
             userId: eventTrackController.eventTrackRepository.apiController.apiDataProvider.getCurrentUserId(),
-            contentTypeId: model.objecttypeid,
-            componentId: widget.arguments.componentId,
-            trackId: widget.arguments.objectTypeId == InstancyObjectTypes.track ? widget.arguments.parentContentId : "",
-            eventId: widget.arguments.objectTypeId == InstancyObjectTypes.events ? widget.arguments.parentContentId : "",
-            seqId: model.sequencenumber.toString(),
+            contentTypeId: model.ContentTypeId,
+            componentId: componentId,
+            seqId: model.SequenceID.toString(),
+            trackId: widget.arguments.parentContentId,
           ),
         );
       },
-      onCancelEnrollmentTap: ({required EventTrackContentModel model}) async {
+      onCancelEnrollmentTap: ({required TrackCourseDTOModel model}) async {
         isLoading = true;
         mySetState();
 
         bool isCancelled = await EventController(eventProvider: null).cancelEventEnrollment(
           context: context,
-          eventId: model.contentid,
+          eventId: model.ContentID,
           isBadCancellationEnabled: model.isBadCancellationEnabled == true,
         );
         MyPrint.printOnConsole("isCancelled:$isCancelled");
@@ -938,13 +964,214 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         if (isCancelled) {
           if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "Your enrollment for the course has been successfully canceled");
 
-          if (widget.arguments.objectTypeId == InstancyObjectTypes.track) getLearningPathHeaderData(isNotify: false);
-          eventTrackController.getContentsData(
-            contentId: widget.arguments.parentContentId,
-            objectTypeId: widget.arguments.objectTypeId,
-            trackScoId: widget.arguments.scoId,
-            isRelatedContent: widget.arguments.objectTypeId == InstancyObjectTypes.events,
-            isAssignmentTabEnabled: true,
+          getLearningPathHeaderData(isNotify: false);
+
+          getTrackAssignmentsData(
+            isRefresh: true,
+            isNotify: true,
+          );
+        }
+      },
+    );
+  }
+
+  Widget getEventContentTabWidget() {
+    return EventRelatedContentTabWidget(
+      relatedContentsList: eventTrackProvider.eventRelatedContentsData.getList(isNewInstance: false),
+      paginationModel: eventTrackProvider.eventRelatedContentsDataPaginationModel.get(),
+      contentsLength: eventTrackProvider.eventRelatedContentsData.length,
+      eventId: widget.arguments.parentContentId,
+      userId: eventTrackController.eventTrackRepository.apiController.apiDataProvider.getCurrentUserId(),
+      componentId: widget.arguments.componentId,
+      componentInsId: widget.arguments.componentInstanceId,
+      onPulledTORefresh: () {
+        getEventRelatedContentsData(
+          isRefresh: true,
+          isGetFromCache: false,
+          isNotify: true,
+        );
+      },
+      onPagination: () {
+        getEventRelatedContentsData(
+          isRefresh: false,
+          isGetFromCache: false,
+          isNotify: true,
+        );
+      },
+      onSetCompleteTap: ({required RelatedTrackDataDTOModel model}) async {
+        isLoading = true;
+        mySetState();
+
+        bool isSuccess = await myLearningController.setComplete(
+          contentId: model.ContentID,
+          scoId: model.ScoID,
+          contentTypeId: model.ContentTypeId,
+        );
+        MyPrint.printOnConsole("SetComplete isSuccess:$isSuccess");
+
+        isLoading = false;
+        mySetState();
+
+        if (isSuccess) {
+          if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "Set Complete was successful");
+          getLearningPathHeaderData();
+          getEventRelatedContentsData(
+            isRefresh: true,
+            isGetFromCache: false,
+            isNotify: true,
+          );
+        }
+      },
+      refreshParentAndChildContentsCallback: () {
+        getLearningPathHeaderData(isNotify: false);
+        getEventRelatedContentsData(
+          isRefresh: true,
+          isGetFromCache: false,
+          isNotify: true,
+        );
+      },
+      onContentViewTap: ({required RelatedTrackDataDTOModel model}) async {
+        ApiUrlConfigurationProvider apiUrlConfigurationProvider = eventTrackController.eventTrackRepository.apiController.apiDataProvider;
+
+        isLoading = true;
+        mySetState();
+
+        bool isLaunched = await CourseLaunchController(
+          appProvider: appProvider,
+          authenticationProvider: context.read<AuthenticationProvider>(),
+          componentId: widget.arguments.componentId,
+          componentInstanceId: widget.arguments.componentInstanceId,
+        ).viewCourse(
+          context: context,
+          model: CourseLaunchModel(
+            ContentTypeId: model.ContentTypeId,
+            MediaTypeId: model.MediaTypeID,
+            ScoID: model.ScoID,
+            SiteUserID: apiUrlConfigurationProvider.getCurrentUserId(),
+            SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+            ContentID: model.ContentID,
+            locale: apiUrlConfigurationProvider.getLocale(),
+            ActivityId: model.ActivityId,
+            ActualStatus: model.CoreLessonStatus,
+            ContentName: model.Name,
+            FolderPath: model.FolderPath,
+            JWVideoKey: model.JWVideoKey,
+            jwstartpage: model.JwStartPage,
+            startPage: model.StartPage,
+            bit5: model.bit5,
+          ),
+        );
+
+        isLoading = false;
+        mySetState();
+
+        if (isLaunched) {
+          getLearningPathHeaderData(isNotify: false);
+          getEventRelatedContentsData(
+            isRefresh: true,
+            isGetFromCache: false,
+            isNotify: true,
+          );
+        }
+      },
+    );
+  }
+
+  Widget getEventAssignmentsTabWidget() {
+    return EventRelatedContentTabWidget(
+      relatedContentsList: eventTrackProvider.eventRelatedAssignmentsData.getList(isNewInstance: false),
+      paginationModel: eventTrackProvider.eventRelatedAssignmentsDataPaginationModel.get(),
+      contentsLength: eventTrackProvider.eventRelatedAssignmentsData.length,
+      eventId: widget.arguments.parentContentId,
+      userId: eventTrackController.eventTrackRepository.apiController.apiDataProvider.getCurrentUserId(),
+      componentId: widget.arguments.componentId,
+      componentInsId: widget.arguments.componentInstanceId,
+      onPulledTORefresh: () {
+        getEventRelatedAssignmentsData(
+          isRefresh: true,
+          isGetFromCache: false,
+          isNotify: true,
+        );
+      },
+      onPagination: () {
+        getEventRelatedAssignmentsData(
+          isRefresh: false,
+          isGetFromCache: false,
+          isNotify: true,
+        );
+      },
+      onSetCompleteTap: ({required RelatedTrackDataDTOModel model}) async {
+        isLoading = true;
+        mySetState();
+
+        bool isSuccess = await myLearningController.setComplete(
+          contentId: model.ContentID,
+          scoId: model.ScoID,
+          contentTypeId: model.ContentTypeId,
+        );
+        MyPrint.printOnConsole("SetComplete isSuccess:$isSuccess");
+
+        isLoading = false;
+        mySetState();
+
+        if (isSuccess) {
+          if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "Set Complete was successful");
+          getLearningPathHeaderData();
+          getEventRelatedAssignmentsData(
+            isRefresh: true,
+            isGetFromCache: false,
+            isNotify: true,
+          );
+        }
+      },
+      refreshParentAndChildContentsCallback: () {
+        getLearningPathHeaderData(isNotify: false);
+        getEventRelatedAssignmentsData(
+          isRefresh: true,
+          isGetFromCache: false,
+          isNotify: true,
+        );
+      },
+      onContentViewTap: ({required RelatedTrackDataDTOModel model}) async {
+        ApiUrlConfigurationProvider apiUrlConfigurationProvider = eventTrackController.eventTrackRepository.apiController.apiDataProvider;
+
+        isLoading = true;
+        mySetState();
+
+        bool isLaunched = await CourseLaunchController(
+          appProvider: appProvider,
+          authenticationProvider: context.read<AuthenticationProvider>(),
+          componentId: widget.arguments.componentId,
+          componentInstanceId: widget.arguments.componentInstanceId,
+        ).viewCourse(
+          context: context,
+          model: CourseLaunchModel(
+            ContentTypeId: model.ContentTypeId,
+            MediaTypeId: model.MediaTypeID,
+            ScoID: model.ScoID,
+            SiteUserID: apiUrlConfigurationProvider.getCurrentUserId(),
+            SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+            ContentID: model.ContentID,
+            locale: apiUrlConfigurationProvider.getLocale(),
+            ActivityId: model.ActivityId,
+            ActualStatus: model.CoreLessonStatus,
+            ContentName: model.Name,
+            FolderPath: model.FolderPath,
+            JWVideoKey: model.JWVideoKey,
+            jwstartpage: model.JwStartPage,
+            startPage: model.StartPage,
+            bit5: model.bit5,
+          ),
+        );
+
+        isLoading = false;
+        mySetState();
+
+        if (isLaunched) {
+          getLearningPathHeaderData(isNotify: false);
+          getEventRelatedAssignmentsData(
+            isRefresh: true,
+            isGetFromCache: false,
             isNotify: true,
           );
         }

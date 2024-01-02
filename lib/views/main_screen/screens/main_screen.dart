@@ -5,6 +5,8 @@ import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
@@ -23,6 +25,7 @@ import 'package:flutter_instancy_2/models/app_configuration_models/data_models/n
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/catalog_categories_list_screen.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
+import 'package:flutter_instancy_2/views/course_download/screens/my_course_download_screen.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/screens/discussion_forum_list_main_screen.dart';
 import 'package:flutter_instancy_2/views/event/screens/event_catalog_tab_screen.dart';
 import 'package:flutter_instancy_2/views/home/components/home_web_list_screen.dart';
@@ -68,6 +71,7 @@ class _MainScreenState extends State<MainScreen> {
   late InstaBotProvider instaBotProvider;
   late AppThemeProvider appThemeProvider;
   late GamificationProvider gamificationProvider;
+  late CourseDownloadProvider courseDownloadProvider;
 
   @override
   void initState() {
@@ -80,6 +84,7 @@ class _MainScreenState extends State<MainScreen> {
     instaBotProvider = Provider.of<InstaBotProvider>(context, listen: false);
     appThemeProvider = Provider.of<AppThemeProvider>(context, listen: false);
     gamificationProvider = Provider.of<GamificationProvider>(context, listen: false);
+    courseDownloadProvider = Provider.of<CourseDownloadProvider>(context, listen: false);
 
     List<NativeMenuModel> menusList = appProvider.getMenuModelsList().toList();
     if (menusList.isNotEmpty) {
@@ -105,6 +110,8 @@ class _MainScreenState extends State<MainScreen> {
       gamificationProvider.myAchievementRepositoryId.set(value: myAchievementsComponentModel.repositoryid, isNotify: false);
     }
     GamificationController(provider: gamificationProvider).getUserAchievementDataForDrawer();
+
+    CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider).getAllMyCourseDownloadsAndSaveInProvider(isNotify: false);
   }
 
   @override
@@ -515,6 +522,8 @@ class _MainScreenState extends State<MainScreen> {
           componentInsId: model.repositoryid,
         ),
       );
+    } else if (model.componentid == InstancyComponents.MyCourseDownloads) {
+      return const MyCourseDownloadScreen();
     } else {
       return const SizedBox();
     }

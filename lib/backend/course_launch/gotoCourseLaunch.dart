@@ -8,6 +8,7 @@ import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
+import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:intl/intl.dart';
 import 'package:open_file_plus/open_file_plus.dart';
 
@@ -59,7 +60,8 @@ class GotoCourseLaunch {
   }
 
   Future<String> getCourseUrl() async {
-    MyPrint.printOnConsole("GotoCourseLaunch().getCourseUrl() called");
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("GotoCourseLaunch().getCourseUrl() called", tag: tag);
 
     String retUrl = "";
 
@@ -98,7 +100,7 @@ class GotoCourseLaunch {
       finalDownloadedFilePath = "$downloadDestFolderPath/$startPage";
       //String finalDownloadedFilePath = downloadDestFolderPath + "/" + "hello.html";
 
-      MyPrint.printOnConsole('downlaodedfile:$finalDownloadedFilePath');
+      MyPrint.printOnConsole('downlaodedfile:$finalDownloadedFilePath', tag: tag);
 
       myFile = File(finalDownloadedFilePath);
       isDownloadFileExists = await myFile.exists();
@@ -124,16 +126,16 @@ class GotoCourseLaunch {
     bool enabletincanSupportforlt = tinCanDataModel.enabletincansupportforlt;
     bool isTinCan = tinCanDataModel.istincan;
 
-    MyPrint.printOnConsole("isTinCan:$isTinCan");
-    MyPrint.printOnConsole("enabletincanSupportforco:$enabletincanSupportforco");
-    MyPrint.printOnConsole("enabletincanSupportforao:$enabletincanSupportforao");
-    MyPrint.printOnConsole("enabletincanSupportforlt:$enabletincanSupportforlt");
+    MyPrint.printOnConsole("isTinCan:$isTinCan", tag: tag);
+    MyPrint.printOnConsole("enabletincanSupportforco:$enabletincanSupportforco", tag: tag);
+    MyPrint.printOnConsole("enabletincanSupportforao:$enabletincanSupportforao", tag: tag);
+    MyPrint.printOnConsole("enabletincanSupportforlt:$enabletincanSupportforlt", tag: tag);
 
     ///End TIN CAN OPTIONS
 
     /// this is offline part
     if (isDownloadFileExists && objectTypeId != InstancyObjectTypes.events) {
-      MyPrint.printOnConsole('if___course_launch_ogjtypr $objectTypeId');
+      MyPrint.printOnConsole('if___course_launch_ogjtypr $objectTypeId', tag: tag);
 
       /// Generate Offline Path
       if ([InstancyObjectTypes.contentObject, InstancyObjectTypes.assessment, InstancyObjectTypes.track].contains(objectTypeId)) {
@@ -208,8 +210,8 @@ class GotoCourseLaunch {
 
       String offlinePathEncode = offlinePath.replaceAll(" ", "%20");
 
-      MyPrint.printOnConsole("final....offlinePathEncode....path.....$offlinePathEncode");
-      MyPrint.printOnConsole("final....finalDownloadedFilePath....path.....$finalDownloadedFilePath");
+      MyPrint.printOnConsole("final....offlinePathEncode....path.....$offlinePathEncode", tag: tag);
+      MyPrint.printOnConsole("final....finalDownloadedFilePath....path.....$finalDownloadedFilePath", tag: tag);
 
       if (finalDownloadedFilePath.contains(".pdf")) {
         NavigationController.navigateToPDFLaunchScreen(
@@ -245,7 +247,7 @@ class GotoCourseLaunch {
           finalDownloadedFilePath.toLowerCase().contains(".docx")) {
         await openFile(finalDownloadedFilePath);
       } else {
-        MyPrint.printOnConsole('finalDownloadedFilePath $finalDownloadedFilePath');
+        MyPrint.printOnConsole('finalDownloadedFilePath $finalDownloadedFilePath', tag: tag);
         return "$offlinePath?nativeappURL=true&cid=12855&stid=316&lloc=1&lstatus=incomplete&susdata=%23pgvs_start%231;2;3;4;5;6;%23pgvs_end%23&quesdata=&sname=vinoth%20instancy&IsInstancyContent=true";
         //alertDialog(context);
       }
@@ -253,7 +255,7 @@ class GotoCourseLaunch {
 
     /// this is online part
     else {
-      MyPrint.printOnConsole('else___course_launch_ogjtypr GotoCourseLaunch $objectTypeId');
+      MyPrint.printOnConsole('else___course_launch_ogjtypr GotoCourseLaunch $objectTypeId', tag: tag);
 
       if (objectTypeId == InstancyObjectTypes.track && courseLaunchModel.bit5) {
         // Need to open EventTrackListTabsActivity
@@ -310,9 +312,9 @@ class GotoCourseLaunch {
           }
         }
 
-        MyPrint.printOnConsole("folderPath:'$folderPath'");
-        MyPrint.printOnConsole("objectTypeId:'$objectTypeId'");
-        MyPrint.printOnConsole("mediaTypeId:'$mediaTypeId'");
+        MyPrint.printOnConsole("folderPath:'$folderPath'", tag: tag);
+        MyPrint.printOnConsole("objectTypeId:'$objectTypeId'", tag: tag);
+        MyPrint.printOnConsole("mediaTypeId:'$mediaTypeId'", tag: tag);
 
         // Start of 8,9,10
         if ([InstancyObjectTypes.contentObject, InstancyObjectTypes.assessment, InstancyObjectTypes.track].contains(objectTypeId)) {
@@ -352,8 +354,8 @@ class GotoCourseLaunch {
             // urlForView = "${"${siteUrl}ajaxcourse/ScoID/$scoId/ContentTypeId/$objectTypeId"}/ContentID/$contentId/AllowCourseTracking/true/trackuserid/$userid/ismobilecontentview/true/ContentPath/~Content~PublishFiles~$folderPath~$jwstartpage?JWVideoParentID/$contentId/jwvideokey/$jwVideoKey";
             urlForView = "$siteUrl/content/publishfiles/$folderPath/$jwstartpage";
           } else if (objectTypeId == InstancyObjectTypes.mediaResource && [InstancyMediaTypes.embedAudio.toString(), InstancyMediaTypes.embedVideo.toString()].contains(mediaTypeId)) {
-            MyPrint.printOnConsole("In Embed Section");
-            MyPrint.printOnConsole("folderPath:$folderPath");
+            MyPrint.printOnConsole("In Embed Section", tag: tag);
+            MyPrint.printOnConsole("folderPath:$folderPath", tag: tag);
 
             urlForView = "${"$siteUrl/content/publishfiles/$folderPath/${courseLaunchModel.locale}"}/$folderPath.html?v=${Random().nextInt(100000)}";
           } else {
@@ -401,7 +403,7 @@ class GotoCourseLaunch {
                 "${"${apiUrlConfigurationProvider.getCurrentSiteUrl()}Content/PublishFiles/$folderPath/$startPage?endpoint=$lrsEndPoint&auth=$lrsAuthorizationKey&actor=$encodedString&ContentID=$contentId&ObjectTypeID=$objectTypeId"}&CanTrack=YES";
           }
 
-          MyPrint.printOnConsole("isCloudStorageEnabled:${appSystemConfigurationModel.isCloudStorageEnabled}");
+          MyPrint.printOnConsole("isCloudStorageEnabled:${appSystemConfigurationModel.isCloudStorageEnabled}", tag: tag);
           if (appSystemConfigurationModel.isCloudStorageEnabled) {
             urlForView =
                 "${"${appSystemConfigurationModel.azureRootPath}Content/PublishFiles/$folderPath/$startPage?endpoint=&auth=&actor=$encodedString&ContentID=$contentId&ObjectTypeID=$objectTypeId"}&CanTrack=NO&nativeappURL=true";
@@ -451,15 +453,15 @@ class GotoCourseLaunch {
             // encodedStr.toLowerCase().contains(".pdf") ||
             encodedStr.toLowerCase().contains(".doc") ||
             encodedStr.toLowerCase().contains(".docx")) {
-          MyPrint.printOnConsole("......xxxxxxx.....");
+          MyPrint.printOnConsole("......xxxxxxx.....", tag: tag);
           encodedStr = "https://docs.google.com/gview?embedded=true&url=$encodedStr";
           //encodedStr = "https://docs.google.com/gview?embedded=true&url=" + encodedStr.toLowerCase();
         }
 
-        MyPrint.printOnConsole("..............this is final URL..........");
-        MyPrint.printOnConsole("..............SAGAR..........");
-        MyPrint.printOnConsole("......$objectTypeId.......................");
-        MyPrint.printOnConsole("...URL...$encodedStr");
+        MyPrint.printOnConsole("..............this is final URL..........", tag: tag);
+        MyPrint.printOnConsole("..............SAGAR..........", tag: tag);
+        MyPrint.printOnConsole("......$objectTypeId.......................", tag: tag);
+        MyPrint.printOnConsole("...URL...$encodedStr", tag: tag);
 
 /*
           if( encodedStr.toLowerCase().contains(".pdf") )

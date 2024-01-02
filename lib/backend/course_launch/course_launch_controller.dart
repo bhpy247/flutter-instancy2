@@ -661,9 +661,9 @@ class CourseLaunchController {
     required CourseLaunchModel model,
     required String launchUrl,
   }) async {
-    MyPrint.printOnConsole("navigateToLaunchScreen called with MediaTypeId:${model.MediaTypeId}");
+    MyPrint.printOnConsole("CourseLaunchController().navigateToLaunchScreen() called with MediaTypeId:${model.MediaTypeId}");
 
-    if (model.MediaTypeId == InstancyMediaTypes.pDF) {
+    if (model.MediaTypeId == InstancyMediaTypes.pDF || launchUrl.contains(".pdf")) {
       return NavigationController.navigateToPDFLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,

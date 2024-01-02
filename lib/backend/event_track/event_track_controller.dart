@@ -3,19 +3,19 @@ import 'dart:io';
 import 'package:document_file_save_plus/document_file_save_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/common/app_error_model.dart';
+import 'package:flutter_instancy_2/models/common/pagination/pagination_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/gloassary_model.dart';
-import 'package:flutter_instancy_2/models/event_track/data_model/event_track_content_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_reference_item_model.dart';
-import 'package:flutter_instancy_2/models/event_track/data_model/track_block_model.dart';
-import 'package:flutter_instancy_2/models/event_track/request_model/event_related_content_data_request_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/request_model/event_related_contents_data_request_model.dart';
 import 'package:flutter_instancy_2/models/event_track/request_model/event_track_tab_request_model.dart';
-import 'package:flutter_instancy_2/models/event_track/request_model/track_content_data_request_model.dart';
-import 'package:flutter_instancy_2/models/event_track/response_model/event_related_content_data_response_model.dart';
+import 'package:flutter_instancy_2/models/event_track/request_model/track_list_view_data_request_model.dart';
 import 'package:flutter_instancy_2/models/event_track/response_model/event_track_resourse_response_model.dart';
-import 'package:flutter_instancy_2/models/event_track/response_model/track_content_data_response_model.dart';
+import 'package:flutter_instancy_2/models/event_track/response_model/resource_content_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/response_model/track_list_view_data_response_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:http/http.dart';
 import 'package:mime/mime.dart';
@@ -23,7 +23,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../api/api_controller.dart';
-import '../../models/classroom_events/data_model/event_recodting_mobile_lms_data_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/event_track/data_model/event_track_header_dto_model.dart';
 import '../../models/event_track/data_model/event_track_tab_dto_model.dart';
@@ -179,147 +178,336 @@ class EventTrackController {
     return true;
   }
 
-  Future<bool> getContentsData({
+  Future<bool> getTrackContentsData({
+    bool isRefresh = true,
     required String contentId,
     required int objectTypeId,
-    int trackScoId = 0,
-    required bool isRelatedContent,
+    required int componentId,
+    required int componentInsId,
+    required int trackScoId,
     bool isAssignmentTabEnabled = false,
     bool isNotify = true,
   }) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("EventTrackController().getContentsData() called with contentId:'$contentId'", tag: tag);
+    MyPrint.printOnConsole("EventTrackController().getTrackContentsData() called with isRefresh:$isRefresh, contentId:'$contentId'", tag: tag);
 
     EventTrackProvider provider = eventTrackProvider;
-    provider.isContentsDataLoading.set(value: true, isNotify: isNotify);
 
-    List<TrackBlockModel> contentsBlocksList = <TrackBlockModel>[];
-    List<TrackBlockModel> assignmentsBlocksList = <TrackBlockModel>[];
-    AppErrorModel? appErrorModel;
-
-    if (isRelatedContent) {
-      DataResponseModel<EventRelatedContentDataResponseModel> dataResponseModel = await eventTrackRepository.getEventRelatedContentData(
-        requestModel: EventRelatedContentDataRequestModel(
-          contentId: contentId,
-        ),
-      );
-      MyPrint.printOnConsole("EventTrackResourceResponseModel response:$dataResponseModel", tag: tag);
-
-      appErrorModel = dataResponseModel.appErrorModel;
-      if (dataResponseModel.appErrorModel != null) {
-        MyPrint.printOnConsole("Returning from EventTrackController.getContentsData() because getContentsData had some error", tag: tag);
-      }
-
-      if (dataResponseModel.data != null) {
-        EventRelatedContentDataResponseModel responseModel = dataResponseModel.data!;
-
-        TrackBlockModel defaultContentBlockModel = TrackBlockModel();
-        defaultContentBlockModel.contents.addAll(responseModel.eventrelatedcontentdata);
-        contentsBlocksList.add(defaultContentBlockModel);
-
-        if (isAssignmentTabEnabled) {
-          defaultContentBlockModel.contents.removeWhere((element) => element.objecttypeid == InstancyObjectTypes.assignment);
-
-          TrackBlockModel defaultAssignmentBlockModel = TrackBlockModel();
-          defaultAssignmentBlockModel.contents.addAll(responseModel.eventrelatedcontentdata.where((element) => element.objecttypeid == InstancyObjectTypes.assignment));
-          assignmentsBlocksList.add(defaultAssignmentBlockModel);
-          assignmentsBlocksList.removeWhere((element) => element.contents.isEmpty);
-        }
-
-        contentsBlocksList.removeWhere((element) => element.contents.isEmpty);
-      }
-    } else {
-      DataResponseModel<TrackContentDataResponseModel> dataResponseModel = await eventTrackRepository.getTrackContentData(
-        requestModel: TrackContentDataRequestModel(
-          ContentID: contentId,
-          TrackObjectTypeID: objectTypeId,
-          TrackScoID: trackScoId,
-        ),
-      );
-
-      MyPrint.printOnConsole("EventTrackResourceResponseModel response:$dataResponseModel", tag: tag);
-
-      appErrorModel = dataResponseModel.appErrorModel;
-      if (dataResponseModel.appErrorModel != null) {
-        MyPrint.printOnConsole("Returning from EventTrackController.getContentsData() because getContentsData had some error", tag: tag);
-      }
-
-      if (dataResponseModel.data != null) {
-        TrackContentDataResponseModel responseModel = dataResponseModel.data!;
-
-        TrackBlockModel defaultContentBlockModel = TrackBlockModel();
-        TrackBlockModel defaultAssignmentBlockModel = TrackBlockModel();
-        Map<String, TrackBlockModel> contentsBlocksMap = <String, TrackBlockModel>{};
-        Map<String, TrackBlockModel> assignmentsBlocksMap = <String, TrackBlockModel>{};
-
-        //region Initialize Mapping of Blocks with Their Id
-        contentsBlocksList.add(defaultContentBlockModel);
-        assignmentsBlocksList.add(defaultAssignmentBlockModel);
-
-        for (TrackBlockModel element in responseModel.table8) {
-          if (element.blockid.isEmpty || contentsBlocksMap.containsKey(element.blockid)) continue;
-
-          TrackBlockModel contentBlockModel = TrackBlockModel.fromJson(element.toJson());
-          contentsBlocksMap[element.blockid] = contentBlockModel;
-          contentsBlocksList.add(contentBlockModel);
-
-          TrackBlockModel assignmentBlockModel = TrackBlockModel.fromJson(element.toJson());
-          assignmentsBlocksMap[element.blockid] = assignmentBlockModel;
-          assignmentsBlocksList.add(assignmentBlockModel);
-        }
-        //endregion
-
-        //region Initialize Mapping of Recordings with Their Id
-        Map<String, EventRecordingMobileLMSDataModel> recordingsMap = <String, EventRecordingMobileLMSDataModel>{};
-        for (EventRecordingMobileLMSDataModel element in responseModel.eventrecording) {
-          if (element.eventid.isEmpty || recordingsMap.containsKey(element.eventid)) continue;
-
-          recordingsMap[element.eventid] = element;
-        }
-        //endregion
-
-        //region Add Contents into the block content according to parent id
-        for (EventTrackContentModel element in responseModel.table5) {
-          if (element.objectid.isNotEmpty) element.recordingModel = recordingsMap[element.objectid];
-
-          if (element.parentid.isNotEmpty) {
-            if (isAssignmentTabEnabled && element.objecttypeid == InstancyObjectTypes.assignment) {
-              assignmentsBlocksMap[element.parentid]?.contents.add(element);
-            } else {
-              contentsBlocksMap[element.parentid]?.contents.add(element);
-            }
-          } else {
-            if (isAssignmentTabEnabled && element.objecttypeid == InstancyObjectTypes.assignment) {
-              defaultAssignmentBlockModel.contents.add(element);
-            } else {
-              defaultContentBlockModel.contents.add(element);
-            }
-          }
-        }
-
-        contentsBlocksList.removeWhere((element) => element.contents.isEmpty);
-        assignmentsBlocksList.removeWhere((element) => element.contents.isEmpty);
-        //endregion
-
-        /*//region Sort Contents in Blocks According to Their sequencenumber
-        for (TrackBlockModel element in blocksList) {
-          element.contents.sort((a, b) => a.sequencenumber.compareTo(b.sequencenumber));
-        }
-        //endregion*/
-      }
+    if (!isRefresh && provider.trackContentsData.length > 0) {
+      MyPrint.printOnConsole("Returning from EventTrackController().getTrackContentsData() already having data", tag: tag);
+      return true;
     }
 
-    // MyPrint.printOnConsole("Blocks List:${blocksList.map((e) => e.blockname).toList()}");
+    provider.isTrackContentsDataLoading.set(value: true, isNotify: isNotify);
 
-    provider.contentsData.setList(list: contentsBlocksList, isClear: true, isNotify: false);
-    provider.assignmentsData.setList(list: assignmentsBlocksList, isClear: true, isNotify: false);
-    provider.isContentsDataLoading.set(value: false, isNotify: true);
+    List<TrackDTOModel> contentsBlocksList = <TrackDTOModel>[];
+    AppErrorModel? appErrorModel;
+
+    DataResponseModel<TrackListViewDataResponseModel> dataResponseModel = await eventTrackRepository.getTrackListViewData(
+      requestModel: TrackListViewDataRequestModel(
+        parentcontentID: contentId,
+        compID: componentId,
+        compInsID: componentInsId,
+        objecttypeId: objectTypeId,
+        Trackscoid: trackScoId,
+        isAssignmentTab: false,
+        isAssignmentTabEnabled: isAssignmentTabEnabled,
+        wLaunchType: "onlaunch",
+      ),
+    );
+
+    MyPrint.printOnConsole("EventTrackResourceResponseModel response:$dataResponseModel", tag: tag);
+
+    appErrorModel = dataResponseModel.appErrorModel;
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from EventTrackController.getTrackContentsData() because getTrackListViewData had some error", tag: tag);
+    }
+
+    if (dataResponseModel.data != null) {
+      TrackListViewDataResponseModel responseModel = dataResponseModel.data!;
+
+      contentsBlocksList = responseModel.TrackListData;
+    }
+
+    MyPrint.printOnConsole("Final contentsBlocksList length:${contentsBlocksList.length}");
+
+    provider.trackContentsData.setList(list: contentsBlocksList, isClear: true, isNotify: false);
+    provider.isTrackContentsDataLoading.set(value: false, isNotify: true);
 
     if (appErrorModel != null) {
       return false;
     }
 
     return true;
+  }
+
+  Future<bool> getTrackAssignmentsData({
+    bool isRefresh = true,
+    required String contentId,
+    required int objectTypeId,
+    required int componentId,
+    required int componentInsId,
+    required int trackScoId,
+    bool isAssignmentTabEnabled = false,
+    bool isNotify = true,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("EventTrackController().getTrackAssignmentsData() called with isRefresh:$isRefresh, contentId:'$contentId'", tag: tag);
+
+    EventTrackProvider provider = eventTrackProvider;
+
+    if (!isRefresh && provider.trackContentsData.length > 0) {
+      MyPrint.printOnConsole("Returning from EventTrackController().getTrackAssignmentsData() already having data", tag: tag);
+      return true;
+    }
+
+    provider.isTrackAssignmentsDataLoading.set(value: true, isNotify: isNotify);
+
+    List<TrackDTOModel> contentsBlocksList = <TrackDTOModel>[];
+    AppErrorModel? appErrorModel;
+
+    DataResponseModel<TrackListViewDataResponseModel> dataResponseModel = await eventTrackRepository.getTrackListViewData(
+      requestModel: TrackListViewDataRequestModel(
+        parentcontentID: contentId,
+        compID: componentId,
+        compInsID: componentInsId,
+        objecttypeId: objectTypeId,
+        Trackscoid: trackScoId,
+        isAssignmentTab: true,
+        isAssignmentTabEnabled: isAssignmentTabEnabled,
+        wLaunchType: "onlaunch",
+      ),
+    );
+
+    MyPrint.printOnConsole("EventTrackResourceResponseModel response:$dataResponseModel", tag: tag);
+
+    appErrorModel = dataResponseModel.appErrorModel;
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from EventTrackController.getTrackContentsData() because getTrackListViewData had some error", tag: tag);
+    }
+
+    if (dataResponseModel.data != null) {
+      TrackListViewDataResponseModel responseModel = dataResponseModel.data!;
+
+      contentsBlocksList = responseModel.TrackListData;
+    }
+
+    MyPrint.printOnConsole("Final contentsBlocksList length:${contentsBlocksList.length}");
+
+    provider.trackAssignmentsData.setList(list: contentsBlocksList, isClear: true, isNotify: false);
+    provider.isTrackAssignmentsDataLoading.set(value: false, isNotify: true);
+
+    if (appErrorModel != null) {
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<List<RelatedTrackDataDTOModel>> getEventRelatedContentsData({
+    bool isRefresh = true,
+    bool isGetFromCache = false,
+    required String contentId,
+    required int componentId,
+    required int componentInstanceId,
+    bool isAssignmentTabEnabled = false,
+    bool isNotify = true,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole(
+      "EventTrackController().getEventRelatedContentsData() called with isRefresh:$isRefresh, isGetFromCache:$isGetFromCache, "
+      "isNotify:$isNotify, componentId:$componentId, componentInstanceId:$componentInstanceId",
+      tag: tag,
+    );
+
+    EventTrackProvider provider = eventTrackProvider;
+    PaginationModel paginationModel = provider.eventRelatedContentsDataPaginationModel.get();
+
+    //region If Not refresh and Data available, return Cached Data
+    if (!isRefresh && isGetFromCache && provider.eventRelatedContentsData.length > 0) {
+      MyPrint.printOnConsole("Returning Cached Data", tag: tag);
+      return provider.eventRelatedContentsData.getList(isNewInstance: true);
+    }
+    //endregion
+
+    //region If refresh, then reset provider data
+    if (isRefresh) {
+      MyPrint.printOnConsole("Refresh", tag: tag);
+      PaginationModel.updatePaginationData(
+        paginationModel: paginationModel,
+        hasMore: true,
+        pageIndex: 1,
+        isFirstTimeLoading: true,
+        isLoading: false,
+        notifier: provider.notify,
+        notify: isNotify,
+      );
+      provider.eventRelatedContentsData.setList(list: <RelatedTrackDataDTOModel>[], isClear: true, isNotify: isNotify);
+    }
+    //endregion
+
+    //region If Not Has More Data, then return
+    if (!paginationModel.hasMore) {
+      MyPrint.printOnConsole('No More Event Related Contents', tag: tag);
+      return provider.eventRelatedContentsData.getList(isNewInstance: true);
+    }
+    //endregion
+
+    //region If Data already Loading, then return
+    if (paginationModel.isLoading) return provider.eventRelatedContentsData.getList(isNewInstance: true);
+    //endregion
+
+    //region Set Loading True
+    PaginationModel.updatePaginationData(
+      paginationModel: paginationModel,
+      isLoading: true,
+      notifier: provider.notify,
+      notify: isNotify,
+    );
+    //endregion
+
+    DateTime startTime = DateTime.now();
+
+    //region Get Request Model From Provider Data
+    EventRelatedContentsDataRequestModel requestModel = EventRelatedContentsDataRequestModel(
+      ContentID: contentId,
+      ComponentID: componentId,
+      ComponentInsID: componentInstanceId,
+      isAssignmentTabEnabled: isAssignmentTabEnabled,
+      isAssignmentTab: false,
+      pageIndex: paginationModel.pageIndex,
+      pageSize: paginationModel.pageSize,
+    );
+    //endregion
+
+    //region Make Api Call
+    DataResponseModel<ResourceContentDTOModel> response = await eventTrackRepository.getEventRelatedContentsData(requestModel: requestModel);
+    MyPrint.printOnConsole("Event Related Contents Length:${response.data?.ResouseList.length ?? 0}", tag: tag);
+    //endregion
+
+    DateTime endTime = DateTime.now();
+    MyPrint.printOnConsole("Event Related Contents Data got in ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: tag);
+
+    List<RelatedTrackDataDTOModel> contentsList = response.data?.ResouseList ?? <RelatedTrackDataDTOModel>[];
+    MyPrint.printOnConsole("Event Related Contents Length got in Api:${contentsList.length}", tag: tag);
+
+    //region Set Provider Data After Getting Data From Api
+    PaginationModel.updatePaginationData(
+      paginationModel: paginationModel,
+      isFirstTimeLoading: false,
+      pageIndex: paginationModel.pageIndex + 1,
+      hasMore: contentsList.length == paginationModel.pageSize,
+      isLoading: false,
+      notifier: provider.notify,
+      notify: isNotify,
+    );
+    provider.eventRelatedContentsData.setList(list: contentsList, isClear: false, isNotify: true);
+    //endregion
+
+    return provider.eventRelatedContentsData.getList(isNewInstance: true);
+  }
+
+  Future<List<RelatedTrackDataDTOModel>> getEventRelatedAssignmentsData({
+    bool isRefresh = true,
+    bool isGetFromCache = false,
+    required String contentId,
+    required int componentId,
+    required int componentInstanceId,
+    bool isAssignmentTabEnabled = false,
+    bool isNotify = true,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole(
+      "EventTrackController().getEventRelatedAssignmentsData() called with isRefresh:$isRefresh, isGetFromCache:$isGetFromCache, "
+      "isNotify:$isNotify, componentId:$componentId, componentInstanceId:$componentInstanceId",
+      tag: tag,
+    );
+
+    EventTrackProvider provider = eventTrackProvider;
+    PaginationModel paginationModel = provider.eventRelatedAssignmentsDataPaginationModel.get();
+
+    //region If Not refresh and Data available, return Cached Data
+    if (!isRefresh && isGetFromCache && provider.eventRelatedAssignmentsData.length > 0) {
+      MyPrint.printOnConsole("Returning Cached Data", tag: tag);
+      return provider.eventRelatedAssignmentsData.getList(isNewInstance: true);
+    }
+    //endregion
+
+    //region If refresh, then reset provider data
+    if (isRefresh) {
+      MyPrint.printOnConsole("Refresh", tag: tag);
+      PaginationModel.updatePaginationData(
+        paginationModel: paginationModel,
+        hasMore: true,
+        pageIndex: 1,
+        isFirstTimeLoading: true,
+        isLoading: false,
+        notifier: provider.notify,
+        notify: isNotify,
+      );
+      provider.eventRelatedAssignmentsData.setList(list: <RelatedTrackDataDTOModel>[], isClear: true, isNotify: isNotify);
+    }
+    //endregion
+
+    //region If Not Has More Data, then return
+    if (!paginationModel.hasMore) {
+      MyPrint.printOnConsole('No More Event Related Contents', tag: tag);
+      return provider.eventRelatedAssignmentsData.getList(isNewInstance: true);
+    }
+    //endregion
+
+    //region If Data already Loading, then return
+    if (paginationModel.isLoading) return provider.eventRelatedAssignmentsData.getList(isNewInstance: true);
+    //endregion
+
+    //region Set Loading True
+    PaginationModel.updatePaginationData(
+      paginationModel: paginationModel,
+      isLoading: true,
+      notifier: provider.notify,
+      notify: isNotify,
+    );
+    //endregion
+
+    DateTime startTime = DateTime.now();
+
+    //region Get Request Model From Provider Data
+    EventRelatedContentsDataRequestModel requestModel = EventRelatedContentsDataRequestModel(
+      ContentID: contentId,
+      ComponentID: componentId,
+      ComponentInsID: componentInstanceId,
+      isAssignmentTabEnabled: isAssignmentTabEnabled,
+      isAssignmentTab: true,
+      pageIndex: paginationModel.pageIndex,
+      pageSize: paginationModel.pageSize,
+    );
+    //endregion
+
+    //region Make Api Call
+    DataResponseModel<ResourceContentDTOModel> response = await eventTrackRepository.getEventRelatedContentsData(requestModel: requestModel);
+    MyPrint.printOnConsole("Event Related Assignments Length:${response.data?.ResouseList.length ?? 0}", tag: tag);
+    //endregion
+
+    DateTime endTime = DateTime.now();
+    MyPrint.printOnConsole("Event Related Assignments Data got in ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: tag);
+
+    List<RelatedTrackDataDTOModel> contentsList = response.data?.ResouseList ?? <RelatedTrackDataDTOModel>[];
+    MyPrint.printOnConsole("Event Related Assignments Length got in Api:${contentsList.length}", tag: tag);
+
+    //region Set Provider Data After Getting Data From Api
+    PaginationModel.updatePaginationData(
+      paginationModel: paginationModel,
+      isFirstTimeLoading: false,
+      pageIndex: paginationModel.pageIndex + 1,
+      hasMore: contentsList.length == paginationModel.pageSize,
+      isLoading: false,
+      notifier: provider.notify,
+      notify: isNotify,
+    );
+    provider.eventRelatedAssignmentsData.setList(list: contentsList, isClear: false, isNotify: true);
+    //endregion
+
+    return provider.eventRelatedAssignmentsData.getList(isNewInstance: true);
   }
 
   //region Simple File Download

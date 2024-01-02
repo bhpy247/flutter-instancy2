@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:flutter_instancy_2/views/common/components/common_icon_button.dart';
+import 'package:flutter_instancy_2/views/course_download/components/course_download_button.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:html/parser.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
@@ -14,14 +15,13 @@ import '../../../backend/app/app_provider.dart';
 import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import '../../../models/course/data_model/CourseDTOModel.dart';
-import '../../../utils/my_print.dart';
 import '../../common/components/common_button.dart';
 import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
 
 class MyLearningCard extends StatefulWidget {
   final CourseDTOModel courseDTOModel;
   final InstancyUIActionModel? primaryAction;
-  final void Function()? onMoreButtonTap, onPrimaryActionTap, onThumbnailClick;
+  final void Function()? onMoreButtonTap, onPrimaryActionTap, onThumbnailClick, onDownloadTap;
   final bool isShowMoreOption;
 
   const MyLearningCard({
@@ -29,6 +29,7 @@ class MyLearningCard extends StatefulWidget {
     required this.courseDTOModel,
     this.primaryAction,
     this.onThumbnailClick,
+    this.onDownloadTap,
     this.onMoreButtonTap,
     this.onPrimaryActionTap,
     this.isShowMoreOption = true,
@@ -83,7 +84,7 @@ class _MyLearningCardState extends State<MyLearningCard> {
     // url = "https://upgradedenterprise.instancy.com/content/onboarding/1_image.png";
     // url = "https://qacontent.blob.core.windows.net/qainstancycontent/content/sitefiles/images/media resource.jpg";
     // url = AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: url);
-    MyPrint.printOnConsole("mylearning content final image url:$url");
+    // MyPrint.printOnConsole("mylearning content final image url:$url");
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
@@ -160,7 +161,10 @@ class _MyLearningCardState extends State<MyLearningCard> {
                 ],
               ),
             ),
-            // downloadIcon(model)
+            CourseDownloadButton(
+              contentId: model.ContentID,
+              onDownloadTap: widget.onDownloadTap,
+            ),
           ],
         ),
         eventStartDateAndTime(model),
@@ -346,35 +350,6 @@ class _MyLearningCardState extends State<MyLearningCard> {
         // },
         iconData: Icons.more_vert,
         iconSize: 22,
-      ),
-    );
-  }
-
-  Widget downloadIcon(CourseDTOModel model) {
-    if ((model.ContentTypeId == 10 && model.bit5) || [20, 27, 28, 36, 70, 102, 688, 693].contains(model.ContentTypeId)) {
-      return const SizedBox();
-    }
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 3,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: InkWell(
-        onTap: () {},
-        child: const Padding(
-          padding: EdgeInsets.all(3.0),
-          child: Icon(
-            Icons.file_download_outlined,
-            color: Color(0xff242424),
-          ),
-        ),
       ),
     );
   }

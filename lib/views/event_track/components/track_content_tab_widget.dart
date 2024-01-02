@@ -5,9 +5,11 @@ import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/event_track/event_track_ui_action_callback_model.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
-import 'package:flutter_instancy_2/models/classroom_events/data_model/event_recodting_mobile_lms_data_model.dart';
-import 'package:flutter_instancy_2/models/event_track/data_model/event_track_content_model.dart';
+import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_dto_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/event/event_controller.dart';
@@ -16,31 +18,28 @@ import '../../../backend/profile/profile_provider.dart';
 import '../../../backend/ui_actions/event_track/event_track_ui_actions_controller.dart';
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
-import '../../../models/event_track/data_model/track_block_model.dart';
 import '../../../models/event_track/request_model/view_recording_request_model.dart';
 import '../../../utils/my_print.dart';
 import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
-import 'event_track_content_card.dart';
+import 'track_content_card.dart';
 
-class ContentTabWidget extends StatefulWidget {
-  final List<TrackBlockModel> contentBlocksList;
+class TrackContentTabWidget extends StatefulWidget {
+  final List<TrackDTOModel> contentBlocksList;
   final String trackId;
-  final String eventId;
   final int userId;
   final int componentId;
   final int componentInsId;
   final void Function()? onPulledTORefresh;
   final void Function()? refreshParentAndChildContentsCallback;
-  final void Function({required EventTrackContentModel model})? onContentViewTap;
-  final void Function({required EventTrackContentModel model})? onReportContentTap;
-  final void Function({required EventTrackContentModel model})? onSetCompleteTap;
-  final void Function({required EventTrackContentModel model})? onCancelEnrollmentTap;
+  final void Function({required TrackCourseDTOModel model})? onContentViewTap;
+  final void Function({required TrackCourseDTOModel model})? onReportContentTap;
+  final void Function({required TrackCourseDTOModel model})? onSetCompleteTap;
+  final void Function({required TrackCourseDTOModel model})? onCancelEnrollmentTap;
 
-  const ContentTabWidget({
+  const TrackContentTabWidget({
     Key? key,
     required this.contentBlocksList,
     this.trackId = "",
-    this.eventId = "",
     required this.userId,
     required this.componentId,
     required this.componentInsId,
@@ -53,17 +52,17 @@ class ContentTabWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ContentTabWidget> createState() => _ContentTabWidgetState();
+  State<TrackContentTabWidget> createState() => _TrackContentTabWidgetState();
 }
 
-class _ContentTabWidgetState extends State<ContentTabWidget> {
+class _TrackContentTabWidgetState extends State<TrackContentTabWidget> with MySafeState {
   late AppProvider appProvider;
 
   Map<String, dynamic> data = {};
   List<int> intList = [];
 
   EventTrackUIActionCallbackModel getUIActionCallbackModel({
-    required EventTrackContentModel model,
+    required TrackCourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
     bool isSecondaryAction = true,
   }) {
@@ -120,7 +119,7 @@ class _ContentTabWidgetState extends State<ContentTabWidget> {
       onJoinTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 
-        EventController(eventProvider: null).joinVirtualEvent(context: context, joinUrl: model.participanturl);
+        // EventController(eventProvider: null).joinVirtualEvent(context: context, joinUrl: model.participanturl);
       },
       onViewQRCodeTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
@@ -130,39 +129,39 @@ class _ContentTabWidgetState extends State<ContentTabWidget> {
             context: context,
             navigationType: NavigationType.pushNamed,
           ),
-          arguments: QRCodeImageScreenNavigationArguments(qrCodePath: model.actionviewqrcode),
+          arguments: QRCodeImageScreenNavigationArguments(qrCodePath: model.ActionViewQRcode),
         );
       },
       onViewRecordingTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 
-        MyPrint.printOnConsole("onViewRecordingTap called for ObjectTypeId:${model.objecttypeid} and contentId:${model.contentid}");
+        MyPrint.printOnConsole("onViewRecordingTap called for ContentTypeId:${model.ContentTypeId} and ContentID:${model.ContentID}");
 
-        EventRecordingMobileLMSDataModel? recordingDetails = model.recordingModel;
+        EventRecordingDetailsModel? recordingDetails = model.RecordingDetails;
 
         if (recordingDetails == null) {
           MyPrint.printOnConsole("recordingDetails are null");
           return;
         }
         ViewRecordingRequestModel viewRecordingRequestModel = ViewRecordingRequestModel(
-          contentName: recordingDetails.contentname,
-          contentID: recordingDetails.contentid,
-          contentTypeId: ParsingHelper.parseIntMethod(recordingDetails.contenttypeid),
-          eventRecordingURL: recordingDetails.eventrecordingurl,
-          eventRecording: ParsingHelper.parseBoolMethod(recordingDetails.eventrecording),
-          jWVideoKey: recordingDetails.jwvideokey ?? "",
-          language: recordingDetails.language,
-          recordingType: recordingDetails.recordingtype,
-          scoID: recordingDetails.scoid ?? "",
-          jwVideoPath: recordingDetails.viewlink ?? "",
-          viewType: recordingDetails.viewtype ?? "",
+          contentName: recordingDetails.ContentName,
+          contentID: recordingDetails.ContentID,
+          contentTypeId: ParsingHelper.parseIntMethod(recordingDetails.ContentTypeId),
+          eventRecordingURL: recordingDetails.EventRecordingURL,
+          eventRecording: recordingDetails.EventRecording,
+          jWVideoKey: recordingDetails.JWVideoKey,
+          language: recordingDetails.Language,
+          recordingType: recordingDetails.RecordingType,
+          scoID: recordingDetails.ScoID,
+          jwVideoPath: recordingDetails.ViewLink,
+          viewType: recordingDetails.ViewType,
         );
         EventController(eventProvider: null).viewRecordingForEvent(model: viewRecordingRequestModel, context: context);
       },
       onViewResourcesTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 
-        MyPrint.printOnConsole("onViewResourcesTap called for ObjectTypeId:${model.objecttypeid} and contentId:${model.contentid}");
+        MyPrint.printOnConsole("onViewResourcesTap called for ContentTypeId:${model.ContentTypeId} and ContentID:${model.ContentID}");
 
         dynamic value = await NavigationController.navigateToEventTrackScreen(
           navigationOperationParameters: NavigationOperationParameters(
@@ -170,13 +169,13 @@ class _ContentTabWidgetState extends State<ContentTabWidget> {
             navigationType: NavigationType.pushNamed,
           ),
           arguments: EventTrackScreenArguments(
-            objectTypeId: model.objecttypeid,
-            isRelatedContent: model.objecttypeid == InstancyObjectTypes.events,
-            parentContentId: model.contentid,
-            eventTrackTabType: model.objecttypeid == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
+            objectTypeId: model.ContentTypeId,
+            isRelatedContent: model.ContentTypeId == InstancyObjectTypes.events,
+            parentContentId: model.ContentID,
+            eventTrackTabType: model.ContentTypeId == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
             componentId: widget.componentId,
             componentInstanceId: widget.componentInsId,
-            scoId: model.scoid,
+            scoId: model.ScoID,
             isContentEnrolled: true,
           ),
         );
@@ -188,8 +187,8 @@ class _ContentTabWidgetState extends State<ContentTabWidget> {
     );
   }
 
-  Future<void> showMoreAction({required EventTrackContentModel model}) async {
-    MyPrint.printOnConsole("showMoreAction called for EventTrackContent:${model.contentid}");
+  Future<void> showMoreAction({required TrackCourseDTOModel model}) async {
+    MyPrint.printOnConsole("showMoreAction called for EventTrackContent:${model.ContentID}");
 
     LocalStr localStr = appProvider.localStr;
 
@@ -202,7 +201,7 @@ class _ContentTabWidgetState extends State<ContentTabWidget> {
     );
 
     List<InstancyUIActionModel> options = uiActionsController
-        .getSecondaryActions(
+        .getTrackContentsSecondaryActions(
           contentModel: model,
           localStr: localStr,
           myLearningUIActionCallbackModel: getUIActionCallbackModel(
@@ -224,8 +223,9 @@ class _ContentTabWidgetState extends State<ContentTabWidget> {
     );
   }
 
-  Future<void> onDetailsTap({required EventTrackContentModel model, bool isRescheduleEvent = false}) async {
-    String parentContentId = model.eventparentid;
+  Future<void> onDetailsTap({required TrackCourseDTOModel model, bool isRescheduleEvent = false}) async {
+    String parentContentId = model.ContentID;
+    // String parentContentId = model.eventparentid;
     MyPrint.printOnConsole("parentContentId:'$parentContentId'");
 
     if (isRescheduleEvent && parentContentId.isEmpty) {
@@ -239,7 +239,8 @@ class _ContentTabWidgetState extends State<ContentTabWidget> {
         navigationType: NavigationType.pushNamed,
       ),
       arguments: CourseDetailScreenNavigationArguments(
-        contentId: isRescheduleEvent ? parentContentId : model.contentid,
+        contentId: isRescheduleEvent ? parentContentId : model.ContentID,
+        parentTrackId: widget.trackId,
         componentId: isRescheduleEvent ? InstancyComponents.Catalog : widget.componentId,
         componentInstanceId: widget.componentInsId,
         userId: ApiController().apiDataProvider.getCurrentUserId(),
@@ -262,6 +263,8 @@ class _ContentTabWidgetState extends State<ContentTabWidget> {
 
   @override
   Widget build(BuildContext context) {
+    super.pageBuild();
+
     return RefreshIndicator(
       onRefresh: () async {
         if (widget.onPulledTORefresh != null) {
@@ -273,37 +276,42 @@ class _ContentTabWidgetState extends State<ContentTabWidget> {
         itemCount: widget.contentBlocksList.length,
         shrinkWrap: true,
         itemBuilder: (BuildContext context, int index) {
-          TrackBlockModel trackBlockModel = widget.contentBlocksList[index];
+          TrackDTOModel model = widget.contentBlocksList[index];
 
-          return getContentBlockWidget(trackBlockModel: trackBlockModel);
+          return getContentBlockWidget(trackBlockModel: model);
         },
       ),
     );
   }
 
-  Widget getContentBlockWidget({required TrackBlockModel trackBlockModel}) {
-    if (trackBlockModel.blockid.isNotEmpty) {
+  Widget getContentBlockWidget({required TrackDTOModel trackBlockModel}) {
+    if (trackBlockModel.blockID.isNotEmpty) {
       return Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          title: Text(trackBlockModel.blockname),
-          children: getContentsListWidget(contents: trackBlockModel.contents).toList(),
+          title: Text(
+            trackBlockModel.blockname,
+            style: themeData.textTheme.bodyLarge?.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          children: getContentsListWidget(contents: trackBlockModel.TrackList).toList(),
         ),
       );
     } else {
       return Column(
-        children: getContentsListWidget(contents: trackBlockModel.contents).toList(),
+        children: getContentsListWidget(contents: trackBlockModel.TrackList).toList(),
       );
     }
   }
 
-  Iterable<Widget> getContentsListWidget({required List<EventTrackContentModel> contents}) sync* {
+  Iterable<Widget> getContentsListWidget({required List<TrackCourseDTOModel> contents}) sync* {
     AppProvider appProvider = context.read<AppProvider>();
     ProfileProvider profileProvider = context.read<ProfileProvider>();
 
     LocalStr localStr = appProvider.localStr;
 
-    for (EventTrackContentModel model in contents) {
+    for (TrackCourseDTOModel model in contents) {
       EventTrackUIActionsController uiActionsController = EventTrackUIActionsController(
         appProvider: appProvider,
         myLearningProvider: MyLearningProvider(),
@@ -311,7 +319,7 @@ class _ContentTabWidgetState extends State<ContentTabWidget> {
       );
 
       List<InstancyUIActionModel> options = uiActionsController
-          .getPrimaryActions(
+          .getTrackContentsPrimaryActions(
             contentModel: model,
             myLearningUIActionCallbackModel: getUIActionCallbackModel(
               model: model,
@@ -325,7 +333,7 @@ class _ContentTabWidgetState extends State<ContentTabWidget> {
       InstancyUIActionModel? primaryAction = options.firstElement;
       InstancyContentActionsEnum? primaryActionEnum = primaryAction?.actionsEnum;
 
-      yield EventTrackContentCard(
+      yield TrackContentCard(
         eventTrackContentModel: model,
         primaryAction: primaryAction,
         onMoreButtonTap: () {

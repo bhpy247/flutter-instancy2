@@ -86,7 +86,7 @@ class MyLearningUIActionConfigs {
     return isEnabled;
   }
 
-  static bool isContentDownloadEnabled({required int objectTypeId, required int mediaTypeId}) {
+  static bool isContentTypeDownloadable({required int objectTypeId, required int mediaTypeId}) {
     return checkContentTypeConfiguration(
       objectTypeId: objectTypeId,
       mediaTypeId: mediaTypeId,

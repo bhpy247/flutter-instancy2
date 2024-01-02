@@ -319,22 +319,20 @@ class ApiEndpoints {
 
 //endregion
 
-  //region Learning Pathhttps://upgradedenterpriseapi.instancy.com/api/EventTrackTabs/GetEventTrackHeaderData?parentcontentID=2d14a88a-d74e-4893-abca-e8d3ce37dae1&siteID=374&userID=498&localeID=en-us&objecttypeid=10&iscontentenrolled=true&scoid=15337
+  //region Learning Path
   String getEventTrackHeaderData() => "${getBaseApiUrl()}EventTrackTabs/GetEventTrackHeaderData";
 
   String getEventTrackTabData() => "${getBaseApiUrl()}EventTrackTabs/GetEventTrackTabs";
 
   String getGetTrackListViewData() => "${getBaseApiUrl()}TrackListView/GetTrackListViewData";
 
+  String getEventRelatedContentsDataUrl() => "${getBaseApiUrl()}Resourcecontent/GetCatalogObjectsforResourcesContent";
+
   String getEventTrackOverview() => "${getBaseApiUrl()}EventTrackOverview/geteventtrackoverview";
 
   String getGlossaryJsonData() => "${getBaseApiUrl()}MobileLMS/GetglossaryJsonData";
 
   String getEventTrackResourcesData() => "${getBaseApiUrl()}MobileLMS/GetResourceJsonData";
-
-  String getTrackContentsData() => "${getBaseApiUrl()}MobileLMS/MobileGetMobileContentMetaData";
-
-  String getEventRelatedContentsData() => "${getBaseApiUrl()}MobileLMS/GetMobileEventRelatedContentMetadata";
 
   //endregion
 

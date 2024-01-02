@@ -10,7 +10,6 @@ import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/
 import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
-import 'package:flutter_instancy_2/models/event_track/data_model/event_track_content_model.dart';
 import 'package:flutter_instancy_2/models/membership/data_model/membership_plan_details_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_experience_data_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
@@ -247,7 +246,6 @@ class RecommendToScreenNavigationArguments extends NavigationArguments {
 class MyLearningContentProgressScreenNavigationArguments extends NavigationArguments {
   final String contentId;
   final CourseDTOModel? courseDTOModel;
-  final EventTrackContentModel? eventTrackContentModel;
   final int userId;
   final int contentTypeId;
   final int componentId;
@@ -258,7 +256,6 @@ class MyLearningContentProgressScreenNavigationArguments extends NavigationArgum
   const MyLearningContentProgressScreenNavigationArguments({
     required this.contentId,
     this.courseDTOModel,
-    this.eventTrackContentModel,
     required this.userId,
     required this.contentTypeId,
     required this.componentId,
@@ -270,6 +267,8 @@ class MyLearningContentProgressScreenNavigationArguments extends NavigationArgum
 
 class CourseDetailScreenNavigationArguments extends NavigationArguments {
   final String contentId;
+  final String parentEventId;
+  final String parentTrackId;
   final int componentId;
   final int componentInstanceId;
   final int? userId;
@@ -282,6 +281,8 @@ class CourseDetailScreenNavigationArguments extends NavigationArguments {
 
   const CourseDetailScreenNavigationArguments({
     required this.contentId,
+    this.parentEventId = "",
+    this.parentTrackId = "",
     required this.componentId,
     required this.componentInstanceId,
     required this.userId,

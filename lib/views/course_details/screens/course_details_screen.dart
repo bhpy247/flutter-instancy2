@@ -8,6 +8,8 @@ import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/course_details/course_details_controller.dart';
 import 'package:flutter_instancy_2/backend/course_details/course_details_provider.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/event/event_controller.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
@@ -27,6 +29,7 @@ import 'package:flutter_instancy_2/models/common/pagination/pagination_model.dar
 import 'package:flutter_instancy_2/models/content_details/request_model/course_details_request_model.dart';
 import 'package:flutter_instancy_2/models/content_details/request_model/course_details_schedule_data_request_model.dart';
 import 'package:flutter_instancy_2/models/content_review_ratings/data_model/content_user_rating_model.dart';
+import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
 import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
@@ -35,6 +38,7 @@ import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/views/content_review_ratings/components/content_user_review_card.dart';
+import 'package:flutter_instancy_2/views/course_download/components/course_download_button.dart';
 import 'package:flutter_instancy_2/views/event/components/event_session_card.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
@@ -102,6 +106,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
   late EventProvider eventProvider;
   late EventController eventController;
+
+  late CourseDownloadProvider courseDownloadProvider;
+  late CourseDownloadController courseDownloadController;
 
   Future<void>? futureGetData;
 
@@ -929,6 +936,31 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     }
   }
 
+  Future<void> onDownloadButtonTapped({required CourseDTOModel model}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("onDownloadTap called", tag: tag);
+
+    String downloadId = CourseDownloadDataModel.getDownloadId(
+      contentId: model.ContentID,
+      eventTrackContentId: widget.arguments.parentTrackId.isNotEmpty ? widget.arguments.parentTrackId : widget.arguments.parentEventId,
+    );
+
+    CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: downloadId);
+
+    if (courseDownloadDataModel == null) {
+      MyPrint.printOnConsole("Course Not Downloaded", tag: tag);
+      courseDownloadController.downloadCourse(courseDTOModel: model);
+    } else if (courseDownloadDataModel.isFileDownloading) {
+      MyPrint.printOnConsole("Course Downloading", tag: tag);
+      courseDownloadController.pauseDownload(downloadId: downloadId);
+    } else if (courseDownloadDataModel.isFileDownloadingPaused) {
+      MyPrint.printOnConsole("Course Paused", tag: tag);
+      courseDownloadController.resumeDownload(downloadId: downloadId);
+    } else {
+      MyPrint.printOnConsole("Invalid Download Command", tag: tag);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -958,6 +990,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     eventProvider = EventProvider();
     eventController = EventController(eventProvider: eventProvider);
 
+    courseDownloadProvider = context.read<CourseDownloadProvider>();
+    courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+
     futureGetData = getContentDetailsData();
   }
 
@@ -970,6 +1005,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         ChangeNotifierProvider<CourseDetailsProvider>.value(value: courseDetailsProvider),
         ChangeNotifierProvider<ContentReviewRatingsProvider>.value(value: contentReviewRatingsProvider),
         ChangeNotifierProvider<EventProvider>.value(value: eventProvider),
+        ChangeNotifierProvider<CourseDownloadProvider>.value(value: courseDownloadProvider),
       ],
       child: Consumer3<CourseDetailsProvider, ContentReviewRatingsProvider, EventProvider>(
         builder: (BuildContext context, CourseDetailsProvider courseDetailsProvider, ContentReviewRatingsProvider contentReviewRatingsProvider, EventProvider eventProvider, Widget? child) {
@@ -1067,7 +1103,22 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            getThumbnailImageWidget(imagePath: contentDetailsDTOModel.ThumbnailImagePath),
+            Stack(
+              children: [
+                getThumbnailImageWidget(imagePath: contentDetailsDTOModel.ThumbnailImagePath),
+                if (contentDetailsDTOModel.isCourseEnrolled())
+                  Positioned(
+                    bottom: 15,
+                    right: 15,
+                    child: CourseDownloadButton(
+                      contentId: contentDetailsDTOModel.ContentID,
+                      onDownloadTap: () {
+                        onDownloadButtonTapped(model: contentDetailsDTOModel);
+                      },
+                    ),
+                  ),
+              ],
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0).copyWith(bottom: 15),
               child: Column(

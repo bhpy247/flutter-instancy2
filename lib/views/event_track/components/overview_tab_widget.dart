@@ -68,7 +68,7 @@ class _OverViewTabWidgetState extends State<OverViewTabWidget> {
     }
 
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -76,14 +76,14 @@ class _OverViewTabWidgetState extends State<OverViewTabWidget> {
             "Description",
             style: themeData.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5),
           ),
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
           Html(data: description),
-          // getReadMoreText(
-          //   trimLines: 3,
-          //   text: "htmlparser.HtmlParser(input)",
-          // )
+          const SizedBox(height: 10),
+          Divider(
+            height: 0,
+            thickness: 1.5,
+            color: themeData.colorScheme.onBackground.withAlpha(40),
+          ),
         ],
       ),
     );
@@ -104,8 +104,7 @@ class _OverViewTabWidgetState extends State<OverViewTabWidget> {
         fontWeight: FontWeight.w600,
         decoration: TextDecoration.underline,
       ),
-      moreStyle: themeData.textTheme.titleSmall
-          ?.copyWith(color: themeData.primaryColor, fontSize: 14, fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
+      moreStyle: themeData.textTheme.titleSmall?.copyWith(color: themeData.primaryColor, fontSize: 14, fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
     );
   }
 
@@ -114,14 +113,11 @@ class _OverViewTabWidgetState extends State<OverViewTabWidget> {
   Widget getMiddleContentView({required String createdOnDate, required String communityName}) {
     if (createdOnDate.isEmpty && communityName.isEmpty) return const SizedBox();
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        children: [
-          if (createdOnDate.isNotEmpty) getWidgetWithTitle(title: "Created on", icon: FontAwesomeIcons.calendar, data: createdOnDate),
-          if (communityName.isNotEmpty) getWidgetWithTitle(title: "Community", icon: FontAwesomeIcons.globe, data: communityName),
-        ],
-      ),
+    return Column(
+      children: [
+        if (createdOnDate.isNotEmpty) getWidgetWithTitle(title: "Created on", icon: FontAwesomeIcons.calendar, data: createdOnDate),
+        if (communityName.isNotEmpty) getWidgetWithTitle(title: "Community", icon: FontAwesomeIcons.globe, data: communityName),
+      ],
     );
   }
 
@@ -179,6 +175,7 @@ class _OverViewTabWidgetState extends State<OverViewTabWidget> {
               height: 40,
               width: 40,
               fit: BoxFit.cover,
+              errorIconSize: 25,
             ),
           ),
         ),
@@ -273,7 +270,6 @@ class _OverViewTabWidgetState extends State<OverViewTabWidget> {
   Widget getWidgetWithTitle({String title = "", IconData? icon, String data = ""}) {
     return Column(
       children: [
-        const Divider(height: 0, thickness: 1.5),
         Container(
           margin: const EdgeInsets.symmetric(vertical: 2),
           padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
@@ -298,7 +294,11 @@ class _OverViewTabWidgetState extends State<OverViewTabWidget> {
             ],
           ),
         ),
-        const Divider(height: 0, thickness: 1.5),
+        Divider(
+          height: 0,
+          thickness: 1.5,
+          color: themeData.colorScheme.onBackground.withAlpha(40),
+        ),
       ],
     );
   }

@@ -1,7 +1,10 @@
 import 'package:flutter_instancy_2/models/course/data_model/gloassary_model.dart';
-import 'package:flutter_instancy_2/models/event_track/request_model/event_related_content_data_request_model.dart';
+import 'package:flutter_instancy_2/models/event_track/request_model/event_related_contents_data_request_model.dart';
 import 'package:flutter_instancy_2/models/event_track/request_model/event_track_overview_request_model.dart';
+import 'package:flutter_instancy_2/models/event_track/request_model/track_list_view_data_request_model.dart';
 import 'package:flutter_instancy_2/models/event_track/response_model/event_track_resourse_response_model.dart';
+import 'package:flutter_instancy_2/models/event_track/response_model/resource_content_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/response_model/track_list_view_data_response_model.dart';
 
 import '../../api/api_call_model.dart';
 import '../../api/api_controller.dart';
@@ -15,9 +18,6 @@ import '../../models/event_track/data_model/event_track_header_dto_model.dart';
 import '../../models/event_track/data_model/event_track_tab_dto_model.dart';
 import '../../models/event_track/request_model/event_track_headers_request_model.dart';
 import '../../models/event_track/request_model/event_track_tab_request_model.dart';
-import '../../models/event_track/request_model/track_content_data_request_model.dart';
-import '../../models/event_track/response_model/event_related_content_data_response_model.dart';
-import '../../models/event_track/response_model/track_content_data_response_model.dart';
 
 class EventTrackRepository {
   final ApiController apiController;
@@ -143,50 +143,44 @@ class EventTrackRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<TrackContentDataResponseModel>> getTrackContentData({
-    required TrackContentDataRequestModel requestModel,
-  }) async {
+  Future<DataResponseModel<TrackListViewDataResponseModel>> getTrackListViewData({required TrackListViewDataRequestModel requestModel}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
-    requestModel.localeId = apiUrlConfigurationProvider.getLocale();
-    requestModel.SiteURL = apiUrlConfigurationProvider.getCurrentSiteUrl();
-    requestModel.UserID = apiUrlConfigurationProvider.getCurrentUserId();
-    requestModel.SiteID = apiUrlConfigurationProvider.getCurrentSiteId();
-    requestModel.OrgUnitID = apiUrlConfigurationProvider.getCurrentSiteId();
+    requestModel.localeID = apiUrlConfigurationProvider.getLocale();
+    requestModel.userID = apiUrlConfigurationProvider.getCurrentUserId().toString();
+    requestModel.siteID = apiUrlConfigurationProvider.getCurrentSiteId().toString();
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<Map<String, dynamic>>(
       restCallType: RestCallType.simpleGetCall,
       queryParameters: requestModel.toJson(),
-      parsingType: ModelDataParsingType.trackContentDataResponseModel,
-      url: apiEndpoints.getTrackContentsData(),
+      parsingType: ModelDataParsingType.TrackListViewDataResponseModel,
+      url: apiEndpoints.getGetTrackListViewData(),
     );
 
-    DataResponseModel<TrackContentDataResponseModel> apiResponseModel = await apiController.callApi<TrackContentDataResponseModel>(
+    DataResponseModel<TrackListViewDataResponseModel> apiResponseModel = await apiController.callApi<TrackListViewDataResponseModel>(
       apiCallModel: apiCallModel,
     );
 
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<EventRelatedContentDataResponseModel>> getEventRelatedContentData({
-    required EventRelatedContentDataRequestModel requestModel,
-  }) async {
+  Future<DataResponseModel<ResourceContentDTOModel>> getEventRelatedContentsData({required EventRelatedContentsDataRequestModel requestModel}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
-    requestModel.locale = apiUrlConfigurationProvider.getLocale();
-    requestModel.userId = apiUrlConfigurationProvider.getCurrentUserId();
-    requestModel.siteid = apiUrlConfigurationProvider.getCurrentSiteId();
+    requestModel.Locale = apiUrlConfigurationProvider.getLocale();
+    requestModel.UserID = apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.SiteID = apiUrlConfigurationProvider.getCurrentSiteId();
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<Map<String, dynamic>>(
       restCallType: RestCallType.simpleGetCall,
       queryParameters: requestModel.toJson(),
-      parsingType: ModelDataParsingType.eventRelatedContentDataResponseModel,
-      url: apiEndpoints.getEventRelatedContentsData(),
+      parsingType: ModelDataParsingType.ResourceContentDTOModel,
+      url: apiEndpoints.getEventRelatedContentsDataUrl(),
     );
 
-    DataResponseModel<EventRelatedContentDataResponseModel> apiResponseModel = await apiController.callApi<EventRelatedContentDataResponseModel>(
+    DataResponseModel<ResourceContentDTOModel> apiResponseModel = await apiController.callApi<ResourceContentDTOModel>(
       apiCallModel: apiCallModel,
     );
 

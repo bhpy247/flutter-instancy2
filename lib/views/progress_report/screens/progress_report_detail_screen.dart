@@ -10,7 +10,6 @@ import 'package:flutter_instancy_2/configs/ui_configurations.dart';
 import 'package:flutter_instancy_2/models/content_details/request_model/course_details_request_model.dart';
 import 'package:flutter_instancy_2/models/content_review_ratings/data_model/content_user_rating_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
-import 'package:flutter_instancy_2/models/event_track/data_model/event_track_content_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
@@ -106,10 +105,6 @@ class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen>
       componentId: componentId,
     );
 
-    DateTime now = DateTime.now();
-
-    DateTime? startDate = progressReportContentModel?.createdDate;
-    //
     progressReportController.getContentProgressDetailsData(
       requestModel: ContentProgressDetailsDataRequestModel(
         userID: userId,
@@ -165,27 +160,6 @@ class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen>
         : ApiController().apiDataProvider.getCurrentSiteUrl() + myLearningCourseDTOModel!.ThumbnailImagePath;
       contentThumbnailImageUrl = MyUtils.getSecureUrl(contentThumbnailImageUrl);
       MyPrint.printOnConsole('contentImageUrl:$contentThumbnailImageUrl', tag: tag);*/
-    } else if (widget.arguments.eventTrackContentModel != null) {
-      EventTrackContentModel model = widget.arguments.eventTrackContentModel!;
-
-      String url = model.thumbnailimagepath;
-      String imageUrl = url;
-      if (!imageUrl.startsWith("http") && !imageUrl.startsWith("https")) {
-        url = "/content/publishfiles/images/$url";
-        imageUrl = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: url));
-      }
-
-      progressReportContentModel = ProgressReportContentModel(
-        name: model.name,
-        author: model.objecttypeid == InstancyObjectTypes.events ? model.presentername : model.author,
-        thumbnailImageUrl: imageUrl,
-        createdDate: ParsingHelper.parseDateTimeMethod(model.createddate, dateFormat: "yyyy-MM-ddThh:mm:ss"),
-        ratingId: model.ratingid.toDouble(),
-        contentTypeId: model.objecttypeid,
-      );
-
-      MyPrint.printOnConsole("Thumbnail Image Raw:${model.thumbnailimagepath}");
-      MyPrint.printOnConsole("Thumbnail Image Progress Screen:${progressReportContentModel?.thumbnailImageUrl}");
     }
   }
 
@@ -419,7 +393,7 @@ class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen>
           height: 5,
         ),
         Text(
-          "${progressPercentage.toInt()}% ${contentStatus}",
+          "${progressPercentage.toInt()}% $contentStatus",
           style: themeData.textTheme.labelSmall,
         )
       ],
@@ -523,7 +497,7 @@ class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen>
         children: <Widget>[
           Expanded(
             child: Text(
-              "$title",
+              title,
               style: themeData.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
