@@ -535,7 +535,7 @@ class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen>
             child: getProgressTimingItemWidget(
               title: status,
               value: dateStarted,
-            ),
+              valueIsStatus: true),
           ),
           Expanded(
             child: getProgressTimingItemWidget(
@@ -548,7 +548,7 @@ class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen>
     );
   }
 
-  Widget getProgressTimingItemWidget({required String title, required String value}) {
+  Widget getProgressTimingItemWidget({required String title, required String value, bool valueIsStatus = false}) {
     return Container(
       height: MediaQuery.of(context).size.height * .17,
       margin: const EdgeInsets.symmetric(horizontal: 5),
@@ -567,7 +567,7 @@ class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            value.checkEmpty ? "N/A" : value,
+            value.checkEmpty ? "${valueIsStatus ? "" : "N/A"}" : value,
             textAlign: TextAlign.center,
             style: themeData.textTheme.labelMedium?.copyWith(
               fontWeight: FontWeight.w600,

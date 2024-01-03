@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/views/home/components/home_course_card.dart';
 
 import '../../../models/home/data_model/new_course_list_dto.dart';
@@ -17,6 +18,34 @@ class HomeCourseListCarousel extends StatefulWidget {
 }
 
 class _HomeCourseListCarouselState extends State<HomeCourseListCarousel> {
+  double getViewPortFraction({required Size size}) {
+    // MyPrint.printOnConsole("size width:${size.width}");
+    return switch (size.width) {
+      < 300 => 1,
+      < 400 => 0.5,
+      < 600 => 0.4,
+      < 800 => 0.3,
+      < 1000 => 0.25,
+      < 1200 => 0.2,
+      < 1400 => 0.18,
+      < 1600 => 0.15,
+      < 1800 => 0.12,
+      < 2000 => 0.1,
+      < 2200 => 0.09,
+      < 2400 => 0.08,
+      < 2600 => 0.08,
+      < 2800 => 0.07,
+      < 3000 => 0.06,
+      < 3200 => 0.06,
+      < 3400 => 0.05,
+      < 3600 => 0.05,
+      < 3800 => 0.05,
+      < 4000 => 0.05,
+      < 4200 => 0.05,
+      _ => 0.5,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.list.isEmpty) {
@@ -34,8 +63,7 @@ class _HomeCourseListCarouselState extends State<HomeCourseListCarousel> {
         enableInfiniteScroll: false,
         enlargeCenterPage: false,
         initialPage: 0,
-        viewportFraction: 0.5,
-        aspectRatio: 1.2,
+        viewportFraction: getViewPortFraction(size: context.sizeData),
         padEnds: false,
         // initialPage: 2,
       ),

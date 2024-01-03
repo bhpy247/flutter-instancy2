@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:readmore/readmore.dart';
 
 import '../../../backend/app_theme/style.dart';
+import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../models/event_track/data_model/event_track_dto_model.dart';
 import '../../common/components/common_cached_network_image.dart';
 
@@ -163,6 +164,8 @@ class _OverViewTabWidgetState extends State<OverViewTabWidget> {
     required String totalRatings,
     required String about,
   }) {
+    String url = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: profileImageUrl));
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -171,7 +174,7 @@ class _OverViewTabWidgetState extends State<OverViewTabWidget> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(50),
             child: CommonCachedNetworkImage(
-              imageUrl: MyUtils.getSecureUrl(profileImageUrl),
+              imageUrl: url,
               height: 40,
               width: 40,
               fit: BoxFit.cover,

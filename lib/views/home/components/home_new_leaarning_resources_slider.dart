@@ -100,7 +100,6 @@ class _HomeNewLearningResourcesSliderState extends State<HomeNewLearningResource
                   );
                 },
                 child: SizedBox(
-                  height: 220,
                   width: double.infinity,
                   child: futureGetData != null
                       ? FutureBuilder(

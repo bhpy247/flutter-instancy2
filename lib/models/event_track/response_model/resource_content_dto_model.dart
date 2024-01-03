@@ -23,7 +23,6 @@ class ResourceContentDTOModel {
 
   void _initializeFromMap(Map<String, dynamic> map) {
     CourseCount = ParsingHelper.parseIntMethod(map["CourseCount"]);
-    List<RelatedTrackDataDTOModel> ResouseList = <RelatedTrackDataDTOModel>[];
 
     ResouseList.clear();
     List<Map<String, dynamic>> ResouseListMapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(map["ResouseList"]);

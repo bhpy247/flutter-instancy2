@@ -59,7 +59,7 @@ class AppController {
 
       AuthenticationProvider authenticationProvider = Provider.of<AuthenticationProvider>(NavigationController.mainNavigatorKey.currentContext!, listen: false);
       AuthenticationController authenticationController = AuthenticationController(provider: authenticationProvider);
-      authenticationController.logout();
+      authenticationController.logout(isUpdateSpentTimeGamificationAction: false);
     }
   }
 

@@ -75,8 +75,8 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
         {
           String contentLink = "$siteUrl/Discussion-Forums/ForumID/${widget.arguments.forumId}";
           message = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
-              "YouTube site! \n\nContent Name: $contentName. \n\n "
-              "Content Link: $contentLink";
+              "YouTube site! \n\n"
+              "Link: $contentLink";
           String linkContent = "<a href = $contentLink> ${widget.arguments.contentName} </a>";
           messageToSendInTheApi = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
               "YouTube site! \n\nContent Name: $linkContent. \n\n "
@@ -87,8 +87,8 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
         {
           String contentLink = "$siteUrl/Discussion-Forums/ForumID/${widget.arguments.forumId}/TopicId/${widget.arguments.topicId}";
           message = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
-              "YouTube site! \n\nContent Name: $contentName. \n\n "
-              "Content Link: $contentLink";
+              "YouTube site! \n\n"
+              "Link: $contentLink";
           String linkContent = "<a href = $contentLink> ${widget.arguments.contentName} </a>";
           messageToSendInTheApi = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
               "YouTube site! \n\nContent Name: $linkContent. \n\n "
@@ -176,7 +176,7 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
         ),
       ),
       elevation: 0,
-      backgroundColor: themeData.primaryColor,
+      // backgroundColor: themeData.primaryColor,
       iconTheme: themeData.iconTheme.copyWith(
         color: themeData.colorScheme.onPrimary,
       ),

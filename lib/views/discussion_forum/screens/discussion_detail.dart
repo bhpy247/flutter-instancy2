@@ -717,7 +717,6 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
 
   Widget getForumCardWidget() {
     return DiscussionCard(
-      isDiscussionDetail: true,
       onAddTopicTap: () {
         if (forumModel != null) addTopic(forumModel: forumModel!);
       },

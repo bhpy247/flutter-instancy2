@@ -252,10 +252,23 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
 
     List<ChatUserModel> chatUserList = messageProvider.filteredChatUserList.getList(isNewInstance: false);
 
-    List<ChatUserModel> finalUsersList = chatUserList.where((ChatUserModel element) {
+    List<ChatUserModel> finalUsersList2 = chatUserList.where((ChatUserModel element) {
       String searchText = textEditingController.text.trim();
 
       return searchText.isEmpty || element.FullName.toLowerCase().contains(searchText.toLowerCase());
+    }).toList();
+
+    List<ChatUserModel> finalUsersList = finalUsersList2.where((ChatUserModel element) {
+      if (messageProvider.selectedMessageFilter.get() == MessageFilterType.archive) {
+        if (element.ArchivedUserID == -1) {
+          return true;
+        }
+      } else {
+        if (element.ArchivedUserID != -1) {
+          return false;
+        }
+      }
+      return true;
     }).toList();
 
     if (finalUsersList.isEmpty) {
@@ -281,123 +294,164 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
         itemCount: finalUsersList.length,
         itemBuilder: (context, int index) {
           MyPrint.printOnConsole("Name: ${finalUsersList[index].FullName} role: ${finalUsersList[index].JobTitle} roleId: ${finalUsersList[index].RoleID}");
-          return getSingleUserItem(finalUsersList[index]);
+          return getSingleUserItem(finalUsersList[index], index, messageProvider, finalUsersList);
         },
       ),
     );
   }
 
-  Widget getSingleUserItem(ChatUserModel chatUser) {
+  Widget getSingleUserItem(ChatUserModel chatUser, int index, MessageProvider messageProvider, List<ChatUserModel> finalUsersList) {
     MyPrint.printOnConsole("UserName:${chatUser.FullName}, last message:${chatUser.LatestMessage}, ProfPic:${chatUser.ProfPic}, index:${chatUser.hashCode}");
 
     String imageUrl = AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: chatUser.ProfPic);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 30),
-      child: InkWell(
-        onTap: () async {
-          await Navigator.push(context, MaterialPageRoute(builder: (context) => UserMessageListScreen(toUser: chatUser)));
-          // mySetState();
-          getMessageUserList(
-            isRefresh: true,
-            isClear: false,
-            isNotify: true,
+    return Dismissible(
+      onDismissed: (DismissDirection direction) async {
+        if (direction == DismissDirection.endToStart) {
+          // messageProvider.isChatUsersLoading.set(value: true);
+          finalUsersList.removeAt(index);
+          messageController.setArchiveAndUnarchive(
+            isArchive: chatUser.ArchivedUserID == -1,
+            otherUserId: chatUser.UserID,
           );
-        },
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
+          messageProvider.filteredChatUserList.setList(list: finalUsersList);
+
+          // messageProvider.isChatUsersLoading.set(value: false);
+          getMessageUserList(
+            isRefresh: false,
+            isNotify: false,
+            isClear: false,
+          );
+        }
+        mySetState();
+      },
+      background: Container(
+        color: chatUser.ArchivedUserID != -1 ? Colors.red : Colors.green,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            if (imageUrl.isNotEmpty) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(100),
-                child: CommonCachedNetworkImage(
-                  imageUrl: imageUrl,
-                  height: 50,
-                  width: 50,
-                  fit: BoxFit.cover,
-                  errorIconSize: 30,
+            Image.asset(
+              chatUser.ArchivedUserID != -1 ? "assets/unarchive.png" : "assets/archive.png",
+              height: 35,
+              width: 35,
+              fit: BoxFit.cover,
+              color: Colors.white,
+            ),
+            Text(
+              chatUser.ArchivedUserID != -1 ? "Unarchive" : "Archive",
+              style: themeData.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600, letterSpacing: .3, color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+      direction: DismissDirection.endToStart,
+      resizeDuration: Duration(milliseconds: 200),
+      // Animation duration when resizing
+      // resizeDurationReveal: Duration(milliseconds: 200), // Animation duration when resizing back
+
+      // confirmDismiss: (DismissDirection? direction) async {
+      //   bool isTrue = false;
+      //   return isTrue;
+      // },
+      key: Key(chatUser.FullName),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 30),
+        child: InkWell(
+          onTap: () async {
+            await Navigator.push(context, MaterialPageRoute(builder: (context) => UserMessageListScreen(toUser: chatUser)));
+            // mySetState();
+            getMessageUserList(
+              isRefresh: true,
+              isClear: false,
+              isNotify: true,
+            );
+          },
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              if (imageUrl.isNotEmpty) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: CommonCachedNetworkImage(
+                    imageUrl: imageUrl,
+                    height: 50,
+                    width: 50,
+                    fit: BoxFit.cover,
+                    errorIconSize: 30,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
-            ],
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
+                const SizedBox(width: 10),
+              ],
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            chatUser.FullName,
+                            style: themeData.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600, letterSpacing: .3),
+                          ),
+                          if (chatUser.LatestMessage.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 5.0),
+                              child: Text(
+                                chatUser.LatestMessage,
+                                style: themeData.textTheme.bodyMedium?.copyWith(fontSize: 13),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      chatUser.Role,
+                      style: themeData.textTheme.bodyMedium?.copyWith(fontSize: 13),
+                    ),
+                    const SizedBox(
+                      width: 14,
+                    ),
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          chatUser.FullName,
-                          style: themeData.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600, letterSpacing: .3),
-                        ),
-                        if (chatUser.LatestMessage.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 5.0),
-                            child: Text(
-                              chatUser.LatestMessage,
-                              style: themeData.textTheme.bodyMedium?.copyWith(fontSize: 13),
-                            ),
+                          DatePresentation.getLastChatMessageFormattedDate(dateTime: ParsingHelper.parseDateTimeMethod(chatUser.SendDateTime)) ?? "",
+                          // chatUser.sendDateTime,
+                          // DateFormat.jm().format(DateTime.parse(chatUser.sendDateTime)),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Styles.lightTextColor2,
                           ),
+                        ),
+                        Row(
+                          children: [
+                            if (chatUser.UnReadCount != 0)
+                              Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(shape: BoxShape.circle, color: themeData.primaryColor),
+                                child: Text(
+                                  chatUser.UnReadCount.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        )
                       ],
                     ),
-                  ),
-                  Text(
-                    chatUser.Role,
-                    style: themeData.textTheme.bodyMedium?.copyWith(fontSize: 13),
-                  ),
-                  const SizedBox(
-                    width: 14,
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        DatePresentation.getLastChatMessageFormattedDate(dateTime: ParsingHelper.parseDateTimeMethod(chatUser.SendDateTime)) ?? "",
-                        // chatUser.sendDateTime,
-                        // DateFormat.jm().format(DateTime.parse(chatUser.sendDateTime)),
-                        style: const TextStyle(fontSize: 10, color: Styles.lightTextColor2),
-                      ),
-                      Row(
-                        children: [
-                          if (chatUser.UnReadCount != 0)
-                            Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(shape: BoxShape.circle, color: themeData.primaryColor),
-                              child: Text(
-                                chatUser.UnReadCount.toString(),
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: InkWell(
-                              onTap: () async {
-                                await messageController.setArchiveAndUnarchive(
-                                  isArchive: chatUser.ArchivedUserID == -1,
-                                  otherUserId: chatUser.UserID,
-                                );
-                              },
-                              child: Image.asset(
-                                chatUser.ArchivedUserID != -1 ? "assets/unarchive.png" : "assets/archive.png",
-                                height: 25,
-                                width: 25,
-                              ),
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

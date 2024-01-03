@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/utils/my_print.dart';
+import 'package:flutter_chat_bot/utils/my_safe_state.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_controller.dart';
@@ -11,32 +13,42 @@ import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../backend/app_theme/style.dart';
 import '../../../backend/configurations/app_configuration_operations.dart';
+import '../../../backend/navigation/navigation_arguments.dart';
+import '../../../backend/navigation/navigation_controller.dart';
+import '../../../backend/navigation/navigation_operation_parameters.dart';
+import '../../../backend/navigation/navigation_type.dart';
+import '../../../configs/app_configurations.dart';
 import '../../common/components/common_cached_network_image.dart';
+import '../../discussion_forum/component/dicussionCard.dart';
 
 class DiscussionTabWidget extends StatefulWidget {
   final String contentId;
   final DiscussionProvider discussionProvider;
+  final int componentId, componentInsId;
 
-  const DiscussionTabWidget({
-    Key? key,
-    required this.contentId,
-    required this.discussionProvider,
-  }) : super(key: key);
+  const DiscussionTabWidget({Key? key, required this.contentId, required this.discussionProvider, required this.componentId, required this.componentInsId}) : super(key: key);
 
   @override
   State<DiscussionTabWidget> createState() => _DiscussionTabWidgetState();
 }
 
-class _DiscussionTabWidgetState extends State<DiscussionTabWidget> {
+class _DiscussionTabWidgetState extends State<DiscussionTabWidget> with MySafeState {
   late ThemeData themeData;
+  bool isLoading = false;
 
   late AppProvider appProvider;
 
   late DiscussionProvider discussionProvider;
   late DiscussionController discussionController;
+
+  final ItemScrollController catalogContentScrollController = ItemScrollController();
+  final ScrollOffsetController scrollOffsetController = ScrollOffsetController();
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+  final ScrollOffsetListener scrollOffsetListener = ScrollOffsetListener.create();
 
   void initializations({
     bool isNotify = false,
@@ -53,6 +65,42 @@ class _DiscussionTabWidgetState extends State<DiscussionTabWidget> {
         isNotify: isNotify,
       );
     }
+  }
+
+  Future<void> getDiscussionForumList({bool isRefresh = true, bool isGetFromCache = true, bool isNotify = true}) async {
+    await Future.wait([
+      discussionController.getForumsList(
+        isRefresh: isRefresh,
+        isGetFromCache: isGetFromCache,
+        isNotify: isNotify,
+        componentId: widget.componentId,
+        componentInstanceId: widget.componentInsId,
+      ),
+    ]);
+  }
+
+  Future<void> addTopic({required ForumModel model}) async {
+    dynamic value = await NavigationController.navigateToCreateEditTopicScreen(
+      navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+      arguments: CreateEditTopicScreenNavigationArguments(
+        componentId: widget.componentId,
+        componentInsId: widget.componentInsId,
+        forumModel: model,
+      ),
+    );
+
+    if (value != true) return;
+
+    discussionController.getForumsList(
+      isRefresh: true,
+      isGetFromCache: false,
+      isNotify: false,
+    );
+    discussionController.getMyDiscussionForumsList(
+      isRefresh: true,
+      isGetFromCache: false,
+      isNotify: true,
+    );
   }
 
   @override
@@ -73,31 +121,123 @@ class _DiscussionTabWidgetState extends State<DiscussionTabWidget> {
   @override
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
+    super.pageBuild();
 
-    PaginationModel paginationModel = discussionProvider.forumListPaginationModel.get();
+    return getDiscussionForumListView();
+
+    // PaginationModel paginationModel = discussionProvider.forumListPaginationModel.get();
+    // if (paginationModel.isFirstTimeLoading) {
+    //   return const CommonLoader(
+    //     isCenter: true,
+    //   );
+    // }
+    //
+    // if (!paginationModel.isLoading && discussionProvider.forumsList.length == 0) {
+    //   return RefreshIndicator(
+    //     onRefresh: () async {
+    //       discussionController.getForumsList(
+    //         isRefresh: true,
+    //         isGetFromCache: false,
+    //         isNotify: true,
+    //       );
+    //     },
+    //     child: ListView(
+    //       physics: const AlwaysScrollableScrollPhysics(),
+    //       children: [
+    //         const SizedBox(height: 200),
+    //         Center(
+    //           child: Text(
+    //             appProvider.localStr.commoncomponentLabelNodatalabel,
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    // }
+    //
+    // List<ForumModel> forumsList = discussionProvider.forumsList.getList(isNewInstance: false);
+    //
+    // return RefreshIndicator(
+    //   onRefresh: () async {
+    //     discussionController.getForumsList(
+    //       isRefresh: true,
+    //       isGetFromCache: false,
+    //       isNotify: true,
+    //     );
+    //   },
+    //   child: ListView.builder(
+    //     padding: const EdgeInsets.all(13),
+    //     physics: const AlwaysScrollableScrollPhysics(),
+    //     itemCount: forumsList.length + 1,
+    //     itemBuilder: (BuildContext context, int index) {
+    //       if ((index == 0 && paginationModel.isLoading) || (index == forumsList.length)) {
+    //         if (paginationModel.isLoading) {
+    //           return const CommonLoader(
+    //             isCenter: true,
+    //           );
+    //         } else {
+    //           return const SizedBox();
+    //         }
+    //       }
+    //
+    //       if (index > (forumsList.length - paginationModel.refreshLimit)) {
+    //         if (paginationModel.hasMore && !paginationModel.isLoading) {
+    //           discussionController.getForumsList(
+    //             isRefresh: false,
+    //             isGetFromCache: false,
+    //             isNotify: false,
+    //           );
+    //         }
+    //       }
+    //
+    //       return getDiscussionCardItemWidget(forumModel: forumsList[index]);
+    //     },
+    //   ),
+    // );
+  }
+
+  Widget getDiscussionForumListView() {
+    return getDiscussionForumListViewWidget(
+      scrollController: catalogContentScrollController,
+      contentsLength: discussionProvider.forumsList.length,
+      paginationModel: discussionProvider.forumListPaginationModel.get(),
+      onRefresh: () async {
+        getDiscussionForumList(
+          isRefresh: true,
+          isGetFromCache: false,
+          isNotify: true,
+        );
+      },
+      onPagination: () async {
+        getDiscussionForumList(
+          isRefresh: false,
+          isGetFromCache: false,
+          isNotify: false,
+        );
+      },
+    );
+  }
+
+  Widget getDiscussionForumListViewWidget({
+    required PaginationModel paginationModel,
+    required int contentsLength,
+    required ItemScrollController scrollController,
+    required Future<void> Function() onRefresh,
+    required Future<void> Function() onPagination,
+  }) {
     if (paginationModel.isFirstTimeLoading) {
-      return const CommonLoader(
-        isCenter: true,
+      return const Center(
+        child: CommonLoader(),
       );
-    }
-
-    if (!paginationModel.isLoading && discussionProvider.forumsList.length == 0) {
+    } else if (!paginationModel.isLoading && contentsLength == 0) {
       return RefreshIndicator(
-        onRefresh: () async {
-          discussionController.getForumsList(
-            isRefresh: true,
-            isGetFromCache: false,
-            isNotify: true,
-          );
-        },
+        onRefresh: onRefresh,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
-            const SizedBox(height: 200),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.2),
             Center(
-              child: Text(
-                appProvider.localStr.commoncomponentLabelNodatalabel,
-              ),
+              child: AppConfigurations.commonNoDataView(),
             ),
           ],
         ),
@@ -107,39 +247,58 @@ class _DiscussionTabWidgetState extends State<DiscussionTabWidget> {
     List<ForumModel> forumsList = discussionProvider.forumsList.getList(isNewInstance: false);
 
     return RefreshIndicator(
-      onRefresh: () async {
-        discussionController.getForumsList(
-          isRefresh: true,
-          isGetFromCache: false,
-          isNotify: true,
-        );
-      },
-      child: ListView.builder(
-        padding: const EdgeInsets.all(13),
+      onRefresh: onRefresh,
+      child: ScrollablePositionedList.builder(
+        itemScrollController: scrollController,
+        scrollOffsetController: scrollOffsetController,
+        itemPositionsListener: itemPositionsListener,
+        scrollOffsetListener: scrollOffsetListener,
         physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         itemCount: forumsList.length + 1,
         itemBuilder: (BuildContext context, int index) {
-          if ((index == 0 && paginationModel.isLoading) || (index == forumsList.length)) {
+          if ((index == 0 && forumsList.isEmpty) || index == forumsList.length) {
             if (paginationModel.isLoading) {
-              return const CommonLoader(
-                isCenter: true,
+              return Container(
+                margin: const EdgeInsets.symmetric(vertical: 5),
+                child: const Center(
+                  child: CommonLoader(
+                    size: 70,
+                  ),
+                ),
               );
             } else {
               return const SizedBox();
             }
           }
 
-          if (index > (forumsList.length - paginationModel.refreshLimit)) {
-            if (paginationModel.hasMore && !paginationModel.isLoading) {
-              discussionController.getForumsList(
-                isRefresh: false,
-                isGetFromCache: false,
-                isNotify: false,
-              );
-            }
+          if (index > (contentsLength - paginationModel.refreshLimit) && paginationModel.hasMore && !paginationModel.isLoading) {
+            onPagination();
           }
 
-          return getDiscussionCardItemWidget(forumModel: forumsList[index]);
+          ForumModel model = forumsList[index];
+
+          return getDiscussionForumContentWidget(model: model, index: index);
+        },
+      ),
+    );
+  }
+
+  Widget getDiscussionForumContentWidget({required ForumModel model, required int index}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 2),
+      child: DiscussionCard(
+        onLikeTap: () async {
+          isLoading = true;
+          mySetState();
+          MyPrint.printOnConsole("like called");
+          await discussionController.showForumLikedUserList(context: context, forumModel: model);
+          isLoading = false;
+          mySetState();
+        },
+        forumModel: model,
+        onAddTopicTap: () {
+          addTopic(model: model);
         },
       ),
     );
@@ -192,7 +351,7 @@ class _DiscussionTabWidgetState extends State<DiscussionTabWidget> {
     // MyPrint.printOnConsole("createdDate:$createdDate");
     DateTime? createdDateTime = ParsingHelper.parseDateTimeMethod(createdDate, dateFormat: "MM/dd/yyyy hh:mm:ss aa");
     // MyPrint.printOnConsole("createdDateTime:$createdDateTime");
-    if(createdDateTime != null) {
+    if (createdDateTime != null) {
       createdTimeString = "${DateTime.now().difference(createdDateTime).inDays} Days ago";
     }
 
@@ -222,10 +381,11 @@ class _DiscussionTabWidgetState extends State<DiscussionTabWidget> {
                 author,
                 style: themeData.textTheme.titleSmall,
               ),
-              if(createdTimeString.isNotEmpty) Text(
-                createdTimeString,
-                style: themeData.textTheme.titleSmall,
-              ),
+              if (createdTimeString.isNotEmpty)
+                Text(
+                  createdTimeString,
+                  style: themeData.textTheme.titleSmall,
+                ),
             ],
           ),
         ),
@@ -234,7 +394,7 @@ class _DiscussionTabWidgetState extends State<DiscussionTabWidget> {
   }
 
   Widget getTitleText({required String title}) {
-    if(title.isEmpty) {
+    if (title.isEmpty) {
       return const SizedBox();
     }
 
@@ -248,7 +408,7 @@ class _DiscussionTabWidgetState extends State<DiscussionTabWidget> {
   }
 
   Widget getDescriptionText({required String description}) {
-    if(description.isEmpty) {
+    if (description.isEmpty) {
       return const SizedBox();
     }
 

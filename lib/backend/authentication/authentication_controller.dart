@@ -220,13 +220,13 @@ class AuthenticationController {
     return isMailSent;
   }
 
-  Future<bool> logout({bool isNavigateToLoginScreen = true}) async {
+  Future<bool> logout({bool isNavigateToLoginScreen = true, bool isUpdateSpentTimeGamificationAction = true}) async {
     bool isLoggedOut = false;
 
     BuildContext context = NavigationController.mainNavigatorKey.currentContext!;
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = authenticationRepository.apiController.apiDataProvider;
 
-    if (apiUrlConfigurationProvider.getCurrentUserId() > 0) {
+    if (isUpdateSpentTimeGamificationAction && apiUrlConfigurationProvider.getCurrentUserId() > 0) {
       GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
         requestModel: UpdateContentGamificationRequestModel(
           contentId: "",

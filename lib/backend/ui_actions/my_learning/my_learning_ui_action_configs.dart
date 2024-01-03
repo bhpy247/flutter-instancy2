@@ -71,6 +71,7 @@ class MyLearningUIActionConfigs {
           InstancyObjectTypes.dictionaryGlossary,
           InstancyObjectTypes.webPage,
           InstancyObjectTypes.html,
+          InstancyObjectTypes.certificate,
         ].contains(objectTypeId) ||
         [
           InstancyMediaTypes.corpAcademy,

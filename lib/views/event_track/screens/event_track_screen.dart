@@ -659,7 +659,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
   }
 
   Widget tabTitleWidget({String title = "", String assetPath = "", int index = 0}) {
-    MyPrint.printOnConsole("tabTitleWidget INDEX: $index");
+    // MyPrint.printOnConsole("tabTitleWidget INDEX: $index");
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -1206,6 +1206,8 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
     return DiscussionTabWidget(
       contentId: widget.arguments.parentContentId,
       discussionProvider: discussionProvider,
+      componentId: widget.arguments.componentId,
+      componentInsId: widget.arguments.componentInstanceId,
     );
   }
 

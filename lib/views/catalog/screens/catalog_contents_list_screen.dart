@@ -39,6 +39,7 @@ import '../../../models/catalog/response_model/removeFromWishlistModel.dart';
 import '../../../models/common/pagination/pagination_model.dart';
 import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../models/course_launch/data_model/course_launch_model.dart';
+import '../../../models/waitlist/response_model/add_to_waitList_response_model.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_toast.dart';
 import '../../../utils/my_utils.dart';
@@ -244,7 +245,6 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
       },
       onAddToWishlist: () async {
         if (isSecondaryAction) Navigator.pop(context);
-
         isLoading = true;
         mySetState();
         bool isSuccess = await catalogController.addContentToWishlist(
@@ -303,33 +303,33 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
       onAddToWaitListTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
         MyPrint.printOnConsole("Content id: ${model.ContentID}");
-        // isLoading = true;
-        // mySetState();
-        // AddToWaitListResponseModel addToWaitListResponseModel = await catalogController.addContentToWaitList(
-        //   contentId: model.ContentID,
-        //   componentId: componentId,
-        //   componentInstanceId: componentInstanceId,
-        // );
-        // MyPrint.printOnConsole("isSuccess: ${addToWaitListResponseModel.isSuccess}");
-        // isLoading = false;
-        // mySetState();
-        //
-        // if (addToWaitListResponseModel.isSuccess) {
-        //   getCatalogContentsList(
-        //     isRefresh: true,
-        //     isGetFromCache: false,
-        //     isNotify: true,
-        //   );
-        // }
-        //
-        // if (pageMounted && context.mounted) {
-        //   if (addToWaitListResponseModel.isSuccess) {
-        //     MyToast.showSuccess(context: context, msg: addToWaitListResponseModel.message);
-        //   } else {
-        //     MyToast.showError(context: context, msg: 'Failed');
-        //   }
-        // }
-        //TODO: Implement onAddToWaitListTap
+        MyPrint.printOnConsole("Content id: ${model.ContentID}");
+        isLoading = true;
+        mySetState();
+        AddToWaitListResponseModel addToWaitListResponseModel = await CatalogController(provider: null).addContentToWaitList(
+          contentId: model.ContentID,
+          componentId: componentId,
+          componentInstanceId: componentInstanceId,
+        );
+        MyPrint.printOnConsole("isSuccess: ${addToWaitListResponseModel.isSuccess}");
+        isLoading = false;
+        mySetState();
+
+        if (addToWaitListResponseModel.isSuccess) {
+          getCatalogContentsList(
+            isRefresh: true,
+            isGetFromCache: false,
+            isNotify: true,
+          );
+        }
+
+        if (pageMounted && context.mounted) {
+          if (addToWaitListResponseModel.isSuccess) {
+            MyToast.showSuccess(context: context, msg: addToWaitListResponseModel.message);
+          } else {
+            MyToast.showError(context: context, msg: 'Failed');
+          }
+        }
       },
       onCancelEnrollmentTap: () async {
         if (isSecondaryAction) Navigator.pop(context);

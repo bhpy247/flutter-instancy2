@@ -176,7 +176,7 @@ class _TrackContentTabWidgetState extends State<TrackContentTabWidget> with MySa
             componentId: widget.componentId,
             componentInstanceId: widget.componentInsId,
             scoId: model.ScoID,
-            isContentEnrolled: true,
+            isContentEnrolled: model.isCourseEnrolled(),
           ),
         );
 

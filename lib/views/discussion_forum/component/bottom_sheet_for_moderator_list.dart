@@ -103,6 +103,15 @@ class _ModeratorBottomSheetState extends State<ModeratorBottomSheet> with MySafe
         controller: searchController,
         contentPadding: EdgeInsets.zero,
         hintText: "Search",
+        suffixWidget: Visibility(
+          visible: searchController.text.checkNotEmpty,
+          child: InkWell(
+              onTap: () {
+                searchController.clear();
+                mySetState();
+              },
+              child: Icon(Icons.clear)),
+        ),
         prefixWidget: Icon(Icons.search),
       ),
     );

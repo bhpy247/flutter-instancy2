@@ -93,7 +93,6 @@ class _ShareWithConnectionsScreenState extends State<ShareWithConnectionsScreen>
         ),
       ),
       elevation: 0,
-      backgroundColor: themeData.primaryColor,
       iconTheme: themeData.iconTheme.copyWith(
         color: themeData.colorScheme.onPrimary,
       ),

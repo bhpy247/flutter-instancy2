@@ -171,7 +171,7 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
           ),
           arguments: ShareWithPeopleScreenNavigationArguments(
             shareContentType: ShareContentType.discussionForum,
-            contentName: model.Name,
+            // contentName: model.Name,
             forumId: model.ForumID,
           ),
         );

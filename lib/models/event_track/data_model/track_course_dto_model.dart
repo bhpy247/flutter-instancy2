@@ -445,4 +445,8 @@ class TrackCourseDTOModel {
   String toString() {
     return MyUtils.encodeJson(toMap());
   }
+
+  bool isCourseEnrolled() {
+    return ["true", "1"].contains(isContentEnrolled.toLowerCase());
+  }
 }

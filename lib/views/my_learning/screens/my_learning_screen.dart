@@ -283,7 +283,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
                   componentId: componentId,
                   scoId: model.ScoID,
                   componentInstanceId: componentInstanceId,
-                  isContentEnrolled: true,
+                  isContentEnrolled: model.isCourseEnrolled(),
                 ),
               );
 
@@ -481,7 +481,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
             componentId: componentId,
             scoId: model.ScoID,
             componentInstanceId: componentInstanceId,
-            isContentEnrolled: true,
+            isContentEnrolled: model.isCourseEnrolled(),
           ),
         );
 

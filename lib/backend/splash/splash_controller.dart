@@ -177,7 +177,7 @@ class SplashController {
 
     AuthenticationController authenticationController = AuthenticationController(provider: authenticationProvider);
 
-    bool isLoggedOut = await authenticationController.logout(isNavigateToLoginScreen: false);
+    bool isLoggedOut = await authenticationController.logout(isNavigateToLoginScreen: false, isUpdateSpentTimeGamificationAction: false);
     MyPrint.printOnConsole("isLoggedOut:$isLoggedOut", tag: tag);
 
     await resetApiConfigurationData();

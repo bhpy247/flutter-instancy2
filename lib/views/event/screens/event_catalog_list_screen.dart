@@ -412,7 +412,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
             componentId: componentId,
             scoId: model.ScoID,
             componentInstanceId: componentInsId,
-            isContentEnrolled: true,
+            isContentEnrolled: model.isCourseEnrolled(),
           ),
         );
 
@@ -484,7 +484,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
             componentId: componentId,
             scoId: model.ScoID,
             componentInstanceId: componentInsId,
-            isContentEnrolled: true,
+            isContentEnrolled: model.isCourseEnrolled(),
           ),
         );
       },
@@ -857,13 +857,14 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
 
       filterSuffixIcon = Stack(
         children: [
-          Container(
-            margin: selectedFiltersCount > 0 ? const EdgeInsets.only(top: 5, right: 5) : null,
-            child: InkWell(
-              onTap: () async {
-                FocusScope.of(context).requestFocus(FocusNode());
-                navigateToFilterScreen();
-              },
+          InkWell(
+            onTap: () async {
+              FocusScope.of(context).requestFocus(FocusNode());
+              navigateToFilterScreen();
+            },
+            child: Container(
+              margin: selectedFiltersCount > 0 ? const EdgeInsets.only(top: 5, right: 5) : null,
+              padding: const EdgeInsets.only(right: 10),
               child: const Icon(
                 Icons.tune,
               ),
@@ -1083,7 +1084,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
     }
 
     List<CourseDTOModel> list = (tabId == EventCatalogTabTypes.calendarView) ? eventProvider.selectedCalendarDateEventList.getList() : eventProvider.eventsList.getList(isNewInstance: false);
-    MyPrint.printOnConsole("List.length : ${list.length}");
+    // MyPrint.printOnConsole("List.length : ${list.length}");
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: ScrollablePositionedList.builder(
@@ -1118,7 +1119,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
           if (index > (contentsLength - paginationModel.refreshLimit) && paginationModel.hasMore && !paginationModel.isLoading) {
             onPagination();
           }
-          MyPrint.printOnConsole("Indexxxx: $index");
+          // MyPrint.printOnConsole("Indexxxx: $index");
           CourseDTOModel model = list[index];
 
           EventCatalogUIActionsController eventCatalogUIActionsController = EventCatalogUIActionsController(

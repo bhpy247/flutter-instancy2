@@ -408,7 +408,7 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
             componentId: componentId,
             scoId: model.ScoID,
             componentInstanceId: componentInstanceId,
-            isContentEnrolled: ["1", "true"].contains(model.isContentEnrolled.toLowerCase()),
+            isContentEnrolled: model.isCourseEnrolled(),
           ),
         );
       },

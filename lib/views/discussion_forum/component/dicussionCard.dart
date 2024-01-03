@@ -19,7 +19,6 @@ import '../../common/components/common_cached_network_image.dart';
 class DiscussionCard extends StatefulWidget {
   final int index;
   final ForumModel forumModel;
-  final bool isDiscussionDetail;
   final Function()? onCardTap, onAddTopicTap, onMoreTap, onLikeTap;
 
   const DiscussionCard({
@@ -30,7 +29,6 @@ class DiscussionCard extends StatefulWidget {
     this.onAddTopicTap,
     this.onMoreTap,
     this.onLikeTap,
-    this.isDiscussionDetail = false,
   });
 
   @override
@@ -231,7 +229,7 @@ class _DiscussionCardState extends State<DiscussionCard> with MySafeState {
                   ],
                 ),
               ),
-              if (!widget.isDiscussionDetail)
+              if (widget.onMoreTap != null)
                 InkWell(
                   onTap: widget.onMoreTap,
                   child: const Padding(

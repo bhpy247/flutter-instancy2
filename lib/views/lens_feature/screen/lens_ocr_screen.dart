@@ -364,7 +364,7 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
             componentId: componentId,
             scoId: model.ScoID,
             componentInstanceId: componentInstanceId,
-            isContentEnrolled: ["1", "true"].contains(model.isContentEnrolled.toLowerCase()),
+            isContentEnrolled: model.isCourseEnrolled(),
           ),
         );
       },

@@ -408,16 +408,17 @@ class EventTrackScreenArguments extends NavigationArguments {
   final String? eventTrackTabType;
   final EventTrackProvider? eventTrackProvider;
 
-  const EventTrackScreenArguments(
-      {required this.parentContentId,
-      required this.componentId,
-      required this.componentInstanceId,
-      required this.objectTypeId,
-      required this.isRelatedContent,
-      required this.isContentEnrolled,
-      required this.scoId,
-      this.eventTrackProvider,
-      this.eventTrackTabType});
+  const EventTrackScreenArguments({
+    required this.parentContentId,
+    required this.componentId,
+    required this.componentInstanceId,
+    required this.objectTypeId,
+    required this.isRelatedContent,
+    required this.isContentEnrolled,
+    required this.scoId,
+    this.eventTrackProvider,
+    this.eventTrackTabType,
+  });
 }
 
 class UserProfileScreenNavigationArguments extends NavigationArguments {
