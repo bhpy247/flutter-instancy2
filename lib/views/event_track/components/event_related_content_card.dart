@@ -134,7 +134,7 @@ class _EventRelatedContentCardState extends State<EventRelatedContentCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    model.AuthorDisplayName,
+                    model.AuthorName,
                     style: themeData.textTheme.bodySmall?.copyWith(
                       fontSize: 12,
                       color: const Color(0xff9AA0A6),
