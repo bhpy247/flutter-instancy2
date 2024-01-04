@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -19,6 +20,10 @@ class CourseDownloadButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
+
+    if (!CourseDownloadController.isDownloadModuleEnabled) {
+      return const SizedBox();
+    }
 
     return Consumer<CourseDownloadProvider>(
       builder: (BuildContext context, CourseDownloadProvider courseDownloadProvider, Widget? child) {
