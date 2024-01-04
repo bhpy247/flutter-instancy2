@@ -90,8 +90,8 @@ class TrackCourseDTOModel {
   String ReportLink = "";
   String prevCourseName = "";
   String FolderPath = "";
-  String JwStartPage = "";
-  String StartPage = "";
+  String jwstartpage = "";
+  String startpage = "";
   int Count = 0;
   int ScoID = 0;
   int ContentTypeId = 0;
@@ -194,8 +194,8 @@ class TrackCourseDTOModel {
     this.ReportLink = "",
     this.prevCourseName = "",
     this.FolderPath = "",
-    this.JwStartPage = "",
-    this.StartPage = "",
+    this.jwstartpage = "",
+    this.startpage = "",
     this.Count = 0,
     this.ScoID = 0,
     this.ContentTypeId = 0,
@@ -307,8 +307,8 @@ class TrackCourseDTOModel {
     ReportLink = ParsingHelper.parseStringMethod(map["ReportLink"]);
     prevCourseName = ParsingHelper.parseStringMethod(map["prevCourseName"]);
     FolderPath = ParsingHelper.parseStringMethod(map["FolderPath"]);
-    JwStartPage = ParsingHelper.parseStringMethod(map["JwStartPage"]);
-    StartPage = ParsingHelper.parseStringMethod(map["StartPage"]);
+    jwstartpage = ParsingHelper.parseStringMethod(map["jwstartpage"]);
+    startpage = ParsingHelper.parseStringMethod(map["startpage"]);
     Count = ParsingHelper.parseIntMethod(map["Count"]);
     ScoID = ParsingHelper.parseIntMethod(map["ScoID"]);
     ContentTypeId = ParsingHelper.parseIntMethod(map["ContentTypeId"]);
@@ -422,8 +422,8 @@ class TrackCourseDTOModel {
       "ReportLink": ReportLink,
       "prevCourseName": prevCourseName,
       "FolderPath": FolderPath,
-      "JwStartPage": JwStartPage,
-      "StartPage": StartPage,
+      "jwstartpage": jwstartpage,
+      "startpage": startpage,
       "Count": Count,
       "ScoID": ScoID,
       "ContentTypeId": ContentTypeId,
