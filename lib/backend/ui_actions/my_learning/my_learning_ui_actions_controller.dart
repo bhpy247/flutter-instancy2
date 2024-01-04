@@ -368,13 +368,13 @@ class MyLearningUIActionsController {
     List<InstancyContentActionsEnum> actions1 = PrimarySecondaryActionsController.getPrimaryActionForMyLearningContent(
       mediaTypeId: mediaTypeId,
       objectTypeId: objectTypeId,
-      viewType: mediaTypeId,
+      viewType: viewType,
     );
 
     List<InstancyContentActionsEnum> actions2 = PrimarySecondaryActionsController.getSecondaryActionForMyLearningContent(
       mediaTypeId: mediaTypeId,
       objectTypeId: objectTypeId,
-      viewType: mediaTypeId,
+      viewType: viewType,
     );
     Set<InstancyContentActionsEnum> set = {};
     set.addAll(actions1);
