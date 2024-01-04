@@ -774,8 +774,8 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
             ContentName: model.ContentName,
             FolderPath: model.FolderPath,
             JWVideoKey: model.JWVideoKey,
-            jwstartpage: model.JwStartPage,
-            startPage: model.StartPage,
+            jwstartpage: model.jwstartpage,
+            startPage: model.startpage,
             bit5: model.bit5,
           ),
         );
@@ -914,8 +914,8 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
             ContentName: model.ContentName,
             FolderPath: model.FolderPath,
             JWVideoKey: model.JWVideoKey,
-            jwstartpage: model.JwStartPage,
-            startPage: model.StartPage,
+            jwstartpage: model.jwstartpage,
+            startPage: model.startpage,
             bit5: model.bit5,
           ),
         );
@@ -1056,8 +1056,8 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
             ContentName: model.Name,
             FolderPath: model.FolderPath,
             JWVideoKey: model.JWVideoKey,
-            jwstartpage: model.JwStartPage,
-            startPage: model.StartPage,
+            jwstartpage: model.jwstartpage,
+            startPage: model.startpage,
             bit5: model.bit5,
           ),
         );
@@ -1158,8 +1158,8 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
             ContentName: model.Name,
             FolderPath: model.FolderPath,
             JWVideoKey: model.JWVideoKey,
-            jwstartpage: model.JwStartPage,
-            startPage: model.StartPage,
+            jwstartpage: model.jwstartpage,
+            startPage: model.startpage,
             bit5: model.bit5,
           ),
         );
