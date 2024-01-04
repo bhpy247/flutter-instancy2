@@ -358,11 +358,18 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
         prefixWidget: Icon(Icons.search),
         onSubmitted: (String? val) {
           discussionProvider.forumListSearchString.set(value: val ?? "");
-          discussionController.getForumsList(
+          getDiscussionForumList(
             isRefresh: true,
             isGetFromCache: false,
-            isNotify: false,
+            isNotify: true,
           );
+          // discussionController.getForumsList(
+          //   isRefresh: true,
+          //   isGetFromCache: false,
+          //   isNotify: false,
+          //   componentInstanceId: componentInstanceId,
+          //   componentId: componentId
+          // );
           mySetState();
         },
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/share/share_controller.dart';
@@ -62,10 +63,10 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
     userIds = widget.arguments.userIds ?? <int>[];
 
     String siteUrl = shareController.shareRepository.apiController.apiDataProvider.getCurrentSiteUrl();
-    if(siteUrl.endsWith("/")) {
+    if (siteUrl.endsWith("/")) {
       siteUrl = siteUrl.substring(0, siteUrl.length - 1);
     }
-    if(siteUrl.startsWith("http://")) {
+    if (siteUrl.startsWith("http://")) {
       siteUrl = siteUrl.replaceFirst("http://", "https://");
     }
 
@@ -108,8 +109,9 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
               "Content Link: $contentLink";
           break;
         }
-      case ShareContentType.catalogCourse: {
-        message = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
+      case ShareContentType.catalogCourse:
+        {
+          message = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
               "YouTube site! \n\nContent Name: $contentName. \n\n "
               "Content Link: $siteUrl/InviteURLID/contentId/${widget.arguments.contentId}/ComponentId/1.";
 
@@ -169,11 +171,7 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
       centerTitle: true,
       title: Text(
         isShareWithEmailIds ? "Share with People" : "Share with Connections",
-        style: themeData.textTheme.titleLarge?.copyWith(
-          color: themeData.colorScheme.onPrimary,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.8
-        ),
+        style: themeData.textTheme.titleLarge?.copyWith(color: themeData.colorScheme.onPrimary, fontWeight: FontWeight.w600, letterSpacing: 0.8),
       ),
       elevation: 0,
       // backgroundColor: themeData.primaryColor,
@@ -184,7 +182,7 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
   }
 
   Widget getToEmailTextField() {
-    if(!isShareWithEmailIds) {
+    if (!isShareWithEmailIds) {
       return const SizedBox();
     }
 
@@ -196,8 +194,13 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
         children: [
           Row(
             children: [
-              const Icon(Icons.person, size: 24,),
-              const SizedBox(width: 10,),
+              const Icon(
+                Icons.person,
+                size: 24,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
               Text(
                 "Recipients",
                 style: themeData.textTheme.bodyMedium?.copyWith(
@@ -215,21 +218,24 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
             hintText: "Enter email addresses separated by a comma(,) and no spaces",
             textStyle: themeData.textTheme.labelMedium,
             borderRadius: 5,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+            inputFormatters: [
+              FilteringTextInputFormatter.deny(" "),
+            ],
+            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             validator: (String? text) {
-              if((text?.trim()).checkEmpty) {
+              if ((text?.trim()).checkEmpty) {
                 return "Recipients email address cannot be empty";
               }
 
               List<String> emails = AppConfigurationOperations.getListFromSeparatorJoinedString(parameterString: text!.trim(), separator: ',');
 
-              if(emails.isEmpty) {
+              if (emails.isEmpty) {
                 return "Emails has to be comma separated";
               }
 
               for (String value in emails) {
                 bool isValid = AppConfigurationOperations.isValidEmailString(value);
-                if(!isValid) {
+                if (!isValid) {
                   return "Invalid Emails";
                 }
               }
@@ -251,9 +257,15 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
         children: [
           Row(
             children: [
-              Image.asset("assets/subject.png", height: 17,width: 17,),
+              Image.asset(
+                "assets/subject.png",
+                height: 17,
+                width: 17,
+              ),
               // const Icon(Icons.subject, size: 24,),
-              const SizedBox(width: 10,),
+              const SizedBox(
+                width: 10,
+              ),
               Text(
                 "Subject",
                 style: themeData.textTheme.bodyMedium?.copyWith(
@@ -269,13 +281,12 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
             hintText: "Subject",
             borderRadius: 5,
             maxLines: 3,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             textStyle: themeData.textTheme.labelMedium,
             validator: (String? text) {
-              if(text.checkEmpty) {
+              if (text.checkEmpty) {
                 return "Subject cannot be empty";
-              }
-              else {
+              } else {
                 return null;
               }
             },
@@ -294,8 +305,14 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
         children: [
           Row(
             children: [
-              Image.asset("assets/message.png", height: 17,width: 17,),
-              const SizedBox(width: 10,),
+              Image.asset(
+                "assets/message.png",
+                height: 17,
+                width: 17,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
               Text(
                 "Message",
                 style: themeData.textTheme.bodyMedium?.copyWith(
@@ -316,10 +333,9 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
             maxLines: null,
             // maxLines: 10,
             validator: (String? text) {
-              if(text.checkEmpty) {
+              if (text.checkEmpty) {
                 return "Message cannot be empty";
-              }
-              else {
+              } else {
                 return null;
               }
             },
@@ -331,7 +347,7 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
 
   Widget? getBottomBarButtonsRow() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0,vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
@@ -349,7 +365,9 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
               text: "Cancel",
             ),
           ),
-          const SizedBox(width: 25,),
+          const SizedBox(
+            width: 25,
+          ),
           Expanded(
             flex: 3,
             child: CommonButton(
@@ -363,10 +381,10 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
                   bool isShared;
                   if (isShareWithEmailIds) {
                     isShared = await shareController.shareWithPeople(
-                      userMails: AppConfigurationOperations.getListFromSeparatorJoinedString(parameterString: toEmailsController.text.trim()),
+                      userMails: AppConfigurationOperations.getListFromSeparatorJoinedString(parameterString: toEmailsController.text.trim().replaceAll(" ", "")),
                       subject: subjectController.text.trim(),
                       message: message,
-                      forumId: widget.arguments.forumId.toString(),
+                      forumId: widget.arguments.forumId,
                       contentId: widget.arguments.contentId,
                     );
                   } else {
@@ -374,7 +392,7 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
                       userIDList: userIds,
                       subject: subjectController.text.trim(),
                       message: message,
-                      forumId: widget.arguments.forumId.toString(),
+                      forumId: widget.arguments.forumId,
                       contentId: widget.arguments.contentId,
                       scoId: widget.arguments.scoId,
                       objecttypeId: widget.arguments.objecttypeId,
@@ -384,9 +402,9 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
                   isLoading = false;
                   mySetState();
 
-                  if(isShared && pageMounted && context.mounted) {
+                  if (isShared && pageMounted && context.mounted) {
                     MyToast.showSuccess(context: context, msg: "Email successfully sent");
-                    if(!isShareWithEmailIds) Navigator.pop(context);
+                    if (!isShareWithEmailIds) Navigator.pop(context);
                     Navigator.pop(context);
                   }
                 }

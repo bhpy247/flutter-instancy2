@@ -32,6 +32,7 @@ import 'package:provider/provider.dart';
 
 import '../../../api/api_controller.dart';
 import '../../../backend/app_theme/style.dart';
+import '../../../backend/authentication/authentication_provider.dart';
 import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../backend/share/share_provider.dart';
 import '../../../backend/ui_actions/discussion_forum/topic/discussion_topic_ui_action_callback_model.dart';
@@ -85,6 +86,7 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
 
   bool isExpanded = false;
   String fileName = "";
+  String getCurrentUserLoggedInImage = "";
   Uint8List? fileBytes;
 
   Future<String> openFileExplorer(FileType pickingType, bool multiPick) async {
@@ -139,6 +141,14 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
     if (forumModel != null && forumModel!.NoOfTopics != forumModel!.MainTopicsList.length) {
       await loadTopicForForum(forumModel: forumModel!);
     }
+    getCurrentUserLoggedInData();
+  }
+
+  void getCurrentUserLoggedInData() {
+    AuthenticationProvider authenticationProvider = context.read<AuthenticationProvider>();
+    getCurrentUserLoggedInImage = authenticationProvider.getEmailLoginResponseModel()?.image ?? "";
+    MyPrint.printOnConsole("getCurrentUserLoggedInImage: $getCurrentUserLoggedInImage");
+    // mySetState();
   }
 
   Future<void> getForumDataList() async {
@@ -1408,7 +1418,7 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
     required TopicModel? selectedTopicModel,
   }) {
     if (!isCommentTextFormFieldVisible || selectedTopicModel == null) return const SizedBox();
-    String url = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: selectedTopicModel.TopicUserProfile));
+    String url = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: getCurrentUserLoggedInImage));
 
     return Form(
       key: formKey,
@@ -1535,7 +1545,7 @@ class _DiscussionDetailScreenState extends State<DiscussionDetailScreen> with My
     required TopicCommentModel? selectedCommentModel,
   }) {
     if (!isReplyTextFormFieldVisible || selectedCommentModel == null) return const SizedBox();
-    String url = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: selectedCommentModel.CommentUserProfile));
+    String url = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: getCurrentUserLoggedInImage));
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),

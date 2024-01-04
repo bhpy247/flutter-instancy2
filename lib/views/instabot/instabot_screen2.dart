@@ -64,32 +64,33 @@ class _InstaBotScreen2State extends State<InstaBotScreen2> {
     if (arguments.courseId.isNotEmpty) userName += "~${arguments.courseId}";
 
     defaultArguments = ChatBotArguments(
-      instancySiteUrl: apiUrlConfigurationProvider.getCurrentSiteLearnerUrl().replaceFirst("http://", "https://"),
-      instancyApiUrl: apiUrlConfigurationProvider.getCurrentBaseApiUrl().replaceFirst("http://", "https://"),
-      instancyTokenApiUrl: tokenUrl,
-      userId: apiUrlConfigurationProvider.getCurrentUserId(),
-      siteId: apiUrlConfigurationProvider.getCurrentSiteId(),
-      // userName: successfulUserLoginModel?.username ?? "Instacy User",
-      courseId: arguments.courseId,
-      isCourseBot: arguments.courseId.isNotEmpty,
-      userName: userName,
-      userImageUrl: imageUrl,
-      userToken: arguments.courseId.isNotEmpty ? "" : apiUrlConfigurationProvider.getAuthToken(),
-      userLoggedIn: arguments.courseId.isNotEmpty ? true : apiUrlConfigurationProvider.getAuthToken().isNotEmpty,
-      botName: "Instabot",
-      botDetailsModel: instaBotProvider.botDetailsModel.get(),
-      // botImageUrl: imageUrl,
-      trustedOrigins: [
-        apiUrlConfigurationProvider.getCurrentSiteLearnerUrl().replaceFirst("http://", "https://"),
-        apiUrlConfigurationProvider.getCurrentSiteLMSUrl().replaceFirst("http://", "https://"),
-      ],
-      chatBotProvider: chatBotProvider,
-      onDetailsTap: ({required String contentId, required int componentId, required int componentInsId}) {
-        MyPrint.printOnConsole("InstaBotScreen2().onDetailsTap called with contentId:'$contentId', componentId:$componentId, componentInsId:$componentInsId");
+        userSessionId: successfulUserLoginModel?.sessionid ?? "",
+        instancySiteUrl: apiUrlConfigurationProvider.getCurrentSiteLearnerUrl().replaceFirst("http://", "https://"),
+        instancyApiUrl: apiUrlConfigurationProvider.getCurrentBaseApiUrl().replaceFirst("http://", "https://"),
+        instancyTokenApiUrl: tokenUrl,
+        userId: apiUrlConfigurationProvider.getCurrentUserId(),
+        siteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+        // userName: successfulUserLoginModel?.username ?? "Instacy User",
+        courseId: arguments.courseId,
+        isCourseBot: arguments.courseId.isNotEmpty,
+        userName: userName,
+        userImageUrl: imageUrl,
+        userToken: arguments.courseId.isNotEmpty ? "" : apiUrlConfigurationProvider.getAuthToken(),
+        userLoggedIn: arguments.courseId.isNotEmpty ? true : apiUrlConfigurationProvider.getAuthToken().isNotEmpty,
+        botName: "Instabot",
+        botDetailsModel: instaBotProvider.botDetailsModel.get(),
+        // botImageUrl: imageUrl,
+        trustedOrigins: [
+          apiUrlConfigurationProvider.getCurrentSiteLearnerUrl().replaceFirst("http://", "https://"),
+          apiUrlConfigurationProvider.getCurrentSiteLMSUrl().replaceFirst("http://", "https://"),
+        ],
+        chatBotProvider: chatBotProvider,
+        onDetailsTap: ({required String contentId, required int componentId, required int componentInsId}) {
+          MyPrint.printOnConsole("InstaBotScreen2().onDetailsTap called with contentId:'$contentId', componentId:$componentId, componentInsId:$componentInsId");
 
-        NavigationController.navigateToCourseDetailScreen(
-          navigationOperationParameters: NavigationOperationParameters(
-            context: context,
+          NavigationController.navigateToCourseDetailScreen(
+            navigationOperationParameters: NavigationOperationParameters(
+              context: context,
               navigationType: NavigationType.pushNamed,
             ),
             arguments: CourseDetailScreenNavigationArguments(

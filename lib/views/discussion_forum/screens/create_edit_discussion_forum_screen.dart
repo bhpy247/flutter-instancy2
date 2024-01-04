@@ -44,7 +44,6 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
   late DiscussionController discussionController;
   late DiscussionProvider discussionProvider;
   late ThemeData themeData;
-
   bool newTopicCheckBox = true, attachFilesCheckBox = true, likeCheckBox = true, shareCheckBox = true, pinCheckBox = true, privacyForumCheckBox = false;
 
   int _groupValue = 2;
@@ -58,6 +57,7 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
   TextEditingController uploadFileTextEditingController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   String selectedCategoriesString = "";
+  List<CategoriesModel> categoriesList = [];
   List<CategoriesModel> selectedCategoriesList = [];
   final GlobalKey expansionTile = GlobalKey();
 
@@ -168,7 +168,7 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
     if (widget.arguments.isEdit) {
       requestModel.ForumID = widget.arguments.forumModel?.ForumID ?? 0;
       requestModel.ParentForumID = widget.arguments.forumModel?.ParentForumID ?? 0;
-      requestModel.CategoryIDs = widget.arguments.forumModel?.CategoryIDs ?? "";
+      // requestModel.CategoryIDs = widget.arguments.forumModel?.CategoryIDs ?? "";
       requestModel.RequiresSubscription = widget.arguments.forumModel?.RequiresSubscription ?? false;
     }
 
@@ -247,13 +247,18 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
     uploadFileTextEditingController.text = createDiscussionForumRequestModel.thumbnailUrl;
     fileName = forumModel.ForumThumbnailPath;
     setGroupValueBaseOnTheString(forumModel.SendEmail);
-
     List<String> idsFromString = createDiscussionForumRequestModel.ModeratorID.split(",").toList();
     List<String> categoriesidsFromString = createDiscussionForumRequestModel.CategoryIDs.split(",").toList();
+
     List<ForumUserInfoModel> moderators = discussionProvider.moderatorsList.getList();
-    List<CategoriesModel> categoriesList = discussionProvider.categoriesList.getList();
     selectedModerator = moderators.where((element) => idsFromString.contains(element.UserID.toString())).toList();
     selectedCategoriesList = categoriesList.where((element) => categoriesidsFromString.contains(element.id.toString())).toList();
+    MyPrint.printOnConsole("selectedModerator : ${selectedModerator.length}");
+    selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+      list: selectedCategoriesList.map((e) => e.CategoryName).toList(),
+      separator: ", ",
+    );
+
     mySetState();
   }
 
@@ -271,7 +276,17 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
       UserName: name,
       UserThumb: imageUrl,
     );
-    selectedModerator.add(forumUserInfoModel);
+    if (selectedModerator.checkEmpty) {
+      selectedModerator.add(forumUserInfoModel);
+    }
+    if (selectedModerator.checkNotEmpty) {
+      List<ForumUserInfoModel> list = selectedModerator.toList();
+      for (var element in list) {
+        if (element.UserID != userId) {
+          selectedModerator.add(forumUserInfoModel);
+        }
+      }
+    }
     MyPrint.printOnConsole("forumUserInfoModel : ${forumUserInfoModel.toJson()}");
   }
 
@@ -282,6 +297,7 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
     discussionController = DiscussionController(discussionProvider: discussionProvider);
     discussionController.getUserListBaseOnUserInfo();
     discussionController.getCategoriesList(componentId: widget.arguments.componentId, componentInstanceId: widget.arguments.componentInsId);
+    categoriesList = discussionProvider.categoriesList.getList();
 
     if (widget.arguments.isEdit) {
       setTheValueWhenEdit();
@@ -325,7 +341,6 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
       ),
     );
   }
-
 
   Widget mainWidget() {
     return Form(
@@ -411,85 +426,147 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
           child: Theme(
             data: themeData.copyWith(dividerColor: Colors.transparent),
             child: ExpansionTile(
-                key: expansionTile,
-                backgroundColor: const Color(0xffF8F8F8),
-                initiallyExpanded: isExpanded,
-                tilePadding: const EdgeInsets.symmetric(horizontal: 14),
-                title: Row(
-                  children: [
-                    getImageView(url: "assets/catalog/categories.png", height: 15, width: 15),
-                    const SizedBox(
-                      width: 10,
+              key: expansionTile,
+              backgroundColor: const Color(0xffF8F8F8),
+              initiallyExpanded: isExpanded,
+              tilePadding: const EdgeInsets.symmetric(horizontal: 14),
+              title: Row(
+                children: [
+                  getImageView(url: "assets/catalog/categories.png", height: 15, width: 15),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: Text(
+                      selectedCategoriesString.isEmpty ? "Categories" : selectedCategoriesString,
+                      style: themeData.textTheme.titleSmall?.copyWith(color: Colors.black45),
                     ),
-                    Expanded(
-                      child: Text(
-                        selectedCategoriesString.isEmpty ? "Categories" : selectedCategoriesString,
-                        style: themeData.textTheme.titleSmall?.copyWith(color: Colors.black45),
-                      ),
+                  ),
+                ],
+              ),
+              onExpansionChanged: (bool? newVal) {
+                FocusScope.of(context).unfocus();
+              },
+              children: List.generate(categoriesList.length, (index) {
+                return Container(
+                  color: Colors.white,
+                  child: InkWell(
+                    onTap: () {
+                      bool isChecked = !selectedCategoriesList.where((element) => element.id == categoriesList[index].id).checkNotEmpty;
+                      MyPrint.printOnConsole("isChecked : $isChecked");
+                      if (isChecked) {
+                        selectedCategoriesList.add(categoriesList[index]);
+                      } else {
+                        selectedCategoriesList.removeAt(index);
+                      }
+
+                      selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+                        list: selectedCategoriesList.map((e) => e.CategoryName).toList(),
+                        separator: ", ",
+                      );
+                      setState(() {});
+
+                      // if (isChecked) {
+                      //   // selectedCategory = e.name;
+                      //   selectedCategoriesList.add(e);
+                      //   setState(() {});
+                      //
+                      // } else {
+                      //   // selectedCategory = "";
+                      //   selectedCategoriesList.remove(e);
+                      // }
+                      // print(isChecked);
+                    },
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          activeColor: themeData.primaryColor,
+                          value: selectedCategoriesList.where((element) => element.id == categoriesList[index].id).checkNotEmpty,
+                          onChanged: (bool? value) {
+                            bool isChecked = value ?? false;
+                            MyPrint.printOnConsole("selectedCategoriesList : ${value}}");
+
+                            if (isChecked) {
+                              selectedCategoriesList.add(categoriesList[index]);
+                            } else {
+                              selectedCategoriesList.removeWhere((element) => element.id == categoriesList[index].id);
+                            }
+
+                            selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+                              list: selectedCategoriesList.map((e) => e.CategoryName).toList(),
+                              separator: ",",
+                            );
+                            setState(() {});
+                          },
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(categoriesList[index].CategoryName),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                onExpansionChanged: (bool? newVal) {
-                  FocusScope.of(context).unfocus();
-                },
-                children: provider.categoriesList.getList().map((e) {
-                  return Container(
-                    color: Colors.white,
-                    child: InkWell(
-                      onTap: () {
-                        bool isChecked = !selectedCategoriesList.contains(e);
-                        if (isChecked) {
-                          selectedCategoriesList.add(e);
-                        } else {
-                          selectedCategoriesList.remove(e);
-                        }
-
-                        selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-                          list: selectedCategoriesList.map((e) => e.CategoryName).toList(),
-                          separator: ", ",
-                        );
-                        setState(() {});
-
-                        // if (isChecked) {
-                        //   // selectedCategory = e.name;
-                        //   selectedCategoriesList.add(e);
-                        //   setState(() {});
-                        //
-                        // } else {
-                        //   // selectedCategory = "";
-                        //   selectedCategoriesList.remove(e);
-                        // }
-                        // print(isChecked);
-                      },
-                      child: Row(
-                        children: [
-                          Checkbox(
-                            activeColor: themeData.primaryColor,
-                            value: selectedCategoriesList.contains(e),
-                            onChanged: (bool? value) {
-                              bool isChecked = value ?? false;
-                              if (isChecked) {
-                                selectedCategoriesList.add(e);
-                              } else {
-                                selectedCategoriesList.remove(e);
-                              }
-
-                              selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-                                list: selectedCategoriesList.map((e) => e.CategoryName).toList(),
-                                separator: ",",
-                              );
-                              setState(() {});
-                            },
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(e.CategoryName),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList()),
+                  ),
+                );
+              }),
+              // children: provider.categoriesList.getList().map((e) {
+              //   return Container(
+              //     color: Colors.white,
+              //     child: InkWell(
+              //       onTap: () {
+              //         bool isChecked = !selectedCategoriesList.contains(e);
+              //         if (isChecked) {
+              //           selectedCategoriesList.add(e);
+              //         } else {
+              //           selectedCategoriesList.remove(e);
+              //         }
+              //
+              //         selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+              //           list: selectedCategoriesList.map((e) => e.CategoryName).toList(),
+              //           separator: ", ",
+              //         );
+              //         setState(() {});
+              //
+              //         // if (isChecked) {
+              //         //   // selectedCategory = e.name;
+              //         //   selectedCategoriesList.add(e);
+              //         //   setState(() {});
+              //         //
+              //         // } else {
+              //         //   // selectedCategory = "";
+              //         //   selectedCategoriesList.remove(e);
+              //         // }
+              //         // print(isChecked);
+              //       },
+              //       child: Row(
+              //         children: [
+              //           Checkbox(
+              //             activeColor: themeData.primaryColor,
+              //             value: selectedCategoriesList.where((element) => element.id == e.id).checkNotEmpty,
+              //             onChanged: (bool? value) {
+              //               bool isChecked = value ?? false;
+              //               if (isChecked) {
+              //                 selectedCategoriesList.add(e);
+              //               } else {
+              //                 selectedCategoriesList.remove(e);
+              //               }
+              //
+              //               selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+              //                 list: selectedCategoriesList.map((e) => e.CategoryName).toList(),
+              //                 separator: ",",
+              //               );
+              //               setState(() {});
+              //             },
+              //           ),
+              //           const SizedBox(width: 10),
+              //           Expanded(
+              //             child: Text(e.CategoryName),
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   );
+              // }).toList(),
+            ),
           ),
         );
       },
@@ -574,24 +651,24 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
           ),
           Text(model.UserName),
           const Spacer(),
-          if (index != 0)
-            InkWell(
-              onTap: () {
-                if (selectedModerator.contains(model)) {
-                  selectedModerator.remove(model);
-                } else {
-                  selectedModerator.add(model);
-                }
-                mySetState();
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Icon(
-                  selectedModerator.contains(model) ? FontAwesomeIcons.solidSquareMinus : FontAwesomeIcons.solidSquarePlus,
-                  size: 15,
-                ),
+          // if (index != 0)
+          InkWell(
+            onTap: () {
+              if (selectedModerator.contains(model)) {
+                selectedModerator.remove(model);
+              } else {
+                selectedModerator.add(model);
+              }
+              mySetState();
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: Icon(
+                selectedModerator.contains(model) ? FontAwesomeIcons.solidSquareMinus : FontAwesomeIcons.solidSquarePlus,
+                size: 15,
               ),
-            )
+            ),
+          )
         ],
       ),
     );

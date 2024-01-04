@@ -7,7 +7,7 @@ class ShareWithPeopleRequestModel {
   String subject = "";
   String message = "";
   String contentId = "";
-  String forumID = "";
+  int forumID = 0;
   String topicID = "";
   String quesID = "";
   bool isSuggestToConnections = false;
@@ -26,7 +26,7 @@ class ShareWithPeopleRequestModel {
     this.subject = "",
     this.message = "",
     this.contentId = "",
-    this.forumID = "",
+    this.forumID = 0,
     this.topicID = "",
     this.quesID = "",
     this.isSuggestToConnections = false,
@@ -54,7 +54,7 @@ class ShareWithPeopleRequestModel {
       'Subject': subject,
       'Message': message,
       'Contentid': contentId,
-      'ForumID': forumID,
+      'ForumID': forumID.toString(),
       'TopicID': topicID,
       'quesID': quesID,
       "AskQuestionLink": askQuestionLink.toString(),

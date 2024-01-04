@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/utils/mmy_toast.dart';
 import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_chat_bot/view/common/components/bottom_sheet_dragger.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
@@ -315,7 +316,11 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
             otherUserId: chatUser.UserID,
           );
           messageProvider.filteredChatUserList.setList(list: finalUsersList);
-
+          if (chatUser.ArchivedUserID == -1) {
+            MyToast.showSuccess(context: context, msg: "Successfully unarchived! you can view the chat by clicking on message filters -> All Message");
+          } else {
+            MyToast.showSuccess(context: context, msg: "Successfully archived! you can view the chat by clicking on message filters -> Archive");
+          }
           // messageProvider.isChatUsersLoading.set(value: false);
           getMessageUserList(
             isRefresh: false,

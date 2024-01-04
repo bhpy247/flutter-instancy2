@@ -360,10 +360,7 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
         onSubmitted: (String? val) {
           discussionProvider.forumListSearchString.set(value: val ?? "");
           discussionController.getForumsList(
-            isRefresh: true,
-            isGetFromCache: false,
-            isNotify: false,
-          );
+            isRefresh: true, isGetFromCache: false, isNotify: false, componentId: componentId, componentInstanceId: componentInstanceId);
           mySetState();
         },
       ),

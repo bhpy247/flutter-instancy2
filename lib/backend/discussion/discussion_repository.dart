@@ -97,7 +97,7 @@ class DiscussionRepository {
     requestModel.UpdatedUserID = apiUrlConfigurationProvider.getCurrentUserId();
     requestModel.CreatedUserID = apiUrlConfigurationProvider.getCurrentUserId();
     requestModel.locale = apiUrlConfigurationProvider.getLocale();
-    requestModel.ModeratorID = requestModel.ModeratorID;
+    // requestModel.ModeratorID = requestModel.ModeratorID;
 
     List<InstancyMultipartFileUploadModel> files = [];
 
