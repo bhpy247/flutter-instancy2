@@ -32,6 +32,7 @@ import 'package:flutter_instancy_2/models/content_review_ratings/data_model/cont
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
 import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
+import 'package:flutter_instancy_2/models/my_learning/response_model/page_notes_response_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
@@ -40,6 +41,7 @@ import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.da
 import 'package:flutter_instancy_2/views/content_review_ratings/components/content_user_review_card.dart';
 import 'package:flutter_instancy_2/views/course_download/components/course_download_button.dart';
 import 'package:flutter_instancy_2/views/event/components/event_session_card.dart';
+import 'package:flutter_instancy_2/views/my_learning/component/notes_dialog.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:provider/provider.dart';
@@ -123,6 +125,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
   bool isRefreshOtherPageWhenPop = false;
 
+  Future<PageNotesResponseModel>? getNotes;
+
   Future<void> getContentDetailsData() async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("_CourseDetailScreenState().getContentDetailsData() called", tag: tag);
@@ -151,7 +155,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     MyPrint.printOnConsole("contentDetailsDTOModel.ContentTypeId:${contentDetailsDTOModel?.ContentTypeId}");
     MyPrint.printOnConsole("contentDetailsDTOModel.EventScheduleType:${contentDetailsDTOModel?.EventScheduleType}");
 
-    if (contentDetailsDTOModel != null) {
+    if (contentDetailsDTOModel != null && context.mounted) {
       GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
         requestModel: UpdateContentGamificationRequestModel(
           contentId: contentDetailsDTOModel.ContentID,
@@ -420,6 +424,20 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         if (isSecondaryAction) Navigator.pop(context);
 
         EventController(eventProvider: null).joinVirtualEvent(context: context, joinUrl: model.ViewLink);
+      },
+      onNoteTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        isLoading = true;
+        mySetState();
+        getNotes = getNotesData(contentId: model.ContentID);
+        PageNotesResponseModel? pageNotesResponseModel = await getNotes;
+        MyPrint.printOnConsole("pageNotesResponseModel name:: ${pageNotesResponseModel?.name}");
+
+        onNoteTap(pageNotesResponseModel ?? PageNotesResponseModel(), model.ContentID);
+
+        isLoading = false;
+        mySetState();
       },
       onAddToCalenderTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
@@ -959,6 +977,30 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     } else {
       MyPrint.printOnConsole("Invalid Download Command", tag: tag);
     }
+  }
+
+  Future<PageNotesResponseModel> getNotesData({String contentId = ""}) async {
+    PageNotesResponseModel pageNotesResponseModel = await myLearningController.getAllUserPageNotes(
+      contentId: contentId,
+      componentId: componentId,
+      componentInstanceId: componentInstanceId,
+    );
+    return pageNotesResponseModel;
+  }
+
+  Future<void> onNoteTap(PageNotesResponseModel pageNotesResponseModel, String contentId) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return NotesDialog(
+          contentId: contentId,
+          componentId: componentId,
+          componentInsId: componentInstanceId,
+          myLearningController: myLearningController,
+          pageNotesResponseModel: pageNotesResponseModel,
+        );
+      },
+    );
   }
 
   @override
