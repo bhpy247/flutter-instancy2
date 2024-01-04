@@ -4,7 +4,6 @@ import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 class RelatedTrackDataDTOModel {
   String ActionViewQRcode = "";
   String ActivityId = "";
-  String AuthorDisplayName = "";
   String ContentType = "";
   String Name = "";
   String Status = "";
@@ -36,8 +35,8 @@ class RelatedTrackDataDTOModel {
   String CoreLessonStatus = "";
   String ContentDisplayStatus = "";
   String FolderPath = "";
-  String JwStartPage = "";
-  String StartPage = "";
+  String jwstartpage = "";
+  String startpage = "";
   int ScoID = 0;
   int UserID = 0;
   int SiteID = 0;
@@ -51,7 +50,6 @@ class RelatedTrackDataDTOModel {
   RelatedTrackDataDTOModel({
     this.ActionViewQRcode = "",
     this.ActivityId = "",
-    this.AuthorDisplayName = "",
     this.ContentType = "",
     this.Name = "",
     this.Status = "",
@@ -83,8 +81,8 @@ class RelatedTrackDataDTOModel {
     this.CoreLessonStatus = "",
     this.ContentDisplayStatus = "",
     this.FolderPath = "",
-    this.JwStartPage = "",
-    this.StartPage = "",
+    this.jwstartpage = "",
+    this.startpage = "",
     this.ScoID = 0,
     this.UserID = 0,
     this.SiteID = 0,
@@ -107,7 +105,6 @@ class RelatedTrackDataDTOModel {
   void _initializeFromMap(Map<String, dynamic> map) {
     ActionViewQRcode = ParsingHelper.parseStringMethod(map["ActionViewQRcode"]);
     ActivityId = ParsingHelper.parseStringMethod(map["ActivityId"]);
-    AuthorDisplayName = ParsingHelper.parseStringMethod(map["AuthorDisplayName"]);
     ContentType = ParsingHelper.parseStringMethod(map["ContentType"]);
     Name = ParsingHelper.parseStringMethod(map["Name"]);
     Status = ParsingHelper.parseStringMethod(map["Status"]);
@@ -139,8 +136,8 @@ class RelatedTrackDataDTOModel {
     CoreLessonStatus = ParsingHelper.parseStringMethod(map["CoreLessonStatus"]);
     ContentDisplayStatus = ParsingHelper.parseStringMethod(map["ContentDisplayStatus"]);
     FolderPath = ParsingHelper.parseStringMethod(map["FolderPath"]);
-    JwStartPage = ParsingHelper.parseStringMethod(map["JwStartPage"]);
-    StartPage = ParsingHelper.parseStringMethod(map["StartPage"]);
+    jwstartpage = ParsingHelper.parseStringMethod(map["jwstartpage"]);
+    startpage = ParsingHelper.parseStringMethod(map["startpage"]);
     ScoID = ParsingHelper.parseIntMethod(map["ScoID"]);
     UserID = ParsingHelper.parseIntMethod(map["UserID"]);
     SiteID = ParsingHelper.parseIntMethod(map["SiteID"]);
@@ -156,7 +153,6 @@ class RelatedTrackDataDTOModel {
     return {
       "ActionViewQRcode": ActionViewQRcode,
       "ActivityId": ActivityId,
-      "AuthorDisplayName": AuthorDisplayName,
       "ContentType": ContentType,
       "Name": Name,
       "Status": Status,
@@ -188,8 +184,8 @@ class RelatedTrackDataDTOModel {
       "CoreLessonStatus": CoreLessonStatus,
       "ContentDisplayStatus": ContentDisplayStatus,
       "FolderPath": FolderPath,
-      "JwStartPage": JwStartPage,
-      "StartPage": StartPage,
+      "jwstartpage": jwstartpage,
+      "startpage": startpage,
       "ScoID": ScoID,
       "UserID": UserID,
       "SiteID": SiteID,
