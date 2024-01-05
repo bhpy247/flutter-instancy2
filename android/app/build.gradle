@@ -82,8 +82,8 @@ android {
         enterpriseapp {
             dimension "app"
             applicationId "com.instancy.enterpriseapp"
-            versionCode 41
-            versionName "2.3.3"
+            versionCode 42
+            versionName "2.3.4"
             resValue "string", "app_name", "Enterprise Learning"
         }
 
