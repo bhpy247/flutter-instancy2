@@ -204,8 +204,7 @@ class CourseLaunchController {
     MyPrint.printOnConsole('Table2 Start Page:${model.startPage}');
 
     try {
-      if (model.ContentTypeId == InstancyObjectTypes.track /* && model.bit5*/) {
-        // Need to open EventTrackListTabsActivity
+      if ([InstancyObjectTypes.track, InstancyObjectTypes.events].contains(model.ContentTypeId)) {
         MyPrint.printOnConsole('Navigation to EventTrackList called');
 
         await NavigationController.navigateToEventTrackScreen(
@@ -214,30 +213,9 @@ class CourseLaunchController {
             navigationType: NavigationType.pushNamed,
           ),
           arguments: EventTrackScreenArguments(
-            objectTypeId: model.ContentTypeId,
-            isRelatedContent: false,
-            parentContentId: model.ContentID,
-            componentId: _componentId,
-            scoId: model.ScoID,
-            eventTrackTabType: model.ContentTypeId == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
-            componentInstanceId: _componentInstanceId,
-            isContentEnrolled: true,
-          ),
-        );
-
-        return true;
-      } else if (model.ContentTypeId == InstancyObjectTypes.events) {
-        MyPrint.printOnConsole('Navigation to Classroom Events');
-
-        await NavigationController.navigateToEventTrackScreen(
-          navigationOperationParameters: NavigationOperationParameters(
-            context: context,
-            navigationType: NavigationType.pushNamed,
-          ),
-          arguments: EventTrackScreenArguments(
             eventTrackTabType: model.ContentTypeId == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
             objectTypeId: model.ContentTypeId,
-            isRelatedContent: true,
+            isRelatedContent: model.ContentTypeId == InstancyObjectTypes.events,
             parentContentId: model.ContentID,
             componentId: _componentId,
             scoId: model.ScoID,
@@ -247,7 +225,12 @@ class CourseLaunchController {
         );
 
         return true;
-      } else if (model.ContentTypeId == InstancyObjectTypes.assignment) {
+      }
+
+      String courseSessionId = await getCourseTrackingSessionId(model: model);
+      checkNonTrackableContentStatusUpdate(model: model);
+
+      if (model.ContentTypeId == InstancyObjectTypes.assignment) {
         String assignmenturl = '${apiDataProvider.getCurrentSiteUrl()}assignmentdialog/ContentID/${model.ContentID}/SiteID/${model.SiteId}'
             '/ScoID/${model.ScoID}/UserID/${model.SiteUserID}/ismobilecontentview/true';
         MyPrint.printOnConsole('assignmenturl is : $assignmenturl');
@@ -297,8 +280,6 @@ class CourseLaunchController {
         }
 
         if (model.ContentTypeId == InstancyObjectTypes.reference) {
-          checkNonTrackableContentStatusUpdate(model: model);
-
           dynamic value = await navigateToLaunchScreen(
             context: context,
             model: model,
@@ -308,7 +289,12 @@ class CourseLaunchController {
           // return value == true;
           return value == true;
         } else {
-          String courseTrackingToken = await getCourseTrackingToken(courseUrl: courseUrl, model: model);
+          String courseTrackingToken = await getCourseLaunchTokenId(
+            courseUrl: courseUrl,
+            model: model,
+            courseSessionId: courseSessionId,
+          );
+
           MyPrint.printOnConsole("Course Tracking Token:'$courseTrackingToken'");
 
           if (courseTrackingToken.isEmpty) {
@@ -334,8 +320,6 @@ class CourseLaunchController {
 
             //assignmenturl = await '${ApiEndpoints.strSiteUrl}assignmentdialog/ContentID/${table2.contentid}/SiteID/${table2.usersiteid}/ScoID/${table2.scoid}/UserID/${table2.userid}';
           }
-
-          checkNonTrackableContentStatusUpdate(model: model);
 
           dynamic value = await navigateToLaunchScreen(
             context: context,
@@ -386,8 +370,6 @@ class CourseLaunchController {
 
         MyPrint.printOnConsole('urldataaaaa $url');
         if (url.isNotEmpty) {
-          // checkNonTrackableContentStatusUpdate(model: model);
-
           dynamic value = await navigateToLaunchScreen(
             context: context,
             model: model,
@@ -414,8 +396,6 @@ class CourseLaunchController {
 
         MyPrint.printOnConsole('urldataaaaa $url');
         if (url.isNotEmpty) {
-          checkNonTrackableContentStatusUpdate(model: model);
-
           dynamic value = await navigateToLaunchScreen(
             context: context,
             model: model,
@@ -432,30 +412,6 @@ class CourseLaunchController {
     }
 
     return false;
-  }
-
-  Future<String> getCourseTrackingToken({required String courseUrl, required CourseLaunchModel model}) async {
-    String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CourseLaunchController().getCourseTrackingToken() called", tag: tag);
-
-    String token = "";
-
-    String courseSessionId = await getCourseTrackingSessionId(model: model);
-
-    if (courseSessionId.isEmpty) {
-      MyPrint.printOnConsole("Returning from CourseLaunchController().getCourseTrackingToken() because courseSessionId is empty", tag: tag);
-      return token;
-    }
-
-    token = await getCourseLaunchTokenId(
-      courseUrl: courseUrl,
-      model: model,
-      courseSessionId: courseSessionId,
-    );
-
-    MyPrint.printOnConsole("Final Token:$token", tag: tag);
-
-    return token;
   }
 
   Future<String> getCourseTrackingSessionId({required CourseLaunchModel model}) async {
@@ -620,14 +576,7 @@ class CourseLaunchController {
         contentTypeId: model.ContentTypeId,
       );
     } else {
-      MyPrint.printOnConsole("Have to update status to In Progress", tag: tag);
-
-      //region Content Status Validation
-      if ([ContentStatusTypes.completed, ContentStatusTypes.incomplete, ContentStatusTypes.inProgress].contains(model.ActualStatus)) {
-        MyPrint.printOnConsole("Returning from CourseLaunchController().checkNonTrackableContentStatusUpdate() because Content Status is Completed or In Progress", tag: tag);
-        return;
-      }
-      //endregion
+      MyPrint.printOnConsole("Have to update tracking status for MediaTypes", tag: tag);
 
       await updateContentStatusToInProgressForNonTrackingContents(userId: model.SiteUserID, scoId: model.ScoID);
     }

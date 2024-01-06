@@ -162,9 +162,12 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> w
         // this.webViewController = webViewController;
       },
       onReceivedServerTrustAuthRequest: (controller, URLAuthenticationChallenge challenge) async {
-        MyPrint.printOnConsole("onReceivedServerTrustAuthRequest called with webViewController:$webViewController, challenge:$challenge");
+        // MyPrint.printOnConsole("onReceivedServerTrustAuthRequest called with webViewController:$webViewController, challenge:$challenge");
         //Do some checks here to decide if CANCELS or PROCEEDS
         return ServerTrustAuthResponse(action: ServerTrustAuthResponseAction.PROCEED);
+      },
+      onConsoleMessage: (InAppWebViewController controller, ConsoleMessage consoleMessage) {
+        MyPrint.printOnConsole("onConsoleMessage called with consoleMessage:${consoleMessage.message}, messageLevel:${consoleMessage.messageLevel}");
       },
       onReceivedError: (InAppWebViewController controller, WebResourceRequest request, WebResourceError error) {
         MyPrint.printOnConsole("InAppWebView onReceivedError called for:${request.url}, Type:${error.type}, Message:${error.description}");
