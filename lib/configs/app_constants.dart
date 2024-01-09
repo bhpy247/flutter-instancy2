@@ -847,3 +847,8 @@ class CatalogLandingPageType {
   static const int contentsListScreen = 0;
   static const int categoriesListScreen = 1;
 }
+
+class EventRecordingType {
+  static const String url = "url";
+  static const String video = "video";
+}
