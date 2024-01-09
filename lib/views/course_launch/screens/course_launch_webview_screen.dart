@@ -92,7 +92,7 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> w
         widget.arguments.courseName.isNotEmpty ? widget.arguments.courseName : "Course",
       ),
       actions: [
-        if (courseUrl.isNotEmpty && webViewController != null)
+        if (courseUrl.isNotEmpty && webViewController != null && [InstancyObjectTypes.document].contains(widget.arguments.contentTypeId))
           IconButton(
             onPressed: () {
               webViewController?.loadUrl(
@@ -147,7 +147,8 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> w
       onLoadStart: (InAppWebViewController webViewController, WebUri? webUri) {
         MyPrint.printOnConsole("onLoadStart called with webViewController:$webViewController, webUri:$webUri");
 
-        String url = webUri?.path.toLowerCase() ?? "";
+        String url = webUri?.toString().toLowerCase() ?? "";
+        MyPrint.printOnConsole("url:'$url'");
         if (url.isNotEmpty && (url.contains("coursetracking/savecontenttrackeddata1") || url.contains("blank.html?ioscourseclose=true"))) {
           if (context.mounted) Navigator.of(context).pop(true);
         }
