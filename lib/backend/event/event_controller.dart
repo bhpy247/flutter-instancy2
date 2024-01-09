@@ -640,7 +640,7 @@ class EventController {
     String recordingType = model.recordingType.toLowerCase();
     MyPrint.printOnConsole("recordingType:'$recordingType'");
 
-    if (recordingType == "url") {
+    if (recordingType == EventRecordingType.url) {
       if (model.eventRecordingURL.isEmpty) {
         MyPrint.printOnConsole("Returning from EventController().viewRecordingForEvent() eventRecordingURL is empty");
         MyToast.showError(context: context, msg: "Recording URL Not Available");
@@ -648,7 +648,7 @@ class EventController {
       }
 
       MyUtils.launchUrl(url: model.eventRecordingURL, launchMode: LaunchMode.externalApplication);
-    } else if (recordingType == "video") {
+    } else if (recordingType == EventRecordingType.video) {
       if (model.jwVideoPath.isEmpty) {
         MyPrint.printOnConsole("Returning from EventController().viewRecordingForEvent() jwVideoPath is empty");
         MyToast.showError(context: context, msg: "Recording File Not Available");
