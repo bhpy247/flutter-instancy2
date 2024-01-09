@@ -4,6 +4,7 @@ import 'package:flutter_instancy_2/backend/configurations/app_configuration_oper
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_configs.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
+import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
 
 import '../../../configs/app_constants.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
@@ -252,7 +253,25 @@ class MyLearningUIActionsController {
   bool showViewRecording({required MyLearningUIActionParameterModel parameterModel}) {
     MyPrint.printOnConsole("showViewRecording called with eventRecording:${parameterModel.eventRecording}");
 
-    return parameterModel.eventRecording != null;
+    EventRecordingDetailsModel? recordingDetails = parameterModel.eventRecording;
+
+    if (recordingDetails == null) {
+      MyPrint.printOnConsole("recordingDetails are null");
+      return false;
+    }
+
+    if (recordingDetails.RecordingType == "URL") {
+      if (recordingDetails.EventRecordingURL.isEmpty) {
+        MyPrint.printOnConsole("eventrecordingurl is empty");
+        return false;
+      }
+    } else if (recordingDetails.RecordingType == "video") {
+    } else {
+      MyPrint.printOnConsole("recordingtype is invalid");
+      return false;
+    }
+
+    return true;
   }
 
   bool showShareWithConnection({required MyLearningUIActionParameterModel parameterModel}) {
@@ -496,8 +515,7 @@ class MyLearningUIActionsController {
             actionsEnum: InstancyContentActionsEnum.Report,
           );
         }
-      }
-      else if (action == InstancyContentActionsEnum.Notes) {
+      } else if (action == InstancyContentActionsEnum.Notes) {
         if (isShowAction(actionType: InstancyContentActionsEnum.Notes, parameterModel: parameterModel) && myLearningUIActionCallbackModel.onNoteTap != null) {
           model = InstancyUIActionModel(
             text: "Note",
