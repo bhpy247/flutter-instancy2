@@ -354,7 +354,7 @@ class DiscussionController {
       intCompID: componentId,
       IsMydiscussion: true,
       intCompInsID: componentInstanceId,
-      strSearchText: provider.forumListSearchString.get(),
+      strSearchText: provider.myDiscussionForumListSearchString.get(),
       forumcontentId: provider.forumContentId.get(),
       // userID: "363",
       pageIndex: paginationModel.pageIndex,
@@ -1090,8 +1090,9 @@ class DiscussionController {
 
   Future<void> showCommentLikedUserList({required BuildContext context, required TopicCommentModel topicCommentModel}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("DiscussionController().showCommentLikedUserList() called with '", tag: tag);
-    if (topicCommentModel.CommentRepliesCount != topicCommentModel.userLikeList.length) {
+    MyPrint.printOnConsole("DiscussionController().showCommentLikedUserList() called with ${topicCommentModel.commentid} ${topicCommentModel.CommentRepliesCount}  ${topicCommentModel.userLikeList} '",
+        tag: tag);
+    if (topicCommentModel.CommentLikes != topicCommentModel.userLikeList.length) {
       DataResponseModel<List<ForumUserInfoModel>> dataResponseModel = await _discussionRepository.getTopicCommentLevelLikedUserList(topicId: topicCommentModel.commentid.toString(), intTypeID: 2);
       topicCommentModel.userLikeList = dataResponseModel.data ?? [];
       MyPrint.printOnConsole("deleteComment response:$dataResponseModel", tag: tag);

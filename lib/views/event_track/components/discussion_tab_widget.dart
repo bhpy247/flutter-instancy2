@@ -296,6 +296,21 @@ class _DiscussionTabWidgetState extends State<DiscussionTabWidget> with MySafeSt
           isLoading = false;
           mySetState();
         },
+        onCardTap: () async {
+          await NavigationController.navigateToDiscussionDetailScreen(
+            navigationOperationParameters: NavigationOperationParameters(
+              context: context,
+              navigationType: NavigationType.pushNamed,
+            ),
+            arguments: DiscussionDetailScreenNavigationArguments(
+              componentId: widget.componentId,
+              componentInsId: widget.componentInsId,
+              forumModel: model,
+              ForumId: model.ForumID,
+            ),
+          );
+          mySetState();
+        },
         forumModel: model,
         onAddTopicTap: () {
           addTopic(model: model);

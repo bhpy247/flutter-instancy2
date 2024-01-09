@@ -150,7 +150,7 @@ class _ModeratorBottomSheetState extends State<ModeratorBottomSheet> with MySafe
       onTap: () {
         MyPrint.printOnConsole("model : ${index}");
         if (checkIsModeratorSelected(model.UserID)) {
-          selectedModeratorList.removeAt(index);
+          selectedModeratorList.removeWhere((element) => element.UserID == model.UserID);
         } else {
           selectedModeratorList.add(model);
         }

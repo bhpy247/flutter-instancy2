@@ -82,6 +82,7 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
 
     MyPrint.printOnConsole("chatRoom idddD:  $chatRoom");
     messageStatus[fromUserID.toString()] = "";
+    messageStatus["SendDatetime"] = Timestamp.now();
     try {
       FirebaseFirestore.instance.collection(AppConstants.kAppFlavour).doc('messages').collection(chatRoom).doc("messageStatus").update(ParsingHelper.parseMapMethod(messageStatus)).catchError((e) {
         FirebaseFirestore.instance.collection(AppConstants.kAppFlavour).doc('messages').collection(chatRoom).doc("messageStatus").set(ParsingHelper.parseMapMethod(messageStatus));
@@ -278,24 +279,26 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
           messageController.updateLastMessageInChat(fromUserId: fromUserID, toUserId: toUserId, lastMessage: lastMessage);
         }
       },
-      child: Scaffold(
-        appBar: getAppBar(),
-        body: AppUIComponents.getBackGroundBordersRounded(
-          context: context,
-          child: StreamBuilder<MyFirestoreQuerySnapshot>(
-            stream: _usersStream,
-            builder: (BuildContext context, AsyncSnapshot<MyFirestoreQuerySnapshot> snapshot) {
-              if (snapshot.connectionState == ConnectionState.active) {
-                messages = snapshot.data?.docs.map((i) {
-                      ChatMessageModel chatMessageModel = ChatMessageModel.fromJson(i.data());
-                      return chatMessageModel;
-                    }).toList() ??
-                    [];
-                ChatMessageModel? lastMessageModel = messages.firstOrNull;
-                lastMessage = lastMessageModel?.Message ?? "";
-                MyPrint.printOnConsole("lastMessage:$lastMessage");
+      child: StreamBuilder<MyFirestoreQuerySnapshot>(
+        stream: _usersStream,
+        builder: (BuildContext context, AsyncSnapshot<MyFirestoreQuerySnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.active) {
+            messages = snapshot.data?.docs.map((i) {
+                  MyPrint.printOnConsole("i.id ${i.id}");
+                  if (i.id == MessageStatusDocument.docId) {
+                    MyPrint.printOnConsole("i.id : ${i.data()}");
+                    messageStatus = i.data();
+                  }
+                  ChatMessageModel chatMessageModel = ChatMessageModel.fromJson(i.data());
+                  return chatMessageModel;
+                }).toList() ??
+                [];
+            ChatMessageModel? lastMessageModel = messages.firstOrNull;
+            lastMessage = lastMessageModel?.Message ?? "";
 
-                /*messages.sort((a, b) {
+            MyPrint.printOnConsole("lastMessage: $chatRoom ${toUserId.toString()} ${messageStatus[toUserId.toString()]}");
+
+            /*messages.sort((a, b) {
                   if (a.SendDatetime != null && b.SendDatetime != null) {
                     return b.SendDatetime!.compareTo(a.SendDatetime!);
                   } else {
@@ -303,16 +306,20 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
                   }
                 });*/
 
-                //Code To Update Last Message in Chat
-                /*if(messages.isNotEmpty && messages.first.date != null && widget.toUser.sendDateTime != null && !(widget.toUser.sendDateTime!.isAtSameMomentAs(messages.first.date!))) {
+            //Code To Update Last Message in Chat
+            /*if(messages.isNotEmpty && messages.first.date != null && widget.toUser.sendDateTime != null && !(widget.toUser.sendDateTime!.isAtSameMomentAs(messages.first.date!))) {
                             Message lastMessage = messages.first;
                             MyPrint.logOnConsole("Last message:${lastMessage.message}");
                             widget.toUser.latestMessage = lastMessage.message;
                           }*/
 
-                //print(messages.map((e) => e.message));
-                return Container(
-                  color: Colors.transparent,
+            //print(messages.map((e) => e.message));
+            return Scaffold(
+              appBar: getAppBar(messageStatus),
+              body: AppUIComponents.getBackGroundBordersRounded(
+                context: context,
+                child: Container(
+                  // color: Colors.transparent,
                   child: Column(
                     children: [
                       Expanded(
@@ -323,29 +330,29 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
                       getMessageTextField(),
                     ],
                   ),
-                );
-              } else if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CommonLoader();
-              } else {
-                return const Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Icon(Icons.warning),
-                    ),
-                    Text('Error in loading data')
-                  ],
-                );
-              }
-            },
-          ),
-        ),
+                ),
+              ),
+            );
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CommonLoader();
+          } else {
+            return const Column(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Icon(Icons.warning),
+                ),
+                Text('Error in loading data')
+              ],
+            );
+          }
+        },
       ),
     );
   }
 
-  AppBar getAppBar() {
-    // MyPrint.printOnConsole("UserName:${chatUser.FullName}, last message:${chatUser.LatestMessage}, ProfPic:${chatUser.ProfPic}, index:${chatUser.hashCode}");
+  AppBar getAppBar(Map<String, dynamic> messageStatus) {
+    MyPrint.printOnConsole("messageStatus[toUserId] $messageStatus $toUserId ${messageStatus[toUserId.toString()]}");
 
     String imageUrl = AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: widget.toUser.ProfPic);
 
@@ -394,7 +401,7 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
               ),
               Row(
                 children: [
-                  if (messageStatus[toUserId] == MessageStatusTypes.typing)
+                  if (messageStatus[toUserId.toString()] == MessageStatusTypes.typing)
                     Text(
                       MessageStatusTypes.typing,
                       style: themeData.textTheme.bodyMedium?.copyWith(

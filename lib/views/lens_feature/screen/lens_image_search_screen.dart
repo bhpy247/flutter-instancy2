@@ -711,38 +711,41 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
   }
 
   Widget getCameraView() {
-    return SizedBox(
-      height: double.maxFinite,
-      child: InkWell(
-        onTap: () {
-          controller.setFocusPoint(null);
-        },
-        child: CameraPreview(
-          controller,
-          child: ValueListenableBuilder<CameraValue>(
-            valueListenable: controller,
-            builder: (BuildContext context, CameraValue cameraValue, Widget? child) {
-              // MyPrint.printOnConsole("CameraValue builder build called");
+    return Container(
+      child: SizedBox(
+        height: double.maxFinite,
+        width: double.infinity,
+        child: InkWell(
+          onTap: () {
+            controller.setFocusPoint(null);
+          },
+          child: CameraPreview(
+            controller,
+            child: ValueListenableBuilder<CameraValue>(
+              valueListenable: controller,
+              builder: (BuildContext context, CameraValue cameraValue, Widget? child) {
+                // MyPrint.printOnConsole("CameraValue builder build called");
 
-              return Stack(
-                children: [
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: LensScreenCaptureControlWidget(
-                      isTakingPicture: cameraValue.isTakingPicture,
-                      onClickImage: cameraValue.isInitialized && !cameraValue.isRecordingVideo && !cameraValue.isTakingPicture ? onTakePictureButtonPressed : null,
-                      onGalleryTap: onGalleryTap,
+                return Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: LensScreenCaptureControlWidget(
+                        isTakingPicture: cameraValue.isTakingPicture,
+                        onClickImage: cameraValue.isInitialized && !cameraValue.isRecordingVideo && !cameraValue.isTakingPicture ? onTakePictureButtonPressed : null,
+                        onGalleryTap: onGalleryTap,
+                      ),
                     ),
-                  ),
-                  LensScreenFlashCloseButton(
-                    isFlashOn: cameraValue.flashMode == FlashMode.torch,
-                    onFlashTap: () {
-                      onSetFlashModeButtonPressed(context: context, mode: cameraValue.flashMode == FlashMode.torch ? FlashMode.off : FlashMode.torch);
-                    },
-                  ),
-                ],
-              );
-            },
+                    LensScreenFlashCloseButton(
+                      isFlashOn: cameraValue.flashMode == FlashMode.torch,
+                      onFlashTap: () {
+                        onSetFlashModeButtonPressed(context: context, mode: cameraValue.flashMode == FlashMode.torch ? FlashMode.off : FlashMode.torch);
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),

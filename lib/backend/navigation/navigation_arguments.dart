@@ -425,12 +425,16 @@ class UserProfileScreenNavigationArguments extends NavigationArguments {
   final ProfileProvider? profileProvider;
   final bool isFromProfile, isMyProfile;
   final int userId;
+  final int componentId;
+  final int componentInstanceId;
 
   const UserProfileScreenNavigationArguments({
     required this.profileProvider,
     this.isFromProfile = false,
     this.isMyProfile = false,
     required this.userId,
+    this.componentId = -1,
+    this.componentInstanceId = -1,
   });
 }
 

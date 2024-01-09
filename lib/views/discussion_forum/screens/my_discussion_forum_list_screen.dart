@@ -43,6 +43,7 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
   int componentId = 0, componentInstanceId = 0;
   bool isLoading = false;
   bool isShowAddForumFloatingButton = false;
+  TextEditingController searchController = TextEditingController();
 
   late DiscussionProvider discussionProvider;
   late DiscussionController discussionController;
@@ -272,7 +273,7 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
     appProvider = context.read<AppProvider>();
     discussionProvider = context.read<DiscussionProvider>();
     discussionController = DiscussionController(discussionProvider: discussionProvider);
-
+    searchController.text = discussionProvider.myDiscussionForumListSearchString.get();
     initializations();
     // if (discussionProvider.forumsListLength == 0) {
     //   getDiscussionForumList(
@@ -302,7 +303,7 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
                     bottom: mainScreenProvider.isChatBotButtonEnabled.get() && !mainScreenProvider.isChatBotButtonCenterDocked.get() ? 70 : 0,
                   ),
                   child: FloatingActionButton(
-                    shape: CircleBorder(),
+                    shape: const CircleBorder(),
                     child: const Icon(Icons.add),
                     onPressed: () async {
                       dynamic value = await NavigationController.navigateToCreateEditDiscussionForumScreen(
@@ -352,12 +353,45 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
       child: CommonTextFormField(
         isOutlineInputBorder: true,
         borderRadius: 30,
+        onChanged: (val) {
+          mySetState();
+        },
         contentPadding: EdgeInsets.zero,
         hintText: "Search",
-        suffixWidget: getCategoriesFilterIcon(provider: discussionProvider),
-        prefixWidget: Icon(Icons.search),
+        controller: searchController,
+        suffixWidget: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (searchController.text.checkNotEmpty)
+              InkWell(
+                onTap: () {
+                  searchController.clear();
+                  discussionProvider.myDiscussionForumListSearchString.set(value: "");
+                  getDiscussionForumList(
+                    isRefresh: true,
+                    isGetFromCache: false,
+                    isNotify: true,
+                  );
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(5.0),
+                  child: Icon(
+                    Icons.clear,
+                  ),
+                ),
+              ),
+            const SizedBox(
+              width: 10,
+            ),
+            getCategoriesFilterIcon(provider: discussionProvider),
+            const SizedBox(
+              width: 10,
+            ),
+          ],
+        ),
+        prefixWidget: const Icon(Icons.search),
         onSubmitted: (String? val) {
-          discussionProvider.forumListSearchString.set(value: val ?? "");
+          discussionProvider.myDiscussionForumListSearchString.set(value: val ?? "");
           getDiscussionForumList(
             isRefresh: true,
             isGetFromCache: false,

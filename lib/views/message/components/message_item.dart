@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart' as flutter_inappwebview;
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -49,6 +50,7 @@ class _MessageItemWidgetState extends State<MessageItemWidget> {
   @override
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
+    if (message.Message.checkEmpty) return SizedBox();
     // deviceData = MediaQuery.of(context).size;
     MyPrint.printOnConsole("fromUserId:${message.FromUserID}, toUser.userID:${message.ToUserID}");
     bool isMessageReceived = message.ToUserID == widget.currentUserId;
@@ -60,7 +62,6 @@ class _MessageItemWidgetState extends State<MessageItemWidget> {
     }
 
     // double radius = 0.045;
-
     return Container(
       margin: const EdgeInsets.only(
         top: 10,

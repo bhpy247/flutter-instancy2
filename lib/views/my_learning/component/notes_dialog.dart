@@ -59,11 +59,9 @@ class _NotesDialogState extends State<NotesDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                child: const Text(
-                  "Notes",
-                  style: TextStyle(fontSize: 20),
-                ),
+              const Text(
+                "Notes",
+                style: TextStyle(fontSize: 20),
               ),
               const SizedBox(
                 height: 10,
@@ -80,6 +78,7 @@ class _NotesDialogState extends State<NotesDialog> {
               CommonButton(
                 onPressed: () async {
                   await widget.myLearningController?.savePageNote(contentID: widget.contentId, text: notesController.text.trim());
+                  notesController.clear();
                   getNotes = getNotesData();
                   setState(() {});
                 },
@@ -97,6 +96,7 @@ class _NotesDialogState extends State<NotesDialog> {
                     if (snapshot.connectionState == ConnectionState.done) {
                       return ListView.builder(
                           shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
                           itemCount: pageNotesResponseModel?.userNotes.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Container(

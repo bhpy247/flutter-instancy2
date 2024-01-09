@@ -14,6 +14,7 @@ import 'package:flutter_instancy_2/models/profile/data_model/data_field_model.da
 import 'package:flutter_instancy_2/models/profile/data_model/education_title_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/profile_group_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_profile_header_dto_model.dart';
+import 'package:flutter_instancy_2/models/profile/request_model/update_profile_request_model.dart';
 import 'package:flutter_instancy_2/models/profile/request_model/user_profile_header_data_request_model.dart';
 import 'package:flutter_instancy_2/models/profile/response_model/education_title_response_model.dart';
 import 'package:flutter_instancy_2/models/profile/response_model/profile_response_model.dart';
@@ -27,6 +28,7 @@ import '../../models/authentication/response_model/country_response_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/profile/data_model/user_privilege_model.dart';
 import '../../models/profile/data_model/user_profile_details_model.dart';
+import '../../models/profile/response_model/sign_up_response_model.dart';
 import '../../utils/my_print.dart';
 import '../../utils/my_utils.dart';
 import '../../views/profile/component/confirm_remove_education_by_user_dialog.dart';
@@ -183,27 +185,31 @@ class ProfileController {
 
   //endregion
 
-  Future<bool> updateProfileDetails(List<DataFieldModel> list) async {
+  Future<bool> updateProfileDetails(List<DataFieldModel> list, {required int componentId, required int componentInsId}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("ProfileController().updateProfileDetails() called with list:$list", tag: tag);
 
     bool isSuccess = false;
 
     try {
-      String requestValue = "";
-
+      Map<String, String> dataFieldMap = {};
       for (DataFieldModel dataFieldModel in list) {
-        String fieldValue = ''' '${dataFieldModel.valueName}' ''';
-
-        requestValue = '$requestValue${dataFieldModel.datafieldname.toLowerCase()}=${fieldValue.trim()},';
-
-        MyPrint.printOnConsole('fieldValue  $fieldValue, Profile Val:$requestValue', tag: tag);
+        dataFieldMap[dataFieldModel.datafieldname] = dataFieldModel.valueName;
+        // String fieldValue = ''' '${dataFieldModel.valueName}' ''';
+        //
+        // requestValue = '$requestValue${dataFieldModel.datafieldname.toLowerCase()}=${fieldValue.trim()},';
       }
+      MyPrint.printOnConsole('dataFieldMap  $dataFieldMap', tag: tag);
 
-      DataResponseModel<String> responseModel = await profileRepository.updateProfileInfo(
-        userID: profileRepository.apiController.apiDataProvider.getCurrentUserId().toString(),
-        requestValue: requestValue,
+      UpdateProfileRequestModel updateProfileRequestModel = UpdateProfileRequestModel(
+        strProfileJSON: MyUtils.encodeJson(dataFieldMap),
+        isnativeapp: true,
+        type: "profile",
+        intCompID: componentId,
+        intCompInsID: componentInsId,
       );
+
+      DataResponseModel<SignUpResponseModel> responseModel = await profileRepository.updateProfileInfo(updateProfileRequestModel: updateProfileRequestModel);
       MyPrint.printOnConsole("updatePersonalInfo responseModel:$responseModel", tag: tag);
 
       if (responseModel.appErrorModel != null) {
@@ -211,7 +217,7 @@ class ProfileController {
         return isSuccess;
       }
 
-      isSuccess = responseModel.data == "success";
+      isSuccess = responseModel.data?.Response?.Message == "success";
 
       if (isSuccess) {
         GamificationController(provider: NavigationController.mainNavigatorKey.currentContext?.read<GamificationProvider>())

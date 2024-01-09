@@ -802,6 +802,10 @@ class MessageStatusTypes {
   static const String online = "Online";
 }
 
+class MessageStatusDocument {
+  static const String docId = "messageStatus";
+}
+
 class MembershipRenewType {
   static const String auto = "auto";
 }

@@ -668,6 +668,7 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
   Widget getCameraView() {
     return SizedBox(
       height: double.maxFinite,
+      width: double.infinity,
       child: InkWell(
         onTap: () {
           controller.setFocusPoint(null);

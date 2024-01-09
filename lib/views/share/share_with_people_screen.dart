@@ -79,9 +79,10 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
               "YouTube site! \n\n"
               "Link: $contentLink";
           String linkContent = "<a href = $contentLink> ${widget.arguments.contentName} </a>";
+
           messageToSendInTheApi = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
-              "YouTube site! \n\nContent Name: $linkContent. \n\n "
-              "Content Link: $contentLink";
+              "YouTube site! \n\n"
+              "Link: $contentLink";
           break;
         }
       case ShareContentType.discussionTopic:
@@ -92,8 +93,8 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
               "Link: $contentLink";
           String linkContent = "<a href = $contentLink> ${widget.arguments.contentName} </a>";
           messageToSendInTheApi = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
-              "YouTube site! \n\nContent Name: $linkContent. \n\n "
-              "Content Link: $contentLink";
+              "YouTube site!"
+              "Link:$contentLink";
           break;
         }
       case ShareContentType.askTheExpertQuestion:

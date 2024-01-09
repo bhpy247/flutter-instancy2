@@ -129,7 +129,7 @@ class ApiEndpoints {
 
   String apiSaveProfile() => '${getBaseApiUrl()}UserProfile/SaveprofileData';
 
-  String apiUpdatePersonalDetailsInProfile() => '${getBaseApiUrl()}/MobileLMS/MobileUpdateUserProfile';
+  String apiUpdatePersonalDetailsInProfile() => '${getBaseApiUrl()}UserProfile/SaveprofileData';
 
   String createExperience() => '${getBaseApiUrl()}/MobileLMS/AddExperiencedata';
 

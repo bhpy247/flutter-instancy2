@@ -91,7 +91,7 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> w
       title: Text(
         widget.arguments.courseName.isNotEmpty ? widget.arguments.courseName : "Course",
       ),
-      /*actions: [
+      actions: [
         if (courseUrl.isNotEmpty && webViewController != null)
           IconButton(
             onPressed: () {
@@ -103,7 +103,7 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> w
             },
             icon: const Icon(Icons.refresh),
           ),
-      ],*/
+      ],
     );
   }
 
@@ -146,6 +146,11 @@ class _CourseLaunchWebViewScreenState extends State<CourseLaunchWebViewScreen> w
       },
       onLoadStart: (InAppWebViewController webViewController, WebUri? webUri) {
         MyPrint.printOnConsole("onLoadStart called with webViewController:$webViewController, webUri:$webUri");
+
+        String url = webUri?.path.toLowerCase() ?? "";
+        if (url.isNotEmpty && (url.contains("coursetracking/savecontenttrackeddata1") || url.contains("blank.html?ioscourseclose=true"))) {
+          if (context.mounted) Navigator.of(context).pop(true);
+        }
         // this.webViewController = webViewController;
       },
       onProgressChanged: (InAppWebViewController webViewController, int progress) {

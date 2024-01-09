@@ -276,17 +276,21 @@ class _CreateEditDiscussionForumScreenState extends State<CreateEditDiscussionFo
       UserName: name,
       UserThumb: imageUrl,
     );
-    if (selectedModerator.checkEmpty) {
+
+    if (!widget.arguments.isEdit) {
       selectedModerator.add(forumUserInfoModel);
     }
-    if (selectedModerator.checkNotEmpty) {
-      List<ForumUserInfoModel> list = selectedModerator.toList();
-      for (var element in list) {
-        if (element.UserID != userId) {
-          selectedModerator.add(forumUserInfoModel);
-        }
-      }
-    }
+    // if (selectedModerator.checkEmpty) {
+    //   selectedModerator.add(forumUserInfoModel);
+    // }
+    // if (selectedModerator.checkNotEmpty) {
+    //   List<ForumUserInfoModel> list = selectedModerator.toList();
+    //   for (var element in list) {
+    //     if (element.UserID != userId) {
+    //       selectedModerator.add(forumUserInfoModel);
+    //     }
+    //   }
+    // }
     MyPrint.printOnConsole("forumUserInfoModel : ${forumUserInfoModel.toJson()}");
   }
 

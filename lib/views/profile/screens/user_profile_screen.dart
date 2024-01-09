@@ -485,7 +485,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
           successfulUserLoginModel.username = userName;
         }
         authenticationProvider.setEmailLoginResponseModel(emailLoginResponseModel: successfulUserLoginModel);
-        bool isUpdated = await profileController.updateProfileDetails(list);
+        bool isUpdated = await profileController.updateProfileDetails(
+          list,
+          componentId: widget.arguments.componentId,
+          componentInsId: widget.arguments.componentInstanceId,
+        );
 
         isLoading = false;
         if (isUpdated) {
@@ -518,7 +522,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
         isLoading = true;
         mySetState();
 
-        bool isUpdated = await profileController.updateProfileDetails(list);
+        bool isUpdated = await profileController.updateProfileDetails(list, componentId: widget.arguments.componentId, componentInsId: widget.arguments.componentInstanceId);
 
         isLoading = false;
         if (isUpdated) {

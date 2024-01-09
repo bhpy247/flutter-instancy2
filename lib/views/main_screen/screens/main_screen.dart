@@ -444,10 +444,11 @@ class _MainScreenState extends State<MainScreen> {
       return UserProfileScreen(
         arguments: UserProfileScreenNavigationArguments(
           userId: ApiController().apiDataProvider.getCurrentUserId(),
-          profileProvider: profileProvider,
-          isFromProfile: true,
-          isMyProfile: true,
-        ),
+            profileProvider: profileProvider,
+            isFromProfile: true,
+            isMyProfile: true,
+            componentId: model.componentid,
+            componentInstanceId: model.repositoryid),
       );
     } else if (model.componentid == InstancyComponents.MyLearning) {
       if (isExpanded) {

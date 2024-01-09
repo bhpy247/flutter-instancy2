@@ -22,6 +22,7 @@ import '../../models/common/data_response_model.dart';
 import '../../models/common/model_data_parser.dart';
 import '../../models/profile/data_model/user_profile_header_dto_model.dart';
 import '../../models/profile/request_model/remove_education_request_model.dart';
+import '../../models/profile/request_model/update_profile_request_model.dart';
 import '../../models/profile/request_model/user_profile_header_data_request_model.dart';
 import '../../utils/my_print.dart';
 
@@ -56,10 +57,10 @@ class ProfileRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<String>> updateProfileInfo({required String userID, required String requestValue}) async {
-    MyPrint.printOnConsole('ProfileRepository().updateProfileInfo() called with userID:$userID, requestValue:$requestValue');
+  Future<DataResponseModel<SignUpResponseModel>> updateProfileInfo({required UpdateProfileRequestModel updateProfileRequestModel}) async {
+    MyPrint.printOnConsole('ProfileRepository().updateProfileInfo() called with userID:${updateProfileRequestModel.userId}, requestValue:${updateProfileRequestModel.strProfileJSON}');
 
-    if(userID.isEmpty) {
+    if (updateProfileRequestModel.userId == 0) {
       return DataResponseModel(
         appErrorModel: AppErrorModel(
           message: "User ID is empty",
@@ -73,27 +74,62 @@ class ProfileRepository {
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
 
-    String data = '''\"UserGroupIDs\":\"\",\"RoleIDs\":\"\",\"Cmd\":\"$requestValue\",\"CMGroupIDs\":\"\"''';
-    String replaceDataString = data.replaceAll("\"", "\\\"");
-    data = '''"{$replaceDataString}"''';
+    updateProfileRequestModel.userId = apiUrlConfigurationProvider.getCurrentUserId();
+    updateProfileRequestModel.siteId = apiUrlConfigurationProvider.getCurrentSiteId();
+    updateProfileRequestModel.localeId = apiUrlConfigurationProvider.getLocale();
 
-    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
-      restCallType: RestCallType.simplePostCall,
-      parsingType: ModelDataParsingType.string,
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<Map<String, String>>(
+      restCallType: RestCallType.xxxUrlEncodedFormDataRequestCall,
+      parsingType: ModelDataParsingType.SignUpResponseModel,
       url: apiEndpoints.apiUpdatePersonalDetailsInProfile(),
-      queryParameters: {
-        "studId" : userID,
-        "SiteURL" : apiUrlConfigurationProvider.getCurrentSiteUrl(),
-      },
-      requestBody: data,
+      requestBody: updateProfileRequestModel.toJson(),
     );
 
-    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
+    DataResponseModel<SignUpResponseModel> apiResponseModel = await apiController.callApi<SignUpResponseModel>(
       apiCallModel: apiCallModel,
     );
 
     return apiResponseModel;
   }
+
+  // Future<DataResponseModel<String>> updateProfileInfo({required String userID, required String requestValue}) async {
+  //   MyPrint.printOnConsole('ProfileRepository().updateProfileInfo() called with userID:$userID, requestValue:$requestValue');
+  //
+  //   if(userID.isEmpty) {
+  //     return DataResponseModel(
+  //       appErrorModel: AppErrorModel(
+  //         message: "User ID is empty",
+  //       ),
+  //     );
+  //   }
+  //
+  //   ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+  //
+  //   MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+  //
+  //   ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+  //
+  //   String data = '''\"UserGroupIDs\":\"\",\"RoleIDs\":\"\",\"Cmd\":\"$requestValue\",\"CMGroupIDs\":\"\"''';
+  //   String replaceDataString = data.replaceAll("\"", "\\\"");
+  //   data = '''"{$replaceDataString}"''';
+  //
+  //   ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+  //     restCallType: RestCallType.simplePostCall,
+  //     parsingType: ModelDataParsingType.string,
+  //     url: apiEndpoints.apiUpdatePersonalDetailsInProfile(),
+  //     queryParameters: {
+  //       "studId" : userID,
+  //       "SiteURL" : apiUrlConfigurationProvider.getCurrentSiteUrl(),
+  //     },
+  //     requestBody: data,
+  //   );
+  //
+  //   DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
+  //     apiCallModel: apiCallModel,
+  //   );
+  //
+  //   return apiResponseModel;
+  // }
 
   Future<DataResponseModel<CountryResponseModel>> getMultipleChoicesListForProfileEdit() async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
@@ -107,9 +143,9 @@ class ProfileRepository {
       parsingType: ModelDataParsingType.countryResponseModel,
       url: apiEndpoints.getUserDetails(),
       queryParameters: {
-        "UserID" : apiUrlConfigurationProvider.getCurrentUserId().toString(),
-        "siteURL" : apiUrlConfigurationProvider.getCurrentSiteUrl(),
-        "strlocaleId" : apiUrlConfigurationProvider.getLocale(),
+        "UserID": apiUrlConfigurationProvider.getCurrentUserId().toString(),
+        "siteURL": apiUrlConfigurationProvider.getCurrentSiteUrl(),
+        "strlocaleId": apiUrlConfigurationProvider.getLocale(),
       },
     );
 
@@ -293,10 +329,10 @@ class ProfileRepository {
 
     String base64String = await compute<Uint8List, String>((Uint8List bytes) {
       return base64Encode(bytes);
-    }, bytes).then((String value) {
+    }, bytes)
+        .then((String value) {
       return value;
-    })
-    .catchError((e, s) {
+    }).catchError((e, s) {
       MyPrint.printOnConsole("Error in Encoding Bytes to String:$e");
       MyPrint.printOnConsole(s);
       return "";
@@ -310,9 +346,9 @@ class ProfileRepository {
       parsingType: ModelDataParsingType.bool,
       url: apiEndpoints.uploadProfileImage(),
       queryParameters: {
-        "fileName" : fileName,
-        "siteURL" : apiUrlConfigurationProvider.getCurrentSiteUrl(),
-        "UserID" : apiUrlConfigurationProvider.getCurrentUserId().toString(),
+        "fileName": fileName,
+        "siteURL": apiUrlConfigurationProvider.getCurrentSiteUrl(),
+        "UserID": apiUrlConfigurationProvider.getCurrentUserId().toString(),
       },
       requestBody: addQuotes,
     );

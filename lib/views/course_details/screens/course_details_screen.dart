@@ -577,10 +577,6 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
               onContentLaunchTap(model: model);
             },
-      onViewResourcesTap: () {
-        if (isSecondaryAction) Navigator.pop(context);
-        //TODO: Implement onViewResourcesTap
-      },
       onRescheduleTap: () {
         if (isSecondaryAction) Navigator.pop(context);
         //TODO: Implement onRescheduleTap
@@ -674,6 +670,55 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
           ),
         );
       },
+      onViewSessionsTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+        NavigationController.navigateToEventTrackScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: EventTrackScreenArguments(
+            objectTypeId: model.ContentTypeId,
+            eventTrackTabType: EventTrackTabs.session,
+            isRelatedContent: (model.RelatedContentLink.isNotEmpty || model.IsRelatedcontent.toLowerCase() == 'true') ? true : false,
+            parentContentId: model.ContentID,
+            componentId: componentId,
+            scoId: model.ScoID,
+            componentInstanceId: componentInstanceId,
+            isContentEnrolled: model.isCourseEnrolled(),
+          ),
+        );
+
+        // if (value == true) {
+        //   refreshMyLearningData();
+        // }
+      },
+      onViewResourcesTap: primaryAction == InstancyContentActionsEnum.ViewResources
+          ? null
+          : () async {
+              if (isSecondaryAction) Navigator.pop(context);
+
+              dynamic value = await NavigationController.navigateToEventTrackScreen(
+                navigationOperationParameters: NavigationOperationParameters(
+                  context: context,
+                  navigationType: NavigationType.pushNamed,
+                ),
+                arguments: EventTrackScreenArguments(
+                  eventTrackTabType: model.ContentTypeId == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
+                  objectTypeId: model.ContentTypeId,
+                  isRelatedContent: true,
+                  parentContentId: model.ContentID,
+                  componentId: componentId,
+                  scoId: model.ScoID,
+                  componentInstanceId: componentInstanceId,
+                  isContentEnrolled: model.isCourseEnrolled(),
+                ),
+              );
+
+              if (value == true) {
+                getContentDetailsData();
+              }
+            },
     );
   }
 

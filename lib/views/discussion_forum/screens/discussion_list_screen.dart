@@ -44,6 +44,7 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
   int componentId = 0, componentInstanceId = 0;
   bool isLoading = false;
   bool isShowAddForumFloatingButton = false;
+  TextEditingController textEditingController = TextEditingController();
 
   late DiscussionProvider discussionProvider;
   late DiscussionController discussionController;
@@ -268,7 +269,9 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
     super.initState();
     appProvider = context.read<AppProvider>();
     discussionProvider = context.read<DiscussionProvider>();
+
     initializations();
+    textEditingController.text = discussionProvider.forumListSearchString.get();
     // if (discussionProvider.forumsListLength == 0) {
     //   getDiscussionForumList(
     //     isRefresh: true,
@@ -353,14 +356,46 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
       child: CommonTextFormField(
         isOutlineInputBorder: true,
         borderRadius: 30,
+        onChanged: (val) {
+          mySetState();
+        },
+        controller: textEditingController,
         contentPadding: EdgeInsets.zero,
         hintText: "Search",
-        suffixWidget: getCategoriesFilterIcon(provider: discussionProvider),
+        suffixWidget: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (textEditingController.text.checkNotEmpty)
+              InkWell(
+                onTap: () {
+                  textEditingController.clear();
+                  discussionProvider.forumListSearchString.set(value: "");
+                  getDiscussionForumList(
+                    isRefresh: true,
+                    isGetFromCache: false,
+                    isNotify: true,
+                  );
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(5.0),
+                  child: Icon(
+                    Icons.clear,
+                  ),
+                ),
+              ),
+            const SizedBox(
+              width: 10,
+            ),
+            getCategoriesFilterIcon(provider: discussionProvider),
+            const SizedBox(
+              width: 10,
+            ),
+          ],
+        ),
         prefixWidget: const Icon(Icons.search),
         onSubmitted: (String? val) {
           discussionProvider.forumListSearchString.set(value: val ?? "");
-          discussionController.getForumsList(
-            isRefresh: true, isGetFromCache: false, isNotify: false, componentId: componentId, componentInstanceId: componentInstanceId);
+          discussionController.getForumsList(isRefresh: true, isGetFromCache: false, isNotify: false, componentId: componentId, componentInstanceId: componentInstanceId);
           mySetState();
         },
       ),
