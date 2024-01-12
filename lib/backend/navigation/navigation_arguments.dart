@@ -493,10 +493,18 @@ class SurfaceTrackingKeywordSearchScreenNavigationArguments extends NavigationAr
 }
 
 class ReEnrollmentHistoryScreenNavigationArguments extends NavigationArguments {
-  final CourseDTOModel? model;
+  final String parentEventId;
+  final String instanceEventId;
+  final String ThumbnailImagePath;
+  final String ContentName;
+  final String AuthorDisplayName;
 
   const ReEnrollmentHistoryScreenNavigationArguments({
-    required this.model,
+    required this.parentEventId,
+    required this.instanceEventId,
+    required this.ThumbnailImagePath,
+    required this.ContentName,
+    required this.AuthorDisplayName,
   });
 }
 
