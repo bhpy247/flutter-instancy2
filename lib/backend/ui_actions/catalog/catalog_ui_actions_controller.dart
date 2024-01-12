@@ -52,6 +52,7 @@ class CatalogUIActionsController {
       InstancyContentActionsEnum.Share: showShare,
       InstancyContentActionsEnum.Download: showDownload,
       InstancyContentActionsEnum.ReEnroll: showReEnroll,
+      InstancyContentActionsEnum.ReEnrollmentHistory: showReEnrollmentHistory,
     };
   }
 
@@ -587,23 +588,22 @@ class CatalogUIActionsController {
       } else if (action == InstancyContentActionsEnum.ReEnrollmentHistory) {
         if (isShowAction(actionType: InstancyContentActionsEnum.ReEnrollmentHistory, parameterModel: parameterModel) && catalogUIActionCallbackModel.onReEnrollmentHistoryTap != null) {
           model = InstancyUIActionModel(
-            text: localStr.mylearningActionbuttonRescheduleactionbutton,
+            text: localStr.eventsActionSheetReEnrollmentHistoryOption,
             iconData: InstancyIcons.ReEnrollmentHistory,
             onTap: catalogUIActionCallbackModel.onReEnrollmentHistoryTap,
             actionsEnum: InstancyContentActionsEnum.ReEnrollmentHistory,
           );
         }
-      } else if(action == InstancyContentActionsEnum.RecommendTo) {
+      } else if (action == InstancyContentActionsEnum.RecommendTo) {
         if (isShowAction(actionType: InstancyContentActionsEnum.RecommendTo, parameterModel: parameterModel) && catalogUIActionCallbackModel.onRecommendToTap != null) {
           model = InstancyUIActionModel(
             text: "Recommend To",
-            iconData:FontAwesomeIcons.share,
+            iconData: FontAwesomeIcons.share,
             onTap: catalogUIActionCallbackModel.onRecommendToTap,
             actionsEnum: InstancyContentActionsEnum.RecommendTo,
           );
         }
-      }
-      else if(action == InstancyContentActionsEnum.ShareToConnections) {
+      } else if (action == InstancyContentActionsEnum.ShareToConnections) {
         if (isShowAction(actionType: InstancyContentActionsEnum.ShareToConnections, parameterModel: parameterModel) && catalogUIActionCallbackModel.onShareWithConnectionTap != null) {
           model = InstancyUIActionModel(
             text: "Share with Connection",

@@ -98,13 +98,13 @@ class EventRepository {
   }) async {
     MyPrint.printOnConsole('EventRepository().getReEnrollmentHistory() called with contentID:$eventId');
 
-    if (eventId.isEmpty) {
+    /*if (eventId.isEmpty) {
       return DataResponseModel(
         appErrorModel: AppErrorModel(
           message: "Event ID is empty",
         ),
       );
-    }
+    }*/
 
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
