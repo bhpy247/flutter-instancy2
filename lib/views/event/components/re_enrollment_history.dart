@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/event/event_controller.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
-import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/event/response_model/re_entrollment_history_response_model.dart';
 import 'package:provider/provider.dart';
 
@@ -10,7 +9,6 @@ import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../backend/navigation/navigation_arguments.dart';
 import '../../../configs/app_configurations.dart';
 import '../../../utils/date_representation.dart';
-import '../../../utils/my_print.dart';
 import '../../../utils/my_utils.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_cached_network_image.dart';
@@ -38,21 +36,12 @@ class _ReEnrollmentHistoryState extends State<ReEnrollmentHistory> {
 
   ReEnrollmentHistoryResponseModel? responseModel;
 
-  CourseDTOModel? model;
-
   Future<void> getFutureData() async {
-    CourseDTOModel? model = widget.arguments.model;
-    if (model != null) {
-      String eventId, instanceId = model.ContentID;
-      String reEnrollmentHistoryLink = model.ReEnrollmentHistory;
-
-      eventId = reEnrollmentHistoryLink.split("/EventID/").last.split("/").first;
-
-      MyPrint.printOnConsole("Event Id: $eventId, ReEnrollment Link : $reEnrollmentHistoryLink, instance Id: $instanceId, ReEnrollment History");
-
-      // if (widget.arguments.model.)
-      responseModel = await eventController.getReEnrollmentHistory(context: context, eventId: eventId, instanceId: instanceId);
-    }
+    responseModel = await eventController.getReEnrollmentHistory(
+      context: context,
+      eventId: widget.arguments.parentEventId,
+      instanceId: widget.arguments.instanceEventId,
+    );
   }
 
   @override
@@ -60,7 +49,6 @@ class _ReEnrollmentHistoryState extends State<ReEnrollmentHistory> {
     super.initState();
     eventProvider = context.read<EventProvider>();
     eventController = EventController(eventProvider: eventProvider);
-    model = widget.arguments.model;
     getFuture = getFutureData();
   }
 
@@ -153,10 +141,8 @@ class _ReEnrollmentHistoryState extends State<ReEnrollmentHistory> {
   }
 
   Widget getBody() {
-    return Container(
-      child: Column(
-        children: [getHeaderData(), Expanded(child: getHistoryList())],
-      ),
+    return Column(
+      children: [getHeaderData(), Expanded(child: getHistoryList())],
     );
   }
 
@@ -167,7 +153,7 @@ class _ReEnrollmentHistoryState extends State<ReEnrollmentHistory> {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            imageWidget(url: model?.ThumbnailImagePath ?? " ", context: context),
+            imageWidget(url: widget.arguments.ThumbnailImagePath, context: context),
             const SizedBox(
               width: 5,
             ),
@@ -176,16 +162,16 @@ class _ReEnrollmentHistoryState extends State<ReEnrollmentHistory> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    model?.ContentName ?? "",
+                    responseModel?.name ?? widget.arguments.ContentName,
                     style: themeData.textTheme.titleSmall?.copyWith(color: const Color(0xff1D293F), fontSize: 14, fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    "By ${model?.AuthorDisplayName ?? " "}",
-                    style: themeData.textTheme.titleSmall?.copyWith(color: const Color(0xff1D293F).withOpacity(.6), fontSize: 14, fontWeight: FontWeight.w400),
-                  ),
+                  if (widget.arguments.AuthorDisplayName.isNotEmpty) ...[
+                    const SizedBox(height: 5),
+                    Text(
+                      "By ${widget.arguments.AuthorDisplayName}",
+                      style: themeData.textTheme.titleSmall?.copyWith(color: const Color(0xff1D293F).withOpacity(.6), fontSize: 14, fontWeight: FontWeight.w400),
+                    ),
+                  ],
                 ],
               ),
             )
@@ -234,8 +220,13 @@ class _ReEnrollmentHistoryState extends State<ReEnrollmentHistory> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(3),
         color: Colors.white,
-        boxShadow: [
-          const BoxShadow(color: Colors.black12, offset: Offset(1, 1), blurRadius: 2, spreadRadius: 2),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            offset: Offset(1, 1),
+            blurRadius: 2,
+            spreadRadius: 2,
+          ),
         ],
       ),
       padding: const EdgeInsets.all(13),
