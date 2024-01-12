@@ -199,6 +199,11 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
 
               onDetailsTap(model: model);
             },
+      onReEnrollTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        onDetailsTap(model: model, isReEnroll: true);
+      },
       onArchiveTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 
@@ -713,19 +718,19 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
     }
   }
 
-  Future<void> onDetailsTap({required CourseDTOModel model}) async {
+  Future<void> onDetailsTap({required CourseDTOModel model, bool isReEnroll = false}) async {
     dynamic value = await NavigationController.navigateToCourseDetailScreen(
       navigationOperationParameters: NavigationOperationParameters(
         context: context,
         navigationType: NavigationType.pushNamed,
       ),
       arguments: CourseDetailScreenNavigationArguments(
-        contentId: model.ContentID,
-        componentId: componentId,
-        componentInstanceId: componentInstanceId,
-        userId: model.SiteUserID,
-        screenType: InstancyContentScreenType.MyLearning,
-      ),
+          contentId: isReEnroll ? model.InstanceParentContentID : model.ContentID,
+          componentId: isReEnroll ? InstancyComponents.Catalog : componentId,
+          componentInstanceId: componentInstanceId,
+          userId: model.SiteUserID,
+          screenType: InstancyContentScreenType.MyLearning,
+          isReEnroll: isReEnroll),
     );
     MyPrint.printOnConsole("CourseDetailScreen return value:$value");
 

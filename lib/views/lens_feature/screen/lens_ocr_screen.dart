@@ -762,11 +762,17 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
 
   Widget getClickedImageWidget() {
     return (kIsWeb
-        ? Image.network(imageFile!.path)
+        ? Image.network(
+            imageFile!.path,
+            fit: BoxFit.cover,
+            height: MediaQuery.of(context).size.height,
+            width: double.infinity,
+          )
         : Image.file(
             File(imageFile!.path),
             fit: BoxFit.cover,
             height: MediaQuery.of(context).size.height,
+            width: double.infinity,
           ));
   }
 

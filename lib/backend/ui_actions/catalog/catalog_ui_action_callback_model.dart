@@ -12,6 +12,7 @@ class CatalogUIActionCallbackModel {
   void Function()? onAddToWaitListTap;
   void Function()? onCancelEnrollmentTap;
   void Function()? onRescheduleTap;
+  void Function()? onReEnrollTap;
   void Function()? onReEnrollmentHistoryTap;
   void Function()? onViewResources;
   void Function()? onRecommendToTap;
@@ -35,6 +36,7 @@ class CatalogUIActionCallbackModel {
     this.onAddToWaitListTap,
     this.onCancelEnrollmentTap,
     this.onRescheduleTap,
+    this.onReEnrollTap,
     this.onReEnrollmentHistoryTap,
     this.onViewResources,
     this.onRecommendToTap,

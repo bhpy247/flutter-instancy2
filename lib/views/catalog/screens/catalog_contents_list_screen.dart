@@ -230,6 +230,11 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
 
         await onDetailsTap(model: model);
       },
+      onReEnrollTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        await onDetailsTap(model: model);
+      },
       onIAmInterestedTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
         isLoading = true;
@@ -367,10 +372,16 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
 
         //TODO: Implement onRescheduleTap
       },
-      onReEnrollmentHistoryTap: () {
+      onReEnrollmentHistoryTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 
-        //TODO: Implement onViewResources
+        await NavigationController.navigateToReEnrollmentHistoryScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: ReEnrollmentHistoryScreenNavigationArguments(model: model),
+        );
       },
       onRecommendToTap: () {
         if (isSecondaryAction) Navigator.pop(context);

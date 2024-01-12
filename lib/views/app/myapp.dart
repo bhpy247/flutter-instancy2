@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/backend/app_theme/app_theme_controller.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/download/flutter_download_controller.dart';
+import 'package:flutter_instancy_2/backend/feedback/feedback_provider.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
@@ -80,6 +81,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<DiscussionProvider>(create: (_) => DiscussionProvider()),
         ChangeNotifierProvider<GamificationProvider>(create: (_) => GamificationProvider()),
         ChangeNotifierProvider<CourseDownloadProvider>(create: (_) => CourseDownloadProvider()),
+        ChangeNotifierProvider<FeedbackProvider>(create: (_) => FeedbackProvider()),
       ],
       child: const MainApp(),
     );

@@ -106,11 +106,11 @@ class EventCatalogUIActionsController {
 
   bool showReEnroll({required EventCatalogUIActionParameterModel parameterModel}) {
     // (course.InstanceEventReSchedule != undefined && course.InstanceEventReSchedule != null) && course.InstanceEventReSchedule.length>0
-    // if (parameterModel.InstanceEventReSchedule.isNotEmpty) {
-    //   return true;
-    // }
+    if (parameterModel.InstanceEventReclass.isNotEmpty) {
+      return true;
+    }
 
-    return true;
+    return false;
   }
 
   bool showReEnrollmentHistory({required EventCatalogUIActionParameterModel parameterModel}) {
@@ -416,6 +416,7 @@ class EventCatalogUIActionsController {
       cancelEventLink: model.CancelEventlink,
       eventenddatetime: model.EventEndDateTime,
       InstanceEventReSchedule: model.InstanceEventReSchedule,
+      InstanceEventReclass: model.InstanceEventReclass,
       ReEnrollmentHistory: model.ReEnrollmentHistory,
       waitListLink: model.WaitListLink,
       RecommendedLink: "",
@@ -490,6 +491,15 @@ class EventCatalogUIActionsController {
           model = InstancyUIActionModel(
             text: localStr.mylearningActionbuttonRescheduleactionbutton,
             iconData: InstancyIcons.reschedule,
+            onTap: catalogUIActionCallbackModel.onRescheduleTap,
+            actionsEnum: InstancyContentActionsEnum.Reschedule,
+          );
+        }
+      } else if (action == InstancyContentActionsEnum.ReEnroll) {
+        if (isShowAction(actionType: InstancyContentActionsEnum.ReEnroll, parameterModel: parameterModel) && catalogUIActionCallbackModel.onReEnrollTap != null) {
+          model = InstancyUIActionModel(
+            text: localStr.eventsActionSheetReEnrollOption,
+            iconData: InstancyIcons.reEnroll,
             onTap: catalogUIActionCallbackModel.onRescheduleTap,
             actionsEnum: InstancyContentActionsEnum.Reschedule,
           );

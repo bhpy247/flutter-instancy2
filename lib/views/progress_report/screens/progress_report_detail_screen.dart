@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/backend/content_review_ratings/content_review
 import 'package:flutter_instancy_2/backend/content_review_ratings/content_review_ratings_provider.dart';
 import 'package:flutter_instancy_2/backend/course_details/course_details_controller.dart';
 import 'package:flutter_instancy_2/backend/progress_report/progress_report_provider.dart';
+import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_configs.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/configs/ui_configurations.dart';
 import 'package:flutter_instancy_2/models/content_details/request_model/course_details_request_model.dart';
@@ -266,11 +267,12 @@ class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen>
             // const Divider(color: InstancyColors.border, height: 0, thickness: 1),
             getStatisticsMainWidget(mylearningSummaryDataModel: mylearningSummaryDataModel),
             getProgressTimingMainWidget(
-              dateStarted: mylearningSummaryDataModel?.dateStarted ?? "",
-              timeSpent: mylearningSummaryDataModel?.totalTimeSpent ?? "",
-              dateCompleted: mylearningSummaryDataModel?.dateCompleted ?? "",
-              status: mylearningSummaryDataModel?.result ?? "",
-            ),
+                dateStarted: mylearningSummaryDataModel?.dateStarted ?? "",
+                timeSpent: mylearningSummaryDataModel?.totalTimeSpent ?? "",
+                dateCompleted: mylearningSummaryDataModel?.dateCompleted ?? "",
+                status: mylearningSummaryDataModel?.result ?? "",
+                mediaTypeId: mylearningSummaryDataModel?.mediaTypeId ?? 0,
+                jwVideoKey: mylearningSummaryDataModel?.jwVideo ?? ""),
             getReportAndReviewMainSectionWidget(),
             // Expanded(child: getReviewReportTabBarWidget()),
           ],
@@ -519,7 +521,8 @@ class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen>
   //endregion
 
   //region Progress Timings
-  Widget getProgressTimingMainWidget({required String dateStarted, required String timeSpent, required String dateCompleted, required String status}) {
+  Widget getProgressTimingMainWidget(
+      {required String dateStarted, required String timeSpent, required String dateCompleted, required String status, required int mediaTypeId, String jwVideoKey = ""}) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 18),
       child: Row(
@@ -532,17 +535,15 @@ class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen>
               ),
             ),
           Expanded(
-            child: getProgressTimingItemWidget(
-              title: status,
-              value: dateStarted,
-              valueIsStatus: true),
+            child: getProgressTimingItemWidget(title: status, value: dateStarted, valueIsStatus: true),
           ),
-          Expanded(
-            child: getProgressTimingItemWidget(
-              title: "Time Spent",
-              value: timeSpent,
+          if (!MyLearningUIActionConfigs.checkNonTrackableContentForMediaType(mediaTypeId: mediaTypeId) && jwVideoKey.checkNotEmpty)
+            Expanded(
+              child: getProgressTimingItemWidget(
+                title: "Time Spent",
+                value: timeSpent,
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -638,7 +639,8 @@ class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen>
             InstancyObjectTypes.document,
             InstancyObjectTypes.mediaResource,
             InstancyObjectTypes.aICC,
-            InstancyObjectTypes.htmlModules
+            InstancyObjectTypes.htmlModules,
+            InstancyObjectTypes.reference,
           ].contains(progressReportContentModel?.contentTypeId))
             const Padding(
               padding: EdgeInsets.all(8.0),
@@ -666,7 +668,8 @@ class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen>
         InstancyObjectTypes.document,
         InstancyObjectTypes.mediaResource,
         InstancyObjectTypes.aICC,
-        InstancyObjectTypes.htmlModules
+        InstancyObjectTypes.htmlModules,
+        InstancyObjectTypes.reference
       ].contains(progressReportContentModel?.contentTypeId)) {
         return getReviewListWidget(
           userReviewsList: contentReviewRatingsProvider.userReviewsList.getList(isNewInstance: false),

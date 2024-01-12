@@ -253,6 +253,11 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
 
         await onDetailsTap(model: model);
       },
+      onReEnrollTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        await onDetailsTap(model: model);
+      },
       onCancelEnrollmentTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 

@@ -66,6 +66,7 @@ class MyLearningUIActionsController {
       InstancyContentActionsEnum.ShareWithPeople: showShareWithPeople,
       InstancyContentActionsEnum.Share: showShare,
       InstancyContentActionsEnum.ReEnrollmentHistory: showReEnrollmentHistory,
+      InstancyContentActionsEnum.ReEnroll: showReEnroll,
     };
   }
 
@@ -174,6 +175,18 @@ class MyLearningUIActionsController {
     //   return true;
     // }
     if (parameterModel.ReEnrollmentHistoryLink.isNotEmpty) {
+      return true;
+    }
+    return false;
+  }
+
+  bool showReEnroll({required MyLearningUIActionParameterModel parameterModel}) {
+    // bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(parameterModel.eventEndDatetime) ?? true);
+    // MyPrint.printOnConsole("isEventCompleted in showCancelEnrollment:$isEventCompleted");
+    // if (parameterModel.objectTypeId == InstancyObjectTypes.events && isEventCompleted) {
+    //   return true;
+    // }
+    if (parameterModel.InstanceEventReclass.isNotEmpty) {
       return true;
     }
     return false;
@@ -441,6 +454,7 @@ class MyLearningUIActionsController {
       shareLink: model.Sharelink,
       ViewSessionsLink: model.ViewSessionsLink,
       ReEnrollmentHistoryLink: model.ReEnrollmentHistory,
+      InstanceEventReclass: model.InstanceEventReclass,
     );
   }
 
@@ -594,6 +608,15 @@ class MyLearningUIActionsController {
             iconData: InstancyIcons.reschedule,
             onTap: myLearningUIActionCallbackModel.onRescheduleTap,
             actionsEnum: InstancyContentActionsEnum.Reschedule,
+          );
+        }
+      } else if (action == InstancyContentActionsEnum.ReEnroll) {
+        if (isShowAction(actionType: InstancyContentActionsEnum.ReEnroll, parameterModel: parameterModel) && myLearningUIActionCallbackModel.onReEnrollTap != null) {
+          model = InstancyUIActionModel(
+            text: localStr.eventsActionSheetReEnrollOption,
+            iconData: InstancyIcons.reEnroll,
+            onTap: myLearningUIActionCallbackModel.onReEnrollTap,
+            actionsEnum: InstancyContentActionsEnum.ReEnroll,
           );
         }
       } else if (action == InstancyContentActionsEnum.ViewCertificate) {

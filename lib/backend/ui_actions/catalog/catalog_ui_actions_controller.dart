@@ -41,8 +41,8 @@ class CatalogUIActionsController {
       InstancyContentActionsEnum.Details: showDetails,
       InstancyContentActionsEnum.IAmInterested: showIAmInterested,
       InstancyContentActionsEnum.ContactUs: showContactUs,
-      InstancyContentActionsEnum.AddToWishlist:showAddToWishlist,
-      InstancyContentActionsEnum.RemoveFromWishlist:showRemoveFromWishlist,
+      InstancyContentActionsEnum.AddToWishlist: showAddToWishlist,
+      InstancyContentActionsEnum.RemoveFromWishlist: showRemoveFromWishlist,
       InstancyContentActionsEnum.AddToWaitList: showAddToWaitList,
       InstancyContentActionsEnum.ViewResources: showViewResources,
       InstancyContentActionsEnum.CancelEnrollment: showCancelEnrollment,
@@ -50,8 +50,8 @@ class CatalogUIActionsController {
       InstancyContentActionsEnum.ShareToConnections: showShareWithConnection,
       InstancyContentActionsEnum.ShareWithPeople: showShareWithPeople,
       InstancyContentActionsEnum.Share: showShare,
-      InstancyContentActionsEnum.Download : showDownload,
-
+      InstancyContentActionsEnum.Download: showDownload,
+      InstancyContentActionsEnum.ReEnroll: showReEnroll,
     };
   }
 
@@ -161,7 +161,15 @@ class CatalogUIActionsController {
   }
 
   bool showReschedule({required CatalogUIActionParameterModel parameterModel}) {
-    if(parameterModel.InstanceEventReSchedule.isNotEmpty) {
+    if (parameterModel.InstanceEventReSchedule.isNotEmpty) {
+      return true;
+    }
+
+    return false;
+  }
+
+  bool showReEnroll({required CatalogUIActionParameterModel parameterModel}) {
+    if (parameterModel.InstanceEventReclass.isNotEmpty) {
       return true;
     }
 
@@ -169,7 +177,7 @@ class CatalogUIActionsController {
   }
 
   bool showReEnrollmentHistory({required CatalogUIActionParameterModel parameterModel}) {
-    if(parameterModel.ReEnrollmentHistory.isNotEmpty) {
+    if (parameterModel.ReEnrollmentHistory.isNotEmpty) {
       return true;
     }
 
@@ -380,6 +388,7 @@ class CatalogUIActionsController {
       RelatedContentLink: catalogCourseDTOModel.RelatedContentLink,
       IsRelatedcontent: catalogCourseDTOModel.IsRelatedcontent,
       ContentName: catalogCourseDTOModel.ContentName,
+      InstanceEventReclass: catalogCourseDTOModel.InstanceEventReclass,
     );
   }
 
@@ -557,7 +566,7 @@ class CatalogUIActionsController {
           );
         }
       }
-      else if(action == InstancyContentActionsEnum.Reschedule) {
+      else if (action == InstancyContentActionsEnum.Reschedule) {
         if (isShowAction(actionType: InstancyContentActionsEnum.Reschedule, parameterModel: parameterModel) && catalogUIActionCallbackModel.onRescheduleTap != null) {
           model = InstancyUIActionModel(
             text: localStr.mylearningActionbuttonRescheduleactionbutton,
@@ -566,8 +575,16 @@ class CatalogUIActionsController {
             actionsEnum: InstancyContentActionsEnum.Reschedule,
           );
         }
-      }
-      else if(action == InstancyContentActionsEnum.ReEnrollmentHistory) {
+      } else if (action == InstancyContentActionsEnum.ReEnroll) {
+        if (isShowAction(actionType: InstancyContentActionsEnum.ReEnroll, parameterModel: parameterModel) && catalogUIActionCallbackModel.onReEnrollTap != null) {
+          model = InstancyUIActionModel(
+            text: localStr.eventsActionSheetReEnrollOption,
+            iconData: InstancyIcons.reEnroll,
+            onTap: catalogUIActionCallbackModel.onReEnrollTap,
+            actionsEnum: InstancyContentActionsEnum.ReEnroll,
+          );
+        }
+      } else if (action == InstancyContentActionsEnum.ReEnrollmentHistory) {
         if (isShowAction(actionType: InstancyContentActionsEnum.ReEnrollmentHistory, parameterModel: parameterModel) && catalogUIActionCallbackModel.onReEnrollmentHistoryTap != null) {
           model = InstancyUIActionModel(
             text: localStr.mylearningActionbuttonRescheduleactionbutton,
@@ -576,8 +593,7 @@ class CatalogUIActionsController {
             actionsEnum: InstancyContentActionsEnum.ReEnrollmentHistory,
           );
         }
-      }
-      else if(action == InstancyContentActionsEnum.RecommendTo) {
+      } else if(action == InstancyContentActionsEnum.RecommendTo) {
         if (isShowAction(actionType: InstancyContentActionsEnum.RecommendTo, parameterModel: parameterModel) && catalogUIActionCallbackModel.onRecommendToTap != null) {
           model = InstancyUIActionModel(
             text: "Recommend To",

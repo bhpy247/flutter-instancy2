@@ -348,7 +348,7 @@ class CourseDetailsUIActionsController {
       suggestWithFriendLink: model.SuggestwithFriendLink,
       shareLink: model.Sharelink,
       ReEnrollmentHistoryLink: model.ReEnrollmentHistory,
-    );
+      InstanceEventReclass: model.InstanceEventReclass);
   }
 
   CatalogUIActionParameterModel getCatalogUIActionParameterModelFromCourseDTOModel({required CourseDTOModel contentDetailsDTOModel}) {
@@ -384,6 +384,7 @@ class CourseDetailsUIActionsController {
       RelatedContentLink: contentDetailsDTOModel.RelatedContentLink,
       IsRelatedcontent: contentDetailsDTOModel.IsRelatedcontent,
       ShareToRecommend: contentDetailsDTOModel.SharetoRecommendedLink,
+      InstanceEventReclass: contentDetailsDTOModel.InstanceEventReclass,
     );
   }
 

@@ -1,5 +1,6 @@
 class MyLearningUIActionCallbackModel {
   final void Function()? onEnrollTap;
+  final void Function()? onReEnrollTap;
   final void Function()? onViewTap;
   final void Function()? onViewResourcesTap;
   final void Function()? onDetailsTap;
@@ -26,6 +27,7 @@ class MyLearningUIActionCallbackModel {
 
   MyLearningUIActionCallbackModel({
     this.onEnrollTap,
+    this.onReEnrollTap,
     this.onViewTap,
     this.onViewResourcesTap,
     this.onDetailsTap,

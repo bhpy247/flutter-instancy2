@@ -11,6 +11,7 @@ class EventCatalogUIActionCallbackModel {
   void Function()? onRescheduleTap;
   void Function()? onViewQRCodeTap;
   void Function()? onReEnrollmentHistoryTap;
+  void Function()? onReEnrollTap;
   void Function()? onViewResources;
   void Function()? onViewRecordingTap;
   void Function()? onViewSessionsTap;
@@ -22,6 +23,7 @@ class EventCatalogUIActionCallbackModel {
   EventCatalogUIActionCallbackModel({
     this.onBuyTap,
     this.onEnrollTap,
+    this.onReEnrollTap,
     this.onJoinTap,
     this.onViewQRCodeTap,
     this.onDetailsTap,

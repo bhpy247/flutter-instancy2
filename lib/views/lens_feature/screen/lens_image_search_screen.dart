@@ -788,6 +788,7 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
       imageBytes!,
       fit: BoxFit.cover,
       height: MediaQuery.of(context).size.height,
+      width: double.infinity,
     );
   }
 

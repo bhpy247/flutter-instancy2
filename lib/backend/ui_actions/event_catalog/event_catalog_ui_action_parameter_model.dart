@@ -39,6 +39,7 @@ class EventCatalogUIActionParameterModel {
   final String cancelEventLink;
   final String eventenddatetime;
   final String InstanceEventReSchedule;
+  final String InstanceEventReclass;
   final String ReEnrollmentHistory;
   final String waitListLink;
   final String RecommendedLink;
@@ -88,6 +89,7 @@ class EventCatalogUIActionParameterModel {
       this.cancelEventLink = "",
       this.eventenddatetime = "",
       this.InstanceEventReSchedule = "",
+      this.InstanceEventReclass = "",
       this.ReEnrollmentHistory = "",
       this.waitListLink = "",
       this.RecommendedLink = "",

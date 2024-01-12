@@ -1,3 +1,5 @@
+import 'package:flutter_chat_bot/utils/my_print.dart';
+
 import '../../../configs/app_constants.dart';
 
 class MyLearningUIActionConfigs {
@@ -63,7 +65,7 @@ class MyLearningUIActionConfigs {
 
   static bool isNonTrackableContent({required int objectTypeId, required int mediaTypeId}) {
     bool isEnabled = true;
-
+    MyPrint.printOnConsole("objectTypeID: $objectTypeId mediaTypeId: $mediaTypeId");
     if (![
           InstancyObjectTypes.mediaResource,
           InstancyObjectTypes.reference,
@@ -78,12 +80,41 @@ class MyLearningUIActionConfigs {
           InstancyMediaTypes.psyTechAssessment,
           InstancyMediaTypes.dISCAssessment,
           InstancyMediaTypes.assessment24x7,
-          InstancyMediaTypes.embedAudio,
-          InstancyMediaTypes.embedVideo,
         ].contains(mediaTypeId)) {
       isEnabled = false;
     }
 
+    return isEnabled;
+  }
+
+  static bool checkNonTrackableContentForMediaType({required int mediaTypeId}) {
+    bool isEnabled = true;
+    MyPrint.printOnConsole("mediaTypeId: $mediaTypeId");
+    if (![
+      // InstancyMediaTypes.audio,
+      // InstancyMediaTypes.video,
+      InstancyMediaTypes.image,
+      InstancyMediaTypes.embedVideo,
+      InstancyMediaTypes.embedAudio,
+      InstancyMediaTypes.threeDObject,
+      InstancyMediaTypes.threeDAvatar,
+      InstancyMediaTypes.document,
+      InstancyMediaTypes.ppt,
+      InstancyMediaTypes.excel,
+      InstancyMediaTypes.pDF,
+      InstancyMediaTypes.mpp,
+      InstancyMediaTypes.visioTypes,
+      InstancyMediaTypes.htmlObject,
+      InstancyMediaTypes.htmlZIPFile,
+      InstancyMediaTypes.url,
+      InstancyMediaTypes.contactUs,
+      InstancyMediaTypes.comingSoon,
+      InstancyMediaTypes.dISCAssessment,
+      InstancyMediaTypes.psyTechAssessment,
+      InstancyMediaTypes.assessment24x7,
+    ].contains(mediaTypeId)) {
+      isEnabled = false;
+    }
     return isEnabled;
   }
 

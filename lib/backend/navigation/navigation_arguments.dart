@@ -275,6 +275,7 @@ class CourseDetailScreenNavigationArguments extends NavigationArguments {
   final bool isFromCatalog;
   final bool isConsolidated;
   final bool isRescheduleEvent;
+  final bool isReEnroll;
   final InstancyContentScreenType screenType;
   final MyLearningProvider? myLearningProvider;
   final CatalogProvider? catalogProvider;
@@ -289,6 +290,7 @@ class CourseDetailScreenNavigationArguments extends NavigationArguments {
     this.isFromCatalog = false,
     this.isConsolidated = false,
     this.isRescheduleEvent = false,
+    this.isReEnroll = false,
     this.screenType = InstancyContentScreenType.Catalog,
     this.myLearningProvider,
     this.catalogProvider,

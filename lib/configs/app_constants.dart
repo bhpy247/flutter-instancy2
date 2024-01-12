@@ -438,6 +438,7 @@ class InstancyComponents {
   static const int transferToAgentComponent = 4001;
   static const int UserSettings = 5000;
   static const int MyCourseDownloads = 5001;
+  static const int Feedback = 5002;
 }
 
 class ViewTypesForContent {
@@ -501,6 +502,7 @@ class InstancyIcons {
   static IconData viewSessions = MdiIcons.laptopAccount;
   static const IconData viewRecording = FontAwesomeIcons.recordVinyl;
   static const IconData reschedule = FontAwesomeIcons.calendarDay;
+  static const IconData reEnroll = FontAwesomeIcons.repeat;
   static const IconData ReEnrollmentHistory = FontAwesomeIcons.calendarDay;
   static const IconData RecommendTo = FontAwesomeIcons.shareNodes;
   static const IconData shareWithConnection = FontAwesomeIcons.userGroup;

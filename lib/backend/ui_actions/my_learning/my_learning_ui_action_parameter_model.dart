@@ -16,6 +16,7 @@ class MyLearningUIActionParameterModel {
   final String eventenddatetime;
   final String actualStatus;
   final String InstanceEventReSchedule;
+  final String InstanceEventReclass;
   final String CertificateLink;
   final String ActionViewQRcode;
   final String suggestToConnectionsLink;
@@ -35,20 +36,21 @@ class MyLearningUIActionParameterModel {
       this.isArchived = false,
       this.eventRecording,
       this.ViewLink = "",
-    this.DetailsLink = "",
-    this.CancelEventLink = "",
-    this.removeLink = "",
-    this.eventStartDatetime = "",
-    this.eventenddatetime = "",
-    this.actualStatus = "",
-    this.InstanceEventReSchedule = "",
-    this.CertificateLink = "",
-    this.ActionViewQRcode = "",
-    this.suggestToConnectionsLink = "",
-    this.suggestWithFriendLink = "",
-    this.shareLink = "",
-    this.RelatedContentLink = "",
-    this.IsRelatedcontent = "",
-    this.ViewSessionsLink = "",
-    this.ReEnrollmentHistoryLink = ""});
+      this.DetailsLink = "",
+      this.CancelEventLink = "",
+      this.removeLink = "",
+      this.eventStartDatetime = "",
+      this.eventenddatetime = "",
+      this.actualStatus = "",
+      this.InstanceEventReSchedule = "",
+      this.InstanceEventReclass = "",
+      this.CertificateLink = "",
+      this.ActionViewQRcode = "",
+      this.suggestToConnectionsLink = "",
+      this.suggestWithFriendLink = "",
+      this.shareLink = "",
+      this.RelatedContentLink = "",
+      this.IsRelatedcontent = "",
+      this.ViewSessionsLink = "",
+      this.ReEnrollmentHistoryLink = ""});
 }

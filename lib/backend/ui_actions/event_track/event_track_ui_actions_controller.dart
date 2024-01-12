@@ -60,6 +60,8 @@ class EventTrackUIActionsController {
       InstancyContentActionsEnum.ViewQRCode: showViewQRCode,
       InstancyContentActionsEnum.ViewRecording: showViewRecording,
       InstancyContentActionsEnum.SetComplete: showSetComplete,
+      InstancyContentActionsEnum.ReEnrollmentHistory: showReEnrollmentHistory,
+      InstancyContentActionsEnum.ReEnroll: showReEnroll,
     };
   }
 
@@ -70,6 +72,18 @@ class EventTrackUIActionsController {
       contentStatus: parameterModel.actualStatus,
       profileProvider: profileProvider,
     );
+  }
+
+  bool showReEnrollmentHistory({required EventTrackUIActionParameterModel parameterModel}) {
+    // bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(parameterModel.eventEndDatetime) ?? true);
+    // MyPrint.printOnConsole("isEventCompleted in showCancelEnrollment:$isEventCompleted");
+    // if (parameterModel.objectTypeId == InstancyObjectTypes.events && isEventCompleted) {
+    //   return true;
+    // }
+    if (parameterModel.ReEnrollmentHistoryLink.isNotEmpty) {
+      return true;
+    }
+    return false;
   }
 
   bool isShowAction({required InstancyContentActionsEnum actionType, required EventTrackUIActionParameterModel parameterModel}) {
@@ -91,25 +105,48 @@ class EventTrackUIActionsController {
   }
 
   bool showCancelEnrollment({required EventTrackUIActionParameterModel parameterModel}) {
-    bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(parameterModel.eventEndDatetime) ?? true);
-    MyPrint.printOnConsole("isEventCompleted in showCancelEnrollment:$isEventCompleted");
-
-    if (parameterModel.objectTypeId != InstancyObjectTypes.events || parameterModel.eventScheduleType != EventScheduleTypes.instance || isEventCompleted) {
-      return false;
+    if (parameterModel.CancelEventLink.isNotEmpty) {
+      return true;
     }
 
-    return true;
+    return false;
   }
 
-  bool showReschedule({required EventTrackUIActionParameterModel parameterModel}) {
-    bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(parameterModel.eventEndDatetime) ?? true);
-    MyPrint.printOnConsole("isEventCompleted in showReschedule:$isEventCompleted");
+  // bool showCancelEnrollment({required EventTrackUIActionParameterModel parameterModel}) {
+  //   bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(parameterModel.eventEndDatetime) ?? true);
+  //   MyPrint.printOnConsole("isEventCompleted in showCancelEnrollment:$isEventCompleted parameterModel.eventScheduleType: ${parameterModel.eventScheduleType}");
+  //
+  //   if (parameterModel.objectTypeId != InstancyObjectTypes.events || parameterModel.eventScheduleType != EventScheduleTypes.instance || isEventCompleted) {
+  //     return false;
+  //   }
+  //
+  //   return true;
+  // }
 
-    if (parameterModel.objectTypeId != InstancyObjectTypes.events || parameterModel.eventScheduleType != EventScheduleTypes.instance || isEventCompleted) {
-      return false;
+  // bool showReschedule({required EventTrackUIActionParameterModel parameterModel}) {
+  //   bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(parameterModel.eventEndDatetime) ?? true);
+  //   MyPrint.printOnConsole("isEventCompleted in showReschedule:$isEventCompleted");
+  //
+  //   if (parameterModel.objectTypeId != InstancyObjectTypes.events || parameterModel.eventScheduleType != EventScheduleTypes.instance || isEventCompleted) {
+  //     return false;
+  //   }
+  //
+  //   return true;
+  // }
+  bool showReschedule({required EventTrackUIActionParameterModel parameterModel}) {
+    if (parameterModel.InstanceEventReSchedule.isNotEmpty) {
+      return true;
     }
 
-    return true;
+    return false;
+  }
+
+  bool showReEnroll({required EventTrackUIActionParameterModel parameterModel}) {
+    if (parameterModel.InstanceEventReSchedule.isNotEmpty) {
+      return true;
+    }
+
+    return false;
   }
 
   bool showView({required EventTrackUIActionParameterModel parameterModel}) {
@@ -261,6 +298,7 @@ class EventTrackUIActionsController {
       InstancyContentActionsEnum.ViewQRCode,
       InstancyContentActionsEnum.ViewRecording,
       InstancyContentActionsEnum.SetComplete,
+      InstancyContentActionsEnum.ReEnrollmentHistory,
     ];
     // MyPrint.printOnConsole("primaryActions:$primaryActions");
 
@@ -286,9 +324,14 @@ class EventTrackUIActionsController {
       actualStatus: model.CoreLessonStatus,
       eventEndDatetime: model.EventEndDateTime,
       actionviewqrcode: model.ActionViewQRcode,
+      CancelEventLink: model.CancelEventLink,
       showRelatedContents: ["true", "1"].contains(model.RelatedContentLink.toLowerCase()),
       showReportAction: ["true", "1"].contains(model.ReportLink.toLowerCase()),
       recordingDetails: model.RecordingDetails,
+      InstanceEventReSchedule: model.InstanceEventReSchedule,
+      ReEnrollmentHistoryLink: model.ReEnrollmentHistory,
+      InstanceEventReclass: model.InstanceEventReclass,
+      // bit4: model.b,
     );
   }
 
@@ -445,7 +488,7 @@ class EventTrackUIActionsController {
       } else if (action == InstancyContentActionsEnum.ViewResources) {
         if (isShowAction(actionType: InstancyContentActionsEnum.ViewResources, parameterModel: parameterModel) && callbackModel.onViewResourcesTap != null) {
           model = InstancyUIActionModel(
-            text: localStr.learningTrackLabelEventViewResources,
+            text: localStr.eventsActionsheetRelatedcontentoption,
             iconData: InstancyIcons.viewResources,
             onTap: callbackModel.onViewResourcesTap,
             actionsEnum: InstancyContentActionsEnum.ViewResources,
@@ -477,6 +520,33 @@ class EventTrackUIActionsController {
             svgImageUrl: InstancySVGImages.setComplete,
             onTap: callbackModel.onSetCompleteTap,
             actionsEnum: InstancyContentActionsEnum.SetComplete,
+          );
+        }
+      } else if (action == InstancyContentActionsEnum.SetComplete) {
+        if (isShowAction(actionType: InstancyContentActionsEnum.SetComplete, parameterModel: parameterModel) && callbackModel.onSetCompleteTap != null) {
+          model = InstancyUIActionModel(
+            text: localStr.mylearningActionsheetSetcompleteoption,
+            svgImageUrl: InstancySVGImages.setComplete,
+            onTap: callbackModel.onSetCompleteTap,
+            actionsEnum: InstancyContentActionsEnum.SetComplete,
+          );
+        }
+      } else if (action == InstancyContentActionsEnum.ReEnrollmentHistory) {
+        if (isShowAction(actionType: InstancyContentActionsEnum.ReEnrollmentHistory, parameterModel: parameterModel) && callbackModel.onReEnrollmentHistoryTap != null) {
+          model = InstancyUIActionModel(
+            text: localStr.eventsActionSheetReEnrollmentHistoryOption,
+            iconData: InstancyIcons.ReEnrollmentHistory,
+            onTap: callbackModel.onReEnrollmentHistoryTap,
+            actionsEnum: InstancyContentActionsEnum.ReEnrollmentHistory,
+          );
+        }
+      } else if (action == InstancyContentActionsEnum.ReEnroll) {
+        if (isShowAction(actionType: InstancyContentActionsEnum.ReEnroll, parameterModel: parameterModel) && callbackModel.onReEnrollTap != null) {
+          model = InstancyUIActionModel(
+            text: localStr.eventsActionSheetReEnrollOption,
+            iconData: InstancyIcons.reEnroll,
+            onTap: callbackModel.onReEnrollTap,
+            actionsEnum: InstancyContentActionsEnum.ReEnroll,
           );
         }
       }

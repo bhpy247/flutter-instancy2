@@ -10,18 +10,21 @@ class EventTrackUIActionCallbackModel {
   final void Function()? onViewQRCodeTap;
   final void Function()? onViewRecordingTap;
   final void Function()? onSetCompleteTap;
+  final void Function()? onReEnrollmentHistoryTap;
+  final void Function()? onReEnrollTap;
 
-  EventTrackUIActionCallbackModel({
-    this.onEnrollTap,
-    this.onCancelEnrollmentTap,
-    this.onRescheduleTap,
-    this.onViewTap,
-    this.onPlayTap,
-    this.onReportTap,
-    this.onJoinTap,
-    this.onViewResourcesTap,
-    this.onViewQRCodeTap,
-    this.onViewRecordingTap,
-    this.onSetCompleteTap
-  });
+  EventTrackUIActionCallbackModel(
+      {this.onEnrollTap,
+      this.onCancelEnrollmentTap,
+      this.onRescheduleTap,
+      this.onViewTap,
+      this.onPlayTap,
+      this.onReportTap,
+      this.onJoinTap,
+      this.onViewResourcesTap,
+      this.onViewQRCodeTap,
+      this.onViewRecordingTap,
+      this.onSetCompleteTap,
+      this.onReEnrollTap,
+      this.onReEnrollmentHistoryTap});
 }

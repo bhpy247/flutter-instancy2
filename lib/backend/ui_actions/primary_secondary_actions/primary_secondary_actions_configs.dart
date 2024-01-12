@@ -7103,6 +7103,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7124,6 +7125,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7149,6 +7151,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7171,6 +7174,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7217,6 +7221,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7242,6 +7247,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7263,6 +7269,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7290,6 +7297,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7311,6 +7319,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Join,
               InstancyContentActionsEnum.Details,
             ],
@@ -7337,6 +7346,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7358,6 +7368,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Join,
               InstancyContentActionsEnum.Details,
             ],
@@ -7405,6 +7416,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Join,
               InstancyContentActionsEnum.Details,
             ],
@@ -7431,6 +7443,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7452,6 +7465,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Join,
               InstancyContentActionsEnum.Details,
             ],
@@ -7480,6 +7494,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7501,6 +7516,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7525,6 +7541,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7546,6 +7563,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7591,6 +7609,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7615,6 +7634,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7636,6 +7656,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7662,6 +7683,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7683,6 +7705,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7707,6 +7730,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7728,6 +7752,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7773,6 +7798,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7797,6 +7823,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7818,6 +7845,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7844,6 +7872,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7865,6 +7894,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7889,6 +7919,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7910,6 +7941,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7955,6 +7987,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -7979,6 +8012,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -8000,6 +8034,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -8026,6 +8061,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -8047,6 +8083,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -8071,6 +8108,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -8092,6 +8130,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -8137,6 +8176,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -8161,6 +8201,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.Catalog: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[
@@ -8182,6 +8223,7 @@ class PrimarySecondaryActionsConfigs {
           InstancyContentScreenType.MyLearning: PrimarySecondaryActionsDataModel(
             primaryActions: [
               InstancyContentActionsEnum.Enroll,
+              InstancyContentActionsEnum.ReEnroll,
               InstancyContentActionsEnum.Details,
             ],
             secondaryActions: <InstancyContentActionsEnum>[

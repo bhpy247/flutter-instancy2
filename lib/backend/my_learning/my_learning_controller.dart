@@ -371,9 +371,9 @@ class MyLearningController {
     EnabledContentFilterByTypeModel enabledContentFilterByTypeModel = filterProvider.getEnabledContentFilterByTypeModel(isNewInstance: false);
 
     String filtercredits = "";
-    if(enabledContentFilterByTypeModel.creditpoints) {
+    if (enabledContentFilterByTypeModel.creditpoints) {
       FilterDurationValueModel? model = filterProvider.selectedFilterCredit.get();
-      if(model != null) filtercredits = "${model.Minvalue},${model.Maxvalue}";
+      if (model != null) filtercredits = "${model.Minvalue},${model.Maxvalue}";
     }
 
     return MyLearningDataRequestModel(
@@ -435,6 +435,7 @@ class MyLearningController {
       contentStatus: "",
     );
   }
+
   //endregion
 
   Future<bool> addToArchive({required String contentId}) async {
@@ -490,6 +491,7 @@ class MyLearningController {
 
     return isSuccess;
   }
+
   // Future<bool> setCompleteMyLearning({required String contentId, required int scoId}) async {
   //   String tag = MyUtils.getNewId();
   //   MyPrint.printOnConsole("MyLearningController().setComplete() called with contentId:'$contentId', scoId:'$scoId'", tag: tag);
@@ -517,8 +519,7 @@ class MyLearningController {
         context: context,
         builder: (BuildContext context) => const MyLearningCertificateNotEarnedAlertDialog(),
       );
-    }
-    else {
+    } else {
       /*if(!ConnectionController().checkConnection(context: NavigationController().actbaseScaffoldKey.currentContext!)) {
         return;
       }*/
@@ -552,18 +553,16 @@ class MyLearningController {
     MyPrint.printOnConsole("getAssociatedContent");
 
     DataResponseModel<PageNotesResponseModel> response = await myLearningRepository.getPageNotes(
-        componentId: componentId,
-        contentId: contentId,
-        componentInstanceId: componentInstanceId,
-
+      componentId: componentId,
+      contentId: contentId,
+      componentInstanceId: componentInstanceId,
     );
     MyPrint.printOnConsole("return getAssociatedContent");
 
     MyPrint.printOnConsole("response: ${response.data}");
     PageNotesResponseModel pageNotesResponseModel = PageNotesResponseModel();
-    if(response.data != null){
+    if (response.data != null) {
       pageNotesResponseModel = PageNotesResponseModel.fromJson(response.data!.toJson());
-
     }
     // AssociatedContentResponseModel associatedContentResponse = AssociatedContentResponseModel.fromJson(response.data!.toJson());
     // MyPrint.printOnConsole("getAssociatedContent.associatedContentResponse : ${associatedContentResponse.CourseList.length}");
@@ -573,25 +572,28 @@ class MyLearningController {
 
   Future<PageNotesResponseModel> savePageNote({
     required String contentID,
-      int pageId = -1,
-     String trackId = '',
-     int seqId = 0,
-     int count = 0,
+    int pageId = -1,
+    String trackId = '',
+    int seqId = 0,
+    int count = 0,
     required String text,
   }) async {
     MyPrint.printOnConsole("getAssociatedContent");
 
     DataResponseModel<String> response = await myLearningRepository.savePageNote(
-        text: text,contentID: contentID,count: count,pageId: pageId,seqId: seqId,trackId: trackId
-
+      text: text,
+      contentID: contentID,
+      count: count,
+      pageId: pageId,
+      seqId: seqId,
+      trackId: trackId,
     );
     MyPrint.printOnConsole("return getAssociatedContent");
 
     MyPrint.printOnConsole("response: ${response.data}");
     PageNotesResponseModel pageNotesResponseModel = PageNotesResponseModel();
-    if(response.data != null){
+    if (response.data != null) {
       // pageNotesResponseModel = PageNotesResponseModel.fromJson(response.data!.toJson());
-
     }
     // AssociatedContentResponseModel associatedContentResponse = AssociatedContentResponseModel.fromJson(response.data!.toJson());
     // MyPrint.printOnConsole("getAssociatedContent.associatedContentResponse : ${associatedContentResponse.CourseList.length}");
@@ -601,24 +603,20 @@ class MyLearningController {
 
   Future<PageNotesResponseModel> deletePageNotes({
     required String contentID,
-      int pageId = -1,
-     String trackId = '',
-     int seqId = 0,
-     int count = 0,
+    int pageId = -1,
+    String trackId = '',
+    int seqId = 0,
+    int count = 0,
   }) async {
     MyPrint.printOnConsole("getAssociatedContent");
 
-    DataResponseModel<String> response = await myLearningRepository.deletePageNotes(
-    contentID: contentID,count: count,pageId: pageId,seqId: seqId,trackId: trackId
-
-    );
+    DataResponseModel<String> response = await myLearningRepository.deletePageNotes(contentID: contentID, count: count, pageId: pageId, seqId: seqId, trackId: trackId);
     MyPrint.printOnConsole("return getAssociatedContent");
 
     MyPrint.printOnConsole("response: ${response.data}");
     PageNotesResponseModel pageNotesResponseModel = PageNotesResponseModel();
-    if(response.data != null){
+    if (response.data != null) {
       // pageNotesResponseModel = PageNotesResponseModel.fromJson(response.data!.toJson());
-
     }
     // AssociatedContentResponseModel associatedContentResponse = AssociatedContentResponseModel.fromJson(response.data!.toJson());
     // MyPrint.printOnConsole("getAssociatedContent.associatedContentResponse : ${associatedContentResponse.CourseList.length}");

@@ -147,7 +147,11 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         ComponentID: componentId,
         DetailsCompID: InstancyComponents.Details,
         DetailsCompInsID: InstancyComponents.DetailsComponentInsId,
-        MultiInstanceEventEnroll: widget.arguments.isRescheduleEvent ? "rescheduleenroll" : "",
+        MultiInstanceEventEnroll: widget.arguments.isRescheduleEvent
+            ? "rescheduleenroll"
+            : widget.arguments.isReEnroll
+                ? "reenroll"
+                : "",
       ),
     );
 
@@ -304,11 +308,32 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
           mySetState();
         }
       },
-      onViewResources: () {
-        if (isSecondaryAction) Navigator.pop(context);
+      onViewResources: primaryAction == InstancyContentActionsEnum.ViewResources
+          ? null
+          : () async {
+              if (isSecondaryAction) Navigator.pop(context);
 
-        //TODO: Implement onViewResources
-      },
+              dynamic value = await NavigationController.navigateToEventTrackScreen(
+                navigationOperationParameters: NavigationOperationParameters(
+                  context: context,
+                  navigationType: NavigationType.pushNamed,
+                ),
+                arguments: EventTrackScreenArguments(
+                  eventTrackTabType: model.ContentTypeId == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
+                  objectTypeId: model.ContentTypeId,
+                  isRelatedContent: true,
+                  parentContentId: model.ContentID,
+                  componentId: componentId,
+                  scoId: model.ScoID,
+                  componentInstanceId: componentInstanceId,
+                  isContentEnrolled: model.isCourseEnrolled(),
+                ),
+              );
+
+              if (value == true) {
+                getContentDetailsData();
+              }
+            },
       onRescheduleTap: () {
         if (isSecondaryAction) Navigator.pop(context);
 

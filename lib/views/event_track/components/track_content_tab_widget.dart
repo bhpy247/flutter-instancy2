@@ -6,6 +6,7 @@ import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart
 import 'package:flutter_instancy_2/backend/ui_actions/event_track/event_track_ui_action_callback_model.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
+import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/track_dto_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
@@ -29,27 +30,30 @@ class TrackContentTabWidget extends StatefulWidget {
   final int userId;
   final int componentId;
   final int componentInsId;
+  final List<String> initialExpansionValue;
   final void Function()? onPulledTORefresh;
   final void Function()? refreshParentAndChildContentsCallback;
   final void Function({required TrackCourseDTOModel model})? onContentViewTap;
   final void Function({required TrackCourseDTOModel model})? onReportContentTap;
   final void Function({required TrackCourseDTOModel model})? onSetCompleteTap;
   final void Function({required TrackCourseDTOModel model})? onCancelEnrollmentTap;
+  final void Function({required TrackDTOModel model, bool value})? onExpansionChanged;
 
-  const TrackContentTabWidget({
-    Key? key,
-    required this.contentBlocksList,
-    this.trackId = "",
-    required this.userId,
-    required this.componentId,
-    required this.componentInsId,
-    this.onPulledTORefresh,
-    this.refreshParentAndChildContentsCallback,
-    this.onContentViewTap,
-    this.onReportContentTap,
-    this.onSetCompleteTap,
-    this.onCancelEnrollmentTap,
-  }) : super(key: key);
+  const TrackContentTabWidget(
+      {Key? key,
+      required this.contentBlocksList,
+      this.trackId = "",
+      this.initialExpansionValue = const [],
+      required this.userId,
+      required this.componentId,
+      required this.componentInsId,
+      this.onPulledTORefresh,
+      this.refreshParentAndChildContentsCallback,
+      this.onContentViewTap,
+      this.onReportContentTap,
+      this.onSetCompleteTap,
+      this.onCancelEnrollmentTap,
+      this.onExpansionChanged}) : super(key: key);
 
   @override
   State<TrackContentTabWidget> createState() => _TrackContentTabWidgetState();
@@ -174,17 +178,31 @@ class _TrackContentTabWidgetState extends State<TrackContentTabWidget> with MySa
             parentContentId: model.ContentID,
             eventTrackTabType: model.ContentTypeId == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
             componentId: widget.componentId,
-            componentInstanceId: widget.componentInsId,
-            scoId: model.ScoID,
-            isContentEnrolled: model.isCourseEnrolled(),
-          ),
-        );
+              componentInstanceId: widget.componentInsId,
+              scoId: model.ScoID,
+              isContentEnrolled: model.isCourseEnrolled(),
+            ),
+          );
 
-        if (value == true) {
-          if (widget.refreshParentAndChildContentsCallback != null) widget.refreshParentAndChildContentsCallback!();
-        }
-      },
-    );
+          if (value == true) {
+            if (widget.refreshParentAndChildContentsCallback != null) widget.refreshParentAndChildContentsCallback!();
+          }
+        },
+        onReEnrollmentHistoryTap: () async {
+          if (isSecondaryAction) Navigator.pop(context);
+          await NavigationController.navigateToReEnrollmentHistoryScreen(
+            navigationOperationParameters: NavigationOperationParameters(
+              context: context,
+              navigationType: NavigationType.pushNamed,
+            ),
+            arguments: ReEnrollmentHistoryScreenNavigationArguments(model: CourseDTOModel.fromMap(model.toMap())),
+          );
+        },
+        onReEnrollTap: () async {
+          if (isSecondaryAction) Navigator.pop(context);
+
+          onDetailsTap(model: model);
+        });
   }
 
   Future<void> showMoreAction({required TrackCourseDTOModel model}) async {
@@ -289,6 +307,12 @@ class _TrackContentTabWidgetState extends State<TrackContentTabWidget> with MySa
       return Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
+          initiallyExpanded: widget.initialExpansionValue.contains(trackBlockModel.blockID),
+          onExpansionChanged: (bool value) {
+            if (widget.onExpansionChanged != null) {
+              widget.onExpansionChanged!(model: trackBlockModel, value: value);
+            }
+          },
           title: Text(
             trackBlockModel.blockname,
             style: themeData.textTheme.bodyLarge?.copyWith(

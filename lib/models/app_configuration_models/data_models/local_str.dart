@@ -284,6 +284,7 @@ class LocalStr {
   String eventsActionsheetRelatedcontentoption = "";
   String eventsActionsheetCanceloption = "";
   String eventsActionSheetReEnrollmentHistoryOption = "";
+  String eventsActionSheetReEnrollOption = "";
   String eventsActionSheetViewSeriesOption = "";
   String eventsTabbuttonUpcomingeventsbutton = "";
   String eventsTabbuttonCalendarbutton = "";
@@ -1083,6 +1084,7 @@ class LocalStr {
     this.eventsActionsheetRelatedcontentoption = "",
     this.eventsActionsheetCanceloption = "",
     this.eventsActionSheetReEnrollmentHistoryOption = "",
+    this.eventsActionSheetReEnrollOption = "",
     this.eventsTabbuttonUpcomingeventsbutton = "",
     this.eventsTabbuttonCalendarbutton = "",
     this.eventsTabbuttonPasteventsbutton = "",
@@ -1867,6 +1869,7 @@ class LocalStr {
     eventsActionsheetRelatedcontentoption = ParsingHelper.parseStringMethod(json['events_actionsheet_relatedcontentoption']);
     eventsActionsheetCanceloption = ParsingHelper.parseStringMethod(json['events_actionsheet_canceloption']);
     eventsActionSheetReEnrollmentHistoryOption = ParsingHelper.parseStringMethod(json['eventsActionSheetReEnrollmentHistoryOption']);
+    eventsActionSheetReEnrollOption = ParsingHelper.parseStringMethod(json['eventsActionSheetReEnrollOption']);
     eventsTabbuttonUpcomingeventsbutton = ParsingHelper.parseStringMethod(json['events_tabbutton_upcomingeventsbutton']);
     eventsTabbuttonCalendarbutton = ParsingHelper.parseStringMethod(json['events_tabbutton_calendarbutton']);
     eventsTabbuttonPasteventsbutton = ParsingHelper.parseStringMethod(json['events_tabbutton_pasteventsbutton']);

@@ -67,9 +67,10 @@ class _ForgotPasswordState extends State<ForgotPassword> with MySafeState {
           child: Column(
             children: [
               const Text(
-                "Please enter your user name and click on the submit button. The password will be mailed to your email address",
+                "Please enter your email and click on the reset button. The password will be mailed to your email address.",
+                // "Please enter your user name and click on the submit button. The password will be mailed to your email address",
                 style: TextStyle(
-                    fontSize:  15 ,
+                  fontSize: 15,
                 ),
               ),
               const SizedBox(

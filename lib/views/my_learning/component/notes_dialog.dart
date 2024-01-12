@@ -31,6 +31,8 @@ class _NotesDialogState extends State<NotesDialog> {
   TextEditingController notesController = TextEditingController();
   PageNotesResponseModel? pageNotesResponseModel;
 
+  final key = GlobalKey<FormState>();
+
   Future<void> getNotesData() async {
     pageNotesResponseModel = await widget.myLearningController?.getAllUserPageNotes(
       contentId: widget.contentId,
@@ -55,109 +57,120 @@ class _NotesDialogState extends State<NotesDialog> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                "Notes",
-                style: TextStyle(fontSize: 20),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              TextFormField(
-                minLines: 4,
-                maxLines: 4,
-                controller: notesController,
-                decoration: const InputDecoration(border: OutlineInputBorder(), hintText: "Type your notes"),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              CommonButton(
-                onPressed: () async {
-                  await widget.myLearningController?.savePageNote(contentID: widget.contentId, text: notesController.text.trim());
-                  notesController.clear();
-                  getNotes = getNotesData();
-                  setState(() {});
-                },
-                text: "Submit",
-              ),
-              const Divider(),
-              Text(
-                pageNotesResponseModel?.name ?? "",
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-              ),
-              Container(
-                child: FutureBuilder(
-                  future: getNotes,
-                  builder: (BuildContext context, AsyncSnapshot snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      return ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: pageNotesResponseModel?.userNotes.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              child: pageNotesResponseModel!.userNotes[index].isEditEnabled
-                                  ? editEnabledView(TextEditingController(text: pageNotesResponseModel?.userNotes[index].userNotesText),
-                                      index: index, userNotes: pageNotesResponseModel?.userNotes[index])
-                                  : Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(pageNotesResponseModel?.userNotes[index].userNotesText ?? ""),
-                                              Text(pageNotesResponseModel?.userNotes[index].noteDate ?? ""),
-                                            ],
-                                          ),
-                                        ),
-                                        InkWell(
-                                          onTap: () {
-                                            pageNotesResponseModel!.userNotes[index].isEditEnabled = true;
-                                            setState(() {});
-                                          },
-                                          child: const Icon(
-                                            Icons.edit,
-                                            size: 15,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        InkWell(
-                                          onTap: () {
-                                            UserNotes userNotes = pageNotesResponseModel!.userNotes[index];
-                                            widget.myLearningController!.deletePageNotes(
-                                              contentID: widget.contentId,
-                                              trackId: userNotes.trackID,
-                                              seqId: ParsingHelper.parseIntMethod(userNotes.sequenceID),
-                                              pageId: ParsingHelper.parseIntMethod(userNotes.pageID),
-                                              count: ParsingHelper.parseIntMethod(userNotes.noteCount),
-                                            );
-                                            pageNotesResponseModel!.userNotes.removeAt(index);
-
-                                            setState(() {});
-                                          },
-                                          child: const Icon(
-                                            Icons.delete,
-                                            size: 15,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                            );
-                          });
-                    } else {
-                      return const CommonLoader();
+          child: Form(
+            key: key,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Notes",
+                  style: TextStyle(fontSize: 20),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextFormField(
+                  minLines: 4,
+                  maxLines: 4,
+                  validator: (String? val) {
+                    if (val == null || val.isEmpty) {
+                      return "Please add notes";
+                    }
+                    return null;
+                  },
+                  controller: notesController,
+                  decoration: const InputDecoration(border: OutlineInputBorder(), hintText: "Type your notes"),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                CommonButton(
+                  onPressed: () async {
+                    if (key.currentState?.validate() ?? false) {
+                      await widget.myLearningController?.savePageNote(contentID: widget.contentId, text: notesController.text.trim());
+                      notesController.clear();
+                      getNotes = getNotesData();
+                      setState(() {});
                     }
                   },
+                  text: "Submit",
                 ),
-              ),
-            ],
+                const Divider(),
+                Text(
+                  pageNotesResponseModel?.name ?? "",
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
+                Container(
+                  child: FutureBuilder(
+                    future: getNotes,
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        return ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: pageNotesResponseModel?.userNotes.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                child: pageNotesResponseModel!.userNotes[index].isEditEnabled
+                                    ? editEnabledView(TextEditingController(text: pageNotesResponseModel?.userNotes[index].userNotesText),
+                                        index: index, userNotes: pageNotesResponseModel?.userNotes[index])
+                                    : Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(pageNotesResponseModel?.userNotes[index].userNotesText ?? ""),
+                                                Text(pageNotesResponseModel?.userNotes[index].noteDate ?? ""),
+                                              ],
+                                            ),
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              pageNotesResponseModel!.userNotes[index].isEditEnabled = true;
+                                              setState(() {});
+                                            },
+                                            child: const Icon(
+                                              Icons.edit,
+                                              size: 15,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              UserNotes userNotes = pageNotesResponseModel!.userNotes[index];
+                                              widget.myLearningController!.deletePageNotes(
+                                                contentID: widget.contentId,
+                                                trackId: userNotes.trackID,
+                                                seqId: ParsingHelper.parseIntMethod(userNotes.sequenceID),
+                                                pageId: ParsingHelper.parseIntMethod(userNotes.pageID),
+                                                count: ParsingHelper.parseIntMethod(userNotes.noteCount),
+                                              );
+                                              pageNotesResponseModel!.userNotes.removeAt(index);
+
+                                              setState(() {});
+                                            },
+                                            child: const Icon(
+                                              Icons.delete,
+                                              size: 15,
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                              );
+                            });
+                      } else {
+                        return const CommonLoader();
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

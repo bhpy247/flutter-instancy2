@@ -80,6 +80,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
 
   late MyLearningProvider myLearningProvider;
   late MyLearningController myLearningController;
+  List<String> openedExpansionTileList = [];
 
   late EventProvider eventProvider;
 
@@ -701,12 +702,20 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
     }
 
     List<TrackDTOModel> contentBlocksList = eventTrackProvider.trackContentsData.getList(isNewInstance: false);
-
+    // return Container();
     return TrackContentTabWidget(
       contentBlocksList: contentBlocksList,
       trackId: widget.arguments.parentContentId,
       userId: eventTrackController.eventTrackRepository.apiController.apiDataProvider.getCurrentUserId(),
       componentId: widget.arguments.componentId,
+      onExpansionChanged: ({required TrackDTOModel model, bool? value}) {
+        if (value ?? false) {
+          openedExpansionTileList.add(model.blockID);
+        } else {
+          openedExpansionTileList.remove(model.blockID);
+        }
+      },
+      initialExpansionValue: openedExpansionTileList,
       componentInsId: widget.arguments.componentInstanceId,
       onSetCompleteTap: ({required TrackCourseDTOModel model}) async {
         isLoading = true;
