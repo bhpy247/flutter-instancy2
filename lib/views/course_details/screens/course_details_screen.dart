@@ -339,10 +339,33 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
         //TODO: Implement onRescheduleTap
       },
-      onReEnrollmentHistoryTap: () {
+      onReEnrollmentHistoryTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
 
-        //TODO: Implement onViewResources
+        String parentEventId = "";
+        String instanceEventId = "";
+
+        if (model.EventScheduleType == EventScheduleTypes.parent) {
+          parentEventId = model.ContentID;
+          instanceEventId = "";
+        } else if (model.EventScheduleType == EventScheduleTypes.instance) {
+          // parentEventId = model.InstanceParentContentID;
+          instanceEventId = model.ContentID;
+        }
+
+        await NavigationController.navigateToReEnrollmentHistoryScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: ReEnrollmentHistoryScreenNavigationArguments(
+            parentEventId: parentEventId,
+            instanceEventId: instanceEventId,
+            ContentName: model.ContentName,
+            AuthorDisplayName: model.AuthorDisplayName,
+            ThumbnailImagePath: model.ThumbnailImagePath,
+          ),
+        );
       },
       onRecommendToTap: () {
         if (isSecondaryAction) Navigator.pop(context);
@@ -568,6 +591,34 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             navigationType: NavigationType.pushNamed,
           ),
           arguments: QRCodeImageScreenNavigationArguments(qrCodePath: model.ActionViewQRcode),
+        );
+      },
+      onReEnrollmentHistoryTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        String parentEventId = "";
+        String instanceEventId = "";
+
+        if (model.EventScheduleType == EventScheduleTypes.parent) {
+          parentEventId = model.ContentID;
+          instanceEventId = "";
+        } else if (model.EventScheduleType == EventScheduleTypes.instance) {
+          parentEventId = model.InstanceParentContentID;
+          instanceEventId = model.ContentID;
+        }
+
+        await NavigationController.navigateToReEnrollmentHistoryScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: ReEnrollmentHistoryScreenNavigationArguments(
+            parentEventId: parentEventId,
+            instanceEventId: instanceEventId,
+            ContentName: model.ContentName,
+            AuthorDisplayName: model.AuthorDisplayName,
+            ThumbnailImagePath: model.ThumbnailImagePath,
+          ),
         );
       },
       onViewRecordingTap: () {

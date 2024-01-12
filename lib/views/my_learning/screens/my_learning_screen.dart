@@ -383,12 +383,30 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
       },
       onReEnrollmentHistoryTap: () async {
         if (isSecondaryAction) Navigator.pop(context);
+
+        String parentEventId = "";
+        String instanceEventId = "";
+
+        if (model.EventScheduleType == EventScheduleTypes.parent) {
+          parentEventId = model.ContentID;
+          instanceEventId = "";
+        } else if (model.EventScheduleType == EventScheduleTypes.instance) {
+          parentEventId = model.InstanceParentContentID;
+          instanceEventId = model.ContentID;
+        }
+
         await NavigationController.navigateToReEnrollmentHistoryScreen(
           navigationOperationParameters: NavigationOperationParameters(
             context: context,
             navigationType: NavigationType.pushNamed,
           ),
-          arguments: ReEnrollmentHistoryScreenNavigationArguments(model: model),
+          arguments: ReEnrollmentHistoryScreenNavigationArguments(
+            parentEventId: parentEventId,
+            instanceEventId: instanceEventId,
+            ContentName: model.ContentName,
+            AuthorDisplayName: model.AuthorDisplayName,
+            ThumbnailImagePath: model.ThumbnailImagePath,
+          ),
         );
       },
       onCertificateTap: () async {

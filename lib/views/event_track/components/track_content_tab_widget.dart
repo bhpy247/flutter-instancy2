@@ -6,7 +6,6 @@ import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart
 import 'package:flutter_instancy_2/backend/ui_actions/event_track/event_track_ui_action_callback_model.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
-import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/track_dto_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
@@ -190,12 +189,30 @@ class _TrackContentTabWidgetState extends State<TrackContentTabWidget> with MySa
         },
         onReEnrollmentHistoryTap: () async {
           if (isSecondaryAction) Navigator.pop(context);
+
+          String parentEventId = "";
+          String instanceEventId = "";
+
+          if (model.EventScheduleType == EventScheduleTypes.parent) {
+            parentEventId = model.ContentID;
+            instanceEventId = "";
+          } else if (model.EventScheduleType == EventScheduleTypes.instance) {
+            // parentEventId = model.InstanceParentContentID;
+            instanceEventId = model.ContentID;
+          }
+
           await NavigationController.navigateToReEnrollmentHistoryScreen(
             navigationOperationParameters: NavigationOperationParameters(
               context: context,
               navigationType: NavigationType.pushNamed,
             ),
-            arguments: ReEnrollmentHistoryScreenNavigationArguments(model: CourseDTOModel.fromMap(model.toMap())),
+            arguments: ReEnrollmentHistoryScreenNavigationArguments(
+              parentEventId: parentEventId,
+              instanceEventId: instanceEventId,
+              ContentName: model.ContentName,
+              AuthorDisplayName: model.AuthorDisplayName,
+              ThumbnailImagePath: model.ThumbnailImagePath,
+            ),
           );
         },
         onReEnrollTap: () async {
