@@ -86,16 +86,12 @@ class _ShareWithConnectionsScreenState extends State<ShareWithConnectionsScreen>
       centerTitle: true,
       title: Text(
         selectedConnectionsLength == 0 ? "Share With Connections" : "$selectedConnectionsLength Selected",
-        style: themeData.textTheme.titleLarge?.copyWith(
-          color: themeData.colorScheme.onPrimary,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.8
-        ),
+        // style: themeData.textTheme.titleLarge?.copyWith(
+        //   fontWeight: FontWeight.w600,
+        //   letterSpacing: 0.8
+        // ),
       ),
       elevation: 0,
-      iconTheme: themeData.iconTheme.copyWith(
-        color: themeData.colorScheme.onPrimary,
-      ),
     );
   }
 

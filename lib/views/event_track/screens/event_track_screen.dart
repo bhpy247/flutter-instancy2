@@ -789,6 +789,13 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
           ),
         );
 
+        CourseLaunchController(
+          appProvider: appProvider,
+          authenticationProvider: context.read<AuthenticationProvider>(),
+          componentId: widget.arguments.componentId,
+          componentInstanceId: widget.arguments.componentInstanceId,
+        ).updateTrackListViewBookmark(trackId: widget.arguments.parentContentId, scoId: model.ScoID.toString());
+
         isLoading = false;
         mySetState();
 

@@ -24,6 +24,11 @@ class EventTrackProvider extends CommonProvider {
       value: false,
       notify: notify,
     );
+
+    bookmarkId = CommonProviderPrimitiveParameter<String>(
+      value: "",
+      notify: notify,
+    );
     eventTrackTabList = CommonProviderListParameter<EventTrackTabDTOModel>(
       list: [],
       notify: notify,
@@ -129,4 +134,6 @@ class EventTrackProvider extends CommonProvider {
 
   late final CommonProviderListParameter<RelatedTrackDataDTOModel> eventRelatedAssignmentsData;
   late CommonProviderPrimitiveParameter<PaginationModel> eventRelatedAssignmentsDataPaginationModel;
+
+  late final CommonProviderPrimitiveParameter<String> bookmarkId;
 }

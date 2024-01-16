@@ -706,4 +706,20 @@ class CourseLaunchController {
 
     return apiResponseModel;
   }
+
+  Future<bool> updateTrackListViewBookmark({required String scoId, required String trackId}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("DiscussionController().createDiscussionForum() called '", tag: tag);
+
+    DataResponseModel<String> dataResponseModel = await _courseLaunchRepository.updateTrackListViewBookmark(scoId: scoId, trackId: trackId);
+
+    MyPrint.printOnConsole("createDiscussionForum response:$dataResponseModel", tag: tag);
+
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from DiscussionController().createDiscussionForum() because createDiscussionForum had some error", tag: tag);
+      return false;
+    }
+
+    return dataResponseModel.data == "1";
+  }
 }

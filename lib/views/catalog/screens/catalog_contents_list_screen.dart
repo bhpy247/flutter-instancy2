@@ -362,11 +362,32 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
           );
         }
       },
-      onViewResources: () {
-        if (isSecondaryAction) Navigator.pop(context);
+      onViewResources: primaryAction == InstancyContentActionsEnum.ViewResources
+          ? null
+          : () async {
+              if (isSecondaryAction) Navigator.pop(context);
 
-        //TODO: Implement onViewResources
-      },
+              dynamic value = await NavigationController.navigateToEventTrackScreen(
+                navigationOperationParameters: NavigationOperationParameters(
+                  context: context,
+                  navigationType: NavigationType.pushNamed,
+                ),
+                arguments: EventTrackScreenArguments(
+                  eventTrackTabType: model.ContentTypeId == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
+                  objectTypeId: model.ContentTypeId,
+                  isRelatedContent: true,
+                  parentContentId: model.ContentID,
+                  componentId: componentId,
+                  scoId: model.ScoID,
+                  componentInstanceId: componentInstanceId,
+                  isContentEnrolled: model.isCourseEnrolled(),
+                ),
+              );
+
+              if (value == true) {
+                getCatalogContentsList();
+              }
+            },
       onRescheduleTap: () {
         if (isSecondaryAction) Navigator.pop(context);
 

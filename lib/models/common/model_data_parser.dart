@@ -17,6 +17,7 @@ import 'package:flutter_instancy_2/models/event/response_model/re_entrollment_hi
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/response_model/resource_content_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/response_model/track_list_view_data_response_model.dart';
+import 'package:flutter_instancy_2/models/feedback/data_model/feedback_dto_model.dart';
 import 'package:flutter_instancy_2/models/gamification/data_model/games_dto_model.dart';
 import 'package:flutter_instancy_2/models/gamification/response_model/content_game_activity_response_model.dart';
 import 'package:flutter_instancy_2/models/gamification/response_model/leader_board_dto_model.dart';
@@ -269,8 +270,12 @@ enum ModelDataParsingType {
   //endregion
 
   //region MyProgressRepor
-  ConsolidatedGroupDTO
+  ConsolidatedGroupDTO,
   //endregion
+
+  //Feedback
+  FeedbackDTOModel
+  //region
 }
 
 class ModelDataParser {
@@ -456,7 +461,11 @@ class ModelDataParser {
     //endregion
 
     //region My progress Report
-    ModelDataParsingType.ConsolidatedGroupDTO: parseMyProgressReportDTOModel
+    ModelDataParsingType.ConsolidatedGroupDTO: parseMyProgressReportDTOModel,
+    //endregion
+
+    //region Feedback
+    ModelDataParsingType.FeedbackDTOModel: parseFeedbackDTOList
     //endregion
   };
 
@@ -1332,6 +1341,14 @@ class ModelDataParser {
   }
 
 //endregion
+
+  //region Feedback
+  static List<FeedbackDtoModel>? parseFeedbackDTOList({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+    return mapsList.map((e) => FeedbackDtoModel.fromJson(e)).toList();
+  }
+
+  //region
 
 //region
   static List<ConsolidatedGroupDTO>? parseMyProgressReportDTOModel({required dynamic decodedValue}) {

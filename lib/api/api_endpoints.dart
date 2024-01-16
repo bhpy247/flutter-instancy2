@@ -344,6 +344,8 @@ class ApiEndpoints {
   // region Course Launch
   String getWebAPIInitialiseTrackingApiCall() => '${getBaseApiUrl()}CourseTracking/webAPIInitialiseTracking';
 
+  String updateBookmarkApiCall() => '${getBaseApiUrl()}CourseTracking/UpdateTrackListViewBookMark';
+
   String getInsertCourseDataByTokenApiCall() => '${getBaseApiUrl()}CourseTracking/InsertCourseDataByToken';
 
   String getMobileGetContentStatusApiCall() => '${getBaseApiUrl()}MobileLMS/MobileGetContentStatus';
@@ -482,6 +484,13 @@ class ApiEndpoints {
   String GetLeaderboardData() => '${getBaseApiUrl()}LeaderBoard/GetLeaderboardData';
 
   String UpdateGamificationForMobile() => '${getBaseApiUrl()}Game/UpdateGamificationForMobile';
+
+  //endregion
+  String GetFeedbackList() => '${getBaseApiUrl()}Feedback/GetFeedBackData';
+
+  String UploadFeedback() => '${getBaseApiUrl()}Feedback/UploadFeedback';
+
+  //region Feedback
 
   //endregion
 

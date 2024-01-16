@@ -537,7 +537,7 @@ class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen>
           Expanded(
             child: getProgressTimingItemWidget(title: status, value: dateStarted, valueIsStatus: true),
           ),
-          if (!MyLearningUIActionConfigs.checkNonTrackableContentForMediaType(mediaTypeId: mediaTypeId) && jwVideoKey.checkNotEmpty)
+          if (!MyLearningUIActionConfigs.checkNonTrackableContentForMediaType(mediaTypeId: mediaTypeId) || jwVideoKey.checkNotEmpty)
             Expanded(
               child: getProgressTimingItemWidget(
                 title: "Time Spent",

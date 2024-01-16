@@ -201,6 +201,7 @@ class EventTrackController {
     provider.isTrackContentsDataLoading.set(value: true, isNotify: isNotify);
 
     List<TrackDTOModel> contentsBlocksList = <TrackDTOModel>[];
+    String bookmarkId = "";
     AppErrorModel? appErrorModel;
 
     DataResponseModel<TrackListViewDataResponseModel> dataResponseModel = await eventTrackRepository.getTrackListViewData(
@@ -225,13 +226,16 @@ class EventTrackController {
 
     if (dataResponseModel.data != null) {
       TrackListViewDataResponseModel responseModel = dataResponseModel.data!;
-
+      if (responseModel.BookMarkData.checkNotEmpty) {
+        bookmarkId = responseModel.BookMarkData.firstOrNull?.BookMarkID ?? "";
+      }
       contentsBlocksList = responseModel.TrackListData;
     }
 
     MyPrint.printOnConsole("Final contentsBlocksList length:${contentsBlocksList.length}");
 
     provider.trackContentsData.setList(list: contentsBlocksList, isClear: true, isNotify: false);
+    provider.bookmarkId.set(value: bookmarkId, isNotify: false);
     provider.isTrackContentsDataLoading.set(value: false, isNotify: true);
 
     if (appErrorModel != null) {

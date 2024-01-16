@@ -40,6 +40,7 @@ import '../../../models/app_configuration_models/data_models/native_menu_compone
 import '../../catalog/screens/catalog_contents_list_screen.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_cached_network_image.dart';
+import '../../feedBack/screens/feedback_screen.dart';
 import '../../home/components/home_new_leaarning_resources_slider.dart';
 import '../../home/components/home_popular_leaarning_resources_slider.dart';
 import '../../home/components/home_recommended_leaarning_resources_slider.dart';
@@ -525,6 +526,8 @@ class _MainScreenState extends State<MainScreen> {
       );
     } else if (model.componentid == InstancyComponents.MyCourseDownloads) {
       return const MyCourseDownloadScreen();
+    } else if (model.componentid == InstancyComponents.Feedback) {
+      return const FeedbackScreen();
     } else {
       return const SizedBox();
     }

@@ -13,6 +13,7 @@ import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/event/event_controller.dart';
+import '../../../backend/event_track/event_track_provider.dart';
 import '../../../backend/navigation/navigation.dart';
 import '../../../backend/profile/profile_provider.dart';
 import '../../../backend/ui_actions/event_track/event_track_ui_actions_controller.dart';
@@ -52,7 +53,8 @@ class TrackContentTabWidget extends StatefulWidget {
       this.onReportContentTap,
       this.onSetCompleteTap,
       this.onCancelEnrollmentTap,
-      this.onExpansionChanged}) : super(key: key);
+      this.onExpansionChanged})
+      : super(key: key);
 
   @override
   State<TrackContentTabWidget> createState() => _TrackContentTabWidgetState();
@@ -71,112 +73,112 @@ class _TrackContentTabWidgetState extends State<TrackContentTabWidget> with MySa
   }) {
     MyPrint.printOnConsole("In the content tab widget");
     return EventTrackUIActionCallbackModel(
-      onEnrollTap: () {
-        if (isSecondaryAction) Navigator.pop(context);
+        onEnrollTap: () {
+          if (isSecondaryAction) Navigator.pop(context);
 
-        onDetailsTap(model: model);
-      },
-      onCancelEnrollmentTap: () async {
-        if (isSecondaryAction) Navigator.pop(context);
+          onDetailsTap(model: model);
+        },
+        onCancelEnrollmentTap: () async {
+          if (isSecondaryAction) Navigator.pop(context);
 
-        if (widget.onCancelEnrollmentTap != null) {
-          widget.onCancelEnrollmentTap!(model: model);
-        }
-      },
-      onRescheduleTap: () async {
-        if (isSecondaryAction) Navigator.pop(context);
+          if (widget.onCancelEnrollmentTap != null) {
+            widget.onCancelEnrollmentTap!(model: model);
+          }
+        },
+        onRescheduleTap: () async {
+          if (isSecondaryAction) Navigator.pop(context);
 
-        onDetailsTap(model: model, isRescheduleEvent: true);
-      },
-      onSetCompleteTap: () {
-        if (isSecondaryAction) Navigator.pop(context);
-        if (widget.onSetCompleteTap != null) {
-          widget.onSetCompleteTap!(model: model);
-        }
-      },
-      onViewTap: primaryAction == InstancyContentActionsEnum.View
-          ? null
-          : () async {
-              if (isSecondaryAction) Navigator.pop(context);
+          onDetailsTap(model: model, isRescheduleEvent: true);
+        },
+        onSetCompleteTap: () {
+          if (isSecondaryAction) Navigator.pop(context);
+          if (widget.onSetCompleteTap != null) {
+            widget.onSetCompleteTap!(model: model);
+          }
+        },
+        onViewTap: primaryAction == InstancyContentActionsEnum.View
+            ? null
+            : () async {
+                if (isSecondaryAction) Navigator.pop(context);
 
-              if (widget.onContentViewTap != null) {
-                widget.onContentViewTap!(model: model);
-              }
-            },
-      onPlayTap: primaryAction == InstancyContentActionsEnum.Play
-          ? null
-          : () async {
-              if (isSecondaryAction) Navigator.pop(context);
+                if (widget.onContentViewTap != null) {
+                  widget.onContentViewTap!(model: model);
+                }
+              },
+        onPlayTap: primaryAction == InstancyContentActionsEnum.Play
+            ? null
+            : () async {
+                if (isSecondaryAction) Navigator.pop(context);
 
-              if (widget.onContentViewTap != null) {
-                widget.onContentViewTap!(model: model);
-              }
-            },
-      onReportTap: () async {
-        if (isSecondaryAction) Navigator.pop(context);
+                if (widget.onContentViewTap != null) {
+                  widget.onContentViewTap!(model: model);
+                }
+              },
+        onReportTap: () async {
+          if (isSecondaryAction) Navigator.pop(context);
 
-        if (widget.onReportContentTap != null) {
-          widget.onReportContentTap!(model: model);
-        }
-      },
-      onJoinTap: () async {
-        if (isSecondaryAction) Navigator.pop(context);
+          if (widget.onReportContentTap != null) {
+            widget.onReportContentTap!(model: model);
+          }
+        },
+        onJoinTap: () async {
+          if (isSecondaryAction) Navigator.pop(context);
 
-        // EventController(eventProvider: null).joinVirtualEvent(context: context, joinUrl: model.participanturl);
-      },
-      onViewQRCodeTap: () async {
-        if (isSecondaryAction) Navigator.pop(context);
+          // EventController(eventProvider: null).joinVirtualEvent(context: context, joinUrl: model.participanturl);
+        },
+        onViewQRCodeTap: () async {
+          if (isSecondaryAction) Navigator.pop(context);
 
-        NavigationController.navigateToQRCodeImageScreen(
-          navigationOperationParameters: NavigationOperationParameters(
-            context: context,
-            navigationType: NavigationType.pushNamed,
-          ),
-          arguments: QRCodeImageScreenNavigationArguments(qrCodePath: model.ActionViewQRcode),
-        );
-      },
-      onViewRecordingTap: () async {
-        if (isSecondaryAction) Navigator.pop(context);
+          NavigationController.navigateToQRCodeImageScreen(
+            navigationOperationParameters: NavigationOperationParameters(
+              context: context,
+              navigationType: NavigationType.pushNamed,
+            ),
+            arguments: QRCodeImageScreenNavigationArguments(qrCodePath: model.ActionViewQRcode),
+          );
+        },
+        onViewRecordingTap: () async {
+          if (isSecondaryAction) Navigator.pop(context);
 
-        MyPrint.printOnConsole("onViewRecordingTap called for ContentTypeId:${model.ContentTypeId} and ContentID:${model.ContentID}");
+          MyPrint.printOnConsole("onViewRecordingTap called for ContentTypeId:${model.ContentTypeId} and ContentID:${model.ContentID}");
 
-        EventRecordingDetailsModel? recordingDetails = model.RecordingDetails;
+          EventRecordingDetailsModel? recordingDetails = model.RecordingDetails;
 
-        if (recordingDetails == null) {
-          MyPrint.printOnConsole("recordingDetails are null");
-          return;
-        }
-        ViewRecordingRequestModel viewRecordingRequestModel = ViewRecordingRequestModel(
-          contentName: recordingDetails.ContentName,
-          contentID: recordingDetails.ContentID,
-          contentTypeId: ParsingHelper.parseIntMethod(recordingDetails.ContentTypeId),
-          eventRecordingURL: recordingDetails.EventRecordingURL,
-          eventRecording: recordingDetails.EventRecording,
-          jWVideoKey: recordingDetails.JWVideoKey,
-          language: recordingDetails.Language,
-          recordingType: recordingDetails.RecordingType,
-          scoID: recordingDetails.ScoID,
-          jwVideoPath: recordingDetails.ViewLink,
-          viewType: recordingDetails.ViewType,
-        );
-        EventController(eventProvider: null).viewRecordingForEvent(model: viewRecordingRequestModel, context: context);
-      },
-      onViewResourcesTap: () async {
-        if (isSecondaryAction) Navigator.pop(context);
+          if (recordingDetails == null) {
+            MyPrint.printOnConsole("recordingDetails are null");
+            return;
+          }
+          ViewRecordingRequestModel viewRecordingRequestModel = ViewRecordingRequestModel(
+            contentName: recordingDetails.ContentName,
+            contentID: recordingDetails.ContentID,
+            contentTypeId: ParsingHelper.parseIntMethod(recordingDetails.ContentTypeId),
+            eventRecordingURL: recordingDetails.EventRecordingURL,
+            eventRecording: recordingDetails.EventRecording,
+            jWVideoKey: recordingDetails.JWVideoKey,
+            language: recordingDetails.Language,
+            recordingType: recordingDetails.RecordingType,
+            scoID: recordingDetails.ScoID,
+            jwVideoPath: recordingDetails.ViewLink,
+            viewType: recordingDetails.ViewType,
+          );
+          EventController(eventProvider: null).viewRecordingForEvent(model: viewRecordingRequestModel, context: context);
+        },
+        onViewResourcesTap: () async {
+          if (isSecondaryAction) Navigator.pop(context);
 
-        MyPrint.printOnConsole("onViewResourcesTap called for ContentTypeId:${model.ContentTypeId} and ContentID:${model.ContentID}");
+          MyPrint.printOnConsole("onViewResourcesTap called for ContentTypeId:${model.ContentTypeId} and ContentID:${model.ContentID}");
 
-        dynamic value = await NavigationController.navigateToEventTrackScreen(
-          navigationOperationParameters: NavigationOperationParameters(
-            context: context,
-            navigationType: NavigationType.pushNamed,
-          ),
-          arguments: EventTrackScreenArguments(
-            objectTypeId: model.ContentTypeId,
-            isRelatedContent: model.ContentTypeId == InstancyObjectTypes.events,
-            parentContentId: model.ContentID,
-            eventTrackTabType: model.ContentTypeId == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
-            componentId: widget.componentId,
+          dynamic value = await NavigationController.navigateToEventTrackScreen(
+            navigationOperationParameters: NavigationOperationParameters(
+              context: context,
+              navigationType: NavigationType.pushNamed,
+            ),
+            arguments: EventTrackScreenArguments(
+              objectTypeId: model.ContentTypeId,
+              isRelatedContent: model.ContentTypeId == InstancyObjectTypes.events,
+              parentContentId: model.ContentID,
+              eventTrackTabType: model.ContentTypeId == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
+              componentId: widget.componentId,
               componentInstanceId: widget.componentInsId,
               scoId: model.ScoID,
               isContentEnrolled: model.isCourseEnrolled(),
@@ -197,7 +199,7 @@ class _TrackContentTabWidgetState extends State<TrackContentTabWidget> with MySa
             parentEventId = model.ContentID;
             instanceEventId = "";
           } else if (model.EventScheduleType == EventScheduleTypes.instance) {
-            // parentEventId = model.InstanceParentContentID;
+            parentEventId = model.ParentInstanceID;
             instanceEventId = model.ContentID;
           }
 
@@ -218,7 +220,7 @@ class _TrackContentTabWidgetState extends State<TrackContentTabWidget> with MySa
         onReEnrollTap: () async {
           if (isSecondaryAction) Navigator.pop(context);
 
-          onDetailsTap(model: model);
+          onDetailsTap(model: model, isRescheduleEvent: true);
         });
   }
 
@@ -259,7 +261,7 @@ class _TrackContentTabWidgetState extends State<TrackContentTabWidget> with MySa
   }
 
   Future<void> onDetailsTap({required TrackCourseDTOModel model, bool isRescheduleEvent = false}) async {
-    String parentContentId = model.ContentID;
+    String parentContentId = model.ParentInstanceID;
     // String parentContentId = model.eventparentid;
     MyPrint.printOnConsole("parentContentId:'$parentContentId'");
 
@@ -321,24 +323,28 @@ class _TrackContentTabWidgetState extends State<TrackContentTabWidget> with MySa
 
   Widget getContentBlockWidget({required TrackDTOModel trackBlockModel}) {
     if (trackBlockModel.blockID.isNotEmpty) {
-      return Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: widget.initialExpansionValue.contains(trackBlockModel.blockID),
-          onExpansionChanged: (bool value) {
-            if (widget.onExpansionChanged != null) {
-              widget.onExpansionChanged!(model: trackBlockModel, value: value);
-            }
-          },
-          title: Text(
-            trackBlockModel.blockname,
-            style: themeData.textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w500,
+      return Consumer<EventTrackProvider>(builder: (context, EventTrackProvider eventProvider, _) {
+        List<TrackCourseDTOModel> isBlockExpanded = trackBlockModel.TrackList.where((element) => eventProvider.bookmarkId.get() == element.SequenceID.toString()).toList();
+
+        return Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            initiallyExpanded: isBlockExpanded.checkNotEmpty,
+            onExpansionChanged: (bool value) {
+              if (widget.onExpansionChanged != null) {
+                widget.onExpansionChanged!(model: trackBlockModel, value: value);
+              }
+            },
+            title: Text(
+              trackBlockModel.blockname,
+              style: themeData.textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
             ),
+            children: getContentsListWidget(contents: trackBlockModel.TrackList).toList(),
           ),
-          children: getContentsListWidget(contents: trackBlockModel.TrackList).toList(),
-        ),
-      );
+        );
+      });
     } else {
       return Column(
         children: getContentsListWidget(contents: trackBlockModel.TrackList).toList(),

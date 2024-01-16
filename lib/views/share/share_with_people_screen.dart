@@ -172,13 +172,10 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
       centerTitle: true,
       title: Text(
         isShareWithEmailIds ? "Share with People" : "Share with Connections",
-        style: themeData.textTheme.titleLarge?.copyWith(color: themeData.colorScheme.onPrimary, fontWeight: FontWeight.w600, letterSpacing: 0.8),
+        style: themeData.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.8),
       ),
       elevation: 0,
       // backgroundColor: themeData.primaryColor,
-      iconTheme: themeData.iconTheme.copyWith(
-        color: themeData.colorScheme.onPrimary,
-      ),
     );
   }
 

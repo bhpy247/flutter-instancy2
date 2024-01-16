@@ -40,6 +40,7 @@ class TrackCourseDTOModel {
   String TotalRatings = "";
   String RatingID = "";
   String PercentCompletedClass = "";
+  String ParentInstanceID = "";
   String ContentStatus = "";
   String ContentType = "";
   String ShortDescription = "";
@@ -144,6 +145,7 @@ class TrackCourseDTOModel {
     this.TotalRatings = "",
     this.RatingID = "",
     this.PercentCompletedClass = "",
+    this.ParentInstanceID = "",
     this.ContentStatus = "",
     this.ContentType = "",
     this.ShortDescription = "",
@@ -257,6 +259,7 @@ class TrackCourseDTOModel {
     TotalRatings = ParsingHelper.parseStringMethod(map["TotalRatings"]);
     RatingID = ParsingHelper.parseStringMethod(map["RatingID"]);
     PercentCompletedClass = ParsingHelper.parseStringMethod(map["PercentCompletedClass"]);
+    ParentInstanceID = ParsingHelper.parseStringMethod(map["ParentInstanceID"]);
     ContentStatus = ParsingHelper.parseStringMethod(map["ContentStatus"]);
     ContentType = ParsingHelper.parseStringMethod(map["ContentType"]);
     ShortDescription = ParsingHelper.parseStringMethod(map["ShortDescription"]);
@@ -372,6 +375,7 @@ class TrackCourseDTOModel {
       "TotalRatings": TotalRatings,
       "RatingID": RatingID,
       "PercentCompletedClass": PercentCompletedClass,
+      "ParentInstanceID": ParentInstanceID,
       "ContentStatus": ContentStatus,
       "ContentType": ContentType,
       "ShortDescription": ShortDescription,

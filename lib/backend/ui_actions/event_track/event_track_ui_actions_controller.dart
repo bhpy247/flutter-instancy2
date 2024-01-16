@@ -142,7 +142,9 @@ class EventTrackUIActionsController {
   }
 
   bool showReEnroll({required EventTrackUIActionParameterModel parameterModel}) {
-    if (parameterModel.InstanceEventReSchedule.isNotEmpty) {
+    MyPrint.printOnConsole("InstanceEventReclass : ${parameterModel.InstanceEventReclass}");
+
+    if (parameterModel.InstanceEventReclass.isNotEmpty) {
       return true;
     }
 
@@ -299,6 +301,7 @@ class EventTrackUIActionsController {
       InstancyContentActionsEnum.ViewRecording,
       InstancyContentActionsEnum.SetComplete,
       InstancyContentActionsEnum.ReEnrollmentHistory,
+      InstancyContentActionsEnum.ReEnroll,
     ];
     // MyPrint.printOnConsole("primaryActions:$primaryActions");
 
@@ -437,8 +440,16 @@ class EventTrackUIActionsController {
             onTap: callbackModel.onCancelEnrollmentTap,
           );
         }
-      }
-      else if (action == InstancyContentActionsEnum.Reschedule) {
+      } else if (action == InstancyContentActionsEnum.ReEnroll) {
+        if (isShowAction(actionType: InstancyContentActionsEnum.ReEnroll, parameterModel: parameterModel) && callbackModel.onReEnrollTap != null) {
+          model = InstancyUIActionModel(
+            text: localStr.eventsActionSheetReEnrollOption,
+            iconData: InstancyIcons.reEnroll,
+            onTap: callbackModel.onReEnrollTap,
+            actionsEnum: InstancyContentActionsEnum.ReEnroll,
+          );
+        }
+      } else if (action == InstancyContentActionsEnum.Reschedule) {
         if (isShowAction(actionType: InstancyContentActionsEnum.Reschedule, parameterModel: parameterModel) && callbackModel.onRescheduleTap != null) {
           model = InstancyUIActionModel(
             text: localStr.mylearningActionbuttonRescheduleactionbutton,
@@ -447,8 +458,7 @@ class EventTrackUIActionsController {
             actionsEnum: InstancyContentActionsEnum.Reschedule,
           );
         }
-      }
-      else if (action == InstancyContentActionsEnum.View) {
+      } else if (action == InstancyContentActionsEnum.View) {
         if (isShowAction(actionType: InstancyContentActionsEnum.View, parameterModel: parameterModel) && callbackModel.onViewTap != null) {
           model = InstancyUIActionModel(
             text: localStr.mylearningActionsheetViewoption,
@@ -538,15 +548,6 @@ class EventTrackUIActionsController {
             iconData: InstancyIcons.ReEnrollmentHistory,
             onTap: callbackModel.onReEnrollmentHistoryTap,
             actionsEnum: InstancyContentActionsEnum.ReEnrollmentHistory,
-          );
-        }
-      } else if (action == InstancyContentActionsEnum.ReEnroll) {
-        if (isShowAction(actionType: InstancyContentActionsEnum.ReEnroll, parameterModel: parameterModel) && callbackModel.onReEnrollTap != null) {
-          model = InstancyUIActionModel(
-            text: localStr.eventsActionSheetReEnrollOption,
-            iconData: InstancyIcons.reEnroll,
-            onTap: callbackModel.onReEnrollTap,
-            actionsEnum: InstancyContentActionsEnum.ReEnroll,
           );
         }
       }
