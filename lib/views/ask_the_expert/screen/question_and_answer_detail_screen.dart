@@ -21,10 +21,12 @@ import '../../../backend/navigation/navigation_arguments.dart';
 import '../../../backend/navigation/navigation_controller.dart';
 import '../../../backend/navigation/navigation_operation_parameters.dart';
 import '../../../backend/navigation/navigation_type.dart';
+import '../../../backend/share/share_provider.dart';
 import '../../../backend/ui_actions/ask_the_expert/answer/answer_comment_ui_action_callback_model.dart';
 import '../../../backend/ui_actions/ask_the_expert/answer/answer_comment_ui_action_controller.dart';
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import '../../../configs/app_configurations.dart';
+import '../../../configs/app_constants.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/ask_the_expert/data_model/answer_comment_dto.dart';
 import '../../../models/common/data_response_model.dart';
@@ -212,6 +214,7 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
   Future<void> showMoreActionsForAnswers({
     required QuestionAnswerResponse answerModel,
     InstancyContentActionsEnum? primaryAction,
+    bool isSecondaryAction = true,
   }) async {
     LocalStr localStr = appProvider.localStr;
 
@@ -221,8 +224,35 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
           commentModel: answerModel,
           localStr: localStr,
           uiActionCallbackModel: AnswersUIActionCallbackModel(
-            onShareWithConnectionTap: () {},
-            onShareWithPeopleTap: () {},
+            onShareWithConnectionTap: () {
+              Navigator.pop(context);
+
+              NavigationController.navigateToShareWithConnectionsScreen(
+                navigationOperationParameters: NavigationOperationParameters(
+                  context: context,
+                  navigationType: NavigationType.pushNamed,
+                ),
+                arguments: ShareWithConnectionsScreenNavigationArguments(
+                  shareContentType: ShareContentType.askTheExpertQuestion,
+                  contentId: answerModel.questionID.toString(),
+                  shareProvider: context.read<ShareProvider>(),
+                ),
+              );
+            },
+            onShareWithPeopleTap: () {
+              Navigator.pop(context);
+
+              NavigationController.navigateToShareWithPeopleScreen(
+                navigationOperationParameters: NavigationOperationParameters(
+                  context: context,
+                  navigationType: NavigationType.pushNamed,
+                ),
+                arguments: ShareWithPeopleScreenNavigationArguments(
+                  shareContentType: ShareContentType.askTheExpertQuestion,
+                  contentId: answerModel.questionID.toString(),
+                ),
+              );
+            },
             onAddCommentTap: () {
               Navigator.pop(context);
 
