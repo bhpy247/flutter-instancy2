@@ -182,6 +182,7 @@ class ShareWithConnectionsScreenNavigationArguments extends NavigationArguments 
   final int forumId;
   final int scoId;
   final int objecttypeId;
+  final int questionId;
   final ShareProvider? shareProvider;
 
   const ShareWithConnectionsScreenNavigationArguments({
@@ -191,6 +192,7 @@ class ShareWithConnectionsScreenNavigationArguments extends NavigationArguments 
     this.topicId = "",
     this.forumId = 0,
     this.scoId = 0,
+    this.questionId = 0,
     this.objecttypeId = 0,
     this.shareProvider,
   });
@@ -204,6 +206,7 @@ class ShareWithPeopleScreenNavigationArguments extends NavigationArguments {
   final int forumId;
   final int scoId;
   final int objecttypeId;
+  final int questionId;
   final bool isSuggestToConnections;
   final List<int>? userIds;
 
@@ -214,6 +217,7 @@ class ShareWithPeopleScreenNavigationArguments extends NavigationArguments {
     this.topicId = "",
     this.forumId = 0,
     this.scoId = 0,
+    this.questionId = 0,
     this.objecttypeId = 0,
     this.isSuggestToConnections = false,
     this.userIds,

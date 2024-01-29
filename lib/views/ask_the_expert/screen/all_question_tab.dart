@@ -169,11 +169,7 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
             context: context,
             navigationType: NavigationType.pushNamed,
           ),
-          arguments: ShareWithConnectionsScreenNavigationArguments(
-            shareContentType: ShareContentType.askTheExpertQuestion,
-            contentId: model.questionID.toString(),
-            shareProvider: context.read<ShareProvider>(),
-          ),
+          arguments: ShareWithConnectionsScreenNavigationArguments(shareContentType: ShareContentType.askTheExpertQuestion, shareProvider: context.read<ShareProvider>(), questionId: model.questionID),
         );
       },
       onShareWithPeopleTap: () {
@@ -186,7 +182,7 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
           ),
           arguments: ShareWithPeopleScreenNavigationArguments(
             shareContentType: ShareContentType.askTheExpertQuestion,
-            contentId: model.questionID.toString(),
+            questionId: model.questionID,
           ),
         );
       },

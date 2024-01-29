@@ -330,6 +330,7 @@ class _ShareWithConnectionsScreenState extends State<ShareWithConnectionsScreen>
                     contentName: widget.arguments.contentName,
                     topicId: widget.arguments.topicId,
                     forumId: widget.arguments.forumId,
+                    questionId: widget.arguments.questionId,
                     isSuggestToConnections: true,
                     userIds: shareProvider.selectedConnectionsList.getList(),
                     scoId: widget.arguments.scoId,
