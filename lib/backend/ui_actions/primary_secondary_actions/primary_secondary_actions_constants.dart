@@ -68,6 +68,10 @@ enum InstancyContentActionsEnum {
   PauseDownload,
   ResumeDownload,
   // endregion
+
+  //region Ask the expert
+  AddAnswer,
+  //endregion
 }
 
 enum InstancyContentScreenType {

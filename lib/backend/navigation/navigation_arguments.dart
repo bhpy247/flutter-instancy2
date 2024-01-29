@@ -9,6 +9,7 @@ import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/data_model/ask_the_expert_dto.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/membership/data_model/membership_plan_details_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_experience_data_model.dart';
@@ -515,6 +516,65 @@ class DiscussionForumScreenNavigationArguments extends NavigationArguments {
   const DiscussionForumScreenNavigationArguments({
     required this.componentId,
     required this.componentInsId,
+  });
+}
+
+class AskTheExpertScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+
+  const AskTheExpertScreenNavigationArguments({
+    required this.componentId,
+    required this.componentInsId,
+  });
+}
+
+class FilterSkillsScreenNavigationArguments extends NavigationArguments {
+  final bool isMyQuestion;
+
+  const FilterSkillsScreenNavigationArguments({this.isMyQuestion = false});
+}
+
+class CreateEditQuestionNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+  final bool isEdit;
+  final UserQuestionListDto? userQuestionListDto;
+
+  const CreateEditQuestionNavigationArguments({
+    required this.componentId,
+    required this.componentInsId,
+    this.userQuestionListDto,
+    this.isEdit = false,
+  });
+}
+
+class QuestionAndAnswerDetailsScreenArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+  final int questionId;
+  final UserQuestionListDto? userQuestionListDto;
+
+  const QuestionAndAnswerDetailsScreenArguments({
+    required this.componentId,
+    required this.componentInsId,
+    required this.questionId,
+    this.userQuestionListDto,
+  });
+}
+
+class AddEditAnswerScreenNavigationArguments extends NavigationArguments {
+  final int questionId;
+  final bool isEdit;
+
+  final UserQuestionListDto? userQuestionListDto;
+  final QuestionAnswerResponse? questionAnswerResponse;
+
+  const AddEditAnswerScreenNavigationArguments({
+    required this.questionId,
+    required this.isEdit,
+    this.userQuestionListDto,
+    this.questionAnswerResponse,
   });
 }
 

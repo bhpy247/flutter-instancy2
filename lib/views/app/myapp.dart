@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_controller.dart';
+import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/download/flutter_download_controller.dart';
@@ -82,6 +83,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<GamificationProvider>(create: (_) => GamificationProvider()),
         ChangeNotifierProvider<CourseDownloadProvider>(create: (_) => CourseDownloadProvider()),
         ChangeNotifierProvider<FeedbackProvider>(create: (_) => FeedbackProvider()),
+        ChangeNotifierProvider<AskTheExpertProvider>(create: (_) => AskTheExpertProvider()),
       ],
       child: const MainApp(),
     );

@@ -100,14 +100,14 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
       case ShareContentType.askTheExpertQuestion:
         {
           message = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
-              "YouTube site! \n\nContent Name: $contentName. \n\n "
-              "Content Link: $siteUrl/User-Questions-List/QuestionID/${widget.arguments.contentId}";
+              "YouTube site! \n\n"
+              "Link: $siteUrl/User-Questions-List/QuestionID/${widget.arguments.contentId}";
           String contentLink = "$siteUrl/User-Questions-List/QuestionID/${widget.arguments.contentId}";
 
-          String linkContent = "<a href = $contentLink> ${widget.arguments.contentName} </a>";
+          String linkContent = "<a href = $contentLink></a>";
           messageToSendInTheApi = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
-              "YouTube site! \n\nContent Name: $linkContent. \n\n "
-              "Content Link: $contentLink";
+              "YouTube site! \n\n"
+              "Link:$contentLink";
           break;
         }
       case ShareContentType.catalogCourse:

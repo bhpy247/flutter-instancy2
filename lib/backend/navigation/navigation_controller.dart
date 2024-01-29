@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_instancy_2/views/ask_the_expert/screen/add_edit_answer_screen.dart';
+import 'package:flutter_instancy_2/views/ask_the_expert/screen/question_and_answer_detail_screen.dart';
 import 'package:flutter_instancy_2/views/authentication/screens/forgot_password_screen.dart';
 import 'package:flutter_instancy_2/views/authentication/screens/login_screen.dart';
 import 'package:flutter_instancy_2/views/authentication/screens/sign_up_screen.dart';
@@ -12,6 +14,7 @@ import 'package:flutter_instancy_2/views/discussion_forum/screens/create_edit_to
 import 'package:flutter_instancy_2/views/discussion_forum/screens/discussion_detail.dart';
 import 'package:flutter_instancy_2/views/event/components/re_enrollment_history.dart';
 import 'package:flutter_instancy_2/views/event_track/screens/event_track_screen.dart';
+import 'package:flutter_instancy_2/views/feedBack/screens/add_feedback_screen.dart';
 import 'package:flutter_instancy_2/views/lens_feature/screen/lens_screen.dart';
 import 'package:flutter_instancy_2/views/main_screen/screens/main_screen.dart';
 import 'package:flutter_instancy_2/views/membership/screens/membership_selection_screen.dart';
@@ -24,6 +27,8 @@ import 'package:flutter_instancy_2/views/wishlist/screen/wishlist_screen.dart';
 
 import '../../utils/my_print.dart';
 import '../../views/app/splashscreen.dart';
+import '../../views/ask_the_expert/screen/add_question_screen.dart';
+import '../../views/ask_the_expert/screen/skills_filter_screen.dart';
 import '../../views/authentication/screens/login_signup_selection_screen.dart';
 import '../../views/catalog/screens/catalog_contents_list_screen.dart';
 import '../../views/catalog/screens/catalog_subcategories_list_screen.dart';
@@ -373,6 +378,36 @@ class NavigationController {
           page = parsePurchaseHistoryScreen(settings: settings);
           break;
         }
+      //endregion
+      //
+      // region Feedback screen
+      case AddFeedbackScreen.routeName:
+        {
+          page = parseAddFeedbackScreen(settings: settings);
+          break;
+        }
+      case CreateEditQuestionScreen.routeName:
+        {
+          page = parseCreateEditAddQuestionScreen(settings: settings);
+          break;
+        }
+
+      case QuestionAndAnswerDetailsScreen.routeName:
+        {
+          page = parseQuestionAndAnswerDetailsScreen(settings: settings);
+          break;
+        }
+
+      case AddEditAnswerScreen.routeName:
+        {
+          page = parseAddEditAnswerScreen(settings: settings);
+        }
+
+      case FilterSkillsScreen.routeName:
+        {
+          page = parseFilterSkillScreen(settings: settings);
+        }
+
       //endregion
     }
 
@@ -867,6 +902,58 @@ class NavigationController {
   //region Camera
 
   //endregion
+
+  //endregion
+
+  //region Feedback
+  static Widget? parseAddFeedbackScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    // if (argument is! PurchaseHistoryScreenNavigationArguments) {
+    //   return null;
+    // }
+
+    return const AddFeedbackScreen();
+  }
+
+  static Widget? parseQuestionAndAnswerDetailsScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! QuestionAndAnswerDetailsScreenArguments) {
+      return null;
+    }
+
+    return QuestionAndAnswerDetailsScreen(
+      arguments: argument,
+    );
+  }
+
+  static Widget? parseAddEditAnswerScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditAnswerScreenNavigationArguments) {
+      return null;
+    }
+
+    return AddEditAnswerScreen(
+      arguments: argument,
+    );
+  }
+
+  static Widget? parseCreateEditAddQuestionScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! CreateEditQuestionNavigationArguments) {
+      return null;
+    }
+
+    return CreateEditQuestionScreen(arguments: argument);
+  }
+
+  static Widget? parseFilterSkillScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! FilterSkillsScreenNavigationArguments) {
+      return null;
+    }
+
+    return FilterSkillsScreen(arguments: argument);
+  }
 
   //endregion
   //endregion
@@ -1367,6 +1454,50 @@ class NavigationController {
       ),
     );
   }
+
+//endregion
+
+//region Feedback
+  static Future<dynamic> navigateToAddFeedbackScreen({required NavigationOperationParameters navigationOperationParameters}) {
+    MyPrint.printOnConsole("navigateToCategoriesSearchScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: AddFeedbackScreen.routeName,
+      ),
+    );
+  }
+
 //endregion
 //endregion
+
+  static Future<dynamic> navigateToCreateAddEditQuestionScreen({required NavigationOperationParameters navigationOperationParameters, required CreateEditQuestionNavigationArguments arguments}) {
+    MyPrint.printOnConsole("navigateToAddTopicScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: CreateEditQuestionScreen.routeName,
+        arguments: arguments,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToQuestionAndAnswerDetailScreen({required NavigationOperationParameters navigationOperationParameters, required QuestionAndAnswerDetailsScreenArguments arguments}) {
+    MyPrint.printOnConsole("navigateToCategoriesSearchScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: QuestionAndAnswerDetailsScreen.routeName, arguments: arguments),
+    );
+  }
+
+  static Future<dynamic> navigateToAddEditAnswerScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditAnswerScreenNavigationArguments arguments}) {
+    MyPrint.printOnConsole("navigateToCategoriesSearchScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: AddEditAnswerScreen.routeName, arguments: arguments),
+    );
+  }
+
+  static Future<dynamic> navigateToFilterSkillsScreen({required NavigationOperationParameters navigationOperationParameters, required FilterSkillsScreenNavigationArguments arguments}) {
+    MyPrint.printOnConsole("navigateToCategoriesSearchScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: FilterSkillsScreen.routeName, arguments: arguments),
+    );
+  }
 }

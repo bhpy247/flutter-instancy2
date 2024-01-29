@@ -2,6 +2,10 @@ import 'package:flutter_chat_bot/models/authorization/response_model/bot_details
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_model.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/response_model/currency_data_response_model.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/data_model/answer_comment_dto.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/response_model/QuestionListDtoResponseModel.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/response_model/add_question_response_model.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/response_model/filter_user_skills_dto.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/forgot_password_response_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/signup_field_response_model.dart';
@@ -9,6 +13,7 @@ import 'package:flutter_instancy_2/models/catalog/response_model/associated_cont
 import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/user_coming_soon_response.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/tab_data_model.dart';
+import 'package:flutter_instancy_2/models/common/response_model/common_response_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/category_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/forum_info_user_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/forum_model.dart';
@@ -37,6 +42,7 @@ import '../app_configuration_models/data_models/tincan_data_model.dart';
 import '../app_configuration_models/response_model/mobile_api_auth_response_model.dart';
 import '../app_configuration_models/response_model/mobile_get_learning_portal_info_response_model.dart';
 import '../ar_vr_module/response_model/ar_content_model.dart';
+import '../ask_the_expert/data_model/ask_the_expert_dto.dart';
 import '../authentication/data_model/successful_user_login_model.dart';
 import '../authentication/response_model/country_response_model.dart';
 import '../authentication/response_model/email_login_response_model.dart';
@@ -274,8 +280,20 @@ enum ModelDataParsingType {
   //endregion
 
   //Feedback
-  FeedbackDTOModel
+  FeedbackDTOModel,
   //region
+
+  //region CommonResponseModel
+  CommonResponseModel,
+  //endregion
+
+  //region Ask the expert
+  QuestionListDtoModel,
+  AskTheExpertDtoModel,
+  AnswerCommentDtoModel,
+  AddQuestionResponseModel,
+  FilterUserSkillsDtoResponseModel
+  //endregion
 }
 
 class ModelDataParser {
@@ -465,8 +483,20 @@ class ModelDataParser {
     //endregion
 
     //region Feedback
-    ModelDataParsingType.FeedbackDTOModel: parseFeedbackDTOList
+    ModelDataParsingType.FeedbackDTOModel: parseFeedbackDTOList,
     //endregion
+
+    //region CommonResponseModel
+    ModelDataParsingType.CommonResponseModel: parseCommonResponseModelList,
+    //region
+
+    // region AskTheExpertDtoModel
+    ModelDataParsingType.AskTheExpertDtoModel: parseAskTheExpertDtoModel,
+    ModelDataParsingType.AnswerCommentDtoModel: parseAnswerCommentDTOModel,
+    ModelDataParsingType.QuestionListDtoModel: parseQuestionListDtoModel,
+    ModelDataParsingType.AddQuestionResponseModel: parseAddQuestionResponseModel,
+    ModelDataParsingType.FilterUserSkillsDtoResponseModel: parseFilterUserSkillsDtoResponseModel
+    //region
   };
 
   //region App Module
@@ -1346,6 +1376,66 @@ class ModelDataParser {
   static List<FeedbackDtoModel>? parseFeedbackDTOList({required dynamic decodedValue}) {
     List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
     return mapsList.map((e) => FeedbackDtoModel.fromJson(e)).toList();
+  }
+
+  //region
+
+  //region CommonResponseModel
+  static List<CommonResponseModel>? parseCommonResponseModelList({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+    return mapsList.map((e) => CommonResponseModel.fromJson(e)).toList();
+  }
+
+  //region
+  // region AskTheExpertDtoModel
+  static AskTheExpertDto? parseAskTheExpertDtoModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return AskTheExpertDto.fromJson(json);
+    } else {
+      return null;
+    }
+  }
+
+  static AnswerCommentDTOModel? parseAnswerCommentDTOModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return AnswerCommentDTOModel.fromJson(json);
+    } else {
+      return null;
+    }
+  }
+
+  static QuestionListDtoResponseModel? parseQuestionListDtoModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return QuestionListDtoResponseModel.fromJson(json);
+    } else {
+      return null;
+    }
+  }
+
+  static AddQuestionResponseModel? parseAddQuestionResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return AddQuestionResponseModel.fromJson(json);
+    } else {
+      return null;
+    }
+  }
+
+  static FilterUserSkillsDtoResponseModel? parseFilterUserSkillsDtoResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return FilterUserSkillsDtoResponseModel.fromJson(json);
+    } else {
+      return null;
+    }
   }
 
   //region

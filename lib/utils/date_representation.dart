@@ -19,7 +19,6 @@ abstract class DatePresentation {
     return DateFormat('yMMMMd').format(dateTime);
   }
 
-
   static String yyyyMMddHHmmssFormatter(Timestamp timeStamp) {
     DateTime dateTime = timeStamp.toDate();
     return DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
@@ -28,6 +27,11 @@ abstract class DatePresentation {
   static String yyyyMMddFormatter(Timestamp timeStamp) {
     DateTime dateTime = timeStamp.toDate();
     return DateFormat('yyyy-MM-dd').format(dateTime);
+  }
+
+  static String mmmmDDYYYYHHMMAFormatter(Timestamp timeStamp) {
+    DateTime dateTime = timeStamp.toDate();
+    return DateFormat('MMMM dd,yyyy HH:mm a').format(dateTime);
   }
 
   static String ddMMMMyyyyTimeStamp(Timestamp timeStamp) {

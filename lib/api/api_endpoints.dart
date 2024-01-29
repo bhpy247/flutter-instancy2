@@ -490,7 +490,32 @@ class ApiEndpoints {
 
   String UploadFeedback() => '${getBaseApiUrl()}Feedback/UploadFeedback';
 
+  String DeleteFeedback() => '${getBaseApiUrl()}Feedback/DeleteFeedback';
+
   //region Feedback
+
+  //region Ask the expert
+  String GetUserQuestionAnswerResponse() => '${getBaseApiUrl()}AsktheExpert/GetUserQuestionsResponses';
+
+  String GetAnswerCommentResponse() => '${getBaseApiUrl()}AsktheExpert/GetUserResponseComments';
+
+  String GetLikeDislikeAnswer() => '${getBaseApiUrl()}Generic/InsertContentLikes';
+
+  String DeleteResponseUpAndDownVoters() => '${getBaseApiUrl()}AsktheExpert/DeleteResponseUpAndDownVoters';
+
+  String apiDeleteAnswer() => '${getBaseApiUrl()}AsktheExpert/DeleteUserResponses';
+
+  String apiDeleteQuestion() => '${getBaseApiUrl()}AsktheExpert/DeleteQuestion';
+
+  String apiAddEditAnswer() => '${getBaseApiUrl()}AsktheExpert/InsertEditQuestionResponse';
+
+  String apiAddEditQuestion() => '${getBaseApiUrl()}AsktheExpert/InsertNewUserQuestion';
+
+  String GetQuestionList() => "${getBaseApiUrl()}/AsktheExpert/GetAsktheExpertData";
+
+  String GetFilterSkills() => "${getBaseApiUrl()}AsktheExpert/GetFilterUserSkills";
+
+  //endregion
 
   //endregion
 

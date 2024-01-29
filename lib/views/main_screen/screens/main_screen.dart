@@ -23,6 +23,7 @@ import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/configs/ui_configurations.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
+import 'package:flutter_instancy_2/views/ask_the_expert/screen/quesionAndAnswerMainScreen.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/catalog_categories_list_screen.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:flutter_instancy_2/views/course_download/screens/my_course_download_screen.dart';
@@ -444,7 +445,7 @@ class _MainScreenState extends State<MainScreen> {
     } else if (model.componentid == InstancyComponents.MyProfile) {
       return UserProfileScreen(
         arguments: UserProfileScreenNavigationArguments(
-          userId: ApiController().apiDataProvider.getCurrentUserId(),
+            userId: ApiController().apiDataProvider.getCurrentUserId(),
             profileProvider: profileProvider,
             isFromProfile: true,
             isMyProfile: true,
@@ -528,6 +529,13 @@ class _MainScreenState extends State<MainScreen> {
       return const MyCourseDownloadScreen();
     } else if (model.componentid == InstancyComponents.Feedback) {
       return const FeedbackScreen();
+    } else if (model.componentid == InstancyComponents.AskTheExpert) {
+      return AskTheExpertMainScreen(
+        arguments: AskTheExpertScreenNavigationArguments(
+          componentId: model.componentid,
+          componentInsId: model.repositoryid,
+        ),
+      );
     } else {
       return const SizedBox();
     }

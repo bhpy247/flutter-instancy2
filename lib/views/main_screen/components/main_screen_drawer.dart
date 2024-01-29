@@ -29,7 +29,7 @@ class MainScreenDrawer extends StatelessWidget {
     ThemeData themeData = Theme.of(context);
 
     List<NativeMenuModel> allMenusList = appProvider.getMenuModelsList();
-
+    MyPrint.printOnConsole("allMenusList :$allMenusList");
     List<NativeMenuModel> finalMenusList = menusList.where((NativeMenuModel menuModel) {
       if (["transfer to human agent"].contains(menuModel.displayname.toLowerCase())) {
         return false;
@@ -55,7 +55,6 @@ class MainScreenDrawer extends StatelessWidget {
         // "transfer to human agent",
       ].contains(menuModel.displayname.toLowerCase());*/
     }).toList();
-
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.7,
       // backgroundColor: themeData.primaryColor,

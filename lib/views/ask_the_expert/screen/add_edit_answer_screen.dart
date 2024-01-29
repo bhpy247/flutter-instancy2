@@ -1,20 +1,20 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_bot/utils/my_safe_state.dart';
-import 'package:flutter_instancy_2/backend/feedback/feedback_controller.dart';
-import 'package:flutter_instancy_2/backend/feedback/feedback_provider.dart';
-import 'package:flutter_instancy_2/models/feedback/request_model/update_feedback_request_model.dart';
-import 'package:flutter_instancy_2/utils/date_representation.dart';
+import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_controller.dart';
+import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/data_model/ask_the_expert_dto.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_answer_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/app/app_provider.dart';
+import '../../../backend/navigation/navigation_arguments.dart';
 import '../../../models/common/Instancy_multipart_file_upload_model.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_toast.dart';
@@ -24,22 +24,22 @@ import '../../common/components/common_button.dart';
 import '../../common/components/common_text_form_field.dart';
 import '../../common/components/modal_progress_hud.dart';
 
-class AddFeedbackScreen extends StatefulWidget {
-  static const String routeName = "/AddFeedbackScreen";
+class AddEditAnswerScreen extends StatefulWidget {
+  static const String routeName = "/addEditAnswerScreen";
+  final AddEditAnswerScreenNavigationArguments arguments;
 
-  const AddFeedbackScreen({super.key});
+  const AddEditAnswerScreen({super.key, required this.arguments});
 
   @override
-  State<AddFeedbackScreen> createState() => _AddFeedbackScreenState();
+  State<AddEditAnswerScreen> createState() => _AddEditAnswerScreenState();
 }
 
-class _AddFeedbackScreenState extends State<AddFeedbackScreen> with MySafeState {
-  late FeedbackController feedbackController;
-  late FeedbackProvider feedbackProvider;
+class _AddEditAnswerScreenState extends State<AddEditAnswerScreen> with MySafeState {
+  late AskTheExpertController askTheExpertController;
+  late AskTheExpertProvider askTheExpertProvider;
   late AppProvider appProvider;
 
   TextEditingController titleTextEditingController = TextEditingController();
-  TextEditingController descriptionTextEditingController = TextEditingController();
   TextEditingController uploadFileTextEditingController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
@@ -87,9 +87,12 @@ class _AddFeedbackScreenState extends State<AddFeedbackScreen> with MySafeState 
     return fileName;
   }
 
-  Future<void> createTopic() async {
+  Future<void> createAnswer() async {
     isLoading = true;
     mySetState();
+    // ForumModel forumModel = widget.arguments.forumModel;
+    UserQuestionListDto userQuestionListDto = widget.arguments.userQuestionListDto ?? UserQuestionListDto();
+
     List<InstancyMultipartFileUploadModel>? list;
     if (fileBytes != null) {
       list = [
@@ -100,21 +103,27 @@ class _AddFeedbackScreenState extends State<AddFeedbackScreen> with MySafeState 
         ),
       ];
     }
-    MyPrint.printOnConsole("Date Time : ${DatePresentation.mmmmDDYYYYHHMMAFormatter(Timestamp.now())}");
+    AddAnswerRequestModel answerRequestModel = AddAnswerRequestModel();
+    if (widget.arguments.isEdit) {
+      QuestionAnswerResponse answerResponse = widget.arguments.questionAnswerResponse ?? QuestionAnswerResponse();
+      answerRequestModel.Response = titleTextEditingController.text.trim();
+      answerRequestModel.QuestionID = answerResponse.questionID;
+      answerRequestModel.IsRemoveEditimage = false;
+      answerRequestModel.ResponseID = answerResponse.responseID;
+      answerRequestModel.UserResponseImageName = answerResponse.userResponseImage.checkNotEmpty ? answerResponse.userResponseImage : fileName;
+      answerRequestModel.strAttachFileBytes = fileBytes;
+      answerRequestModel.fileUploads = list;
+    } else {
+      answerRequestModel.Response = titleTextEditingController.text.trim();
+      answerRequestModel.QuestionID = userQuestionListDto.questionID;
+      answerRequestModel.IsRemoveEditimage = false;
+      answerRequestModel.ResponseID = -1;
+      answerRequestModel.UserResponseImageName = fileName;
+      answerRequestModel.strAttachFileBytes = fileBytes;
+      answerRequestModel.fileUploads = list;
+    }
 
-    UpdateFeedbackRequestModel updateFeedbackRequestModel = UpdateFeedbackRequestModel(
-      feedbackTitle: titleTextEditingController.text.trim(),
-      feedbackdesc: descriptionTextEditingController.text.trim(),
-      fileUploads: list,
-      imageFileName: fileName,
-      // date2: DatePresentation.mmmmDDYYYYHHMMAFormatter(Timestamp.now()),
-      date2: DateTime.now().toIso8601String(),
-      strAttachFileBytes: fileBytes,
-    );
-
-    bool isSuccess = await feedbackController.updateFeedback(
-      requestModel: updateFeedbackRequestModel,
-    );
+    bool isSuccess = await askTheExpertController.addAnswer(requestModel: answerRequestModel);
     MyPrint.printOnConsole("isSuccess: $isSuccess");
 
     isLoading = false;
@@ -122,17 +131,33 @@ class _AddFeedbackScreenState extends State<AddFeedbackScreen> with MySafeState 
 
     MyPrint.printOnConsole("context.mounted:${context.mounted}");
     if (isSuccess && context.mounted) {
-      MyToast.showSuccess(msg: "Feedback added successfully", context: context);
+      MyToast.showSuccess(msg: widget.arguments.isEdit ? "Answer edited SuccessFully" : "Answer added SuccessFully", context: context);
+
       Navigator.pop(context, isSuccess);
+    } else {
+      if (context.mounted) {
+        MyToast.showError(msg: "Answer addition failed", context: context);
+      }
     }
+  }
+
+  void setEditData() {
+    QuestionAnswerResponse? answerResponse = widget.arguments.questionAnswerResponse;
+
+    if (answerResponse == null) return;
+    titleTextEditingController.text = answerResponse.response;
+    uploadFileTextEditingController.text = answerResponse.responseImageUploadName;
+    fileName = answerResponse.responseImageUploadName;
+    mySetState();
   }
 
   @override
   void initState() {
     super.initState();
     appProvider = context.read<AppProvider>();
-    feedbackProvider = context.read<FeedbackProvider>();
-    feedbackController = FeedbackController(feedbackProvider: feedbackProvider);
+    askTheExpertProvider = context.read<AskTheExpertProvider>();
+    askTheExpertController = AskTheExpertController(discussionProvider: askTheExpertProvider);
+    setEditData();
   }
 
   @override
@@ -162,7 +187,7 @@ class _AddFeedbackScreenState extends State<AddFeedbackScreen> with MySafeState 
         child: Column(
           children: [
             getCommonTextFormField(
-              hintext: "Title",
+              hintext: "Add Answer",
               inputFormatter: [
                 LengthLimitingTextInputFormatter(200),
               ],
@@ -178,32 +203,17 @@ class _AddFeedbackScreenState extends State<AddFeedbackScreen> with MySafeState 
                 return null;
               },
             ),
-            const SizedBox(height: 20),
-            getCommonTextFormField(
-              hintext: "Feedback",
-              isStarVisible: true,
-              validator: (String? val) {
-                if (val == null || val.trim().checkEmpty) {
-                  return "Please enter the Feedback";
-                }
-                return null;
-              },
-              prefixIconData: FontAwesomeIcons.solidComment,
-              textEditingController: descriptionTextEditingController,
-              maxLines: 4,
-              minLines: 1,
-            ),
             Padding(
               padding: const EdgeInsets.only(top: 20.0),
               child: InkWell(
                 onTap: () async {
-                  fileName = await openFileExplorer(FileType.image, false);
+                  fileName = await openFileExplorer(FileType.any, false);
                   uploadFileTextEditingController.text = fileName;
                   mySetState();
                 },
                 child: getCommonTextFormField(
                   enable: false,
-                  hintext: "Choose image",
+                  hintext: "Upload file",
                   prefixIconData: FontAwesomeIcons.arrowUpFromBracket,
                   suffix: Icons.add,
                   textEditingController: uploadFileTextEditingController,
@@ -221,7 +231,7 @@ class _AddFeedbackScreenState extends State<AddFeedbackScreen> with MySafeState 
   AppBar appBar() {
     return AppBar(
       title: Text(
-        "Enter New Feedback",
+        widget.arguments.isEdit ? "Edit Answer" : "Add Answer",
       ),
     );
   }
@@ -231,10 +241,14 @@ class _AddFeedbackScreenState extends State<AddFeedbackScreen> with MySafeState 
       onPressed: () {
         FocusScope.of(context).unfocus();
         if (formKey.currentState?.validate() ?? false) {
-          createTopic();
+          String vali = "success#\$#a5ee845c-7147-4a5e-aba3-980e74117e96#\$#";
+          List<String> splitResponse = vali.split("#\$#");
+          String topicIc = splitResponse[1].checkNotEmpty ? splitResponse[1] : "";
+          MyPrint.printOnConsole(topicIc);
+          createAnswer();
         }
       },
-      text: "Add Feedback",
+      text: widget.arguments.isEdit ? "Edit Answer" : "Add Answer",
       fontColor: Colors.white,
       fontSize: 16,
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
