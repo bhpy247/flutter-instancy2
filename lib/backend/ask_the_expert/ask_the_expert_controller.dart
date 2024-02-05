@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_repository.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/data_model/answer_comment_dto.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/data_model/ask_the_expert_dto.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_answer_request_model.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_comment_request_model.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_question_request_model.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/response_model/filter_user_skills_dto.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
@@ -11,6 +13,7 @@ import 'package:provider/provider.dart';
 import '../../api/api_controller.dart';
 import '../../models/app_configuration_models/data_models/local_str.dart';
 import '../../models/ask_the_expert/request_model/get_question_list_forum_model.dart';
+import '../../models/ask_the_expert/request_model/send_mail_to_expert_request_model.dart';
 import '../../models/ask_the_expert/response_model/QuestionListDtoResponseModel.dart';
 import '../../models/ask_the_expert/response_model/add_question_response_model.dart';
 import '../../models/common/data_response_model.dart';
@@ -37,7 +40,7 @@ class AskTheExpertController {
 
   //region Ask the expert
   //region Get Forums List with Pagination
-  Future<bool> getForumsList({
+  Future<bool> getQuestionsList({
     bool isRefresh = true,
     bool isGetFromCache = false,
     bool isNotify = true,
@@ -197,6 +200,16 @@ class AskTheExpertController {
 
     bool isSuccess = dataResponseModel.data?.table.checkNotEmpty ?? false;
 
+    if (isSuccess) {
+      int questionId = dataResponseModel.data?.table?.first.column1 ?? 0;
+      SendMailToExpertRequestModel mailToExpertRequestModel = SendMailToExpertRequestModel(
+        intQuestionID: questionId,
+        Questionskills: requestModel.skills,
+        userQuestion: requestModel.UserQuestion,
+      );
+      askTheExpertRepositoryRepository.sendMailToExperts(requestModel: mailToExpertRequestModel);
+    }
+
     if (!isSuccess) {
       return false;
     }
@@ -259,6 +272,54 @@ class AskTheExpertController {
       } else {
         commentModel.upvotesCount--;
       }
+      mySetState?.call();
+    } else {
+      // if (commentModel.likeState) {
+      //   BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
+      //   if (context != null) {
+      //     await GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
+      //       requestModel: UpdateContentGamificationRequestModel(
+      //         contentId: "",
+      //         scoId: 0,
+      //         objecttypeId: 0,
+      //         GameAction: GamificationActionType.Liked,
+      //       ),
+      //     );
+      //   }
+      // }
+    }
+
+    return isSuccess;
+  }
+
+  Future<bool> likeDislikeAnswerComment({required AnswerCommentsModel commentModel, void Function()? mySetState, bool? isLiked}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("DiscussionController().likeDislikeComment() called with commentid:'${commentModel.commentID}', liked:${commentModel.isLiked}", tag: tag);
+
+    commentModel.isLiked = isLiked;
+    MyPrint.printOnConsole("commentModel.likeState:${commentModel.isLiked}", tag: tag);
+
+    // if (isLiked ?? false) {
+    //   commentModel.upvotesCount++;
+    // } else {
+    //   commentModel.upvotesCount--;
+    // // }
+    mySetState?.call();
+
+    DataResponseModel<String> dataResponseModel =
+        await _askTheExpertRepository.updateVote(responseId: commentModel.commentID, isLikedOrDisliked: commentModel.isLiked, typeId: 4, isFromAnswerComment: true);
+    MyPrint.printOnConsole("dataResponseModel:$dataResponseModel", tag: tag);
+
+    bool isSuccess = dataResponseModel.appErrorModel == null && dataResponseModel.data.checkNotEmpty;
+    MyPrint.printOnConsole("isSuccess:$isSuccess", tag: tag);
+
+    if (!isSuccess) {
+      commentModel.isLiked = isLiked;
+      // if (commentModel.isLiked ?? false) {
+      //   commentModel.upvotesCount++;
+      // } else {
+      //   commentModel.upvotesCount--;
+      // }
       mySetState?.call();
     } else {
       // if (commentModel.likeState) {
@@ -520,6 +581,39 @@ class AskTheExpertController {
   //   return true;
   // }
 
+  Future<bool> addComment({
+    required AddCommentRequestModel requestModel,
+    void Function()? mySetState,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("DiscussionController().addComment() called with contentId:'${requestModel.ResponseID}'", tag: tag);
+
+    DataResponseModel<String> dataResponseModel = await _askTheExpertRepository.addComment(requestModel: requestModel);
+    MyPrint.printOnConsole("addComment response:$dataResponseModel", tag: tag);
+
+    bool isSuccess = dataResponseModel.appErrorModel == null && dataResponseModel.data == "1";
+    MyPrint.printOnConsole("isSuccess:$isSuccess", tag: tag);
+
+    if (!isSuccess) {
+      MyPrint.printOnConsole("Returning from DiscussionController().addComment() because couldn't Create Comment", tag: tag);
+      return false;
+    }
+
+    // BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
+    // if (context != null) {
+    //   await GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
+    //     requestModel: UpdateContentGamificationRequestModel(
+    //       contentId: "",
+    //       scoId: 0,
+    //       objecttypeId: 0,
+    //       GameAction: GamificationActionType.AddedComment,
+    //     ),
+    //   );
+    // }
+
+    return isSuccess;
+  }
+
   Future<bool> getFilterSkills({required int componentId, required int componentInstanceId}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("DiscussionController().getUserListBaseOnUserInfo() called '", tag: tag);
@@ -530,6 +624,26 @@ class AskTheExpertController {
 
     if (dataResponseModel.data != null || dataResponseModel.data!.table.checkNotEmpty) {
       askTheExpertProvider.filterSkillsList.setList(list: dataResponseModel.data?.table ?? []);
+    }
+
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from DiscussionController().getUserListBaseOnUserInfo() because addTopic had some error", tag: tag);
+      return false;
+    }
+
+    return dataResponseModel.data?.table.checkNotEmpty ?? false;
+  }
+
+  Future<bool> getUserFilterSkills({required int componentId, required int componentInstanceId}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("DiscussionController().getUserListBaseOnUserInfo() called '", tag: tag);
+
+    DataResponseModel<FilterUserSkillsDtoResponseModel> dataResponseModel = await _askTheExpertRepository.getUserSkills(componentId: componentId, componentInstanceId: componentInstanceId);
+
+    MyPrint.printOnConsole("addTopicComment response:$dataResponseModel", tag: tag);
+
+    if (dataResponseModel.data != null || dataResponseModel.data!.table.checkNotEmpty) {
+      askTheExpertProvider.userFilterSkillsList.setList(list: dataResponseModel.data?.userFilterSkills ?? []);
     }
 
     if (dataResponseModel.appErrorModel != null) {

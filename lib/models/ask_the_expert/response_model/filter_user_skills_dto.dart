@@ -2,11 +2,18 @@ import 'package:flutter_chat_bot/utils/parsing_helper.dart';
 
 class FilterUserSkillsDtoResponseModel {
   List<FilterSkills> table = [];
+  List<UserFilterSkills> userFilterSkills = [];
   List<Table1> table1 = [];
 
   FilterUserSkillsDtoResponseModel({this.table = const [], this.table1 = const []});
 
   FilterUserSkillsDtoResponseModel.fromJson(Map<String, dynamic> json) {
+    if (json['Table'] != null) {
+      userFilterSkills = <UserFilterSkills>[];
+      json['Table'].forEach((v) {
+        userFilterSkills.add(UserFilterSkills.fromJson(v));
+      });
+    }
     if (json['Table'] != null) {
       table = <FilterSkills>[];
       json['Table'].forEach((v) {
@@ -24,6 +31,7 @@ class FilterUserSkillsDtoResponseModel {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['Table'] = table.map((v) => v.toJson()).toList();
+    data['Table'] = userFilterSkills.map((v) => v.toJson()).toList();
     data['Table1'] = table1.map((v) => v.toJson()).toList();
     return data;
   }
@@ -44,6 +52,35 @@ class FilterSkills {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['SkillID'] = skillID;
     data['PreferrenceTitle'] = preferrenceTitle;
+    return data;
+  }
+}
+
+class UserFilterSkills {
+  int OrgUnitID = 0;
+  int PreferrenceID = 0;
+  String preferrenceTitle = "";
+  String ShortSkillName = "";
+
+  UserFilterSkills({
+    this.OrgUnitID = 0,
+    this.PreferrenceID = 0,
+    this.preferrenceTitle = "",
+  });
+
+  UserFilterSkills.fromJson(Map<String, dynamic> json) {
+    OrgUnitID = ParsingHelper.parseIntMethod(json['SkillID']);
+    PreferrenceID = ParsingHelper.parseIntMethod(json['PreferrenceID']);
+    preferrenceTitle = ParsingHelper.parseStringMethod(json['PreferrenceTitle']);
+    ShortSkillName = ParsingHelper.parseStringMethod(json['ShortSkillName']);
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['SkillID'] = OrgUnitID;
+    data['PreferrenceID'] = PreferrenceID;
+    data['PreferrenceTitle'] = preferrenceTitle;
+    data['ShortSkillName'] = ShortSkillName;
     return data;
   }
 }

@@ -36,6 +36,10 @@ class AskTheExpertProvider extends CommonProvider {
       list: <FilterSkills>[],
       notify: notify,
     );
+    userFilterSkillsList = CommonProviderListParameter<UserFilterSkills>(
+      list: <UserFilterSkills>[],
+      notify: notify,
+    );
     questionId = CommonProviderPrimitiveParameter<String>(
       value: "",
       notify: notify,
@@ -77,6 +81,7 @@ class AskTheExpertProvider extends CommonProvider {
 
   late CommonProviderListParameter<UserQuestionListDto> questionList;
   late CommonProviderListParameter<FilterSkills> filterSkillsList;
+  late CommonProviderListParameter<UserFilterSkills> userFilterSkillsList;
   late final CommonProviderPrimitiveParameter<String> questionId;
   late final CommonProviderPrimitiveParameter<String> questionListSearchString;
   late final CommonProviderPrimitiveParameter<String> filterCategoriesIds;
@@ -94,6 +99,7 @@ class AskTheExpertProvider extends CommonProvider {
 
     questionList.setList(list: [], isNotify: false);
     filterSkillsList.setList(list: [], isNotify: false);
+    userFilterSkillsList.setList(list: [], isNotify: false);
     questionId.set(value: "", isNotify: false);
     filterCategoriesIds.set(value: "", isNotify: false);
     questionListSearchString.set(value: "", isNotify: false);

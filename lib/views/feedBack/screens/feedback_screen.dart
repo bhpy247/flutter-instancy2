@@ -13,6 +13,8 @@ import 'package:provider/provider.dart';
 import '../../../backend/app/app_provider.dart';
 import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../backend/main_screen/main_screen_provider.dart';
+import '../../../backend/profile/profile_controller.dart';
+import '../../../backend/profile/profile_provider.dart';
 import '../../../utils/date_representation.dart';
 import '../../../utils/my_safe_state.dart';
 import '../../../utils/my_utils.dart';
@@ -32,7 +34,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> with MySafeState {
   late FeedbackController feedbackController;
 
   Future<void> getFeedbackData() async {
-    await feedbackController.getFeedbackList(viewAll: true);
+    ProfileController profileController = ProfileController(profileProvider: context.read<ProfileProvider>());
+    bool isShowAllFeedBack = profileController.isShowAllFeedBackData();
+    await feedbackController.getFeedbackList(viewAll: isShowAllFeedBack);
   }
 
   @override

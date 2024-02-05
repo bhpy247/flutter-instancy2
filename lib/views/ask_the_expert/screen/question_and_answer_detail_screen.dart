@@ -8,6 +8,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_controller.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/data_model/ask_the_expert_dto.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_comment_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/views/ask_the_expert/component/questionAnswerCard.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -29,6 +30,7 @@ import '../../../configs/app_configurations.dart';
 import '../../../configs/app_constants.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/ask_the_expert/data_model/answer_comment_dto.dart';
+import '../../../models/common/Instancy_multipart_file_upload_model.dart';
 import '../../../models/common/data_response_model.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_toast.dart';
@@ -170,7 +172,8 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
     if (widget.arguments.userQuestionListDto == null) {
       future = getQuestionAnswerDataList();
     } else {
-      userQuestion = widget.arguments.userQuestionListDto;
+      future = getQuestionAnswerDataList();
+      // userQuestion = widget.arguments.userQuestionListDto;
     }
 
     if (future != null) {
@@ -197,8 +200,13 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
       componentId: widget.arguments.componentId,
       intQuestionId: widget.arguments.questionId,
     );
+    MyPrint.printOnConsole("UpvoteUserList ${dataResponseModel.data?.upVotesUsers}");
+
     if (dataResponseModel.data?.userQuestionListDto.checkNotEmpty ?? false) {
       userQuestion = dataResponseModel.data?.userQuestionListDto.first ?? UserQuestionListDto();
+      if (widget.arguments.userQuestionListDto != null) {
+        userQuestion?.updateFromJson(widget.arguments.userQuestionListDto!.toJson());
+      }
     }
     List<UpVotesUsers> userList = (dataResponseModel.data?.upVotesUsers) ?? [];
     Set<UpVotesUsers> setUser = Set();
@@ -207,6 +215,7 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
       setUser.add(element);
     });
     upVoteUsersList = setUser.toList();
+    MyPrint.printOnConsole("UpvoteUserList ${upVoteUsersList}");
 
     mySetState();
   }
@@ -234,7 +243,7 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
                 ),
                 arguments: ShareWithConnectionsScreenNavigationArguments(
                   shareContentType: ShareContentType.askTheExpertQuestion,
-                  contentId: answerModel.questionID.toString(),
+                  responseId: answerModel.responseID,
                   shareProvider: context.read<ShareProvider>(),
                 ),
               );
@@ -249,7 +258,7 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
                 ),
                 arguments: ShareWithPeopleScreenNavigationArguments(
                   shareContentType: ShareContentType.askTheExpertQuestion,
-                  contentId: answerModel.questionID.toString(),
+                  responseId: answerModel.questionID,
                 ),
               );
             },
@@ -307,7 +316,12 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
               MyPrint.printOnConsole("onViewLikesTap called");
               isLoading = true;
               mySetState();
-              showUserListView(context: context, userList: upVoteUsersList);
+              MyPrint.printOnConsole("answerModel.responseID : ${answerModel.responseID} ${upVoteUsersList}");
+              List<UpVotesUsers> upvoteUserList = upVoteUsersList.where((element) => element.objectID == answerModel.responseID.toString()).toList();
+              showUserListView(
+                context: context,
+                userList: upvoteUserList,
+              );
               isLoading = false;
               mySetState();
             },
@@ -323,6 +337,22 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
       context: context,
       actions: options,
     );
+  }
+
+  Future<void> loadCommentsForTopic({
+    required QuestionAnswerResponse answerModel,
+  }) async {
+    if (answerModel.isLoadingComments) return;
+
+    answerModel.isLoadingComments = true;
+    mySetState();
+
+    DataResponseModel<AnswerCommentDTOModel> commentsList = await askTheExpertController.askTheExpertRepositoryRepository.getAnswersComments(intQuestionId: answerModel.questionID);
+
+    answerModel.answersCommentList = commentsList.data?.table ?? [];
+    answerModel.commentCount = answerModel.answersCommentList.length;
+    answerModel.isLoadingComments = false;
+    mySetState();
   }
 
   //
@@ -460,50 +490,50 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
   //   await loadAnswersForQuestion(forumModel: forumModel);
   // }
   //
-  // Future<void> addComment({required TopicModel selectedTopicModel}) async {
-  //   String message = commentTextEditingController.text.trim();
-  //   if (message.isEmpty) return;
-  //
-  //   UserProfileDetailsModel? userProfileDetailsModel = context.read<ProfileProvider>().userProfileDetails.getList(isNewInstance: false).firstElement;
-  //   MyPrint.printOnConsole("userProfileDetailsModel : $userProfileDetailsModel");
-  //   if (userProfileDetailsModel == null) return;
-  //
-  //   isLoading = true;
-  //   mySetState();
-  //
-  //   PostCommentRequestModel discussionTopicCommentRequestModel = PostCommentRequestModel(
-  //     topicID: selectedTopicModel.ContentID,
-  //     forumID: forumModel?.ForumID ?? 0,
-  //     message: message,
-  //     forumTitle: forumModel?.Name ?? "",
-  //     topicName: selectedTopicModel.Name,
-  //     commentedBy: userProfileDetailsModel.firstname + userProfileDetailsModel.lastname,
-  //     strAttachFile: fileName,
-  //     fileBytes: fileBytes,
-  //     strReplyID: selectedCommentModelForEdit?.ReplyID ?? "",
-  //   );
-  //
-  //   bool isSuccess = await discussionController.addComment(
-  //     topicModel: selectedTopicModel,
-  //     requestModel: discussionTopicCommentRequestModel,
-  //     mySetState: mySetState,
-  //   );
-  //
-  //   isLoading = false;
-  //   if (isSuccess) {
-  //     fileName = "";
-  //     fileBytes = null;
-  //     isCommentTextFormFieldVisible = false;
-  //     isReplyTextFormFieldVisible = false;
-  //     selectedAnswerForComment = null;
-  //     selectedCommentModelForReply = null;
-  //     commentTextEditingController.clear();
-  //     replyTextEditingController.clear();
-  //   }
-  //   mySetState();
-  //
-  //   // loadCommentsForTopic(topicModel: selectedTopicModel);
-  // }
+  Future<void> addComment({required QuestionAnswerResponse selectedTopicModel}) async {
+    String message = commentTextEditingController.text.trim();
+    if (message.isEmpty) return;
+
+    // UserProfileDetailsModel? userProfileDetailsModel = context.read<ProfileProvider>().userProfileDetails.getList(isNewInstance: false).firstElement;
+    // MyPrint.printOnConsole("userProfileDetailsModel : $userProfileDetailsModel");
+    // if (userProfileDetailsModel == null) return;
+    List<InstancyMultipartFileUploadModel>? list;
+    if (fileBytes != null) {
+      list = [
+        InstancyMultipartFileUploadModel(
+          fieldName: "image",
+          fileName: fileName,
+          bytes: fileBytes,
+        ),
+      ];
+    }
+    isLoading = true;
+    mySetState();
+
+    AddCommentRequestModel discussionTopicCommentRequestModel =
+        AddCommentRequestModel(Comment: message, CommentID: -1, QuestionID: selectedTopicModel.questionID, ResponseID: selectedTopicModel.responseID, UserCommentImage: fileName, fileUploads: list);
+
+    bool isSuccess = await askTheExpertController.addComment(
+      requestModel: discussionTopicCommentRequestModel,
+      mySetState: mySetState,
+    );
+
+    isLoading = false;
+    if (isSuccess) {
+      fileName = "";
+      fileBytes = null;
+      isCommentTextFormFieldVisible = false;
+      isReplyTextFormFieldVisible = false;
+      selectedAnswerForComment = null;
+      // selectedCommentModelForReply = null;
+      commentTextEditingController.clear();
+      replyTextEditingController.clear();
+    }
+    mySetState();
+
+    loadCommentsForTopic(answerModel: selectedTopicModel);
+  }
+
   //
   // Future<void> addReply({required TopicCommentModel selectedCommentModel}) async {
   //   String message = replyTextEditingController.text.trim();
@@ -552,6 +582,11 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
   //
   Future<void> likeDislikeComment({required QuestionAnswerResponse commentModel, bool? isLiked}) async {
     bool isSuccess = await askTheExpertController.likeDislikeComment(commentModel: commentModel, mySetState: mySetState, isLiked: isLiked);
+    MyPrint.printOnConsole("like comment success:$isSuccess");
+  }
+
+  Future<void> likeDislikeAnswerComment({required AnswerCommentsModel commentModel, bool? isLiked}) async {
+    bool isSuccess = await askTheExpertController.likeDislikeAnswerComment(commentModel: commentModel, mySetState: mySetState, isLiked: isLiked);
     MyPrint.printOnConsole("like comment success:$isSuccess");
   }
 
@@ -666,21 +701,21 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
   Widget mainWidget() {
     if (userQuestion == null) return Center(child: AppConfigurations.commonNoDataView());
 
-    return Column(
-      children: [
-        getQuestionCardWidget(userQuestionListDto: userQuestion ?? UserQuestionListDto()),
-        Expanded(
-          child: getAnswerListWidget(),
-        ),
-        if (selectedAnswerForComment != null)
-          commentTextFormField(
-            selectedTopicModel: selectedAnswerForComment!,
-          ),
-        // if (selectedCommentModelForReply != null)
-        //   replyTextFormField(
-        //     selectedCommentModel: selectedCommentModelForReply,
-        //   ),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          getQuestionCardWidget(userQuestionListDto: userQuestion ?? UserQuestionListDto()),
+          getAnswerListWidget(),
+          if (selectedAnswerForComment != null)
+            commentTextFormField(
+              selectedTopicModel: selectedAnswerForComment!,
+            ),
+          // if (selectedCommentModelForReply != null)
+          //   replyTextFormField(
+          //     selectedCommentModel: selectedCommentModelForReply,
+          //   ),
+        ],
+      ),
     );
   }
 
@@ -738,11 +773,60 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
     );
 
     return ListView(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+          padding: const EdgeInsets.fromLTRB(25, 0, 25, 10),
           child: Column(
             children: [
+              if (userQuestion?.questionsAnswerList.checkNotEmpty ?? false)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    PopupMenuButton<bool>(
+                      child: Row(
+                        children: [
+                          Text(
+                            isShowInAscendingOrder ? 'By Older' : "By Recent",
+                            style: popupTextStyle,
+                          ),
+                          const Icon(
+                            Icons.arrow_drop_down_outlined,
+                          ),
+                        ],
+                      ),
+                      onSelected: (value) {
+                        MyPrint.printOnConsole('Selected item: $value');
+
+                        isShowInAscendingOrder = value;
+                        userQuestion?.sortTopics(value);
+                        mySetState();
+                      },
+                      itemBuilder: (context) {
+                        return [
+                          PopupMenuItem(
+                            value: false,
+                            child: Text(
+                              'By Recent',
+                              style: popupTextStyle,
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: true,
+                            child: Text(
+                              'By Older',
+                              style: popupTextStyle,
+                            ),
+                          ),
+                        ];
+                      },
+                    ),
+                  ],
+                ),
+              SizedBox(
+                height: 10,
+              ),
               ...List.generate(
                 list.length,
                 (index) {
@@ -770,11 +854,11 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
           ),
           Row(
             children: [
-              if (topicModel.responseImageUploadName.checkNotEmpty)
+              if (topicModel.userResponseImagePath.checkNotEmpty)
                 Container(
                   child: thumbNailWidget(
-                    topicModel.responseImageUploadName,
-                    uploadedImageName: topicModel.responseImageUploadName,
+                    topicModel.userResponseImagePath,
+                    uploadedImageName: topicModel.userResponseImagePath,
                   ),
                 ),
               Expanded(
@@ -883,7 +967,7 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
 
   Widget thumbNailWidget(String url, {double height = 45, double width = 45, String uploadedImageName = ""}) {
     url = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: url));
-    // MyPrint.printOnConsole('thumbnailImageUrl:$url');
+    MyPrint.printOnConsole('thumbnailImageUrl:$url');
     if (url.checkEmpty || uploadedImageName.checkEmpty) return const SizedBox();
     String extension = uploadedImageName.split(".").last;
     MyPrint.printOnConsole("extension: ${extension}: Url ${url}");
@@ -1093,12 +1177,12 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
           getCommonProfileWidget(
             days: commentModel.commentedDate,
             authorName: commentModel.commentedUserName,
-            onMoreTap: () {
-              showMoreActionsForAnswers(
-                answerModel: topicModel,
-                // topicModel: topicModel,
-              );
-            },
+            // onMoreTap: () {
+            //   showMoreActionsForAnswers(
+            //     answerModel: topicModel,
+            //     // topicModel: topicModel,
+            //   );
+            // },
             profileUrl: commentThumbnailUrl,
           ),
           Container(
@@ -1116,10 +1200,10 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
                     "p": Style(padding: HtmlPaddings.zero, margin: Margins.zero),
                   },
                 ),
-                if (commentModel.commentUploadIconPath.checkNotEmpty)
+                if (commentModel.userCommentImagePath.checkNotEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 5.0),
-                    child: thumbNailWidget(commentModel.commentUploadIconPath, uploadedImageName: commentModel.commentImageUploadName),
+                    child: thumbNailWidget(commentModel.userCommentImagePath, uploadedImageName: commentModel.commentImageUploadName),
                   ),
               ],
             ),
@@ -1127,11 +1211,17 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
           Row(
             children: [
               iconTextButton(
-                iconData: commentModel.isLiked ? Icons.thumb_up_alt_rounded : Icons.thumb_up_alt_outlined,
+                iconData: (commentModel.isLiked ?? false) ? Icons.thumb_up_alt_rounded : Icons.thumb_up_alt_outlined,
                 // text: "10",
                 text: "",
+                isVisible: true,
                 onTap: () {
-                  // likeDislikeComment(commentModel: commentModel);
+                  if (commentModel.isLiked ?? false) {
+                    likeDislikeAnswerComment(commentModel: commentModel, isLiked: false);
+                  } else {
+                    likeDislikeAnswerComment(commentModel: commentModel, isLiked: true);
+                  }
+                  mySetState();
                 },
               ),
             ],
@@ -1302,16 +1392,17 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
                   ],
                 ),
               ),
-              InkWell(
-                onTap: onMoreTap,
-                child: const Padding(
-                  padding: EdgeInsets.all(5.0),
-                  child: Icon(
-                    Icons.more_vert_outlined,
-                    size: 18,
+              if (onMoreTap != null)
+                InkWell(
+                  onTap: onMoreTap,
+                  child: const Padding(
+                    padding: EdgeInsets.all(5.0),
+                    child: Icon(
+                      Icons.more_vert_outlined,
+                      size: 18,
+                    ),
                   ),
-                ),
-              )
+                )
             ],
           ),
         ),
@@ -1386,7 +1477,7 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
                         commentTextEditingController.clear();
                         return;
                       }
-                      // addComment(selectedTopicModel: selectedTopicModel);
+                      addComment(selectedTopicModel: selectedTopicModel);
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),

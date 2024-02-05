@@ -46,8 +46,8 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
   TextEditingController uploadFileTextEditingController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   String selectedCategoriesString = "";
-  List<FilterSkills> skillsList = [];
-  List<FilterSkills> selectedSkillsList = [];
+  List<UserFilterSkills> skillsList = [];
+  List<UserFilterSkills> selectedSkillsList = [];
   final GlobalKey expansionTile = GlobalKey();
 
   bool isUrl = true, isLoading = false;
@@ -95,7 +95,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
   }
 
   Future<void> createQuestion() async {
-    List<int> skillIds = selectedSkillsList.map((model) => model.skillID).toList();
+    List<int> skillIds = selectedSkillsList.map((model) => model.PreferrenceID).toList();
     List<String> skillName = selectedSkillsList.map((model) => model.preferrenceTitle).toList();
     if (skillIds.isEmpty) {
       MyToast.showError(context: context, msg: "Please Select at least one skill");
@@ -178,7 +178,8 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
     askTheExpertProvider = context.read<AskTheExpertProvider>();
     askTheExpertController = AskTheExpertController(discussionProvider: askTheExpertProvider);
     askTheExpertController.getFilterSkills(componentId: widget.arguments.componentId, componentInstanceId: widget.arguments.componentInsId);
-    skillsList = askTheExpertProvider.filterSkillsList.getList();
+    askTheExpertController.getUserFilterSkills(componentId: widget.arguments.componentId, componentInstanceId: widget.arguments.componentInsId);
+    skillsList = askTheExpertProvider.userFilterSkillsList.getList();
     setEditData();
   }
 
@@ -234,8 +235,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
                 maxLines: 4,
                 minLines: 1,
               ),
-              const SizedBox(height: 20),
-              getSkillExpansionTile(),
+
               // if (widget.arguments.forumModel.AttachFileEditValue)
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
@@ -254,6 +254,9 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+              getSkillExpansionTile(),
+
               const SizedBox(height: 40),
               getCreateTopicButton(),
             ],
@@ -266,7 +269,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
   AppBar appBar() {
     return AppBar(
       title: Text(
-        widget.arguments.isEdit ? "Edit Question" : "Create Question",
+        widget.arguments.isEdit ? "Edit a Question" : "Add Question",
       ),
     );
   }
@@ -283,7 +286,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
           createQuestion();
         }
       },
-      text: widget.arguments.isEdit ? "Edit Question" : "Create Question",
+      text: "Submit Question",
       fontColor: Colors.white,
       fontSize: 16,
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
@@ -311,7 +314,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
       maxLines: maxLines,
       minLines: minLines,
       inputFormatters: inputFormatter,
-      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
       // hintText: hintext,
       label: RichText(
         text: TextSpan(
@@ -354,15 +357,39 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
               key: expansionTile,
               backgroundColor: const Color(0xffF8F8F8),
               initiallyExpanded: isExpanded,
-              tilePadding: const EdgeInsets.symmetric(horizontal: 14),
+              leading: const Icon(
+                Icons.dashboard,
+                size: 20,
+                color: Colors.grey,
+              ),
+
+              // tilePadding: const EdgeInsets.symmetric(horizontal: 14,vertical: 0),
               title: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      selectedCategoriesString.isEmpty ? "Skills" : selectedCategoriesString,
-                      // style: themeData.textTheme.titleSmall?.copyWith(color: Colors.black45),
-                    ),
-                  ),
+                      child: RichText(
+                    text: selectedCategoriesString.isEmpty
+                        ? const TextSpan(
+                            text: "Skills ",
+                            style: TextStyle(color: Colors.black),
+                            children: [
+                              TextSpan(
+                                text: "*",
+                                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          )
+                        : TextSpan(
+                            text: "$selectedCategoriesString ",
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                  )
+
+                      // Text(
+                      //   selectedCategoriesString.isEmpty ? "Skills" : selectedCategoriesString,
+                      //   // style: themeData.textTheme.titleSmall?.copyWith(color: Colors.black45),
+                      // ),
+                      ),
                 ],
               ),
               onExpansionChanged: (bool? newVal) {
@@ -373,7 +400,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
                   color: Colors.white,
                   child: InkWell(
                     onTap: () {
-                      bool isChecked = !selectedSkillsList.where((element) => element.skillID == skillsList[index].skillID).checkNotEmpty;
+                      bool isChecked = !selectedSkillsList.where((element) => element.PreferrenceID == skillsList[index].PreferrenceID).checkNotEmpty;
                       MyPrint.printOnConsole("isChecked : $isChecked");
                       if (isChecked) {
                         selectedSkillsList.add(skillsList[index]);
@@ -402,7 +429,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
                       children: [
                         Checkbox(
                           activeColor: themeData.primaryColor,
-                          value: selectedSkillsList.where((element) => element.skillID == skillsList[index].skillID).checkNotEmpty,
+                          value: selectedSkillsList.where((element) => element.PreferrenceID == skillsList[index].PreferrenceID).checkNotEmpty,
                           onChanged: (bool? value) {
                             bool isChecked = value ?? false;
                             MyPrint.printOnConsole("selectedSkillsList : ${value}}");
@@ -410,7 +437,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
                             if (isChecked) {
                               selectedSkillsList.add(skillsList[index]);
                             } else {
-                              selectedSkillsList.removeWhere((element) => element.skillID == skillsList[index].skillID);
+                              selectedSkillsList.removeWhere((element) => element.PreferrenceID == skillsList[index].PreferrenceID);
                             }
 
                             selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(

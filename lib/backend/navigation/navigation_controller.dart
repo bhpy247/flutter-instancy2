@@ -204,7 +204,7 @@ class NavigationController {
           break;
         }
 
-    //region Share Module
+      //region Share Module
       case ShareWithConnectionsScreen.routeName:
         {
           page = parseShareWithConnectionsScreen(settings: settings);
@@ -1483,7 +1483,10 @@ class NavigationController {
   static Future<dynamic> navigateToQuestionAndAnswerDetailScreen({required NavigationOperationParameters navigationOperationParameters, required QuestionAndAnswerDetailsScreenArguments arguments}) {
     MyPrint.printOnConsole("navigateToCategoriesSearchScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
-      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: QuestionAndAnswerDetailsScreen.routeName, arguments: arguments),
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: QuestionAndAnswerDetailsScreen.routeName,
+        arguments: arguments,
+      ),
     );
   }
 

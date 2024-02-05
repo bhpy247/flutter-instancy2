@@ -69,7 +69,7 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
 
   Future<void> getQuestionList({bool isRefresh = true, bool isGetFromCache = true, bool isNotify = true}) async {
     await Future.wait([
-      askTheExpertController.getForumsList(
+      askTheExpertController.getQuestionsList(
         isRefresh: isRefresh,
         isGetFromCache: isGetFromCache,
         isNotify: isNotify,
@@ -407,7 +407,7 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
     PaginationModel paginationModel = askTheExpertProvider.questionListPaginationModel.get();
     if (!paginationModel.isFirstTimeLoading && !paginationModel.isLoading && paginationModel.hasMore && askTheExpertProvider.questionList.length == 0) {
       askTheExpertProvider.filterCategoriesIds.set(value: "-1", isNotify: false);
-      askTheExpertController.getForumsList(
+      askTheExpertController.getQuestionsList(
         isRefresh: true,
         isGetFromCache: false,
         isNotify: isNotify,
@@ -451,44 +451,40 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
                 padding: EdgeInsets.only(
                   bottom: mainScreenProvider.isChatBotButtonEnabled.get() && !mainScreenProvider.isChatBotButtonCenterDocked.get() ? 70 : 0,
                 ),
-                child: Visibility(
-                  visible: isShowAddForumFloatingButton,
-                  child: FloatingActionButton(
-                    shape: const CircleBorder(),
-                    child: const Icon(Icons.add),
-                    onPressed: () async {
-                      dynamic value = await NavigationController.navigateToCreateAddEditQuestionScreen(
-                        navigationOperationParameters: NavigationOperationParameters(
-                          context: context,
-                          navigationType: NavigationType.pushNamed,
-                        ),
-                        arguments: CreateEditQuestionNavigationArguments(
-                          isEdit: false,
-                          componentId: componentId,
-                          componentInsId: componentInstanceId,
-                        ),
-                      );
-                      if (value != true) return;
-                      //
-                      getQuestionList(
-                        isRefresh: true,
-                        isGetFromCache: false,
-                        isNotify: false,
-                      );
-                      // askTheExpertController.getForumsList(
-                      //   isRefresh: true,
-                      //   isGetFromCache: false,
-                      //   isNotify: false,
-                      //   componentId: componentId,
-                      //   componentInstanceId: componentInstanceId,
-                      // );
-                      // askTheExpertController.getMyDiscussionForumsList(
-                      //   isRefresh: true,
-                      //   isGetFromCache: false,
-                      //   isNotify: true,
-                      // );
-                    },
-                  ),
+                child: FloatingActionButton(
+                  shape: const CircleBorder(),
+                  child: const Icon(Icons.add),
+                  onPressed: () async {
+                    dynamic value = await NavigationController.navigateToCreateAddEditQuestionScreen(
+                      navigationOperationParameters: NavigationOperationParameters(
+                        context: context,
+                        navigationType: NavigationType.pushNamed,
+                      ),
+                      arguments: CreateEditQuestionNavigationArguments(
+                        isEdit: false,
+                        componentId: componentId,
+                        componentInsId: componentInstanceId,
+                      ),
+                    );
+                    if (value != true) return;
+                    getQuestionList(
+                      isRefresh: true,
+                      isGetFromCache: false,
+                      isNotify: true,
+                    );
+                    // askTheExpertController.getForumsList(
+                    //   isRefresh: true,
+                    //   isGetFromCache: false,
+                    //   isNotify: false,
+                    //   componentId: componentId,
+                    //   componentInstanceId: componentInstanceId,
+                    // );
+                    // askTheExpertController.getMyDiscussionForumsList(
+                    //   isRefresh: true,
+                    //   isGetFromCache: false,
+                    //   isNotify: true,
+                    // );
+                  },
                 ),
               ),
               body: getMainWidget(),
@@ -533,7 +529,7 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
                     InkWell(
                       onTap: () {
                         textEditingController.clear();
-                        // askTheExpertProvider.forumListSearchString.set(value: "");
+                        askTheExpertProvider.questionListSearchString.set(value: "");
                         getQuestionList(
                           isRefresh: true,
                           isGetFromCache: false,
@@ -558,8 +554,8 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
               ),
               prefixWidget: const Icon(Icons.search),
               onSubmitted: (String? val) {
-                //askTheExpertProvider.forumListSearchString.set(value: val ?? "");
-                // askTheExpertController.getForumsList(isRefresh: true, isGetFromCache: false, isNotify: false, componentId: componentId, componentInstanceId: componentInstanceId);
+                askTheExpertProvider.questionListSearchString.set(value: val ?? "");
+                askTheExpertController.getQuestionsList(isRefresh: true, isGetFromCache: false, isNotify: false, componentId: componentId, componentInstanceId: componentInstanceId);
                 mySetState();
               },
             ),
@@ -729,13 +725,29 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
         onMoreTap: () {
           showMoreActionsForQuestion(model: model);
         },
-        onCardTap: () {
-          NavigationController.navigateToQuestionAndAnswerDetailScreen(
-              navigationOperationParameters: NavigationOperationParameters(
-                context: context,
-                navigationType: NavigationType.pushNamed,
-              ),
-              arguments: QuestionAndAnswerDetailsScreenArguments(componentId: componentId, componentInsId: componentInstanceId, questionId: model.questionID));
+        onCardTap: () async {
+          askTheExpertController.askTheExpertRepositoryRepository.setTheUserQuestionView(questionId: model.questionID).then((value) {
+            if (value.data == "1") {
+              model.views++;
+            }
+          });
+          await NavigationController.navigateToQuestionAndAnswerDetailScreen(
+            navigationOperationParameters: NavigationOperationParameters(
+              context: context,
+              navigationType: NavigationType.pushNamed,
+            ),
+            arguments: QuestionAndAnswerDetailsScreenArguments(
+              componentId: componentId,
+              componentInsId: componentInstanceId,
+              questionId: model.questionID,
+              userQuestionListDto: model,
+            ),
+          );
+          getQuestionList(
+            isRefresh: true,
+            isGetFromCache: false,
+            isNotify: false,
+          );
         },
       ),
     );
@@ -757,11 +769,10 @@ class _SortingScreenState extends State<SortingScreen> with MySafeState {
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
-    return Scaffold(
-      body: Consumer<AskTheExpertProvider>(
-        builder: (context, AskTheExpertProvider provider, _) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
+    return Consumer<AskTheExpertProvider>(
+      builder: (context, AskTheExpertProvider provider, _) {
+        return SingleChildScrollView(
+          child: Column(
             children: [
               const BottomSheetDragger(),
               ListView.builder(
@@ -800,9 +811,9 @@ class _SortingScreenState extends State<SortingScreen> with MySafeState {
                 ),
               )
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

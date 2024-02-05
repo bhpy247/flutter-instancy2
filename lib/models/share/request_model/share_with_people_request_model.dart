@@ -58,7 +58,7 @@ class ShareWithPeopleRequestModel {
       'TopicID': topicID,
       'quesID': quesID,
       "AskQuestionLink": askQuestionLink.toString(),
-      "DiscusssionForumLink": discussionForumLink.toString(),
+      "DiscusssionForumLink": !discussionForumLink ? "" : discussionForumLink.toString(),
       'LocaleID': locale,
       'GameNotify': gameNotify.toString(),
     };

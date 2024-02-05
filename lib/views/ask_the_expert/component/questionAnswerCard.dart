@@ -68,14 +68,15 @@ class _QuestionAnswerCardState extends State<QuestionAnswerCard> {
             const SizedBox(
               height: 10,
             ),
-            thumbNailWidget(widget.isDetailScreen ? widget.userQuestionListDto.userQuestionImage : widget.userQuestionListDto.userQuestionImagePath),
-            const SizedBox(
-              height: 10,
-            ),
             Text(
               widget.userQuestionListDto.userQuestion.checkNotEmpty ? widget.userQuestionListDto.userQuestion : "What the difference between customer satisfaction and delight ?",
               style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.black, fontWeight: FontWeight.w600),
             ),
+            const SizedBox(
+              height: 10,
+            ),
+            thumbNailWidget(widget.isDetailScreen ? widget.userQuestionListDto.userQuestionImagePath : widget.userQuestionListDto.userQuestionImagePath),
+
             const SizedBox(
               height: 12,
             ),
@@ -279,7 +280,8 @@ class _QuestionAnswerCardState extends State<QuestionAnswerCard> {
           child: Row(
             children: [
               iconTextButton(
-                iconData: FontAwesomeIcons.comments,
+                imageAsset: "assets/comment.png",
+                // iconData: FontAwesomeIcons.sackDollar,
                 text: widget.userQuestionListDto.Answers.checkEmpty ? widget.answerListCount.toString() : widget.userQuestionListDto.Answers,
               ),
               if (!widget.isDetailScreen) ...[
@@ -314,14 +316,21 @@ class _QuestionAnswerCardState extends State<QuestionAnswerCard> {
     );
   }
 
-  Widget iconTextButton({required IconData iconData, String text = " ", Function()? onTap}) {
+  Widget iconTextButton({IconData? iconData, String text = " ", Function()? onTap, String? imageAsset}) {
     return Row(
       children: [
         InkWell(
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(5.0),
-            child: Icon(iconData, color: Styles.iconColor, size: 18),
+            child: imageAsset != null
+                ? Image.asset(
+                    imageAsset,
+                    width: 20,
+                    height: 20,
+                    fit: BoxFit.cover,
+                  )
+                : Icon(iconData, color: Styles.iconColor, size: 18),
           ),
         ),
         const SizedBox(

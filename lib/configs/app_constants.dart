@@ -584,6 +584,10 @@ class DiscussionForumPrivileges {
   static int showAddForumButton = 434;
 }
 
+class FeedbackPrivileges {
+  static int ViewallFeedback = 1277;
+}
+
 class EventTrackTabs {
   static const String overview = "TOverview";
   static const String trackContents = "TContent";

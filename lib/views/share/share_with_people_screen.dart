@@ -99,6 +99,19 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
         }
       case ShareContentType.askTheExpertQuestion:
         {
+          if (widget.arguments.responseId != 0) {
+            message = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
+                "YouTube site! \n\n"
+                "Link: $siteUrl/User Question Responses/QuestionID/${widget.arguments.responseId}";
+            String contentLink = "$siteUrl/User Question Responses/QuestionID/${widget.arguments.responseId}";
+
+            // String linkContent = "<a href='#'>'$siteUrl/User Question Responses/QuestionID/${widget.arguments.responseId}'</a>";
+            messageToSendInTheApi = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
+                "YouTube site! \n\n"
+                "Link: <a href='$contentLink'>$contentLink</a></p>";
+            // "Link: <a href='$siteUrl/User Question Responses/QuestionID/${widget.arguments.responseId}'>$siteUrl/User Question Responses/QuestionID/${widget.arguments.responseId}</a></p>";
+            break;
+          }
           message = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
               "YouTube site! \n\n"
               "Link: $siteUrl/User-Questions-List/QuestionID/${widget.arguments.questionId}";
@@ -107,7 +120,7 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
           String linkContent = "<a href = $contentLink></a>";
           messageToSendInTheApi = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
               "YouTube site! \n\n"
-              "Link:$contentLink";
+              "Link: $contentLink";
           break;
         }
       case ShareContentType.catalogCourse:
@@ -384,7 +397,7 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
                       message: message,
                       forumId: widget.arguments.forumId,
                       contentId: widget.arguments.contentId,
-                      questionId: widget.arguments.questionId.toString(),
+                      questionId: widget.arguments.responseId != 0 ? widget.arguments.responseId.toString() : widget.arguments.questionId.toString(),
                     );
                   } else {
                     isShared = await shareController.shareWithConnections(
@@ -395,7 +408,7 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
                       contentId: widget.arguments.contentId,
                       scoId: widget.arguments.scoId,
                       objecttypeId: widget.arguments.objecttypeId,
-                      questionId: widget.arguments.questionId.toString(),
+                      questionId: widget.arguments.responseId != 0 ? widget.arguments.responseId.toString() : widget.arguments.questionId.toString(),
                     );
                   }
 

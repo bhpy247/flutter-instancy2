@@ -198,7 +198,7 @@ class _AddEditAnswerScreenState extends State<AddEditAnswerScreen> with MySafeSt
               textEditingController: titleTextEditingController,
               validator: (String? val) {
                 if (val == null || val.trim().checkEmpty) {
-                  return "Please enter the title";
+                  return "Please enter answer";
                 }
                 return null;
               },

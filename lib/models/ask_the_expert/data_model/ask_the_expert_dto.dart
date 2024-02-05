@@ -1,6 +1,8 @@
 import 'package:flutter_chat_bot/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/data_model/answer_comment_dto.dart';
 
+import '../../../utils/my_print.dart';
+
 class AskTheExpertDto {
   List<UserQuestionListDto> userQuestionListDto = [];
   List<QuestionAnswerResponse> questionAnswerResponse = [];
@@ -167,6 +169,17 @@ class UserQuestionListDto {
     userQuestionImageUploadName = ParsingHelper.parseStringMethod(json['UserQuestionImageUploadName']);
     userQuestionUploadIconPath = ParsingHelper.parseStringMethod(json['UserQuestionUploadIconPath']);
     isPublic = ParsingHelper.parseBoolMethod(json['IsPublic']);
+  }
+
+  void sortTopics(bool isAscending) {
+    questionsAnswerList.sort((QuestionAnswerResponse a, QuestionAnswerResponse b) {
+      MyPrint.printOnConsole("a.CreatedDateTime:${a.responseDate}, b.CreatedDateTime:${b.responseDate}");
+      return (isAscending ? a.responseDate.compareTo(b.responseDate) : b.responseDate.compareTo(a.responseDate));
+    });
+  }
+
+  void updateView() {
+    views++;
   }
 
   Map<String, dynamic> toJson() {

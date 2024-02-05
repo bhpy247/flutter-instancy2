@@ -1,6 +1,7 @@
 import 'package:flutter_chat_bot/utils/my_utils.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/data_model/ask_the_expert_dto.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_answer_request_model.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_comment_request_model.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_question_request_model.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/request_model/get_question_list_forum_model.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/response_model/QuestionListDtoResponseModel.dart';
@@ -12,6 +13,7 @@ import '../../api/api_endpoints.dart';
 import '../../api/api_url_configuration_provider.dart';
 import '../../api/rest_client.dart';
 import '../../models/ask_the_expert/data_model/answer_comment_dto.dart';
+import '../../models/ask_the_expert/request_model/send_mail_to_expert_request_model.dart';
 import '../../models/ask_the_expert/response_model/add_question_response_model.dart';
 import '../../models/common/Instancy_multipart_file_upload_model.dart';
 import '../../models/common/data_response_model.dart';
@@ -97,24 +99,33 @@ class AskTheExpertRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<String>> updateVote({bool? isLikedOrDisliked, required int responseId}) async {
+  Future<DataResponseModel<String>> updateVote({bool? isLikedOrDisliked, required int responseId, int typeId = 3, bool isFromAnswerComment = false}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
     String userID = "", siteID = "";
     userID = apiUrlConfigurationProvider.getCurrentUserId().toString();
     siteID = apiUrlConfigurationProvider.getCurrentSiteId().toString();
+    Map<String, String> requestBody = {
+      "UserID": userID,
+      "intSiteID": siteID,
+      "intTypeID": "$typeId",
+      "blnIsLiked": "$isLikedOrDisliked",
+      "strObjectID": "$responseId",
+    };
+    if (isFromAnswerComment) {
+      requestBody = {
+        "intUserID": userID,
+        "intTypeID": "$typeId",
+        "blnIsLiked": "$isLikedOrDisliked",
+        "strObjectID": "$responseId",
+      };
+    }
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
       restCallType: RestCallType.simplePostCall,
       // requestBody: requestModel.toJson(),
-      requestBody: MyUtils.encodeJson({
-        "UserID": userID,
-        "intSiteID": siteID,
-        "intTypeID": "3",
-        "blnIsLiked": "$isLikedOrDisliked",
-        "strObjectID": "$responseId",
-      }),
+      requestBody: MyUtils.encodeJson(requestBody),
       parsingType: ModelDataParsingType.string,
       url: apiEndpoints.GetLikeDislikeAnswer(),
     );
@@ -277,6 +288,111 @@ class AskTheExpertRepository {
     );
 
     DataResponseModel<FilterUserSkillsDtoResponseModel> apiResponseModel = await apiController.callApi<FilterUserSkillsDtoResponseModel>(
+      apiCallModel: apiCallModel,
+    );
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<FilterUserSkillsDtoResponseModel>> getUserSkills(
+      {required int componentId, required int componentInstanceId, bool isFromOffline = false, bool isStoreDataInHive = false}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole(" getUserSkills: ${apiEndpoints.siteUrl}  ");
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+    // {"intUserID":"363","intSiteID":"374","intComponentID":1,"Locale":"en-us","strType":"cat"}
+    int userID = apiUrlConfigurationProvider.getCurrentUserId();
+    int siteID = apiUrlConfigurationProvider.getCurrentSiteId();
+    String localeID = apiUrlConfigurationProvider.getLocale();
+    Map<String, String> request = {
+      "aintSiteID": siteID.toString(),
+      "astrType": "all",
+    };
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      queryParameters: request,
+      parsingType: ModelDataParsingType.FilterUserSkillsDtoResponseModel,
+      url: apiEndpoints.GetUserSkills(),
+    );
+
+    DataResponseModel<FilterUserSkillsDtoResponseModel> apiResponseModel = await apiController.callApi<FilterUserSkillsDtoResponseModel>(
+      apiCallModel: apiCallModel,
+    );
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<String>> sendMailToExperts({required SendMailToExpertRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole(" getWikiCategories Site Url:${apiEndpoints.siteUrl}  ");
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+    // {"intUserID":"363","intSiteID":"374","intComponentID":1,"Locale":"en-us","strType":"cat"}
+    requestModel.intUserID = apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.intSiteID = apiUrlConfigurationProvider.getCurrentSiteId();
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      queryParameters: requestModel.toJson(),
+      parsingType: ModelDataParsingType.string,
+      url: apiEndpoints.SendMailToExpert(),
+    );
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<String>> setTheUserQuestionView({required int questionId}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole(" getWikiCategories Site Url:${apiEndpoints.siteUrl}  ");
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+    // {"intUserID":"363","intSiteID":"374","intComponentID":1,"Locale":"en-us","strType":"cat"}
+    int intUserID = apiUrlConfigurationProvider.getCurrentUserId();
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      queryParameters: {"UserID": "$intUserID", "intQuestionID": "$questionId"},
+      parsingType: ModelDataParsingType.string,
+      url: apiEndpoints.SetUserQuestionviews(),
+    );
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<String>> addComment({
+    bool isEdit = false,
+    required AddCommentRequestModel requestModel,
+  }) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+
+    requestModel.userID = apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.siteID = apiUrlConfigurationProvider.getCurrentSiteId();
+    requestModel.Locale = apiUrlConfigurationProvider.getLocale();
+
+    List<InstancyMultipartFileUploadModel> files = [];
+
+    if (requestModel.fileUploads != null) {
+      files.addAll(requestModel.fileUploads!);
+    }
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.multipartRequestCall,
+      // requestBody: MyUtils.encodeJson(requestModel.toJson()),
+      parsingType: ModelDataParsingType.string,
+      url: apiEndpoints.postComment(),
+      fields: requestModel.toJson(),
+      files: files,
+    );
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
       apiCallModel: apiCallModel,
     );
 

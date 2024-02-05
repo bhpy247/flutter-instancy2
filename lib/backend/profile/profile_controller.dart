@@ -406,4 +406,22 @@ class ProfileController {
     }
     return showPrivilege;
   }
+
+  bool isShowAllFeedBackData() {
+    MyPrint.printOnConsole("isShowAddForumButton called");
+
+    bool showPrivilege = false;
+    List<UserPrivilegeModel> userPrivilege = profileProvider.userPrivilegeData.getList();
+    MyPrint.printOnConsole("userPrivilege called ${userPrivilege.length}");
+
+    if (userPrivilege.checkNotEmpty) {
+      for (var element in userPrivilege) {
+        MyPrint.printOnConsole("element : ${element.privilegeid}");
+        if (element.privilegeid == FeedbackPrivileges.ViewallFeedback) {
+          return true;
+        }
+      }
+    }
+    return showPrivilege;
+  }
 }

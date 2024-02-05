@@ -35,6 +35,7 @@ class ShareController {
     required String message,
     String contentId = "",
     int forumId = 0,
+    // int responseId = 0,
     String questionId = "",
   }) async {
     String tag = MyUtils.getNewId();
@@ -47,6 +48,7 @@ class ShareController {
         message: message,
         contentId: contentId,
         forumID: forumId,
+        // responseId: responseId,
         discussionForumLink: forumId != 0,
         quesID: questionId,
         askQuestionLink: questionId.isNotEmpty,

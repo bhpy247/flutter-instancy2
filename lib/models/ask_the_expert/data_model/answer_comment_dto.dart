@@ -39,7 +39,7 @@ class AnswerCommentsModel {
   String commentImageUploadName = "";
   String commentUploadIconPath = "";
   String noImageText = "";
-  bool isLiked = false;
+  bool? isLiked = false;
   bool isPublic = false;
 
   AnswerCommentsModel({

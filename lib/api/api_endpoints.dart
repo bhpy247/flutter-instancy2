@@ -261,7 +261,7 @@ class ApiEndpoints {
 
   String getRecommendToContentUrl() => '${getBaseApiUrl()}/AsktheExpert/GetRecommendedUsersList';
 
-  String getSendMailToPeopleUrl() => '${getBaseApiUrl()}/Generic/SendMailToPeople';
+  String getSendMailToPeopleUrl() => '${getBaseApiUrl()}Generic/SendMailToPeople';
 
   String getInsertRecommendedContentUrl() => '${getBaseApiUrl()}/AsktheExpert/InsertRecommendContent';
 
@@ -514,6 +514,14 @@ class ApiEndpoints {
   String GetQuestionList() => "${getBaseApiUrl()}/AsktheExpert/GetAsktheExpertData";
 
   String GetFilterSkills() => "${getBaseApiUrl()}AsktheExpert/GetFilterUserSkills";
+
+  String GetUserSkills() => "${getBaseApiUrl()}AsktheExpert/GetUserQuestionSkills";
+
+  String SendMailToExpert() => "${getBaseApiUrl()}AsktheExpert/SendExpertMails";
+
+  String SetUserQuestionviews() => "${getBaseApiUrl()}AsktheExpert/getSetUserQuestionviews";
+
+  String postComment() => "${getBaseApiUrl()}AsktheExpert/InsertEditResponseComments";
 
   //endregion
 
