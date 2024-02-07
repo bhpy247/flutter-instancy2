@@ -225,7 +225,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
                 textEditingController: titleTextEditingController,
                 validator: (String? val) {
                   if (val == null || val.trim().checkEmpty) {
-                    return "Please enter the title";
+                    return "Please enter question";
                   }
                   return null;
                 },
