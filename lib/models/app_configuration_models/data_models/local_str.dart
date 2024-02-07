@@ -364,6 +364,7 @@ class LocalStr {
   String asktheexpertAlerttitleStringsuccess = "";
   String asktheexpertAlerttitleStringinfo = "";
   String asktheexpertAlerttitleDeleteanswer = "";
+  String asktheexpertAlerttitleDeleteQuestion = "";
   String asktheexpertAlertsubtitleAreyousurewanttopermanentlydeletequestion = "";
   String asktheexpertAlertsubtitleChooseskillinordertofilter = "";
   String asktheexpertAlertsubtitleNofilterspresent = "";
@@ -1163,6 +1164,7 @@ class LocalStr {
     this.asktheexpertAlerttitleStringsuccess = "",
     this.asktheexpertAlerttitleStringinfo = "",
     this.asktheexpertAlerttitleDeleteanswer = "",
+    this.asktheexpertAlerttitleDeleteQuestion = "",
     this.asktheexpertAlertsubtitleAreyousurewanttopermanentlydeletequestion = "",
     this.asktheexpertAlertsubtitleChooseskillinordertofilter = "",
     this.asktheexpertAlertsubtitleNofilterspresent = "",
@@ -1948,6 +1950,7 @@ class LocalStr {
     asktheexpertAlerttitleStringsuccess = ParsingHelper.parseStringMethod(json['asktheexpert_alerttitle_stringsuccess']);
     asktheexpertAlerttitleStringinfo = ParsingHelper.parseStringMethod(json['asktheexpert_alerttitle_stringinfo']);
     asktheexpertAlerttitleDeleteanswer = ParsingHelper.parseStringMethod(json['asktheexpert_alerttitle_deleteanswer']);
+    asktheexpertAlerttitleDeleteQuestion = ParsingHelper.parseStringMethod(json['asktheexpert_alerttitle_deletequestion']);
     asktheexpertAlertsubtitleAreyousurewanttopermanentlydeletequestion = ParsingHelper.parseStringMethod(json['asktheexpert_alertsubtitle_areyousurewanttopermanentlydeletequestion']);
     asktheexpertAlertsubtitleChooseskillinordertofilter = ParsingHelper.parseStringMethod(json['asktheexpert_alertsubtitle_chooseskillinordertofilter']);
     asktheexpertAlertsubtitleNofilterspresent = ParsingHelper.parseStringMethod(json['asktheexpert_alertsubtitle_nofilterspresent']);
@@ -2742,6 +2745,7 @@ class LocalStr {
     data['asktheexpert_alerttitle_stringsuccess'] = asktheexpertAlerttitleStringsuccess;
     data['asktheexpert_alerttitle_stringinfo'] = asktheexpertAlerttitleStringinfo;
     data['asktheexpert_alerttitle_deleteanswer'] = asktheexpertAlerttitleDeleteanswer;
+    data['asktheexpert_alerttitle_deletequestion'] = asktheexpertAlerttitleDeleteanswer;
     data['asktheexpert_alertsubtitle_areyousurewanttopermanentlydeletequestion'] = asktheexpertAlertsubtitleAreyousurewanttopermanentlydeletequestion;
     data['asktheexpert_alertsubtitle_chooseskillinordertofilter'] = asktheexpertAlertsubtitleChooseskillinordertofilter;
     data['asktheexpert_alertsubtitle_nofilterspresent'] = asktheexpertAlertsubtitleNofilterspresent;

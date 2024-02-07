@@ -425,7 +425,7 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
     askTheExpertProvider = context.read<AskTheExpertProvider>();
 
     initializations();
-    // textEditingController.text = askTheExpertProvider.forumListSearchString.get();
+    textEditingController.text = askTheExpertProvider.questionListSearchString.get();
     // if (discussionProvider.forumsListLength == 0) {
     //   getDiscussionForumList(
     //     isRefresh: true,
@@ -500,7 +500,7 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
       children: [
         getSearchTextFromField(),
         Expanded(
-          child: getDiscussionForumListView(),
+          child: getQuestionListView(),
         )
       ],
     );
@@ -603,7 +603,7 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
                   Icon(Icons.category),
                 ],
               ),
-              if (ParsingHelper.parseIntMethod(provider.filterCategoriesIds.get()) >= 0)
+              if (ParsingHelper.parseIntMethod(provider.filterCategoriesIds.get()) > 0)
                 Container(
                   height: 5,
                   width: 5,
@@ -616,7 +616,7 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
     );
   }
 
-  Widget getDiscussionForumListView() {
+  Widget getQuestionListView() {
     return getQuestionListViewWidget(
       scrollController: catalogContentScrollController,
       contentsLength: askTheExpertProvider.questionList.length,

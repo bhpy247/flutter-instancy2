@@ -504,7 +504,7 @@ class AskTheExpertController {
         LocalStr localStrNew = context.read<AppProvider>().localStr;
 
         return CommonConfirmationDialog(
-          title: localStrNew.asktheexpertAlerttitleDeleteanswer,
+          title: localStrNew.asktheexpertAlerttitleDeleteQuestion,
           description: localStrNew.asktheexpertAlertsubtitleAreyousurewanttopermanentlydeletequestion,
           confirmationText: localStrNew.discussionforumAlertbuttonDeletebutton,
           cancelText: localStrNew.discussionforumAlertbuttonCancelbutton,

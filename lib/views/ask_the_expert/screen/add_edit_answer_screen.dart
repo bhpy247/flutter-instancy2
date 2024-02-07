@@ -188,9 +188,9 @@ class _AddEditAnswerScreenState extends State<AddEditAnswerScreen> with MySafeSt
           children: [
             getCommonTextFormField(
               hintext: "Add Answer",
-              inputFormatter: [
-                LengthLimitingTextInputFormatter(200),
-              ],
+              // inputFormatter: [
+              //   LengthLimitingTextInputFormatter(200),
+              // ],
               maxLines: 3,
               minLines: 1,
               isStarVisible: true,

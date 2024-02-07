@@ -107,7 +107,7 @@ class AskTheExpertRepository {
     userID = apiUrlConfigurationProvider.getCurrentUserId().toString();
     siteID = apiUrlConfigurationProvider.getCurrentSiteId().toString();
     Map<String, String> requestBody = {
-      "UserID": userID,
+      "intUserID": userID,
       "intSiteID": siteID,
       "intTypeID": "$typeId",
       "blnIsLiked": "$isLikedOrDisliked",

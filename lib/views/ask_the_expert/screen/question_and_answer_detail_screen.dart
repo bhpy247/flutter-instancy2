@@ -243,7 +243,7 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
                 ),
                 arguments: ShareWithConnectionsScreenNavigationArguments(
                   shareContentType: ShareContentType.askTheExpertQuestion,
-                  responseId: answerModel.responseID,
+                  responseId: answerModel.questionID,
                   shareProvider: context.read<ShareProvider>(),
                 ),
               );
@@ -265,11 +265,12 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
             onAddCommentTap: () {
               Navigator.pop(context);
 
-              isCommentTextFormFieldVisible = false;
-              isReplyTextFormFieldVisible = true;
-              selectedAnswerForComment = null;
-              replyFocusNode = FocusNode();
-              replyFocusNode.requestFocus();
+              isCommentTextFormFieldVisible = true;
+              // isReplyTextFormFieldVisible = false;
+              selectedAnswerForComment = answerModel;
+              // selectedCommentModelForReply = null;
+              commentFocusNode = FocusNode();
+              commentFocusNode.requestFocus();
               mySetState();
             },
             onEditTap: () async {
@@ -651,6 +652,7 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
     askTheExpertProvider = context.read<AskTheExpertProvider>();
     appProvider = context.read<AppProvider>();
     askTheExpertController = AskTheExpertController(discussionProvider: askTheExpertProvider);
+    getCurrentUserLoggedInData();
     // uiActionController = DiscussionTopicUiActionController(appProvider: appProvider);
     initialization();
   }
@@ -893,7 +895,8 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
                   } else {
                     DeleteUserResponse(commentModel: topicModel);
                   }
-
+                  // loadAnswersForQuestion(userQuestionListDto: userQuestion!);
+                  // getQuestionAnswerDataList();
                   // likeDislikeTopic(topicModel: topicModel, forumModel: forumModel);
                 },
                 isVisible: true,
@@ -1261,95 +1264,6 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
   }
 
   //endregion
-
-  // //region Reply Section
-  // Widget getReplyList({required TopicCommentModel topicCommentModel}) {
-  //   if (topicCommentModel.isLoadingReplies) {
-  //     return const Padding(
-  //       padding: EdgeInsets.all(20.0),
-  //       child: CommonLoader(
-  //         size: 40,
-  //       ),
-  //     );
-  //   }
-  //   if (topicCommentModel.repliesList.checkEmpty) return const SizedBox();
-  //   return ListView.builder(
-  //     physics: const NeverScrollableScrollPhysics(),
-  //     padding: const EdgeInsets.only(left: 40, top: 10),
-  //     itemCount: topicCommentModel.repliesList.length,
-  //     shrinkWrap: true,
-  //     itemBuilder: (BuildContext context, int index) {
-  //       return getReplyItem(replyModel: topicCommentModel.repliesList[index], commentModel: topicCommentModel);
-  //     },
-  //   );
-  // }
-  //
-  // Widget getReplyItem({required CommentReplyModel replyModel, required TopicCommentModel commentModel}) {
-  //   String replyThumbnailUrl = MyUtils.getSecureUrl(
-  //     AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(
-  //       imagePath: replyModel.replyProfile,
-  //     ),
-  //   );
-  //   // MyPrint.printOnConsole('replyThumbnailUrl:replyThumbnailUrl');
-  //
-  //   return Padding(
-  //     padding: const EdgeInsets.only(bottom: 10.0),
-  //     child: Column(
-  //       children: [
-  //         // getCommentProfileWidget(commentModel),
-  //         getCommonProfileWidget(
-  //           days: replyModel.dtPostedDate,
-  //           authorName: replyModel.replyBy,
-  //           onMoreTap: () {
-  //             showMoreActionsForReply(
-  //               replyModel: replyModel,
-  //               commentModel: commentModel,
-  //             );
-  //           },
-  //           profileUrl: replyThumbnailUrl,
-  //         ),
-  //         Html(
-  //           data: replyModel.message,
-  //           style: {
-  //             "body": Style(
-  //               color: themeData.textTheme.bodyMedium?.color,
-  //               fontWeight: FontWeight.w400,
-  //               fontSize: FontSize(themeData.textTheme.bodyMedium?.fontSize ?? 16),
-  //             ),
-  //             "p": Style(padding: HtmlPaddings.zero, margin: Margins.zero),
-  //           },
-  //         ),
-  //         Row(
-  //           children: [
-  //             iconTextButton(
-  //               onTap: () {
-  //                 likeDislikeReply(replyModel: replyModel);
-  //               },
-  //               iconData: replyModel.likeState ? Icons.thumb_up_alt_rounded : Icons.thumb_up_alt_outlined,
-  //               text: "",
-  //             ),
-  //             iconTextButton(
-  //               iconData: Icons.turn_left_outlined,
-  //               iconSize: 22,
-  //               text: "Reply",
-  //               onTap: () async {
-  //                 isCommentTextFormFieldVisible = false;
-  //                 isReplyTextFormFieldVisible = true;
-  //                 selectedAnswerForComment = null;
-  //                 selectedCommentModelForReply = commentModel;
-  //                 replyFocusNode = FocusNode();
-  //                 replyFocusNode.requestFocus();
-  //                 mySetState();
-  //               },
-  //             ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-  //
-  // //endregion
 
   Widget getCommonProfileWidget({String profileUrl = "", String authorName = "", String days = "", Function()? onMoreTap}) {
     return Row(

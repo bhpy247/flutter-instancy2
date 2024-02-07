@@ -49,7 +49,7 @@ class AskTheExpertProvider extends CommonProvider {
       notify: notify,
     );
     filterCategoriesIds = CommonProviderPrimitiveParameter<String>(
-      value: "",
+      value: "-1",
       notify: notify,
     );
     questionListSearchString = CommonProviderPrimitiveParameter<String>(
@@ -101,7 +101,7 @@ class AskTheExpertProvider extends CommonProvider {
     filterSkillsList.setList(list: [], isNotify: false);
     userFilterSkillsList.setList(list: [], isNotify: false);
     questionId.set(value: "", isNotify: false);
-    filterCategoriesIds.set(value: "", isNotify: false);
+    filterCategoriesIds.set(value: "-1", isNotify: false);
     questionListSearchString.set(value: "", isNotify: false);
     maxQuestionListCount.set(value: 0, isNotify: false);
     questionListPaginationModel.set(

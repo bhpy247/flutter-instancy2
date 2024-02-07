@@ -210,11 +210,14 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
           key: formKey,
           child: Column(
             children: [
+              const SizedBox(
+                height: 5,
+              ),
               getCommonTextFormField(
-                hintext: "Title",
-                inputFormatter: [
-                  LengthLimitingTextInputFormatter(200),
-                ],
+                hintext: "Question",
+                // inputFormatter: [
+                //   LengthLimitingTextInputFormatter(200),
+                // ],
                 maxLines: 3,
                 minLines: 1,
                 isStarVisible: true,
@@ -247,7 +250,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
                   },
                   child: getCommonTextFormField(
                     enable: false,
-                    hintext: "Upload file",
+                    hintext: "Attachment",
                     prefixIconData: FontAwesomeIcons.arrowUpFromBracket,
                     suffix: Icons.add,
                     textEditingController: uploadFileTextEditingController,

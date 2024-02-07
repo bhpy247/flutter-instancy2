@@ -120,7 +120,7 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
           String linkContent = "<a href = $contentLink></a>";
           messageToSendInTheApi = "I thought you might be interested in seeing this. Make sure you take a look at my comments and the New Video that is on your "
               "YouTube site! \n\n"
-              "Link: $contentLink";
+              "Link:<a href='$contentLink'>$contentLink</a></p>";
           break;
         }
       case ShareContentType.catalogCourse:

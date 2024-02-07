@@ -129,7 +129,8 @@ class _FilterSkillsScreenState extends State<FilterSkillsScreen> with MySafeStat
                             // if (widget.arguments.isFromMyDiscussion) {
                             //   askTheExpertProvider.myQuestionCategoriesIds.set(value: "");
                             // } else {
-                            askTheExpertProvider.filterCategoriesIds.set(value: "");
+                            askTheExpertProvider.filterCategoriesIds.set(value: "-1");
+                            // askTheExpertProvider.filterSkillsList.setList(list: []);
                             // }
                             Navigator.pop(context, true);
                           },
