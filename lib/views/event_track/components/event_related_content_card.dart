@@ -1,32 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_configs.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:flutter_instancy_2/views/common/components/common_icon_button.dart';
+import 'package:flutter_instancy_2/views/course_download/components/course_download_button.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import '../../../models/course/data_model/CourseDTOModel.dart';
-import '../../../utils/my_print.dart';
 import '../../common/components/common_button.dart';
 import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
 
 class EventRelatedContentCard extends StatefulWidget {
   final RelatedTrackDataDTOModel contentModel;
+  final String parentEventTrackId;
   final InstancyUIActionModel? primaryAction;
-  final void Function()? onMoreButtonTap, onPrimaryActionTap;
+  final void Function()? onMoreButtonTap, onPrimaryActionTap, onDownloadTap;
   final bool isShowMoreOption;
 
   const EventRelatedContentCard({
     Key? key,
     required this.contentModel,
+    required this.parentEventTrackId,
     this.primaryAction,
     this.onMoreButtonTap,
     this.onPrimaryActionTap,
+    this.onDownloadTap,
     this.isShowMoreOption = true,
   }) : super(key: key);
 
@@ -64,7 +68,7 @@ class _EventRelatedContentCardState extends State<EventRelatedContentCard> {
 
   Widget imageWidget(String url) {
     String imageUrl = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: url));
-    MyPrint.printOnConsole("Event Track Content Thumbnail Image Url:$imageUrl");
+    // MyPrint.printOnConsole("Event Track Content Thumbnail Image Url:$imageUrl");
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
@@ -144,7 +148,12 @@ class _EventRelatedContentCardState extends State<EventRelatedContentCard> {
                 ],
               ),
             ),
-            // downloadIcon()
+            if (MyLearningUIActionConfigs.isContentTypeDownloadable(objectTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeID))
+              CourseDownloadButton(
+                contentId: model.ContentID,
+                parentEventTrackId: widget.parentEventTrackId,
+                onDownloadTap: widget.onDownloadTap,
+              ),
           ],
         ),
         const SizedBox(height: 8),

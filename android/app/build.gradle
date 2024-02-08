@@ -103,14 +103,6 @@ android {
             resValue "string", "app_name", "E-Learning"
         }
 
-        qalearning {
-            dimension "app"
-            applicationId "com.instancy.qalearning"
-            versionCode 23
-            versionName "2.2.0"
-            resValue "string", "app_name", "QA Learning"
-        }
-
         qalearning2 {
             dimension "app"
             applicationId "com.instancy.qalearning2"

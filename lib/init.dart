@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/download/flutter_download_controller.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/firebase_options.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -34,6 +35,8 @@ Future<void>? runErrorSafeApp(VoidCallback appRunner) {
 /// It provides initial initialisation the app and its global services
 Future<void> initApp() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  NetworkConnectionController().startNetworkConnectionSubscription();
 
   List<Future> futures = [];
 

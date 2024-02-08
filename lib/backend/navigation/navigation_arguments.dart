@@ -11,6 +11,7 @@ import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/data_model/ask_the_expert_dto.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
 import 'package:flutter_instancy_2/models/membership/data_model/membership_plan_details_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_experience_data_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
@@ -356,6 +357,22 @@ class CourseLaunchWebViewScreenNavigationArguments extends NavigationArguments {
   });
 }
 
+class CourseOfflineLaunchWebViewScreenNavigationArguments extends NavigationArguments {
+  final String coursePath;
+  final String courseDirectoryPath;
+  final String courseName;
+  final CourseLaunchModel courseLaunchModel;
+  final int? contentTypeId;
+
+  const CourseOfflineLaunchWebViewScreenNavigationArguments({
+    required this.coursePath,
+    required this.courseDirectoryPath,
+    required this.courseName,
+    required this.courseLaunchModel,
+    this.contentTypeId,
+  });
+}
+
 class VideoLaunchScreenNavigationArguments extends NavigationArguments {
   final bool isNetworkVideo;
   final String contntName;
@@ -397,6 +414,21 @@ class PDFLaunchScreenNavigationArguments extends NavigationArguments {
     this.pdfFilePath = "",
     this.pdfFileBytes,
   });
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      "isNetworkPDF": isNetworkPDF,
+      "contntName": contntName,
+      "pdfUrl": pdfUrl,
+      "pdfFilePath": pdfFilePath,
+      "pdfFileBytes": pdfFileBytes?.length,
+    };
+  }
+
+  @override
+  String toString() {
+    return MyUtils.encodeJson(toMap());
+  }
 }
 
 class WebViewScreenNavigationArguments extends NavigationArguments {
@@ -415,8 +447,11 @@ class EventTrackScreenArguments extends NavigationArguments {
   final int componentInstanceId;
   final int objectTypeId;
   final int scoId;
-  final bool isRelatedContent, isContentEnrolled;
+  final bool isRelatedContent;
+  final bool isContentEnrolled;
+  final bool isLoadDataFromOffline;
   final String? eventTrackTabType;
+  final CourseDTOModel? eventTrackContentModel;
   final EventTrackProvider? eventTrackProvider;
 
   const EventTrackScreenArguments({
@@ -426,9 +461,11 @@ class EventTrackScreenArguments extends NavigationArguments {
     required this.objectTypeId,
     required this.isRelatedContent,
     required this.isContentEnrolled,
+    this.isLoadDataFromOffline = false,
     required this.scoId,
-    this.eventTrackProvider,
     this.eventTrackTabType,
+    this.eventTrackContentModel,
+    this.eventTrackProvider,
   });
 }
 

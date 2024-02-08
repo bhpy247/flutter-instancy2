@@ -48,9 +48,9 @@ class CourseDownloadRepository {
   // endregion
 
   // region Model Box Operations
-  Future<bool> setCourseDownloadDataModelInHive({required String downloadId, required CourseDownloadDataModel? model}) async {
+  Future<bool> setCourseDownloadDataModelInHive({required Map<String, CourseDownloadDataModel?> courseDownloadData, bool isClear = false}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CourseDownloadRepository().setCourseDownloadDataModelInHive() called with downloadId:'$downloadId', model is null:${model == null}", tag: tag);
+    MyPrint.printOnConsole("CourseDownloadRepository().setCourseDownloadDataModelInHive() called with courseDownloadData:'${courseDownloadData.length}', isClear:$isClear", tag: tag);
 
     bool isSuccess = false;
 
@@ -62,11 +62,17 @@ class CourseDownloadRepository {
     }
 
     try {
-      if (model != null) {
-        await box.put(downloadId, model.toMap());
-      } else {
-        await box.delete(downloadId);
+      if (isClear) await box.clear();
+
+      List<String> courseDownloadKeysToRemove = courseDownloadData.keys.where((element) => courseDownloadData[element] == null).toList();
+      if (courseDownloadKeysToRemove.isNotEmpty) {
+        await box.deleteAll(courseDownloadKeysToRemove);
+
+        courseDownloadData.removeWhere((key, value) => courseDownloadKeysToRemove.contains(key));
       }
+
+      await box.putAll(courseDownloadData.map((key, value) => MapEntry(key, value!.toMap())));
+
       MyPrint.printOnConsole("Value Setted Successfully", tag: tag);
       isSuccess = true;
     } catch (e, s) {

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -20,28 +21,28 @@ class HiveManager {
   bool _isHiveDatabaseInitialized = false;
 
   Future<bool> initializeHiveDatabase() async {
-    MyPrint.printOnConsole("initializeHiveDatabase called");
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("HiveManager().initializeHiveDatabase() called", tag: tag);
 
-    if(!_isHiveDatabaseInitialized) {
+    if (!_isHiveDatabaseInitialized) {
       try {
         String? databasePath;
-        if(!kIsWeb) {
+        if (!kIsWeb) {
           try {
-            final appDocumentDir = await getTemporaryDirectory();
+            final appDocumentDir = await getApplicationDocumentsDirectory();
             databasePath = "${appDocumentDir.path}/$_databaseName";
-          }
-          catch(e, s) {
-            MyPrint.printOnConsole("Error in Getting Path in HiveManager.initializeHiveDatabase():$e");
-            MyPrint.printOnConsole(s);
+          } catch (e, s) {
+            MyPrint.printOnConsole("Error in Getting Path in HiveManager().initializeHiveDatabase():$e", tag: tag);
+            MyPrint.printOnConsole(s, tag: tag);
           }
         }
-        MyPrint.printOnConsole("databasePath : $databasePath");
+        MyPrint.printOnConsole("databasePath : $databasePath", tag: tag);
         Hive.init(databasePath, backendPreference: kIsWeb ? HiveStorageBackendPreference.webWorker : HiveStorageBackendPreference.native);
         _isHiveDatabaseInitialized = true;
       }
       catch(e, s) {
-        MyPrint.printOnConsole("Error in HiveManager.initializeHiveDatabase():$e");
-        MyPrint.printOnConsole(s);
+        MyPrint.printOnConsole("Error in HiveManager().initializeHiveDatabase():$e", tag: tag);
+        MyPrint.printOnConsole(s, tag: tag);
       }
     }
 

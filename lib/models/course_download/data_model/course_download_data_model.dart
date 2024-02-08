@@ -1,10 +1,13 @@
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_instancy_2/backend/common/common_provider.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
-class CourseDownloadDataModel {
+class CourseDownloadDataModel extends CommonProvider {
   String id = "";
   String contentId = "";
   String taskId = "";
@@ -12,14 +15,20 @@ class CourseDownloadDataModel {
   String downloadFilePath = "";
   String downloadFileDirectoryPath = "";
   String downloadFileName = "";
-  String eventTrackContentId = "";
-  String eventTrackContentName = "";
+  String parentContentId = "";
+  String parentContentName = "";
+  int contentTypeId = 0;
+  int scoId = 0;
+  int parentContentTypeId = 0;
+  int parentContentScoId = 0;
   double totalDownloadPercentage = 0;
   double fileDownloadPercentage = 0;
   double zipFileExtractionPercentage = 0;
   DownloadTaskStatus downloadStatus = DownloadTaskStatus.undefined;
   CourseDTOModel? courseDTOModel;
-  CourseDTOModel? trackModel;
+  TrackCourseDTOModel? trackCourseDTOModel;
+  RelatedTrackDataDTOModel? relatedTrackDataDTOModel;
+  CourseDTOModel? parentCourseModel;
   bool isEventTrackContent = false;
   bool isZip = false;
   bool isCourseDownloading = false;
@@ -39,14 +48,20 @@ class CourseDownloadDataModel {
     this.downloadFilePath = "",
     this.downloadFileDirectoryPath = "",
     this.downloadFileName = "",
-    this.eventTrackContentId = "",
-    this.eventTrackContentName = "",
+    this.parentContentId = "",
+    this.parentContentName = "",
+    this.contentTypeId = 0,
+    this.scoId = 0,
+    this.parentContentTypeId = 0,
+    this.parentContentScoId = 0,
     this.totalDownloadPercentage = 0,
     this.fileDownloadPercentage = 0,
     this.zipFileExtractionPercentage = 0,
     this.downloadStatus = DownloadTaskStatus.undefined,
     this.courseDTOModel,
-    this.trackModel,
+    this.trackCourseDTOModel,
+    this.relatedTrackDataDTOModel,
+    this.parentCourseModel,
     this.isEventTrackContent = false,
     this.isZip = false,
     this.isCourseDownloading = false,
@@ -75,8 +90,12 @@ class CourseDownloadDataModel {
     downloadFilePath = ParsingHelper.parseStringMethod(map['downloadFilePath']);
     downloadFileDirectoryPath = ParsingHelper.parseStringMethod(map['downloadFileDirectoryPath']);
     downloadFileName = ParsingHelper.parseStringMethod(map['downloadFileName']);
-    eventTrackContentId = ParsingHelper.parseStringMethod(map['eventTrackContentId']);
-    eventTrackContentName = ParsingHelper.parseStringMethod(map['eventTrackContentName']);
+    parentContentId = ParsingHelper.parseStringMethod(map['eventTrackContentId']);
+    parentContentName = ParsingHelper.parseStringMethod(map['eventTrackContentName']);
+    contentTypeId = ParsingHelper.parseIntMethod(map['contentTypeId']);
+    scoId = ParsingHelper.parseIntMethod(map['scoId']);
+    parentContentTypeId = ParsingHelper.parseIntMethod(map['parentContentTypeId']);
+    parentContentScoId = ParsingHelper.parseIntMethod(map['parentContentScoId']);
     totalDownloadPercentage = ParsingHelper.parseDoubleMethod(map['totalDownloadPercentage']);
     fileDownloadPercentage = ParsingHelper.parseDoubleMethod(map['fileDownloadPercentage']);
     zipFileExtractionPercentage = ParsingHelper.parseDoubleMethod(map['zipFileExtractionPercentage']);
@@ -91,8 +110,14 @@ class CourseDownloadDataModel {
     Map<String, dynamic> courseDTOModelMap = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(map['courseDTOModel']);
     courseDTOModel = courseDTOModelMap.isNotEmpty ? CourseDTOModel.fromMap(courseDTOModelMap) : null;
 
-    Map<String, dynamic> trackModelMap = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(map['trackModel']);
-    trackModel = trackModelMap.isNotEmpty ? CourseDTOModel.fromMap(trackModelMap) : null;
+    Map<String, dynamic> trackCourseDTOModelMap = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(map['trackCourseDTOModel']);
+    trackCourseDTOModel = trackCourseDTOModelMap.isNotEmpty ? TrackCourseDTOModel.fromMap(trackCourseDTOModelMap) : null;
+
+    Map<String, dynamic> relatedTrackDataDTOModelMap = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(map['relatedTrackDataDTOModel']);
+    relatedTrackDataDTOModel = relatedTrackDataDTOModelMap.isNotEmpty ? RelatedTrackDataDTOModel.fromMap(relatedTrackDataDTOModelMap) : null;
+
+    Map<String, dynamic> trackModelMap = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(map['parentCourseModel']);
+    parentCourseModel = trackModelMap.isNotEmpty ? CourseDTOModel.fromMap(trackModelMap) : null;
 
     isEventTrackContent = ParsingHelper.parseBoolMethod(map['isEventTrackContent']);
     isZip = ParsingHelper.parseBoolMethod(map['isZip']);
@@ -115,14 +140,20 @@ class CourseDownloadDataModel {
       "downloadFilePath": downloadFilePath,
       "downloadFileDirectoryPath": downloadFileDirectoryPath,
       "downloadFileName": downloadFileName,
-      "eventTrackContentId": eventTrackContentId,
-      "eventTrackContentName": eventTrackContentName,
+      "eventTrackContentId": parentContentId,
+      "eventTrackContentName": parentContentName,
+      "contentTypeId": contentTypeId,
+      "scoId": scoId,
+      "parentContentTypeId": parentContentTypeId,
+      "parentContentScoId": parentContentScoId,
       "totalDownloadPercentage": totalDownloadPercentage,
       "fileDownloadPercentage": fileDownloadPercentage,
       "zipFileExtractionPercentage": zipFileExtractionPercentage,
       "downloadStatus": downloadStatus.index,
       "courseDTOModel": courseDTOModel?.toMap(),
-      "trackModel": trackModel?.toMap(),
+      "trackCourseDTOModel": trackCourseDTOModel?.toMap(),
+      "relatedTrackDataDTOModel": relatedTrackDataDTOModel?.toMap(),
+      "parentCourseModel": parentCourseModel?.toMap(),
       "isEventTrackContent": isEventTrackContent,
       "isZip": isZip,
       "isCourseDownloading": isCourseDownloading,

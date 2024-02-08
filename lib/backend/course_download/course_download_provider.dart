@@ -2,7 +2,11 @@ import 'package:flutter_instancy_2/backend/common/common_provider.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 
 class CourseDownloadProvider extends CommonProvider {
-  CourseDownloadProvider() {
+  static final CourseDownloadProvider _instance = CourseDownloadProvider._();
+
+  factory CourseDownloadProvider() => _instance;
+
+  CourseDownloadProvider._() {
     isLoadingCourseDownloadsData = CommonProviderPrimitiveParameter<bool>(
       value: false,
       notify: notify,
@@ -26,5 +30,13 @@ class CourseDownloadProvider extends CommonProvider {
 
   CourseDownloadDataModel? getCourseDownloadDataModelFromId({required courseDownloadId, bool isNewInstance = true}) {
     return courseDownloadMap.getMap(isNewInstance: isNewInstance)[courseDownloadId];
+  }
+
+  void resetData({bool isNotify = false}) {
+    isLoadingCourseDownloadsData.set(value: false, isNotify: false);
+    courseDownloadList.setList(list: <String>[], isNotify: false);
+    courseDownloadMap.setMap(map: <String, CourseDownloadDataModel>{}, isNotify: false);
+
+    notify(isNotify: isNotify);
   }
 }

@@ -148,6 +148,12 @@ class _MyAchievementComponentWidgetState extends State<MyAchievementComponentWid
   }
 
   @override
+  void dispose() {
+    tabController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.pageBuild();
 

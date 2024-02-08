@@ -134,6 +134,19 @@ class AppProvider extends CommonProvider {
     setMenusMap(menusMap: menuModelsMap, isClear: isClear, isNotify: false);
     setMenuIdsList(menusList: menuIdsList, isClear: isClear, isNotify: isNotify);
   }
+
+  NativeMenuModel? getMenuModelFromComponentId({required int componentId}) {
+    NativeMenuModel? nativeMenuModel;
+
+    Map<int, List<int>> componentsListMenuWiseMap = menuComponentsListMenuWiseMap;
+
+    int? menuId = componentsListMenuWiseMap.keys.where((element) => componentsListMenuWiseMap[element]?.contains(componentId) ?? false).firstOrNull;
+
+    nativeMenuModel = menuId != null ? getMenuModelFromMenuId(menuId: menuId) : null;
+
+    return nativeMenuModel;
+  }
+
   //endregion
 
   //region Menu Components Model Data
@@ -143,7 +156,7 @@ class AppProvider extends CommonProvider {
   Map<int, NativeMenuComponentModel> get menuComponentsMap => _menuComponentsMap;
 
   void setMenuComponentsMap({required Map<int, NativeMenuComponentModel> menuComponentsMap, bool isClear = true, bool isNotify = true}) {
-    if(isClear) _menuComponentsMap.clear();
+    if (isClear) _menuComponentsMap.clear();
     _menuComponentsMap.addAll(menuComponentsMap);
     if(isNotify) notifyListeners();
   }

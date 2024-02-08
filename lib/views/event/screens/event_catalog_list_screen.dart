@@ -436,6 +436,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
             scoId: model.ScoID,
             componentInstanceId: componentInsId,
             isContentEnrolled: model.isCourseEnrolled(),
+            eventTrackContentModel: model,
           ),
         );
 
@@ -508,6 +509,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
             scoId: model.ScoID,
             componentInstanceId: componentInsId,
             isContentEnrolled: model.isCourseEnrolled(),
+            eventTrackContentModel: model,
           ),
         );
       },

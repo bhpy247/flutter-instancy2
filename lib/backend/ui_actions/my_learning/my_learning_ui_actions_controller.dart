@@ -210,7 +210,7 @@ class MyLearningUIActionsController {
     return AppConfigurationOperations(appProvider: appProvider).isShowSetComplete(
       objectTypeId: parameterModel.objectTypeId,
       mediaTypeId: parameterModel.mediaTypeId,
-      contentStatus: parameterModel.actualStatus,
+      actualContentStatus: parameterModel.actualStatus,
       profileProvider: profileProvider,
     );
   }

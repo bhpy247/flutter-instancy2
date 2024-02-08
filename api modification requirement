@@ -1,0 +1,29 @@
+Api Modification Requirement
+
+1) catalog/GetMyLearningObjects
+
+Add Parameters: SiteUrl
+
+
+
+2) catalog/getCatalogObjects
+
+Add Parameters: SiteUrl
+
+
+
+3) ContentDetails/GetContentDetails
+
+Add Parameters: SiteUrl
+
+
+
+4) Resourcecontent/GetCatalogObjectsforResourcesContent
+
+Add Parameters: SiteUrl
+
+
+
+5) TrackListView/GetTrackListViewData
+
+Add Parameters: SiteUrl, UserId, SiteId

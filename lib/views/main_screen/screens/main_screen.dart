@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/models/authorization/response_model/bot_details_model.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
@@ -7,6 +9,7 @@ import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
+import 'package:flutter_instancy_2/backend/course_offline/course_offline_controller.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
@@ -16,6 +19,7 @@ import 'package:flutter_instancy_2/backend/instabot/instabot_provider.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_provider.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_controller.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
@@ -23,6 +27,7 @@ import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/configs/ui_configurations.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
+import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/views/ask_the_expert/screen/quesionAndAnswerMainScreen.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/catalog_categories_list_screen.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
@@ -74,6 +79,7 @@ class _MainScreenState extends State<MainScreen> {
   late AppThemeProvider appThemeProvider;
   late GamificationProvider gamificationProvider;
   late CourseDownloadProvider courseDownloadProvider;
+  StreamSubscription<void>? networkConnectionStreamSubscription;
 
   @override
   void initState() {
@@ -88,6 +94,8 @@ class _MainScreenState extends State<MainScreen> {
     gamificationProvider = Provider.of<GamificationProvider>(context, listen: false);
     courseDownloadProvider = Provider.of<CourseDownloadProvider>(context, listen: false);
 
+    NetworkConnectionProvider networkConnectionProvider = Provider.of<NetworkConnectionProvider>(context, listen: false);
+
     List<NativeMenuModel> menusList = appProvider.getMenuModelsList().toList();
     if (menusList.isNotEmpty) {
       mainScreenProvider.setSelectedMenu(
@@ -97,6 +105,44 @@ class _MainScreenState extends State<MainScreen> {
         isNotify: false,
       );
     }
+    if (!networkConnectionProvider.isNetworkConnected.get()) {
+      MyPrint.printOnConsole("Network Not Connected");
+      MyPrint.printOnConsole("Opening My Downloads Menu");
+      NativeMenuModel? menuModel = appProvider.getMenuModelFromComponentId(componentId: InstancyComponents.MyCourseDownloads);
+      if (menuModel != null) {
+        mainScreenProvider.setSelectedMenu(
+          menuModel: menuModel,
+          appProvider: appProvider,
+          appThemeProvider: Provider.of<AppThemeProvider>(context, listen: false),
+          isNotify: false,
+        );
+      } else {
+        MyPrint.printOnConsole("Couldn't Get My Downloads Menu");
+      }
+    }
+
+    networkConnectionStreamSubscription = networkConnectionProvider.networkConnectedSubscription.get()?.stream.listen((bool isNetworkConnected) {
+      MyPrint.printOnConsole("isNetworkConnected in MainScreen().initState():$isNetworkConnected");
+
+      if (!isNetworkConnected) {
+        MyPrint.printOnConsole("Network Not Connected");
+        MyPrint.printOnConsole("Opening My Downloads Menu");
+        NativeMenuModel? menuModel = appProvider.getMenuModelFromComponentId(componentId: InstancyComponents.MyCourseDownloads);
+        if (menuModel != null) {
+          mainScreenProvider.setSelectedMenu(
+            menuModel: menuModel,
+            appProvider: appProvider,
+            appThemeProvider: Provider.of<AppThemeProvider>(context, listen: false),
+            isNotify: false,
+          );
+        } else {
+          MyPrint.printOnConsole("Couldn't Get My Downloads Menu");
+        }
+      } else {
+        CourseOfflineController().syncCourseDataOnline();
+        if (context.mounted) MyToast.showSuccess(context: context, msg: "Syncing data with server");
+      }
+    });
 
     ProfileController(profileProvider: profileProvider).getProfileInfoMain(
       userId: ApiController().apiDataProvider.getCurrentUserId(),
@@ -117,6 +163,12 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   @override
+  void dispose() {
+    networkConnectionStreamSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
 
@@ -125,8 +177,9 @@ class _MainScreenState extends State<MainScreen> {
         ChangeNotifierProvider<AppProvider>.value(value: appProvider),
         ChangeNotifierProvider<MainScreenProvider>.value(value: mainScreenProvider),
       ],
-      child: Consumer3<AppProvider, MainScreenProvider, InstaBotProvider>(
-        builder: (BuildContext context, AppProvider appProvider, MainScreenProvider mainScreenProvider, InstaBotProvider instaBotProvider, Widget? child) {
+      child: Consumer4<AppProvider, MainScreenProvider, InstaBotProvider, NetworkConnectionProvider>(
+        builder: (BuildContext context, AppProvider appProvider, MainScreenProvider mainScreenProvider, InstaBotProvider instaBotProvider, NetworkConnectionProvider networkConnectionProvider,
+            Widget? child) {
           Future<void>? future = mainScreenProvider.futureGetMenuComponentData;
 
           NativeMenuModel? menuModel = mainScreenProvider.selectedMenuModel;
@@ -140,7 +193,7 @@ class _MainScreenState extends State<MainScreen> {
 
           List<NativeMenuModel> allMenusList = appProvider.getMenuModelsList();
           List<NativeMenuModel> mainMenusList = allMenusList.where((element) => element.parentmenuid == 0).toList();
-          MyPrint.logOnConsole("components: ${components}");
+          // MyPrint.logOnConsole("components: ${components}");
 
           List<NativeMenuModel> drawerMenusList = allMenusList.toList();
           List<NativeMenuModel> bottomBarMenusList = [];
@@ -148,7 +201,7 @@ class _MainScreenState extends State<MainScreen> {
 
           FloatingActionButtonLocation? floatingActionButtonLocation;
 
-          if (appProvider.appSystemConfigurationModel.mobileAppMenuPosition == "bottom" && mainMenusList.length >= 2) {
+          if (networkConnectionProvider.isNetworkConnected.get() && appProvider.appSystemConfigurationModel.mobileAppMenuPosition == "bottom" && mainMenusList.length >= 2) {
             hasMoreMenus = mainMenusList.length > InstancyUIConfigurations.maxBottomBarItemsCount;
             int bottomMenusLength = hasMoreMenus ? InstancyUIConfigurations.maxBottomBarItemsCount : mainMenusList.length;
 
@@ -183,22 +236,22 @@ class _MainScreenState extends State<MainScreen> {
             ),
             body: future != null && components.isEmpty
                 ? FutureBuilder(
-                    future: future,
-                    builder: (BuildContext context, AsyncSnapshot snapshot) {
-                      if (snapshot.connectionState != ConnectionState.done) {
-                        return const CommonLoader();
-                      }
+              future: future,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const CommonLoader();
+                }
 
-                      return getRoundedCornerWidget(
-                        menuModel: menuModel,
-                        components: components,
-                      );
-                    },
-                  )
+                return getRoundedCornerWidget(
+                  menuModel: menuModel,
+                  components: components,
+                );
+              },
+            )
                 : getRoundedCornerWidget(
-                    menuModel: menuModel,
-                    components: components,
-                  ),
+              menuModel: menuModel,
+              components: components,
+            ),
           );
         },
       ),

@@ -365,6 +365,7 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
             scoId: model.ScoID,
             componentInstanceId: componentInstanceId,
             isContentEnrolled: model.isCourseEnrolled(),
+            eventTrackContentModel: model,
           ),
         );
       },
@@ -569,8 +570,8 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
         ContentTypeId: model.ContentTypeId,
         MediaTypeId: model.MediaTypeID,
         ScoID: model.ScoID,
-        SiteUserID: apiUrlConfigurationProvider.getCurrentUserId(),
-        SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+        SiteUserID: model.SiteUserID,
+        SiteId: model.SiteId,
         ContentID: model.ContentID,
         locale: apiUrlConfigurationProvider.getLocale(),
         ActivityId: model.ActivityId,
@@ -581,7 +582,7 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
         jwstartpage: model.jwstartpage,
         startPage: model.startpage,
         arVrContentLaunchTypes: arVrContentLaunchTypes,
-        bit5: model.bit5,
+        courseDTOModel: model,
       ),
     );
 

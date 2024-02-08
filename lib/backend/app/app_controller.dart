@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_controller.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
@@ -27,6 +27,12 @@ import 'app_repository.dart';
 class AppController {
   late AppProvider _appProvider;
   late AppRepository _appRepository;
+
+  static BuildContext? _mainAppContext;
+
+  static set mainAppContext(BuildContext? context) => _mainAppContext = context;
+
+  static BuildContext? get mainAppContext => _mainAppContext;
 
   AppController({required AppProvider? provider, AppRepository? repository, ApiController? apiController}) {
     _appProvider = provider ?? AppProvider();
@@ -226,18 +232,6 @@ class AppController {
     return uint8list;
   }*/
 
-  static Future<bool> checkInternetConnectivity() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    switch (connectivityResult) {
-      case ConnectivityResult.mobile:
-      case ConnectivityResult.wifi:
-        return true;
-      case ConnectivityResult.none:
-      default:
-        return false;
-    }
-  }
-
   static Future<String> getDocumentsDirectory() async {
     if (kIsWeb) {
       return "";
@@ -305,5 +299,30 @@ class AppController {
     provider.currencyModel.set(value: currencyModel, isNotify: true);
 
     return currencyModel;
+  }
+
+  static Future<bool> checkCourseFileDirectoryExist({required String path, bool isFile = true}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("AppController.checkCourseFileDirectoryExist() called with path:'$path', isFile:$isFile", tag: tag);
+
+    bool isExist = false;
+
+    try {
+      if (isFile) {
+        MyPrint.printOnConsole("Checking File Path Exist", tag: tag);
+        File file = File(path);
+        isExist = await file.exists();
+      } else {
+        MyPrint.printOnConsole("Checking Directory Path Exist", tag: tag);
+        Directory directory = Directory(path);
+        isExist = await directory.exists();
+      }
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in AppController.checkCourseFileDirectoryExist():$e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+    }
+    MyPrint.printOnConsole("Path Exist:$isExist", tag: tag);
+
+    return isExist;
   }
 }

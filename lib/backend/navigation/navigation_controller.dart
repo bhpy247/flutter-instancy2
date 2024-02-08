@@ -8,6 +8,7 @@ import 'package:flutter_instancy_2/views/authentication/screens/sign_up_screen.d
 import 'package:flutter_instancy_2/views/catalog/screens/PrerequisiteScreen.dart';
 import 'package:flutter_instancy_2/views/common/screen/common_view_image_screen.dart';
 import 'package:flutter_instancy_2/views/course_details/screens/course_details_screen.dart';
+import 'package:flutter_instancy_2/views/course_launch/screens/course_offline_launch_webview_screen.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/component/categories_search_screen.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/screens/create_edit_discussion_forum_screen.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/screens/create_edit_topic_screen.dart';
@@ -275,12 +276,17 @@ class NavigationController {
           page = parseInstaBotScreen2(settings: settings);
           break;
         }
-    //endregion
+      //endregion
 
       // region Course Launch
       case CourseLaunchWebViewScreen.routeName:
         {
           page = parseCourseLaunchWebViewScreen(settings: settings);
+          break;
+        }
+      case CourseOfflineLaunchWebViewScreen.routeName:
+        {
+          page = parseCourseOfflineLaunchWebViewScreen(settings: settings);
           break;
         }
       case VideoLaunchScreen.routeName:
@@ -753,6 +759,17 @@ class NavigationController {
     dynamic argument = settings.arguments;
     if (argument is CourseLaunchWebViewScreenNavigationArguments) {
       return CourseLaunchWebViewScreen(
+        arguments: argument,
+      );
+    } else {
+      return null;
+    }
+  }
+
+  static Widget? parseCourseOfflineLaunchWebViewScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is CourseOfflineLaunchWebViewScreenNavigationArguments) {
+      return CourseOfflineLaunchWebViewScreen(
         arguments: argument,
       );
     } else {
@@ -1268,6 +1285,17 @@ class NavigationController {
     return NavigationOperation.navigate(
         navigationOperationParameters: navigationOperationParameters.copyWith(
       routeName: CourseLaunchWebViewScreen.routeName,
+      arguments: arguments,
+    ));
+  }
+
+  static Future<dynamic> navigateToCourseOfflineLaunchWebViewScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required CourseOfflineLaunchWebViewScreenNavigationArguments arguments,
+  }) {
+    return NavigationOperation.navigate(
+        navigationOperationParameters: navigationOperationParameters.copyWith(
+      routeName: CourseOfflineLaunchWebViewScreen.routeName,
       arguments: arguments,
     ));
   }

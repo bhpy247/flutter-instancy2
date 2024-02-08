@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
+import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_controller.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
@@ -14,6 +15,8 @@ import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_provider.dart';
 import 'package:flutter_instancy_2/backend/share/share_provider.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
@@ -81,11 +84,17 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<InAppPurchaseProvider>(create: (_) => InAppPurchaseProvider()),
         ChangeNotifierProvider<DiscussionProvider>(create: (_) => DiscussionProvider()),
         ChangeNotifierProvider<GamificationProvider>(create: (_) => GamificationProvider()),
-        ChangeNotifierProvider<CourseDownloadProvider>(create: (_) => CourseDownloadProvider()),
+        ChangeNotifierProvider<CourseDownloadProvider>.value(value: CourseDownloadProvider()),
         ChangeNotifierProvider<FeedbackProvider>(create: (_) => FeedbackProvider()),
         ChangeNotifierProvider<AskTheExpertProvider>(create: (_) => AskTheExpertProvider()),
+        ChangeNotifierProvider<NetworkConnectionProvider>(create: (_) => NetworkConnectionController().networkConnectionProvider),
       ],
-      child: const MainApp(),
+      child: Builder(
+        builder: (BuildContext context) {
+          AppController.mainAppContext = context;
+          return const MainApp();
+        },
+      ),
     );
   }
 }
@@ -106,6 +115,11 @@ class _MainAppState extends State<MainApp> {
     });
 
     FlutterDownloadController.initializeListeners();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override

@@ -5,7 +5,9 @@ import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_hive_repository.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
+import 'package:flutter_instancy_2/backend/common/main_hive_controller.dart';
 import 'package:flutter_instancy_2/backend/content_review_ratings/content_review_ratings_provider.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
@@ -260,9 +262,15 @@ class AuthenticationController {
     context.read<InAppPurchaseProvider>().resetData();
     context.read<DiscussionProvider>().resetData();
     context.read<GamificationProvider>().resetData();
+    context.read<CourseDownloadProvider>().resetData();
 
     apiUrlConfigurationProvider.setCurrentUserId(-1);
     apiUrlConfigurationProvider.setAuthToken("");
+
+    MainHiveController().closeMyCourseDownloadIdsBox();
+    MainHiveController().closeMyCourseDownloadModelsBox();
+    MainHiveController().closeMyLearningIdsBox();
+    MainHiveController().closeMyLearningModelsBox();
 
     if (isNavigateToLoginScreen) Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, LoginSignUpSelectionScreen.routeName, (route) => false);
 
@@ -305,6 +313,7 @@ class AuthenticationController {
       authenticationProvider.setProfileConfigDataList(profileConfigDataList: signupFieldResponseModel.profileConfigData);
     } else {
       signupFieldResponseModel = await getSignupFieldsDataAndStoreInHive(isSaveInOffline: isSaveInOffline);
+      authenticationProvider.setProfileConfigDataList(profileConfigDataList: signupFieldResponseModel?.profileConfigData ?? <ProfileConfigDataModel>[]);
     }
 
     DateTime endTime = DateTime.now();

@@ -175,7 +175,8 @@ class AppConfigurationOperations {
   }
 
   static bool isValidString(String val) {
-    if (val.isEmpty || val == 'null') {
+    val = val.replaceAll(" ", "");
+    if (val.isEmpty || val == 'null' || val == "undefined") {
       return false;
     } else {
       return true;
@@ -306,7 +307,7 @@ class AppConfigurationOperations {
     return [17, 2, 62].contains(menuId);
   }
 
-  bool isShowSetComplete({required int objectTypeId, required int mediaTypeId, required String contentStatus, required ProfileProvider profileProvider}) {
+  bool isShowSetComplete({required int objectTypeId, required int mediaTypeId, required String actualContentStatus, required ProfileProvider profileProvider}) {
     bool isShowSetComplete = false, isHavingPrivilegeForSetComplete = false, isValidContentTypeForSetComplete = false, isContentStatusValid = false;
 
     //region Check showSetCompletedlink present in userprivileges or not
@@ -334,14 +335,13 @@ class AppConfigurationOperations {
 
     //region Check Content Status is valid or Not
     {
-      String status = contentStatus.toLowerCase();
-      MyPrint.printOnConsole("status:$status");
+      MyPrint.printOnConsole("actualContentStatus:$actualContentStatus");
 
       //Possible status types: notAttempted, incomplete, completed
-      if ([ContentStatusTypes.notAttempted, ContentStatusTypes.incomplete].contains(status)) {
+      if ([ContentStatusTypes.notAttempted, ContentStatusTypes.incomplete].contains(actualContentStatus)) {
         isContentStatusValid = true;
 
-        if (appProvider.appSystemConfigurationModel.setcompletehidefornotstarted && status == ContentStatusTypes.notAttempted) {
+        if (appProvider.appSystemConfigurationModel.setcompletehidefornotstarted && actualContentStatus == ContentStatusTypes.notAttempted) {
           isContentStatusValid = false;
         }
       }

@@ -4,6 +4,8 @@ import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_controller.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_provider.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
@@ -28,67 +30,80 @@ class MainScreenDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
 
-    List<NativeMenuModel> allMenusList = appProvider.getMenuModelsList();
-    MyPrint.printOnConsole("allMenusList :$allMenusList");
-    List<NativeMenuModel> finalMenusList = menusList.where((NativeMenuModel menuModel) {
-      if (["transfer to human agent"].contains(menuModel.displayname.toLowerCase())) {
-        return false;
-      }
-      return true;
-      /*// return true;
-      return [
-        "home",
-        "my learning",
-        "catalog",
-        "learning catalog",
-        "classroom events",
-        "event catalog",
-        "profile",
-        "my profile",
-        "discussions",
-        "discussion forum",
-        "discussion forums",
-        "my dashboard",
-        "settings",
-        "messages",
-        "my progress report"
-        // "transfer to human agent",
-      ].contains(menuModel.displayname.toLowerCase());*/
-    }).toList();
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.7,
       // backgroundColor: themeData.primaryColor,
       child: Container(
         color: themeData.drawerTheme.backgroundColor,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const MainScreenDrawerHeaderWidget(),
-              Container(
-                // color: Colors.red,
-                color: themeData.drawerTheme.backgroundColor,
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 0),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: finalMenusList.length + 1,
-                  itemBuilder: (BuildContext context, int index) {
-                    if (index == finalMenusList.length) {
-                      return getSignOutButton(context: context);
-                    }
+        child: Consumer2<AppProvider, NetworkConnectionProvider>(
+          builder: (BuildContext context, AppProvider appProvider, NetworkConnectionProvider networkConnectionProvider, Widget? child) {
+            List<NativeMenuModel> allMenusList = appProvider.getMenuModelsList();
 
-                    return getSingleMenuItem(
-                      context: context,
-                      themeData: themeData,
-                      nativeMenuModel: finalMenusList[index],
-                      allMenusList: allMenusList,
-                      index: index,
-                    );
-                  },
-                ),
+            bool isNetworkConnected = networkConnectionProvider.isNetworkConnected.get();
+
+            List<NativeMenuModel> finalMenusList = menusList.where((NativeMenuModel menuModel) {
+              if (["transfer to human agent"].contains(menuModel.displayname.toLowerCase())) {
+                return false;
+              }
+              return true;
+              /*// return true;
+              return [
+                "home",
+                "my learning",
+                "catalog",
+                "learning catalog",
+                "classroom events",
+                "event catalog",
+                "profile",
+                "my profile",
+                "discussions",
+                "discussion forum",
+                "discussion forums",
+                "my dashboard",
+                "settings",
+                "messages",
+                "my progress report"
+                // "transfer to human agent",
+              ].contains(menuModel.displayname.toLowerCase());*/
+            }).toList();
+
+            if (!isNetworkConnected) {
+              finalMenusList.clear();
+              NativeMenuModel? menuModel = appProvider.getMenuModelFromComponentId(componentId: InstancyComponents.MyCourseDownloads);
+              if (menuModel != null) finalMenusList.add(menuModel);
+            }
+
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  const MainScreenDrawerHeaderWidget(),
+                  Container(
+                    // color: Colors.red,
+                    color: themeData.drawerTheme.backgroundColor,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 0),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: finalMenusList.length + 1,
+                      itemBuilder: (BuildContext context, int index) {
+                        if (index == finalMenusList.length) {
+                          return getSignOutButton(context: context, isNetworkConnected: isNetworkConnected);
+                        }
+
+                        return getSingleMenuItem(
+                          context: context,
+                          themeData: themeData,
+                          nativeMenuModel: finalMenusList[index],
+                          allMenusList: allMenusList,
+                          index: index,
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -203,9 +218,11 @@ class MainScreenDrawer extends StatelessWidget {
     return list;
   }
 
-  Widget getSignOutButton({
-    required BuildContext context,
-  }) {
+  Widget getSignOutButton({required BuildContext context, bool isNetworkConnected = true}) {
+    if (!isNetworkConnected) {
+      return const SizedBox();
+    }
+
     ThemeData themeData = Theme.of(context);
     AppThemeProvider appThemeProvider = context.watch<AppThemeProvider>();
 

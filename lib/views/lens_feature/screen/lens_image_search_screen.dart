@@ -409,6 +409,7 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
             scoId: model.ScoID,
             componentInstanceId: componentInstanceId,
             isContentEnrolled: model.isCourseEnrolled(),
+            eventTrackContentModel: model,
           ),
         );
       },
@@ -613,8 +614,8 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
         ContentTypeId: model.ContentTypeId,
         MediaTypeId: model.MediaTypeID,
         ScoID: model.ScoID,
-        SiteUserID: apiUrlConfigurationProvider.getCurrentUserId(),
-        SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+        SiteUserID: model.SiteUserID,
+        SiteId: model.SiteId,
         ContentID: model.ContentID,
         locale: apiUrlConfigurationProvider.getLocale(),
         ActivityId: model.ActivityId,
@@ -625,7 +626,7 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
         jwstartpage: model.jwstartpage,
         startPage: model.startpage,
         arVrContentLaunchTypes: arVrContentLaunchTypes,
-        bit5: model.bit5,
+        courseDTOModel: model,
       ),
     );
 

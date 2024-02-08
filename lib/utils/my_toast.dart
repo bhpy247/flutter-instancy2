@@ -3,7 +3,16 @@ import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class MyToast {
-  static _showToast(BuildContext context, String msg, int duration, Color toastColor, Color textColor) {
+  static _showToast({
+    required BuildContext context,
+    required String msg,
+    int duration = 2,
+    required Color toastColor,
+    required Color textColor,
+    IconData? iconData,
+    Color? iconColor,
+    double? iconSize,
+  }) {
     try {
       Widget toast = Container(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
@@ -11,9 +20,24 @@ class MyToast {
           borderRadius: BorderRadius.circular(25.0),
           color: toastColor,
         ),
-        child: Text(
-          msg,
-          style: TextStyle(color: textColor),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (iconData != null) ...[
+              Icon(
+                iconData,
+                color: iconColor ?? Colors.white,
+                size: iconSize ?? 24,
+              ),
+              const SizedBox(width: 10),
+            ],
+            Flexible(
+              child: Text(
+                msg,
+                style: TextStyle(color: textColor),
+              ),
+            ),
+          ],
         ),
       );
 
@@ -46,21 +70,44 @@ class MyToast {
     }
   }
 
-  static void showError({required BuildContext context, required String msg, int durationInSeconds = 2}) {
-    _showToast(context, msg, durationInSeconds, Colors.red, Colors.white);
+  static void showError({required BuildContext context, required String msg, IconData? iconData, Color? iconColor, int durationInSeconds = 2}) {
+    _showToast(context: context, msg: msg, duration: durationInSeconds, toastColor: Colors.red, textColor: Colors.white, iconData: iconData, iconColor: iconColor);
   }
 
-  static void showSuccess({required BuildContext context, required String msg, int durationInSeconds = 2}) {
-    _showToast(context, msg, durationInSeconds, Colors.green, Colors.white);
+  static void showSuccess({required BuildContext context, required String msg, IconData? iconData, Color? iconColor, int durationInSeconds = 2}) {
+    _showToast(context: context, msg: msg, duration: durationInSeconds, toastColor: Colors.green, textColor: Colors.white, iconData: iconData, iconColor: iconColor);
   }
 
-  static void normalMsg({required BuildContext context, required String msg, int durationInSeconds = 2}) {
+  static void normalMsg({required BuildContext context, required String msg, IconData? iconData, Color? iconColor, int durationInSeconds = 2}) {
     ThemeData themeData = Theme.of(context);
-    _showToast(context, msg, durationInSeconds, themeData.colorScheme.primary, Colors.white);
+    _showToast(context: context, msg: msg, duration: durationInSeconds, toastColor: themeData.colorScheme.primary, textColor: Colors.white, iconData: iconData, iconColor: iconColor);
   }
 
-  static void greyMsg({required BuildContext context, required String msg, int durationInSeconds = 2}) {
+  static void greyMsg({required BuildContext context, required String msg, IconData? iconData, Color? iconColor, int durationInSeconds = 2}) {
     ThemeData themeData = Theme.of(context);
-    _showToast(context, msg, durationInSeconds, themeData.colorScheme.onBackground, Colors.white);
+    _showToast(context: context, msg: msg, duration: durationInSeconds, toastColor: themeData.colorScheme.onBackground, textColor: Colors.white, iconData: iconData, iconColor: iconColor);
+  }
+
+  static void showCustomToast({
+    required BuildContext context,
+    required String msg,
+    Color? toastColor,
+    Color? textColor,
+    IconData? iconData,
+    Color? iconColor,
+    double? iconSize,
+    int durationInSeconds = 2,
+  }) {
+    ThemeData themeData = Theme.of(context);
+    _showToast(
+      context: context,
+      msg: msg,
+      toastColor: toastColor ?? themeData.colorScheme.onBackground,
+      textColor: textColor ?? Colors.white,
+      iconData: iconData,
+      iconColor: iconColor,
+      iconSize: iconSize,
+      duration: durationInSeconds,
+    );
   }
 }

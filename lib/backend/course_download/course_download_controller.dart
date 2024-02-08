@@ -10,14 +10,20 @@ import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_repository.dart';
+import 'package:flutter_instancy_2/backend/course_offline/course_offline_controller.dart';
 import 'package:flutter_instancy_2/backend/download/flutter_download_controller.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_configs.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
+import 'package:flutter_instancy_2/models/course_download/request_model/course_download_request_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/request_model/course_offline_launch_request_model.dart';
 import 'package:flutter_instancy_2/models/download/request_model/flutter_download_request_model.dart';
 import 'package:flutter_instancy_2/models/download/response_model/flutter_download_response_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
@@ -29,7 +35,7 @@ class CourseDownloadController {
   late CourseDownloadProvider _courseDownloadProvider;
   late CourseDownloadRepository _courseDownloadRepository;
 
-  static bool isDownloadModuleEnabled = false;
+  static bool isDownloadModuleEnabled = true;
 
   CourseDownloadController({required this.appProvider, required CourseDownloadProvider? courseDownloadProvider, CourseDownloadRepository? courseDownloadRepository, ApiController? apiController}) {
     _courseDownloadProvider = courseDownloadProvider ?? CourseDownloadProvider();
@@ -44,28 +50,51 @@ class CourseDownloadController {
   // https://instancylivesites.blob.core.windows.net/upgradedenterprise/content/publishfiles/f35af8f3-28a8-4fd7-8102-9da5f80fd86a/acting%20skills.pdf?fromNativeapp=true
   // /storage/emulated/0/Android/data/com.instancy.upgradedenterpriseapp/files/.Mydownloads/Contentdownloads/f35af8f3-28a8-4fd7-8102-9da5f80fd86a-389/acting skills.pdf
 
-  Future<void> downloadCourse({required CourseDTOModel courseDTOModel, String parentEventTrackId = "", String parentEventTrackName = "", CourseDTOModel? trackModel}) async {
+  Future<void> downloadCourse({
+    required CourseDownloadRequestModel courseDownloadRequestModel,
+    CourseDTOModel? courseDTOModel,
+    TrackCourseDTOModel? trackCourseDTOModel,
+    RelatedTrackDataDTOModel? relatedTrackDataDTOModel,
+    CourseDTOModel? parentEventTrackModel,
+  }) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CourseDownloadController().downloadCourse() called for ContentId:${courseDTOModel.ContentID}", tag: tag);
+    MyPrint.printOnConsole("CourseDownloadController().downloadCourse() called for ContentId:${courseDownloadRequestModel.ContentID}", tag: tag);
 
     CourseDownloadProvider downloadProvider = courseDownloadProvider;
 
-    if (!MyLearningUIActionConfigs.isContentTypeDownloadable(objectTypeId: courseDTOModel.ContentTypeId, mediaTypeId: courseDTOModel.MediaTypeID)) {
+    if (!MyLearningUIActionConfigs.isContentTypeDownloadable(objectTypeId: courseDownloadRequestModel.ContentTypeId, mediaTypeId: courseDownloadRequestModel.MediaTypeID)) {
       MyPrint.printOnConsole("Returning from CourseDownloadController().getCourseDownloadUrl() because Content Not Downloadable", tag: tag);
+
+      BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
+      if (context != null && context.mounted) MyToast.showError(context: context, msg: "Course Not Downloadable");
       return;
     }
 
     if (kIsWeb) {
       MyPrint.printOnConsole("Returning from CourseDownloadController().downloadCourse() because It is Web Platform", tag: tag);
+
+      BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
+      if (context != null && context.mounted) MyToast.showError(context: context, msg: "Course Not Downloadable in Web Platform");
+
       return;
     }
 
-    if (!(await isDownloadPermissionGranted())) {
+    bool isNetworkConnected = NetworkConnectionController().checkConnection(context: NavigationController.mainNavigatorKey.currentContext, isShowErrorSnakbar: true);
+    if (!isNetworkConnected) {
+      MyPrint.printOnConsole("Returning from CourseDownloadController().downloadCourse() because Internet Not Connected", tag: tag);
+      return;
+    }
+
+    bool isDownloadPermissionGranted = await checkDownloadPermissionGranted();
+    MyPrint.printOnConsole("isDownloadPermissionGranted:$isDownloadPermissionGranted", tag: tag);
+
+    /*if (!isDownloadPermissionGranted && ) {
       MyPrint.printOnConsole("Returning from CourseDownloadController().downloadCourse() because Download Permission Not Granted", tag: tag);
+      MyToast.showError(context: NavigationController.mainNavigatorKey.currentContext!, msg: "Download Permission Not Granted");
       return;
-    }
+    }*/
 
-    ({String downloadUrl, bool isZipFile}) courseDownloadUrlResponse = getCourseDownloadUrl(courseDTOModel: courseDTOModel);
+    ({String downloadUrl, bool isZipFile}) courseDownloadUrlResponse = getCourseDownloadUrl(courseDownloadRequestModel: courseDownloadRequestModel);
     MyPrint.printOnConsole("courseDownloadUrl:'${courseDownloadUrlResponse.downloadUrl}'", tag: tag);
     MyPrint.printOnConsole("isZipFile:${courseDownloadUrlResponse.isZipFile}", tag: tag);
 
@@ -74,10 +103,12 @@ class CourseDownloadController {
       return;
     }
 
-    String folderPath = await getCourseDownloadDirectoryPath(courseDTOModel: courseDTOModel, parentEventTrackId: parentEventTrackId);
+    String parentEventTrackId = parentEventTrackModel?.ContentID ?? "";
+
+    String folderPath = await getCourseDownloadDirectoryPath(courseDownloadRequestModel: courseDownloadRequestModel, parentEventTrackId: parentEventTrackId);
     MyPrint.printOnConsole("downloadFolderPath:'$folderPath'", tag: tag);
 
-    String fileName = getCourseDownloadFileName(courseDTOModel: courseDTOModel);
+    String fileName = getCourseDownloadFileName(courseDownloadRequestModel: courseDownloadRequestModel);
     MyPrint.printOnConsole("fileName:'$fileName'", tag: tag);
 
     if (folderPath.isEmpty) {
@@ -104,16 +135,22 @@ class CourseDownloadController {
       return;
     }
 
-    String downloadId = CourseDownloadDataModel.getDownloadId(contentId: courseDTOModel.ContentID, eventTrackContentId: parentEventTrackId);
+    String downloadId = CourseDownloadDataModel.getDownloadId(contentId: courseDownloadRequestModel.ContentID, eventTrackContentId: parentEventTrackId);
 
     CourseDownloadDataModel courseDownloadDataModel = CourseDownloadDataModel(
       id: downloadId,
-      contentId: courseDTOModel.ContentID,
-      courseDTOModel: courseDTOModel,
-      eventTrackContentId: parentEventTrackId,
-      eventTrackContentName: parentEventTrackName,
+      contentId: courseDownloadRequestModel.ContentID,
+      scoId: courseDownloadRequestModel.ScoId,
+      contentTypeId: courseDownloadRequestModel.ContentTypeId,
+      parentContentId: parentEventTrackId,
+      parentContentName: parentEventTrackModel?.ContentName ?? "",
+      parentContentScoId: parentEventTrackModel?.ScoID ?? 0,
+      parentContentTypeId: parentEventTrackModel?.ContentTypeId ?? 0,
       taskId: response.taskId!,
-      trackModel: trackModel,
+      courseDTOModel: courseDTOModel,
+      trackCourseDTOModel: trackCourseDTOModel,
+      relatedTrackDataDTOModel: relatedTrackDataDTOModel,
+      parentCourseModel: parentEventTrackModel,
       downloadFileUrl: courseDownloadUrlResponse.downloadUrl,
       downloadFileDirectoryPath: folderPath,
       downloadFileName: fileName,
@@ -191,6 +228,11 @@ class CourseDownloadController {
         onFileOperation: (int totalOperations) {
           MyPrint.printOnConsole("onFileOperation called with totalOperations:$totalOperations", tag: tag);
           model.zipFileExtractionPercentage += (100 / totalOperations);
+          if (model.zipFileExtractionPercentage < 0) {
+            model.zipFileExtractionPercentage = 0;
+          } else if (model.zipFileExtractionPercentage > 100) {
+            model.zipFileExtractionPercentage = 100;
+          }
           model.totalDownloadPercentage = (model.fileDownloadPercentage + model.zipFileExtractionPercentage) / 2;
           updateCourseDownload(courseDownloadDataModel: model);
         },
@@ -216,6 +258,7 @@ class CourseDownloadController {
     model.isCourseDownloading = false;
     model.isCourseDownloaded = true;
     updateCourseDownload(courseDownloadDataModel: model);
+    courseDownloadProvider.notify(isNotify: true);
 
     BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
     if (context != null && context.mounted) {
@@ -300,9 +343,9 @@ class CourseDownloadController {
     return response;
   }
 
-  Future<bool> isDownloadPermissionGranted() async {
+  Future<bool> checkDownloadPermissionGranted() async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CourseDownloadController().isDownloadPermissionGranted() called", tag: tag);
+    MyPrint.printOnConsole("CourseDownloadController().checkDownloadPermissionGranted() called", tag: tag);
 
     PermissionStatus? storagePermission;
     try {
@@ -314,32 +357,32 @@ class CourseDownloadController {
     MyPrint.printOnConsole("storagePermission:$storagePermission", tag: tag);
 
     if (!(storagePermission?.isGranted ?? false)) {
-      MyPrint.printOnConsole("Returning from CourseDownloadController().isDownloadPermissionGranted() because Storage Permission Not Granted", tag: tag);
+      MyPrint.printOnConsole("Returning from CourseDownloadController().checkDownloadPermissionGranted() because Storage Permission Not Granted", tag: tag);
       return false;
     }
 
     return true;
   }
 
-  ({String downloadUrl, bool isZipFile}) getCourseDownloadUrl({required CourseDTOModel courseDTOModel}) {
+  ({String downloadUrl, bool isZipFile}) getCourseDownloadUrl({required CourseDownloadRequestModel courseDownloadRequestModel}) {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CourseDownloadController().getCourseDownloadUrl() called for ContentId:${courseDTOModel.ContentID}", tag: tag);
+    MyPrint.printOnConsole("CourseDownloadController().getCourseDownloadUrl() called for ContentId:${courseDownloadRequestModel.ContentID}", tag: tag);
 
     String downloadUrl = "";
     bool isZipFile = false;
 
-    int ContentTypeId = courseDTOModel.ContentTypeId;
-    int MediaTypeID = courseDTOModel.MediaTypeID;
+    int ContentTypeId = courseDownloadRequestModel.ContentTypeId;
+    int MediaTypeID = courseDownloadRequestModel.MediaTypeID;
     MyPrint.printOnConsole("ContentTypeId:'$ContentTypeId'", tag: tag);
     MyPrint.printOnConsole("MediaTypeID:'$MediaTypeID'", tag: tag);
 
     String baseUrl = "";
-    int SiteId = courseDTOModel.SiteId;
-    int SiteUserID = courseDTOModel.SiteUserID;
-    String ContentID = courseDTOModel.ContentID;
-    String startPage = courseDTOModel.startpage;
-    String FolderPath = courseDTOModel.FolderPath;
-    String jwvideokey = courseDTOModel.JWVideoKey;
+    int SiteId = courseDownloadRequestModel.SiteId;
+    int SiteUserID = courseDownloadRequestModel.UserID;
+    String ContentID = courseDownloadRequestModel.ContentID;
+    String startPage = courseDownloadRequestModel.StartPage;
+    String FolderPath = courseDownloadRequestModel.FolderPath;
+    String jwvideokey = courseDownloadRequestModel.JWVideoKey;
 
     if (appProvider.appSystemConfigurationModel.isCloudStorageEnabled) {
       baseUrl = appProvider.appSystemConfigurationModel.azureRootPath;
@@ -381,11 +424,11 @@ class CourseDownloadController {
     return (downloadUrl: downloadUrl, isZipFile: isZipFile);
   }
 
-  Future<String> getCourseDownloadDirectoryPath({required CourseDTOModel courseDTOModel, String parentEventTrackId = ""}) async {
+  Future<String> getCourseDownloadDirectoryPath({required CourseDownloadRequestModel courseDownloadRequestModel, String parentEventTrackId = ""}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CourseDownloadController().getCourseDownloadDirectoryPath() called for ContentId:${courseDTOModel.ContentID}", tag: tag);
+    MyPrint.printOnConsole("CourseDownloadController().getCourseDownloadDirectoryPath() called for ContentId:${courseDownloadRequestModel.ContentID}", tag: tag);
 
-    MyPrint.printOnConsole("FolderPath:'${courseDTOModel.FolderPath}'", tag: tag);
+    MyPrint.printOnConsole("FolderPath:'${courseDownloadRequestModel.FolderPath}'", tag: tag);
 
     String pathSeparator = AppController.getPathSeparator() ?? "/";
     MyPrint.printOnConsole("pathSeparator:'$pathSeparator'", tag: tag);
@@ -408,26 +451,26 @@ class CourseDownloadController {
     if (parentEventTrackId.isNotEmpty) {
       downloadDestFolderPath += "$pathSeparator$parentEventTrackId";
     }
-    if (courseDTOModel.FolderPath.isNotEmpty) {
-      downloadDestFolderPath += "$pathSeparator${courseDTOModel.FolderPath}";
+    if (courseDownloadRequestModel.FolderPath.isNotEmpty) {
+      downloadDestFolderPath += "$pathSeparator${courseDownloadRequestModel.FolderPath}";
     }
 
     return downloadDestFolderPath;
   }
 
-  String getCourseDownloadFileName({required CourseDTOModel courseDTOModel}) {
+  String getCourseDownloadFileName({required CourseDownloadRequestModel courseDownloadRequestModel}) {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CourseDownloadController().getCourseDownloadFileName() called for ContentId:${courseDTOModel.ContentID}", tag: tag);
+    MyPrint.printOnConsole("CourseDownloadController().getCourseDownloadFileName() called for ContentId:${courseDownloadRequestModel.ContentID}", tag: tag);
 
-    String downloadFileName = courseDTOModel.startpage;
+    String downloadFileName = courseDownloadRequestModel.StartPage;
 
-    String ContentID = courseDTOModel.ContentID;
-    int ContentTypeId = courseDTOModel.ContentTypeId;
-    int MediaTypeID = courseDTOModel.MediaTypeID;
+    String ContentID = courseDownloadRequestModel.ContentID;
+    int ContentTypeId = courseDownloadRequestModel.ContentTypeId;
+    int MediaTypeID = courseDownloadRequestModel.MediaTypeID;
     MyPrint.printOnConsole("ContentTypeId:'$ContentTypeId'", tag: tag);
     MyPrint.printOnConsole("MediaTypeID:'$MediaTypeID'", tag: tag);
 
-    String startPage = courseDTOModel.startpage;
+    String startPage = courseDownloadRequestModel.StartPage;
 
     if (ContentTypeId == InstancyObjectTypes.certificate) {
       if (startPage.contains(".")) startPage = startPage.substring(0, startPage.indexOf("."));
@@ -459,6 +502,31 @@ class CourseDownloadController {
 
     CourseDownloadProvider provider = courseDownloadProvider;
     CourseDownloadRepository repository = courseDownloadRepository;
+
+    CourseDownloadDataModel? courseDownloadDataModel = provider.getCourseDownloadDataModelFromId(courseDownloadId: downloadId);
+
+    if (courseDownloadDataModel != null) {
+      CourseOfflineController courseOfflineController = CourseOfflineController();
+
+      int? SiteId = courseDownloadDataModel.courseDTOModel?.SiteId ?? courseDownloadDataModel.trackCourseDTOModel?.SiteId ?? courseDownloadDataModel.relatedTrackDataDTOModel?.SiteID;
+      int? UserId = courseDownloadDataModel.courseDTOModel?.SiteUserID ?? courseDownloadDataModel.trackCourseDTOModel?.UserID ?? courseDownloadDataModel.relatedTrackDataDTOModel?.UserID;
+
+      if (SiteId != null && UserId != null) {
+        CourseOfflineLaunchRequestModel courseOfflineLaunchRequestModel = CourseOfflineLaunchRequestModel(
+          ContentId: courseDownloadDataModel.contentId,
+          ContentTypeId: courseDownloadDataModel.contentTypeId,
+          ScoId: courseDownloadDataModel.scoId,
+          ParentContentId: courseDownloadDataModel.parentContentId,
+          ParentContentTypeId: courseDownloadDataModel.parentContentTypeId,
+          ParentContentScoId: courseDownloadDataModel.parentContentScoId,
+          SiteId: SiteId,
+          UserId: UserId,
+        );
+        courseOfflineController.setCmiModelFromRequestModel(requestModel: courseOfflineLaunchRequestModel, cmiModel: null);
+        courseOfflineController.setStudentResponseModelFromRequestModel(requestModel: courseOfflineLaunchRequestModel, studentCourseResponseModel: null);
+        courseOfflineController.setLearnerSessionModelFromRequestModel(requestModel: courseOfflineLaunchRequestModel, learnerSessionModel: null);
+      }
+    }
 
     provider.courseDownloadList.removeItems(items: [downloadId], isNotify: false);
     provider.courseDownloadMap.clearKey(key: downloadId, isNotify: true);
@@ -591,7 +659,7 @@ class CourseDownloadController {
 
     if (courseDownloadDataModel.id.isEmpty) {
       MyPrint.printOnConsole("downloadId is empty, assigning", tag: tag);
-      courseDownloadDataModel.id = CourseDownloadDataModel.getDownloadId(contentId: courseDownloadDataModel.contentId, eventTrackContentId: courseDownloadDataModel.eventTrackContentId);
+      courseDownloadDataModel.id = CourseDownloadDataModel.getDownloadId(contentId: courseDownloadDataModel.contentId, eventTrackContentId: courseDownloadDataModel.parentContentId);
     }
     if (courseDownloadDataModel.id.isEmpty) {
       MyPrint.printOnConsole("Returning from CourseDownloadController().addNewCourseDownload() because downloadId is empty", tag: tag);
@@ -611,7 +679,7 @@ class CourseDownloadController {
     provider.courseDownloadMap.setMap(map: {model.id: model}, isClear: false, isNotify: true);
     await Future.wait([
       courseDownloadRepository.addCourseDownloadIdsInHive(downloadIds: <String>[model.id]),
-      courseDownloadRepository.setCourseDownloadDataModelInHive(downloadId: model.id, model: model),
+      courseDownloadRepository.setCourseDownloadDataModelInHive(courseDownloadData: {model.id: model}, isClear: false),
     ]);
   }
 
@@ -633,8 +701,9 @@ class CourseDownloadController {
     }
 
     model.updateFromMap(courseDownloadDataModel.toMap());
-    provider.courseDownloadMap.setMap(map: {model.id: model}, isClear: false, isNotify: true);
-    await courseDownloadRepository.setCourseDownloadDataModelInHive(downloadId: model.id, model: model);
+    provider.courseDownloadMap.setMap(map: {model.id: model}, isClear: false, isNotify: false);
+    model.notify(isNotify: true);
+    await courseDownloadRepository.setCourseDownloadDataModelInHive(courseDownloadData: {model.id: model}, isClear: false);
   }
 
   Future<void> getAllMyCourseDownloadsAndSaveInProvider({bool isRefresh = true, bool isNotify = true}) async {
@@ -717,5 +786,72 @@ class CourseDownloadController {
     }
 
     MyPrint.printOnConsole("Final MyCourseDownloads Length:${provider.courseDownloadList.length}", tag: tag);
+  }
+
+  Future<List<CourseDownloadDataModel>> getEventTrackContentDownloadsList({required String eventTrackContentId}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CourseDownloadController().getEventTrackContentDownloadsList() called with eventTrackContentId:'$eventTrackContentId'", tag: tag);
+
+    CourseDownloadProvider provider = courseDownloadProvider;
+
+    List<String> courseDownloadIds = provider.courseDownloadList.getList();
+
+    if (courseDownloadIds.isEmpty) {
+      await getAllMyCourseDownloadsAndSaveInProvider(isRefresh: true, isNotify: false);
+      courseDownloadIds = provider.courseDownloadList.getList();
+    }
+
+    List<CourseDownloadDataModel> courseDownloadDataList = <CourseDownloadDataModel>[];
+    for (String courseDownloadId in courseDownloadIds) {
+      CourseDownloadDataModel? courseDownloadDataModel = provider.getCourseDownloadDataModelFromId(courseDownloadId: courseDownloadId, isNewInstance: false);
+      if (courseDownloadDataModel?.parentContentId == eventTrackContentId) {
+        courseDownloadDataList.add(CourseDownloadDataModel.fromMap(courseDownloadDataModel!.toMap()));
+      }
+    }
+
+    MyPrint.printOnConsole("Final courseDownloadDataList length:${courseDownloadDataList.length}", tag: tag);
+
+    return courseDownloadDataList;
+  }
+
+  Future<bool> checkCourseDownloaded({required String contentId, String parentEventTrackContentId = ""}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CourseDownloadController().checkCourseDownloaded() called with contentId:'$contentId', parentEventTrackContentId:'$parentEventTrackContentId'", tag: tag);
+
+    String downloadId = CourseDownloadDataModel.getDownloadId(contentId: contentId, eventTrackContentId: parentEventTrackContentId);
+    MyPrint.printOnConsole("downloadId:'$downloadId'", tag: tag);
+
+    if (downloadId.isEmpty) {
+      MyPrint.printOnConsole("Returning from CourseDownloadController().checkCourseDownloaded() because downloadId is empty", tag: tag);
+      return false;
+    }
+
+    CourseDownloadProvider provider = courseDownloadProvider;
+
+    CourseDownloadDataModel? model = provider.courseDownloadMap.getMap(isNewInstance: false)[downloadId];
+    if (model == null) {
+      MyPrint.printOnConsole("Returning from CourseDownloadController().checkCourseDownloaded() because not such download exist", tag: tag);
+      return false;
+    }
+
+    bool isCourseDownloaded = model.isCourseDownloaded;
+    MyPrint.printOnConsole("isCourseDownloaded:$isCourseDownloaded", tag: tag);
+
+    return isCourseDownloaded;
+  }
+
+  Future<bool> setCourseDownloadModelInProviderAndHive({required Map<String, CourseDownloadDataModel> courseDownloads, bool isClear = false, bool isNotify = false}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CourseDownloadController().setCourseDownloadModelInProviderAndHive() called with courseDownloads length:'${courseDownloads.length}'", tag: tag);
+
+    bool isSetSuccess = false;
+
+    courseDownloadProvider.courseDownloadMap.setMap(map: courseDownloads, isClear: isClear, isNotify: isNotify);
+    bool isHiveSetSuccess = await courseDownloadRepository.setCourseDownloadDataModelInHive(courseDownloadData: courseDownloads, isClear: isClear);
+    MyPrint.printOnConsole("isHiveSetSuccess:$isHiveSetSuccess", tag: tag);
+
+    isSetSuccess = true;
+
+    return isSetSuccess;
   }
 }

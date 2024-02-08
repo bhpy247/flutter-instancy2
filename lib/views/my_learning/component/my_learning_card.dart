@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
+import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_configs.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
@@ -161,19 +164,38 @@ class _MyLearningCardState extends State<MyLearningCard> {
                 ],
               ),
             ),
-            CourseDownloadButton(
-              contentId: model.ContentID,
-              onDownloadTap: widget.onDownloadTap,
-            ),
+            if (MyLearningUIActionConfigs.isContentTypeDownloadable(objectTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeID))
+              CourseDownloadButton(
+                contentId: model.ContentID,
+                onDownloadTap: widget.onDownloadTap,
+              ),
           ],
         ),
         eventStartDateAndTime(model),
         const SizedBox(height: 8),
-        linearProgressBar(
-          ContentTypeId: model.ContentTypeId,
-          actualStatus: model.ActualStatus,
-          percentCompleted: model.PercentCompleted,
-          contentStatus: model.ContentStatus,
+        Consumer<CourseDownloadProvider>(
+          builder: (BuildContext context, CourseDownloadProvider courseDownloadProvider, Widget? child) {
+            String courseDownloadId = CourseDownloadDataModel.getDownloadId(contentId: model.ContentID);
+            CourseDownloadDataModel? downloadModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: courseDownloadId);
+
+            if (downloadModel?.isCourseDownloaded == true && downloadModel?.courseDTOModel != null) {
+              CourseDTOModel newModel = downloadModel!.courseDTOModel!;
+
+              return linearProgressBar(
+                ContentTypeId: newModel.ContentTypeId,
+                actualStatus: newModel.ActualStatus,
+                percentCompleted: newModel.PercentCompleted,
+                contentStatus: newModel.ContentStatus,
+              );
+            }
+
+            return linearProgressBar(
+              ContentTypeId: model.ContentTypeId,
+              actualStatus: model.ActualStatus,
+              percentCompleted: model.PercentCompleted,
+              contentStatus: model.ContentStatus,
+            );
+          },
         ),
         /*getPrimaryActionButton(
           model: model,

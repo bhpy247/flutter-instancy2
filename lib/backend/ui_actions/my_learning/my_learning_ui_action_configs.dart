@@ -83,6 +83,7 @@ class MyLearningUIActionConfigs {
         ].contains(mediaTypeId)) {
       isEnabled = false;
     }
+    MyPrint.printOnConsole("isEnabled:$isEnabled");
 
     return isEnabled;
   }

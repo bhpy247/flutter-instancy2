@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
 import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/backend/splash/splash_controller.dart';
 import 'package:flutter_instancy_2/models/membership/data_model/membership_plan_details_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
@@ -108,6 +109,11 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
   }
 
   Future<void> signUp() async {
+    if (!NetworkConnectionController().checkConnection(isShowErrorSnakbar: true, context: context)) {
+      MyPrint.printOnConsole("Internet Not Available");
+      return;
+    }
+
     MembershipPlanDetailsModel? membershipPlanDetailsModel;
 
     if (appProvider.appSystemConfigurationModel.enableMembership) {

@@ -381,6 +381,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
                   scoId: model.ScoID,
                   componentInstanceId: componentInstanceId,
                   isContentEnrolled: model.isCourseEnrolled(),
+                  eventTrackContentModel: model,
                 ),
               );
 
@@ -624,8 +625,8 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
         ContentTypeId: model.ContentTypeId,
         MediaTypeId: model.MediaTypeID,
         ScoID: model.ScoID,
-        SiteUserID: apiUrlConfigurationProvider.getCurrentUserId(),
-        SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+        SiteUserID: model.SiteUserID,
+        SiteId: model.SiteId,
         ContentID: model.ContentID,
         locale: apiUrlConfigurationProvider.getLocale(),
         ActivityId: model.ActivityId,
@@ -635,7 +636,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
         JWVideoKey: model.JWVideoKey,
         jwstartpage: model.jwstartpage,
         startPage: model.startpage,
-        bit5: model.bit5,
+        courseDTOModel: model,
       ),
     );
 

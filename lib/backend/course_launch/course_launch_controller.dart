@@ -1,18 +1,23 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart' as inAppWebview;
+import 'package:flutter_inappwebview/flutter_inappwebview.dart' as in_app_webview;
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
+import 'package:flutter_instancy_2/backend/course_offline/course_offline_controller.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_controller.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/models/course_download/request_model/course_download_request_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/content_status_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/request_model/initial_course_tracking_request_model.dart';
@@ -22,6 +27,8 @@ import 'package:flutter_instancy_2/models/course_launch/response_model/content_s
 import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
+import 'package:flutter_instancy_2/views/course_launch/components/course_not_downloaded_dialog.dart';
+import 'package:open_file_plus/open_file_plus.dart';
 import 'package:provider/provider.dart';
 
 import '../../api/api_call_model.dart';
@@ -75,8 +82,11 @@ class CourseLaunchController {
   }) async {
     MyPrint.printOnConsole("CourseLaunchController().viewCourse() called");
 
-    if (![InstancyObjectTypes.track, InstancyObjectTypes.events].contains(model.ContentTypeId)) {
-      await GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
+    GamificationProvider gamificationProvider = context.read<GamificationProvider>();
+
+    bool networkAvailable = NetworkConnectionController().checkConnection();
+    if (![InstancyObjectTypes.track, InstancyObjectTypes.events].contains(model.ContentTypeId) && networkAvailable) {
+      await GamificationController(provider: gamificationProvider).UpdateContentGamification(
         requestModel: UpdateContentGamificationRequestModel(
           contentId: model.ContentID,
           scoId: model.ScoID,
@@ -90,16 +100,19 @@ class CourseLaunchController {
 
     bool result = false;
 
-    if (![InstancyObjectTypes.events, InstancyObjectTypes.externalTraining, InstancyObjectTypes.physicalProduct].contains(model.ContentTypeId)) {
-      result = await decideCourseLaunchMethod(
-        context: context,
-        model: model,
-        isContentisolation: false,
-      );
+    if (![InstancyObjectTypes.externalTraining, InstancyObjectTypes.physicalProduct].contains(model.ContentTypeId)) {
+      if (context.mounted) {
+        result = await decideCourseLaunchMethod(
+          context: context,
+          model: model,
+          isContentisolation: false,
+        );
+      }
     }
 
-    if (![InstancyObjectTypes.track, InstancyObjectTypes.events].contains(model.ContentTypeId)) {
-      await GamificationController(provider: context.read<GamificationProvider>()).UpdateContentGamification(
+    networkAvailable = NetworkConnectionController().checkConnection();
+    if (![InstancyObjectTypes.track, InstancyObjectTypes.events].contains(model.ContentTypeId) && networkAvailable) {
+      await GamificationController(provider: gamificationProvider).UpdateContentGamification(
         requestModel: UpdateContentGamificationRequestModel(
           contentId: model.ContentID,
           scoId: model.ScoID,
@@ -115,88 +128,79 @@ class CourseLaunchController {
   }
 
   Future<bool> decideCourseLaunchMethod({required BuildContext context, required CourseLaunchModel model, bool isContentisolation = false}) async {
-    MyPrint.printOnConsole("CourseLaunchController().decideCourseLaunchMethod() called with isContentisolation:$isContentisolation");
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CourseLaunchController().decideCourseLaunchMethod() called with isContentisolation:$isContentisolation", tag: tag);
 
-    bool networkAvailable = true, isCourseDownloaded = false;
+    CourseDownloadProvider courseDownloadProvider = context.read<CourseDownloadProvider>();
 
-    if (!kIsWeb) {
-      networkAvailable = await AppController.checkInternetConnectivity();
-      /*isCourseDownloaded = await checkIfContentIsAvailableOffline(
-        context: context,
-        table2: model,
-      );*/
-    }
-    MyPrint.printOnConsole("networkAvailable:$networkAvailable");
-    MyPrint.printOnConsole("isCourseDownloaded:$isCourseDownloaded");
+    bool networkAvailable = NetworkConnectionController().checkConnection();
+    bool isCourseDownloaded = await CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider).checkCourseDownloaded(
+      contentId: model.ContentID,
+      parentEventTrackContentId: model.ParentEventTrackContentID,
+    );
 
-    if (networkAvailable && isCourseDownloaded) {
-      // launch offline
-      // bool isLaunched = await launchCourseOffline(context: context, table2: model);
-      // if(isLaunched) {
-      //   await SyncData().syncData();
-      // }
-      // return isLaunched;
-      return false;
-    } else if (!networkAvailable && isCourseDownloaded) {
-      // launch offline
-      // return await launchCourseOffline(context: context, table2: model);
-      return false;
-    } else if (networkAvailable && !isCourseDownloaded) {
-      // launch online
+    MyPrint.printOnConsole("networkAvailable:$networkAvailable", tag: tag);
+    MyPrint.printOnConsole("isCourseDownloaded:$isCourseDownloaded", tag: tag);
+
+    // launch In Web
+    if (kIsWeb) {
+      if (!networkAvailable) {
+        return false;
+      }
+
       bool isLaunched = false;
       if (context.mounted && context.checkMounted()) {
-        isLaunched = await launchCourse(context: context, model: model, isContentisolation: isContentisolation);
-        MyPrint.printOnConsole("isLaunched:$isLaunched");
+        isLaunched = await launchCourseOnline(context: context, model: model, isContentIsolation: isContentisolation);
+        MyPrint.printOnConsole("isLaunched:$isLaunched", tag: tag);
       }
       return isLaunched;
-    } else {
-      // error dialog
-      // AppBloc appBloc = BlocProvider.of<AppBloc>(context, listen: false);
-      // await _courseNotDownloadedDialog(context, appBloc);
-      return false;
+    }
+    else {
+      // launch offline
+      if (isCourseDownloaded) {
+        bool isLaunched = false;
+        if (context.mounted && context.checkMounted()) {
+          isLaunched = await launchCourseOffline(context: context, model: model, isContentIsolation: isContentisolation);
+          MyPrint.printOnConsole("isLaunched:$isLaunched", tag: tag);
+        }
+        if (isLaunched) {
+          await CourseOfflineController().syncCourseDataOnline();
+        }
+        return isLaunched;
+      }
+      // launch online
+      else if (networkAvailable) {
+        bool isLaunched = false;
+        if (context.mounted && context.checkMounted()) {
+          isLaunched = await launchCourseOnline(context: context, model: model, isContentIsolation: isContentisolation);
+          MyPrint.printOnConsole("isLaunched:$isLaunched", tag: tag);
+        }
+        return isLaunched;
+      }
+      // launch failed
+      else {
+        if ([InstancyObjectTypes.track, InstancyObjectTypes.events].contains(model.ContentTypeId)) {
+          bool isLaunched = false;
+          if (context.mounted && context.checkMounted()) {
+            isLaunched = await launchCourseOnline(context: context, model: model, isContentIsolation: isContentisolation);
+            MyPrint.printOnConsole("isLaunched:$isLaunched", tag: tag);
+          }
+          return isLaunched;
+        } else {
+          if (context.mounted) await showCourseNotDownloadedDialog(context: context);
+          return false;
+        }
+      }
     }
   }
 
-  Future<bool> launchCourse({
+  //region Online Course Launch
+  Future<bool> launchCourseOnline({
     required BuildContext context,
     required CourseLaunchModel model,
-    bool isContentisolation = false,
+    bool isContentIsolation = false,
   }) async {
-    MyPrint.printOnConsole("CourseLaunchController().launchCourse() called with isContentisolation:$isContentisolation");
-
-    /*
-    //TODO: This content for testing purpuse
-    courseLaunch = GotoCourseLaunch(
-        context, table2, false, appBloc.uiSettingModel, myLearningBloc.list);
-    String url = await courseLaunch.getCourseUrl();
-
-    print('urldataaaaa $url');
-    if (url.isNotEmpty) {
-      if (table2.ContentTypeId == 26) {
-        await Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => AdvancedWebCourseLaunch(url, table2.name)));
-      } else {
-        //await FlutterWebBrowser.openWebPage(url: url, androidToolbarColor: Colors.deepPurple);
-
-        //await launch(url);
-        await Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => InAppWebCourseLaunch(url, table2)));
-      }
-
-      logger.e('.....Refresh Me....$url');
-
-      /// Refresh Content Of My Learning
-
-    }
-    return;
-    */
-
-    /// content isolation only for 8,9,10,11,26,27
-
-    /// Need Some value
-    /*if (table2.ContentTypeId == 102) {
-      await executeXAPICourse(table2);
-    }*/
+    MyPrint.printOnConsole("CourseLaunchController().launchCourseOnline() called with isContentIsolation:$isContentIsolation");
 
     MyPrint.printOnConsole('Table2 Objet Id:${model.ContentTypeId}');
     MyPrint.printOnConsole('Table2 Media Id:${model.MediaTypeId}');
@@ -204,6 +208,7 @@ class CourseLaunchController {
     MyPrint.printOnConsole('Table2 Start Page:${model.startPage}');
 
     try {
+      // For Track and Event
       if ([InstancyObjectTypes.track, InstancyObjectTypes.events].contains(model.ContentTypeId)) {
         MyPrint.printOnConsole('Navigation to EventTrackList called');
 
@@ -221,6 +226,8 @@ class CourseLaunchController {
             scoId: model.ScoID,
             componentInstanceId: _componentInstanceId,
             isContentEnrolled: true,
+            eventTrackContentModel: model.courseDTOModel,
+            isLoadDataFromOffline: model.isLaunchEventTrackScreenFromOffline,
           ),
         );
 
@@ -242,23 +249,25 @@ class CourseLaunchController {
         );
 
         return value == true;
-      } else if ([
+      }
+      // For Learning Modules
+      else if ([
             InstancyObjectTypes.contentObject,
             InstancyObjectTypes.assessment,
             InstancyObjectTypes.scorm1_2,
             InstancyObjectTypes.reference,
             InstancyObjectTypes.xApi,
           ].contains(model.ContentTypeId) ||
-          (model.ContentTypeId == InstancyObjectTypes.track && !model.bit5) ||
+          (model.ContentTypeId == InstancyObjectTypes.track) ||
           (model.ContentTypeId == InstancyObjectTypes.mediaResource && model.MediaTypeId == InstancyMediaTypes.video && model.JWVideoKey.isNotEmpty)) {
-        if (isContentisolation) {
-          MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourse() because isContentisolation is true");
+        if (isContentIsolation) {
+          MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourseOnline() because isContentisolation is true");
           return false;
         }
 
         NativeLoginDTOModel? successfulUserLoginModel = authenticationProvider.getEmailLoginResponseModel();
         if (successfulUserLoginModel == null) {
-          MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourse() because successfulUserLoginModel is null");
+          MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourseOnline() because successfulUserLoginModel is null");
           return false;
         }
 
@@ -275,7 +284,7 @@ class CourseLaunchController {
         MyPrint.printOnConsole("Course Url:'$courseUrl'");
 
         if (courseUrl.isEmpty) {
-          MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourse() because courseUrl is empty");
+          MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourseOnline() because courseUrl is empty");
           return false;
         }
 
@@ -286,7 +295,6 @@ class CourseLaunchController {
             launchUrl: courseUrl,
           );
 
-          // return value == true;
           return value == true;
         } else {
           String courseTrackingToken = await getCourseLaunchTokenId(
@@ -298,7 +306,7 @@ class CourseLaunchController {
           MyPrint.printOnConsole("Course Tracking Token:'$courseTrackingToken'");
 
           if (courseTrackingToken.isEmpty) {
-            MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourse() because courseTrackingToken is empty");
+            MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourseOnline() because courseTrackingToken is empty");
             return false;
           }
 
@@ -321,6 +329,9 @@ class CourseLaunchController {
             //assignmenturl = await '${ApiEndpoints.strSiteUrl}assignmentdialog/ContentID/${table2.contentid}/SiteID/${table2.usersiteid}/ScoID/${table2.scoid}/UserID/${table2.userid}';
           }
 
+          if (!context.mounted) {
+            return false;
+          }
           dynamic value = await navigateToLaunchScreen(
             context: context,
             model: model,
@@ -343,7 +354,9 @@ class CourseLaunchController {
         }
         model.corelessonstatus = contentstatus.contentStatus;
       }*/
-      } else if (model.ContentTypeId == InstancyObjectTypes.courseBot) {
+      }
+      // For Coursebot
+      else if (model.ContentTypeId == InstancyObjectTypes.courseBot) {
         return await NavigationController.navigateToInstaBotScreen2(
           navigationOperationParameters: NavigationOperationParameters(
             context: context,
@@ -353,7 +366,9 @@ class CourseLaunchController {
             courseId: model.ContentID,
           ),
         );
-      } else if (AppConfigurationOperations.isARContent(contentTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeId)) {
+      }
+      // For AR Content
+      else if (AppConfigurationOperations.isARContent(contentTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeId)) {
         String url = "";
         NativeLoginDTOModel? successfulUserLoginModel = authenticationProvider.getEmailLoginResponseModel();
         if (successfulUserLoginModel != null) {
@@ -369,17 +384,19 @@ class CourseLaunchController {
         }
 
         MyPrint.printOnConsole('urldataaaaa $url');
-        if (url.isNotEmpty) {
+        if (url.isNotEmpty && context.mounted) {
           dynamic value = await navigateToLaunchScreen(
             context: context,
             model: model,
             launchUrl: url,
           );
-          MyPrint.printOnConsole('CourseLaunchController().launchCourse() value $value');
+          MyPrint.printOnConsole('CourseLaunchController().launchCourseOnline() value $value');
           // return value == true;
           return true;
         }
-      } else {
+      }
+      // For All the Other Content Types
+      else {
         String url = "";
         NativeLoginDTOModel? successfulUserLoginModel = authenticationProvider.getEmailLoginResponseModel();
         if (successfulUserLoginModel != null) {
@@ -395,19 +412,19 @@ class CourseLaunchController {
         }
 
         MyPrint.printOnConsole('urldataaaaa $url');
-        if (url.isNotEmpty) {
+        if (url.isNotEmpty && context.mounted) {
           dynamic value = await navigateToLaunchScreen(
             context: context,
             model: model,
             launchUrl: url,
           );
-          MyPrint.printOnConsole('CourseLaunchController().launchCourse() value $value');
+          MyPrint.printOnConsole('CourseLaunchController().launchCourseOnline() value $value');
           // return value == true;
           return true;
         }
       }
     } catch (e, s) {
-      MyPrint.printOnConsole("Error in CourseLaunchController().launchCourse():$e");
+      MyPrint.printOnConsole("Error in CourseLaunchController().launchCourseOnline():$e");
       MyPrint.printOnConsole(s);
     }
 
@@ -487,6 +504,208 @@ class CourseLaunchController {
 
     return token;
   }
+
+  //endregion
+
+  //region Offline Course Launch
+  Future<bool> launchCourseOffline({
+    required BuildContext context,
+    required CourseLaunchModel model,
+    bool isContentIsolation = false,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CourseLaunchController().launchCourseOffline() called with isContentIsolation:$isContentIsolation", tag: tag);
+
+    MyPrint.printOnConsole('Table2 Objet Id:${model.ContentTypeId}', tag: tag);
+    MyPrint.printOnConsole('Table2 Media Id:${model.MediaTypeId}', tag: tag);
+    MyPrint.printOnConsole('Table2 JWVideoKey:${model.JWVideoKey}', tag: tag);
+    MyPrint.printOnConsole('Table2 Start Page:${model.startPage}', tag: tag);
+
+    try {
+      // For Track and Event
+      if ([InstancyObjectTypes.track, InstancyObjectTypes.events].contains(model.ContentTypeId)) {
+        // Need to open EventTrackListTabsActivity
+        MyPrint.printOnConsole('Navigation to EventTrackList called', tag: tag);
+
+        /*await NavigationController.navigateToEventTrackScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: EventTrackScreenArguments(
+            objectTypeId: model.ContentTypeId,
+            isRelatedContent: model.ContentTypeId != InstancyObjectTypes.track,
+            parentContentId: model.ContentID,
+            componentId: _componentId,
+            scoId: model.ScoID,
+            eventTrackTabType: model.ContentTypeId == InstancyObjectTypes.track ? EventTrackTabs.trackContents : EventTrackTabs.eventContents,
+            componentInstanceId: _componentInstanceId,
+            isContentEnrolled: true,
+          ),
+        );*/
+
+        return false;
+      }
+      // For Learning Modules
+      else if ([
+            InstancyObjectTypes.contentObject,
+            InstancyObjectTypes.assessment,
+            InstancyObjectTypes.scorm1_2,
+            InstancyObjectTypes.reference,
+            InstancyObjectTypes.xApi,
+          ].contains(model.ContentTypeId) ||
+          (model.ContentTypeId == InstancyObjectTypes.mediaResource && model.MediaTypeId == InstancyMediaTypes.video && model.JWVideoKey.isNotEmpty)) {
+        String folderPath = await CourseDownloadController(
+          appProvider: appProvider,
+          courseDownloadProvider: CourseDownloadProvider(),
+        ).getCourseDownloadDirectoryPath(
+          courseDownloadRequestModel: CourseDownloadRequestModel(
+            ContentID: model.ContentID,
+            FolderPath: model.FolderPath,
+          ),
+          parentEventTrackId: model.ParentEventTrackContentID,
+        );
+
+        MyPrint.printOnConsole("folderPath:'$folderPath'", tag: tag);
+
+        if (folderPath.isEmpty) {
+          MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourseOffline() because folderPath is empty", tag: tag);
+          return false;
+        }
+
+        String finalFilePath = "$folderPath${AppController.getPathSeparator()}${model.startPage}";
+        MyPrint.printOnConsole("finalFilePath:'$finalFilePath'", tag: tag);
+
+        bool isPathExist = await AppController.checkCourseFileDirectoryExist(path: finalFilePath, isFile: true);
+        MyPrint.printOnConsole("isPathExist:$isPathExist", tag: tag);
+
+        if (!isPathExist) {
+          MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourseOffline() because finalFilePath is not exist i file system", tag: tag);
+          return false;
+        }
+
+        if (!context.mounted) {
+          MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourseOffline() because context not mounted", tag: tag);
+          return false;
+        }
+
+        dynamic value = await navigateToOfflineLaunchScreen(
+          context: context,
+          model: model,
+          launchPath: finalFilePath,
+          courseDirectoryPath: folderPath,
+        );
+        return value == true;
+      }
+
+      CourseDownloadController courseDownloadController = CourseDownloadController(
+        appProvider: appProvider,
+        courseDownloadProvider: CourseDownloadProvider(),
+      );
+      CourseDownloadRequestModel courseDownloadRequestModel = CourseDownloadRequestModel(
+        ContentID: model.ContentID,
+        FolderPath: model.FolderPath,
+        JWStartPage: model.jwstartpage,
+        JWVideoKey: model.JWVideoKey,
+        StartPage: model.startPage,
+        ContentTypeId: model.ContentTypeId,
+        MediaTypeID: model.MediaTypeId,
+        SiteId: model.SiteId,
+        UserID: model.SiteUserID,
+        ScoId: model.ScoID,
+      );
+
+      String folderPath = await courseDownloadController.getCourseDownloadDirectoryPath(
+        courseDownloadRequestModel: courseDownloadRequestModel,
+        parentEventTrackId: model.ParentEventTrackContentID,
+      );
+      MyPrint.printOnConsole("folderPath:'$folderPath'", tag: tag);
+
+      String fileName = courseDownloadController.getCourseDownloadFileName(courseDownloadRequestModel: courseDownloadRequestModel);
+      MyPrint.printOnConsole("fileName:'$fileName'", tag: tag);
+
+      if (folderPath.isEmpty) {
+        MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourseOffline() because downloadFolderPath is empty", tag: tag);
+        return false;
+      } else if (fileName.isEmpty) {
+        MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourseOffline() because downloadFileName is empty", tag: tag);
+        return false;
+      }
+
+      String finalFilePath = "$folderPath${AppController.getPathSeparator()}$fileName";
+      MyPrint.printOnConsole("finalFilePath:'$finalFilePath'", tag: tag);
+
+      bool isPathExist = await AppController.checkCourseFileDirectoryExist(path: finalFilePath, isFile: true);
+      MyPrint.printOnConsole("isPathExist:$isPathExist", tag: tag);
+
+      if (!isPathExist) {
+        MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourseOffline() because finalFilePath is not exist i file system", tag: tag);
+        return false;
+      }
+
+      if (!context.mounted) {
+        MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourseOffline() because context not mounted", tag: tag);
+        return false;
+      }
+
+      //For Pdf
+      if ([InstancyMediaTypes.pDF].contains(model.MediaTypeId) || finalFilePath.endsWith("pdf")) {
+        return await NavigationController.navigateToPDFLaunchScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: PDFLaunchScreenNavigationArguments(
+            isNetworkPDF: false,
+            pdfFilePath: finalFilePath,
+            contntName: model.ContentName,
+          ),
+        );
+      }
+      //For Other Documents
+      else if ([InstancyMediaTypes.word, InstancyMediaTypes.excel, InstancyMediaTypes.ppt].contains(model.MediaTypeId)) {
+        OpenResult result = await OpenFile.open(finalFilePath);
+        if (result.type != ResultType.done) {
+          if (context.mounted) {
+            SnackBar snackBar = SnackBar(content: Text(result.message));
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          }
+          return false;
+        }
+        return true;
+      }
+      // For Coursebot
+      else if (model.ContentTypeId == InstancyObjectTypes.courseBot) {
+        return await NavigationController.navigateToInstaBotScreen2(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: InstaBotScreen2NavigationArguments(
+            courseId: model.ContentID,
+          ),
+        );
+      }
+      // For AR Content
+      else if (AppConfigurationOperations.isARContent(contentTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeId)) {}
+
+      // For All the Other Content Types
+      dynamic value = await navigateToOfflineLaunchScreen(
+        context: context,
+        model: model,
+        launchPath: finalFilePath,
+        courseDirectoryPath: folderPath,
+      );
+      return value == true;
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in CourseLaunchController().launchCourseOffline():$e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+    }
+
+    return false;
+  }
+
+  //endregion
 
   Future<ContentStatusModel?> getContentStatus({
     required CourseDTOModel model,
@@ -625,9 +844,9 @@ class CourseLaunchController {
         ),
       );
     } else if (AppConfigurationOperations.isARContent(contentTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeId)) {
-      inAppWebview.ChromeSafariBrowser browser = inAppWebview.ChromeSafariBrowser();
+      in_app_webview.ChromeSafariBrowser browser = in_app_webview.ChromeSafariBrowser();
       await browser.open(
-        url: inAppWebview.WebUri(launchUrl),
+        url: in_app_webview.WebUri(launchUrl),
       );
     }
     /*else if (model.MediaTypeId == InstancyMediaTypes.video && model.JWVideoKey.isEmpty) {
@@ -658,6 +877,50 @@ class CourseLaunchController {
     }
   }
 
+  Future navigateToOfflineLaunchScreen({
+    required BuildContext context,
+    required CourseLaunchModel model,
+    required String launchPath,
+    required String courseDirectoryPath,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CourseLaunchController().navigateToOfflineLaunchScreen() called with launchPath:'$launchPath'", tag: tag);
+
+    if (launchPath.isEmpty) {
+      MyPrint.printOnConsole("Returning from CourseLaunchController().navigateToOfflineLaunchScreen() because launchPath is empty", tag: tag);
+      return;
+    }
+
+    if (model.MediaTypeId == InstancyMediaTypes.pDF || launchPath.contains(".pdf")) {
+      return NavigationController.navigateToPDFLaunchScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: PDFLaunchScreenNavigationArguments(
+          contntName: model.ContentName,
+          pdfUrl: launchPath,
+          isNetworkPDF: false,
+        ),
+      );
+    } else if (AppConfigurationOperations.isARContent(contentTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeId)) {
+    } else {
+      return NavigationController.navigateToCourseOfflineLaunchWebViewScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: CourseOfflineLaunchWebViewScreenNavigationArguments(
+          coursePath: launchPath,
+          courseDirectoryPath: courseDirectoryPath,
+          courseName: model.ContentName,
+          courseLaunchModel: model,
+          contentTypeId: model.ContentTypeId,
+        ),
+      );
+    }
+  }
+
   Future<String> getARContentUrl({required BuildContext context, required CourseDTOModel courseModel}) async {
     String url = "";
 
@@ -678,12 +941,13 @@ class CourseLaunchController {
         ContentTypeId: courseModel.ContentTypeId,
         MediaTypeId: courseModel.MediaTypeID,
         ScoID: courseModel.ScoID,
-        SiteUserID: apiUrlConfigurationProvider.getCurrentSiteId(),
-        SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+        SiteUserID: courseModel.SiteUserID,
+        SiteId: courseModel.SiteId,
         ContentID: courseModel.ContentID,
         locale: apiUrlConfigurationProvider.getLocale(),
         FolderPath: courseModel.FolderPath,
         startPage: courseModel.startpage,
+        courseDTOModel: courseModel,
       ),
     );
     url = courseLaunch.getARVRModuleContentModelUrl();
@@ -705,6 +969,18 @@ class CourseLaunchController {
     );
 
     return apiResponseModel;
+  }
+
+  Future<void> showCourseNotDownloadedDialog({required BuildContext context}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CourseLaunchController().showCourseNotDownloadedDialog() called", tag: tag);
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) => const CourseNotDownloadedDialog(),
+    );
+
+    MyPrint.printOnConsole("CourseLaunchController().showCourseNotDownloadedDialog() completed", tag: tag);
   }
 
   Future<bool> updateTrackListViewBookmark({required String scoId, required String trackId}) async {

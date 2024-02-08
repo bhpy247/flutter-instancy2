@@ -14,11 +14,13 @@ import 'package:flutter_instancy_2/backend/share/share_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/my_course_download/my_course_download_ui_action_callback_model.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/my_course_download/my_course_download_ui_actions_controller.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_callback_model.dart';
+import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_configs.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
 import 'package:flutter_instancy_2/models/common/pagination/pagination_model.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
+import 'package:flutter_instancy_2/models/course_download/request_model/course_download_request_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/response_model/page_notes_response_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
@@ -289,6 +291,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
                   scoId: model.ScoID,
                   componentInstanceId: componentInstanceId,
                   isContentEnrolled: model.isCourseEnrolled(),
+                  eventTrackContentModel: model,
                 ),
               );
 
@@ -505,6 +508,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
             scoId: model.ScoID,
             componentInstanceId: componentInstanceId,
             isContentEnrolled: model.isCourseEnrolled(),
+            eventTrackContentModel: model,
           ),
         );
 
@@ -616,24 +620,26 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
 
     List<InstancyUIActionModel> options = <InstancyUIActionModel>[];
 
-    CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: CourseDownloadDataModel.getDownloadId(contentId: model.ContentID));
-    if (courseDownloadDataModel != null) {
-      MyCourseDownloadUIActionsController courseDownloadUIActionsController = MyCourseDownloadUIActionsController(appProvider: appProvider);
+    if (MyLearningUIActionConfigs.isContentTypeDownloadable(objectTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeID)) {
+      CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: CourseDownloadDataModel.getDownloadId(contentId: model.ContentID));
+      if (courseDownloadDataModel != null) {
+        MyCourseDownloadUIActionsController courseDownloadUIActionsController = MyCourseDownloadUIActionsController(appProvider: appProvider);
 
-      List<InstancyUIActionModel> courseDownloadOptions = courseDownloadUIActionsController
-          .getMyCourseDownloadsScreenSecondaryActions(
-            courseDownloadDataModel: courseDownloadDataModel,
-            localStr: localStr,
-            myCourseDownloadUIActionCallbackModel: getMyCourseDownloadUIActionCallbackModel(
-              model: courseDownloadDataModel,
-              isSecondaryAction: true,
-            ),
-          )
-          .toSet()
-          .toList();
-      // MyPrint.printOnConsole("courseDownloadOptions length:${courseDownloadOptions.length}");
+        List<InstancyUIActionModel> courseDownloadOptions = courseDownloadUIActionsController
+            .getMyCourseDownloadsScreenSecondaryActions(
+              courseDownloadDataModel: courseDownloadDataModel,
+              localStr: localStr,
+              myCourseDownloadUIActionCallbackModel: getMyCourseDownloadUIActionCallbackModel(
+                model: courseDownloadDataModel,
+                isSecondaryAction: true,
+              ),
+            )
+            .toSet()
+            .toList();
+        // MyPrint.printOnConsole("courseDownloadOptions length:${courseDownloadOptions.length}");
 
-      options.addAll(courseDownloadOptions);
+        options.addAll(courseDownloadOptions);
+      }
     }
 
     MyLearningUIActionsController myLearningUIActionsController = MyLearningUIActionsController(
@@ -676,7 +682,21 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
 
     if (courseDownloadDataModel == null) {
       MyPrint.printOnConsole("Course Not Downloaded", tag: tag);
-      courseDownloadController.downloadCourse(courseDTOModel: model);
+      courseDownloadController.downloadCourse(
+        courseDownloadRequestModel: CourseDownloadRequestModel(
+          ContentID: model.ContentID,
+          FolderPath: model.FolderPath,
+          JWStartPage: model.startpage,
+          JWVideoKey: model.JWVideoKey,
+          StartPage: model.startpage,
+          ContentTypeId: model.ContentTypeId,
+          MediaTypeID: model.MediaTypeID,
+          SiteId: model.SiteId,
+          UserID: model.SiteUserID,
+          ScoId: model.ScoID,
+        ),
+        courseDTOModel: model,
+      );
     } else if (courseDownloadDataModel.isFileDownloading) {
       MyPrint.printOnConsole("Course Downloading", tag: tag);
       courseDownloadController.pauseDownload(downloadId: downloadId);
@@ -708,8 +728,8 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
         ContentTypeId: model.ContentTypeId,
         MediaTypeId: model.MediaTypeID,
         ScoID: model.ScoID,
-        SiteUserID: apiUrlConfigurationProvider.getCurrentUserId(),
-        SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+        SiteUserID: model.SiteUserID,
+        SiteId: model.SiteId,
         ContentID: model.ContentID,
         locale: apiUrlConfigurationProvider.getLocale(),
         ActivityId: model.ActivityId,
@@ -719,7 +739,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
         JWVideoKey: model.JWVideoKey,
         jwstartpage: model.jwstartpage,
         startPage: model.startpage,
-        bit5: model.bit5,
+        courseDTOModel: model,
       ),
     );
 

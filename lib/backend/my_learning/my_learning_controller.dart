@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/component_configurations_model.dart';
@@ -24,16 +25,19 @@ import '../../models/my_learning/response_model/page_notes_response_model.dart';
 import '../../utils/my_print.dart';
 import '../../utils/my_utils.dart';
 import '../../views/my_learning/component/mylearning_certificate_not_earned_alert_dialog.dart';
+import 'my_learning_hive_repository.dart';
 import 'my_learning_provider.dart';
 import 'my_learning_repository.dart';
 
 class MyLearningController {
   late MyLearningProvider _myLearningProvider;
   late MyLearningRepository myLearningRepository;
+  late MyLearningHiveRepository myLearningHiveRepository;
 
-  MyLearningController({required MyLearningProvider? provider, MyLearningRepository? repository, ApiController? apiController}) {
+  MyLearningController({required MyLearningProvider? provider, MyLearningRepository? repository, MyLearningHiveRepository? hiveRepository, ApiController? apiController}) {
     _myLearningProvider = provider ?? MyLearningProvider();
     myLearningRepository = repository ?? MyLearningRepository(apiController: apiController ?? ApiController());
+    myLearningHiveRepository = hiveRepository ?? MyLearningHiveRepository(apiController: apiController ?? ApiController());
   }
 
   MyLearningProvider get myLearningProvider => _myLearningProvider;
@@ -126,30 +130,52 @@ class MyLearningController {
     );
     //endregion
 
+    bool isInternetAvailable = NetworkConnectionController().checkConnection();
+    MyPrint.printOnConsole("isInternetAvailable:$isInternetAvailable", tag: tag);
+    List<CourseDTOModel> contentsList = <CourseDTOModel>[];
+
     //region Make Api Call
-    DataResponseModel<MyLearningResponseDTOModel> response = await myLearningRepository.getMyLearningContentsListMain(
-      requestModel: myLearningDataRequestModel,
-      componentId: componentId,
-      componentInstanceId: componentInstanceId,
-      isStoreDataInHive: true,
-      isFromOffline: false,
-    );
-    MyPrint.printOnConsole("My Learning Contents Length:${response.data?.CourseList.length ?? 0}", tag: tag);
+    if (isInternetAvailable) {
+      DataResponseModel<MyLearningResponseDTOModel> response = await myLearningRepository.getMyLearningContentsListMain(
+        requestModel: myLearningDataRequestModel,
+        componentId: componentId,
+        componentInstanceId: componentInstanceId,
+        isStoreDataInHive: false,
+        isFromOffline: false,
+      );
+      MyPrint.printOnConsole("My Learning Contents Length From Api:${response.data?.CourseList.length ?? 0}", tag: tag);
+
+      contentsList = response.data?.CourseList ?? <CourseDTOModel>[];
+    } else {
+      contentsList = await myLearningHiveRepository.getAllMyLearningCourseModelsListFromHive();
+    }
     //endregion
+
+    MyPrint.printOnConsole("Final My Learning Contents Length:${contentsList.length}", tag: tag);
 
     DateTime endTime = DateTime.now();
     MyPrint.printOnConsole("My Learning Data got in ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: tag);
 
-    List<CourseDTOModel> contentsList = response.data?.CourseList ?? <CourseDTOModel>[];
-    MyPrint.printOnConsole("My Learning Contents Length got in Api:${contentsList.length}", tag: tag);
-
     //region Set Provider Data After Getting Data From Api
-    if (contentsList.length < provider.pageSize.get()) provider.updateMyLearningPaginationData(hasMore: false);
-    if (contentsList.isNotEmpty) provider.updateMyLearningPaginationData(pageIndex: paginationModel.pageIndex + 1);
-    provider.addMyLearningContentsInList(myLearningContentModels: contentsList, isClear: false, isNotify: false);
+    if (isInternetAvailable) {
+      if (contentsList.length < provider.pageSize.get()) provider.updateMyLearningPaginationData(hasMore: false);
+      if (contentsList.isNotEmpty) provider.updateMyLearningPaginationData(pageIndex: paginationModel.pageIndex + 1);
+      provider.addMyLearningContentsInList(myLearningContentModels: contentsList, isClear: false, isNotify: false);
+
+      await Future.wait([
+        myLearningHiveRepository.addMyLearningCourseIdInHive(myLearningCourseIds: contentsList.map((e) => e.ContentID).toList(), isClear: isRefresh),
+        myLearningHiveRepository.setMyLearningCourseModelInHive(courseModelsMap: Map.fromEntries(contentsList.map((e) => MapEntry(e.ContentID, e))), isClear: isRefresh),
+      ]);
+    } else {
+      provider.updateMyLearningPaginationData(hasMore: false);
+      provider.setMyLearningContentIdsList(contentIds: <String>[], isClear: true, isNotify: false);
+      provider.addMyLearningContentsInList(myLearningContentModels: contentsList, isClear: false, isNotify: false);
+    }
     provider.updateMyLearningPaginationData(isFirstTimeLoading: false, isNotify: false);
     provider.updateMyLearningPaginationData(isLoading: false, isNotify: true);
     //endregion
+
+    MyPrint.printOnConsole("Final My Learning Contents Length in Provider:${provider.myLearningContentsLength}", tag: tag);
 
     return provider.getMyLearningContentsList();
   }

@@ -1,7 +1,11 @@
 class HiveKeys {
   static const String appConfigurationBox = "appConfigurationBox";
+
   static const String myCourseDownloadModelsBox = "myCourseDownloadModelsBox";
   static const String myCourseDownloadIdsBox = "myCourseDownloadIdsBox";
+
+  static const String myLearningModelsBox = "myLearningModelsBox";
+  static const String myLearningIdsBox = "myLearningIdsBox";
 
   static const String mobileGetLearningPortalInfoResponseModelHiveKey = "mobileGetLearningPortalInfoResponseModelHiveKey";
 

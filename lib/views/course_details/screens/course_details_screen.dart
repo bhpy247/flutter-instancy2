@@ -19,7 +19,10 @@ import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/catalog/catalog_ui_action_callback_model.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/course_details/course_details_ui_action_callback_model.dart';
+import 'package:flutter_instancy_2/backend/ui_actions/my_course_download/my_course_download_ui_action_callback_model.dart';
+import 'package:flutter_instancy_2/backend/ui_actions/my_course_download/my_course_download_ui_actions_controller.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_callback_model.dart';
+import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_configs.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/configs/ui_configurations.dart';
@@ -30,6 +33,7 @@ import 'package:flutter_instancy_2/models/content_details/request_model/course_d
 import 'package:flutter_instancy_2/models/content_details/request_model/course_details_schedule_data_request_model.dart';
 import 'package:flutter_instancy_2/models/content_review_ratings/data_model/content_user_rating_model.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
+import 'package:flutter_instancy_2/models/course_download/request_model/course_download_request_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
 import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/response_model/page_notes_response_model.dart';
@@ -327,6 +331,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
                   scoId: model.ScoID,
                   componentInstanceId: componentInstanceId,
                   isContentEnrolled: model.isCourseEnrolled(),
+                  eventTrackContentModel: model,
                 ),
               );
 
@@ -762,6 +767,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             scoId: model.ScoID,
             componentInstanceId: componentInstanceId,
             isContentEnrolled: model.isCourseEnrolled(),
+            eventTrackContentModel: model,
           ),
         );
 
@@ -788,6 +794,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
                   scoId: model.ScoID,
                   componentInstanceId: componentInstanceId,
                   isContentEnrolled: model.isCourseEnrolled(),
+                  eventTrackContentModel: model,
                 ),
               );
 
@@ -795,6 +802,34 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
                 getContentDetailsData();
               }
             },
+    );
+  }
+
+  MyCourseDownloadUIActionCallbackModel getMyCourseDownloadUIActionCallbackModel({
+    required CourseDownloadDataModel model,
+    bool isSecondaryAction = true,
+  }) {
+    return MyCourseDownloadUIActionCallbackModel(
+      onRemoveFromDownloadTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        courseDownloadController.removeFromDownload(downloadId: model.id);
+      },
+      onCancelDownloadTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        courseDownloadController.cancelDownload(downloadId: model.id);
+      },
+      onPauseDownloadTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        courseDownloadController.pauseDownload(downloadId: model.id);
+      },
+      onResumeDownloadTap: () {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        courseDownloadController.resumeDownload(downloadId: model.id);
+      },
     );
   }
 
@@ -858,6 +893,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
     LocalStr localStr = appProvider.localStr;
 
+    List<InstancyUIActionModel> options = <InstancyUIActionModel>[];
+
     CourseDetailsUIActionsController courseDetailsUIActionsController = CourseDetailsUIActionsController(
       appProvider: appProvider,
       profileProvider: profileProvider,
@@ -865,7 +902,29 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
       catalogProvider: catalogProvider,
     );
 
-    List<InstancyUIActionModel> options = courseDetailsUIActionsController
+    if (MyLearningUIActionConfigs.isContentTypeDownloadable(objectTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeID)) {
+      CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: CourseDownloadDataModel.getDownloadId(contentId: model.ContentID));
+      if (courseDownloadDataModel != null) {
+        MyCourseDownloadUIActionsController courseDownloadUIActionsController = MyCourseDownloadUIActionsController(appProvider: appProvider);
+
+        List<InstancyUIActionModel> courseDownloadOptions = courseDownloadUIActionsController
+            .getMyCourseDownloadsScreenSecondaryActions(
+              courseDownloadDataModel: courseDownloadDataModel,
+              localStr: localStr,
+              myCourseDownloadUIActionCallbackModel: getMyCourseDownloadUIActionCallbackModel(
+                model: courseDownloadDataModel,
+                isSecondaryAction: true,
+              ),
+            )
+            .toSet()
+            .toList();
+        // MyPrint.printOnConsole("courseDownloadOptions length:${courseDownloadOptions.length}");
+
+        options.addAll(courseDownloadOptions);
+      }
+    }
+
+    options.addAll(courseDetailsUIActionsController
         .getCourseDetailsSecondaryActions(
           contentDetailsDTOModel: model,
           screenType: screenType,
@@ -881,7 +940,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             isSecondaryAction: true,
           ),
         )
-        .toList();
+        .toList());
 
     if (options.isEmpty) {
       return;
@@ -1052,9 +1111,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         ContentTypeId: model.ContentTypeId,
         MediaTypeId: model.MediaTypeID,
         ScoID: model.ScoID,
-        SiteUserID: apiUrlConfigurationProvider.getCurrentUserId(),
-        SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+        SiteUserID: model.SiteUserID,
+        SiteId: model.SiteId,
         ContentID: model.ContentID,
+        ParentEventTrackContentID: widget.arguments.parentEventId.isNotEmpty ? widget.arguments.parentEventId : widget.arguments.parentTrackId,
         locale: apiUrlConfigurationProvider.getLocale(),
         ActivityId: model.ActivityId,
         ActualStatus: model.ActualStatus,
@@ -1063,7 +1123,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         JWVideoKey: model.JWVideoKey,
         jwstartpage: model.jwstartpage,
         startPage: model.startpage,
-        bit5: model.bit5,
+        courseDTOModel: model,
       ),
     );
 
@@ -1088,7 +1148,21 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
     if (courseDownloadDataModel == null) {
       MyPrint.printOnConsole("Course Not Downloaded", tag: tag);
-      courseDownloadController.downloadCourse(courseDTOModel: model);
+      courseDownloadController.downloadCourse(
+        courseDownloadRequestModel: CourseDownloadRequestModel(
+          ContentID: model.ContentID,
+          FolderPath: model.FolderPath,
+          JWStartPage: model.startpage,
+          JWVideoKey: model.JWVideoKey,
+          StartPage: model.startpage,
+          ContentTypeId: model.ContentTypeId,
+          MediaTypeID: model.MediaTypeID,
+          SiteId: model.SiteId,
+          UserID: model.SiteUserID,
+          ScoId: model.ScoID,
+        ),
+        courseDTOModel: model,
+      );
     } else if (courseDownloadDataModel.isFileDownloading) {
       MyPrint.printOnConsole("Course Downloading", tag: tag);
       courseDownloadController.pauseDownload(downloadId: downloadId);
@@ -1269,7 +1343,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             Stack(
               children: [
                 getThumbnailImageWidget(imagePath: contentDetailsDTOModel.ThumbnailImagePath),
-                if (contentDetailsDTOModel.isCourseEnrolled())
+                if (contentDetailsDTOModel.isCourseEnrolled() &&
+                    MyLearningUIActionConfigs.isContentTypeDownloadable(objectTypeId: contentDetailsDTOModel.ContentTypeId, mediaTypeId: contentDetailsDTOModel.MediaTypeID))
                   Positioned(
                     bottom: 15,
                     right: 15,
@@ -1349,13 +1424,33 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             style: themeData.textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
-          linearProgressBar(
-            // color: AppConfigurations.getContentStatusColor(status: contentDetailsDTOModel.ContentStatus),
-            // color: InstancyColors.progressBarFillColor,
-            color: AppConfigurations.getContentStatusColorFromActualStatus(status: contentDetailsDTOModel.ActualStatus),
-            percentCompleted: contentDetailsDTOModel.percentagecompleted,
-            objectTypeId: contentDetailsDTOModel.ContentTypeId,
-            contentStatus: contentDetailsDTOModel.ContentStatus,
+          Consumer<CourseDownloadProvider>(
+            builder: (BuildContext context, CourseDownloadProvider courseDownloadProvider, Widget? child) {
+              String courseDownloadId = CourseDownloadDataModel.getDownloadId(contentId: contentDetailsDTOModel.ContentID);
+              CourseDownloadDataModel? downloadModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: courseDownloadId);
+
+              if (downloadModel?.isCourseDownloaded == true && downloadModel?.courseDTOModel != null) {
+                CourseDTOModel newModel = downloadModel!.courseDTOModel!;
+
+                return linearProgressBar(
+                  // color: AppConfigurations.getContentStatusColor(status: contentDetailsDTOModel.ContentStatus),
+                  // color: InstancyColors.progressBarFillColor,
+                  color: AppConfigurations.getContentStatusColorFromActualStatus(status: newModel.ActualStatus),
+                  percentCompleted: newModel.PercentCompleted,
+                  objectTypeId: newModel.ContentTypeId,
+                  contentStatus: newModel.ContentStatus,
+                );
+              }
+
+              return linearProgressBar(
+                // color: AppConfigurations.getContentStatusColor(status: contentDetailsDTOModel.ContentStatus),
+                // color: InstancyColors.progressBarFillColor,
+                color: AppConfigurations.getContentStatusColorFromActualStatus(status: contentDetailsDTOModel.ActualStatus),
+                percentCompleted: contentDetailsDTOModel.percentagecompleted,
+                objectTypeId: contentDetailsDTOModel.ContentTypeId,
+                contentStatus: contentDetailsDTOModel.ContentStatus,
+              );
+            },
           ),
           getEventStartAndEndDateWidget(
             EventStartDateTime: contentDetailsDTOModel.EventStartDateTime,

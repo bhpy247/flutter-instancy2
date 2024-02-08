@@ -12,7 +12,14 @@ class MainHiveController {
 
   MainHiveController._();
 
-  Box? _currentSiteBox, _appConfigurationBox, _myCourseDownloadModelsBox, _myCourseDownloadIdsBox;
+  Box? _currentSiteBox;
+  Box? _appConfigurationBox;
+
+  Box? _myCourseDownloadModelsBox;
+  Box? _myCourseDownloadIdsBox;
+
+  Box<String>? _myLearningIdsBox;
+  Box? _myLearningModelsBox;
 
   Future<void> initializeAllHiveBoxes({String currentSiteUrl = ""}) async {
     MyPrint.printOnConsole("MainHiveController.initializeAllHiveBoxes called");
@@ -52,6 +59,7 @@ class MainHiveController {
     return _appConfigurationBox;
   }
 
+  // region MyCourseDownloadModelsBox
   Future<Box?> initializeMyCourseDownloadModelsBox({required String currentSiteUrl, required int userId, bool isForceInitialize = false}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("MainHiveController().initializeMyCourseDownloadsBox() called with currentSiteUrl:'$currentSiteUrl', userId:$userId, isForceInitialize:$isForceInitialize", tag: tag);
@@ -85,6 +93,9 @@ class MainHiveController {
     _myCourseDownloadModelsBox = null;
   }
 
+  // endregion
+
+  // region MyCourseDownloadIdsBox
   Future<Box?> initializeMyCourseDownloadIdsBox({required String currentSiteUrl, required int userId, bool isForceInitialize = false}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("MainHiveController().initializeMyCourseDownloadIdsBox() called with currentSiteUrl:'$currentSiteUrl', userId:$userId, isForceInitialize:$isForceInitialize", tag: tag);
@@ -117,4 +128,77 @@ class MainHiveController {
     await _myCourseDownloadIdsBox?.close();
     _myCourseDownloadIdsBox = null;
   }
+
+  // endregion
+
+  // region MyLearningIdsBox
+  Future<Box<String>?> initializeMyLearningIdsBox({required String currentSiteUrl, required int userId, bool isForceInitialize = false}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("MainHiveController().initializeMyLearningIdsBox() called with currentSiteUrl:'$currentSiteUrl', userId:$userId, isForceInitialize:$isForceInitialize", tag: tag);
+
+    String host = MyUtils.getHostNameFromSiteUrl(currentSiteUrl);
+    MyPrint.printOnConsole("host:$host", tag: tag);
+
+    if (isForceInitialize || _myLearningIdsBox == null) {
+      await closeMyCourseDownloadModelsBox();
+      if (host.isNotEmpty && userId > 0) {
+        String boxName = "${HiveKeys.myLearningIdsBox}_${host}_$userId";
+        _myLearningIdsBox ??= await HiveManager().openBox<String>(boxName: boxName);
+      }
+    }
+
+    MyPrint.printOnConsole("BoxName:${_myLearningIdsBox?.name}", tag: tag);
+
+    return _myLearningIdsBox;
+  }
+
+  Future<void> clearMyLearningIdsBox() async {
+    MyPrint.printOnConsole("MainHiveController().clearMyLearningIdsBox() called");
+
+    await _myLearningIdsBox?.clear();
+  }
+
+  Future<void> closeMyLearningIdsBox() async {
+    MyPrint.printOnConsole("MainHiveController().closeMyLearningIdsBox() called");
+
+    await _myLearningIdsBox?.close();
+    _myLearningIdsBox = null;
+  }
+
+  // endregion
+
+  // region MyLearningModelsBox
+  Future<Box?> initializeMyLearningModelsBox({required String currentSiteUrl, required int userId, bool isForceInitialize = false}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("MainHiveController().initializeMyLearningModelsBox() called with currentSiteUrl:'$currentSiteUrl', userId:$userId, isForceInitialize:$isForceInitialize", tag: tag);
+
+    String host = MyUtils.getHostNameFromSiteUrl(currentSiteUrl);
+    MyPrint.printOnConsole("host:$host", tag: tag);
+
+    if (isForceInitialize || _myLearningModelsBox == null) {
+      await closeMyLearningModelsBox();
+      if (host.isNotEmpty && userId > 0) {
+        String boxName = "${HiveKeys.myLearningModelsBox}_${host}_$userId";
+        _myLearningModelsBox ??= await HiveManager().openBox(boxName: boxName);
+      }
+    }
+
+    MyPrint.printOnConsole("BoxName:${_myLearningModelsBox?.name}", tag: tag);
+
+    return _myLearningModelsBox;
+  }
+
+  Future<void> clearMyLearningModelsBox() async {
+    MyPrint.printOnConsole("MainHiveController().clearMyLearningModelsBox() called");
+
+    await _myLearningModelsBox?.clear();
+  }
+
+  Future<void> closeMyLearningModelsBox() async {
+    MyPrint.printOnConsole("MainHiveController().closeMyLearningModelsBox() called");
+
+    await _myLearningModelsBox?.close();
+    _myLearningModelsBox = null;
+  }
+// endregion
 }

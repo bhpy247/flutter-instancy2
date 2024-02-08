@@ -257,7 +257,7 @@ class GotoCourseLaunch {
     else {
       MyPrint.printOnConsole('else___course_launch_ogjtypr GotoCourseLaunch $objectTypeId', tag: tag);
 
-      if (objectTypeId == InstancyObjectTypes.track && courseLaunchModel.bit5) {
+      if (objectTypeId == InstancyObjectTypes.track) {
         // Need to open EventTrackListTabsActivity
 
         /*Navigator.of(context).push(MaterialPageRoute(

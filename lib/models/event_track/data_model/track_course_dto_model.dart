@@ -95,6 +95,7 @@ class TrackCourseDTOModel {
   String startpage = "";
   int Count = 0;
   int ScoID = 0;
+  int TrackScoID = 0;
   int ContentTypeId = 0;
   int firstlaunchScoID = 0;
   int SequenceID = 0;
@@ -102,6 +103,8 @@ class TrackCourseDTOModel {
   int MediaTypeID = 0;
   int timeSpentHours = 0;
   int ViewTypeValue = 0;
+  int SiteId = 0;
+  int UserID = 0;
   bool AllowedNavigation = false;
   bool isBadCancellationEnabled = false;
   bool bit1 = false;
@@ -200,6 +203,7 @@ class TrackCourseDTOModel {
     this.startpage = "",
     this.Count = 0,
     this.ScoID = 0,
+    this.TrackScoID = 0,
     this.ContentTypeId = 0,
     this.firstlaunchScoID = 0,
     this.SequenceID = 0,
@@ -207,6 +211,8 @@ class TrackCourseDTOModel {
     this.MediaTypeID = 0,
     this.timeSpentHours = 0,
     this.ViewTypeValue = 0,
+    this.SiteId = 0,
+    this.UserID = 0,
     this.AllowedNavigation = false,
     this.isBadCancellationEnabled = false,
     this.bit1 = false,
@@ -314,6 +320,7 @@ class TrackCourseDTOModel {
     startpage = ParsingHelper.parseStringMethod(map["startpage"]);
     Count = ParsingHelper.parseIntMethod(map["Count"]);
     ScoID = ParsingHelper.parseIntMethod(map["ScoID"]);
+    TrackScoID = ParsingHelper.parseIntMethod(map["TrackScoID"]);
     ContentTypeId = ParsingHelper.parseIntMethod(map["ContentTypeId"]);
     firstlaunchScoID = ParsingHelper.parseIntMethod(map["firstlaunchScoID"]);
     SequenceID = ParsingHelper.parseIntMethod(map["SequenceID"]);
@@ -327,6 +334,8 @@ class TrackCourseDTOModel {
       EventTrackViewTypesForContent.ViewAndAddtoMyLearning => ViewTypesForContent.ViewAndAddToMyLearning,
       _ => 0,
     };
+    SiteId = ParsingHelper.parseIntMethod(map["SiteId"]);
+    UserID = ParsingHelper.parseIntMethod(map["UserID"]);
     AllowedNavigation = ParsingHelper.parseBoolMethod(map["AllowedNavigation"]);
     isBadCancellationEnabled = ParsingHelper.parseBoolMethod(map["isBadCancellationEnabled"]);
     bit1 = ParsingHelper.parseBoolMethod(map["bit1"]);
@@ -430,6 +439,7 @@ class TrackCourseDTOModel {
       "startpage": startpage,
       "Count": Count,
       "ScoID": ScoID,
+      "TrackScoID": TrackScoID,
       "ContentTypeId": ContentTypeId,
       "firstlaunchScoID": firstlaunchScoID,
       "SequenceID": SequenceID,
@@ -437,6 +447,8 @@ class TrackCourseDTOModel {
       "MediaTypeID": MediaTypeID,
       "timeSpentHours": timeSpentHours,
       "ViewTypeValue": ViewTypeValue,
+      "SiteId": SiteId,
+      "UserID": UserID,
       "AllowedNavigation": AllowedNavigation,
       "isBadCancellationEnabled": isBadCancellationEnabled,
       "bit1": bit1,

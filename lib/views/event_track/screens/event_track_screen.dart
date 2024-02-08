@@ -1,4 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/api/api_controller.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_controller.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
@@ -6,8 +11,10 @@ import 'package:flutter_instancy_2/backend/event_track/event_track_controller.da
 import 'package:flutter_instancy_2/backend/event_track/event_track_provider.dart';
 import 'package:flutter_instancy_2/backend/my_connections/my_connections_controller.dart';
 import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_provider.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/course/data_model/gloassary_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_header_dto_model.dart';
@@ -23,6 +30,7 @@ import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/views/event_track/components/event_related_content_tab_widget.dart';
+import 'package:flutter_instancy_2/views/event_track/components/event_track_courses_download_button_widget.dart';
 import 'package:flutter_instancy_2/views/event_track/components/overview_tab_widget.dart';
 import 'package:flutter_instancy_2/views/event_track/components/resource_tab_widget.dart';
 import 'package:flutter_instancy_2/views/event_track/components/track_content_tab_widget.dart';
@@ -30,7 +38,6 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:provider/provider.dart';
 
-import '../../../api/api_url_configuration_provider.dart';
 import '../../../backend/app/app_provider.dart';
 import '../../../backend/app_theme/style.dart';
 import '../../../backend/authentication/authentication_provider.dart';
@@ -41,7 +48,6 @@ import '../../../backend/my_learning/my_learning_controller.dart';
 import '../../../backend/my_learning/my_learning_provider.dart';
 import '../../../backend/navigation/navigation.dart';
 import '../../../backend/profile/profile_provider.dart';
-import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../models/course_launch/data_model/course_launch_model.dart';
 import '../../../models/event_track/request_model/event_track_tab_request_model.dart';
 import '../../../utils/my_print.dart';
@@ -64,7 +70,7 @@ class EventTrackScreen extends StatefulWidget {
   State<EventTrackScreen> createState() => _EventTrackScreenState();
 }
 
-class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerProviderStateMixin, MySafeState {
+class _EventTrackScreenState extends State<EventTrackScreen> with TickerProviderStateMixin, MySafeState {
   bool isLoading = false;
 
   late EventTrackProvider eventTrackProvider;
@@ -84,12 +90,15 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
 
   late EventProvider eventProvider;
 
+  late CourseDownloadProvider courseDownloadProvider;
+  late CourseDownloadController courseDownloadController;
+
+  StreamSubscription<void>? networkConnectionStreamSubscription;
+
   int componentId = 0;
   int componentInstanceId = 0;
 
   bool isAssignmentTabEnabled = false;
-
-  CourseDTOModel courseDTOModel = CourseDTOModel();
 
   TabController? controller;
 
@@ -103,11 +112,12 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         scoid: widget.arguments.scoId,
         iscontentenrolled: widget.arguments.isContentEnrolled,
       ),
+      isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
       isNotify: isNotify,
     );
   }
 
-  Future<void> getTabList() async {
+  Future<void> getTabList({bool isGetDataFromOffline = false}) async {
     await eventTrackController.getEventTrackTabsData(
       requestModel: EventTrackTabRequestModel(
         parentcontentID: widget.arguments.parentContentId,
@@ -116,6 +126,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         objecttypeid: widget.arguments.objectTypeId,
         isRelatedContent: widget.arguments.isRelatedContent.toString(),
       ),
+      isGetDataFromOffline: isGetDataFromOffline,
       isNotify: false,
     );
 
@@ -254,6 +265,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
       componentId: componentId,
       componentInsId: componentId,
       isAssignmentTabEnabled: isAssignmentTabEnabled,
+      isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
       isNotify: isNotify,
     );
   }
@@ -269,6 +281,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
       componentId: componentId,
       componentInsId: componentId,
       isAssignmentTabEnabled: isAssignmentTabEnabled,
+      isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
       isNotify: isNotify,
     );
   }
@@ -283,6 +296,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
       componentId: componentId,
       componentInstanceId: componentId,
       isAssignmentTabEnabled: isAssignmentTabEnabled,
+      isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
       isNotify: isNotify,
     );
   }
@@ -297,6 +311,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
       componentId: componentId,
       componentInstanceId: componentId,
       isAssignmentTabEnabled: isAssignmentTabEnabled,
+      isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
       isNotify: isNotify,
     );
   }
@@ -317,14 +332,37 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
     eventProvider = EventProvider();
     profileProvider = context.read<ProfileProvider>();
 
+    courseDownloadProvider = context.read<CourseDownloadProvider>();
+    courseDownloadController = CourseDownloadController(
+      appProvider: appProvider,
+      courseDownloadProvider: courseDownloadProvider,
+    );
+
     componentId = widget.arguments.componentId;
     componentInstanceId = widget.arguments.componentInstanceId;
 
     myLearningProvider = MyLearningProvider();
     myLearningController = MyLearningController(provider: myLearningProvider);
 
+    NetworkConnectionProvider networkConnectionProvider = Provider.of<NetworkConnectionProvider>(context, listen: false);
+    networkConnectionStreamSubscription = networkConnectionProvider.networkConnectedSubscription.get()?.stream.listen((bool isNetworkConnected) {
+      MyPrint.printOnConsole("isNetworkConnected in EventTrackScreen().initState():$isNetworkConnected");
+
+      if (!isNetworkConnected) {
+        Navigator.pop(context);
+      } else {
+        getTabList(isGetDataFromOffline: widget.arguments.isLoadDataFromOffline);
+      }
+    });
+
     getLearningPathHeaderData();
-    getTabList();
+    getTabList(isGetDataFromOffline: widget.arguments.isLoadDataFromOffline);
+  }
+
+  @override
+  void dispose() {
+    networkConnectionStreamSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -377,7 +415,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
     }
 
     EventTrackHeaderDTOModel? headerDTOModel = eventTrackProvider.eventTrackHeaderData.get();
-    if (headerDTOModel == null) {
+    if (headerDTOModel == null || headerDTOModel.ContentID.isEmpty) {
       return const SizedBox();
     }
 
@@ -447,7 +485,10 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
                 ],
               ),
             ),
-            // downloadIcon()
+            EventTrackCoursesDownloadButtonWidget(
+              parentEventTrackModel: widget.arguments.eventTrackContentModel,
+              eventTrackProvider: eventTrackProvider,
+            ),
           ],
         ),
         const SizedBox(height: 8),
@@ -510,28 +551,6 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
     );
   }
 
-  Widget downloadIcon() {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 3, spreadRadius: 1),
-        ],
-      ),
-      child: InkWell(
-        onTap: () {},
-        child: const Padding(
-          padding: EdgeInsets.all(3.0),
-          child: Icon(
-            Icons.file_download_outlined,
-            color: Color(0xff242424),
-          ),
-        ),
-      ),
-    );
-  }
-
   //endregion
 
   Widget tabBarView() {
@@ -576,7 +595,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
           },
           tabs: List.generate(
             learningPathTabList.length,
-            (index) => tabTitleWidget(
+                (index) => tabTitleWidget(
               title: learningPathTabList[index].tabName,
               assetPath: "assets/myLearning/${learningPathTabList[index].tabName.toLowerCase()}.png",
               index: index,
@@ -705,7 +724,13 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
     // return Container();
     return TrackContentTabWidget(
       contentBlocksList: contentBlocksList,
-      trackId: widget.arguments.parentContentId,
+      parentCourseModel: widget.arguments.eventTrackContentModel ??
+          CourseDTOModel(
+            ContentID: widget.arguments.parentContentId,
+            ContentName: eventTrackProvider.eventTrackHeaderData.get()?.TitleName ?? "",
+            ContentTypeId: widget.arguments.objectTypeId,
+            ScoID: widget.arguments.scoId,
+          ),
       userId: eventTrackController.eventTrackRepository.apiController.apiDataProvider.getCurrentUserId(),
       componentId: widget.arguments.componentId,
       onExpansionChanged: ({required TrackDTOModel model, bool? value}) {
@@ -717,6 +742,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
       },
       initialExpansionValue: openedExpansionTileList,
       componentInsId: widget.arguments.componentInstanceId,
+      courseDownloadProvider: courseDownloadProvider,
       onSetCompleteTap: ({required TrackCourseDTOModel model}) async {
         isLoading = true;
         mySetState();
@@ -758,8 +784,6 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         );
       },
       onContentViewTap: ({required TrackCourseDTOModel model}) async {
-        ApiUrlConfigurationProvider apiUrlConfigurationProvider = eventTrackController.eventTrackRepository.apiController.apiDataProvider;
-
         isLoading = true;
         mySetState();
 
@@ -774,10 +798,13 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
             ContentTypeId: model.ContentTypeId,
             MediaTypeId: model.MediaTypeID,
             ScoID: model.ScoID,
-            SiteUserID: apiUrlConfigurationProvider.getCurrentUserId(),
-            SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+            SiteUserID: ApiController().apiDataProvider.getCurrentUserId(),
+            SiteId: ApiController().apiDataProvider.getCurrentSiteId(),
             ContentID: model.ContentID,
-            locale: apiUrlConfigurationProvider.getLocale(),
+            ParentEventTrackContentID: widget.arguments.parentContentId,
+            ParentContentTypeId: InstancyObjectTypes.track,
+            ParentContentScoId: widget.arguments.scoId,
+            locale: ApiController().apiDataProvider.getLocale(),
             ActivityId: model.ActivityId,
             ActualStatus: model.CoreLessonStatus,
             ContentName: model.ContentName,
@@ -785,7 +812,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
             JWVideoKey: model.JWVideoKey,
             jwstartpage: model.jwstartpage,
             startPage: model.startpage,
-            bit5: model.bit5,
+            trackCourseDTOModel: model,
           ),
         );
 
@@ -860,10 +887,17 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
 
     return TrackContentTabWidget(
       contentBlocksList: contentBlocksList,
-      trackId: widget.arguments.parentContentId,
+      parentCourseModel: widget.arguments.eventTrackContentModel ??
+          CourseDTOModel(
+            ContentID: widget.arguments.parentContentId,
+            ContentName: eventTrackProvider.eventTrackHeaderData.get()?.TitleName ?? "",
+            ContentTypeId: widget.arguments.objectTypeId,
+            ScoID: widget.arguments.scoId,
+          ),
       userId: eventTrackController.eventTrackRepository.apiController.apiDataProvider.getCurrentUserId(),
       componentId: widget.arguments.componentId,
       componentInsId: widget.arguments.componentInstanceId,
+      courseDownloadProvider: courseDownloadProvider,
       onSetCompleteTap: ({required TrackCourseDTOModel model}) async {
         isLoading = true;
         mySetState();
@@ -905,8 +939,6 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         );
       },
       onContentViewTap: ({required TrackCourseDTOModel model}) async {
-        ApiUrlConfigurationProvider apiUrlConfigurationProvider = eventTrackController.eventTrackRepository.apiController.apiDataProvider;
-
         isLoading = true;
         mySetState();
 
@@ -921,10 +953,13 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
             ContentTypeId: model.ContentTypeId,
             MediaTypeId: model.MediaTypeID,
             ScoID: model.ScoID,
-            SiteUserID: apiUrlConfigurationProvider.getCurrentUserId(),
-            SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+            SiteUserID: ApiController().apiDataProvider.getCurrentUserId(),
+            SiteId: ApiController().apiDataProvider.getCurrentSiteId(),
             ContentID: model.ContentID,
-            locale: apiUrlConfigurationProvider.getLocale(),
+            ParentEventTrackContentID: widget.arguments.parentContentId,
+            ParentContentTypeId: InstancyObjectTypes.track,
+            ParentContentScoId: widget.arguments.scoId,
+            locale: ApiController().apiDataProvider.getLocale(),
             ActivityId: model.ActivityId,
             ActualStatus: model.CoreLessonStatus,
             ContentName: model.ContentName,
@@ -932,7 +967,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
             JWVideoKey: model.JWVideoKey,
             jwstartpage: model.jwstartpage,
             startPage: model.startpage,
-            bit5: model.bit5,
+            trackCourseDTOModel: model,
           ),
         );
 
@@ -996,10 +1031,17 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
       relatedContentsList: eventTrackProvider.eventRelatedContentsData.getList(isNewInstance: false),
       paginationModel: eventTrackProvider.eventRelatedContentsDataPaginationModel.get(),
       contentsLength: eventTrackProvider.eventRelatedContentsData.length,
-      eventId: widget.arguments.parentContentId,
+      parentCourseModel: widget.arguments.eventTrackContentModel ??
+          CourseDTOModel(
+            ContentID: widget.arguments.parentContentId,
+            ContentName: eventTrackProvider.eventTrackHeaderData.get()?.TitleName ?? "",
+            ContentTypeId: widget.arguments.objectTypeId,
+            ScoID: widget.arguments.scoId,
+          ),
       userId: eventTrackController.eventTrackRepository.apiController.apiDataProvider.getCurrentUserId(),
       componentId: widget.arguments.componentId,
       componentInsId: widget.arguments.componentInstanceId,
+      courseDownloadProvider: courseDownloadProvider,
       onPulledTORefresh: () {
         getEventRelatedContentsData(
           isRefresh: true,
@@ -1047,8 +1089,6 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         );
       },
       onContentViewTap: ({required RelatedTrackDataDTOModel model}) async {
-        ApiUrlConfigurationProvider apiUrlConfigurationProvider = eventTrackController.eventTrackRepository.apiController.apiDataProvider;
-
         isLoading = true;
         mySetState();
 
@@ -1066,7 +1106,10 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
             SiteUserID: model.UserID,
             SiteId: model.SiteID,
             ContentID: model.ContentID,
-            locale: apiUrlConfigurationProvider.getLocale(),
+            ParentEventTrackContentID: widget.arguments.parentContentId,
+            ParentContentTypeId: InstancyObjectTypes.events,
+            ParentContentScoId: widget.arguments.scoId,
+            locale: ApiController().apiDataProvider.getLocale(),
             ActivityId: model.ActivityId,
             ActualStatus: model.CoreLessonStatus,
             ContentName: model.Name,
@@ -1074,7 +1117,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
             JWVideoKey: model.JWVideoKey,
             jwstartpage: model.jwstartpage,
             startPage: model.startpage,
-            bit5: model.bit5,
+            relatedTrackDataDTOModel: model,
           ),
         );
 
@@ -1098,10 +1141,17 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
       relatedContentsList: eventTrackProvider.eventRelatedAssignmentsData.getList(isNewInstance: false),
       paginationModel: eventTrackProvider.eventRelatedAssignmentsDataPaginationModel.get(),
       contentsLength: eventTrackProvider.eventRelatedAssignmentsData.length,
-      eventId: widget.arguments.parentContentId,
+      parentCourseModel: widget.arguments.eventTrackContentModel ??
+          CourseDTOModel(
+            ContentID: widget.arguments.parentContentId,
+            ContentName: eventTrackProvider.eventTrackHeaderData.get()?.TitleName ?? "",
+            ContentTypeId: widget.arguments.objectTypeId,
+            ScoID: widget.arguments.scoId,
+          ),
       userId: eventTrackController.eventTrackRepository.apiController.apiDataProvider.getCurrentUserId(),
       componentId: widget.arguments.componentId,
       componentInsId: widget.arguments.componentInstanceId,
+      courseDownloadProvider: courseDownloadProvider,
       onPulledTORefresh: () {
         getEventRelatedAssignmentsData(
           isRefresh: true,
@@ -1149,8 +1199,6 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
         );
       },
       onContentViewTap: ({required RelatedTrackDataDTOModel model}) async {
-        ApiUrlConfigurationProvider apiUrlConfigurationProvider = eventTrackController.eventTrackRepository.apiController.apiDataProvider;
-
         isLoading = true;
         mySetState();
 
@@ -1168,7 +1216,10 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
             SiteUserID: model.UserID,
             SiteId: model.SiteID,
             ContentID: model.ContentID,
-            locale: apiUrlConfigurationProvider.getLocale(),
+            ParentEventTrackContentID: widget.arguments.parentContentId,
+            ParentContentTypeId: InstancyObjectTypes.events,
+            ParentContentScoId: widget.arguments.scoId,
+            locale: ApiController().apiDataProvider.getLocale(),
             ActivityId: model.ActivityId,
             ActualStatus: model.CoreLessonStatus,
             ContentName: model.Name,
@@ -1176,7 +1227,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with SingleTickerPr
             JWVideoKey: model.JWVideoKey,
             jwstartpage: model.jwstartpage,
             startPage: model.startpage,
-            bit5: model.bit5,
+            relatedTrackDataDTOModel: model,
           ),
         );
 

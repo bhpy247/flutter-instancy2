@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
+import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:flutter_instancy_2/views/common/components/common_icon_button.dart';
 import 'package:flutter_instancy_2/views/course_download/components/course_download_button.dart';
@@ -47,7 +50,83 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
 
-    if (widget.courseDownloadDataModel.courseDTOModel == null) {
+    MyCourseDownloadCardDataModel? myCourseDownloadDataModel;
+
+    if (widget.courseDownloadDataModel.parentCourseModel != null) {
+      CourseDTOModel courseDTOModel = widget.courseDownloadDataModel.parentCourseModel!;
+
+      myCourseDownloadDataModel = MyCourseDownloadCardDataModel(
+        TitleName: courseDTOModel.TitleName,
+        AuthorDisplayName: courseDTOModel.AuthorDisplayName,
+        ContentType: courseDTOModel.ContentType,
+        ThumbnailImagePath: courseDTOModel.ThumbnailImagePath,
+        CoreLessonStatus: courseDTOModel.ActualStatus,
+        ContentStatus: courseDTOModel.ContentStatus,
+        Duration: courseDTOModel.Duration,
+        EventStartDateTime: courseDTOModel.EventStartDateTime,
+        EventEndDateTime: courseDTOModel.EventEndDateTime,
+        ContentTypeId: courseDTOModel.ContentTypeId,
+        MediaTypeId: courseDTOModel.MediaTypeID,
+        RatingID: courseDTOModel.RatingID,
+        PercentCompleted: courseDTOModel.PercentCompleted,
+      );
+    } else if (widget.courseDownloadDataModel.courseDTOModel != null) {
+      CourseDTOModel courseDTOModel = widget.courseDownloadDataModel.courseDTOModel!;
+
+      myCourseDownloadDataModel = MyCourseDownloadCardDataModel(
+        TitleName: courseDTOModel.TitleName,
+        AuthorDisplayName: courseDTOModel.AuthorDisplayName,
+        ContentType: courseDTOModel.ContentType,
+        ThumbnailImagePath: courseDTOModel.ThumbnailImagePath,
+        CoreLessonStatus: courseDTOModel.ActualStatus,
+        ContentStatus: courseDTOModel.ContentStatus,
+        Duration: courseDTOModel.Duration,
+        EventStartDateTime: courseDTOModel.EventStartDateTime,
+        EventEndDateTime: courseDTOModel.EventEndDateTime,
+        ContentTypeId: courseDTOModel.ContentTypeId,
+        MediaTypeId: courseDTOModel.MediaTypeID,
+        RatingID: courseDTOModel.RatingID,
+        PercentCompleted: courseDTOModel.PercentCompleted,
+      );
+    } else if (widget.courseDownloadDataModel.trackCourseDTOModel != null) {
+      TrackCourseDTOModel trackCourseDTOModel = widget.courseDownloadDataModel.trackCourseDTOModel!;
+
+      myCourseDownloadDataModel = MyCourseDownloadCardDataModel(
+        TitleName: trackCourseDTOModel.ContentName,
+        AuthorDisplayName: trackCourseDTOModel.AuthorDisplayName,
+        ContentType: trackCourseDTOModel.ContentType,
+        ThumbnailImagePath: trackCourseDTOModel.ThumbnailImagePath,
+        CoreLessonStatus: trackCourseDTOModel.CoreLessonStatus,
+        ContentStatus: trackCourseDTOModel.ContentStatus,
+        Duration: trackCourseDTOModel.Duration,
+        EventStartDateTime: trackCourseDTOModel.EventStartDateTime,
+        EventEndDateTime: trackCourseDTOModel.EventEndDateTime,
+        ContentTypeId: trackCourseDTOModel.ContentTypeId,
+        MediaTypeId: trackCourseDTOModel.MediaTypeID,
+        RatingID: ParsingHelper.parseDoubleMethod(trackCourseDTOModel.RatingID),
+        PercentCompleted: ParsingHelper.parseDoubleMethod(trackCourseDTOModel.ContentProgress),
+      );
+    } else if (widget.courseDownloadDataModel.relatedTrackDataDTOModel != null) {
+      RelatedTrackDataDTOModel relatedTrackDataDTOModel = widget.courseDownloadDataModel.relatedTrackDataDTOModel!;
+
+      myCourseDownloadDataModel = MyCourseDownloadCardDataModel(
+        TitleName: relatedTrackDataDTOModel.Name,
+        AuthorDisplayName: relatedTrackDataDTOModel.AuthorName,
+        ContentType: relatedTrackDataDTOModel.ContentType,
+        ThumbnailImagePath: relatedTrackDataDTOModel.ThumbnailImagePath,
+        CoreLessonStatus: relatedTrackDataDTOModel.CoreLessonStatus,
+        ContentStatus: relatedTrackDataDTOModel.ContentDisplayStatus,
+        Duration: relatedTrackDataDTOModel.Duration,
+        EventStartDateTime: relatedTrackDataDTOModel.EventStartDateTime,
+        EventEndDateTime: relatedTrackDataDTOModel.EventEndDateTime,
+        ContentTypeId: relatedTrackDataDTOModel.ContentTypeId,
+        MediaTypeId: relatedTrackDataDTOModel.MediaTypeID,
+        RatingID: ParsingHelper.parseDoubleMethod(relatedTrackDataDTOModel.TotalRatings),
+        PercentCompleted: relatedTrackDataDTOModel.PercentCompleted,
+      );
+    }
+
+    if (myCourseDownloadDataModel == null) {
       return const SizedBox();
     }
 
@@ -57,46 +136,59 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
           widget.onPrimaryActionTap!();
         }
       },
-      child: Column(
-        children: [
-          if (widget.courseDownloadDataModel.eventTrackContentName.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(100),
-              ),
-              child: Center(
-                child: Text(
-                  widget.courseDownloadDataModel.eventTrackContentName,
-                  style: themeData.textTheme.labelMedium?.copyWith(
-                    color: themeData.colorScheme.onPrimary,
-                  ),
-                ),
-              ),
-            ),
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                InkWell(
-                  onTap: () {
-                    if (widget.onThumbnailClick != null) {
-                      widget.onThumbnailClick!();
-                    }
-                  },
-                  child: imageWidget(widget.courseDownloadDataModel.courseDTOModel?.ThumbnailImagePath ?? ""),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: detailColumn(widget.courseDownloadDataModel.courseDTOModel!),
-                ),
-              ],
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.green,
+            width: 1,
           ),
-        ],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Column(
+            children: [
+              /*if (widget.courseDownloadDataModel.parentContentName.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                  ),
+                  child: Center(
+                    child: Text(
+                      widget.courseDownloadDataModel.parentContentName,
+                      style: themeData.textTheme.labelMedium?.copyWith(
+                        color: themeData.colorScheme.onPrimary,
+                      ),
+                    ),
+                  ),
+                ),*/
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                decoration: BoxDecoration(
+                  color: themeData.colorScheme.onPrimary,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        if (widget.onThumbnailClick != null) {
+                          widget.onThumbnailClick!();
+                        }
+                      },
+                      child: imageWidget(myCourseDownloadDataModel.ThumbnailImagePath),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: detailColumn(myCourseDownloadCardDataModel: myCourseDownloadDataModel),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -130,7 +222,7 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
     );
   }
 
-  Widget detailColumn(CourseDTOModel model) {
+  Widget detailColumn({required MyCourseDownloadCardDataModel myCourseDownloadCardDataModel}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -143,13 +235,13 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
                 children: [
                   coursesIcon(
                     assetName: AppConfigurations.getContentIconFromObjectAndMediaType(
-                      mediaTypeId: model.MediaTypeID,
-                      objectTypeId: model.ContentTypeId,
+                      objectTypeId: myCourseDownloadCardDataModel.ContentTypeId,
+                      mediaTypeId: myCourseDownloadCardDataModel.MediaTypeId,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    model.ContentType,
+                    myCourseDownloadCardDataModel.ContentType,
                     style: const TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: 12,
@@ -164,8 +256,12 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
         ),
         const SizedBox(height: 5),
         Text(
-          model.TitleName,
-          style: themeData.textTheme.titleMedium?.copyWith(color: const Color(0xff1D293F), fontWeight: FontWeight.w600, fontSize: 14),
+          myCourseDownloadCardDataModel.TitleName,
+          style: themeData.textTheme.titleMedium?.copyWith(
+            color: const Color(0xff1D293F),
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+          ),
         ),
         const SizedBox(height: 5),
         Row(
@@ -175,50 +271,45 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    model.AuthorDisplayName,
+                    myCourseDownloadCardDataModel.AuthorDisplayName,
                     style: themeData.textTheme.bodySmall?.copyWith(
                       fontSize: 12,
                       color: const Color(0xff9AA0A6),
                     ),
                   ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  ratingView(model.RatingID),
+                  const SizedBox(height: 8),
+                  ratingView(myCourseDownloadCardDataModel.RatingID),
                 ],
               ),
             ),
-            CourseDownloadButton(
-              contentId: widget.courseDownloadDataModel.contentId,
-              parentEventTrackId: widget.courseDownloadDataModel.eventTrackContentId,
-              onDownloadTap: widget.onDownloadTap,
-            ),
+            if (widget.courseDownloadDataModel.parentCourseModel == null)
+              CourseDownloadButton(
+                contentId: widget.courseDownloadDataModel.contentId,
+                parentEventTrackId: widget.courseDownloadDataModel.parentContentId,
+                onDownloadTap: widget.onDownloadTap,
+              ),
           ],
         ),
-        eventStartDateAndTime(model),
+        eventStartDateAndTime(myCourseDownloadCardDataModel: myCourseDownloadCardDataModel),
         const SizedBox(height: 8),
         linearProgressBar(
-          ContentTypeId: model.ContentTypeId,
-          actualStatus: model.ActualStatus,
-          percentCompleted: model.PercentCompleted,
-          contentStatus: model.ContentStatus,
+          ContentTypeId: myCourseDownloadCardDataModel.ContentTypeId,
+          actualStatus: myCourseDownloadCardDataModel.CoreLessonStatus,
+          contentStatus: myCourseDownloadCardDataModel.ContentStatus,
+          percentCompleted: myCourseDownloadCardDataModel.PercentCompleted,
         ),
-        /*getPrimaryActionButton(
-          model: model,
-          context: context,
-          primaryAction: widget.primaryAction,
-        ),*/
       ],
     );
   }
 
-  Widget eventStartDateAndTime(CourseDTOModel model) {
-    if (model.EventStartDateTime.isEmpty || model.EventEndDateTime.isEmpty || model.ContentTypeId != InstancyObjectTypes.events) return const SizedBox();
+  Widget eventStartDateAndTime({required MyCourseDownloadCardDataModel myCourseDownloadCardDataModel}) {
+    if (myCourseDownloadCardDataModel.EventStartDateTime.isEmpty || myCourseDownloadCardDataModel.EventEndDateTime.isEmpty || myCourseDownloadCardDataModel.ContentTypeId != InstancyObjectTypes.events)
+      return const SizedBox();
 
     AppConfigurationOperations appConfigurationOperations = AppConfigurationOperations(appProvider: context.read<AppProvider>());
 
-    DateTime? startDateTime = appConfigurationOperations.getEventDateTime(eventDate: model.EventStartDateTime);
-    DateTime? endDateTime = appConfigurationOperations.getEventDateTime(eventDate: model.EventEndDateTime);
+    DateTime? startDateTime = appConfigurationOperations.getEventDateTime(eventDate: myCourseDownloadCardDataModel.EventStartDateTime);
+    DateTime? endDateTime = appConfigurationOperations.getEventDateTime(eventDate: myCourseDownloadCardDataModel.EventEndDateTime);
 
     if (startDateTime == null || endDateTime == null) return const SizedBox();
 
@@ -228,7 +319,7 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Date: ${DatePresentation.onlyDateFromString(model.EventStartDateTime)}",
+            "Date: ${DatePresentation.onlyDateFromString(myCourseDownloadCardDataModel.EventStartDateTime)}",
             style: const TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w600,
@@ -245,7 +336,7 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
               dateTime: endDateTime,
               dateFormat: "hh:mm aa",
             )}"
-            " (${model.Duration})",
+            " (${myCourseDownloadCardDataModel.Duration})",
             style: const TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w600,
@@ -425,4 +516,36 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
       ),
     );
   }
+}
+
+class MyCourseDownloadCardDataModel {
+  final String TitleName;
+  final String AuthorDisplayName;
+  final String ContentType;
+  final String ThumbnailImagePath;
+  final String CoreLessonStatus;
+  final String ContentStatus;
+  final String Duration;
+  final String EventStartDateTime;
+  final String EventEndDateTime;
+  final int ContentTypeId;
+  final int MediaTypeId;
+  final double RatingID;
+  final double PercentCompleted;
+
+  MyCourseDownloadCardDataModel({
+    required this.TitleName,
+    required this.AuthorDisplayName,
+    required this.ContentType,
+    required this.ThumbnailImagePath,
+    required this.CoreLessonStatus,
+    required this.ContentStatus,
+    required this.Duration,
+    required this.EventStartDateTime,
+    required this.EventEndDateTime,
+    required this.ContentTypeId,
+    required this.MediaTypeId,
+    required this.RatingID,
+    required this.PercentCompleted,
+  });
 }

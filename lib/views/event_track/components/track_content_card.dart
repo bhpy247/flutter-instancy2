@@ -1,37 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
+import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_configs.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
+import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:flutter_instancy_2/views/common/components/common_icon_button.dart';
+import 'package:flutter_instancy_2/views/course_download/components/course_download_button.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import '../../../models/course/data_model/CourseDTOModel.dart';
-import '../../../utils/my_print.dart';
 import '../../common/components/common_button.dart';
 import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
 
 class TrackContentCard extends StatefulWidget {
   final TrackCourseDTOModel eventTrackContentModel;
+  final String parentEventTrackContentId;
   final InstancyUIActionModel? primaryAction;
-  final void Function()? onMoreButtonTap, onPrimaryActionTap;
+  final void Function()? onMoreButtonTap, onPrimaryActionTap, onDownloadTap;
   final bool isShowMoreOption;
 
   const TrackContentCard({
     Key? key,
     required this.eventTrackContentModel,
+    required this.parentEventTrackContentId,
     this.primaryAction,
     this.onMoreButtonTap,
     this.onPrimaryActionTap,
+    this.onDownloadTap,
     this.isShowMoreOption = true,
   }) : super(key: key);
 
@@ -69,7 +75,7 @@ class _TrackContentCardState extends State<TrackContentCard> {
 
   Widget imageWidget(String url) {
     String imageUrl = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: url));
-    MyPrint.printOnConsole("Event Track Content Thumbnail Image Url:$imageUrl");
+    // MyPrint.printOnConsole("Event Track Content Thumbnail Image Url:$imageUrl");
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
@@ -89,16 +95,6 @@ class _TrackContentCardState extends State<TrackContentCard> {
   }
 
   Widget detailColumn(TrackCourseDTOModel model) {
-    double percentageCompleted = ParsingHelper.parseDoubleMethod(model.ContentProgress);
-    String contentStatus = model.ContentStatus;
-    String actualStatus = model.CoreLessonStatus;
-
-    if (model.ContentTypeId == InstancyObjectTypes.events && (model.RecordingDetails?.ContentID).checkNotEmpty) {
-      EventRecordingDetailsModel recordingDetailsModel = model.RecordingDetails!;
-      percentageCompleted = ParsingHelper.parseDoubleMethod(recordingDetailsModel.ContentProgress);
-      actualStatus = recordingDetailsModel.EventRecordStatus;
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -160,14 +156,51 @@ class _TrackContentCardState extends State<TrackContentCard> {
                 ],
               ),
             ),
-            // downloadIcon()
+            if (MyLearningUIActionConfigs.isContentTypeDownloadable(objectTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeID))
+              CourseDownloadButton(
+                contentId: model.ContentID,
+                parentEventTrackId: widget.parentEventTrackContentId,
+                onDownloadTap: widget.onDownloadTap,
+              ),
           ],
         ),
         const SizedBox(height: 8),
-        linearProgressBar(
-          percentCompleted: percentageCompleted.toInt(),
-          contentStatus: contentStatus,
-          actualStatus: actualStatus,
+        Consumer<CourseDownloadProvider>(
+          builder: (BuildContext context, CourseDownloadProvider courseDownloadProvider, Widget? child) {
+            double percentageCompleted = ParsingHelper.parseDoubleMethod(model.ContentProgress);
+            String contentStatus = model.ContentStatus;
+            String actualStatus = model.CoreLessonStatus;
+
+            if (model.ContentTypeId == InstancyObjectTypes.events && (model.RecordingDetails?.ContentID).checkNotEmpty) {
+              EventRecordingDetailsModel recordingDetailsModel = model.RecordingDetails!;
+              percentageCompleted = ParsingHelper.parseDoubleMethod(recordingDetailsModel.ContentProgress);
+              actualStatus = recordingDetailsModel.EventRecordStatus;
+            }
+
+            String courseDownloadId = CourseDownloadDataModel.getDownloadId(
+              contentId: model.ContentID,
+              eventTrackContentId: widget.parentEventTrackContentId,
+            );
+            CourseDownloadDataModel? downloadModel = courseDownloadProvider.getCourseDownloadDataModelFromId(
+              courseDownloadId: courseDownloadId,
+            );
+
+            if (downloadModel?.isCourseDownloaded == true && downloadModel?.trackCourseDTOModel != null) {
+              TrackCourseDTOModel newModel = downloadModel!.trackCourseDTOModel!;
+
+              return linearProgressBar(
+                percentCompleted: ParsingHelper.parseIntMethod(newModel.ContentProgress),
+                contentStatus: newModel.ContentStatus,
+                actualStatus: newModel.CoreLessonStatus,
+              );
+            }
+
+            return linearProgressBar(
+              percentCompleted: percentageCompleted.toInt(),
+              contentStatus: contentStatus,
+              actualStatus: actualStatus,
+            );
+          },
         ),
         /*getPrimaryActionButton(
           model: model,

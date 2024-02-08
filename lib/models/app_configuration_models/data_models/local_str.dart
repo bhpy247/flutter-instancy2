@@ -797,6 +797,12 @@ class LocalStr {
   String courseDownloadActionSheetPauseDownloadAction = "";
   String courseDownloadActionSheetResumeDownloadAction = "";
 
+  String networkConnectionAlertConnectionRestored = "";
+  String networkConnectionAlertYouAreOffline = "";
+
+  String courseNotDownloadedDialogTitle = "";
+  String courseNotDownloadedDialogDescription = "";
+
   /*String reminder1lbl;
   String reminder1lbl = "";*/
 
@@ -1580,6 +1586,10 @@ class LocalStr {
     this.courseDownloadActionSheetCancelDownloadAction = "",
     this.courseDownloadActionSheetPauseDownloadAction = "",
     this.courseDownloadActionSheetResumeDownloadAction = "",
+    this.networkConnectionAlertConnectionRestored = "",
+    this.networkConnectionAlertYouAreOffline = "",
+    this.courseNotDownloadedDialogTitle = "",
+    this.courseNotDownloadedDialogDescription = "",
   });
 
   LocalStr.fromJson(Map<String, dynamic> json) {
@@ -2376,6 +2386,12 @@ class LocalStr {
     courseDownloadActionSheetCancelDownloadAction = ParsingHelper.parseStringMethod(json['courseDownloadActionSheetCancelDownloadAction']);
     courseDownloadActionSheetPauseDownloadAction = ParsingHelper.parseStringMethod(json['courseDownloadActionSheetPauseDownloadAction']);
     courseDownloadActionSheetResumeDownloadAction = ParsingHelper.parseStringMethod(json['courseDownloadActionSheetResumeDownloadAction']);
+
+    networkConnectionAlertConnectionRestored = ParsingHelper.parseStringMethod(json['networkConnectionAlertConnectionRestored']);
+    networkConnectionAlertYouAreOffline = ParsingHelper.parseStringMethod(json['networkConnectionAlertYouAreOffline']);
+
+    courseNotDownloadedDialogTitle = ParsingHelper.parseStringMethod(json['courseNotDownloadedDialogTitle']);
+    courseNotDownloadedDialogDescription = ParsingHelper.parseStringMethod(json['courseNotDownloadedDialogDescription']);
   }
 
   Map<String, dynamic> toJson() {
@@ -3170,6 +3186,12 @@ class LocalStr {
     data["courseDownloadActionSheetCancelDownloadAction"] = courseDownloadActionSheetCancelDownloadAction;
     data["courseDownloadActionSheetPauseDownloadAction"] = courseDownloadActionSheetPauseDownloadAction;
     data["courseDownloadActionSheetResumeDownloadAction"] = courseDownloadActionSheetResumeDownloadAction;
+
+    data["networkConnectionAlertConnectionRestored"] = networkConnectionAlertConnectionRestored;
+    data["networkConnectionAlertYouAreOffline"] = networkConnectionAlertYouAreOffline;
+
+    data["courseNotDownloadedDialogTitle"] = courseNotDownloadedDialogTitle;
+    data["courseNotDownloadedDialogDescription"] = courseNotDownloadedDialogDescription;
 
     return data;
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_arguments.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/app_ststem_configurations.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/sign_up_response_dto_model.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
@@ -67,6 +68,11 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
     FocusScope.of(context).requestFocus(FocusNode());
 
     if (isSignInProgress) return;
+
+    if (!NetworkConnectionController().checkConnection(isShowErrorSnakbar: true, context: context)) {
+      MyPrint.printOnConsole("Internet Not Available");
+      return;
+    }
 
     bool isValid = (signInFormKey.currentState?.validate() ?? false);
     MyPrint.printOnConsole("isValid:$isValid");

@@ -533,4 +533,6 @@ class ApiEndpoints {
     }
     return "$instancyApiUrl/Bot/GetSiteBotDetails";
   }
+
+  String UpdateOfflineTrackedData() => '${getBaseApiUrl()}MobileLMS/MobileUpdateOfflineTrackedData';
 }

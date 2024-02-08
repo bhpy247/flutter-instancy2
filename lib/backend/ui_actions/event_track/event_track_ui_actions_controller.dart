@@ -69,7 +69,7 @@ class EventTrackUIActionsController {
     return AppConfigurationOperations(appProvider: appProvider).isShowSetComplete(
       objectTypeId: parameterModel.objectTypeId,
       mediaTypeId: parameterModel.mediaTypeId,
-      contentStatus: parameterModel.actualStatus,
+      actualContentStatus: parameterModel.actualStatus,
       profileProvider: profileProvider,
     );
   }
@@ -284,7 +284,7 @@ class EventTrackUIActionsController {
   Iterable<InstancyUIActionModel> getTrackContentsSecondaryActions({
     required TrackCourseDTOModel contentModel,
     required LocalStr localStr,
-    required EventTrackUIActionCallbackModel myLearningUIActionCallbackModel,
+    required EventTrackUIActionCallbackModel eventTrackUIActionCallbackModel,
   }) sync* {
     // MyPrint.printOnConsole("getTrackContentsSecondaryActions called with parameterModel:$parameterModel");
 
@@ -311,7 +311,7 @@ class EventTrackUIActionsController {
       actions: secondaryActions,
       localStr: localStr,
       parameterModel: getParameterModelFromTrackCourseDTOModel(model: contentModel),
-      callbackModel: myLearningUIActionCallbackModel,
+      callbackModel: eventTrackUIActionCallbackModel,
     );
 
     yield* actionModels;
