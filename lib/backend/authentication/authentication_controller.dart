@@ -17,6 +17,7 @@ import 'package:flutter_instancy_2/backend/home/home_provider.dart';
 import 'package:flutter_instancy_2/backend/in_app_purchase/in_app_purchase_provider.dart';
 import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
+import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
@@ -263,6 +264,7 @@ class AuthenticationController {
     context.read<DiscussionProvider>().resetData();
     context.read<GamificationProvider>().resetData();
     context.read<CourseDownloadProvider>().resetData();
+    context.read<MyConnectionsProvider>().resetData();
 
     apiUrlConfigurationProvider.setCurrentUserId(-1);
     apiUrlConfigurationProvider.setAuthToken("");
