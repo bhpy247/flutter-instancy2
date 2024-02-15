@@ -121,6 +121,7 @@ class ProfileProvider extends CommonProvider {
     userPersonalInfoEditingEnabled.set(value: false, isNotify: false);
 
     userContactInfoForEditingDataList.setList(list: [], isClear: true, isNotify: false);
+    userContactInfoEditingEnabled.set(value: false, isNotify: false);
 
     multipleChoicesList.setList(list: [], isClear: true, isNotify: false);
     educationTitlesList.setList(list: [], isClear: true, isNotify: false);
