@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/backend/gamification/gamification_provider.da
 import 'package:flutter_instancy_2/backend/in_app_purchase/in_app_purchase_provider.dart';
 import 'package:flutter_instancy_2/backend/lens_feature/lens_provider.dart';
 import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
+import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
@@ -17,9 +18,9 @@ import 'package:flutter_instancy_2/models/profile/data_model/user_experience_dat
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
 import '../../configs/app_constants.dart';
+import '../../models/app/data_model/dynamic_tabs_dto_model.dart';
 import '../../models/app_configuration_models/data_models/component_configurations_model.dart';
 import '../../models/catalog/catalogCategoriesForBrowseModel.dart';
-import '../../models/classroom_events/data_model/tab_data_model.dart';
 import '../../models/discussion/data_model/forum_model.dart';
 import '../../models/discussion/data_model/topic_model.dart';
 import '../../models/filter/data_model/content_filter_category_tree_model.dart';
@@ -471,7 +472,7 @@ class EventTrackScreenArguments extends NavigationArguments {
 
 class UserProfileScreenNavigationArguments extends NavigationArguments {
   final ProfileProvider? profileProvider;
-  final bool isFromProfile, isMyProfile;
+  final bool isFromProfile;
   final int userId;
   final int componentId;
   final int componentInstanceId;
@@ -479,7 +480,20 @@ class UserProfileScreenNavigationArguments extends NavigationArguments {
   const UserProfileScreenNavigationArguments({
     required this.profileProvider,
     this.isFromProfile = false,
-    this.isMyProfile = false,
+    required this.userId,
+    this.componentId = -1,
+    this.componentInstanceId = -1,
+  });
+}
+
+class ConnectionProfileScreenNavigationArguments extends NavigationArguments {
+  final ProfileProvider? profileProvider;
+  final int userId;
+  final int componentId;
+  final int componentInstanceId;
+
+  const ConnectionProfileScreenNavigationArguments({
+    required this.profileProvider,
     required this.userId,
     this.componentId = -1,
     this.componentInstanceId = -1,
@@ -498,7 +512,7 @@ class InstaBotScreen2NavigationArguments extends NavigationArguments {
 
 class EventCatalogListScreenNavigationArguments extends NavigationArguments {
   final String? tabId;
-  final TabDataModel? tabDataModel;
+  final DynamicTabsDTOModel? tabDataModel;
   final EventProvider? eventProvider;
   final bool enableSearching;
   final bool isShowAppBar;
@@ -753,5 +767,17 @@ class UserMembershipDetailsScreenNavigationArguments extends NavigationArguments
 
   const UserMembershipDetailsScreenNavigationArguments({
     this.membershipProvider,
+  });
+}
+
+class MyConnectionsMainScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+  final MyConnectionsProvider? myConnectionsProvider;
+
+  const MyConnectionsMainScreenNavigationArguments({
+    required this.componentId,
+    required this.componentInsId,
+    this.myConnectionsProvider,
   });
 }

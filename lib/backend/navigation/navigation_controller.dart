@@ -21,6 +21,7 @@ import 'package:flutter_instancy_2/views/main_screen/screens/main_screen.dart';
 import 'package:flutter_instancy_2/views/membership/screens/membership_selection_screen.dart';
 import 'package:flutter_instancy_2/views/my_learning_plus/screens/my_learning_plus.dart';
 import 'package:flutter_instancy_2/views/profile/component/add_education_screen.dart';
+import 'package:flutter_instancy_2/views/profile/screens/connection_profile_screen.dart';
 import 'package:flutter_instancy_2/views/progress_report/screens/progress_report_detail_screen.dart';
 import 'package:flutter_instancy_2/views/share/recommend_to_screen.dart';
 import 'package:flutter_instancy_2/views/wiki_component/screens/add_wiki_content_screen.dart';
@@ -54,6 +55,7 @@ import '../../views/settings/screens/user_membership_details_screen.dart';
 import '../../views/share/share_with_connections_screen.dart';
 import '../../views/share/share_with_people_screen.dart';
 import 'navigation.dart';
+import 'navigation_response.dart';
 
 class NavigationController {
   static GlobalKey<NavigatorState> mainNavigatorKey = GlobalKey<NavigatorState>();
@@ -250,6 +252,11 @@ class NavigationController {
           page = parseUserProfileScreen(settings: settings);
           break;
         }
+      case ConnectionProfileScreen.routeName:
+        {
+          page = parseConnectionProfileScreen(settings: settings);
+          break;
+        }
       case AddEditExperienceScreen.routeName:
         {
           page = parseAddEditExperienceScreen(settings: settings);
@@ -377,15 +384,7 @@ class NavigationController {
           break;
         }
       //endregion
-      //
-      // region Webview screen
-      case WebViewScreen.routeName:
-        {
-          page = parsePurchaseHistoryScreen(settings: settings);
-          break;
-        }
-      //endregion
-      //
+
       // region Feedback screen
       case AddFeedbackScreen.routeName:
         {
@@ -692,6 +691,18 @@ class NavigationController {
     }
   }
 
+  static Widget? parseConnectionProfileScreen({required RouteSettings settings}) {
+    if (settings.arguments is ConnectionProfileScreenNavigationArguments) {
+      ConnectionProfileScreenNavigationArguments arguments = settings.arguments as ConnectionProfileScreenNavigationArguments;
+
+      return ConnectionProfileScreen(
+        arguments: arguments,
+      );
+    } else {
+      return null;
+    }
+  }
+
   static Widget? parseAddEditExperienceScreen({required RouteSettings settings}) {
     if (settings.arguments is AddEditExperienceScreenNavigationArguments) {
       AddEditExperienceScreenNavigationArguments arguments = settings.arguments as AddEditExperienceScreenNavigationArguments;
@@ -924,11 +935,6 @@ class NavigationController {
 
   //region Feedback
   static Widget? parseAddFeedbackScreen({required RouteSettings settings}) {
-    dynamic argument = settings.arguments;
-    // if (argument is! PurchaseHistoryScreenNavigationArguments) {
-    //   return null;
-    // }
-
     return const AddFeedbackScreen();
   }
 
@@ -1223,6 +1229,19 @@ class NavigationController {
       routeName: UserProfileScreen.routeName,
       arguments: arguments,
     ));
+  }
+
+  static Future<ConnectionProfileScreenNavigationResponse> navigateToConnectionProfileScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required ConnectionProfileScreenNavigationArguments arguments,
+  }) async {
+    dynamic value = await NavigationOperation.navigate(
+        navigationOperationParameters: navigationOperationParameters.copyWith(
+      routeName: ConnectionProfileScreen.routeName,
+      arguments: arguments,
+    ));
+
+    return value is ConnectionProfileScreenNavigationResponse ? value : const ConnectionProfileScreenNavigationResponse();
   }
 
   static Future<dynamic> navigateToAddEditExperienceScreen({

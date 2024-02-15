@@ -858,3 +858,10 @@ class EventRecordingType {
   static const String url = "url";
   static const String video = "video";
 }
+
+class PeopleListingActionTypes {
+  static const String AddConnection = "AddConnection";
+  static const String Accept = "Accept";
+  static const String Ignore = "Ignore";
+  static const String RemoveConnection = "RemoveConnection";
+}

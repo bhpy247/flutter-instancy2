@@ -1,4 +1,5 @@
 import 'package:flutter_chat_bot/models/authorization/response_model/bot_details_model.dart';
+import 'package:flutter_instancy_2/models/app/data_model/dynamic_tabs_dto_model.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_model.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/response_model/currency_data_response_model.dart';
@@ -12,7 +13,6 @@ import 'package:flutter_instancy_2/models/authentication/response_model/signup_f
 import 'package:flutter_instancy_2/models/catalog/response_model/associated_content_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/user_coming_soon_response.dart';
-import 'package:flutter_instancy_2/models/classroom_events/data_model/tab_data_model.dart';
 import 'package:flutter_instancy_2/models/common/response_model/common_response_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/category_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/forum_info_user_model.dart';
@@ -100,6 +100,7 @@ enum ModelDataParsingType {
 
   //region App Module
   CurrencyDataResponseModel,
+  DynamicTabsDTOModelList,
   //endregion
 
   // region Splash Module
@@ -191,7 +192,6 @@ enum ModelDataParsingType {
 
   // region Event
   eventSessionDataResponseModel,
-  tabDataModelList,
   reEnrollmentHistoryResponseModel,
   //endregion
 
@@ -304,6 +304,7 @@ class ModelDataParser {
 
     //region App Module
     ModelDataParsingType.CurrencyDataResponseModel: parseCurrencyDataResponseModel,
+    ModelDataParsingType.DynamicTabsDTOModelList: parseDynamicTabsDTOModelList,
     //endregion
 
     //region Splash Module
@@ -394,7 +395,6 @@ class ModelDataParser {
 
     // region Event
     ModelDataParsingType.eventSessionDataResponseModel: parseEventSessionDataResponseModel,
-    ModelDataParsingType.tabDataModelList: parseTabDataModelList,
     ModelDataParsingType.reEnrollmentHistoryResponseModel: parseReEnrollmentHistoryResponseModel,
     //endregion
 
@@ -505,6 +505,16 @@ class ModelDataParser {
 
     if (map.isNotEmpty) {
       return CurrencyDataResponseModel.fromMap(map);
+    } else {
+      return null;
+    }
+  }
+
+  static List<DynamicTabsDTOModel>? parseDynamicTabsDTOModelList({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> list = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+
+    if (list.isNotEmpty) {
+      return list.map((e) => DynamicTabsDTOModel.fromJson(e)).toList();
     } else {
       return null;
     }
@@ -977,16 +987,6 @@ class ModelDataParser {
 
     if (json.isNotEmpty) {
       return EventSessionDataResponseModel.fromMap(json);
-    } else {
-      return null;
-    }
-  }
-
-  static List<TabDataModel>? parseTabDataModelList({required dynamic decodedValue}) {
-    List<Map<String, dynamic>> list = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
-
-    if (list.isNotEmpty) {
-      return list.map((e) => TabDataModel.fromJson(e)).toList();
     } else {
       return null;
     }

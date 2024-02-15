@@ -1,9 +1,10 @@
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
+import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
 
 import '../../../utils/my_utils.dart';
 import '../../../utils/parsing_helper.dart';
 
-class TabDataModel {
+class DynamicTabsDTOModel {
   String TabID = "";
   String DisplayName = "";
   String MobileDisplayName = "";
@@ -13,8 +14,9 @@ class TabDataModel {
   String ComponentID = "";
   String ParameterString = "";
   EventProvider eventProvider = EventProvider();
+  MyConnectionsProvider myConnectionsProvider = MyConnectionsProvider();
 
-  TabDataModel({
+  DynamicTabsDTOModel({
     this.TabID = "",
     this.DisplayName = "",
     this.MobileDisplayName = "",
@@ -25,7 +27,7 @@ class TabDataModel {
     this.ParameterString = "",
   });
 
-  TabDataModel.fromJson(Map<String, dynamic> json) {
+  DynamicTabsDTOModel.fromJson(Map<String, dynamic> json) {
     TabID = ParsingHelper.parseStringMethod(json["TabID"]);
     DisplayName = ParsingHelper.parseStringMethod(json["DisplayName"]);
     MobileDisplayName = ParsingHelper.parseStringMethod(json["MobileDisplayName"]);

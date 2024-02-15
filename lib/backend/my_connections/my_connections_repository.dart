@@ -1,3 +1,5 @@
+import 'package:flutter_instancy_2/models/dto/response_dto_model.dart';
+import 'package:flutter_instancy_2/models/my_connections/request_model/people_listing_actions_request_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
 import '../../api/api_call_model.dart';
@@ -34,6 +36,32 @@ class MyConnectionsRepository {
     );
 
     DataResponseModel<PeopleListingDTOResponseModel> apiResponseModel = await apiController.callApi<PeopleListingDTOResponseModel>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<ResponseDTOModel>> doPeopleListingActions({
+    required PeopleListingActionsRequestModel requestModel,
+  }) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+
+    requestModel.UserID = apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.MainSiteUserID = apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.SiteID = apiUrlConfigurationProvider.getCurrentSiteId();
+    requestModel.Locale = apiUrlConfigurationProvider.getLocale();
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      requestBody: MyUtils.encodeJson(requestModel.toJson()),
+      parsingType: ModelDataParsingType.responseDTOModel,
+      url: apiEndpoints.doPeopleListingActions(),
+    );
+
+    DataResponseModel<ResponseDTOModel> apiResponseModel = await apiController.callApi<ResponseDTOModel>(
       apiCallModel: apiCallModel,
     );
 

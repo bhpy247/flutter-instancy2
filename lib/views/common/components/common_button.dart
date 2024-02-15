@@ -4,9 +4,10 @@ class CommonButton extends StatelessWidget {
   final Function()? onPressed;
   final String text;
   final IconData? iconData;
-  final EdgeInsets? iconPadding, padding;
+  final EdgeInsets? iconPadding, padding, margin;
   final Widget? child;
   final FontWeight fontWeight;
+  final TextAlign? textAlign;
   final Color? iconColor, backGroundColor, fontColor, borderColor, highlightColor;
   final double? iconSize, fontSize, minWidth, borderRadius, borderWidth;
   final double? height;
@@ -20,6 +21,7 @@ class CommonButton extends StatelessWidget {
     this.minWidth,
     this.height,
     this.iconSize = 20,
+    this.textAlign,
     this.iconColor,
     this.fontSize = 14,
     this.fontColor,
@@ -28,6 +30,7 @@ class CommonButton extends StatelessWidget {
     this.backGroundColor,
     this.iconPadding,
     this.padding,
+    this.margin,
     this.child,
     this.borderWidth = 0.5,
     this.borderColor,
@@ -74,46 +77,53 @@ class CommonButton extends StatelessWidget {
       ),
     );*/
 
-    return InkWell(
-      onTap: onPressed,
-      highlightColor: highlightColor,
-      child: Container(
-        height: height,
-        padding: padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        constraints: BoxConstraints(
-          minWidth: minWidth ?? 0,
-        ),
-        decoration: BoxDecoration(
-          color: backGroundColor ?? themeData.primaryColor,
-          borderRadius: borderRadius != null ? BorderRadius.circular(borderRadius!) : null,
-          border: Border.all(
-            color: borderColor ?? Colors.grey,
-            width: borderWidth ?? 0.5,
+    return Container(
+      margin: margin,
+      child: InkWell(
+        onTap: onPressed,
+        highlightColor: highlightColor,
+        child: Container(
+          height: height,
+          padding: padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          constraints: BoxConstraints(
+            minWidth: minWidth ?? 0,
           ),
-        ),
-        child: child ??
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (iconData != null)
-                  Container(
-                    margin: iconPadding ?? const EdgeInsets.symmetric(horizontal: 5),
-                    child: Icon(
-                      iconData,
-                      size: iconSize,
-                      color: iconColor,
+          decoration: BoxDecoration(
+            color: backGroundColor ?? themeData.primaryColor,
+            borderRadius: borderRadius != null ? BorderRadius.circular(borderRadius!) : null,
+            border: Border.all(
+              color: borderColor ?? Colors.grey,
+              width: borderWidth ?? 0.5,
+            ),
+          ),
+          child: child ??
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (iconData != null)
+                    Container(
+                      margin: iconPadding ?? const EdgeInsets.symmetric(horizontal: 5),
+                      child: Icon(
+                        iconData,
+                        size: iconSize,
+                        color: iconColor,
+                      ),
+                    ),
+                  Flexible(
+                    child: Text(
+                      text,
+                      textAlign: textAlign,
+                      style: TextStyle(
+                        color: fontColor,
+                        fontSize: fontSize,
+                        fontWeight: fontWeight,
+                      ),
                     ),
                   ),
-                Text(
-                  text,
-                  style: TextStyle(
-                    color: fontColor,
-                    fontSize: fontSize,
-                    fontWeight: fontWeight,
-                  ),
-                ),
-              ],
-            ),
+                ],
+              ),
+        ),
       ),
     );
   }

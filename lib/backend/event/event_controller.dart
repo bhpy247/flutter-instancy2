@@ -1,11 +1,12 @@
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_repository.dart';
+import 'package:flutter_instancy_2/backend/app/app_repository.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/app/data_model/dynamic_tabs_dto_model.dart';
+import 'package:flutter_instancy_2/models/app/request_model/get_dynamic_tabs_request_model.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/local_str.dart';
-import 'package:flutter_instancy_2/models/classroom_events/data_model/tab_data_model.dart';
-import 'package:flutter_instancy_2/models/classroom_events/request_model/tabs_list_request_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/event/response_model/event_session_data_response_model.dart';
 import 'package:flutter_instancy_2/models/event/response_model/re_entrollment_history_response_model.dart';
@@ -105,17 +106,17 @@ class EventController {
     return courseList;
   }
 
-  Future<List<TabDataModel>> getTabs({required TabsListRequestModel requestModel, bool isNotify = true}) async {
+  Future<List<DynamicTabsDTOModel>> getTabs({required GetDynamicTabsRequestModel requestModel, bool isNotify = true}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("EventController().getTabs() called", tag: tag);
 
     EventProvider provider = eventProvider;
 
-    List<TabDataModel> tabsList = <TabDataModel>[];
+    List<DynamicTabsDTOModel> tabsList = <DynamicTabsDTOModel>[];
 
     provider.isLoadingTabsList.set(value: true, isNotify: isNotify);
 
-    DataResponseModel<List<TabDataModel>> response = await eventRepository.getTabsList(requestModel: requestModel);
+    DataResponseModel<List<DynamicTabsDTOModel>> response = await AppRepository(apiController: eventRepository.apiController).getDynamicTabsList(requestModel: requestModel);
     MyPrint.logOnConsole("getTabs response:$response", tag: tag);
 
     provider.isLoadingTabsList.set(value: false, isNotify: true);
@@ -131,7 +132,7 @@ class EventController {
     MyPrint.logOnConsole("final tabsList:$tabsList", tag: tag);
 
     List<String> tabIdsList = <String>[];
-    for (TabDataModel tabDataModel in tabsList) {
+    for (DynamicTabsDTOModel tabDataModel in tabsList) {
       tabIdsList.add(tabDataModel.TabID);
       provider.setTabModel(tabId: tabDataModel.TabID, tabDataModel: tabDataModel, isNotify: false);
     }

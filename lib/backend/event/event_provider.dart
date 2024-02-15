@@ -1,4 +1,4 @@
-import '../../models/classroom_events/data_model/tab_data_model.dart';
+import '../../models/app/data_model/dynamic_tabs_dto_model.dart';
 import '../../models/common/pagination/pagination_model.dart';
 import '../../models/course/data_model/CourseDTOModel.dart';
 import '../common/common_provider.dart';
@@ -15,8 +15,8 @@ class EventProvider extends CommonProvider {
       notify: notify,
     );
 
-    tabsMap = CommonProviderMapParameter<String, TabDataModel>(
-      map: <String, TabDataModel>{},
+    tabsMap = CommonProviderMapParameter<String, DynamicTabsDTOModel>(
+      map: <String, DynamicTabsDTOModel>{},
       notify: notify,
     );
     calenderDatesHavingEventMap = CommonProviderMapParameter<String, int>(
@@ -89,13 +89,13 @@ class EventProvider extends CommonProvider {
 
   //region Tabs
   //region Tabs Map
-  late final CommonProviderMapParameter<String, TabDataModel> tabsMap;
+  late final CommonProviderMapParameter<String, DynamicTabsDTOModel> tabsMap;
 
-  TabDataModel? getTabModel({required String tabId}) {
+  DynamicTabsDTOModel? getTabModel({required String tabId}) {
     return tabId.isEmpty ? null : tabsMap.getMap(isNewInstance: false)[tabId];
   }
 
-  void setTabModel({required String tabId, TabDataModel? tabDataModel, bool isNotify = true}) {
+  void setTabModel({required String tabId, DynamicTabsDTOModel? tabDataModel, bool isNotify = true}) {
     if (tabId.isEmpty) return;
 
     if (tabDataModel != null) {
@@ -112,12 +112,12 @@ class EventProvider extends CommonProvider {
 
   int get tabsLength => tabsList.getList(isNewInstance: false).length;
 
-  List<TabDataModel> getTabModelsList() {
-    Map<String, TabDataModel> map = tabsMap.getMap(isNewInstance: false);
+  List<DynamicTabsDTOModel> getTabModelsList() {
+    Map<String, DynamicTabsDTOModel> map = tabsMap.getMap(isNewInstance: false);
 
-    List<TabDataModel> list = [];
+    List<DynamicTabsDTOModel> list = [];
     for (String tabId in tabsList.getList(isNewInstance: false)) {
-      TabDataModel? model = map[tabId];
+      DynamicTabsDTOModel? model = map[tabId];
       if (model != null) {
         list.add(model);
       }

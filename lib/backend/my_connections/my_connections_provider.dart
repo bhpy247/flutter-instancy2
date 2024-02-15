@@ -1,4 +1,5 @@
 import 'package:flutter_instancy_2/backend/common/common_provider.dart';
+import 'package:flutter_instancy_2/models/app/data_model/dynamic_tabs_dto_model.dart';
 
 import '../../models/common/pagination/pagination_model.dart';
 import '../../models/my_connections/data_model/people_listing_item_dto_model.dart';
@@ -16,6 +17,28 @@ class MyConnectionsProvider extends CommonProvider {
     );
     sortEnabled = CommonProviderPrimitiveParameter<bool>(
       value: false,
+      notify: notify,
+    );
+
+    isLoading = CommonProviderPrimitiveParameter<bool>(
+      value: false,
+      notify: notify,
+    );
+
+    isShowListView = CommonProviderPrimitiveParameter<bool>(
+      value: true,
+      notify: notify,
+    );
+    isPeopleListingActionPerformed = CommonProviderPrimitiveParameter<bool>(
+      value: true,
+      notify: notify,
+    );
+    isLoadingTabsList = CommonProviderPrimitiveParameter<bool>(
+      value: false,
+      notify: notify,
+    );
+    tabsList = CommonProviderListParameter<DynamicTabsDTOModel>(
+      list: <DynamicTabsDTOModel>[],
       notify: notify,
     );
 
@@ -50,10 +73,21 @@ class MyConnectionsProvider extends CommonProvider {
   late CommonProviderPrimitiveParameter<int> pageSize;
   late CommonProviderPrimitiveParameter<bool> filterEnabled;
   late CommonProviderPrimitiveParameter<bool> sortEnabled;
+
   //endregion
 
+  late final CommonProviderPrimitiveParameter<bool> isLoading;
+
+  late final CommonProviderPrimitiveParameter<bool> isShowListView;
+  late final CommonProviderPrimitiveParameter<bool> isPeopleListingActionPerformed;
+  late final CommonProviderPrimitiveParameter<bool> isLoadingTabsList;
+  late final CommonProviderListParameter<DynamicTabsDTOModel> tabsList;
+
+  int get tabsLength => tabsList.getList(isNewInstance: false).length;
+
   late CommonProviderListParameter<PeopleListingItemDTOModel> peopleList;
-  int get peopleListLength => peopleList.getList(isNewInstance: false).length;
+
+  int get peopleListLength => peopleList.length;
 
   late final CommonProviderPrimitiveParameter<String> peopleListContentId;
   late final CommonProviderPrimitiveParameter<String> peopleListSearchString;
@@ -66,6 +100,13 @@ class MyConnectionsProvider extends CommonProvider {
     pageSize.set(value: 10, isNotify: false);
     filterEnabled.set(value: false, isNotify: false);
     sortEnabled.set(value: false, isNotify: false);
+
+    isLoading.set(value: false, isNotify: false);
+
+    isShowListView.set(value: true, isNotify: false);
+    isPeopleListingActionPerformed.set(value: false, isNotify: false);
+    isLoadingTabsList.set(value: false, isNotify: false);
+    tabsList.setList(list: [], isNotify: false);
 
     peopleList.setList(list: [], isNotify: false);
 

@@ -13,6 +13,7 @@ import 'package:flutter_instancy_2/backend/gamification/gamification_provider.da
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
+import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
@@ -87,6 +88,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<CourseDownloadProvider>.value(value: CourseDownloadProvider()),
         ChangeNotifierProvider<FeedbackProvider>(create: (_) => FeedbackProvider()),
         ChangeNotifierProvider<AskTheExpertProvider>(create: (_) => AskTheExpertProvider()),
+        ChangeNotifierProvider<MyConnectionsProvider>(create: (_) => MyConnectionsProvider()),
         ChangeNotifierProvider<NetworkConnectionProvider>(create: (_) => NetworkConnectionController().networkConnectionProvider),
       ],
       child: Builder(

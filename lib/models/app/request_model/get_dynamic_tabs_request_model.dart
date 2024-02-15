@@ -1,13 +1,15 @@
+import 'package:flutter_instancy_2/utils/my_utils.dart';
+
 import '../../../configs/app_constants.dart';
 
-class TabsListRequestModel {
+class GetDynamicTabsRequestModel {
   String Locale = "";
   int ComponentID = 0;
   int ComponentInsID = 0;
   int SiteID = AppConstants.defaultSiteId;
   int aintUserID = 0;
 
-  TabsListRequestModel({
+  GetDynamicTabsRequestModel({
     this.Locale = "",
     this.ComponentID = 0,
     this.ComponentInsID = 0,
@@ -23,5 +25,10 @@ class TabsListRequestModel {
       "SiteID": SiteID.toString(),
       "aintUserID": aintUserID.toString(),
     };
+  }
+
+  @override
+  String toString() {
+    return MyUtils.encodeJson(toJson());
   }
 }

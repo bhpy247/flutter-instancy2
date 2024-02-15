@@ -2,16 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/backend/my_connections/my_connections_controller.dart';
+import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation_response.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_controller.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
+import 'package:flutter_instancy_2/models/my_connections/request_model/people_listing_actions_request_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/data_field_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_profile_details_model.dart';
+import 'package:flutter_instancy_2/models/profile/data_model/user_profile_header_dto_model.dart';
+import 'package:flutter_instancy_2/models/profile/request_model/user_profile_header_data_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
-import 'package:flutter_instancy_2/utils/my_toast.dart';
+import 'package:flutter_instancy_2/views/common/components/common_button.dart';
+import 'package:flutter_instancy_2/views/common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/views/profile/component/education_tab_screen_view.dart';
 import 'package:flutter_instancy_2/views/profile/component/profile_data_fields_screen.dart';
@@ -25,47 +34,46 @@ import '../../common/components/common_cached_network_image.dart';
 import '../../common/components/common_loader.dart';
 import '../component/experience_tab_screen_view.dart';
 
-class UserProfileScreen extends StatefulWidget {
-  static const String routeName = "/UserProfileScreen";
+class ConnectionProfileScreen extends StatefulWidget {
+  static const String routeName = "/ConnectionProfileScreen";
 
-  final UserProfileScreenNavigationArguments arguments;
+  final ConnectionProfileScreenNavigationArguments arguments;
 
-  const UserProfileScreen({
+  const ConnectionProfileScreen({
     Key? key,
     required this.arguments,
   }) : super(key: key);
 
   @override
-  State<UserProfileScreen> createState() => _UserProfileScreenState();
+  State<ConnectionProfileScreen> createState() => _ConnectionProfileScreenState();
 }
 
-class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState, SingleTickerProviderStateMixin {
+class _ConnectionProfileScreenState extends State<ConnectionProfileScreen> with MySafeState, SingleTickerProviderStateMixin {
   bool isLoading = false;
 
+  late AppProvider appProvider;
   late ProfileProvider profileProvider;
-
   late ProfileController profileController;
 
-  bool isFromProfile = false;
-
   late int connectionUserId;
+  bool isMyProfile = false;
 
   Future<void>? futureGetData;
 
   TabController? controller;
 
-  late AppProvider appProvider;
-
   int selectedTabIndex = 0;
 
+  bool isPeopleListingActionPerformed = false;
+
   void initializations() {
-    profileProvider = widget.arguments.profileProvider ?? context.read<ProfileProvider>();
+    profileProvider = widget.arguments.profileProvider ?? ProfileProvider();
     profileController = ProfileController(profileProvider: profileProvider);
 
-    isFromProfile = widget.arguments.isFromProfile;
+    isMyProfile = widget.arguments.userId == ApiController().apiDataProvider.getCurrentUserId();
     connectionUserId = widget.arguments.userId;
 
-    futureGetData = getFutureData(isFromCache: true);
+    futureGetData = getFutureData();
     mySetState();
   }
 
@@ -96,16 +104,30 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
     }).toList());
   }
 
-  Future<void> getFutureData({bool isFromCache = false}) async {
-    List<Future> futures = <Future>[];
+  Future<void> getFutureData({bool isGetProfileData = true, bool isGetProfileHeaderData = true}) async {
+    NativeMenuComponentModel? componentModel = appProvider.getMenuComponentModelFromComponentId(componentId: InstancyComponents.MyProfile);
 
-    futures.add(profileController.getProfileInfoMain(
-      authenticationProvider: Provider.of<AuthenticationProvider>(context, listen: false),
-      userId: widget.arguments.userId,
-      isGetFromCache: isFromCache && isFromProfile,
-    ));
+    List<Future> futures = <Future>[
+      if (isGetProfileData)
+        profileController.getProfileInfoMain(
+          authenticationProvider: Provider.of<AuthenticationProvider>(context, listen: false),
+          userId: widget.arguments.userId,
+        ),
+      if (isGetProfileHeaderData)
+        profileController.getProfileHeaderDataAndStoreInProvider(
+          requestModel: UserProfileHeaderDataRequestModel(
+            intCompID: componentModel?.componentid ?? InstancyComponents.MyProfile,
+            intCompInsID: componentModel?.repositoryid ?? 0,
+            intProfileUserID: connectionUserId.toString(),
+            viewconnection: false.toString(),
+          ),
+          isFromCache: false,
+        ),
+    ];
 
     if (futures.isNotEmpty) await Future.wait(futures);
+
+    mySetState();
   }
 
   void setImageInProfileProvider(ProfileProvider profileProvider) {
@@ -122,6 +144,85 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
     }
   }
 
+  void onPeopleListingActionStarted() {
+    isLoading = true;
+    mySetState();
+  }
+
+  void onPeopleListingActionPerformed({bool isSuccess = false}) {
+    isLoading = false;
+
+    if (isSuccess) {
+      isPeopleListingActionPerformed = true;
+      futureGetData = getFutureData(isGetProfileHeaderData: true, isGetProfileData: false);
+    }
+    mySetState();
+  }
+
+  Future<void> onAddToMyConnectionsTap({required UserProfileHeaderDTOModel model}) async {
+    onPeopleListingActionStarted();
+
+    bool isSuccess = await MyConnectionsController(connectionsProvider: MyConnectionsProvider()).addToMyConnection(
+      requestModel: PeopleListingActionsRequestModel(
+        SelectedObjectID: connectionUserId,
+        UserName: model.Displayname,
+      ),
+      context: context,
+    );
+
+    MyPrint.printOnConsole("isSuccess:$isSuccess");
+
+    onPeopleListingActionPerformed(isSuccess: isSuccess);
+  }
+
+  Future<void> onRemoveFromMyConnectionsTap({required UserProfileHeaderDTOModel model}) async {
+    onPeopleListingActionStarted();
+
+    bool isSuccess = await MyConnectionsController(connectionsProvider: MyConnectionsProvider()).removeFromMyConnection(
+      requestModel: PeopleListingActionsRequestModel(
+        SelectedObjectID: connectionUserId,
+        UserName: model.Displayname,
+      ),
+      context: context,
+    );
+
+    MyPrint.printOnConsole("isSuccess:$isSuccess");
+
+    onPeopleListingActionPerformed(isSuccess: isSuccess);
+  }
+
+  Future<void> onAcceptConnectionRequestTap({required UserProfileHeaderDTOModel model}) async {
+    onPeopleListingActionStarted();
+
+    bool isSuccess = await MyConnectionsController(connectionsProvider: MyConnectionsProvider()).acceptConnectionRequest(
+      requestModel: PeopleListingActionsRequestModel(
+        SelectedObjectID: connectionUserId,
+        UserName: model.Displayname,
+      ),
+      context: context,
+    );
+
+    MyPrint.printOnConsole("isSuccess:$isSuccess");
+
+    onPeopleListingActionPerformed(isSuccess: isSuccess);
+  }
+
+  Future<void> onRejectConnectionRequestTap({required UserProfileHeaderDTOModel model}) async {
+    onPeopleListingActionStarted();
+
+    bool isSuccess = await MyConnectionsController(connectionsProvider: MyConnectionsProvider()).rejectConnectionRequest(
+      requestModel: PeopleListingActionsRequestModel(
+        SelectedObjectID: connectionUserId,
+        UserName: model.Displayname,
+      ),
+      context: context,
+    );
+
+    MyPrint.printOnConsole("isSuccess:$isSuccess");
+
+    onPeopleListingActionPerformed(isSuccess: isSuccess);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -129,14 +230,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
     appProvider = Provider.of<AppProvider>(context, listen: false);
     controller = TabController(vsync: this, length: 4);
     initializations();
-    getCountriesList();
+    // getCountriesList();
   }
 
   @override
-  void didUpdateWidget(covariant UserProfileScreen oldWidget) {
-    if (widget.arguments.profileProvider != profileProvider ||
-        widget.arguments.isFromProfile != oldWidget.arguments.isFromProfile ||
-        widget.arguments.userId != oldWidget.arguments.userId) {
+  void didUpdateWidget(covariant ConnectionProfileScreen oldWidget) {
+    if (widget.arguments.profileProvider != profileProvider || widget.arguments.userId != oldWidget.arguments.userId) {
       initializations();
     }
     super.didUpdateWidget(oldWidget);
@@ -146,26 +245,37 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
   Widget build(BuildContext context) {
     super.pageBuild();
 
-    return ModalProgressHUD(
-      inAsyncCall: isLoading,
-      child: ChangeNotifierProvider<ProfileProvider>.value(
-        value: profileProvider,
-        child: Scaffold(
-          appBar: !widget.arguments.isFromProfile ? AppConfigurations().commonAppBar(title: "Profile") : null,
-          body: SafeArea(
-            child: Consumer<ProfileProvider>(builder: (BuildContext context, ProfileProvider profileProvider, Widget? child) {
-              return futureGetData != null
-                  ? FutureBuilder(
-                      future: futureGetData,
-                      builder: (BuildContext context, AsyncSnapshot snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          return getMainBody();
-                        } else {
-                          return const Center(child: CommonLoader());
-                        }
-                      })
-                  : getMainBody();
-            }),
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) {
+        if (didPop || isLoading) return;
+
+        Navigator.pop(context, ConnectionProfileScreenNavigationResponse(isPeopleListingActionPerformed: isPeopleListingActionPerformed));
+      },
+      child: ModalProgressHUD(
+        inAsyncCall: isLoading,
+        child: ChangeNotifierProvider<ProfileProvider>.value(
+          value: profileProvider,
+          child: Scaffold(
+            appBar: AppConfigurations().commonAppBar(title: "Profile"),
+            body: SafeArea(
+              child: Consumer<ProfileProvider>(
+                builder: (BuildContext context, ProfileProvider profileProvider, Widget? child) {
+                  return futureGetData != null
+                      ? FutureBuilder(
+                          future: futureGetData,
+                          builder: (BuildContext context, AsyncSnapshot snapshot) {
+                            if (snapshot.connectionState == ConnectionState.done) {
+                              return getMainBody();
+                            } else {
+                              return const Center(child: CommonLoader());
+                            }
+                          },
+                        )
+                      : getMainBody();
+                },
+              ),
+            ),
           ),
         ),
       ),
@@ -182,9 +292,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         getBasicProfileDetailsWidget(userProfileDetailsModel: userProfileDetailsModel),
-        const SizedBox(
-          height: 16,
-        ),
+        const SizedBox(height: 0),
+        getConnectionStatusActionsWidget(headerDTOModel: profileProvider.headerDTOModel.get()),
+        const SizedBox(height: 16),
         // Divider(),
         Expanded(child: getTabBarView())
       ],
@@ -224,15 +334,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
                 Text(
                   displayName,
                   style: themeData.textTheme.bodyLarge?.copyWith(
-                    // letterSpacing: 0.5,
-                    // fontSize: 16,
                     fontWeight: FontWeight.w600,
                     // fontSize: 20,
                   ),
                 ),
-                const SizedBox(
-                  height: 1,
-                ),
+                const SizedBox(height: 1),
                 if ((userProfileDetailsModel?.jobtitle).checkNotEmpty)
                   Container(
                     margin: const EdgeInsets.only(top: 5),
@@ -244,7 +350,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
                         color: Styles.lightTextColor2,
                       ),
                     ),
-                  )
+                  ),
               ],
             ),
           ),
@@ -255,16 +361,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
 
   //region Profile Image Widget
   Widget getProfileImageWidget({required String imageUrl, required shortName}) {
-    return Stack(
-      alignment: Alignment.bottomRight,
-      children: <Widget>[
-        getProfileImageFromImageUrlAndShortName(imageUrl: imageUrl, shortName: shortName),
-        getProfileImageEditProfileButton(),
-      ],
-    );
-  }
-
-  Widget getProfileImageFromImageUrlAndShortName({required String imageUrl, required shortName}) {
     if (imageUrl.isNotEmpty) {
       return Container(
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(50), border: Border.all(color: themeData.primaryColor)),
@@ -298,41 +394,155 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
     );
   }
 
-  Widget getProfileImageEditProfileButton() {
-    return Card(
-      elevation: 2,
-      shape: const CircleBorder(),
-      color: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: InkWell(
-          onTap: () async {
-            isLoading = true;
-            mySetState();
+  //endregion
 
-            bool isProfilePicUpdated = await profileController.updateProfileImage();
-            MyPrint.printOnConsole("isProfilePicUpdated:$isProfilePicUpdated");
+  Widget getConnectionStatusActionsWidget({required UserProfileHeaderDTOModel? headerDTOModel}) {
+    if (headerDTOModel == null) {
+      return const SizedBox();
+    }
 
-            isLoading = false;
-            if (isProfilePicUpdated) {
-              futureGetData = getFutureData();
-              if (pageMounted && context.mounted) {
-                MyToast.showSuccess(context: context, msg: appProvider.localStr.profileAlertsubtitleProfilepicturesuccessfullyupdatedtoserver);
-              }
-            }
-            mySetState();
+    bool isAddToMyConnectionsEnabled = headerDTOModel.intConnStatus == -1;
+    bool isRequestSent = headerDTOModel.intConnStatus == 0 && headerDTOModel.AcceptAction.isEmpty && headerDTOModel.RejectAction.isEmpty;
+    bool isAcceptConnectionEnabled = headerDTOModel.AcceptAction.isNotEmpty;
+    bool isRemoveConnectionEnabled = headerDTOModel.intConnStatus == 1;
+    bool isSendMessageEnabled = isRemoveConnectionEnabled;
+
+    List<Widget> children = [
+      if (isAddToMyConnectionsEnabled)
+        CommonButton(
+          onPressed: () {
+            onAddToMyConnectionsTap(model: headerDTOModel);
           },
-          child: const Icon(
-            Icons.edit,
-            size: 16,
-            // color: Color(int.parse("0xFF${appBloc.uiSettingModel.appTextColor.substring(1, 7).toUpperCase()}")),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+          backGroundColor: themeData.primaryColor,
+          text: appProvider.localStr.myconnectionsActionsheetAddtomyconnectionsoption,
+          fontSize: 13,
+          fontColor: themeData.colorScheme.onPrimary,
+          borderRadius: 5,
+        ),
+      if (isRequestSent)
+        CommonButton(
+          onPressed: () {},
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+          backGroundColor: themeData.textTheme.bodySmall?.color?.withAlpha(20),
+          text: appProvider.localStr.myConnectionsActionSheetRequestSentOption,
+          // text: "Request Sent",
+          fontSize: 13,
+          borderRadius: 5,
+        ),
+      if (isAcceptConnectionEnabled) ...[
+        Flexible(
+          child: CommonButton(
+            onPressed: () {
+              onAcceptConnectionRequestTap(model: headerDTOModel);
+            },
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            backGroundColor: themeData.primaryColor,
+            text: appProvider.localStr.myconnectionsActionsheetAcceptconnectionoption,
+            fontSize: 13,
+            fontColor: themeData.colorScheme.onPrimary,
+            borderRadius: 5,
           ),
         ),
+        const SizedBox(width: 4),
+        Flexible(
+          child: CommonButton(
+            onPressed: () {
+              onRejectConnectionRequestTap(model: headerDTOModel);
+            },
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+            backGroundColor: themeData.textTheme.bodySmall?.color?.withAlpha(20),
+            text: appProvider.localStr.myconnectionsActionsheetIgnoreconnectionoption,
+            // text: "Reject",
+            fontSize: 13,
+            borderRadius: 5,
+          ),
+        ),
+      ],
+      if (isRemoveConnectionEnabled)
+        CommonButton(
+          onPressed: () {
+            List<InstancyUIActionModel> options = <InstancyUIActionModel>[
+              InstancyUIActionModel(
+                text: appProvider.localStr.myconnectionsActionsheetRemoveconnectionoption,
+                iconData: InstancyIcons.remove,
+                onTap: () {
+                  Navigator.pop(context);
+
+                  onRemoveFromMyConnectionsTap(model: headerDTOModel);
+                },
+              ),
+            ];
+
+            InstancyUIActions().showAction(
+              context: context,
+              actions: options,
+            );
+          },
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+          borderColor: Colors.transparent,
+          child: Row(
+            children: [
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 5),
+                child: Icon(
+                  Icons.check,
+                  size: 15,
+                  color: themeData.colorScheme.onPrimary,
+                ),
+              ),
+              Text(
+                "Connected",
+                style: TextStyle(
+                  color: themeData.colorScheme.onPrimary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 5),
+                child: Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 15,
+                  color: themeData.colorScheme.onPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      if (isSendMessageEnabled)
+        Flexible(
+          child: CommonButton(
+            margin: const EdgeInsets.only(left: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+            onPressed: () {},
+            iconData: Icons.send,
+            text: appProvider.localStr.myconnectionsActionsheetSendmessageoption,
+            backGroundColor: Colors.transparent,
+            borderColor: themeData.colorScheme.primary,
+            iconColor: themeData.colorScheme.primary,
+            fontColor: themeData.colorScheme.primary,
+            fontWeight: FontWeight.bold,
+            borderWidth: 1.2,
+            fontSize: 13,
+            iconSize: 15,
+          ),
+        ),
+    ];
+
+    if (children.isEmpty) {
+      return const SizedBox();
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10).copyWith(top: 10),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: children,
       ),
     );
   }
-
-  //endregion
 
   Widget getTabBarView() {
     return DefaultTabController(
@@ -446,7 +656,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
 
     return ProfileDataFieldsScreen(
       list: isEditingEnabled ? profileProvider.userPersonalInfoForEditingDataList.getList(isNewInstance: false) : profileProvider.userPersonalInfoDataList.getList(isNewInstance: false),
-      showEdit: true,
+      showEdit: false,
       isEditingEnabled: isEditingEnabled,
       onEditing: (bool isEditing) {
         initializePersonalDataFromParent();
@@ -490,7 +700,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
 
         mySetState();
       },
-      choicesList: profileProvider.multipleChoicesList.getList(isNewInstance: false),
+      choicesList: [],
     );
   }
 
@@ -501,7 +711,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
 
     return ProfileDataFieldsScreen(
       list: isEditingEnabled ? profileProvider.userContactInfoForEditingDataList.getList(isNewInstance: false) : profileProvider.userContactInfoDataList.getList(isNewInstance: false),
-      showEdit: true,
+      showEdit: false,
       isEditingEnabled: isEditingEnabled,
       onEditing: (bool isEditing) {
         initializeContactDataFromParent();
@@ -522,15 +732,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
         }
         mySetState();
       },
-      choicesList: profileProvider.multipleChoicesList.getList(isNewInstance: false),
+      choicesList: [],
     );
   }
 
   Widget getExperienceTabWidget() {
     return ExperienceTabScreenView(
       experienceData: profileProvider.userExperienceData.getList(isNewInstance: false),
-      showAdd: true,
-      showEdit: true,
+      showAdd: false,
+      showEdit: false,
       onAddEditData: () {
         futureGetData = getFutureData();
         mySetState();
@@ -541,8 +751,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
   Widget getEducationTabWidget() {
     return EducationTabScreenView(
       educationData: profileProvider.userEducationData.getList(isNewInstance: false),
-      showAdd: true,
-      showEdit: true,
+      showAdd: false,
+      showEdit: false,
       onAddEditData: () {
         futureGetData = getFutureData();
         mySetState();

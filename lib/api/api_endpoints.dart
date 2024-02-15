@@ -408,6 +408,7 @@ class ApiEndpoints {
   // region MyConnections
   String getPeopleList() => '${getBaseApiUrl()}PeopleListing/GetPeopleList';
 
+  String doPeopleListingActions() => '${getBaseApiUrl()}PeopleListing/doPeopleListingActions';
   //endregion
 
   //region Message

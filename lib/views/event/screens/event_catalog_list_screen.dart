@@ -4,8 +4,8 @@ import 'package:flutter_instancy_2/backend/event/event_controller.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/event_catalog/event_catalog_ui_actions_controller.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/app/data_model/dynamic_tabs_dto_model.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
-import 'package:flutter_instancy_2/models/classroom_events/data_model/tab_data_model.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
@@ -60,7 +60,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
   late AppProvider appProvider;
 
   late String? tabId;
-  late TabDataModel? tabDataModel;
+  late DynamicTabsDTOModel? tabDataModel;
 
   late EventProvider eventProvider;
   late EventController eventController;

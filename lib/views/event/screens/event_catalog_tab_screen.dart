@@ -4,8 +4,8 @@ import 'package:flutter_instancy_2/backend/event/event_controller.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
-import 'package:flutter_instancy_2/models/classroom_events/data_model/tab_data_model.dart';
-import 'package:flutter_instancy_2/models/classroom_events/request_model/tabs_list_request_model.dart';
+import 'package:flutter_instancy_2/models/app/data_model/dynamic_tabs_dto_model.dart';
+import 'package:flutter_instancy_2/models/app/request_model/get_dynamic_tabs_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:provider/provider.dart';
@@ -39,10 +39,10 @@ class _EventCatalogTabScreenState extends State<EventCatalogTabScreen> with MySa
   List<Widget> tabScreensList = [];
 
   Future<void> getTabs({bool isNotify = true}) async {
-    List<TabDataModel> tabs = eventProvider.getTabModelsList();
+    List<DynamicTabsDTOModel> tabs = eventProvider.getTabModelsList();
     if (tabs.isEmpty) {
       tabs = await eventController.getTabs(
-        requestModel: TabsListRequestModel(
+        requestModel: GetDynamicTabsRequestModel(
           ComponentID: widget.componentId,
           ComponentInsID: widget.componentInsId,
         ),
@@ -56,7 +56,7 @@ class _EventCatalogTabScreenState extends State<EventCatalogTabScreen> with MySa
       tabController = TabController(length: tabs.length, vsync: this);
     }
 
-    tabScreensList = tabs.map((TabDataModel tabDataModel) {
+    tabScreensList = tabs.map((DynamicTabsDTOModel tabDataModel) {
       return EventCatalogListScreen(
         arguments: EventCatalogListScreenNavigationArguments(
           tabId: tabDataModel.TabID,
@@ -132,7 +132,7 @@ class _EventCatalogTabScreenState extends State<EventCatalogTabScreen> with MySa
     );
   }
 
-  Widget getTabBarWidget(List<TabDataModel> tabList) {
+  Widget getTabBarWidget(List<DynamicTabsDTOModel> tabList) {
     if (tabController == null) {
       return const SizedBox();
     }

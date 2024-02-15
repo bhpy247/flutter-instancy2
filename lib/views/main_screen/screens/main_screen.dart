@@ -17,6 +17,7 @@ import 'package:flutter_instancy_2/backend/home/home_provider.dart';
 import 'package:flutter_instancy_2/backend/instabot/instabot_controller.dart';
 import 'package:flutter_instancy_2/backend/instabot/instabot_provider.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
+import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_provider.dart';
@@ -37,6 +38,7 @@ import 'package:flutter_instancy_2/views/event/screens/event_catalog_tab_screen.
 import 'package:flutter_instancy_2/views/home/components/home_web_list_screen.dart';
 import 'package:flutter_instancy_2/views/message/screen/message_screen.dart';
 import 'package:flutter_instancy_2/views/my_achievements/screens/my_achievement_component_widget.dart';
+import 'package:flutter_instancy_2/views/my_connections/screens/my_connections_main_screen.dart';
 import 'package:flutter_instancy_2/views/my_learning_plus/screens/my_learning_plus.dart';
 import 'package:flutter_instancy_2/views/progress_report/screens/progress_report_main_screen.dart';
 import 'package:flutter_instancy_2/views/transferToAgent/screens/transferToAgentScreen.dart';
@@ -236,22 +238,22 @@ class _MainScreenState extends State<MainScreen> {
             ),
             body: future != null && components.isEmpty
                 ? FutureBuilder(
-              future: future,
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.connectionState != ConnectionState.done) {
-                  return const CommonLoader();
-                }
+                    future: future,
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      if (snapshot.connectionState != ConnectionState.done) {
+                        return const CommonLoader();
+                      }
 
-                return getRoundedCornerWidget(
-                  menuModel: menuModel,
-                  components: components,
-                );
-              },
-            )
+                      return getRoundedCornerWidget(
+                        menuModel: menuModel,
+                        components: components,
+                      );
+                    },
+                  )
                 : getRoundedCornerWidget(
-              menuModel: menuModel,
-              components: components,
-            ),
+                    menuModel: menuModel,
+                    components: components,
+                  ),
           );
         },
       ),
@@ -498,12 +500,12 @@ class _MainScreenState extends State<MainScreen> {
     } else if (model.componentid == InstancyComponents.MyProfile) {
       return UserProfileScreen(
         arguments: UserProfileScreenNavigationArguments(
-            userId: ApiController().apiDataProvider.getCurrentUserId(),
-            profileProvider: profileProvider,
-            isFromProfile: true,
-            isMyProfile: true,
-            componentId: model.componentid,
-            componentInstanceId: model.repositoryid),
+          userId: ApiController().apiDataProvider.getCurrentUserId(),
+          profileProvider: profileProvider,
+          isFromProfile: true,
+          componentId: model.componentid,
+          componentInstanceId: model.repositoryid,
+        ),
       );
     } else if (model.componentid == InstancyComponents.MyLearning) {
       if (isExpanded) {
@@ -589,6 +591,18 @@ class _MainScreenState extends State<MainScreen> {
           componentInsId: model.repositoryid,
         ),
       );
+    } else if (model.componentid == InstancyComponents.PeopleList) {
+      if (isExpanded) {
+        return MyConnectionsMainScreen(
+          arguments: MyConnectionsMainScreenNavigationArguments(
+            componentId: model.componentid,
+            componentInsId: model.repositoryid,
+            myConnectionsProvider: context.read<MyConnectionsProvider>(),
+          ),
+        );
+      } else {
+        return const Text("My Connections");
+      }
     } else {
       return const SizedBox();
     }

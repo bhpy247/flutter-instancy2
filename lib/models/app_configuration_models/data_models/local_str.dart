@@ -399,6 +399,7 @@ class LocalStr {
   String myconnectionsAlerttitleStringalert = "";
   String myconnectionsAlerttitleStringsuccess = "";
   String myconnectionsAlerttitleStringinfo = "";
+  String myConnectionsAlertTitleRemoveConnection = "";
   String myconnectionsAlertsubtitleAreyousurewanttoremoveconnection = "";
   String myconnectionsAlertsubtitleFileformatnotsupported = "";
   String myconnectionsAlertsubtitleYoudonthavecamera = "";
@@ -413,6 +414,7 @@ class LocalStr {
   String myconnectionsActionsheetSendmessageoption = "";
   String myconnectionsActionsheetCanceloption = "";
   String myconnectionsActionsheetAddtomyconnectionsoption = "";
+  String myConnectionsActionSheetRequestSentOption = "";
   String myconnectionsActionsheetCameraoption = "";
   String myconnectionsActionsheetGalleryoption = "";
   String myconnectionsActionsheetDocumentoption = "";
@@ -1205,6 +1207,7 @@ class LocalStr {
     this.myconnectionsAlerttitleStringalert = "",
     this.myconnectionsAlerttitleStringsuccess = "",
     this.myconnectionsAlerttitleStringinfo = "",
+    this.myConnectionsAlertTitleRemoveConnection = "",
     this.myconnectionsAlertsubtitleAreyousurewanttoremoveconnection = "",
     this.myconnectionsAlertsubtitleFileformatnotsupported = "",
     this.myconnectionsAlertsubtitleYoudonthavecamera = "",
@@ -1219,6 +1222,7 @@ class LocalStr {
     this.myconnectionsActionsheetSendmessageoption = "",
     this.myconnectionsActionsheetCanceloption = "",
     this.myconnectionsActionsheetAddtomyconnectionsoption = "",
+    this.myConnectionsActionSheetRequestSentOption = "",
     this.myconnectionsActionsheetCameraoption = "",
     this.myconnectionsActionsheetGalleryoption = "",
     this.myconnectionsActionsheetDocumentoption = "",
@@ -1995,6 +1999,7 @@ class LocalStr {
     myconnectionsAlerttitleStringalert = ParsingHelper.parseStringMethod(json['myconnections_alerttitle_stringalert']);
     myconnectionsAlerttitleStringsuccess = ParsingHelper.parseStringMethod(json['myconnections_alerttitle_stringsuccess']);
     myconnectionsAlerttitleStringinfo = ParsingHelper.parseStringMethod(json['myconnections_alerttitle_stringinfo']);
+    myConnectionsAlertTitleRemoveConnection = ParsingHelper.parseStringMethod(json['myConnectionsAlertTitleRemoveConnection']);
     myconnectionsAlertsubtitleAreyousurewanttoremoveconnection = ParsingHelper.parseStringMethod(json['myconnections_alertsubtitle_areyousurewanttoremoveconnection']);
     myconnectionsAlertsubtitleFileformatnotsupported = ParsingHelper.parseStringMethod(json['myconnections_alertsubtitle_fileformatnotsupported']);
     myconnectionsAlertsubtitleYoudonthavecamera = ParsingHelper.parseStringMethod(json['myconnections_alertsubtitle_youdonthavecamera']);
@@ -2009,6 +2014,7 @@ class LocalStr {
     myconnectionsActionsheetSendmessageoption = ParsingHelper.parseStringMethod(json['myconnections_actionsheet_sendmessageoption']);
     myconnectionsActionsheetCanceloption = ParsingHelper.parseStringMethod(json['myconnections_actionsheet_canceloption']);
     myconnectionsActionsheetAddtomyconnectionsoption = ParsingHelper.parseStringMethod(json['myconnections_actionsheet_addtomyconnectionsoption']);
+    myConnectionsActionSheetRequestSentOption = ParsingHelper.parseStringMethod(json['myConnectionsActionSheetRequestSentOption']);
     myconnectionsActionsheetCameraoption = ParsingHelper.parseStringMethod(json['myconnections_actionsheet_cameraoption']);
     myconnectionsActionsheetGalleryoption = ParsingHelper.parseStringMethod(json['myconnections_actionsheet_galleryoption']);
     myconnectionsActionsheetDocumentoption = ParsingHelper.parseStringMethod(json['myconnections_actionsheet_documentoption']);
@@ -2796,6 +2802,7 @@ class LocalStr {
     data['myconnections_alerttitle_stringalert'] = myconnectionsAlerttitleStringalert;
     data['myconnections_alerttitle_stringsuccess'] = myconnectionsAlerttitleStringsuccess;
     data['myconnections_alerttitle_stringinfo'] = myconnectionsAlerttitleStringinfo;
+    data['myConnectionsAlertTitleRemoveConnection'] = myConnectionsAlertTitleRemoveConnection;
     data['myconnections_alertsubtitle_areyousurewanttoremoveconnection'] = myconnectionsAlertsubtitleAreyousurewanttoremoveconnection;
     data['myconnections_alertsubtitle_fileformatnotsupported'] = myconnectionsAlertsubtitleFileformatnotsupported;
     data['myconnections_alertsubtitle_youdonthavecamera'] = myconnectionsAlertsubtitleYoudonthavecamera;
@@ -2810,6 +2817,7 @@ class LocalStr {
     data['myconnections_actionsheet_sendmessageoption'] = myconnectionsActionsheetSendmessageoption;
     data['myconnections_actionsheet_canceloption'] = myconnectionsActionsheetCanceloption;
     data['myconnections_actionsheet_addtomyconnectionsoption'] = myconnectionsActionsheetAddtomyconnectionsoption;
+    data['myConnectionsActionSheetRequestSentOption'] = myConnectionsActionSheetRequestSentOption;
     data['myconnections_actionsheet_cameraoption'] = myconnectionsActionsheetCameraoption;
     data['myconnections_actionsheet_galleryoption'] = myconnectionsActionsheetGalleryoption;
     data['myconnections_actionsheet_documentoption'] = myconnectionsActionsheetDocumentoption;

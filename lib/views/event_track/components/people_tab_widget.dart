@@ -87,18 +87,14 @@ class _PeopleTabWidgetState extends State<PeopleTabWidget> {
       return;
     }
 
-    bool isLoggedInUser = userModel.ObjectID == apiUrlConfigurationProvider.getCurrentUserId();
-
-    NavigationController.navigateToUserProfileScreen(
+    NavigationController.navigateToConnectionProfileScreen(
       navigationOperationParameters: NavigationOperationParameters(
         context: context,
         navigationType: NavigationType.pushNamed,
       ),
-      arguments: UserProfileScreenNavigationArguments(
+      arguments: ConnectionProfileScreenNavigationArguments(
         profileProvider: null,
         userId: userModel.ObjectID,
-        isFromProfile: false,
-        isMyProfile: isLoggedInUser,
       ),
     );
   }
