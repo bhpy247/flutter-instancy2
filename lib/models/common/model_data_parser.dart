@@ -29,6 +29,7 @@ import 'package:flutter_instancy_2/models/gamification/response_model/leader_boa
 import 'package:flutter_instancy_2/models/gamification/response_model/user_achievement_dto_model.dart';
 import 'package:flutter_instancy_2/models/home/data_model/web_list_data_dto.dart';
 import 'package:flutter_instancy_2/models/home/response_model/categorywise_course_dto_model.dart';
+import 'package:flutter_instancy_2/models/learning_communities/data_model/learning_communities_dto_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/response_model/page_notes_response_model.dart';
 import 'package:flutter_instancy_2/models/waitlist/response_model/add_to_waitList_response_model.dart';
 import 'package:flutter_instancy_2/models/wiki_component/response_model/fileUploadControlModel.dart';
@@ -292,7 +293,11 @@ enum ModelDataParsingType {
   AskTheExpertDtoModel,
   AnswerCommentDtoModel,
   AddQuestionResponseModel,
-  FilterUserSkillsDtoResponseModel
+  FilterUserSkillsDtoResponseModel,
+  //endregion
+
+  //region learning Communities
+  LearningCommunitiesDto
   //endregion
 }
 
@@ -495,8 +500,12 @@ class ModelDataParser {
     ModelDataParsingType.AnswerCommentDtoModel: parseAnswerCommentDTOModel,
     ModelDataParsingType.QuestionListDtoModel: parseQuestionListDtoModel,
     ModelDataParsingType.AddQuestionResponseModel: parseAddQuestionResponseModel,
-    ModelDataParsingType.FilterUserSkillsDtoResponseModel: parseFilterUserSkillsDtoResponseModel
+    ModelDataParsingType.FilterUserSkillsDtoResponseModel: parseFilterUserSkillsDtoResponseModel,
     //region
+
+    //region LearningCommunitiesModel
+    ModelDataParsingType.LearningCommunitiesDto: parseLearningCommunitiesDtoResponseModel
+    //endregion
   };
 
   //region App Module
@@ -1443,6 +1452,20 @@ class ModelDataParser {
 //region
   static List<ConsolidatedGroupDTO>? parseMyProgressReportDTOModel({required dynamic decodedValue}) {
     return ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue).map((e) => ConsolidatedGroupDTO.fromJson(e)).toList();
+  }
+
+//endregion
+
+//region LearningCommunitiesModel
+
+  static LearningCommunitiesDtoModel? parseLearningCommunitiesDtoResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return LearningCommunitiesDtoModel.fromJson(json);
+    } else {
+      return null;
+    }
   }
 //endregion
 }

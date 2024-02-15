@@ -16,6 +16,8 @@ import 'package:flutter_instancy_2/backend/gamification/gamification_provider.da
 import 'package:flutter_instancy_2/backend/home/home_provider.dart';
 import 'package:flutter_instancy_2/backend/instabot/instabot_controller.dart';
 import 'package:flutter_instancy_2/backend/instabot/instabot_provider.dart';
+import 'package:flutter_instancy_2/backend/learning_communities/learning_communities_controller.dart';
+import 'package:flutter_instancy_2/backend/learning_communities/learning_communities_provider.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
@@ -36,6 +38,7 @@ import 'package:flutter_instancy_2/views/course_download/screens/my_course_downl
 import 'package:flutter_instancy_2/views/discussion_forum/screens/discussion_forum_list_main_screen.dart';
 import 'package:flutter_instancy_2/views/event/screens/event_catalog_tab_screen.dart';
 import 'package:flutter_instancy_2/views/home/components/home_web_list_screen.dart';
+import 'package:flutter_instancy_2/views/learning_communities/screen/learning_communities_main_screen.dart';
 import 'package:flutter_instancy_2/views/message/screen/message_screen.dart';
 import 'package:flutter_instancy_2/views/my_achievements/screens/my_achievement_component_widget.dart';
 import 'package:flutter_instancy_2/views/my_connections/screens/my_connections_main_screen.dart';
@@ -81,6 +84,8 @@ class _MainScreenState extends State<MainScreen> {
   late AppThemeProvider appThemeProvider;
   late GamificationProvider gamificationProvider;
   late CourseDownloadProvider courseDownloadProvider;
+  late LearningCommunitiesProvider learningCommunitiesProvider;
+  late LearningCommunitiesController learningCommunitiesController;
   StreamSubscription<void>? networkConnectionStreamSubscription;
 
   @override
@@ -95,6 +100,8 @@ class _MainScreenState extends State<MainScreen> {
     appThemeProvider = Provider.of<AppThemeProvider>(context, listen: false);
     gamificationProvider = Provider.of<GamificationProvider>(context, listen: false);
     courseDownloadProvider = Provider.of<CourseDownloadProvider>(context, listen: false);
+    learningCommunitiesProvider = context.read<LearningCommunitiesProvider>();
+    learningCommunitiesController = LearningCommunitiesController(learningCommunitiesProvider: learningCommunitiesProvider);
 
     NetworkConnectionProvider networkConnectionProvider = Provider.of<NetworkConnectionProvider>(context, listen: false);
 
@@ -212,10 +219,19 @@ class _MainScreenState extends State<MainScreen> {
             }
 
             drawerMenusList.removeWhere((element) => bottomBarMenusList.contains(element));
-
             if (bottomBarMenusList.length != 3 || hasMoreMenus == true) floatingActionButtonLocation = FloatingActionButtonLocation.centerDocked;
           }
 
+          bool isSubsiteEntered = ApiController().apiDataProvider.getIsSubSiteEntered();
+          MyPrint.printOnConsole("IsSubsiteEntered $isSubsiteEntered");
+          if (isSubsiteEntered) {
+            drawerMenusList.add(
+              NativeMenuModel(displayname: "Back", menuIconData: Icons.arrow_back, menuid: -1
+                  // ismultiplecomponent: false,
+
+                  ),
+            );
+          }
           Widget? floatingActionButton = getChatBotButton(instaBotProvider: instaBotProvider);
           bool isCenterDocked = floatingActionButton != null && floatingActionButtonLocation == FloatingActionButtonLocation.centerDocked;
 
@@ -319,6 +335,10 @@ class _MainScreenState extends State<MainScreen> {
       appProvider: appProvider,
       mainScreenProvider: mainScreenProvider,
       menusList: drawerMenusList,
+      onSubSiteBackButtonTap: () async {
+        MyPrint.printOnConsole("onSubSiteBackButtonTap called");
+        await learningCommunitiesController.navigateBackToTheMainSiteUrl(context: context);
+      },
     );
   }
 
@@ -468,7 +488,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget getUIComponentFromMenuComponentModel({required NativeMenuComponentModel model, bool isExpanded = false}) {
-    MyPrint.printOnConsole("repositoryid iddddd: ${model.repositoryid}");
+    MyPrint.printOnConsole("repositoryid iddddd: ${model.repositoryid} ");
     if (model.componentid == InstancyComponents.NewLearningResources) {
       return HomeNewLearningResourcesSlider(
         homeProvider: homeProvider,
@@ -582,6 +602,13 @@ class _MainScreenState extends State<MainScreen> {
       );
     } else if (model.componentid == InstancyComponents.MyCourseDownloads) {
       return const MyCourseDownloadScreen();
+    } else if (model.componentid == InstancyComponents.Communities) {
+      return LearningCommunitiesMainScreen(
+        arguments: LearningCommunitiesScreenNavigationArguments(
+          componentId: model.componentid,
+          componentInsId: model.repositoryid,
+        ),
+      );
     } else if (model.componentid == InstancyComponents.Feedback) {
       return const FeedbackScreen();
     } else if (model.componentid == InstancyComponents.AskTheExpert) {

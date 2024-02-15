@@ -26,14 +26,14 @@ class EmailLoginRequestModel {
     isFromSignUp = ParsingHelper.parseBoolMethod(json["isFromSignUp"]);
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, String> toJson() {
     return {
       "UserName": userName,
       "Password": password,
       "MobileSiteURL": mobileSiteUrl,
       "DownloadContent": downloadContent,
-      "SiteID": siteId,
-      "isFromSignUp": isFromSignUp,
+      "SiteID": siteId.toString(),
+      "isFromSignUp": isFromSignUp.toString(),
     };
   }
 

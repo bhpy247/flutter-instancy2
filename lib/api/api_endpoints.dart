@@ -528,6 +528,11 @@ class ApiEndpoints {
 
   //endregion
 
+  //region LearningCommunities
+  String GetAllLearningCommunities() => '${getBaseApiUrl()}PortalListing/getportal';
+
+  //endregion
+
   String apiGetSiteBotDetails({required String instancyApiUrl}) {
     if (instancyApiUrl.endsWith("/")) {
       instancyApiUrl = instancyApiUrl.substring(0, instancyApiUrl.length - 1);

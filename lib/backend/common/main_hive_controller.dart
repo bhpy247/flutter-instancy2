@@ -41,6 +41,7 @@ class MainHiveController {
       MyPrint.printOnConsole("host:$host");
 
       if (host.isNotEmpty) {
+        _currentSiteBox?.close();
         _currentSiteBox = await HiveManager().openBox(boxName: host);
       }
     }

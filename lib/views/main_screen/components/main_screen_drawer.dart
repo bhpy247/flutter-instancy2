@@ -18,12 +18,14 @@ class MainScreenDrawer extends StatelessWidget {
   final AppProvider appProvider;
   final MainScreenProvider mainScreenProvider;
   final List<NativeMenuModel> menusList;
+  final void Function()? onSubSiteBackButtonTap;
 
   const MainScreenDrawer({
     Key? key,
     required this.appProvider,
     required this.mainScreenProvider,
     required this.menusList,
+    this.onSubSiteBackButtonTap,
   }) : super(key: key);
 
   @override
@@ -146,8 +148,9 @@ class MainScreenDrawer extends StatelessWidget {
           color: appThemeProvider.getInstancyThemeColors().menuTextColor.isNotEmpty ? appThemeProvider.getInstancyThemeColors().menuTextColor.getColor() : null,
         ),
         textTheme: themeData.textTheme.copyWith(
-          labelMedium: themeData.textTheme.labelMedium
-              ?.copyWith(color: appThemeProvider.getInstancyThemeColors().menuTextColor.isNotEmpty ? appThemeProvider.getInstancyThemeColors().menuTextColor.getColor() : null),
+          labelMedium: themeData.textTheme.labelMedium?.copyWith(
+            color: appThemeProvider.getInstancyThemeColors().menuTextColor.isNotEmpty ? appThemeProvider.getInstancyThemeColors().menuTextColor.getColor() : null,
+          ),
         ),
       ),
       child: ExpansionTile(
@@ -155,6 +158,13 @@ class MainScreenDrawer extends StatelessWidget {
           MyPrint.printOnConsole("onExpansionChanged called with value:$value");
 
           if (childWidgetsList.isEmpty) {
+            if (nativeMenuModel.menuid == -1) {
+              MyPrint.printOnConsole("onSubSiteBackButtonTap Clicked");
+              if (onSubSiteBackButtonTap != null) {
+                onSubSiteBackButtonTap!();
+              }
+              return;
+            }
             mainScreenProvider.setSelectedMenu(
               menuModel: nativeMenuModel,
               appProvider: appProvider,
@@ -196,6 +206,14 @@ class MainScreenDrawer extends StatelessWidget {
       MyPrint.printOnConsole("Module: ${e.displayname} : ${e.menuid}");
       return InkWell(
         onTap: () {
+          if (e.menuid == -1) {
+            MyPrint.printOnConsole("onSubSiteBackButtonTap Clicked");
+            if (onSubSiteBackButtonTap != null) {
+              onSubSiteBackButtonTap!();
+            }
+            return;
+          }
+
           mainScreenProvider.setSelectedMenu(
             menuModel: nativeMenuModel,
             appProvider: appProvider,

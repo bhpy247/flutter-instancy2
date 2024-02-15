@@ -608,6 +608,16 @@ class CreateEditQuestionNavigationArguments extends NavigationArguments {
   });
 }
 
+class LearningCommunitiesScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+
+  const LearningCommunitiesScreenNavigationArguments({
+    required this.componentId,
+    required this.componentInsId,
+  });
+}
+
 class QuestionAndAnswerDetailsScreenArguments extends NavigationArguments {
   final int componentId;
   final int componentInsId;

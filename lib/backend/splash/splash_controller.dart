@@ -22,6 +22,7 @@ import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
+import 'package:flutter_instancy_2/utils/shared_pref_manager.dart';
 import 'package:flutter_instancy_2/views/app/components/client_selection_dialog.dart';
 import 'package:provider/provider.dart';
 
@@ -96,6 +97,10 @@ class SplashController {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole('getCurrentSiteUrlData called', tag: tag);
 
+    bool isSubSiteEntered = await SharedPrefManager().getBool(SharedPreferenceVariables.isSubSite) ?? false;
+
+    String clientUrl = await SharedPrefManager().getString(SharedPreferenceVariables.subSiteUrl) ?? "";
+
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = splashRepository.apiController.apiDataProvider;
 
     String currentSiteUrl = apiUrlConfigurationProvider.getCurrentSiteUrl();
@@ -111,7 +116,7 @@ class SplashController {
       MyPrint.printOnConsole("apiUrl:'$apiUrl'", tag: tag);
       apiUrlConfigurationProvider.setCurrentBaseApiUrl(apiUrl);
 
-      String learnerUrl = await SharedPreferenceController.getCurrentSiteLearnerUrlFromSharedPreference();
+      String learnerUrl = isSubSiteEntered ? clientUrl : await SharedPreferenceController.getCurrentSiteLearnerUrlFromSharedPreference();
       MyPrint.printOnConsole("learnerUrl:'$learnerUrl'", tag: tag);
       apiUrlConfigurationProvider.setCurrentSiteLearnerUrl(learnerUrl);
 
@@ -251,13 +256,13 @@ class SplashController {
 
       ApiUrlConfigurationProvider apiDataProvider = splashRepository.apiController.apiDataProvider;
 
-      apiDataProvider.setCurrentBaseApiUrl(siteApiUrlConfigurationModel.webApiUrl);
       SharedPreferenceController.setCurrentSiteApiUrlInSharedPreference(siteApiUrlConfigurationModel.webApiUrl);
       SharedPreferenceController.setCurrentSiteLearnerUrlInSharedPreference(siteApiUrlConfigurationModel.learnerUrl);
       SharedPreferenceController.setCurrentSiteLMSUrlInSharedPreference(siteApiUrlConfigurationModel.lmsUrl);
 
       String currentSiteUrl = "${siteApiUrlConfigurationModel.learnerUrl}${siteApiUrlConfigurationModel.learnerUrl.endsWith("/") ? "" : "/"}";
       apiDataProvider.setCurrentSiteUrl(currentSiteUrl);
+      apiDataProvider.setCurrentBaseApiUrl(siteApiUrlConfigurationModel.webApiUrl);
       apiDataProvider.setCurrentSiteLearnerUrl(siteApiUrlConfigurationModel.learnerUrl);
       apiDataProvider.setCurrentSiteLMSUrl(siteApiUrlConfigurationModel.lmsUrl);
       SharedPreferenceController.setCurrentSiteUrlInSharedPreference(currentSiteUrl);

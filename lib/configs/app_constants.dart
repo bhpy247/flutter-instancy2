@@ -40,6 +40,10 @@ class SharedPreferenceVariables {
   static const String currentSiteLMSUrl = 'currentSiteLMSUrl';
   static const String clientUrlType = 'clientUrlType';
   static const String currentAppLogoUrl = 'currentAppLogoUrl';
+
+  static const String isSubSite = 'isSubSite';
+  static const String subSiteUrl = 'subSiteUrl';
+  static const String currentSiteId = 'currentSiteId';
 }
 
 class LocaleType {

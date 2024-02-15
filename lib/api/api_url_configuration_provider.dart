@@ -5,7 +5,6 @@ class ApiUrlConfigurationProvider {
   String getMainSiteUrl() => _mainSiteUrl;
 
   void setMainSiteUrl(String url) => _mainSiteUrl = url;
-
   //endregion
 
   //region Main Client Url Type
@@ -94,6 +93,7 @@ class ApiUrlConfigurationProvider {
   String getLocale() => _locale;
 
   void setLocale(String locale) => _locale = locale;
+
   //endregion
 
   //region Auth Token
@@ -102,5 +102,14 @@ class ApiUrlConfigurationProvider {
   String getAuthToken() => _authToken;
 
   void setAuthToken(String token) => _authToken = token;
+
   //endregion
+
+  //region SubSite
+  bool _isSubSiteEntered = false;
+
+  bool getIsSubSiteEntered() => _isSubSiteEntered;
+
+  void setIsSubSiteEntered(bool val) => _isSubSiteEntered = val;
+//endregion
 }

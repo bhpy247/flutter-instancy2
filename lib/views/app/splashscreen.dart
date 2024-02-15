@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/utils/shared_pref_manager.dart';
 import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_controller.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/splash/splash_controller.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/main_screen/screens/main_screen.dart';
 import 'package:provider/provider.dart';
@@ -53,7 +55,9 @@ class _SplashScreenState extends State<SplashScreen> {
       isGetFromCache: true,
       isNotify: true,
     );
-
+    SharedPrefManager prefManager = SharedPrefManager();
+    bool isSubsiteEntered = await prefManager.getBool(SharedPreferenceVariables.isSubSite) ?? false;
+    splashController.splashRepository.apiController.apiDataProvider.setIsSubSiteEntered(isSubsiteEntered);
     if (isUserLoggedIn) {
       Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, MainScreen.routeName, (route) => false);
     } else {
