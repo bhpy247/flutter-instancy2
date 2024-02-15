@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
+import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_hive_repository.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/common/main_hive_controller.dart';
@@ -10,11 +11,13 @@ import 'package:flutter_instancy_2/backend/content_review_ratings/content_review
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/event/event_provider.dart';
+import 'package:flutter_instancy_2/backend/feedback/feedback_provider.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/home/home_provider.dart';
 import 'package:flutter_instancy_2/backend/in_app_purchase/in_app_purchase_provider.dart';
+import 'package:flutter_instancy_2/backend/learning_communities/learning_communities_provider.dart';
 import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
 import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
@@ -27,6 +30,9 @@ import 'package:flutter_instancy_2/backend/share/share_provider.dart';
 import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/currency_model.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/local_str.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/site_configuration_model.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/tincan_data_model.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/user_sign_up_details_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/forgot_password_response_model.dart';
@@ -244,6 +250,29 @@ class AuthenticationController {
     authenticationHiveRepository.saveLoggedInUserDataInHive(responseModel: null);
     authenticationProvider.setEmailLoginResponseModel(emailLoginResponseModel: null);
 
+    clearAllProviderData(context: context, isHardReset: false);
+
+    apiUrlConfigurationProvider.setCurrentUserId(-1);
+    apiUrlConfigurationProvider.setAuthToken("");
+
+    if (isNavigateToLoginScreen) Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, LoginSignUpSelectionScreen.routeName, (route) => false);
+
+    return isLoggedOut;
+  }
+
+  void clearAllProviderData({required BuildContext context, bool isHardReset = false}) {
+    AppProvider appProvider = context.read<AppProvider>();
+
+    if (isHardReset) {
+      authenticationProvider.setProfileConfigDataList(profileConfigDataList: []);
+
+      appProvider.setLocalStr(value: LocalStr());
+      appProvider.setTinCanDataModel(value: TinCanDataModel());
+      appProvider.setSiteUrlConfigurationModel(value: SiteUrlConfigurationModel());
+      appProvider.setMenuModelsList(list: []);
+      appProvider.resetData();
+    }
+
     context.read<MainScreenProvider>().resetData(
           appProvider: context.read<AppProvider>(),
           appThemeProvider: context.read<AppThemeProvider>(),
@@ -263,20 +292,16 @@ class AuthenticationController {
     context.read<InAppPurchaseProvider>().resetData();
     context.read<DiscussionProvider>().resetData();
     context.read<GamificationProvider>().resetData();
+    context.read<LearningCommunitiesProvider>().resetData();
     context.read<CourseDownloadProvider>().resetData();
+    context.read<FeedbackProvider>().resetData();
+    context.read<AskTheExpertProvider>().resetData();
     context.read<MyConnectionsProvider>().resetData();
-
-    apiUrlConfigurationProvider.setCurrentUserId(-1);
-    apiUrlConfigurationProvider.setAuthToken("");
 
     MainHiveController().closeMyCourseDownloadIdsBox();
     MainHiveController().closeMyCourseDownloadModelsBox();
     MainHiveController().closeMyLearningIdsBox();
     MainHiveController().closeMyLearningModelsBox();
-
-    if (isNavigateToLoginScreen) Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, LoginSignUpSelectionScreen.routeName, (route) => false);
-
-    return isLoggedOut;
   }
 
   void _initializeUserDataInApiControllerFromNativeLoginDTOModel({required NativeLoginDTOModel? nativeLoginDTOModel}) {
