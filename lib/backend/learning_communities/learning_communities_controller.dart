@@ -1,17 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_bot/utils/parsing_helper.dart';
-import 'package:flutter_instancy_2/backend/app/app_provider.dart';
-import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_controller.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_repository.dart';
-import 'package:flutter_instancy_2/backend/feedback/feedback_provider.dart';
 import 'package:flutter_instancy_2/backend/learning_communities/learning_communities_provider.dart';
 import 'package:flutter_instancy_2/backend/learning_communities/learning_communities_repository.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
-import 'package:flutter_instancy_2/models/app_configuration_models/data_models/local_str.dart';
-import 'package:flutter_instancy_2/models/app_configuration_models/data_models/site_configuration_model.dart';
-import 'package:flutter_instancy_2/models/app_configuration_models/data_models/tincan_data_model.dart';
 import 'package:flutter_instancy_2/models/authentication/request_model/email_login_request_model.dart';
 import 'package:flutter_instancy_2/models/learning_communities/data_model/learning_communities_dto_model.dart';
 import 'package:flutter_instancy_2/models/learning_communities/request_model/learning_communities_request_model.dart';
@@ -25,21 +19,6 @@ import '../../models/common/data_response_model.dart';
 import '../../models/common/pagination/pagination_model.dart';
 import '../../utils/my_print.dart';
 import '../../utils/my_utils.dart';
-import '../Catalog/catalog_provider.dart';
-import '../content_review_ratings/content_review_ratings_provider.dart';
-import '../discussion/discussion_provider.dart';
-import '../event/event_provider.dart';
-import '../filter/filter_provider.dart';
-import '../gamification/gamification_provider.dart';
-import '../home/home_provider.dart';
-import '../in_app_purchase/in_app_purchase_provider.dart';
-import '../membership/membership_provider.dart';
-import '../message/message_provider.dart';
-import '../my_learning/my_learning_provider.dart';
-import '../profile/profile_provider.dart';
-import '../progress_report/progress_report_provider.dart';
-import '../share/share_provider.dart';
-import '../wiki_component/wiki_provider.dart';
 
 class LearningCommunitiesController {
   late LearningCommunitiesProvider _learningCommunitiesProvider;
@@ -210,8 +189,12 @@ class LearningCommunitiesController {
 
     SharedPrefManager prefManager = SharedPrefManager();
     AuthenticationController authenticationController = AuthenticationController(provider: authenticationProvider);
+
+    learningCommunitiesRepository.apiController.apiDataProvider.setCurrentSiteLearnerUrl("");
+    learningCommunitiesRepository.apiController.apiDataProvider.setCurrentSiteLMSUrl("");
+    learningCommunitiesRepository.apiController.apiDataProvider.setCurrentSiteId(-1);
     if (context.mounted) {
-      clearAllProviderData(context: context, authenticationProvider: authenticationProvider);
+      authenticationController.clearAllProviderData(context: context);
     }
     prefManager.setBool(SharedPreferenceVariables.isSubSite, true);
     learningCommunitiesRepository.apiController.apiDataProvider.setIsSubSiteEntered(true);
@@ -266,9 +249,14 @@ class LearningCommunitiesController {
 
     SharedPrefManager prefManager = SharedPrefManager();
     AuthenticationController authenticationController = AuthenticationController(provider: authenticationProvider);
+
+    learningCommunitiesRepository.apiController.apiDataProvider.setCurrentSiteLearnerUrl("");
+    learningCommunitiesRepository.apiController.apiDataProvider.setCurrentSiteLMSUrl("");
+    learningCommunitiesRepository.apiController.apiDataProvider.setCurrentSiteId(-1);
     if (context.mounted) {
-      clearAllProviderData(context: context, authenticationProvider: authenticationProvider);
+      authenticationController.clearAllProviderData(context: context);
     }
+
     prefManager.setBool(SharedPreferenceVariables.isSubSite, false);
     learningCommunitiesRepository.apiController.apiDataProvider.setIsSubSiteEntered(false);
 
@@ -288,37 +276,5 @@ class LearningCommunitiesController {
     }
 
     return true;
-  }
-
-  void clearAllProviderData({required BuildContext context, required AuthenticationProvider authenticationProvider}) {
-    AppProvider appProvider = context.read<AppProvider>();
-
-    learningCommunitiesRepository.apiController.apiDataProvider.setCurrentSiteLearnerUrl("");
-    learningCommunitiesRepository.apiController.apiDataProvider.setCurrentSiteLMSUrl("");
-    learningCommunitiesRepository.apiController.apiDataProvider.setCurrentSiteId(-1);
-    authenticationProvider.setProfileConfigDataList(profileConfigDataList: []);
-    appProvider.setLocalStr(value: LocalStr());
-    appProvider.setTinCanDataModel(value: TinCanDataModel());
-    appProvider.setSiteUrlConfigurationModel(value: SiteUrlConfigurationModel());
-    appProvider.setMenuModelsList(list: []);
-    appProvider.resetData();
-    context.read<HomeProvider>().resetData();
-    context.read<ProfileProvider>().resetData();
-    context.read<FilterProvider>().resetData();
-    context.read<CatalogProvider>().resetData();
-    context.read<WikiProvider>().resetData();
-    context.read<MyLearningProvider>().resetData();
-    context.read<EventProvider>().resetData();
-    context.read<ShareProvider>().resetData();
-    context.read<ProgressReportProvider>().resetData();
-    context.read<ContentReviewRatingsProvider>().resetData();
-    context.read<MessageProvider>().resetData();
-    context.read<MembershipProvider>().resetData();
-    context.read<InAppPurchaseProvider>().resetData();
-    context.read<DiscussionProvider>().resetData();
-    context.read<GamificationProvider>().resetData();
-    context.read<LearningCommunitiesProvider>().resetData();
-    context.read<FeedbackProvider>().resetData();
-    context.read<AskTheExpertProvider>().resetData();
   }
 }
