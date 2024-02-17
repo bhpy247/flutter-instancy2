@@ -14,6 +14,7 @@ import 'package:flutter_instancy_2/models/ask_the_expert/data_model/ask_the_expe
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
 import 'package:flutter_instancy_2/models/membership/data_model/membership_plan_details_model.dart';
+import 'package:flutter_instancy_2/models/message/data_model/chat_user_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_experience_data_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
@@ -789,5 +790,13 @@ class MyConnectionsMainScreenNavigationArguments extends NavigationArguments {
     required this.componentId,
     required this.componentInsId,
     this.myConnectionsProvider,
+  });
+}
+
+class UserMessageListScreenNavigationArguments extends NavigationArguments {
+  final ChatUserModel toUser;
+
+  const UserMessageListScreenNavigationArguments({
+    required this.toUser,
   });
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/backend/message/message_controller.dart';
+import 'package:flutter_instancy_2/backend/message/message_provider.dart';
 import 'package:flutter_instancy_2/backend/my_connections/my_connections_controller.dart';
 import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_response.dart';
@@ -221,6 +223,13 @@ class _ConnectionProfileScreenState extends State<ConnectionProfileScreen> with 
     MyPrint.printOnConsole("isSuccess:$isSuccess");
 
     onPeopleListingActionPerformed(isSuccess: isSuccess);
+  }
+
+  Future<void> onSendMessageTap({required UserProfileHeaderDTOModel model}) async {
+    bool isNavigated = MessageController(provider: context.read<MessageProvider>()).navigateToUserChatScreenFromOtherScreen(userIdToNavigate: connectionUserId);
+    if (isNavigated) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -513,9 +522,11 @@ class _ConnectionProfileScreenState extends State<ConnectionProfileScreen> with 
       if (isSendMessageEnabled)
         Flexible(
           child: CommonButton(
+            onPressed: () {
+              onSendMessageTap(model: headerDTOModel);
+            },
             margin: const EdgeInsets.only(left: 10),
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-            onPressed: () {},
             iconData: Icons.send,
             text: appProvider.localStr.myconnectionsActionsheetSendmessageoption,
             backGroundColor: Colors.transparent,

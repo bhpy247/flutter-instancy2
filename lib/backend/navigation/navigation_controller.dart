@@ -19,6 +19,7 @@ import 'package:flutter_instancy_2/views/feedBack/screens/add_feedback_screen.da
 import 'package:flutter_instancy_2/views/lens_feature/screen/lens_screen.dart';
 import 'package:flutter_instancy_2/views/main_screen/screens/main_screen.dart';
 import 'package:flutter_instancy_2/views/membership/screens/membership_selection_screen.dart';
+import 'package:flutter_instancy_2/views/message/screen/user_message_list_screen.dart';
 import 'package:flutter_instancy_2/views/my_learning_plus/screens/my_learning_plus.dart';
 import 'package:flutter_instancy_2/views/profile/component/add_education_screen.dart';
 import 'package:flutter_instancy_2/views/profile/screens/connection_profile_screen.dart';
@@ -413,6 +414,13 @@ class NavigationController {
           page = parseFilterSkillScreen(settings: settings);
         }
 
+      //endregion
+
+      // region Messages
+      case UserMessageListScreen.routeName:
+        {
+          page = parseUserMessageListScreen(settings: settings);
+        }
       //endregion
     }
 
@@ -979,6 +987,18 @@ class NavigationController {
   }
 
   //endregion
+
+  //region Messages
+  static Widget? parseUserMessageListScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! UserMessageListScreenNavigationArguments) {
+      return null;
+    }
+
+    return UserMessageListScreen(arguments: argument);
+  }
+
+  //endregion
   //endregion
 
   //region Navigation Methods
@@ -1515,6 +1535,19 @@ class NavigationController {
   }
 
 //endregion
+
+  // region Messages
+  static Future<dynamic> navigateToUserMessageListScreen({required NavigationOperationParameters navigationOperationParameters, required UserMessageListScreenNavigationArguments arguments}) {
+    MyPrint.printOnConsole("navigateToUserMessageListScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: UserMessageListScreen.routeName,
+        arguments: arguments,
+      ),
+    );
+  }
+
+  //endregion
 //endregion
 
   static Future<dynamic> navigateToCreateAddEditQuestionScreen({required NavigationOperationParameters navigationOperationParameters, required CreateEditQuestionNavigationArguments arguments}) {

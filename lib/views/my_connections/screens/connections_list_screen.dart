@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
+import 'package:flutter_instancy_2/backend/message/message_controller.dart';
+import 'package:flutter_instancy_2/backend/message/message_provider.dart';
 import 'package:flutter_instancy_2/backend/my_connections/my_connections_controller.dart';
 import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
@@ -153,6 +155,10 @@ class _ConnectionsListScreenState extends State<ConnectionsListScreen> with MySa
     MyPrint.printOnConsole("isSuccess:$isSuccess");
 
     onPeopleListingActionPerformed(isSuccess: isSuccess);
+  }
+
+  Future<void> onSendMessageTap({required PeopleListingItemDTOModel model}) async {
+    MessageController(provider: context.read<MessageProvider>()).navigateToUserChatScreenFromOtherScreen(userIdToNavigate: model.ObjectID);
   }
 
   void onPeopleListingActionStarted() {
@@ -381,15 +387,15 @@ class _ConnectionsListScreenState extends State<ConnectionsListScreen> with MySa
             onRefresh: onRefresh,
             child: isShowListView
                 ? getListViewWidget(
-              peopleList: peopleList,
-              paginationModel: paginationModel,
-              onPagination: onPagination,
-            )
+                    peopleList: peopleList,
+                    paginationModel: paginationModel,
+                    onPagination: onPagination,
+                  )
                 : getGridViewWidget(
-              peopleList: peopleList,
-              paginationModel: paginationModel,
-              onPagination: onPagination,
-            ),
+                    peopleList: peopleList,
+                    paginationModel: paginationModel,
+                    onPagination: onPagination,
+                  ),
           ),
         ),
         /*if (!isShowListView && paginationModel.isLoading)
@@ -449,59 +455,101 @@ class _ConnectionsListScreenState extends State<ConnectionsListScreen> with MySa
     required PaginationModel paginationModel,
     required Future<void> Function() onPagination,
   }) {
-    int totalRows = (peopleList.length / 2).ceil();
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        // MyPrint.printOnConsole("maxWidth:${constraints.maxWidth}");
 
-    const double crossAxisSpacing = 10;
-    const double mainAxisSpacing = 20;
+        int crossAxisCount = switch (constraints.maxWidth) {
+          < 600 => 2,
+          < 750 => 3,
+          < 1000 => 4,
+          < 1200 => 5,
+          < 1400 => 6,
+          < 1600 => 7,
+          < 1800 => 8,
+          < 2000 => 9,
+          < 2200 => 10,
+          < 2400 => 11,
+          < 2600 => 12,
+          < 2800 => 13,
+          < 3000 => 14,
+          < 3200 => 15,
+          < 3400 => 16,
+          < 3600 => 17,
+          _ => 2,
+        };
 
-    return ListView.builder(
-      physics: const AlwaysScrollableScrollPhysics(),
-      itemCount: totalRows + 1,
-      itemBuilder: (BuildContext context, int index) {
-        if ((index == 0 && peopleList.isEmpty) || index == totalRows) {
-          if (paginationModel.isLoading) {
-            return Container(
-              margin: const EdgeInsets.symmetric(vertical: 5),
-              child: const Center(
-                child: CommonLoader(
-                  size: 70,
+        int totalRows = (peopleList.length / crossAxisCount).ceil();
+
+        const double crossAxisSpacing = 10;
+        const double mainAxisSpacing = 10;
+
+        return ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: totalRows + 1,
+          itemBuilder: (BuildContext context, int index) {
+            if ((index == 0 && peopleList.isEmpty) || index == totalRows) {
+              if (paginationModel.isLoading) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 5),
+                  child: const Center(
+                    child: CommonLoader(
+                      size: 70,
+                    ),
+                  ),
+                );
+              } else {
+                return const SizedBox();
+              }
+            }
+
+            int index1 = index * crossAxisCount;
+            // MyPrint.printOnConsole("index1:$index1");
+
+            int lastIndex = index1;
+
+            List<PeopleListingItemDTOModel> models = <PeopleListingItemDTOModel>[];
+            for (int i = 0; i < crossAxisCount; i++) {
+              int itemIndex = index1 + i;
+
+              if (itemIndex < peopleList.length) {
+                lastIndex = itemIndex;
+                models.add(peopleList[itemIndex]);
+              }
+            }
+
+            if (lastIndex > (peopleList.length - paginationModel.refreshLimit) && paginationModel.hasMore && !paginationModel.isLoading) {
+              onPagination();
+            }
+
+            List<Widget> children = <Widget>[];
+
+            for (PeopleListingItemDTOModel model in models) {
+              children.add(Expanded(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: mainAxisSpacing),
+                  child: AspectRatio(
+                    aspectRatio: 0.93,
+                    child: getUserCardWidget(model: model),
+                  ),
                 ),
+              ));
+            }
+            if (children.length < crossAxisCount) {
+              children.addAll(List.generate(crossAxisCount - children.length, (index) {
+                return const Expanded(
+                  child: SizedBox(),
+                );
+              }));
+            }
+
+            return Container(
+              margin: const EdgeInsets.symmetric(vertical: crossAxisSpacing),
+              child: Row(
+                children: children,
               ),
             );
-          } else {
-            return const SizedBox();
-          }
-        }
-
-        int index1 = index * 2;
-        int? index2 = index1 + 1 < peopleList.length ? index1 + 1 : null;
-
-        if ((index2 ?? index1) > (peopleList.length - paginationModel.refreshLimit) && paginationModel.hasMore && !paginationModel.isLoading) {
-          onPagination();
-        }
-
-        PeopleListingItemDTOModel model1 = peopleList[index1];
-        PeopleListingItemDTOModel? model2 = index2 != null ? peopleList[index2] : null;
-
-        return Container(
-          margin: const EdgeInsets.symmetric(vertical: crossAxisSpacing),
-          child: Row(
-            children: [
-              Expanded(
-                child: AspectRatio(
-                  aspectRatio: 0.93,
-                  child: getUserCardWidget(model: model1),
-                ),
-              ),
-              const SizedBox(width: mainAxisSpacing),
-              Expanded(
-                child: AspectRatio(
-                  aspectRatio: 0.93,
-                  child: model2 != null ? getUserCardWidget(model: model2) : const SizedBox(),
-                ),
-              ),
-            ],
-          ),
+          },
         );
       },
     );
@@ -518,6 +566,7 @@ class _ConnectionsListScreenState extends State<ConnectionsListScreen> with MySa
         onRemoveFromMyConnectionsTap: onRemoveFromMyConnectionsTap,
         onAcceptConnectionRequestTap: onAcceptConnectionRequestTap,
         onRejectConnectionRequestTap: onRejectConnectionRequestTap,
+        onSendMessageTap: onSendMessageTap,
       ),
     );
   }

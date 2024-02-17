@@ -46,7 +46,7 @@ class _MainScreenDrawerHeaderWidgetState extends State<MainScreenDrawerHeaderWid
         shortName += nameinfo[i][0];
       }
     } else if (nameinfo.length == 1) {
-      shortName += username[0];
+      shortName += nameinfo[0];
     }
   }
 

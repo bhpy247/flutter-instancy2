@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -7,6 +8,7 @@ import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/message/message_controller.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation_arguments.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/configs/typedefs.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
@@ -21,7 +23,6 @@ import 'package:video_player/video_player.dart';
 import '../../../backend/app_theme/style.dart';
 import '../../../backend/authentication/authentication_provider.dart';
 import '../../../models/message/data_model/chat_message_model.dart';
-import '../../../models/message/data_model/chat_user_model.dart';
 import '../../../models/message/request_model/send_chat_message_request_model.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/parsing_helper.dart';
@@ -34,9 +35,14 @@ import '../components/message_item.dart';
 import '../components/send_icon.dart';
 
 class UserMessageListScreen extends StatefulWidget {
-  final ChatUserModel toUser;
+  static const String routeName = "/UserMessageListScreen";
 
-  const UserMessageListScreen({super.key, required this.toUser});
+  final UserMessageListScreenNavigationArguments arguments;
+
+  const UserMessageListScreen({
+    super.key,
+    required this.arguments,
+  });
 
   @override
   State<UserMessageListScreen> createState() => _UserMessageListScreenState();
@@ -55,6 +61,8 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
   int fromUserID = -1;
   int toUserId = -1;
   Stream<MyFirestoreQuerySnapshot> _usersStream = FirebaseFirestore.instance.collection(AppConstants.kAppFlavour).snapshots();
+  StreamSubscription<MyFirestoreQuerySnapshot>? _usersStreamSubscription;
+  bool isLoadingStream = false;
 
   bool isSendingMessage = false;
   String userImageUrl = "";
@@ -68,8 +76,11 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
   String _lastWords = '';
 
   _getFireStoreStreams() async {
+    isLoadingStream = true;
+    mySetState();
+
     fromUserID = messageController.messageRepository.apiController.apiDataProvider.getCurrentUserId();
-    toUserId = widget.toUser.UserID;
+    toUserId = widget.arguments.toUser.UserID;
 
     if (fromUserID > toUserId) {
       chatRoom = '$toUserId-$fromUserID';
@@ -77,8 +88,29 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
       chatRoom = '$fromUserID-$toUserId';
     }
 
+    Completer<void> completer = Completer();
+
+    _usersStreamSubscription?.cancel();
     _usersStream = FirebaseFirestore.instance.collection(AppConstants.kAppFlavour).doc('messages').collection(chatRoom).orderBy("SendDatetime", descending: true).snapshots();
-    mySetState();
+    _usersStreamSubscription = _usersStream.listen((MyFirestoreQuerySnapshot snapshot) {
+      messages = snapshot.docs.map((i) {
+        MyPrint.printOnConsole("i.id ${i.id}");
+        if (i.id == MessageStatusDocument.docId) {
+          MyPrint.printOnConsole("i.id : ${i.data()}");
+          messageStatus = i.data();
+        }
+        ChatMessageModel chatMessageModel = ChatMessageModel.fromJson(i.data());
+        return chatMessageModel;
+      }).toList();
+      ChatMessageModel? lastMessageModel = messages.firstOrNull;
+      lastMessage = lastMessageModel?.Message ?? "";
+
+      MyPrint.printOnConsole("lastMessage: $chatRoom ${toUserId.toString()} ${messageStatus[toUserId.toString()]}");
+
+      mySetState();
+
+      if (!completer.isCompleted) completer.complete();
+    });
 
     MyPrint.printOnConsole("chatRoom idddD:  $chatRoom");
     messageStatus[fromUserID.toString()] = "";
@@ -106,6 +138,11 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
         MarkAsRead: true,
       ),
     );
+
+    await completer.future;
+
+    isLoadingStream = false;
+    mySetState();
   }
 
   void _scrollListener() {
@@ -139,7 +176,7 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
         context: context,
         requestModel: SendChatMessageRequestModel(
             FromUserID: fromUserID,
-            ToUserID: widget.toUser.UserID,
+            ToUserID: widget.arguments.toUser.UserID,
             chatRoomId: chatRoom,
             MessageType: messageType,
             SendDatetime: null,
@@ -147,8 +184,8 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
             fileName: fileName,
             fileBytes: fileBytes,
             videoFileDuration: duration
-            // videoFileDuratin
-            ),
+          // videoFileDuratin
+        ),
       );
       MyPrint.printOnConsole("response:'$response'");
 
@@ -171,7 +208,7 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
       context: context,
       requestModel: SendChatMessageRequestModel(
         FromUserID: fromUserID,
-        ToUserID: widget.toUser.UserID,
+        ToUserID: widget.arguments.toUser.UserID,
         chatRoomId: chatRoom,
         Message: message,
         MessageType: MessageType.Text,
@@ -215,7 +252,9 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
           //   mySetState();
           // }
         },
-        listenMode: ListenMode.search,
+        listenOptions: SpeechListenOptions(
+          listenMode: ListenMode.search,
+        ),
       );
     } catch (e, s) {
       MyPrint.printOnConsole("Error in UserMessageListScreen()._startListening();$e", tag: tag);
@@ -258,6 +297,7 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
 
   @override
   void dispose() {
+    _usersStreamSubscription?.cancel();
     _scrollController.dispose();
     _textController.dispose();
     // messageProvider.chatUsersList.setList(list: list)
@@ -269,84 +309,20 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
     super.pageBuild();
 
     deviceData = MediaQuery.of(context).size;
+
     return PopScope(
       canPop: true,
       onPopInvoked: (bool didPop) {
         MyPrint.printOnConsole("onPopInvoked called with didPop:$didPop");
 
         FirebaseFirestore.instance.collection(AppConstants.kAppFlavour).doc('messages').collection(chatRoom).doc("messageStatus").update({fromUserID.toString(): ""});
-        if (widget.toUser.LatestMessage != lastMessage) {
+        if (widget.arguments.toUser.LatestMessage != lastMessage) {
           messageController.updateLastMessageInChat(fromUserId: fromUserID, toUserId: toUserId, lastMessage: lastMessage);
         }
       },
-      child: StreamBuilder<MyFirestoreQuerySnapshot>(
-        stream: _usersStream,
-        builder: (BuildContext context, AsyncSnapshot<MyFirestoreQuerySnapshot> snapshot) {
-          if (snapshot.connectionState == ConnectionState.active) {
-            messages = snapshot.data?.docs.map((i) {
-                  MyPrint.printOnConsole("i.id ${i.id}");
-                  if (i.id == MessageStatusDocument.docId) {
-                    MyPrint.printOnConsole("i.id : ${i.data()}");
-                    messageStatus = i.data();
-                  }
-                  ChatMessageModel chatMessageModel = ChatMessageModel.fromJson(i.data());
-                  return chatMessageModel;
-                }).toList() ??
-                [];
-            ChatMessageModel? lastMessageModel = messages.firstOrNull;
-            lastMessage = lastMessageModel?.Message ?? "";
-
-            MyPrint.printOnConsole("lastMessage: $chatRoom ${toUserId.toString()} ${messageStatus[toUserId.toString()]}");
-
-            /*messages.sort((a, b) {
-                  if (a.SendDatetime != null && b.SendDatetime != null) {
-                    return b.SendDatetime!.compareTo(a.SendDatetime!);
-                  } else {
-                    return 0;
-                  }
-                });*/
-
-            //Code To Update Last Message in Chat
-            /*if(messages.isNotEmpty && messages.first.date != null && widget.toUser.sendDateTime != null && !(widget.toUser.sendDateTime!.isAtSameMomentAs(messages.first.date!))) {
-                            Message lastMessage = messages.first;
-                            MyPrint.logOnConsole("Last message:${lastMessage.message}");
-                            widget.toUser.latestMessage = lastMessage.message;
-                          }*/
-
-            //print(messages.map((e) => e.message));
-            return Scaffold(
-              appBar: getAppBar(messageStatus),
-              body: AppUIComponents.getBackGroundBordersRounded(
-                context: context,
-                child: Container(
-                  // color: Colors.transparent,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: getMessagesListVIew(
-                          messages,
-                        ),
-                      ),
-                      getMessageTextField(),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CommonLoader();
-          } else {
-            return const Column(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Icon(Icons.warning),
-                ),
-                Text('Error in loading data')
-              ],
-            );
-          }
-        },
+      child: Scaffold(
+        appBar: getAppBar(messageStatus),
+        body: getMainBody(),
       ),
     );
   }
@@ -354,7 +330,7 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
   AppBar getAppBar(Map<String, dynamic> messageStatus) {
     MyPrint.printOnConsole("messageStatus[toUserId] $messageStatus $toUserId ${messageStatus[toUserId.toString()]}");
 
-    String imageUrl = AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: widget.toUser.ProfPic);
+    String imageUrl = AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: widget.arguments.toUser.ProfPic);
 
     return AppBar(
       automaticallyImplyLeading: true,
@@ -376,7 +352,7 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
                     errorIconSize: 30,
                   ),
                 ),
-                if (widget.toUser.ConnectionStatus == 1)
+                if (widget.arguments.toUser.ConnectionStatus == 1)
                   Container(
                     height: 10,
                     width: 10,
@@ -392,7 +368,7 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.toUser.FullName,
+                widget.arguments.toUser.FullName,
                 style: themeData.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w600,
                   letterSpacing: .3,
@@ -409,11 +385,11 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
                         color: themeData.appBarTheme.titleTextStyle?.color,
                       ),
                     ),
-                  if (widget.toUser.JobTitle.isNotEmpty)
+                  if (widget.arguments.toUser.JobTitle.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Text(
-                        widget.toUser.JobTitle,
+                        widget.arguments.toUser.JobTitle,
                         style: themeData.textTheme.bodyMedium?.copyWith(
                           fontStyle: FontStyle.italic,
                           fontSize: 13,
@@ -425,6 +401,26 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
               ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget getMainBody() {
+    if (isLoadingStream) {
+      return const CommonLoader(isCenter: true);
+    }
+
+    return AppUIComponents.getBackGroundBordersRounded(
+      context: context,
+      child: Column(
+        children: [
+          Expanded(
+            child: getMessagesListVIew(
+              messages,
+            ),
+          ),
+          getMessageTextField(),
         ],
       ),
     );
@@ -500,15 +496,15 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
                     _speechToText.isNotListening
                         ? const SizedBox()
                         : Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: SpinKitWave(color: themeData.primaryColor, size: 15, type: SpinKitWaveType.center),
-                          ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: SpinKitWave(color: themeData.primaryColor, size: 15, type: SpinKitWaveType.center),
+                    ),
                   InkWell(
                     onTap: isSendingMessage
                         ? null
                         : _speechToText.isNotListening
-                            ? _startListening
-                            : _stopListening,
+                        ? _startListening
+                        : _stopListening,
                     child: Icon(
                       Icons.mic,
                       color: Styles.lightTextColor2.withOpacity(0.5),

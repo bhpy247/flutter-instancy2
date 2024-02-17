@@ -119,10 +119,13 @@ class _MainAppState extends State<MainApp> {
     });
 
     FlutterDownloadController.initializeListeners();
+
+    NavigationController.mainNavigatorKey = GlobalKey<NavigatorState>();
   }
 
   @override
   void dispose() {
+    NavigationController.mainNavigatorKey.currentState?.dispose();
     super.dispose();
   }
 

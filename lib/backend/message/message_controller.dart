@@ -4,14 +4,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/mmy_toast.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
+import 'package:flutter_instancy_2/backend/app/app_controller.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
+import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
+import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
 import 'package:flutter_instancy_2/backend/message/message_repository.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/configs/typedefs.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_model.dart';
 import 'package:flutter_instancy_2/models/common/Instancy_multipart_file_upload_model.dart';
 import 'package:flutter_instancy_2/models/message/data_model/chat_message_model.dart';
 import 'package:flutter_instancy_2/models/message/request_model/send_chat_message_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:provider/provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
 import '../../api/api_url_configuration_provider.dart';
@@ -39,7 +45,7 @@ class MessageController {
     bool isNotify = true,
   }) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("MessageController().getChatUsersList() called with", tag: tag);
+    MyPrint.printOnConsole("MessageController().getChatUsersList() called with isRefresh:$isRefresh, isClear:$isClear, isNotify:$isNotify", tag: tag);
 
     MessageProvider provider = messageProvider;
 
@@ -352,5 +358,30 @@ class MessageController {
 
     MyPrint.printOnConsole("Message User List Data got in ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: tag);
     //endregion
+  }
+
+  bool navigateToUserChatScreenFromOtherScreen({int? userIdToNavigate}) {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("MessageController().navigateToUserChatScreenFromOtherScreen() called with userIdToNavigate:$userIdToNavigate", tag: tag);
+
+    BuildContext? context = AppController.mainAppContext;
+
+    if (context == null) {
+      return false;
+    }
+
+    AppProvider appProvider = context.read<AppProvider>();
+    NativeMenuModel? menuModel = appProvider.getMenuModelFromComponentId(componentId: InstancyComponents.UserMessages);
+    if (menuModel != null) {
+      messageProvider.userIdToNavigateTo.set(value: userIdToNavigate, isNotify: false);
+      context.read<MainScreenProvider>().setSelectedMenu(
+            menuModel: menuModel,
+            appProvider: appProvider,
+            appThemeProvider: context.read<AppThemeProvider>(),
+          );
+      return true;
+    }
+
+    return false;
   }
 }

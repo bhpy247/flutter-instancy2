@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart';
@@ -33,61 +34,74 @@ class NetworkConnectionController {
     try {
       Completer<ConnectivityResult> completer = Completer<ConnectivityResult>();
 
+      if (kIsWeb) {
+        _handleNetworkConnectionChange(result: ConnectivityResult.wifi);
+        completer.complete(ConnectivityResult.wifi);
+      }
+
       StreamSubscription<ConnectivityResult> connectionStatusSubscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) async {
-        MyPrint.printOnConsole("Connectivity Result:$result", tag: tag);
-        MyPrint.printOnConsole("Previous Result:${provider.currentResult.get()}", tag: tag);
+        _handleNetworkConnectionChange(result: result);
 
-        bool isNetworkConnected = [
-          ConnectivityResult.wifi,
-          ConnectivityResult.ethernet,
-          ConnectivityResult.mobile,
-          ConnectivityResult.vpn,
-          ConnectivityResult.other,
-        ].contains(result);
-
-        ConnectivityResult? currentResult = provider.currentResult.get();
-        if (currentResult != result) {
-          MyPrint.printOnConsole("Connection Status Changed:$isNetworkConnected", tag: tag);
-
-          if (currentResult != null) {
-            BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
-            if (context != null && context.mounted) {
-              AppProvider appProvider = context.read<AppProvider>();
-
-              if (isNetworkConnected) {
-                MyToast.showCustomToast(
-                  context: context,
-                  msg: appProvider.localStr.networkConnectionAlertConnectionRestored,
-                  iconData: Icons.wifi,
-                );
-              } else {
-                MyToast.showCustomToast(
-                  context: context,
-                  msg: appProvider.localStr.networkConnectionAlertYouAreOffline,
-                  iconData: Icons.wifi_off,
-                );
-              }
-            }
-          }
-          provider.currentResult.set(value: result, isNotify: false);
-          provider.isNetworkConnected.set(value: isNetworkConnected, isNotify: true);
-          provider.networkConnectedSubscription.get()?.add(isNetworkConnected);
-        }
-
-        provider.currentResult.set(value: result, isNotify: false);
-
-        if (!completer.isCompleted) {
-          completer.complete(result);
-        }
+        if (!completer.isCompleted) completer.complete(result);
       });
       provider.connectionStatusSubscription.set(value: connectionStatusSubscription, isNotify: false);
 
       await completer.future;
+
       MyPrint.printOnConsole("Connection Subscription Started", tag: tag);
     } catch (e, s) {
       MyPrint.printOnConsole("Error in NetworkConnectionController().startNetworkConnectionSubscription():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
     }
+  }
+
+  void _handleNetworkConnectionChange({required ConnectivityResult result}) {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("NetworkConnectionController()._handleNetworkConnectionChange() called with result:$result", tag: tag);
+
+    NetworkConnectionProvider provider = networkConnectionProvider;
+
+    MyPrint.printOnConsole("Connectivity Result:$result", tag: tag);
+    MyPrint.printOnConsole("Previous Result:${provider.currentResult.get()}", tag: tag);
+
+    bool isNetworkConnected = [
+      ConnectivityResult.wifi,
+      ConnectivityResult.ethernet,
+      ConnectivityResult.mobile,
+      ConnectivityResult.vpn,
+      ConnectivityResult.other,
+    ].contains(result);
+
+    ConnectivityResult? currentResult = provider.currentResult.get();
+    if (currentResult != result) {
+      MyPrint.printOnConsole("Connection Status Changed:$isNetworkConnected", tag: tag);
+
+      if (currentResult != null) {
+        BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
+        if (context != null && context.mounted) {
+          AppProvider appProvider = context.read<AppProvider>();
+
+          if (isNetworkConnected) {
+            MyToast.showCustomToast(
+              context: context,
+              msg: appProvider.localStr.networkConnectionAlertConnectionRestored,
+              iconData: Icons.wifi,
+            );
+          } else {
+            MyToast.showCustomToast(
+              context: context,
+              msg: appProvider.localStr.networkConnectionAlertYouAreOffline,
+              iconData: Icons.wifi_off,
+            );
+          }
+        }
+      }
+      provider.currentResult.set(value: result, isNotify: false);
+      provider.isNetworkConnected.set(value: isNetworkConnected, isNotify: true);
+      provider.networkConnectedSubscription.get()?.add(isNetworkConnected);
+    }
+
+    provider.currentResult.set(value: result, isNotify: false);
   }
 
   Future<void> stopNetworkConnectionSubscription({bool isNotify = true}) async {

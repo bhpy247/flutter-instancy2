@@ -255,7 +255,7 @@ class AuthenticationController {
     apiUrlConfigurationProvider.setCurrentUserId(-1);
     apiUrlConfigurationProvider.setAuthToken("");
 
-    if (isNavigateToLoginScreen) Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, LoginSignUpSelectionScreen.routeName, (route) => false);
+    if (isNavigateToLoginScreen) Navigator.pushNamedAndRemoveUntil(context, LoginSignUpSelectionScreen.routeName, (route) => false);
 
     return isLoggedOut;
   }

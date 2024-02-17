@@ -19,6 +19,7 @@ class ConnectionListUserCard extends StatefulWidget {
   final void Function({required PeopleListingItemDTOModel model})? onRemoveFromMyConnectionsTap;
   final void Function({required PeopleListingItemDTOModel model})? onAcceptConnectionRequestTap;
   final void Function({required PeopleListingItemDTOModel model})? onRejectConnectionRequestTap;
+  final void Function({required PeopleListingItemDTOModel model})? onSendMessageTap;
 
   const ConnectionListUserCard({
     super.key,
@@ -29,6 +30,7 @@ class ConnectionListUserCard extends StatefulWidget {
     this.onRemoveFromMyConnectionsTap,
     this.onAcceptConnectionRequestTap,
     this.onRejectConnectionRequestTap,
+    this.onSendMessageTap,
   });
 
   @override
@@ -38,8 +40,6 @@ class ConnectionListUserCard extends StatefulWidget {
 class _ConnectionListUserCardState extends State<ConnectionListUserCard> with MySafeState {
   late AppProvider appProvider;
   late PeopleListingItemDTOModel model;
-
-
 
   @override
   void initState() {
@@ -301,7 +301,11 @@ class _ConnectionListUserCardState extends State<ConnectionListUserCard> with My
         if (isSendMessageEnabled)
           CommonButton(
             padding: isListView ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            onPressed: () {},
+            onPressed: () {
+              if (widget.onSendMessageTap != null) {
+                widget.onSendMessageTap!(model: model);
+              }
+            },
             iconData: Icons.send,
             text: isListView ? "" : appProvider.localStr.myconnectionsActionsheetSendmessageoption,
             // text: isListView ? "" : "Message",
