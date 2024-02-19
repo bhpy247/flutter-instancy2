@@ -60,7 +60,7 @@ class _MessageScreenState extends State<MessageScreen> with MySafeState {
         bool isValidSiteUser = chatUser.SiteID == currentSiteId;
         bool isValidUserStatus = chatUser.UserStatus == 1;
         bool isValidConnectionStatus = chatUser.Myconid == currentUserId;
-        bool isValidRole = [MessageRoleTypes.admin, MessageRoleTypes.manager, MessageRoleTypes.groupAdmin].contains(chatUser.RoleID);
+        bool isValidRole = [MessageRoleTypes.admin, MessageRoleTypes.manager, MessageRoleTypes.groupAdmin, MessageRoleTypes.learner].contains(chatUser.RoleID);
 
         return isValidUser && isValidSiteUser && isValidUserStatus && isValidConnectionStatus && isValidRole;
       }).toList();

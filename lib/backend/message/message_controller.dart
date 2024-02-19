@@ -253,7 +253,7 @@ class MessageController {
       bool isValidSiteUser = chatUser.SiteID == currentSiteId;
       bool isValidUserStatus = chatUser.UserStatus == 1;
       bool isValidConnectionStatus = chatUser.Myconid == currentUserId;
-      bool isValidRole = [MessageRoleTypes.admin, MessageRoleTypes.manager, MessageRoleTypes.groupAdmin].contains(chatUser.RoleID);
+      bool isValidRole = [MessageRoleTypes.admin, MessageRoleTypes.manager, MessageRoleTypes.groupAdmin, MessageRoleTypes.learner].contains(chatUser.RoleID);
       bool isValidFilter = selectedFilterRole == RoleFilterType.all ||
           switch (selectedFilterRole) {
             RoleFilterType.admin => chatUser.RoleID == MessageRoleTypes.admin,
