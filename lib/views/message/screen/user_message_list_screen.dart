@@ -244,18 +244,19 @@ class _UserMessageListScreenState extends State<UserMessageListScreen> with MySa
 
     try {
       await _speechToText.listen(
-        onResult: _onSpeechResult,
-        onSoundLevelChange: (double level) {
-          MyPrint.printOnConsole('onSoundLevelChange called with level:$level', tag: tag);
-          // if(level == -2.0){
-          //   _speechToText.stop();
-          //   mySetState();
-          // }
-        },
-        listenOptions: SpeechListenOptions(
-          listenMode: ListenMode.search,
-        ),
-      );
+          onResult: _onSpeechResult,
+          onSoundLevelChange: (double level) {
+            MyPrint.printOnConsole('onSoundLevelChange called with level:$level', tag: tag);
+            // if(level == -2.0){
+            //   _speechToText.stop();
+            //   mySetState();
+            // }
+          },
+          listenMode: ListenMode.search
+          // listenOptions: SpeechListenOptions(
+          //   listenMode: ListenMode.search,
+          // ),
+          );
     } catch (e, s) {
       MyPrint.printOnConsole("Error in UserMessageListScreen()._startListening();$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
