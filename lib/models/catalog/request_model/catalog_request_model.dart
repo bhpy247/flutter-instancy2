@@ -34,6 +34,7 @@ class CatalogRequestModel {
   String filtercredits = "";
   String duration = "";
   String instructors = "";
+  String learningprotals = "";
   bool PinnedContent = false;
 
   CatalogRequestModel({
@@ -69,6 +70,7 @@ class CatalogRequestModel {
     this.filtercredits = "",
     this.duration = "",
     this.instructors = "",
+    this.learningprotals = "0",
     this.PinnedContent = false,
   });
 
@@ -106,6 +108,7 @@ class CatalogRequestModel {
     filtercredits = ParsingHelper.parseStringMethod(json['filtercredits']);
     duration = ParsingHelper.parseStringMethod(json['duration']);
     instructors = ParsingHelper.parseStringMethod(json['instructors']);
+    learningprotals = ParsingHelper.parseStringMethod(json['learningprotals']);
   }
 
   Map<String, dynamic> toJson() {
@@ -143,6 +146,7 @@ class CatalogRequestModel {
       'duration': duration,
       'instructors': instructors,
       'PinnedContent': PinnedContent,
+      'learningprotals': learningprotals,
     };
   }
 }

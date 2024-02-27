@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_controller.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
@@ -10,6 +10,7 @@ import 'package:flutter_instancy_2/models/authentication/request_model/email_log
 import 'package:flutter_instancy_2/models/learning_communities/data_model/learning_communities_dto_model.dart';
 import 'package:flutter_instancy_2/models/learning_communities/request_model/learning_communities_request_model.dart';
 import 'package:flutter_instancy_2/utils/shared_pref_manager.dart';
+import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:provider/provider.dart';
 
 import '../../api/api_controller.dart';
@@ -70,6 +71,7 @@ class LearningCommunitiesController {
         notify: false,
       );
       provider.allLearningCommunitiesList.setList(list: <PortalListing>[], isClear: true, isNotify: isNotify);
+      provider.myLearningCommunitiesList.setList(list: <PortalListing>[], isClear: true, isNotify: isNotify);
     }
     //endregion
 
@@ -161,7 +163,7 @@ class LearningCommunitiesController {
     );
   }
 
-  Future<bool> goToCommunityOrJoinCommunity({required BuildContext context, required int SiteId, required String mobileSiteUrl}) async {
+  Future<bool> goToCommunityOrJoinCommunity({required BuildContext context, required int SiteId, required String mobileSiteUrl, bool isJoin = false, required PortalListing portalListing}) async {
     String tag = MyUtils.getNewId();
     AuthenticationProvider authenticationProvider = context.read<AuthenticationProvider>();
     NativeLoginDTOModel? emailLoginResponseModel = authenticationProvider.getEmailLoginResponseModel();
@@ -183,6 +185,12 @@ class LearningCommunitiesController {
 
     if (responseModel.data == null && responseModel.statusCode != 200) {
       return false;
+    }
+    bool isNavigateToSplash = false;
+    if (isJoin) {
+      isNavigateToSplash = await showCommunityJoinedDialog(portalListing, context: context);
+
+      if (!isNavigateToSplash) return false;
     }
 
     NativeLoginDTOModel nativeLoginDTOModel = responseModel.data!;
@@ -215,6 +223,56 @@ class LearningCommunitiesController {
     }
 
     return true;
+  }
+
+  Future<bool> showCommunityJoinedDialog(PortalListing portallisting, {required BuildContext context}) async {
+    bool? isNavigate = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text("Join Community"),
+        content: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 0.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "You have successfully joined",
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                portallisting.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  // color: AppColors.getAppTextColor().withOpacity(0.6),
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          CommonButton(
+            fontColor: Colors.white,
+            text: "Cancel",
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+          ),
+          CommonButton(
+            fontColor: Colors.white,
+            text: "Continue",
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+          ),
+        ],
+      ),
+    );
+    MyPrint.printOnConsole("isNavigate From Dialog:$isNavigate");
+    return isNavigate ?? false;
   }
 
   Future navigateBackToTheMainSiteUrl({required BuildContext context}) async {

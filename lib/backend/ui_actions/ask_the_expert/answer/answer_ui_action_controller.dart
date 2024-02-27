@@ -7,8 +7,8 @@ import '../../../../configs/app_constants.dart';
 import '../../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../../views/common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import '../../primary_secondary_actions/primary_secondary_actions_constants.dart';
-import 'answer_comment_ui_action_callback_model.dart';
-import 'answer_comment_ui_action_constant.dart';
+import 'answer_ui_action_callback_model.dart';
+import 'answer_ui_action_constant.dart';
 import 'answer_ui_action_parameter_model.dart';
 
 typedef AnswersUIActionTypeDef = bool Function({required AnswersUiActionParameterModel parameterModel});

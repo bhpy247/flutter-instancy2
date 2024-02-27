@@ -506,6 +506,8 @@ class ApiEndpoints {
 
   String apiDeleteAnswer() => '${getBaseApiUrl()}AsktheExpert/DeleteUserResponses';
 
+  String apiDeleteAnswerComment() => '${getBaseApiUrl()}AsktheExpert/DeleteUserResponseComment';
+
   String apiDeleteQuestion() => '${getBaseApiUrl()}AsktheExpert/DeleteQuestion';
 
   String apiAddEditAnswer() => '${getBaseApiUrl()}AsktheExpert/InsertEditQuestionResponse';

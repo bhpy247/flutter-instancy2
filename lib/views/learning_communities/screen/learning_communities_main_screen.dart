@@ -110,6 +110,9 @@ class _LearningCommunitiesMainScreenState extends State<LearningCommunitiesMainS
   }
 
   Widget myDiscussionTab() {
-    return const MyLearningCommunitiesScreen();
+    return MyLearningCommunitiesScreen(
+      componentId: widget.arguments.componentId,
+      componentInstanceId: widget.arguments.componentInsId,
+    );
   }
 }

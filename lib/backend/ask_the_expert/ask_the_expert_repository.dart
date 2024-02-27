@@ -182,6 +182,23 @@ class AskTheExpertRepository {
     return apiResponseModel;
   }
 
+  Future<DataResponseModel<String>> deleteComment({required int commentId}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      url: apiEndpoints.apiDeleteAnswerComment(),
+      queryParameters: {"commentId": "$commentId", "Commentedimage": ""},
+      parsingType: ModelDataParsingType.string,
+    );
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
   Future<DataResponseModel<String>> deleteQuestion({required int QuestionID}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 

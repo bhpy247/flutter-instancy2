@@ -113,46 +113,6 @@ class _AllLearningCommunitesScreenState extends State<AllLearningCommunitesScree
           return ModalProgressHUD(
             inAsyncCall: isLoading,
             child: Scaffold(
-              // floatingActionButton: Padding(
-              //   padding: EdgeInsets.only(
-              //     bottom: mainScreenProvider.isChatBotButtonEnabled.get() && !mainScreenProvider.isChatBotButtonCenterDocked.get() ? 70 : 0,
-              //   ),
-              //   child: FloatingActionButton(
-              //     shape: const CircleBorder(),
-              //     child: const Icon(Icons.add),
-              //     onPressed: () async {
-              //       // dynamic value = await NavigationController.navigateToCreateAddEditQuestionScreen(
-              //       //   navigationOperationParameters: NavigationOperationParameters(
-              //       //     context: context,
-              //       //     navigationType: NavigationType.pushNamed,
-              //       //   ),
-              //       //   arguments: CreateEditQuestionNavigationArguments(
-              //       //     isEdit: false,
-              //       //     componentId: componentId,
-              //       //     componentInsId: componentInstanceId,
-              //       //   ),
-              //       // );
-              //       // if (value != true) return;
-              //       // getQuestionList(
-              //       //   isRefresh: true,
-              //       //   isGetFromCache: false,
-              //       //   isNotify: true,
-              //       // );
-              //       // learningCommunitiesController.getForumsList(
-              //       //   isRefresh: true,
-              //       //   isGetFromCache: false,
-              //       //   isNotify: false,
-              //       //   componentId: componentId,
-              //       //   componentInstanceId: componentInstanceId,
-              //       // );
-              //       // learningCommunitiesController.getMyDiscussionForumsList(
-              //       //   isRefresh: true,
-              //       //   isGetFromCache: false,
-              //       //   isNotify: true,
-              //       // );
-              //     },
-              //   ),
-              // ),
               body: getMainWidget(),
             ),
           );
@@ -177,8 +137,6 @@ class _AllLearningCommunitesScreenState extends State<AllLearningCommunitesScree
       scrollController: catalogContentScrollController,
       contentsLength: learningCommunitiesProvider.allLearningCommunitiesList.length,
       paginationModel: learningCommunitiesProvider.allLearningCommunitiesPaginationModel.get(),
-      // contentsLength: 10,
-      // paginationModel: PaginationModel(pageSize: 1,hasMore: false,isFirstTimeLoading: false,isLoading: false,pageIndex: 10,refreshLimit: 2),
       onRefresh: () async {
         getQuestionList(
           isRefresh: true,
@@ -268,10 +226,10 @@ class _AllLearningCommunitesScreenState extends State<AllLearningCommunitesScree
       child: LearningCommunitiesCard(
         model: model,
         onGoToCommunityTap: () {
-          learningCommunitiesController.goToCommunityOrJoinCommunity(context: context, mobileSiteUrl: model.learnerSiteURL, SiteId: model.learningPortalID);
+          learningCommunitiesController.goToCommunityOrJoinCommunity(context: context, mobileSiteUrl: model.learnerSiteURL, SiteId: model.learningPortalID, portalListing: model);
         },
         onJoinCommunityTap: () {
-          learningCommunitiesController.goToCommunityOrJoinCommunity(context: context, mobileSiteUrl: model.learnerSiteURL, SiteId: model.learningPortalID);
+          learningCommunitiesController.goToCommunityOrJoinCommunity(context: context, mobileSiteUrl: model.learnerSiteURL, SiteId: model.learningPortalID, isJoin: true, portalListing: model);
         },
       ),
     );

@@ -307,7 +307,7 @@ class AskTheExpertController {
     mySetState?.call();
 
     DataResponseModel<String> dataResponseModel =
-        await _askTheExpertRepository.updateVote(responseId: commentModel.commentID, isLikedOrDisliked: commentModel.isLiked, typeId: 4, isFromAnswerComment: true);
+        await _askTheExpertRepository.updateVote(responseId: commentModel.commentID ?? -1, isLikedOrDisliked: commentModel.isLiked, typeId: 4, isFromAnswerComment: true);
     MyPrint.printOnConsole("dataResponseModel:$dataResponseModel", tag: tag);
 
     bool isSuccess = dataResponseModel.appErrorModel == null && dataResponseModel.data.checkNotEmpty;
@@ -430,6 +430,58 @@ class AskTheExpertController {
       if (index > -1) {
         // questionListDto.questionsAnswerList.remove(answerModel);
         questionListDto.questionsAnswerList.insert(index, answerModel);
+        // topicModel.NoOfReplies++;
+        mySetState?.call();
+      }
+    }
+
+    return isSuccess;
+  }
+
+  Future<bool> deleteComment({
+    required BuildContext context,
+    required AnswerCommentsModel commentModel,
+    required QuestionAnswerResponse answerModel,
+    void Function()? mySetState,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("DiscussionController().deleteComment() called with contentId:'${answerModel.responseID}'", tag: tag);
+
+    dynamic value = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        LocalStr localStrNew = context.read<AppProvider>().localStr;
+        MyPrint.printOnConsole("localStrNew.asktheexpertAlerttitleDeletecomment : ${localStrNew.asktheexpertAlerttitleDeletecomment}");
+        return CommonConfirmationDialog(
+          title: localStrNew.asktheexpertAlerttitleDeletecomment,
+          description: localStrNew.asktheexpertAlertsubtitleAreyousuretodeletethecomment,
+          confirmationText: localStrNew.asktheexpertAlertbuttonDeletebutton,
+          cancelText: localStrNew.asktheexpertAlertbuttonCancelbutton,
+        );
+      },
+    );
+
+    if (value != true) {
+      MyPrint.printOnConsole("Returning from DiscussionController().deleteComment() because couldn't get confirmation", tag: tag);
+      return false;
+    }
+
+    int index = answerModel.answersCommentList.indexOf(commentModel);
+    answerModel.answersCommentList.remove(answerModel);
+    answerModel.commentCount--;
+    // questionListDto.answer--;
+    mySetState?.call();
+
+    DataResponseModel<String> dataResponseModel = await _askTheExpertRepository.deleteComment(commentId: commentModel.commentID ?? -1);
+    MyPrint.printOnConsole("deleteComment response:$dataResponseModel", tag: tag);
+
+    bool isSuccess = dataResponseModel.appErrorModel == null && dataResponseModel.data == "2";
+    MyPrint.printOnConsole("isSuccess:$isSuccess", tag: tag);
+
+    if (!isSuccess) {
+      if (index > -1) {
+        // questionListDto.questionsAnswerList.remove(answerModel);
+        answerModel.answersCommentList.remove(commentModel);
         // topicModel.NoOfReplies++;
         mySetState?.call();
       }

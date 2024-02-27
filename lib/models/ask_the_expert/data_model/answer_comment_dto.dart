@@ -22,7 +22,7 @@ class AnswerCommentDTOModel {
 }
 
 class AnswerCommentsModel {
-  int commentID = 0;
+  int? commentID;
   int commentUserID = 0;
   int commentQuestionID = 0;
   int commentResponseID = 0;
@@ -43,7 +43,7 @@ class AnswerCommentsModel {
   bool isPublic = false;
 
   AnswerCommentsModel({
-    this.commentID = 0,
+    this.commentID = -1,
     this.commentUserID = 0,
     this.commentQuestionID = 0,
     this.commentResponseID = 0,

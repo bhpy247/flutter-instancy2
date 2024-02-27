@@ -17,7 +17,9 @@ import 'package:flutter_instancy_2/models/catalog/response_model/enroll_waiting_
 import 'package:flutter_instancy_2/models/catalog/response_model/prerequisiteDetailsResponseModel.dart';
 import 'package:flutter_instancy_2/models/dto/response_dto_model.dart';
 import 'package:flutter_instancy_2/models/filter/data_model/filter_duration_value_model.dart';
+import 'package:flutter_instancy_2/models/filter/data_model/learning_provider_model.dart';
 import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -351,8 +353,16 @@ class CatalogController {
       FilterDurationValueModel? model = filterProvider.selectedFilterCredit.get();
       if (model != null) filtercredits = "${model.Minvalue},${model.Maxvalue}";
     }
+    MyPrint.printOnConsole("HomeComponentIDDDDDDDDD: $HomecomponentID");
+    List<LearningProviderModel> learningProviderList = filterProvider.selectedLearningProviders.getList();
+    String learningPortalsIds = "";
+    if (learningProviderList.checkNotEmpty) {
+      learningPortalsIds = learningProviderList.map((e) => e.SiteID).toList().join(",");
+      MyPrint.printOnConsole("learningPortalsIds : $learningPortalsIds");
+    }
 
     return CatalogRequestModel(
+      learningprotals: learningPortalsIds,
       iswishlistcontent: isWishList ? 1 : 0,
       componentID: ParsingHelper.parseStringMethod(componentId),
       componentInsID: ParsingHelper.parseStringMethod(componentInstanceId),
@@ -363,6 +373,7 @@ class CatalogController {
       orgUnitID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentSiteId()),
       locale: apiUrlConfigurationProvider.getLocale().isNotEmpty ? apiUrlConfigurationProvider.getLocale() : "en-us",
       pageIndex: paginationModel.pageIndex,
+      // learningprotals: filterProvider.selectedLearningProviders.getList(),
       // pageSize: 500,
       pageSize: provider.pageSize.get(),
       contentID: "",
@@ -370,32 +381,32 @@ class CatalogController {
       sortBy: HomecomponentID != null
           ? "Publisheddate desc"
           : isWishList
-              ? filterProvider.defaultSort.get()
-              : filterProvider.selectedSort.get(),
+          ? filterProvider.defaultSort.get()
+          : filterProvider.selectedSort.get(),
       categories: (enabledContentFilterByTypeModel?.categories ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedCategories.getList().map((e) => e.categoryId).toList(),
-            )
+        list: filterProvider.selectedCategories.getList().map((e) => e.categoryId).toList(),
+      )
           : "",
       objecttypes: (enabledContentFilterByTypeModel?.objecttypeid ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedContentTypes.getList().map((e) => e.categoryId).toList(),
-            )
+        list: filterProvider.selectedContentTypes.getList().map((e) => e.categoryId).toList(),
+      )
           : "",
       skillcats: (enabledContentFilterByTypeModel?.skills ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedSkills.getList().map((e) => e.categoryId).toList(),
-            )
+        list: filterProvider.selectedSkills.getList().map((e) => e.categoryId).toList(),
+      )
           : "",
       jobroles: (enabledContentFilterByTypeModel?.jobroles ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedJobRoles.getList().map((e) => e.categoryId).toList(),
-            )
+        list: filterProvider.selectedJobRoles.getList().map((e) => e.categoryId).toList(),
+      )
           : "",
       solutions: (enabledContentFilterByTypeModel?.solutions ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedSolutions.getList().map((e) => e.categoryId).toList(),
-            )
+        list: filterProvider.selectedSolutions.getList().map((e) => e.categoryId).toList(),
+      )
           : "",
       ratings: (enabledContentFilterByTypeModel?.rating ?? false) ? ParsingHelper.parseStringMethod(filterProvider.selectedRating.get()) : "",
       pricerange: (enabledContentFilterByTypeModel?.ecommerceprice ?? false) && filterProvider.minPrice.get() != null && filterProvider.maxPrice.get() != null
@@ -403,8 +414,8 @@ class CatalogController {
           : "",
       instructors: (enabledContentFilterByTypeModel?.instructor ?? false)
           ? AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-              list: filterProvider.selectedInstructor.getList().map((e) => e.UserID).toList(),
-            )
+        list: filterProvider.selectedInstructor.getList().map((e) => e.UserID).toList(),
+      )
           : "",
       filtercredits: filtercredits,
       HomecomponentID: HomecomponentID,
