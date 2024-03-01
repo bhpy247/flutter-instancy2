@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
@@ -22,7 +23,7 @@ class CourseDownloadButton extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
 
-    if (!CourseDownloadController.isDownloadModuleEnabled) {
+    if (!CourseDownloadController.isDownloadModuleEnabled || kIsWeb) {
       return const SizedBox();
     }
 

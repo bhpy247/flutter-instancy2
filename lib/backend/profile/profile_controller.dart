@@ -50,7 +50,7 @@ class ProfileController {
     required AuthenticationProvider authenticationProvider,
   }) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("HomeController().getNewLearningResourcesListMain() called with isGetFromCache:$isGetFromCache", tag: tag);
+    MyPrint.printOnConsole("ProfileController().getProfileInfoMain() called with isGetFromCache:$isGetFromCache", tag: tag);
 
     if (isGetFromCache) {
       await getProfileInfo(userId: userId, isGetFromCache: true, isNotify: true, authenticationProvider: authenticationProvider);
@@ -70,7 +70,7 @@ class ProfileController {
 
   Future<void> getProfileInfo({required int userId, bool isGetFromCache = false, bool isNotify = false, required AuthenticationProvider authenticationProvider}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("HomeController().getNewLearningResourcesList() called with userId:$userId, isGetFromCache:$isGetFromCache", tag: tag);
+    MyPrint.printOnConsole("ProfileController().getProfileInfo() called with userId:$userId, isGetFromCache:$isGetFromCache", tag: tag);
 
     DataResponseModel<ProfileResponseModel> response = await profileRepository.getUserInfo(
       userId: userId,

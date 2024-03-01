@@ -14,6 +14,7 @@ import 'package:flutter_instancy_2/models/catalog/response_model/associated_cont
 import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/user_coming_soon_response.dart';
 import 'package:flutter_instancy_2/models/common/response_model/common_response_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/response_model/get_course_tracking_data_response_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/category_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/forum_info_user_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/forum_model.dart';
@@ -297,8 +298,10 @@ enum ModelDataParsingType {
   //endregion
 
   //region learning Communities
-  LearningCommunitiesDto
+  LearningCommunitiesDto,
   //endregion
+
+  GetCourseTrackingDataResponseModel,
 }
 
 class ModelDataParser {
@@ -504,8 +507,10 @@ class ModelDataParser {
     //region
 
     //region LearningCommunitiesModel
-    ModelDataParsingType.LearningCommunitiesDto: parseLearningCommunitiesDtoResponseModel
+    ModelDataParsingType.LearningCommunitiesDto: parseLearningCommunitiesDtoResponseModel,
     //endregion
+
+    ModelDataParsingType.GetCourseTrackingDataResponseModel: parseGetCourseTrackingDataResponseModel,
   };
 
   //region App Module
@@ -1467,5 +1472,16 @@ class ModelDataParser {
       return null;
     }
   }
+
 //endregion
+
+  static GetCourseTrackingDataResponseModel? parseGetCourseTrackingDataResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return GetCourseTrackingDataResponseModel.fromMap(json);
+    } else {
+      return null;
+    }
+  }
 }

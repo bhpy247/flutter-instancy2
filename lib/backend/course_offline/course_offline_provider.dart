@@ -1,6 +1,6 @@
 import 'package:flutter_instancy_2/backend/common/common_provider.dart';
 import 'package:flutter_instancy_2/models/course_offline/data_model/cmi_model.dart';
-import 'package:flutter_instancy_2/models/course_offline/data_model/learner_session_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/response_model/course_learner_session_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/student_course_response_model.dart';
 
 class CourseOfflineProvider extends CommonProvider {
@@ -12,11 +12,11 @@ class CourseOfflineProvider extends CommonProvider {
         return MapEntry(mapEntry.key, CMIModel.fromMap(mapEntry.value.toMap()));
       },
     );
-    learnerSessionData = CommonProviderMapParameter<String, LearnerSessionModel>(
-      map: <String, LearnerSessionModel>{},
+    courseLearnerSessionData = CommonProviderMapParameter<String, CourseLearnerSessionResponseModel>(
+      map: <String, CourseLearnerSessionResponseModel>{},
       notify: notify,
-      newInstancialization: (MapEntry<String, LearnerSessionModel> mapEntry) {
-        return MapEntry(mapEntry.key, LearnerSessionModel.fromMap(mapEntry.value.toMap()));
+      newInstancialization: (MapEntry<String, CourseLearnerSessionResponseModel> mapEntry) {
+        return MapEntry(mapEntry.key, CourseLearnerSessionResponseModel.fromMap(mapEntry.value.toMap()));
       },
     );
     studentResponseData = CommonProviderMapParameter<String, StudentCourseResponseModel>(
@@ -29,6 +29,6 @@ class CourseOfflineProvider extends CommonProvider {
   }
 
   late CommonProviderMapParameter<String, CMIModel> cmiData;
-  late CommonProviderMapParameter<String, LearnerSessionModel> learnerSessionData;
+  late CommonProviderMapParameter<String, CourseLearnerSessionResponseModel> courseLearnerSessionData;
   late CommonProviderMapParameter<String, StudentCourseResponseModel> studentResponseData;
 }

@@ -542,5 +542,9 @@ class ApiEndpoints {
     return "$instancyApiUrl/Bot/GetSiteBotDetails";
   }
 
+  // region Offline Module
   String UpdateOfflineTrackedData() => '${getBaseApiUrl()}MobileLMS/MobileUpdateOfflineTrackedData';
+
+  String GetCourseTrackingData() => '${getBaseApiUrl()}MobileLMS/MobileGetContentTrackedData';
+// endregion
 }

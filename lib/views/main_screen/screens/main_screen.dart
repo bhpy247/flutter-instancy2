@@ -22,6 +22,7 @@ import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart
 import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_provider.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_controller.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
@@ -156,7 +157,7 @@ class _MainScreenState extends State<MainScreen> {
     ProfileController(profileProvider: profileProvider).getProfileInfoMain(
       userId: ApiController().apiDataProvider.getCurrentUserId(),
       authenticationProvider: Provider.of<AuthenticationProvider>(context, listen: false),
-      isGetFromCache: false,
+      isGetFromCache: !NetworkConnectionController().checkConnection(),
     );
 
     InstabotController(provider: instaBotProvider).getSiteBotDetails(appThemeProvider: appThemeProvider, isNotify: false);
@@ -232,7 +233,10 @@ class _MainScreenState extends State<MainScreen> {
                   ),
             );
           }
-          Widget? floatingActionButton = getChatBotButton(instaBotProvider: instaBotProvider);
+          Widget? floatingActionButton = getChatBotButton(
+            instaBotProvider: instaBotProvider,
+            networkConnectionProvider: networkConnectionProvider,
+          );
           bool isCenterDocked = floatingActionButton != null && floatingActionButtonLocation == FloatingActionButtonLocation.centerDocked;
 
           mainScreenProvider.isChatBotButtonCenterDocked.set(value: isCenterDocked, isNotify: false);
@@ -342,12 +346,14 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget? getChatBotButton({required InstaBotProvider instaBotProvider}) {
+  Widget? getChatBotButton({required InstaBotProvider instaBotProvider, required NetworkConnectionProvider networkConnectionProvider}) {
     if (!appProvider.appSystemConfigurationModel.enableChatBot) {
       return null;
     }
 
     if (instaBotProvider.isSiteBotDetailsLoading.get()) return null;
+
+    if (!networkConnectionProvider.isNetworkConnected.get()) return null;
 
     BotDetailsModel? botDetailsModel = instaBotProvider.botDetailsModel.get();
     if (botDetailsModel == null) return null;

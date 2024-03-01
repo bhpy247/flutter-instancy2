@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
+import 'package:flutter_instancy_2/backend/app/app_controller.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_controller.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
@@ -10,6 +14,7 @@ import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/component_configurations_model.dart';
 import 'package:flutter_instancy_2/models/common/pagination/pagination_model.dart';
+import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/request_model/my_learning_data_request_model.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
@@ -490,7 +495,7 @@ class MyLearningController {
     return response.data == "1";
   }
 
-  Future<bool> setComplete({required String contentId, required int scoId, required int contentTypeId}) async {
+  Future<bool> setComplete({required String contentId, required int scoId, required int contentTypeId, String parentEventTrackContentId = ""}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("MyLearningController().setComplete() called with contentId:'$contentId', scoId:'$scoId', contentTypeId:'$contentTypeId'", tag: tag);
 
@@ -503,6 +508,23 @@ class MyLearningController {
     bool isSuccess = response.statusCode == 200;
 
     if (isSuccess) {
+      if (AppController.mainAppContext != null) {
+        CourseDownloadProvider courseDownloadProvider = AppController.mainAppContext!.read<CourseDownloadProvider>();
+        AppProvider appProvider = AppController.mainAppContext!.read<AppProvider>();
+        CourseDownloadController courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+
+        CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(
+          courseDownloadId: CourseDownloadDataModel.getDownloadId(
+            contentId: contentId,
+            eventTrackContentId: parentEventTrackContentId,
+          ),
+        );
+
+        if (courseDownloadDataModel != null) {
+          courseDownloadController.setCompleteDownload(courseDownloadDataModel: courseDownloadDataModel);
+        }
+      }
+
       await GamificationController(provider: NavigationController.mainNavigatorKey.currentContext?.read<GamificationProvider>()).UpdateContentGamification(
         requestModel: UpdateContentGamificationRequestModel(
           contentId: contentId,

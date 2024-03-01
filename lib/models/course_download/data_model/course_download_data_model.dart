@@ -18,6 +18,7 @@ class CourseDownloadDataModel extends CommonProvider {
   String parentContentId = "";
   String parentContentName = "";
   int contentTypeId = 0;
+  int mediaTypeId = 0;
   int scoId = 0;
   int parentContentTypeId = 0;
   int parentContentScoId = 0;
@@ -51,6 +52,7 @@ class CourseDownloadDataModel extends CommonProvider {
     this.parentContentId = "",
     this.parentContentName = "",
     this.contentTypeId = 0,
+    this.mediaTypeId = 0,
     this.scoId = 0,
     this.parentContentTypeId = 0,
     this.parentContentScoId = 0,

@@ -751,6 +751,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
           contentId: model.ContentID,
           scoId: model.ScoID,
           contentTypeId: model.ContentTypeId,
+          parentEventTrackContentId: widget.arguments.parentContentId,
         );
         MyPrint.printOnConsole("SetComplete isSuccess:$isSuccess");
 
@@ -760,10 +761,6 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
         if (isSuccess) {
           if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "Set Complete was successful");
           getLearningPathHeaderData();
-          getTrackContentsData(
-            isRefresh: true,
-            isNotify: true,
-          );
           getTrackContentsData(
             isRefresh: true,
             isNotify: true,
@@ -906,6 +903,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
           contentId: model.ContentID,
           scoId: model.ScoID,
           contentTypeId: model.ContentTypeId,
+          parentEventTrackContentId: widget.arguments.parentContentId,
         );
         MyPrint.printOnConsole("SetComplete isSuccess:$isSuccess");
 
@@ -915,10 +913,6 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
         if (isSuccess) {
           if (pageMounted && context.mounted) MyToast.showSuccess(context: context, msg: "Set Complete was successful");
           getLearningPathHeaderData();
-          getTrackContentsData(
-            isRefresh: true,
-            isNotify: true,
-          );
           getTrackContentsData(
             isRefresh: true,
             isNotify: true,
@@ -1064,6 +1058,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
           contentId: model.ContentID,
           scoId: model.ScoID,
           contentTypeId: model.ContentTypeId,
+          parentEventTrackContentId: widget.arguments.parentContentId,
         );
         MyPrint.printOnConsole("SetComplete isSuccess:$isSuccess");
 
@@ -1174,6 +1169,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
           contentId: model.ContentID,
           scoId: model.ScoID,
           contentTypeId: model.ContentTypeId,
+          parentEventTrackContentId: widget.arguments.parentContentId,
         );
         MyPrint.printOnConsole("SetComplete isSuccess:$isSuccess");
 

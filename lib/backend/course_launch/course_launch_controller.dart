@@ -17,6 +17,7 @@ import 'package:flutter_instancy_2/backend/network_connection/network_connection
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/course_download/request_model/course_download_request_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/content_status_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
@@ -154,8 +155,7 @@ class CourseLaunchController {
         MyPrint.printOnConsole("isLaunched:$isLaunched", tag: tag);
       }
       return isLaunched;
-    }
-    else {
+    } else {
       // launch offline
       if (isCourseDownloaded) {
         bool isLaunched = false;
@@ -546,13 +546,17 @@ class CourseLaunchController {
 
         return false;
       }
+
+      checkNonTrackableContentStatusUpdateOffline(model: model);
+
       // For Learning Modules
-      else if ([
+      if ([
             InstancyObjectTypes.contentObject,
             InstancyObjectTypes.assessment,
             InstancyObjectTypes.scorm1_2,
             InstancyObjectTypes.reference,
             InstancyObjectTypes.xApi,
+            InstancyObjectTypes.webPage,
           ].contains(model.ContentTypeId) ||
           (model.ContentTypeId == InstancyObjectTypes.mediaResource && model.MediaTypeId == InstancyMediaTypes.video && model.JWVideoKey.isNotEmpty)) {
         String folderPath = await CourseDownloadController(
@@ -650,7 +654,7 @@ class CourseLaunchController {
 
       //For Pdf
       if ([InstancyMediaTypes.pDF].contains(model.MediaTypeId) || finalFilePath.endsWith("pdf")) {
-        return await NavigationController.navigateToPDFLaunchScreen(
+        dynamic value = await NavigationController.navigateToPDFLaunchScreen(
           navigationOperationParameters: NavigationOperationParameters(
             context: context,
             navigationType: NavigationType.pushNamed,
@@ -661,6 +665,12 @@ class CourseLaunchController {
             contntName: model.ContentName,
           ),
         );
+
+        if (value is! bool) {
+          return true;
+        }
+
+        return value;
       }
       //For Other Documents
       else if ([InstancyMediaTypes.word, InstancyMediaTypes.excel, InstancyMediaTypes.ppt].contains(model.MediaTypeId)) {
@@ -793,11 +803,82 @@ class CourseLaunchController {
         contentId: model.ContentID,
         scoId: model.ScoID,
         contentTypeId: model.ContentTypeId,
+        parentEventTrackContentId: model.ParentEventTrackContentID,
       );
     } else {
       MyPrint.printOnConsole("Have to update tracking status for MediaTypes", tag: tag);
 
       await updateContentStatusToInProgressForNonTrackingContents(userId: model.SiteUserID, scoId: model.ScoID);
+    }
+  }
+
+  Future<void> checkNonTrackableContentStatusUpdateOffline({required CourseLaunchModel model}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CourseLaunchController().checkNonTrackableContentStatusUpdateOffline() called", tag: tag);
+
+    MyPrint.printOnConsole("model.ContentTypeId:${model.ContentTypeId}", tag: tag);
+
+    CourseDownloadProvider courseDownloadProvider = AppController.mainAppContext!.read<CourseDownloadProvider>();
+    CourseDownloadController courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+
+    CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(
+      courseDownloadId: CourseDownloadDataModel.getDownloadId(
+        contentId: model.ContentID,
+        eventTrackContentId: model.ParentEventTrackContentID,
+      ),
+    );
+
+    if (courseDownloadDataModel == null) {
+      MyPrint.printOnConsole("Returning from CourseLaunchController().checkNonTrackableContentStatusUpdateOffline() because Course not downloaded", tag: tag);
+      return;
+    }
+
+    if (![
+      InstancyObjectTypes.dictionaryGlossary,
+      InstancyObjectTypes.html,
+      InstancyObjectTypes.webPage,
+      InstancyObjectTypes.mediaResource,
+      InstancyObjectTypes.xApi,
+      InstancyObjectTypes.cmi5,
+      InstancyObjectTypes.scorm1_2,
+      InstancyObjectTypes.reference,
+      InstancyObjectTypes.document,
+    ].contains(model.ContentTypeId)) {
+      MyPrint.printOnConsole("Returning from CourseLaunchController().checkNonTrackableContentStatusUpdateOffline() because Content Type is not valid", tag: tag);
+      return;
+    }
+
+    //region Exceptional Media Type Validation
+    if ([
+      InstancyMediaTypes.corpAcademy,
+      InstancyMediaTypes.psyTechAssessment,
+      InstancyMediaTypes.dISCAssessment,
+      InstancyMediaTypes.assessment24x7,
+    ].contains(model.MediaTypeId)) {
+      MyPrint.printOnConsole("Returning from CourseLaunchController().checkNonTrackableContentStatusUpdateOffline() because Media Type is not valid", tag: tag);
+      return;
+    }
+    //endregion
+
+    //region Content Status Validation
+    MyPrint.printOnConsole("ActualStatus:${model.ActualStatus}", tag: tag);
+    if (model.ActualStatus == ContentStatusTypes.completed) {
+      MyPrint.printOnConsole("Returning from CourseLaunchController().checkNonTrackableContentStatusUpdateOffline() because Content Status is Completed already", tag: tag);
+      return;
+    }
+    //endregion
+
+    bool autocompleteNonTrackableContent = appProvider.appSystemConfigurationModel.autocompleteNonTrackableContent;
+    MyPrint.printOnConsole("autocompleteNonTrackableContent:$autocompleteNonTrackableContent", tag: tag);
+
+    if (autocompleteNonTrackableContent) {
+      MyPrint.printOnConsole("Have to update status to completed", tag: tag);
+
+      await courseDownloadController.setCompleteDownload(courseDownloadDataModel: courseDownloadDataModel);
+    } else {
+      MyPrint.printOnConsole("Have to update tracking status for MediaTypes", tag: tag);
+
+      await courseDownloadController.setContentToInProgress(courseDownloadDataModel: courseDownloadDataModel);
     }
   }
 

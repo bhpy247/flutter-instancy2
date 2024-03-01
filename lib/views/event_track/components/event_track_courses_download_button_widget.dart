@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/api/api_controller.dart';
+import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
@@ -88,6 +90,8 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
         courseDownloadProvider: courseDownloadProvider,
       );
 
+      ApiUrlConfigurationProvider apiUrlConfigurationProvider = ApiController().apiDataProvider;
+
       if (trackCourseDtoModel != null) {
         courseDownloadController.downloadCourse(
           courseDownloadRequestModel: CourseDownloadRequestModel(
@@ -98,8 +102,8 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
             StartPage: trackCourseDtoModel.startpage,
             ContentTypeId: trackCourseDtoModel.ContentTypeId,
             MediaTypeID: trackCourseDtoModel.MediaTypeID,
-            SiteId: trackCourseDtoModel.SiteId,
-            UserID: trackCourseDtoModel.UserID,
+            SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+            UserID: apiUrlConfigurationProvider.getCurrentUserId(),
             ScoId: trackCourseDtoModel.ScoID,
           ),
           trackCourseDTOModel: trackCourseDtoModel,
@@ -115,8 +119,8 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
             StartPage: relatedTrackDataDTOModel.startpage,
             ContentTypeId: relatedTrackDataDTOModel.ContentTypeId,
             MediaTypeID: relatedTrackDataDTOModel.MediaTypeID,
-            SiteId: relatedTrackDataDTOModel.SiteID,
-            UserID: relatedTrackDataDTOModel.UserID,
+            SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+            UserID: apiUrlConfigurationProvider.getCurrentUserId(),
             ScoId: relatedTrackDataDTOModel.ScoID,
           ),
           relatedTrackDataDTOModel: relatedTrackDataDTOModel,
@@ -132,6 +136,10 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
 
     return Consumer2<NetworkConnectionProvider, CourseDownloadProvider>(
       builder: (BuildContext context, NetworkConnectionProvider networkConnectionProvider, CourseDownloadProvider courseDownloadProvider, Widget? child) {
+        if (!CourseDownloadController.isDownloadModuleEnabled || kIsWeb) {
+          return const SizedBox();
+        }
+
         if ((eventTrackProvider.trackContentsData.length == 0 &&
                 eventTrackProvider.trackAssignmentsData.length == 0 &&
                 eventTrackProvider.eventRelatedContentsData.length == 0 &&
@@ -158,8 +166,7 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
           String downloadId = CourseDownloadDataModel.getDownloadId(contentId: contentId, eventTrackContentId: parentEventTrackModel?.ContentID ?? "");
           CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: downloadId);
 
-          if (courseDownloadDataModel == null) {
-          } else {
+          if (courseDownloadDataModel == null) {} else {
             if (courseDownloadDataModel.isCourseDownloaded) {
               downloadedCount++;
             } else {

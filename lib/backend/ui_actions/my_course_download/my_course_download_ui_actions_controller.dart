@@ -1,7 +1,12 @@
+import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
+import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
+import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
+import 'package:provider/provider.dart';
 
 import '../../../configs/app_constants.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
@@ -27,6 +32,7 @@ class MyCourseDownloadUIActionsController {
       InstancyContentActionsEnum.CancelDownload: showCancelDownload,
       InstancyContentActionsEnum.PauseDownload: showPauseDownload,
       InstancyContentActionsEnum.ResumeDownload: showResumeDownload,
+      InstancyContentActionsEnum.SetComplete: showSetComplete,
     };
   }
 
@@ -72,6 +78,20 @@ class MyCourseDownloadUIActionsController {
     return false;
   }
 
+  bool showSetComplete({required MyCourseDownloadUIActionParameterModel parameterModel}) {
+    MyPrint.printOnConsole("showSetComplete called");
+
+    bool isHavingNetworkConnection = NetworkConnectionController().checkConnection();
+
+    return !isHavingNetworkConnection &&
+        AppConfigurationOperations(appProvider: AppController.mainAppContext?.read<AppProvider>() ?? AppProvider()).isShowSetComplete(
+          objectTypeId: parameterModel.ContentTypeId,
+          mediaTypeId: parameterModel.MediaTypeId,
+          actualContentStatus: parameterModel.CoreLessonStatus,
+          profileProvider: AppController.mainAppContext?.read<ProfileProvider>() ?? ProfileProvider(),
+        );
+  }
+
   //region Secondary Actions
   Iterable<InstancyUIActionModel> getMyCourseDownloadsScreenSecondaryActions({
     required CourseDownloadDataModel courseDownloadDataModel,
@@ -91,6 +111,7 @@ class MyCourseDownloadUIActionsController {
       InstancyContentActionsEnum.CancelDownload,
       InstancyContentActionsEnum.PauseDownload,
       InstancyContentActionsEnum.ResumeDownload,
+      InstancyContentActionsEnum.SetComplete,
     };
 
     // MyPrint.printOnConsole("secondaryActions:$set", tag: tag);
@@ -109,6 +130,9 @@ class MyCourseDownloadUIActionsController {
     required CourseDownloadDataModel model,
   }) {
     return MyCourseDownloadUIActionParameterModel(
+      CoreLessonStatus: model.courseDTOModel?.ActualStatus ?? model.trackCourseDTOModel?.CoreLessonStatus ?? model.relatedTrackDataDTOModel?.CoreLessonStatus ?? "",
+      ContentTypeId: model.contentTypeId,
+      MediaTypeId: model.mediaTypeId,
       isFileDownloading: model.isFileDownloading,
       isFileDownloadingPaused: model.isFileDownloadingPaused,
       isFileDownloaded: model.isFileDownloaded,
@@ -166,6 +190,15 @@ class MyCourseDownloadUIActionsController {
             iconData: InstancyIcons.resumeDownload,
             onTap: myLearningUIActionCallbackModel.onResumeDownloadTap,
             actionsEnum: InstancyContentActionsEnum.ResumeDownload,
+          );
+        }
+      } else if (action == InstancyContentActionsEnum.SetComplete) {
+        if (isShowAction(actionType: InstancyContentActionsEnum.SetComplete, parameterModel: parameterModel) && myLearningUIActionCallbackModel.onSetCompleteTap != null) {
+          model = InstancyUIActionModel(
+            text: localStr.mylearningActionsheetSetcompleteoption,
+            svgImageUrl: InstancySVGImages.setComplete,
+            onTap: myLearningUIActionCallbackModel.onSetCompleteTap,
+            actionsEnum: InstancyContentActionsEnum.SetComplete,
           );
         }
       }

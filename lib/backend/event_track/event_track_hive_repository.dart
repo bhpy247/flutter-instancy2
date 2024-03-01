@@ -2,8 +2,12 @@ import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_header_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_tab_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/response_model/resource_content_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/response_model/track_list_view_data_response_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/hive_manager.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
@@ -861,4 +865,89 @@ class EventTrackHiveRepository {
   }
 
 //endregion
+
+  // region Other Operations
+  Future<bool> updateContentProgressDataForTrackEventRelatedContent({
+    required String parentEventTrackContentId,
+    required String childContentId,
+    required bool isTrackContent,
+    String? displayStatus,
+    String? coreLessonStatus,
+    double? courseProgress,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole(
+      "CourseOfflineRepository().updateContentProgressDataForTrackEventRelatedContent() called with parentEventTrackContentId:$parentEventTrackContentId, childContentId:$childContentId, "
+      "isTrackContent:$isTrackContent, displayStatus:'$displayStatus', coreLessonStatus:'$coreLessonStatus', courseProgress:'$courseProgress'",
+      tag: tag,
+    );
+
+    bool isUpdatedTrackDownloadDataInHive = false;
+
+    if (isTrackContent) {
+      MyPrint.printOnConsole("Updating Content Progress in Track Tab Offline Data", tag: tag);
+
+      TrackListViewDataResponseModel? responseModel = await getTrackContentDataForTrackId(trackId: parentEventTrackContentId);
+      if (responseModel == null) {
+        MyPrint.printOnConsole("Error in Updating Content Progress in Track Tab Offline Data because data not exist in Offline", tag: tag);
+        return false;
+      }
+
+      List<TrackDTOModel> list = responseModel.TrackListData.where((element) {
+        return element.TrackList.where((element) => element.ContentID == childContentId).toList().isNotEmpty;
+      }).toList();
+      TrackCourseDTOModel? finalTrackCourseDTOModel = list.firstElement?.TrackList.where((element) => element.ContentID == childContentId).toList().firstElement;
+
+      if (finalTrackCourseDTOModel == null) {
+        MyPrint.printOnConsole(
+          "Error in Updating Content Progress in Track Tab Offline Data because content model with id ${childContentId} not exist in Track Data Offline",
+          tag: tag,
+        );
+        return false;
+      }
+
+      MyPrint.printOnConsole("Got Content Model, Updating Content Progress in Track Tab Offline Data", tag: tag);
+
+      if (coreLessonStatus != null) finalTrackCourseDTOModel.CoreLessonStatus = coreLessonStatus;
+      if (displayStatus != null) finalTrackCourseDTOModel.ContentStatus = displayStatus;
+      if (courseProgress != null) finalTrackCourseDTOModel.ContentProgress = courseProgress.toString();
+
+      isUpdatedTrackDownloadDataInHive = await addTrackContentsDataInBox(trackContentData: {parentEventTrackContentId: responseModel}, isClear: false);
+
+      MyPrint.printOnConsole("Updated Track Content Model in Track Tab Offline Data:$isUpdatedTrackDownloadDataInHive", tag: tag);
+    } else {
+      MyPrint.printOnConsole("Updating Content Progress in Event Tab Offline Data", tag: tag);
+
+      ResourceContentDTOModel? responseModel = await getEventRelatedContentDataForEventId(eventId: parentEventTrackContentId);
+      if (responseModel == null) {
+        MyPrint.printOnConsole("Error in Updating Content Progress in Event Tab Offline Data because data not exist in Offline", tag: tag);
+        return false;
+      }
+
+      RelatedTrackDataDTOModel? finalRelatedTrackDataDTOModel = responseModel.ResouseList.where((element) {
+        return element.ContentID == childContentId;
+      }).toList().firstElement;
+
+      if (finalRelatedTrackDataDTOModel == null) {
+        MyPrint.printOnConsole(
+          "Error in Updating Content Progress in Event Tab Offline Data because content model with id ${childContentId} not exist in Event Data Offline",
+          tag: tag,
+        );
+        return false;
+      }
+
+      MyPrint.printOnConsole("Got Content Model, Updating Content Progress in Event Tab Offline Data", tag: tag);
+
+      if (coreLessonStatus != null) finalRelatedTrackDataDTOModel.CoreLessonStatus = coreLessonStatus;
+      if (displayStatus != null) finalRelatedTrackDataDTOModel.ContentDisplayStatus = displayStatus;
+      if (courseProgress != null) finalRelatedTrackDataDTOModel.PercentCompleted = courseProgress;
+
+      isUpdatedTrackDownloadDataInHive = await addEventRelatedContentDataInBox(eventRelatedContentData: {parentEventTrackContentId: responseModel}, isClear: false);
+
+      MyPrint.printOnConsole("Updated Track Content Model in Event Tab Offline Data:$isUpdatedTrackDownloadDataInHive", tag: tag);
+    }
+
+    return isUpdatedTrackDownloadDataInHive;
+  }
+// endregion
 }

@@ -69,6 +69,17 @@ class _MyCourseDownloadScreenState extends State<MyCourseDownloadScreen> with My
 
         courseDownloadController.resumeDownload(downloadId: model.id);
       },
+      onSetCompleteTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        isLoading = true;
+        mySetState();
+
+        await courseDownloadController.setCompleteDownload(courseDownloadDataModel: model);
+
+        isLoading = false;
+        mySetState();
+      },
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
@@ -66,12 +67,15 @@ class EventTrackUIActionsController {
   }
 
   bool showSetComplete({required EventTrackUIActionParameterModel parameterModel}) {
-    return AppConfigurationOperations(appProvider: appProvider).isShowSetComplete(
-      objectTypeId: parameterModel.objectTypeId,
-      mediaTypeId: parameterModel.mediaTypeId,
-      actualContentStatus: parameterModel.actualStatus,
-      profileProvider: profileProvider,
-    );
+    bool isHavingNetworkConnection = NetworkConnectionController().checkConnection();
+
+    return isHavingNetworkConnection &&
+        AppConfigurationOperations(appProvider: appProvider).isShowSetComplete(
+          objectTypeId: parameterModel.objectTypeId,
+          mediaTypeId: parameterModel.mediaTypeId,
+          actualContentStatus: parameterModel.actualStatus,
+          profileProvider: profileProvider,
+        );
   }
 
   bool showReEnrollmentHistory({required EventTrackUIActionParameterModel parameterModel}) {

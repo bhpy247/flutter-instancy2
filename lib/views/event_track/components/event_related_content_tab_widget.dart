@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/api/api_controller.dart';
+import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
@@ -127,6 +129,13 @@ class _EventRelatedContentTabWidgetState extends State<EventRelatedContentTabWid
 
         courseDownloadController.resumeDownload(downloadId: model.id);
       },
+      onSetCompleteTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        await courseDownloadController.setCompleteDownload(courseDownloadDataModel: model);
+
+        if (widget.onPulledTORefresh != null) widget.onPulledTORefresh!();
+      },
     );
   }
 
@@ -208,6 +217,9 @@ class _EventRelatedContentTabWidgetState extends State<EventRelatedContentTabWid
 
     if (courseDownloadDataModel == null) {
       MyPrint.printOnConsole("Course Not Downloaded", tag: tag);
+
+      ApiUrlConfigurationProvider apiUrlConfigurationProvider = ApiController().apiDataProvider;
+
       courseDownloadController.downloadCourse(
         courseDownloadRequestModel: CourseDownloadRequestModel(
           ContentID: model.ContentID,
@@ -217,8 +229,8 @@ class _EventRelatedContentTabWidgetState extends State<EventRelatedContentTabWid
           StartPage: model.startpage,
           ContentTypeId: model.ContentTypeId,
           MediaTypeID: model.MediaTypeID,
-          SiteId: model.SiteID,
-          UserID: model.UserID,
+          SiteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+          UserID: apiUrlConfigurationProvider.getCurrentUserId(),
           ScoId: model.ScoID,
         ),
         relatedTrackDataDTOModel: model,

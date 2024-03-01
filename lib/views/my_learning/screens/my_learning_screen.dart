@@ -608,6 +608,17 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
 
         courseDownloadController.resumeDownload(downloadId: model.id);
       },
+      onSetCompleteTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        isLoading = true;
+        mySetState();
+
+        await courseDownloadController.setCompleteDownload(courseDownloadDataModel: model);
+
+        isLoading = false;
+        mySetState();
+      },
     );
   }
 

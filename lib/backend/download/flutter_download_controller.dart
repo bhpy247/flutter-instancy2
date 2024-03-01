@@ -15,6 +15,7 @@ import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
+import 'package:xml/xml.dart';
 
 typedef DownloadStartCallback = void Function({required String taskId});
 typedef DownloadUpdateCallback = void Function({required String taskId, required FlutterDownloadResponseModel responseModel});
@@ -276,8 +277,10 @@ class FlutterDownloadController {
             completer.complete(true);
           } else if (responseModel.status == DownloadTaskStatus.failed) {
             completer.complete(false);
-          } else
-          if (responseModel.status == DownloadTaskStatus.paused) {} else if (responseModel.status == DownloadTaskStatus.running) {} else if (responseModel.status == DownloadTaskStatus.undefined) {} else if (responseModel.status == DownloadTaskStatus.enqueued) {}
+          } else if (responseModel.status == DownloadTaskStatus.paused) {
+          } else if (responseModel.status == DownloadTaskStatus.running) {
+          } else if (responseModel.status == DownloadTaskStatus.undefined) {
+          } else if (responseModel.status == DownloadTaskStatus.enqueued) {}
 
           if (downloadUpdateCallback != null) {
             downloadUpdateCallback(taskId: response.taskId!, responseModel: responseModel);
@@ -366,11 +369,13 @@ class FlutterDownloadController {
       return false;
     }
 
-    // String pathSeparator = AppController.getPathSeparator() ?? "/";
+    String pathSeparator = AppController.getPathSeparator() ?? "/";
 
     final Directory destinationDir = Directory(destinationFolderPath);
     await destinationDir.create(recursive: true);
     try {
+      List<String> jwFileUrls = <String>[];
+
       // Read the Zip newFile from disk.
       final Uint8List bytes = zipFile.readAsBytesSync();
 
@@ -400,10 +405,24 @@ class FlutterDownloadController {
             MyPrint.printOnConsole("Error in Writing in File in FlutterDownloadController().extractZipFile():$e", tag: tag);
             MyPrint.printOnConsole(s, tag: tag);
           }
+
+          if (filename == 'jwvideoslist.xml') {
+            MyPrint.printOnConsole("Having JW Videos To Download", tag: tag);
+            String fileData = await newFile.readAsString();
+            final document = XmlDocument.parse(fileData);
+            List<XmlElement> elements = document.findAllElements('jwvideo').toList();
+            for (final element in elements) {
+              String jwFileUrl = element.innerText;
+              Uri? uri = Uri.tryParse(jwFileUrl);
+              if (uri != null) {
+                jwFileUrls.add(jwFileUrl);
+              }
+            }
+          }
         } else {
           //lastFolderPath = file.name;
           try {
-            await Directory("$destinationFolderPath/$filename").create(recursive: true);
+            await Directory("$destinationFolderPath$pathSeparator$filename").create(recursive: true);
           } catch (e, s) {
             MyPrint.printOnConsole("Error in Creating Directory in FlutterDownloadController().extractZipFile():$e", tag: tag);
             MyPrint.printOnConsole(s, tag: tag);
@@ -412,6 +431,19 @@ class FlutterDownloadController {
         if (onFileOperation != null) {
           onFileOperation(totalOperations);
         }
+      }
+
+      /// If the course contains videos, start a new process to download those videos
+      /// These videos are saved in the same destination folder path under a `jwvideos` sub-folder
+      MyPrint.printOnConsole("Final jwFileUrls:$jwFileUrls", tag: tag);
+      if (jwFileUrls.isNotEmpty) {
+        MyPrint.printOnConsole("Downloading jwFiles", tag: tag);
+
+        bool isJWFilesDownloaded = await _downloadJWFiles(
+          jwFileUrls: jwFileUrls,
+          destinationFolderPath: "$destinationFolderPath${pathSeparator}jwvideos",
+        );
+        MyPrint.printOnConsole("isJWFilesDownloaded:$isJWFilesDownloaded", tag: tag);
       }
 
       try {
@@ -430,5 +462,63 @@ class FlutterDownloadController {
       MyPrint.printOnConsole(s, tag: tag);
       return false;
     }
+  }
+
+  Future<bool> _downloadJWFiles({required List<String> jwFileUrls, required String destinationFolderPath}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("FlutterDownloadController._downloadJWFiles() called with jwFileUrls:'$jwFileUrls', destinationFolderPath:'$destinationFolderPath'", tag: tag);
+
+    bool isDownloaded = false;
+
+    String pathSeparator = AppController.getPathSeparator() ?? "/";
+
+    try {
+      Directory videoDirectory = await Directory(destinationFolderPath).create(recursive: true);
+
+      List<Future> futures = <Future>[];
+      int totalDownloads = 0;
+      int completedDownloads = 0;
+
+      for (String url in jwFileUrls) {
+        List<String> splitUrl = url.split('/');
+        if (splitUrl.isEmpty) {
+          continue;
+        }
+
+        String fileName = splitUrl.last;
+        String filePath = '${videoDirectory.path}$pathSeparator$fileName';
+
+        MyPrint.printOnConsole("Downloading JW File From Url:'$url' On Path:'$filePath'", tag: tag);
+
+        totalDownloads++;
+        futures.add(
+          downloadFile(
+            requestModel: FlutterDownloadRequestModel(
+              downloadUrl: url,
+              destinationFolderPath: destinationFolderPath,
+              fileName: fileName,
+            ),
+          ).then((bool isDownloaded) {
+            MyPrint.printOnConsole("isDownloaded JW File From Url:'$url' On Path:'$filePath':$isDownloaded", tag: tag);
+
+            completedDownloads++;
+          }).catchError((e, s) {
+            MyPrint.printOnConsole("Error in Downloading JW File From Url:'$url' On Path:'$filePath'", tag: tag);
+            MyPrint.printOnConsole(s, tag: tag);
+          }),
+        );
+      }
+
+      if (futures.isNotEmpty) await Future.wait(futures);
+
+      MyPrint.printOnConsole("totalDownloads:$totalDownloads, completedDownloads:$completedDownloads", tag: tag);
+
+      isDownloaded = true;
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in Downloading JW Files in FlutterDownloadController().extractZipFile():$e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+    }
+
+    return isDownloaded;
   }
 }

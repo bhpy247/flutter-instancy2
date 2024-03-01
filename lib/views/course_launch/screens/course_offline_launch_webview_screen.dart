@@ -13,9 +13,9 @@ import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/data_model/cmi_model.dart';
-import 'package:flutter_instancy_2/models/course_offline/data_model/learner_session_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/data_model/student_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/request_model/course_offline_launch_request_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/response_model/course_learner_session_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/student_course_response_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_header_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
@@ -84,7 +84,12 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
       String queryParams = await courseOfflineController.generateQueryParametersForOfflineCourseLaunch(requestModel: courseOfflineLaunchRequestModel);
       MyPrint.printOnConsole("queryParams:$queryParams");
 
-      if (queryParams.isNotEmpty) coursePath = "$coursePath?$queryParams";
+      queryParams = queryParams.replaceAll("#", "%23");
+      MyPrint.printOnConsole("updated queryParams:$queryParams");
+
+      // file:///storage/emulated/0/Android/data/com.instancy.qalearning/files/.Mydownloads/Contentdownloads/990c0f7f-adc8-4a3c-bd13-a7de0cc41042-1945/start.html?cid=22300&stid=1947&lloc=4&lstatus=In progress&susdata=%23pgvs_start%231;2;3;4;%23pgvs_end%23&quesdata=1@4@correct@$2@1@correct@$3@1@correct@$4@2@correct@&sname=&IsInstancyContent=true&nativeappURL=true
+
+      if (queryParams.isNotEmpty) coursePath = "file://$coursePath?$queryParams";
     }
 
     return isFileExist;
@@ -105,23 +110,24 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
   void onLoadStartHandler(InAppWebViewController controller, WebUri? webUri) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("InApp Webview On Load Start:$webUri", tag: tag);
+    // file:///storage/emulated/0/Android/data/com.instancy.qalearning2/files/CourseDownloads/qalearning.instancy.com/1962/fb07e160-065a-49ce-bd47-fa39fe7163fc/blank.html?IOSCourseClose=true&cid=25381&stid=1962&lloc=8&lstatus=passed&susdata=#pgvs_start%231;2;3;4;5;6;7;8;%23pgvs_end%23&timespent=00:00:23.66&quesdata=&score=100
 
     await controller.injectJavascriptFileFromAsset(assetFilePath: 'assets/js/main.js');
 
-    String path = webUri?.toString().toLowerCase() ?? '';
+    String path = Uri.decodeFull(webUri?.toString() ?? "").toLowerCase();
+    MyPrint.printOnConsole("path:$path", tag: tag);
+    // file:///storage/emulated/0/android/data/com.instancy.qalearning2/files/coursedownloads/qalearning.instancy.com/1962/fb07e160-065a-49ce-bd47-fa39fe7163fc/blank.html?ioscourseclose=true&cid=25381&stid=1962&lloc=8&lstatus=passed&susdata=#pgvs_start#1;2;3;4;5;6;7;8;#pgvs_end#&timespent=00:00:23.66&quesdata=&score=100
 
     if (path.isNotEmpty && (path.contains("coursetracking/savecontenttrackeddata1") || path.contains("blank.html?ioscourseclose=true"))) {
-      // path = path.replaceAll('#', '%23');
-      MyPrint.printOnConsole('path $path', tag: tag);
-
       Map<String, String> queryParams = getQueryParameters(path);
 
       if (queryParams.isNotEmpty) {
         MyPrint.printOnConsole("queryParams in onLoadStartHandler:$queryParams", tag: tag);
+        // {ioscourseclose: true, cid: 25381, stid: 1962, lloc: 8, lstatus: passed, susdata: #pgvs_start#1;2;3;4;5;6;7;8;#pgvs_end#, timespent: 00:00:23.66, quesdata: , score: 100}
 
         String timespent = ParsingHelper.parseStringMethod(queryParams['timespent'], defaultValue: "00:00:00");
         String status = ParsingHelper.parseStringMethod(queryParams['lstatus']);
-        String suspenddata = ParsingHelper.parseStringMethod(queryParams['susdata']).replaceAll("%3B", ";").replaceAll("#", "%23");
+        String suspenddata = ParsingHelper.parseStringMethod(queryParams['susdata']);
         String score = ParsingHelper.parseStringMethod(queryParams['score']);
         String lloc = ParsingHelper.parseStringMethod(queryParams['lloc']);
         String quesdata = ParsingHelper.parseStringMethod(queryParams['quesdata']);
@@ -130,13 +136,13 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
           courseOfflineController.updateCmiModel(
             requestModel: courseOfflineLaunchRequestModel,
             onUpdate: ({required CMIModel cmiModel}) {
-              cmiModel.timespent = timespent;
+              cmiModel.totalsessiontime = timespent;
 
               cmiModel.suspenddata = suspenddata;
 
-              cmiModel.score = score;
-              cmiModel.location = lloc;
-              cmiModel.status = status;
+              cmiModel.scoreraw = score;
+              cmiModel.corelessonlocation = lloc;
+              cmiModel.corelessonstatus = status;
 
               String dateCompleted = '';
               if ([ContentStatusTypes.completed, ContentStatusTypes.passed, ContentStatusTypes.failed].contains(status)) {
@@ -151,10 +157,10 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
           ),
           courseOfflineController.updateLearnerSession(
             requestModel: courseOfflineLaunchRequestModel,
-            onUpdate: ({required LearnerSessionModel learnerSessionModel}) {
-              learnerSessionModel.timespent = timespent;
+            onUpdate: ({required CourseLearnerSessionResponseModel courseLearnerSessionModel}) {
+              courseLearnerSessionModel.getLastLearnerSessionModel()?.timespent = timespent;
 
-              return learnerSessionModel;
+              return courseLearnerSessionModel;
             },
           ),
           updateQuestionData(questionData: quesdata),
@@ -282,7 +288,7 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
         courseOfflineController.updateCmiModel(
           requestModel: courseOfflineLaunchRequestModel,
           onUpdate: ({required CMIModel cmiModel}) {
-            cmiModel.location = ParsingHelper.parseStringMethod(args.firstOrNull);
+            cmiModel.corelessonlocation = ParsingHelper.parseStringMethod(args.firstOrNull);
 
             return cmiModel;
           },
@@ -497,15 +503,15 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
           requestModel: courseOfflineLaunchRequestModel,
           onUpdate: ({required CMIModel cmiModel}) {
             if (getname.contains("cmi.core.session_time")) {
-              cmiModel.timespent = getvalue;
+              cmiModel.totalsessiontime = getvalue;
             } else if (getname.contains("cmi.core.lesson_status")) {
-              cmiModel.status = getvalue;
+              cmiModel.corelessonstatus = getvalue;
             } else if (getname.contains("cmi.suspend_data")) {
               cmiModel.suspenddata = getvalue;
             } else if (getname.contains("cmi.core.lesson_location")) {
-              cmiModel.location = getvalue;
+              cmiModel.corelessonlocation = getvalue;
             } else if (getname.contains("cmi.core.score.raw")) {
-              cmiModel.score = getvalue;
+              cmiModel.scoreraw = getvalue;
             } else if (getname.contains("cmi.core.score.max")) {
               cmiModel.scoremax = getvalue;
             } else if (getname.contains("cmi.core.score.min")) {
@@ -526,6 +532,11 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
     MyPrint.printOnConsole("CourseOfflineLaunchWebViewScreen().updateQuestionData() called with questionData:'$questionData'", tag: tag);
 
     questionData = questionData.replaceAll("undefined", "");
+
+    if (questionData.isEmpty) {
+      MyPrint.printOnConsole("Returning from CourseOfflineLaunchWebViewScreen().updateQuestionData() because questionData not got", tag: tag);
+      return;
+    }
 
     List<String> list = questionData.split("@");
 
@@ -594,15 +605,15 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
           studentresponses: ParsingHelper.parseStringMethod(list.elementAtOrNull(2)),
           result: ParsingHelper.parseStringMethod(list.elementAtOrNull(3)),
           attemptdate: courseOfflineController.getCurrentDateTime(),
-          optionalNotes: optionalNotes,
+          optionalnotes: optionalNotes,
           attachfilename: attachFileName,
           attachfileid: attachFileId,
           attachedfilepath: attachFilePath,
-          capturedVidFileName: videoFileName,
-          capturedVidId: videoFileId,
+          capturedvidfilename: videoFileName,
+          capturedvidid: videoFileId,
           capturedVidFilepath: videoFilePath,
-          capturedImgFileName: imageFileName,
-          capturedImgId: imageFileId,
+          capturedimgfilename: imageFileName,
+          capturedimgid: imageFileId,
           capturedImgFilepath: imageFilePath,
         );
 
@@ -620,17 +631,6 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CourseOfflineLaunchWebViewScreen().updateCourseProgress() called with coreLessonStatus:'$coreLessonStatus'", tag: tag);
-
-    String courseDownloadId = CourseDownloadDataModel.getDownloadId(
-      contentId: courseOfflineLaunchRequestModel.ContentId,
-      eventTrackContentId: courseOfflineLaunchRequestModel.ParentContentId,
-    );
-    CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: courseDownloadId);
-
-    if (courseDownloadDataModel == null) {
-      MyPrint.printOnConsole("Returning from CourseOfflineLaunchWebViewScreen().updateCourseProgress() because courseDownloadDataModel is null", tag: tag);
-      return;
-    }
 
     String ContentStatus = "";
     double contentProgress = 0;
@@ -666,22 +666,14 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
     MyPrint.printOnConsole("Final ContentStatus:'$ContentStatus'", tag: tag);
     MyPrint.printOnConsole("Final contentProgress:'$contentProgress'", tag: tag);
 
-    if (courseDownloadDataModel.courseDTOModel != null) {
-      courseDownloadDataModel.courseDTOModel?.ActualStatus = coreLessonStatus;
-      courseDownloadDataModel.courseDTOModel?.ContentStatus = ContentStatus;
-      courseDownloadDataModel.courseDTOModel?.PercentCompleted = contentProgress;
-    } else if (courseDownloadDataModel.trackCourseDTOModel != null) {
-      courseDownloadDataModel.trackCourseDTOModel?.CoreLessonStatus = coreLessonStatus;
-      courseDownloadDataModel.trackCourseDTOModel?.ContentStatus = ContentStatus;
-      courseDownloadDataModel.trackCourseDTOModel?.ContentProgress = contentProgress.toString();
-    } else if (courseDownloadDataModel.relatedTrackDataDTOModel != null) {
-      courseDownloadDataModel.relatedTrackDataDTOModel?.CoreLessonStatus = coreLessonStatus;
-      courseDownloadDataModel.relatedTrackDataDTOModel?.ContentDisplayStatus = ContentStatus;
-      courseDownloadDataModel.relatedTrackDataDTOModel?.PercentCompleted = contentProgress;
-    }
-
     await Future.wait([
-      courseDownloadController.setCourseDownloadModelInProviderAndHive(courseDownloads: {courseDownloadDataModel.id: courseDownloadDataModel}, isClear: false, isNotify: true),
+      courseDownloadController.updateCourseDownloadTrackingProgress(
+        contentId: courseLaunchModel.ContentID,
+        parentContentId: courseLaunchModel.ParentEventTrackContentID,
+        coreLessonStatus: coreLessonStatus,
+        displayStatus: ContentStatus,
+        contentProgress: contentProgress,
+      ),
     ]);
 
     MyPrint.printOnConsole("Main Course Operations Done", tag: tag);
@@ -775,10 +767,6 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
 
       // region Update Main Event Track Progress
       if (trackListViewDataResponseModel != null || resourceContentDTOModel != null) {
-        List<CourseDownloadDataModel> eventTrackCourseDownloadDataList = await courseDownloadController.getEventTrackContentDownloadsList(
-          eventTrackContentId: courseLaunchModel.ParentEventTrackContentID,
-        );
-
         int courseCount = 0;
         int completeCount = 0;
 
@@ -836,18 +824,16 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
           actualStatus = ContentStatusTypes.incomplete;
         }
 
+        List<CourseDownloadDataModel> eventTrackCourseDownloadDataList = await courseDownloadController.getEventTrackContentDownloadsList(
+          eventTrackContentId: courseLaunchModel.ParentEventTrackContentID,
+        );
         for (CourseDownloadDataModel courseDownloadDataModel in eventTrackCourseDownloadDataList) {
-          if (courseDownloadDataModel.trackCourseDTOModel != null) {
-            courseDownloadDataModel.trackCourseDTOModel!.ContentStatus = contentStatus;
-            courseDownloadDataModel.trackCourseDTOModel!.CoreLessonStatus = actualStatus;
-            courseDownloadDataModel.trackCourseDTOModel!.ContentProgress = percentageCompleted.toString();
-          } else if (courseDownloadDataModel.relatedTrackDataDTOModel != null) {
-            courseDownloadDataModel.relatedTrackDataDTOModel!.ContentDisplayStatus = contentStatus;
-            courseDownloadDataModel.relatedTrackDataDTOModel!.CoreLessonStatus = actualStatus;
-            courseDownloadDataModel.relatedTrackDataDTOModel!.PercentCompleted = percentageCompleted;
+          if (courseDownloadDataModel.parentCourseModel != null) {
+            courseDownloadDataModel.parentCourseModel!.ContentStatus = contentStatus;
+            courseDownloadDataModel.parentCourseModel!.ActualStatus = actualStatus;
+            courseDownloadDataModel.parentCourseModel!.PercentCompleted = percentageCompleted;
           }
         }
-
         futures.add(courseDownloadController.setCourseDownloadModelInProviderAndHive(
           courseDownloads: Map<String, CourseDownloadDataModel>.fromEntries(eventTrackCourseDownloadDataList.map((e) => MapEntry<String, CourseDownloadDataModel>(e.id, e))),
           isClear: false,
@@ -961,7 +947,6 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
       );
     }
 
-    coursePath = "file://$coursePath";
     MyPrint.printOnConsole("Final coursePath:'$coursePath'");
 
     return InAppWebView(
@@ -979,6 +964,18 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
         hardwareAcceleration: true,
         allowContentAccess: true,
         allowsInlineMediaPlayback: true,
+        isInspectable: true,
+
+        //In Course/scripts/CommonSkin_1.js/exitNewCourse(), they are checking userAgent in ["android", "iphone", "ipad", "symbianos"]
+        //Without this, it won't work
+        //In iPad, this value was not getting valid.
+        userAgent: switch (defaultTargetPlatform) {
+          TargetPlatform.android => "android",
+          TargetPlatform.iOS => "iphone",
+          TargetPlatform.macOS => "iphone",
+          TargetPlatform.windows => "iphone",
+          _ => null,
+        },
       ),
       onWebViewCreated: (InAppWebViewController webViewController) async {
         MyPrint.printOnConsole("onWebViewCreated called with webViewController:$webViewController");

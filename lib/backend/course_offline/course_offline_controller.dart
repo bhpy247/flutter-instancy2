@@ -9,8 +9,11 @@ import 'package:flutter_instancy_2/models/course_offline/data_model/cmi_model.da
 import 'package:flutter_instancy_2/models/course_offline/data_model/learner_session_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/data_model/student_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/request_model/course_offline_launch_request_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/request_model/get_course_tracking_data_request_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/response_model/course_learner_session_response_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/response_model/get_course_tracking_data_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/student_course_response_model.dart';
-import 'package:flutter_instancy_2/utils/date_representation.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
@@ -32,15 +35,15 @@ class CourseOfflineController {
     MyPrint.printOnConsole("CourseOfflineController().checkCourseTrackingInitialization() called with requestModel:$requestModel", tag: tag);
 
     CMIModel? cmiModel;
-    LearnerSessionModel? learnerSessionModel;
+    CourseLearnerSessionResponseModel? courseLearnerSessionModel;
     StudentCourseResponseModel? studentCourseResponseModel;
 
     await Future.wait([
       getCmiModelFromRequestModel(requestModel: requestModel).then((CMIModel? model) {
         cmiModel = model;
       }),
-      getLearnerSessionModelFromRequestModel(requestModel: requestModel).then((LearnerSessionModel? model) {
-        learnerSessionModel = model;
+      getLearnerSessionModelFromRequestModel(requestModel: requestModel).then((CourseLearnerSessionResponseModel? model) {
+        courseLearnerSessionModel = model;
       }),
       getStudentResponseModelFromRequestModel(requestModel: requestModel).then((StudentCourseResponseModel? model) {
         studentCourseResponseModel = model;
@@ -49,7 +52,7 @@ class CourseOfflineController {
 
     List<Future> futures = [];
     String currentDateTime = getCurrentDateTime();
-    int attempt = learnerSessionModel == null ? 1 : (learnerSessionModel!.attemptnumber + 1);
+    int attempt = (courseLearnerSessionModel?.getLastLearnerAttempt() ?? 0) + 1;
     MyPrint.printOnConsole("Final Attempt Count:$attempt", tag: tag);
 
     if (cmiModel == null) {
@@ -70,44 +73,63 @@ class CourseOfflineController {
         parentObjTypeId: requestModel.ParentContentTypeId.toString(),
         parentScoId: requestModel.ParentContentScoId.toString(),
         startdate: currentDateTime,
-        status: ContentStatusTypes.incomplete,
+        corelessonstatus: ContentStatusTypes.incomplete,
         siteurl: ApiController().apiDataProvider.getCurrentSiteUrl(),
       );
       futures.add(setCmiModelFromRequestModel(requestModel: requestModel, cmiModel: cmiModel));
     } else {
       MyPrint.printOnConsole("CmiModel Exist, Updating noofattempts", tag: tag);
 
-      futures.add(updateCmiModel(
+      futures.add(
+        updateCmiModel(
           requestModel: requestModel,
           onUpdate: ({required CMIModel cmiModel}) {
             cmiModel.noofattempts = attempt;
+            if (cmiModel.startdate.isEmpty) cmiModel.startdate = currentDateTime;
+
             return cmiModel;
-          }));
+          },
+        ),
+      );
     }
 
-    if (learnerSessionModel == null) {
+    LearnerSessionModel learnerSessionModel = LearnerSessionModel(
+      attemptnumber: attempt,
+      scoid: requestModel.ScoId,
+      siteid: requestModel.SiteId,
+      userid: requestModel.UserId,
+      sessiondatetime: currentDateTime,
+    );
+
+    if (courseLearnerSessionModel == null) {
       MyPrint.printOnConsole("LearnerSessionModel Not Exist, Creating", tag: tag);
 
-      String learnerSessionId = LearnerSessionModel.getLearnerSessionId(siteId: requestModel.SiteId, userId: requestModel.UserId, scoId: requestModel.ScoId);
+      String learnerSessionId = CourseLearnerSessionResponseModel.getCourseLearnerSessionId(siteId: requestModel.SiteId, userId: requestModel.UserId, scoId: requestModel.ScoId);
 
-      learnerSessionModel = LearnerSessionModel(
-        learnerSessionID: learnerSessionId,
-        scoid: requestModel.ScoId,
-        siteid: requestModel.SiteId,
-        userid: requestModel.UserId,
-        attemptnumber: attempt,
-        sessiondatetime: currentDateTime,
+      courseLearnerSessionModel = CourseLearnerSessionResponseModel(
+        id: learnerSessionId,
+        scoId: requestModel.ScoId,
+        siteId: requestModel.SiteId,
+        userId: requestModel.UserId,
+        learnerSessionsResponseMap: {
+          attempt: learnerSessionModel,
+        },
       );
-      futures.add(setLearnerSessionModelFromRequestModel(requestModel: requestModel, learnerSessionModel: learnerSessionModel));
+
+      futures.add(setLearnerSessionModelFromRequestModel(requestModel: requestModel, courseLearnerSessionModel: courseLearnerSessionModel));
     } else {
       MyPrint.printOnConsole("LearnerSessionModel Exist, Updating attemptnumber", tag: tag);
 
-      futures.add(updateLearnerSession(
+      futures.add(
+        updateLearnerSession(
           requestModel: requestModel,
-          onUpdate: ({required LearnerSessionModel learnerSessionModel}) {
-            learnerSessionModel.attemptnumber = attempt;
-            return learnerSessionModel;
-          }));
+          onUpdate: ({required CourseLearnerSessionResponseModel courseLearnerSessionModel}) {
+            courseLearnerSessionModel.learnerSessionsResponseMap[attempt] = learnerSessionModel;
+
+            return courseLearnerSessionModel;
+          },
+        ),
+      );
     }
 
     if (studentCourseResponseModel == null) {
@@ -156,10 +178,10 @@ class CourseOfflineController {
       ]);
 
       if (cmiModel != null) {
-        lloc = cmiModel!.location;
-        lstatus = cmiModel!.status;
+        lloc = cmiModel!.corelessonlocation;
+        lstatus = cmiModel!.corelessonstatus;
         susdata = cmiModel!.suspenddata;
-        score = cmiModel!.score;
+        score = cmiModel!.scoreraw;
       }
 
       // blank.html?IOSCourseClose=true&cid=24227&stid=1963&lloc=7&lstatus=incomplete&susdata=#pgvs_start#1%3B1%3B2%3B3%3B3%3B4%3B5%3B5%3B4%3B5%3B6%3B7%3B7%3B6%3B5%3B7%3B7;#pgvs_end#&timespent=00:00:39.34&quesdata=&score=0.0
@@ -185,14 +207,14 @@ class CourseOfflineController {
           String questionData = "${studentResponseModel.questionid}@"
               "${AppConfigurationOperations.isValidString(studentResponseModel.studentresponses) ? "${studentResponseModel.studentresponses}@" : ""}"
               "${AppConfigurationOperations.isValidString(studentResponseModel.result) ? "${studentResponseModel.result}@" : ""}"
-              "${AppConfigurationOperations.isValidString(studentResponseModel.optionalNotes) ? "${studentResponseModel.optionalNotes}@" : ""}"
+              "${AppConfigurationOperations.isValidString(studentResponseModel.optionalnotes) ? "${studentResponseModel.optionalnotes}@" : ""}"
               "${AppConfigurationOperations.isValidString(studentResponseModel.attachfilename) ? "${studentResponseModel.attachfilename}@" : ""}"
               "${AppConfigurationOperations.isValidString(studentResponseModel.attachfileid) ? "${studentResponseModel.attachfileid}@" : ""}"
-              "${AppConfigurationOperations.isValidString(studentResponseModel.capturedVidFileName) ? "${studentResponseModel.capturedVidFileName}@" : ""}"
-              "${AppConfigurationOperations.isValidString(studentResponseModel.capturedVidId) ? "${studentResponseModel.capturedVidId}@" : ""}"
-              "${AppConfigurationOperations.isValidString(studentResponseModel.capturedImgFileName) ? "${studentResponseModel.capturedImgFileName}@" : ""}"
-              "${AppConfigurationOperations.isValidString(studentResponseModel.capturedImgFileName) ? "${studentResponseModel.capturedImgFileName}@" : ""}"
-              "${AppConfigurationOperations.isValidString(studentResponseModel.capturedImgId) ? "${studentResponseModel.capturedImgId}@" : ""}";
+              "${AppConfigurationOperations.isValidString(studentResponseModel.capturedvidfilename) ? "${studentResponseModel.capturedvidfilename}@" : ""}"
+              "${AppConfigurationOperations.isValidString(studentResponseModel.capturedvidid) ? "${studentResponseModel.capturedvidid}@" : ""}"
+              "${AppConfigurationOperations.isValidString(studentResponseModel.capturedimgfilename) ? "${studentResponseModel.capturedimgfilename}@" : ""}"
+              "${AppConfigurationOperations.isValidString(studentResponseModel.capturedimgfilename) ? "${studentResponseModel.capturedimgfilename}@" : ""}"
+              "${AppConfigurationOperations.isValidString(studentResponseModel.capturedimgid) ? "${studentResponseModel.capturedimgid}@" : ""}";
 
           quesdata += "$questionData\$";
         }
@@ -247,23 +269,26 @@ class CourseOfflineController {
     return isSuccess;
   }
 
-  Future<bool> updateLearnerSession({required CourseOfflineLaunchRequestModel requestModel, LearnerSessionModel Function({required LearnerSessionModel learnerSessionModel})? onUpdate}) async {
+  Future<bool> updateLearnerSession({
+    required CourseOfflineLaunchRequestModel requestModel,
+    CourseLearnerSessionResponseModel Function({required CourseLearnerSessionResponseModel courseLearnerSessionModel})? onUpdate,
+  }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CourseOfflineController().updateLearnerSession() called with requestModel:$requestModel", tag: tag);
 
     bool isSuccess = false;
 
-    LearnerSessionModel? learnerSessionModel = await getLearnerSessionModelFromRequestModel(requestModel: requestModel);
+    CourseLearnerSessionResponseModel? courseLearnerSessionModel = await getLearnerSessionModelFromRequestModel(requestModel: requestModel);
 
-    if (learnerSessionModel == null) {
+    if (courseLearnerSessionModel == null) {
       MyPrint.printOnConsole("Returning from CourseOfflineController().updateLearnerSession() because LearnerSessionModel not exist", tag: tag);
       return isSuccess;
     }
 
     if (onUpdate != null) {
-      learnerSessionModel = onUpdate(learnerSessionModel: learnerSessionModel);
-      MyPrint.printOnConsole("learnerSessionModel:$learnerSessionModel", tag: tag);
-      await setLearnerSessionModelFromRequestModel(requestModel: requestModel, learnerSessionModel: learnerSessionModel);
+      courseLearnerSessionModel = onUpdate(courseLearnerSessionModel: courseLearnerSessionModel);
+      // MyPrint.printOnConsole("learnerSessionModel:$courseLearnerSessionModel", tag: tag);
+      await setLearnerSessionModelFromRequestModel(requestModel: requestModel, courseLearnerSessionModel: courseLearnerSessionModel);
       isSuccess = true;
     }
 
@@ -362,62 +387,64 @@ class CourseOfflineController {
   //endregion
 
   //region Learner Session Operations
-  Future<LearnerSessionModel?> getLearnerSessionModelFromRequestModel({required CourseOfflineLaunchRequestModel requestModel, bool isRefresh = false}) async {
+  Future<CourseLearnerSessionResponseModel?> getLearnerSessionModelFromRequestModel({required CourseOfflineLaunchRequestModel requestModel, bool isRefresh = false}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CourseOfflineController().getLearnerSessionModelFromRequestModel() called with requestModel:$requestModel, isRefresh:$isRefresh", tag: tag);
 
-    String learnerSessionId = LearnerSessionModel.getLearnerSessionId(siteId: requestModel.SiteId, userId: requestModel.UserId, scoId: requestModel.ScoId);
-    LearnerSessionModel? learnerSessionModel = provider.learnerSessionData.getMap(isNewInstance: false)[learnerSessionId];
-    MyPrint.printOnConsole("LearnerSessionModel is not null from Provider:${learnerSessionModel != null}", tag: tag);
+    String courseLearnerSessionId = CourseLearnerSessionResponseModel.getCourseLearnerSessionId(siteId: requestModel.SiteId, userId: requestModel.UserId, scoId: requestModel.ScoId);
+    CourseLearnerSessionResponseModel? courseLearnerSessionModel = provider.courseLearnerSessionData.getMap(isNewInstance: false)[courseLearnerSessionId];
+    MyPrint.printOnConsole("CourseLearnerSessionResponseModel is not null from Provider:${courseLearnerSessionModel != null}", tag: tag);
 
-    if (isRefresh || learnerSessionModel == null) {
-      MyPrint.printOnConsole("Getting LearnerSessionModel From Hive", tag: tag);
-      learnerSessionModel = (await repository.getLearnerSessionsById(learnerSessionIds: [learnerSessionId]))[learnerSessionId];
-      MyPrint.printOnConsole("LearnerSessionModel is not null from Hive:${learnerSessionModel != null}", tag: tag);
+    if (isRefresh || courseLearnerSessionModel == null) {
+      MyPrint.printOnConsole("Getting CourseLearnerSessionResponseModel From Hive", tag: tag);
+      courseLearnerSessionModel = (await repository.getCourseLearnerSessionsDataByIds(courseLearnerSessionIds: [courseLearnerSessionId]))[courseLearnerSessionId];
+      MyPrint.printOnConsole("CourseLearnerSessionResponseModel is not null from Hive:${courseLearnerSessionModel != null}", tag: tag);
 
-      if (learnerSessionModel != null) {
-        provider.learnerSessionData.setMap(map: {learnerSessionId: learnerSessionModel}, isClear: false, isNotify: false);
+      if (courseLearnerSessionModel != null) {
+        provider.courseLearnerSessionData.setMap(map: {courseLearnerSessionId: courseLearnerSessionModel}, isClear: false, isNotify: false);
       } else {
-        provider.learnerSessionData.clearKey(key: learnerSessionId, isNotify: false);
+        provider.courseLearnerSessionData.clearKey(key: courseLearnerSessionId, isNotify: false);
       }
     }
 
-    return learnerSessionModel != null ? LearnerSessionModel.fromMap(learnerSessionModel.toMap()) : null;
+    return courseLearnerSessionModel != null ? CourseLearnerSessionResponseModel.fromMap(courseLearnerSessionModel.toMap()) : null;
   }
 
-  Future<void> setLearnerSessionModelFromRequestModel({required CourseOfflineLaunchRequestModel requestModel, LearnerSessionModel? learnerSessionModel}) async {
+  Future<void> setLearnerSessionModelFromRequestModel({required CourseOfflineLaunchRequestModel requestModel, CourseLearnerSessionResponseModel? courseLearnerSessionModel}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CourseOfflineController().setLearnerSessionModelFromRequestModel() called with requestModel:$requestModel, learnerSessionModel not null:${learnerSessionModel != null}",
+    MyPrint.printOnConsole(
+        "CourseOfflineController().setLearnerSessionModelFromRequestModel() called with requestModel:$requestModel, learnerSessionModel not null:${courseLearnerSessionModel != null}",
         tag: tag);
 
-    String learnerSessionId = LearnerSessionModel.getLearnerSessionId(siteId: requestModel.SiteId, userId: requestModel.UserId, scoId: requestModel.ScoId);
-    if (learnerSessionModel == null) {
-      MyPrint.printOnConsole("Removing LearnerSessionModel From Hive and Provider", tag: tag);
-      provider.learnerSessionData.clearKey(key: learnerSessionId, isNotify: false);
-      await repository.removeRecordsFromLearnerSessionBoxById(learnerSessionIds: [learnerSessionId]);
+    String courseLearnerSessionId = CourseLearnerSessionResponseModel.getCourseLearnerSessionId(siteId: requestModel.SiteId, userId: requestModel.UserId, scoId: requestModel.ScoId);
+    if (courseLearnerSessionModel == null) {
+      MyPrint.printOnConsole("Removing CourseLearnerSessionResponseModel From Hive and Provider", tag: tag);
+      provider.courseLearnerSessionData.clearKey(key: courseLearnerSessionId, isNotify: false);
+      await repository.removeRecordsFromCourseLearnerSessionBoxById(learnerSessionIds: [courseLearnerSessionId]);
     } else {
-      learnerSessionModel.scoid = requestModel.ScoId;
-      learnerSessionModel.siteid = requestModel.SiteId;
-      learnerSessionModel.userid = requestModel.UserId;
+      courseLearnerSessionModel.id = courseLearnerSessionId;
+      courseLearnerSessionModel.scoId = requestModel.ScoId;
+      courseLearnerSessionModel.siteId = requestModel.SiteId;
+      courseLearnerSessionModel.userId = requestModel.UserId;
 
-      MyPrint.printOnConsole("Adding LearnerSessionModel in Hive and Provider", tag: tag);
-      provider.learnerSessionData.setMap(map: {learnerSessionId: learnerSessionModel}, isClear: false, isNotify: false);
-      await repository.addLearnerSessionModelsInBox(learnerSessionsData: {learnerSessionId: learnerSessionModel}, isClear: false);
+      MyPrint.printOnConsole("Adding CourseLearnerSessionResponseModel in Hive and Provider", tag: tag);
+      provider.courseLearnerSessionData.setMap(map: {courseLearnerSessionId: courseLearnerSessionModel}, isClear: false, isNotify: false);
+      await repository.addCourseLearnerSessionModelsInBox(courseLearnerSessionsData: {courseLearnerSessionId: courseLearnerSessionModel}, isClear: false);
     }
 
     MyPrint.printOnConsole("Setted LearnerSessionModel in Hive and Provider Successfully", tag: tag);
   }
 
-  Future<Map<String, LearnerSessionModel>> getAllLearnerSessionModels({bool isRefresh = true, bool isNewInstance = true}) async {
+  Future<Map<String, CourseLearnerSessionResponseModel>> getAllCourseLearnerSessionResponseModels({bool isRefresh = true, bool isNewInstance = true}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CourseOfflineController().getAllLearnerSessionModels() called with isRefresh:$isRefresh, isNewInstance:$isNewInstance", tag: tag);
+    MyPrint.printOnConsole("CourseOfflineController().getAllCourseLearnerSessionResponseModels() called with isRefresh:$isRefresh, isNewInstance:$isNewInstance", tag: tag);
 
-    if (isRefresh || provider.learnerSessionData.length == 0) {
-      Map<String, LearnerSessionModel> learnerSessionData = await repository.getAllLearnerSessionModels();
-      provider.learnerSessionData.setMap(map: learnerSessionData, isClear: true, isNotify: false);
+    if (isRefresh || provider.courseLearnerSessionData.length == 0) {
+      Map<String, CourseLearnerSessionResponseModel> learnerSessionData = await repository.getAllCourseLearnerSessionResponseModels();
+      provider.courseLearnerSessionData.setMap(map: learnerSessionData, isClear: true, isNotify: false);
     }
 
-    return provider.learnerSessionData.getMap(isNewInstance: isNewInstance);
+    return provider.courseLearnerSessionData.getMap(isNewInstance: isNewInstance);
   }
 
   //endregion
@@ -485,10 +512,197 @@ class CourseOfflineController {
   //endregion
 
   String getCurrentDateTime() {
-    return DatePresentation.getFormattedDate(dateFormat: "yyyy-MM-dd HH:mm:ss", dateTime: DateTime.now()) ?? "";
+    // return DatePresentation.getFormattedDate(dateFormat: "yyyy-MM-dd HH:mm:ss", dateTime: DateTime.now()) ?? "";
+    return DateTime.now().toIso8601String();
   }
 
-  //region Sync Data Online
+  Future<bool> setCompleteOffline({required CourseOfflineLaunchRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CourseOfflineController().setCompleteOffline() called", tag: tag);
+
+    bool isCompleted = false;
+
+    CMIModel? cmiModel = await getCmiModelFromRequestModel(requestModel: requestModel);
+
+    String currentDateTime = getCurrentDateTime();
+    if (cmiModel == null) {
+      String cmiId = CMIModel.getCmiId(siteId: requestModel.SiteId, userId: requestModel.UserId, scoId: requestModel.ScoId);
+
+      await setCmiModelFromRequestModel(
+        requestModel: requestModel,
+        cmiModel: CMIModel(
+          cmiId: cmiId,
+          contentId: requestModel.ContentId,
+          scoid: requestModel.ScoId,
+          siteid: requestModel.SiteId,
+          userid: requestModel.UserId,
+          isupdate: "false",
+          noofattempts: 1,
+          objecttypeid: requestModel.ContentTypeId.toString(),
+          parentContentId: requestModel.ParentContentId,
+          parentObjTypeId: requestModel.ParentContentTypeId.toString(),
+          parentScoId: requestModel.ParentContentScoId.toString(),
+          startdate: currentDateTime,
+          corelessonstatus: ContentStatusTypes.completed,
+          percentageCompleted: "100",
+          datecompleted: currentDateTime,
+          siteurl: ApiController().apiDataProvider.getCurrentSiteUrl(),
+        ),
+      );
+      isCompleted = true;
+    } else {
+      isCompleted = await updateCmiModel(
+        requestModel: requestModel,
+        onUpdate: ({required CMIModel cmiModel}) {
+          cmiModel.corelessonstatus = ContentStatusTypes.completed;
+          cmiModel.percentageCompleted = "100";
+          cmiModel.datecompleted = currentDateTime;
+
+          return cmiModel;
+        },
+      );
+    }
+
+    CourseLearnerSessionResponseModel? learnerSessionResponseModel = await getLearnerSessionModelFromRequestModel(requestModel: requestModel);
+
+    if (learnerSessionResponseModel == null) {
+      String courseLearnerSessionId = CourseLearnerSessionResponseModel.getCourseLearnerSessionId(siteId: requestModel.SiteId, userId: requestModel.UserId, scoId: requestModel.ScoId);
+
+      await setLearnerSessionModelFromRequestModel(
+        requestModel: requestModel,
+        courseLearnerSessionModel: CourseLearnerSessionResponseModel(
+          id: courseLearnerSessionId,
+          siteId: requestModel.SiteId,
+          userId: requestModel.UserId,
+          scoId: requestModel.ScoId,
+          learnerSessionsResponseMap: {
+            1: LearnerSessionModel(
+              siteid: requestModel.SiteId,
+              userid: requestModel.UserId,
+              scoid: requestModel.ScoId,
+              attemptnumber: 1,
+              sessiondatetime: currentDateTime,
+            ),
+          },
+        ),
+      );
+      isCompleted = true;
+    } else {
+      isCompleted = await updateLearnerSession(
+        requestModel: requestModel,
+        onUpdate: ({required CourseLearnerSessionResponseModel courseLearnerSessionModel}) {
+          int newAttempt = courseLearnerSessionModel.getLastLearnerAttempt() + 1;
+          courseLearnerSessionModel.learnerSessionsResponseMap[newAttempt] = LearnerSessionModel(
+            siteid: requestModel.SiteId,
+            userid: requestModel.UserId,
+            scoid: requestModel.ScoId,
+            attemptnumber: newAttempt,
+            sessiondatetime: currentDateTime,
+          );
+
+          return courseLearnerSessionModel;
+        },
+      );
+    }
+
+    MyPrint.printOnConsole("isCompleted:$isCompleted", tag: tag);
+
+    return isCompleted;
+  }
+
+  Future<bool> setContentToInProgress({required CourseOfflineLaunchRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CourseOfflineController().setContentToInProgress() called", tag: tag);
+
+    bool isCompleted = false;
+
+    CMIModel? cmiModel = await getCmiModelFromRequestModel(requestModel: requestModel);
+
+    String currentDateTime = getCurrentDateTime();
+    if (cmiModel == null) {
+      String cmiId = CMIModel.getCmiId(siteId: requestModel.SiteId, userId: requestModel.UserId, scoId: requestModel.ScoId);
+
+      await setCmiModelFromRequestModel(
+        requestModel: requestModel,
+        cmiModel: CMIModel(
+          cmiId: cmiId,
+          contentId: requestModel.ContentId,
+          scoid: requestModel.ScoId,
+          siteid: requestModel.SiteId,
+          userid: requestModel.UserId,
+          isupdate: "false",
+          noofattempts: 1,
+          objecttypeid: requestModel.ContentTypeId.toString(),
+          parentContentId: requestModel.ParentContentId,
+          parentObjTypeId: requestModel.ParentContentTypeId.toString(),
+          parentScoId: requestModel.ParentContentScoId.toString(),
+          startdate: currentDateTime,
+          corelessonstatus: ContentStatusTypes.incomplete,
+          percentageCompleted: "50",
+          siteurl: ApiController().apiDataProvider.getCurrentSiteUrl(),
+        ),
+      );
+      isCompleted = true;
+    } else {
+      isCompleted = await updateCmiModel(
+        requestModel: requestModel,
+        onUpdate: ({required CMIModel cmiModel}) {
+          cmiModel.corelessonstatus = ContentStatusTypes.incomplete;
+          cmiModel.percentageCompleted = "50";
+
+          return cmiModel;
+        },
+      );
+    }
+
+    CourseLearnerSessionResponseModel? learnerSessionResponseModel = await getLearnerSessionModelFromRequestModel(requestModel: requestModel);
+
+    if (learnerSessionResponseModel == null) {
+      String courseLearnerSessionId = CourseLearnerSessionResponseModel.getCourseLearnerSessionId(siteId: requestModel.SiteId, userId: requestModel.UserId, scoId: requestModel.ScoId);
+
+      await setLearnerSessionModelFromRequestModel(
+        requestModel: requestModel,
+        courseLearnerSessionModel: CourseLearnerSessionResponseModel(
+          id: courseLearnerSessionId,
+          siteId: requestModel.SiteId,
+          userId: requestModel.UserId,
+          scoId: requestModel.ScoId,
+          learnerSessionsResponseMap: {
+            1: LearnerSessionModel(
+              siteid: requestModel.SiteId,
+              userid: requestModel.UserId,
+              scoid: requestModel.ScoId,
+              attemptnumber: 1,
+              sessiondatetime: currentDateTime,
+            ),
+          },
+        ),
+      );
+      isCompleted = true;
+    } else {
+      isCompleted = await updateLearnerSession(
+        requestModel: requestModel,
+        onUpdate: ({required CourseLearnerSessionResponseModel courseLearnerSessionModel}) {
+          int newAttempt = courseLearnerSessionModel.getLastLearnerAttempt() + 1;
+          courseLearnerSessionModel.learnerSessionsResponseMap[newAttempt] = LearnerSessionModel(
+            siteid: requestModel.SiteId,
+            userid: requestModel.UserId,
+            scoid: requestModel.ScoId,
+            attemptnumber: newAttempt,
+            sessiondatetime: currentDateTime,
+          );
+
+          return courseLearnerSessionModel;
+        },
+      );
+    }
+
+    MyPrint.printOnConsole("isCompleted:$isCompleted", tag: tag);
+
+    return isCompleted;
+  }
+
+  //region Sync Data to Online
   Future<void> syncCourseDataOnline() async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CourseOfflineController().syncCourseDataOnline() called", tag: tag);
@@ -499,7 +713,7 @@ class CourseOfflineController {
     }
 
     Map<String, CMIModel> cmiModels = await getAllCmiModels(isRefresh: true, isNewInstance: true);
-    Map<String, LearnerSessionModel> learnerSessionModels = await getAllLearnerSessionModels(isRefresh: true, isNewInstance: true);
+    Map<String, CourseLearnerSessionResponseModel> courseLearnerSessionModels = await getAllCourseLearnerSessionResponseModels(isRefresh: true, isNewInstance: true);
     Map<String, StudentCourseResponseModel> studentCourseResponseModels = await getAllStudentResponseModels(isRefresh: true, isNewInstance: true);
 
     cmiModels.removeWhere((key, value) => value.isupdate != "false");
@@ -511,7 +725,7 @@ class CourseOfflineController {
     cmiModels.forEach((String cmiId, CMIModel cmiModel) {
       syncDataForContent(
         cmiModel: cmiModel,
-        learnerSessionModel: learnerSessionModels[LearnerSessionModel.getLearnerSessionId(
+        courseLearnerSessionModel: courseLearnerSessionModels[CourseLearnerSessionResponseModel.getCourseLearnerSessionId(
           siteId: cmiModel.siteid,
           userId: cmiModel.userid,
           scoId: cmiModel.scoid,
@@ -529,7 +743,7 @@ class CourseOfflineController {
     MyPrint.printOnConsole("Synced All Course Tracking Data To Online", tag: tag);
   }
 
-  Future<bool> syncDataForContent({required CMIModel cmiModel, required LearnerSessionModel? learnerSessionModel, StudentCourseResponseModel? studentCourseResponseModel}) async {
+  Future<bool> syncDataForContent({required CMIModel cmiModel, required CourseLearnerSessionResponseModel? courseLearnerSessionModel, StudentCourseResponseModel? studentCourseResponseModel}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CourseOfflineController().syncDataForContent() called with cmiModel:$cmiModel", tag: tag);
 
@@ -541,8 +755,8 @@ class CourseOfflineController {
       <ID></ID>
       <UserID>$userId</UserID>
       <SCOID>${cmiModel.scoid}</SCOID>
-      <CoreLessonStatus>${AppConfigurationOperations.isValidString(cmiModel.status) ? cmiModel.status : ""}</CoreLessonStatus>
-      <CoreLessonLocation>${AppConfigurationOperations.isValidString(cmiModel.location) ? cmiModel.location : ""}</CoreLessonLocation>
+      <CoreLessonStatus>${AppConfigurationOperations.isValidString(cmiModel.corelessonstatus) ? cmiModel.corelessonstatus : ""}</CoreLessonStatus>
+      <CoreLessonLocation>${AppConfigurationOperations.isValidString(cmiModel.corelessonlocation) ? cmiModel.corelessonlocation : ""}</CoreLessonLocation>
       <SuspendData>${AppConfigurationOperations.isValidString(cmiModel.suspenddata) ? cmiModel.suspenddata.replaceAll("%23", "#") : ""}</SuspendData>
       <DateCompleted>${AppConfigurationOperations.isValidString(cmiModel.datecompleted) ? cmiModel.datecompleted : ""}</DateCompleted>
       <NoOfAttempts>${cmiModel.noofattempts}</NoOfAttempts>
@@ -550,34 +764,37 @@ class CourseOfflineController {
       <TrackContentID>${cmiModel.parentContentId}</TrackContentID>
       <TrackObjectTypeID>${cmiModel.parentObjTypeId}</TrackObjectTypeID>
       <OrgUnitID>${cmiModel.siteid}</OrgUnitID>
-      <Score>${ParsingHelper.parseIntMethod(cmiModel.score)}</Score>
+      <Score>${ParsingHelper.parseIntMethod(cmiModel.scoreraw)}</Score>
       <PercentCompleted>${AppConfigurationOperations.isValidString(cmiModel.percentageCompleted) ? cmiModel.percentageCompleted : ""}</PercentCompleted>
       <ObjectTypeId>${cmiModel.objecttypeid}</ObjectTypeId>
       <SequenceNumber>${cmiModel.sequencenumber}</SequenceNumber>
       <AttemptsLeft>${cmiModel.attemptsleft}</AttemptsLeft>
-      <CoreLessonMode>${cmiModel.coursemode}</CoreLessonMode>
+      <CoreLessonMode>${cmiModel.corelessonmode}</CoreLessonMode>
       <ScoreMin>${cmiModel.scoremin}</ScoreMin>
       <ScoreMax>${cmiModel.scoremax}</ScoreMax>
-      <RandomQuestionNos>${cmiModel.randomquesseq}</RandomQuestionNos>
-      <TextResponses>${cmiModel.textResponses}</TextResponses>
-      <PooledQuestionNos>${cmiModel.pooledquesseq}</PooledQuestionNos>
+      <RandomQuestionNos>${cmiModel.randomquestionnos}</RandomQuestionNos>
+      <TextResponses>${cmiModel.textresponses}</TextResponses>
+      <PooledQuestionNos>${cmiModel.pooledquestionnos}</PooledQuestionNos>
     </CMI>
     """;
     //endregion
 
     //region Learner Session Request String
     String learnerSessionRequestString = """""";
-    if (learnerSessionModel != null) {
-      learnerSessionRequestString = """
-      <SessionID></SessionID>
-      <UserID>$userId</UserID>
-      <SCOID>${learnerSessionModel.scoid}</SCOID>
-      <AttemptNumber>${learnerSessionModel.attemptnumber}</AttemptNumber>
-      <SessionDateTime>${learnerSessionModel.sessiondatetime}</SessionDateTime>
-      <TimeSpent>${AppConfigurationOperations.isValidString(learnerSessionModel.timespent) ? learnerSessionModel.timespent : ""}</TimeSpent>
-      """;
+    if ((courseLearnerSessionModel?.learnerSessionsResponseMap).checkNotEmpty) {
+      courseLearnerSessionModel!.learnerSessionsResponseMap.forEach((int attempt, LearnerSessionModel learnerSessionModel) {
+        learnerSessionRequestString += """
+        <LearnerSession>
+          <SessionID></SessionID>
+          <UserID>$userId</UserID>
+          <SCOID>${learnerSessionModel.scoid}</SCOID>
+          <AttemptNumber>${learnerSessionModel.attemptnumber}</AttemptNumber>
+          <SessionDateTime>${learnerSessionModel.sessiondatetime}</SessionDateTime>
+          <TimeSpent>${AppConfigurationOperations.isValidString(learnerSessionModel.timespent) ? learnerSessionModel.timespent : ""}</TimeSpent>
+        </LearnerSession>
+        """;
+      });
     }
-    learnerSessionRequestString = "<LearnerSession>$learnerSessionRequestString</LearnerSession>";
     //endregion
 
     //region Student Response Request String
@@ -606,13 +823,13 @@ class CourseOfflineController {
         <AttemptDate>${studentResponseModel.attemptdate}</AttemptDate>
         <Response>$sampleStudentResponse</Response>
         <Result>${studentResponseModel.result}</Result>
-        <OptionalNotes>${studentResponseModel.optionalNotes}</OptionalNotes>
+        <OptionalNotes>${studentResponseModel.optionalnotes}</OptionalNotes>
         <AttachFileName>${AppConfigurationOperations.isValidString(studentResponseModel.attachfilename) ? studentResponseModel.attachfilename : ""}</AttachFileName>
         <AttachFileId>${AppConfigurationOperations.isValidString(studentResponseModel.attachfileid) ? studentResponseModel.attachfileid : ""}</AttachFileId>
-        <CapturedVidFileName>${AppConfigurationOperations.isValidString(studentResponseModel.capturedVidFileName) ? studentResponseModel.capturedVidFileName : ""}</CapturedVidFileName>
-        <CapturedVidId>${AppConfigurationOperations.isValidString(studentResponseModel.capturedVidId) ? studentResponseModel.capturedVidId : ""}</CapturedVidId>
-        <CapturedImgFileName>${AppConfigurationOperations.isValidString(studentResponseModel.capturedImgFileName) ? studentResponseModel.capturedImgFileName : ""}</CapturedImgFileName>
-        <CapturedImgId>${AppConfigurationOperations.isValidString(studentResponseModel.capturedImgId) ? studentResponseModel.capturedImgId : ""}</CapturedImgId>
+        <CapturedVidFileName>${AppConfigurationOperations.isValidString(studentResponseModel.capturedvidfilename) ? studentResponseModel.capturedvidfilename : ""}</CapturedVidFileName>
+        <CapturedVidId>${AppConfigurationOperations.isValidString(studentResponseModel.capturedvidid) ? studentResponseModel.capturedvidid : ""}</CapturedVidId>
+        <CapturedImgFileName>${AppConfigurationOperations.isValidString(studentResponseModel.capturedimgfilename) ? studentResponseModel.capturedimgfilename : ""}</CapturedImgFileName>
+        <CapturedImgId>${AppConfigurationOperations.isValidString(studentResponseModel.capturedimgid) ? studentResponseModel.capturedimgid : ""}</CapturedImgId>
       </StudentResponse>
       """;
     });
@@ -662,6 +879,105 @@ class CourseOfflineController {
     MyPrint.printOnConsole("isUpdatedInOffline:$isUpdatedInOffline", tag: tag);
 
     return isUpdatedInOffline;
+  }
+
+//endregion
+
+  //region Sync Data to Offline
+  Future<void> syncDataToOffline({required List<CourseOfflineLaunchRequestModel> requestModels}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CourseOfflineController().syncDataToOffline() called", tag: tag);
+
+    if (requestModels.isEmpty) {
+      MyPrint.printOnConsole("Returning from CourseOfflineController().syncDataToOffline() because requestModels is empty", tag: tag);
+      return;
+    }
+
+    Map<CourseOfflineLaunchRequestModel, GetCourseTrackingDataResponseModel> courseTrackingDataToUpdate = <CourseOfflineLaunchRequestModel, GetCourseTrackingDataResponseModel>{};
+
+    List<Future> getTrackingDataFutures = <Future>[];
+
+    List<String> keysToUpdate = <String>[];
+    for (CourseOfflineLaunchRequestModel requestModel in requestModels) {
+      String offlineContentId = CMIModel.getCmiId(siteId: requestModel.SiteId, userId: requestModel.UserId, scoId: requestModel.ScoId);
+      keysToUpdate.add(offlineContentId);
+
+      getTrackingDataFutures.add(repository
+          .getCourseTrackingData(
+        requestModel: GetCourseTrackingDataRequestModel(
+          contentId: requestModel.ContentId,
+          scoid: requestModel.ScoId,
+          trackId: requestModel.ParentContentId,
+        ),
+      )
+          .then((DataResponseModel<GetCourseTrackingDataResponseModel> responseModel) {
+        GetCourseTrackingDataResponseModel? model = responseModel.data;
+
+        MyPrint.printOnConsole("Api Success for offlineContentId:'$offlineContentId', Got Response:${model != null}", tag: tag);
+
+        if (model != null) courseTrackingDataToUpdate[requestModel] = model;
+      }).catchError((e, s) {
+        MyPrint.printOnConsole("Api Failed for offlineContentId:'$offlineContentId', Error:$e", tag: tag);
+        MyPrint.printOnConsole(s, tag: tag);
+      }));
+    }
+    MyPrint.printOnConsole("courseTrackingDataToUpdate:$keysToUpdate", tag: tag);
+
+    if (getTrackingDataFutures.isEmpty) {
+      MyPrint.printOnConsole("Returning from CourseOfflineController().syncDataToOffline() because getTrackingDataFutures is empty", tag: tag);
+      return;
+    }
+
+    MyPrint.printOnConsole("Final getTrackingDataFutures length:${getTrackingDataFutures.length}", tag: tag);
+    MyPrint.printOnConsole("Waiting for Api Calls to be Completed", tag: tag);
+    if (getTrackingDataFutures.isNotEmpty) await Future.wait(getTrackingDataFutures);
+    MyPrint.printOnConsole("Api Calls Completed", tag: tag);
+
+    List<String> finalKeysToUpdate = courseTrackingDataToUpdate.keys.map((e) => CMIModel.getCmiId(siteId: e.SiteId, userId: e.UserId, scoId: e.ScoId)).toList();
+    MyPrint.printOnConsole("Final courseTrackingDataToUpdate:$finalKeysToUpdate", tag: tag);
+
+    if (finalKeysToUpdate.isEmpty) {
+      MyPrint.printOnConsole("Returning from CourseOfflineController().syncDataToOffline() because finalKeysToUpdate is empty", tag: tag);
+      return;
+    }
+
+    List<Future> databaseUpdateFuture = <Future>[];
+
+    courseTrackingDataToUpdate.forEach((CourseOfflineLaunchRequestModel requestModel, GetCourseTrackingDataResponseModel responseModel) {
+      databaseUpdateFuture.addAll([
+        setCmiModelFromRequestModel(requestModel: requestModel, cmiModel: responseModel.cmi.firstElement),
+        setLearnerSessionModelFromRequestModel(
+          requestModel: requestModel,
+          courseLearnerSessionModel: CourseLearnerSessionResponseModel(
+            id: CourseLearnerSessionResponseModel.getCourseLearnerSessionId(siteId: requestModel.SiteId, userId: requestModel.UserId, scoId: requestModel.ScoId),
+            siteId: requestModel.SiteId,
+            userId: requestModel.UserId,
+            scoId: requestModel.ScoId,
+            learnerSessionsResponseMap: Map<int, LearnerSessionModel>.fromEntries(responseModel.learnersession.map((e) => MapEntry(e.attemptnumber, e))),
+          ),
+        ),
+        setStudentResponseModelFromRequestModel(
+          requestModel: requestModel,
+          studentCourseResponseModel: StudentCourseResponseModel(
+            id: StudentCourseResponseModel.getStudentCourseResponseId(siteId: requestModel.SiteId, userId: requestModel.UserId, scoId: requestModel.ScoId),
+            siteId: requestModel.SiteId,
+            userId: requestModel.UserId,
+            scoId: requestModel.ScoId,
+            questionResponseMap: Map.fromEntries(responseModel.studentresponse.map((e) => MapEntry(e.questionid, e)).toList()),
+          ),
+        ),
+      ]);
+    });
+
+    if (databaseUpdateFuture.isEmpty) {
+      MyPrint.printOnConsole("Returning from CourseOfflineController().syncDataToOffline() because databaseUpdateFuture is empty", tag: tag);
+      return;
+    }
+
+    MyPrint.printOnConsole("Final databaseUpdateFuture length:${databaseUpdateFuture.length}", tag: tag);
+    MyPrint.printOnConsole("Waiting for Database Calls to be Completed", tag: tag);
+    if (databaseUpdateFuture.isNotEmpty) await Future.wait(databaseUpdateFuture);
+    MyPrint.printOnConsole("Database Calls Completed", tag: tag);
   }
 //endregion
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
@@ -514,7 +515,7 @@ class SplashController {
     String newId = MyUtils.getNewId();
     MyPrint.printOnConsole(
         "SplashController().getSiteLocalizationStrings called with isGetFromOffline:$isGetFromOffline,"
-        " isSaveInOfflineL$isSaveInOffline",
+            " isSaveInOfflineL$isSaveInOffline",
         tag: newId);
 
     LocalStr? localStr;
@@ -694,7 +695,7 @@ class SplashController {
     String newId = MyUtils.getNewId();
     MyPrint.printOnConsole(
         "SplashController().getAppMenuComponentsList called for menuId:$menuId, isGetFromOnline:$isGetFromOnline, "
-        "isGetFromOffline:$isGetFromOffline, isSaveInOffline:$isSaveInOffline",
+            "isGetFromOffline:$isGetFromOffline, isSaveInOffline:$isSaveInOffline",
         tag: newId);
 
     List<NativeMenuComponentModel>? nativeMenuComponentModelsList;
@@ -791,7 +792,7 @@ class SplashController {
       isNotify: false,
     );
 
-    if (CourseDownloadController.isDownloadModuleEnabled) {
+    if (CourseDownloadController.isDownloadModuleEnabled && !kIsWeb) {
       appProvider.setMenuComponentModelsListForMenuId(
         menuId: 999,
         list: [

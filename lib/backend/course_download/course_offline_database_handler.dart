@@ -1199,7 +1199,7 @@ class CourseOfflineSQLDatabaseHandler {
 
         if (jsonCMiColumnObj.containsKey("corelessonstatus")) {
           String string = jsonCMiColumnObj["corelessonstatus"].toString();
-          cmiModel.status = AppConfigurationOperations.isValidString(string) ? string : '';
+          cmiModel.corelessonstatus = AppConfigurationOperations.isValidString(string) ? string : '';
         }
 
         // scoid
@@ -1215,25 +1215,25 @@ class CourseOfflineSQLDatabaseHandler {
         // corelessonlocation
         if (jsonCMiColumnObj.containsKey("corelessonlocation")) {
           String string = jsonCMiColumnObj["corelessonlocation"].toString();
-          cmiModel.location = AppConfigurationOperations.isValidString(string) ? string : '';
+          cmiModel.corelessonlocation = AppConfigurationOperations.isValidString(string) ? string : '';
         }
 
         // author
         if (jsonCMiColumnObj.containsKey("totalsessiontime")) {
           String string = jsonCMiColumnObj["totalsessiontime"].toString();
-          cmiModel.timespent = AppConfigurationOperations.isValidString(string) ? string : "0:00:00";
+          cmiModel.totalsessiontime = AppConfigurationOperations.isValidString(string) ? string : "0:00:00";
         }
         // scoreraw
         if (jsonCMiColumnObj.containsKey("scoreraw")) {
           String string = jsonCMiColumnObj["scoreraw"].toString();
-          cmiModel.score = AppConfigurationOperations.isValidString(string) ? string : '';
+          cmiModel.scoreraw = AppConfigurationOperations.isValidString(string) ? string : '';
         }
         // sequencenumber
         cmiModel.sequencenumber = ParsingHelper.parseIntMethod(jsonCMiColumnObj["sequencenumber"]);
         // durationEndDate
         if (jsonCMiColumnObj.containsKey("corelessonmode")) {
           String string = jsonCMiColumnObj["corelessonmode"].toString();
-          cmiModel.coursemode = AppConfigurationOperations.isValidString(string) ? string : '';
+          cmiModel.corelessonmode = AppConfigurationOperations.isValidString(string) ? string : '';
         }
         // scoremin
         if (jsonCMiColumnObj.containsKey("scoremin")) {
@@ -1270,7 +1270,7 @@ class CourseOfflineSQLDatabaseHandler {
         // scoid
         if (jsonCMiColumnObj.containsKey("textresponses")) {
           String string = jsonCMiColumnObj["textresponses"].toString();
-          cmiModel.textResponses = AppConfigurationOperations.isValidString(string) ? string : '';
+          cmiModel.textresponses = AppConfigurationOperations.isValidString(string) ? string : '';
         }
         cmiModel.siteid = courseDTOModel.SiteId;
         // cmiModel.sitrurl = learningModel.siteurl;
@@ -1317,24 +1317,24 @@ class CourseOfflineSQLDatabaseHandler {
           '\'${cmiModel.siteid}\','
           '\'${cmiModel.scoid}\','
           '\'${cmiModel.userid}\','
-          '\'${cmiModel.location}\','
-          '\'${cmiModel.status}\','
+          '\'${cmiModel.corelessonlocation}\','
+          '\'${cmiModel.corelessonstatus}\','
           '\'${cmiModel.suspenddata}\','
           '\'$isViewed\','
           '\'${cmiModel.siteurl}\','
           '\'${cmiModel.datecompleted}\','
           '\'${cmiModel.noofattempts}\','
-          '\'${cmiModel.score}\','
+          '\'${cmiModel.scoreraw}\','
           '\'${cmiModel.sequencenumber}\','
           '\'${cmiModel.startdate}\','
-          '\'${cmiModel.timespent}\','
-          '\'${cmiModel.coursemode}\','
+          '\'${cmiModel.totalsessiontime}\','
+          '\'${cmiModel.corelessonmode}\','
           '\'${cmiModel.scoremin}\','
           '\'${cmiModel.scoremax}\','
           '\'${cmiModel.submittime}\','
-          '\'${cmiModel.randomquesseq}\','
-          '\'${cmiModel.pooledquesseq}\','
-          '\'${cmiModel.textResponses}\','
+          '\'${cmiModel.randomquestionnos}\','
+          '\'${cmiModel.pooledquestionnos}\','
+          '\'${cmiModel.textresponses}\','
           '\'${cmiModel.percentageCompleted}\')';
       await _database!.rawQuery(query);
     } catch (err) {
@@ -1407,30 +1407,30 @@ class CourseOfflineSQLDatabaseHandler {
         }
         // sequencenumber
         if (jsonCMiColumnObj.containsKey("optionalnotes")) {
-          studentResponseModel.optionalNotes = jsonCMiColumnObj["optionalnotes"].toString();
+          studentResponseModel.optionalnotes = jsonCMiColumnObj["optionalnotes"].toString();
         }
 
         // indexs
         if (jsonCMiColumnObj.containsKey("index")) {
           int indexs = int.parse(jsonCMiColumnObj["index"].toString());
-          studentResponseModel.rindex = indexs;
+          studentResponseModel.index = indexs;
         }
 
         // scoremax
         if (jsonCMiColumnObj.containsKey("capturedvidid")) {
-          studentResponseModel.capturedVidId = jsonCMiColumnObj["capturedvidid"].toString();
+          studentResponseModel.capturedvidid = jsonCMiColumnObj["capturedvidid"].toString();
         }
         // startdate
         if (jsonCMiColumnObj.containsKey("capturedvidfilename")) {
-          studentResponseModel.capturedVidFileName = jsonCMiColumnObj["capturedvidfilename"].toString();
+          studentResponseModel.capturedvidfilename = jsonCMiColumnObj["capturedvidfilename"].toString();
         }
         // datecompleted
         if (jsonCMiColumnObj.containsKey("capturedimgid")) {
-          studentResponseModel.capturedImgId = jsonCMiColumnObj["capturedimgid"].toString();
+          studentResponseModel.capturedimgid = jsonCMiColumnObj["capturedimgid"].toString();
         }
         // objecttypeid
         if (jsonCMiColumnObj.containsKey("capturedimgfilename")) {
-          studentResponseModel.capturedImgFileName = jsonCMiColumnObj["capturedimgfilename"].toString();
+          studentResponseModel.capturedimgfilename = jsonCMiColumnObj["capturedimgfilename"].toString();
         }
         // scoid
         if (jsonCMiColumnObj.containsKey("attemptdate")) {
@@ -1495,14 +1495,14 @@ class CourseOfflineSQLDatabaseHandler {
           '\'${studentResponseModel.result}\','
           '\'${studentResponseModel.attachfilename}\','
           '\'${studentResponseModel.attachfileid}\','
-          '\'${studentResponseModel.rindex}\','
+          '\'${studentResponseModel.index}\','
           '\'${studentResponseModel.attachfilename}\','
-          '\'${studentResponseModel.optionalNotes}\','
-          '\'${studentResponseModel.capturedImgFileName}\','
-          '\'${studentResponseModel.capturedVidId}\','
+          '\'${studentResponseModel.optionalnotes}\','
+          '\'${studentResponseModel.capturedimgfilename}\','
+          '\'${studentResponseModel.capturedvidid}\','
           '\'${studentResponseModel.capturedVidFilepath}\','
-          '\'${studentResponseModel.capturedImgFileName}\','
-          '\'${studentResponseModel.capturedImgId}\','
+          '\'${studentResponseModel.capturedimgfilename}\','
+          '\'${studentResponseModel.capturedimgid}\','
           '\'${studentResponseModel.capturedImgFilepath}\')';
       await _database!.rawQuery(query);
     } catch (err) {
@@ -1756,27 +1756,27 @@ class CourseOfflineSQLDatabaseHandler {
 
           CMIModel cmiDetails = CMIModel();
           cmiDetails.scoid = item['scoid'];
-          cmiDetails.location = item['location'];
+          cmiDetails.corelessonlocation = item['location'];
 
-          cmiDetails.status = item['status'];
+          cmiDetails.corelessonstatus = item['status'];
 
           cmiDetails.suspenddata = item['suspenddata'];
           cmiDetails.siteid = item['siteid'];
-          cmiDetails.score = item['score'] ?? '';
+          cmiDetails.scoreraw = item['score'] ?? '';
           cmiDetails.objecttypeid = item['objecttypeid'];
           cmiDetails.sequencenumber = item['sequencenumber'];
           cmiDetails.userid = item['userid'];
           cmiDetails.datecompleted = item['datecompleted'];
           cmiDetails.noofattempts = item['noofattempts'];
 
-          cmiDetails.randomquesseq = item['randomquesseq'];
+          cmiDetails.randomquestionnos = item['randomquesseq'];
           cmiDetails.siteurl = item['siteurl'];
-          cmiDetails.textResponses = item['textResponses'];
-          cmiDetails.pooledquesseq = item['pooledquesseq'] ?? '';
+          cmiDetails.textresponses = item['textResponses'];
+          cmiDetails.pooledquestionnos = item['pooledquesseq'] ?? '';
 
           cmiDetails.contentId = item['contentid'];
 
-          cmiDetails.coursemode = item['coursemode'];
+          cmiDetails.corelessonmode = item['coursemode'];
 
           cmiDetails.scoremin = item['scoremin'];
 
@@ -1817,13 +1817,13 @@ class CourseOfflineSQLDatabaseHandler {
 
           CMIModel cmiDetails = CMIModel();
           cmiDetails.scoid = item['scoid'];
-          cmiDetails.location = item['location'];
-          cmiDetails.status = item['status'];
+          cmiDetails.corelessonlocation = item['location'];
+          cmiDetails.corelessonstatus = item['status'];
 
           cmiDetails.suspenddata = item['suspenddata'];
           cmiDetails.siteid = item['siteid'];
 
-          cmiDetails.score = item['score'] ?? '';
+          cmiDetails.scoreraw = item['score'] ?? '';
           cmiDetails.objecttypeid = item['objecttypeid'].toString();
           cmiDetails.sequencenumber = item['sequencenumber'];
           cmiDetails.userid = item['userid'];
@@ -1832,12 +1832,12 @@ class CourseOfflineSQLDatabaseHandler {
           cmiDetails.noofattempts = item['noofattempts'];
 //                cmiDetails.set_noofattempts(cursor.getInt(cursor
 //                        .getColumnIndex("attemptnumber")));
-          cmiDetails.coursemode = item['coursemode'];
-          cmiDetails.randomquesseq = item['randomquesseq'];
+          cmiDetails.corelessonmode = item['coursemode'];
+          cmiDetails.randomquestionnos = item['randomquesseq'];
           cmiDetails.siteurl = item['siteurl'];
 
-          cmiDetails.textResponses = item['textResponses'];
-          cmiDetails.pooledquesseq = item['pooledquesseq'] ?? '';
+          cmiDetails.textresponses = item['textResponses'];
+          cmiDetails.pooledquestionnos = item['pooledquesseq'] ?? '';
 
           cmiDetails.contentId = item['contentid'];
 
@@ -1876,24 +1876,24 @@ class CourseOfflineSQLDatabaseHandler {
 
           CMIModel cmiDetails = CMIModel();
           cmiDetails.scoid = int.parse(item['scoid']);
-          cmiDetails.location = item['location'];
+          cmiDetails.corelessonlocation = item['location'];
 
-          cmiDetails.status = item['status'];
+          cmiDetails.corelessonstatus = item['status'];
           cmiDetails.suspenddata = item['suspenddata'];
           cmiDetails.siteid = item['siteid'];
 
-          cmiDetails.score = item['score'];
+          cmiDetails.scoreraw = item['score'];
           cmiDetails.objecttypeid = item['objecttypeid'];
           cmiDetails.sequencenumber = item['sequencenumber'];
           cmiDetails.userid = int.parse(item['userid']);
           cmiDetails.datecompleted = item['datecompleted'];
           cmiDetails.noofattempts = int.parse(item['noofattempts']);
 
-          cmiDetails.coursemode = item['coursemode'];
-          cmiDetails.randomquesseq = item['randomquesseq'];
+          cmiDetails.corelessonmode = item['coursemode'];
+          cmiDetails.randomquestionnos = item['randomquesseq'];
           cmiDetails.siteurl = item['siteurl'];
-          cmiDetails.textResponses = item['textResponses'];
-          cmiDetails.pooledquesseq = item['pooledquesseq'];
+          cmiDetails.textresponses = item['textResponses'];
+          cmiDetails.pooledquestionnos = item['pooledquesseq'];
 
           cmiDetails.parentObjTypeId = '10';
           cmiDetails.parentContentId = item['trackContentId'];
@@ -1962,14 +1962,14 @@ class CourseOfflineSQLDatabaseHandler {
           resDetails.attachfilename = item['attachfilename'];
           resDetails.attachfileid = item['attachfileid'];
           resDetails.attachedfilepath = item['attachedfilepath'];
-          resDetails.optionalNotes = item['optionalNotes'];
+          resDetails.optionalnotes = item['optionalNotes'];
 
-          resDetails.capturedVidFileName = item['capturedVidFileName'];
-          resDetails.capturedVidId = item['capturedVidId'];
+          resDetails.capturedvidfilename = item['capturedVidFileName'];
+          resDetails.capturedvidid = item['capturedVidId'];
           resDetails.capturedVidFilepath = item['capturedVidFilepath'];
 
-          resDetails.capturedImgFileName = item['capturedImgFileName'];
-          resDetails.capturedImgId = item['capturedImgId'];
+          resDetails.capturedimgfilename = item['capturedImgFileName'];
+          resDetails.capturedimgid = item['capturedImgId'];
           resDetails.capturedImgFilepath = item['capturedImgFilepath'];
 
           responseList.add(resDetails);
@@ -2103,7 +2103,7 @@ class CourseOfflineSQLDatabaseHandler {
           Map<String, dynamic> obj = data[0] as Map<String, dynamic>;
           String key = (obj.keys.toList())[1];
           if (['8', '9'].contains(data[0][key])) {
-            if (!AppConfigurationOperations.isValidString(cmiNew.score)) {
+            if (!AppConfigurationOperations.isValidString(cmiNew.scoreraw)) {
             } else {
               int intNoAtt = int.parse(data[0][key]);
 
@@ -2305,7 +2305,7 @@ class CourseOfflineSQLDatabaseHandler {
 
           if (tempOptionalNotes.contains("^notes^")) {
             tempOptionalNotes = tempOptionalNotes.replaceAll("^notes^", "");
-            studentResponse.optionalNotes = tempOptionalNotes;
+            studentResponse.optionalnotes = tempOptionalNotes;
           } else {
             if (quesAry.length > 5) {
               studentResponse.attachfilename = quesAry[4];
@@ -2317,26 +2317,26 @@ class CourseOfflineSQLDatabaseHandler {
 
           if (quesAry.length > 6) {
             if (quesAry[6].isEmpty && quesAry[6] == "undefined") {
-              studentResponse.capturedVidFileName = "";
-              studentResponse.capturedVidId = "";
+              studentResponse.capturedvidfilename = "";
+              studentResponse.capturedvidid = "";
               studentResponse.capturedVidFilepath = "";
             }
 
-            studentResponse.capturedVidFileName = quesAry[6];
-            studentResponse.capturedVidId = quesAry[7];
+            studentResponse.capturedvidfilename = quesAry[6];
+            studentResponse.capturedvidid = quesAry[7];
             String strManyDirectories = "${strTempUploadPath.substring(1, strTempUploadPath.lastIndexOf("/"))}/mediaresource/mediacapture/";
             studentResponse.capturedVidFilepath = strManyDirectories + quesAry[7];
           }
 
           if (quesAry.length > 8) {
             if (quesAry[8].isEmpty || quesAry[8] == "undefined") {
-              studentResponse.capturedImgFileName = "";
-              studentResponse.capturedImgId = "";
+              studentResponse.capturedimgfilename = "";
+              studentResponse.capturedimgid = "";
               studentResponse.capturedImgFilepath = "";
             }
 
-            studentResponse.capturedImgFileName = quesAry[8];
-            studentResponse.capturedImgId = quesAry[9];
+            studentResponse.capturedimgfilename = quesAry[8];
+            studentResponse.capturedimgid = quesAry[9];
             String strManyDirectories = "${strTempUploadPath.substring(1, strTempUploadPath.lastIndexOf("/"))}/mediaresource/mediacapture/";
             studentResponse.capturedImgFilepath = strManyDirectories + quesAry[9];
           }
@@ -2344,14 +2344,14 @@ class CourseOfflineSQLDatabaseHandler {
           studentResponse.attachfilename = "";
           studentResponse.attachfileid = "";
           studentResponse.attachedfilepath = "";
-          studentResponse.rindex = 0;
-          studentResponse.optionalNotes = "";
+          studentResponse.index = 0;
+          studentResponse.optionalnotes = "";
 
-          studentResponse.capturedVidFileName = "";
-          studentResponse.capturedVidId = "";
+          studentResponse.capturedvidfilename = "";
+          studentResponse.capturedvidid = "";
 
-          studentResponse.capturedImgFileName = "";
-          studentResponse.capturedImgId = "";
+          studentResponse.capturedimgfilename = "";
+          studentResponse.capturedimgid = "";
           studentResponse.capturedImgFilepath = "";
         }
         insertStudentResponses(resDetails: studentResponse);
@@ -2420,19 +2420,19 @@ class CourseOfflineSQLDatabaseHandler {
       resDetails.attachedfilepath = "";
     }
 
-    if (!AppConfigurationOperations.isValidString(resDetails.optionalNotes)) {
-      resDetails.optionalNotes = "";
+    if (!AppConfigurationOperations.isValidString(resDetails.optionalnotes)) {
+      resDetails.optionalnotes = "";
     }
 
-    if (!AppConfigurationOperations.isValidString(resDetails.capturedVidFileName)) {
-      resDetails.capturedVidFileName = "";
-      resDetails.capturedVidId = "";
+    if (!AppConfigurationOperations.isValidString(resDetails.capturedvidfilename)) {
+      resDetails.capturedvidfilename = "";
+      resDetails.capturedvidid = "";
       resDetails.capturedVidFilepath = "";
     }
 
-    if (!AppConfigurationOperations.isValidString(resDetails.capturedImgFileName)) {
-      resDetails.capturedImgFileName = "";
-      resDetails.capturedImgId = "";
+    if (!AppConfigurationOperations.isValidString(resDetails.capturedimgfilename)) {
+      resDetails.capturedimgfilename = "";
+      resDetails.capturedimgid = "";
       resDetails.capturedImgFilepath = "";
     }
 
@@ -2466,10 +2466,10 @@ class CourseOfflineSQLDatabaseHandler {
       String query3 = "";
       if (isStudentResExist) {
         query3 =
-            "UPDATE studentresponses SET studentresponses ='${resDetails.studentresponses}',result='${resDetails.result}',attachfilename= '${resDetails.attachfilename}',attachfileid='${resDetails.attachfileid}' ,attachedfilepath='${resDetails.attachedfilepath}' ,optionalNotes='${resDetails.optionalNotes}' ,capturedVidFileName ='${resDetails.capturedVidFileName}' ,capturedVidId ='${resDetails.capturedVidId}' ,capturedVidFilepath ='${resDetails.capturedVidFilepath}' ,capturedImgFileName ='${resDetails.capturedImgFileName}' ,capturedImgId ='${resDetails.capturedImgId}' ,capturedImgFilepath ='${resDetails.capturedImgFilepath}' where scoid=${resDetails.scoid} and userid=${resDetails.userid} and questionid=${resDetails.questionid} and siteid=${resDetails.siteid} and assessmentattempt=$assesmentNumber";
+            "UPDATE studentresponses SET studentresponses ='${resDetails.studentresponses}',result='${resDetails.result}',attachfilename= '${resDetails.attachfilename}',attachfileid='${resDetails.attachfileid}' ,attachedfilepath='${resDetails.attachedfilepath}' ,optionalNotes='${resDetails.optionalnotes}' ,capturedVidFileName ='${resDetails.capturedvidfilename}' ,capturedVidId ='${resDetails.capturedvidid}' ,capturedVidFilepath ='${resDetails.capturedVidFilepath}' ,capturedImgFileName ='${resDetails.capturedimgfilename}' ,capturedImgId ='${resDetails.capturedimgid}' ,capturedImgFilepath ='${resDetails.capturedImgFilepath}' where scoid=${resDetails.scoid} and userid=${resDetails.userid} and questionid=${resDetails.questionid} and siteid=${resDetails.siteid} and assessmentattempt=$assesmentNumber";
       } else {
         query3 =
-            "INSERT INTO $TBL_STUDENT_RESPONSES(siteid,scoid,userid,questionid,assessmentattempt,questionattempt,attemptdate,studentresponses,result,attachfilename,attachfileid,attachedfilepath,optionalNotes,capturedVidFileName,capturedVidId,capturedVidFilepath,capturedImgFileName,capturedImgId,capturedImgFilepath) values (${resDetails.siteid},${resDetails.scoid},${resDetails.userid},${resDetails.questionid},$assesmentNumber,$quesAttempt,'${resDetails.attemptdate}','${resDetails.studentresponses}','${resDetails.result}','${resDetails.attachfilename}','${resDetails.attachfileid}','${resDetails.attachedfilepath}','${resDetails.optionalNotes}','${resDetails.capturedVidFileName}','${resDetails.capturedVidId}','${resDetails.capturedVidFilepath}','${resDetails.capturedImgFileName}','${resDetails.capturedImgId}','${resDetails.capturedImgFilepath}')";
+            "INSERT INTO $TBL_STUDENT_RESPONSES(siteid,scoid,userid,questionid,assessmentattempt,questionattempt,attemptdate,studentresponses,result,attachfilename,attachfileid,attachedfilepath,optionalNotes,capturedVidFileName,capturedVidId,capturedVidFilepath,capturedImgFileName,capturedImgId,capturedImgFilepath) values (${resDetails.siteid},${resDetails.scoid},${resDetails.userid},${resDetails.questionid},$assesmentNumber,$quesAttempt,'${resDetails.attemptdate}','${resDetails.studentresponses}','${resDetails.result}','${resDetails.attachfilename}','${resDetails.attachfileid}','${resDetails.attachedfilepath}','${resDetails.optionalnotes}','${resDetails.capturedvidfilename}','${resDetails.capturedvidid}','${resDetails.capturedVidFilepath}','${resDetails.capturedimgfilename}','${resDetails.capturedimgid}','${resDetails.capturedImgFilepath}')";
       }
       await _database!.rawQuery(query3);
     } catch (e) {

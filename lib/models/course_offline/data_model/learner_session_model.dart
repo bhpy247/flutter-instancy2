@@ -2,7 +2,6 @@ import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
 class LearnerSessionModel {
-  String learnerSessionID = "";
   String sessiondatetime = "";
   String timespent = "";
   int sessionid = 0;
@@ -12,7 +11,6 @@ class LearnerSessionModel {
   int attemptnumber = 0;
 
   LearnerSessionModel({
-    this.learnerSessionID = "",
     this.sessiondatetime = "",
     this.timespent = "",
     this.sessionid = 0,
@@ -31,7 +29,6 @@ class LearnerSessionModel {
   }
 
   void _initializeFromMap(Map<String, dynamic> map) {
-    learnerSessionID = ParsingHelper.parseStringMethod(map["learnerSessionID"]);
     sessiondatetime = ParsingHelper.parseStringMethod(map["sessiondatetime"]);
     timespent = ParsingHelper.parseStringMethod(map["timespent"]);
     sessionid = ParsingHelper.parseIntMethod(map["sessionid"]);
@@ -43,7 +40,6 @@ class LearnerSessionModel {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      "learnerSessionID": learnerSessionID,
       "sessiondatetime": sessiondatetime,
       "timespent": timespent,
       "sessionid": sessionid,
@@ -57,9 +53,5 @@ class LearnerSessionModel {
   @override
   String toString() {
     return MyUtils.encodeJson(toMap());
-  }
-
-  static getLearnerSessionId({required int siteId, required int userId, required int scoId}) {
-    return "${siteId}_${userId}_$scoId";
   }
 }

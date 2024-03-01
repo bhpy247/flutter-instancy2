@@ -523,6 +523,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
           contentId: model.ContentID,
           scoId: model.ScoID,
           contentTypeId: model.ContentTypeId,
+          parentEventTrackContentId: widget.arguments.parentEventId.isNotEmpty ? widget.arguments.parentEventId : widget.arguments.parentTrackId,
         );
         MyPrint.printOnConsole("SetComplete isSuccess:$isSuccess");
 
@@ -829,6 +830,17 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         if (isSecondaryAction) Navigator.pop(context);
 
         courseDownloadController.resumeDownload(downloadId: model.id);
+      },
+      onSetCompleteTap: () async {
+        if (isSecondaryAction) Navigator.pop(context);
+
+        isLoading = true;
+        mySetState();
+
+        await courseDownloadController.setCompleteDownload(courseDownloadDataModel: model);
+
+        isLoading = false;
+        mySetState();
       },
     );
   }

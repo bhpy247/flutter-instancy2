@@ -58,7 +58,7 @@ class StudentCourseResponseModel {
     return MyUtils.encodeJson(toMap());
   }
 
-  static getStudentCourseResponseId({required int siteId, required int userId, required int scoId}) {
+  static String getStudentCourseResponseId({required int siteId, required int userId, required int scoId}) {
     return "${siteId}_${userId}_$scoId";
   }
 }

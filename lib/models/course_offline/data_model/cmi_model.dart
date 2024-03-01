@@ -3,30 +3,32 @@ import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
 class CMIModel {
   String cmiId = "";
-  String location = "";
-  String status = "";
+  String corelessonlocation = "";
+  String corelessonstatus = "";
   String suspenddata = "";
   String isupdate = "";
   String siteurl = "";
   String objecttypeid = "";
   String datecompleted = "";
-  String score = "";
+  String scoreraw = "";
   String startdate = "";
-  String timespent = "";
+  String totalsessiontime = "";
   String attemptsleft = "";
-  String coursemode = "";
+  String corelessonmode = "";
   String scoremin = "";
   String scoremax = "";
   String submittime = "";
-  String textResponses = "";
+  String textresponses = "";
   String percentageCompleted = "";
+  String trackprogress = "";
   String parentObjTypeId = "";
   String parentContentId = "";
   String parentScoId = "";
   String contentId = "";
-  String showStatus = "";
-  String randomquesseq = "";
-  String pooledquesseq = "";
+  String statusdisplayname = "";
+  String randomquestionnos = "";
+  String pooledquestionnos = "";
+  int id = 0;
   int scoid = 0;
   int userid = 0;
   int siteid = 0;
@@ -36,29 +38,31 @@ class CMIModel {
   CMIModel({
     this.cmiId = "",
     this.percentageCompleted = "",
+    this.trackprogress = "",
     this.parentObjTypeId = "",
     this.parentContentId = "",
     this.parentScoId = "",
     this.contentId = "",
-    this.showStatus = "",
-    this.location = "",
-    this.status = "",
+    this.statusdisplayname = "",
+    this.corelessonlocation = "",
+    this.corelessonstatus = "",
     this.suspenddata = "",
     this.isupdate = "",
     this.siteurl = "",
     this.objecttypeid = "",
     this.datecompleted = "",
-    this.score = "",
+    this.scoreraw = "",
     this.startdate = "",
-    this.timespent = "",
+    this.totalsessiontime = "",
     this.attemptsleft = "",
-    this.coursemode = "",
+    this.corelessonmode = "",
     this.scoremin = "",
     this.scoremax = "",
     this.submittime = "",
-    this.textResponses = "",
-    this.randomquesseq = "",
-    this.pooledquesseq = "",
+    this.textresponses = "",
+    this.randomquestionnos = "",
+    this.pooledquestionnos = "",
+    this.id = 0,
     this.scoid = 0,
     this.userid = 0,
     this.siteid = 0,
@@ -76,30 +80,32 @@ class CMIModel {
 
   void _initializeFromMap(Map<String, dynamic> map) {
     cmiId = ParsingHelper.parseStringMethod(map["cmiId"]);
-    location = ParsingHelper.parseStringMethod(map["location"]);
-    status = ParsingHelper.parseStringMethod(map["status"]);
+    corelessonlocation = ParsingHelper.parseStringMethod(map["corelessonlocation"]);
+    corelessonstatus = ParsingHelper.parseStringMethod(map["corelessonstatus"]);
     suspenddata = ParsingHelper.parseStringMethod(map["suspenddata"]);
     isupdate = ParsingHelper.parseStringMethod(map["isupdate"]);
     siteurl = ParsingHelper.parseStringMethod(map["siteurl"]);
     objecttypeid = ParsingHelper.parseStringMethod(map["objecttypeid"]);
     datecompleted = ParsingHelper.parseStringMethod(map["datecompleted"]);
-    score = ParsingHelper.parseStringMethod(map["score"]);
+    scoreraw = ParsingHelper.parseStringMethod(map["scoreraw"]);
     startdate = ParsingHelper.parseStringMethod(map["startdate"]);
-    timespent = ParsingHelper.parseStringMethod(map["timespent"]);
+    totalsessiontime = ParsingHelper.parseStringMethod(map["totalsessiontime"]);
     attemptsleft = ParsingHelper.parseStringMethod(map["attemptsleft"]);
-    coursemode = ParsingHelper.parseStringMethod(map["coursemode"]);
+    corelessonmode = ParsingHelper.parseStringMethod(map["coursemode"]);
     scoremin = ParsingHelper.parseStringMethod(map["scoremin"]);
     scoremax = ParsingHelper.parseStringMethod(map["scoremax"]);
     submittime = ParsingHelper.parseStringMethod(map["submittime"]);
-    textResponses = ParsingHelper.parseStringMethod(map["textResponses"]);
+    textresponses = ParsingHelper.parseStringMethod(map["textresponses"]);
     percentageCompleted = ParsingHelper.parseStringMethod(map["percentageCompleted"]);
+    trackprogress = ParsingHelper.parseStringMethod(map["trackprogress"]);
     parentObjTypeId = ParsingHelper.parseStringMethod(map["parentObjTypeId"]);
     parentContentId = ParsingHelper.parseStringMethod(map["parentContentId"]);
     parentScoId = ParsingHelper.parseStringMethod(map["parentScoId"]);
     contentId = ParsingHelper.parseStringMethod(map["contentId"]);
-    showStatus = ParsingHelper.parseStringMethod(map["showStatus"]);
-    randomquesseq = ParsingHelper.parseStringMethod(map["randomquesseq"]);
-    pooledquesseq = ParsingHelper.parseStringMethod(map["pooledquesseq"]);
+    statusdisplayname = ParsingHelper.parseStringMethod(map["statusdisplayname"]);
+    randomquestionnos = ParsingHelper.parseStringMethod(map["randomquestionnos"]);
+    pooledquestionnos = ParsingHelper.parseStringMethod(map["pooledquestionnos"]);
+    id = ParsingHelper.parseIntMethod(map["id"]);
     scoid = ParsingHelper.parseIntMethod(map["scoid"]);
     userid = ParsingHelper.parseIntMethod(map["userid"]);
     siteid = ParsingHelper.parseIntMethod(map["siteid"]);
@@ -111,29 +117,31 @@ class CMIModel {
     return <String, dynamic>{
       "cmiId": cmiId,
       "percentageCompleted": percentageCompleted,
+      "trackprogress": trackprogress,
       "parentObjTypeId": parentObjTypeId,
       "parentContentId": parentContentId,
       "parentScoId": parentScoId,
       "contentId": contentId,
-      "showStatus": showStatus,
-      "location": location,
-      "status": status,
+      "statusdisplayname": statusdisplayname,
+      "corelessonlocation": corelessonlocation,
+      "corelessonstatus": corelessonstatus,
       "suspenddata": suspenddata,
       "isupdate": isupdate,
       "siteurl": siteurl,
       "objecttypeid": objecttypeid,
       "datecompleted": datecompleted,
-      "score": score,
+      "scoreraw": scoreraw,
       "startdate": startdate,
-      "timespent": timespent,
+      "totalsessiontime": totalsessiontime,
       "attemptsleft": attemptsleft,
-      "coursemode": coursemode,
+      "coursemode": corelessonmode,
       "scoremin": scoremin,
       "scoremax": scoremax,
       "submittime": submittime,
-      "textResponses": textResponses,
-      "randomquesseq": randomquesseq,
-      "pooledquesseq": pooledquesseq,
+      "textresponses": textresponses,
+      "randomquestionnos": randomquestionnos,
+      "pooledquestionnos": pooledquestionnos,
+      "id": id,
       "scoid": scoid,
       "userid": userid,
       "siteid": siteid,
@@ -147,7 +155,7 @@ class CMIModel {
     return MyUtils.encodeJson(toMap());
   }
 
-  static getCmiId({required int siteId, required int userId, required int scoId}) {
+  static String getCmiId({required int siteId, required int userId, required int scoId}) {
     return "${siteId}_${userId}_$scoId";
   }
 }

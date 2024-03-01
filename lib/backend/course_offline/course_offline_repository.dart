@@ -6,7 +6,9 @@ import 'package:flutter_instancy_2/api/rest_client.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/common/model_data_parser.dart';
 import 'package:flutter_instancy_2/models/course_offline/data_model/cmi_model.dart';
-import 'package:flutter_instancy_2/models/course_offline/data_model/learner_session_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/request_model/get_course_tracking_data_request_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/response_model/course_learner_session_response_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/response_model/get_course_tracking_data_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/student_course_response_model.dart';
 import 'package:flutter_instancy_2/utils/hive_manager.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
@@ -241,17 +243,17 @@ class CourseOfflineRepository {
   //endregion
 
   //region Learner Session
-  Future<Map<String, LearnerSessionModel>> getAllLearnerSessionModels() async {
+  Future<Map<String, CourseLearnerSessionResponseModel>> getAllCourseLearnerSessionResponseModels() async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CourseOfflineRepository().getAllLearnerSessionModels() called", tag: tag);
+    MyPrint.printOnConsole("CourseOfflineRepository().getAllCourseLearnerSessionResponseModels() called", tag: tag);
 
-    Map<String, LearnerSessionModel> learnerSessionModelsMap = <String, LearnerSessionModel>{};
+    Map<String, CourseLearnerSessionResponseModel> courseLearnerSessionModelsMap = <String, CourseLearnerSessionResponseModel>{};
 
     Box<dynamic>? box = await initializeLearnerSessionBox();
 
     if (box == null) {
-      MyPrint.printOnConsole("Returning from CourseOfflineRepository().getAllLearnerSessionModels() because box is null", tag: tag);
-      return learnerSessionModelsMap;
+      MyPrint.printOnConsole("Returning from CourseOfflineRepository().getAllCourseLearnerSessionResponseModels() because box is null", tag: tag);
+      return courseLearnerSessionModelsMap;
     }
 
     try {
@@ -260,82 +262,82 @@ class CourseOfflineRepository {
       for (String hiveKey in learnerSessionModelsMapList) {
         Map<String, dynamic> learnerSessionModelMap = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(box.get(hiveKey));
         if (learnerSessionModelMap.isNotEmpty) {
-          learnerSessionModelsMap[hiveKey] = LearnerSessionModel.fromMap(learnerSessionModelMap);
+          courseLearnerSessionModelsMap[hiveKey] = CourseLearnerSessionResponseModel.fromMap(learnerSessionModelMap);
         }
       }
     } catch (e, s) {
-      MyPrint.printOnConsole("Error in CourseOfflineRepository().getAllLearnerSessionModels():$e", tag: tag);
+      MyPrint.printOnConsole("Error in CourseOfflineRepository().getAllCourseLearnerSessionResponseModels():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
     }
 
-    MyPrint.printOnConsole("Final LearnerSessionModels Length:${learnerSessionModelsMap.length}", tag: tag);
+    MyPrint.printOnConsole("Final CourseLearnerSessionModels Length:${courseLearnerSessionModelsMap.length}", tag: tag);
 
-    return learnerSessionModelsMap;
+    return courseLearnerSessionModelsMap;
   }
 
-  Future<Map<String, LearnerSessionModel>> getLearnerSessionsById({required List<String> learnerSessionIds}) async {
+  Future<Map<String, CourseLearnerSessionResponseModel>> getCourseLearnerSessionsDataByIds({required List<String> courseLearnerSessionIds}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CourseOfflineRepository().getLearnerSessionsById() called with learnerSessionIds:$learnerSessionIds", tag: tag);
+    MyPrint.printOnConsole("CourseOfflineRepository().getCourseLearnerSessionsDataByIds() called with courseLearnerSessionIds:$courseLearnerSessionIds", tag: tag);
 
-    Map<String, LearnerSessionModel> learnerSessionModelsMap = <String, LearnerSessionModel>{};
+    Map<String, CourseLearnerSessionResponseModel> courseLearnerSessionModelsMap = <String, CourseLearnerSessionResponseModel>{};
 
     Box<dynamic>? box = await initializeLearnerSessionBox();
 
     if (box == null) {
-      MyPrint.printOnConsole("Returning from CourseOfflineRepository().getLearnerSessionsById() because box is null", tag: tag);
-      return learnerSessionModelsMap;
+      MyPrint.printOnConsole("Returning from CourseOfflineRepository().getCourseLearnerSessionsDataByIds() because box is null", tag: tag);
+      return courseLearnerSessionModelsMap;
     }
 
     try {
-      for (String learnerSessionId in learnerSessionIds) {
-        Map<String, dynamic> learnerSessionModelMap = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(box.get(learnerSessionId));
+      for (String courseLearnerSessionId in courseLearnerSessionIds) {
+        Map<String, dynamic> learnerSessionModelMap = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(box.get(courseLearnerSessionId));
         if (learnerSessionModelMap.isNotEmpty) {
-          learnerSessionModelsMap[learnerSessionId] = LearnerSessionModel.fromMap(learnerSessionModelMap);
+          courseLearnerSessionModelsMap[courseLearnerSessionId] = CourseLearnerSessionResponseModel.fromMap(learnerSessionModelMap);
         }
       }
     } catch (e, s) {
-      MyPrint.printOnConsole("Error in CourseOfflineRepository().getLearnerSessionsById():$e", tag: tag);
+      MyPrint.printOnConsole("Error in CourseOfflineRepository().getCourseLearnerSessionsDataByIds():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
     }
 
-    MyPrint.printOnConsole("Final LearnerSessionModels Length:${learnerSessionModelsMap.length}", tag: tag);
+    MyPrint.printOnConsole("Final CourseLearnerSessionResponseModels Length:${courseLearnerSessionModelsMap.length}", tag: tag);
 
-    return learnerSessionModelsMap;
+    return courseLearnerSessionModelsMap;
   }
 
-  Future<bool> addLearnerSessionModelsInBox({required Map<String, LearnerSessionModel> learnerSessionsData, bool isClear = false}) async {
+  Future<bool> addCourseLearnerSessionModelsInBox({required Map<String, CourseLearnerSessionResponseModel> courseLearnerSessionsData, bool isClear = false}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CourseOfflineRepository().addLearnerSessionModelsInBox() called with cmiData of length:${learnerSessionsData.length}", tag: tag);
+    MyPrint.printOnConsole("CourseOfflineRepository().addCourseLearnerSessionModelsInBox() called with courseLearnerSessionsData of length:${courseLearnerSessionsData.length}", tag: tag);
 
     Box<dynamic>? box = await initializeLearnerSessionBox();
 
     if (box == null) {
-      MyPrint.printOnConsole("Returning from CourseOfflineRepository().addLearnerSessionModelsInBox() because box is null", tag: tag);
+      MyPrint.printOnConsole("Returning from CourseOfflineRepository().addCourseLearnerSessionModelsInBox() because box is null", tag: tag);
       return false;
     }
 
     try {
       if (isClear) box.clear();
-      await box.putAll(learnerSessionsData.map((key, value) => MapEntry(key, value.toMap())));
+      await box.putAll(courseLearnerSessionsData.map((key, value) => MapEntry(key, value.toMap())));
 
-      MyPrint.printOnConsole("Added LearnerSessionModels Successfully In Hive", tag: tag);
+      MyPrint.printOnConsole("Added CourseLearnerSessionResponseModels Successfully In Hive", tag: tag);
 
       return true;
     } catch (e, s) {
-      MyPrint.printOnConsole("Error in CourseOfflineRepository().addLearnerSessionModelsInBox():$e", tag: tag);
+      MyPrint.printOnConsole("Error in CourseOfflineRepository().addCourseLearnerSessionModelsInBox():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
       return false;
     }
   }
 
-  Future<bool> removeRecordsFromLearnerSessionBoxById({required List<String> learnerSessionIds}) async {
+  Future<bool> removeRecordsFromCourseLearnerSessionBoxById({required List<String> learnerSessionIds}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CourseOfflineRepository().removeRecordsFromLearnerSessionBoxById() called with learnerSessionIds:$learnerSessionIds", tag: tag);
+    MyPrint.printOnConsole("CourseOfflineRepository().removeRecordsFromCourseLearnerSessionBoxById() called with learnerSessionIds:$learnerSessionIds", tag: tag);
 
     Box<dynamic>? box = await initializeLearnerSessionBox();
 
     if (box == null) {
-      MyPrint.printOnConsole("Returning from CourseOfflineRepository().removeRecordsFromLearnerSessionBoxById() because box is null", tag: tag);
+      MyPrint.printOnConsole("Returning from CourseOfflineRepository().removeRecordsFromCourseLearnerSessionBoxById() because box is null", tag: tag);
       return false;
     }
 
@@ -346,7 +348,7 @@ class CourseOfflineRepository {
 
       return true;
     } catch (e, s) {
-      MyPrint.printOnConsole("Error in CourseOfflineRepository().removeRecordsFromLearnerSessionBoxById():$e", tag: tag);
+      MyPrint.printOnConsole("Error in CourseOfflineRepository().removeRecordsFromCourseLearnerSessionBoxById():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
       return false;
     }
@@ -419,12 +421,12 @@ class CourseOfflineRepository {
 
   Future<bool> addStudentResponseModelsInBox({required Map<String, StudentCourseResponseModel> studentResponseData, bool isClear = false}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CourseOfflineRepository().addLearnerSessionModelsInBox() called with studentResponseData of length:${studentResponseData.length}", tag: tag);
+    MyPrint.printOnConsole("CourseOfflineRepository().addStudentResponseModelsInBox() called with studentResponseData of length:${studentResponseData.length}", tag: tag);
 
     Box<dynamic>? box = await initializeStudentResponseBox();
 
     if (box == null) {
-      MyPrint.printOnConsole("Returning from CourseOfflineRepository().addLearnerSessionModelsInBox() because box is null", tag: tag);
+      MyPrint.printOnConsole("Returning from CourseOfflineRepository().addStudentResponseModelsInBox() because box is null", tag: tag);
       return false;
     }
 
@@ -436,7 +438,7 @@ class CourseOfflineRepository {
 
       return true;
     } catch (e, s) {
-      MyPrint.printOnConsole("Error in CourseOfflineRepository().addLearnerSessionModelsInBox():$e", tag: tag);
+      MyPrint.printOnConsole("Error in CourseOfflineRepository().addStudentResponseModelsInBox():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
       return false;
     }
@@ -485,6 +487,27 @@ class CourseOfflineRepository {
     );
 
     DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<GetCourseTrackingDataResponseModel>> getCourseTrackingData({required GetCourseTrackingDataRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+    requestModel.studid = apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.SiteURL = apiUrlConfigurationProvider.getCurrentSiteUrl();
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<Map<String, dynamic>>(
+      url: apiEndpoints.GetCourseTrackingData(),
+      restCallType: RestCallType.simpleGetCall,
+      queryParameters: requestModel.toJson(),
+      parsingType: ModelDataParsingType.GetCourseTrackingDataResponseModel,
+    );
+
+    DataResponseModel<GetCourseTrackingDataResponseModel> apiResponseModel = await apiController.callApi<GetCourseTrackingDataResponseModel>(
       apiCallModel: apiCallModel,
     );
 

@@ -225,32 +225,6 @@ class _EventRelatedContentCardState extends State<EventRelatedContentCard> {
     );
   }
 
-  Widget downloadIcon() {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 3,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: InkWell(
-        onTap: () {},
-        child: const Padding(
-          padding: EdgeInsets.all(3.0),
-          child: Icon(
-            Icons.file_download_outlined,
-            color: Color(0xff242424),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget getPrimaryActionButton({
     required CourseDTOModel model,
     required BuildContext context,

@@ -8,20 +8,22 @@ class StudentResponseModel {
   String attachfilename = "";
   String attachfileid = "";
   String attachedfilepath = "";
-  String optionalNotes = "";
-  String capturedVidFileName = "";
-  String capturedVidId = "";
+  String optionalnotes = "";
+  String capturedvidfilename = "";
+  String capturedvidid = "";
   String capturedVidFilepath = "";
-  String capturedImgFileName = "";
-  String capturedImgId = "";
+  String capturedimgfilename = "";
+  String capturedimgid = "";
   String capturedImgFilepath = "";
+  String starredquestions = "";
+  int responseid = 0;
   int siteid = 0;
   int scoid = 0;
   int userid = 0;
   int questionid = 0;
   int assessmentattempt = 0;
   int questionattempt = 0;
-  int rindex = 0;
+  int index = 0;
 
   StudentResponseModel({
     this.attemptdate = "",
@@ -30,20 +32,22 @@ class StudentResponseModel {
     this.attachfilename = "",
     this.attachfileid = "",
     this.attachedfilepath = "",
-    this.optionalNotes = "",
-    this.capturedVidFileName = "",
-    this.capturedVidId = "",
+    this.optionalnotes = "",
+    this.capturedvidfilename = "",
+    this.capturedvidid = "",
     this.capturedVidFilepath = "",
-    this.capturedImgFileName = "",
-    this.capturedImgId = "",
+    this.capturedimgfilename = "",
+    this.capturedimgid = "",
     this.capturedImgFilepath = "",
+    this.starredquestions = "",
+    this.responseid = 0,
     this.siteid = 0,
     this.scoid = 0,
     this.userid = 0,
     this.questionid = 0,
     this.assessmentattempt = 0,
     this.questionattempt = 0,
-    this.rindex = 0,
+    this.index = 0,
   });
 
   StudentResponseModel.fromMap(Map<String, dynamic> map) {
@@ -61,20 +65,22 @@ class StudentResponseModel {
     attachfilename = ParsingHelper.parseStringMethod(map["attachfilename"]);
     attachfileid = ParsingHelper.parseStringMethod(map["attachfileid"]);
     attachedfilepath = ParsingHelper.parseStringMethod(map["attachedfilepath"]);
-    optionalNotes = ParsingHelper.parseStringMethod(map["optionalNotes"]);
-    capturedVidFileName = ParsingHelper.parseStringMethod(map["capturedVidFileName"]);
-    capturedVidId = ParsingHelper.parseStringMethod(map["capturedVidId"]);
+    optionalnotes = ParsingHelper.parseStringMethod(map["optionalnotes"]);
+    capturedvidfilename = ParsingHelper.parseStringMethod(map["capturedvidfilename"]);
+    capturedvidid = ParsingHelper.parseStringMethod(map["capturedvidid"]);
     capturedVidFilepath = ParsingHelper.parseStringMethod(map["capturedVidFilepath"]);
-    capturedImgFileName = ParsingHelper.parseStringMethod(map["capturedImgFileName"]);
-    capturedImgId = ParsingHelper.parseStringMethod(map["capturedImgId"]);
+    capturedimgfilename = ParsingHelper.parseStringMethod(map["capturedimgfilename"]);
+    capturedimgid = ParsingHelper.parseStringMethod(map["capturedimgid"]);
     capturedImgFilepath = ParsingHelper.parseStringMethod(map["capturedImgFilepath"]);
+    starredquestions = ParsingHelper.parseStringMethod(map["starredquestions"]);
+    responseid = ParsingHelper.parseIntMethod(map["responseid"]);
     siteid = ParsingHelper.parseIntMethod(map["siteid"]);
     scoid = ParsingHelper.parseIntMethod(map["scoid"]);
     userid = ParsingHelper.parseIntMethod(map["userid"]);
     questionid = ParsingHelper.parseIntMethod(map["questionid"]);
     assessmentattempt = ParsingHelper.parseIntMethod(map["assessmentattempt"]);
     questionattempt = ParsingHelper.parseIntMethod(map["questionattempt"]);
-    rindex = ParsingHelper.parseIntMethod(map["rindex"]);
+    index = ParsingHelper.parseIntMethod(map["index"]);
   }
 
   Map<String, dynamic> toMap() {
@@ -85,20 +91,22 @@ class StudentResponseModel {
       "attachfilename": attachfilename,
       "attachfileid": attachfileid,
       "attachedfilepath": attachedfilepath,
-      "optionalNotes": optionalNotes,
-      "capturedVidFileName": capturedVidFileName,
-      "capturedVidId": capturedVidId,
+      "optionalnotes": optionalnotes,
+      "capturedvidfilename": capturedvidfilename,
+      "capturedvidid": capturedvidid,
       "capturedVidFilepath": capturedVidFilepath,
-      "capturedImgFileName": capturedImgFileName,
-      "capturedImgId": capturedImgId,
+      "capturedimgfilename": capturedimgfilename,
+      "capturedimgid": capturedimgid,
       "capturedImgFilepath": capturedImgFilepath,
+      "starredquestions": starredquestions,
+      "responseid": responseid,
       "siteid": siteid,
       "scoid": scoid,
       "userid": userid,
       "questionid": questionid,
       "assessmentattempt": assessmentattempt,
       "questionattempt": questionattempt,
-      "rindex": rindex,
+      "index": index,
     };
   }
 
