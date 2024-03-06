@@ -36,7 +36,7 @@ class CourseDownloadController {
   late CourseDownloadProvider _courseDownloadProvider;
   late CourseDownloadRepository _courseDownloadRepository;
 
-  static bool isDownloadModuleEnabled = false;
+  static const bool isDownloadModuleEnabled = false;
 
   CourseDownloadController({required this.appProvider, required CourseDownloadProvider? courseDownloadProvider, CourseDownloadRepository? courseDownloadRepository, ApiController? apiController}) {
     _courseDownloadProvider = courseDownloadProvider ?? CourseDownloadProvider();
