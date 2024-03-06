@@ -41,7 +41,7 @@ class _AskTheExpertMainScreenState extends State<AskTheExpertMainScreen> with My
         return ModalProgressHUD(
           inAsyncCall: discussionProvider.isLoading.get(),
           child: Scaffold(
-            appBar: getAppBar(),
+            // appBar: getAppBar(),
             body: getMainBody(),
           ),
         );
@@ -92,13 +92,15 @@ class _AskTheExpertMainScreenState extends State<AskTheExpertMainScreen> with My
   }
 
   Widget getMainBody() {
-    return TabBarView(
+    return allQuestionTab();
+
+    /*return TabBarView(
       controller: tabController,
       children: <Widget>[
         allQuestionTab(),
         myQuestionTab(),
       ],
-    );
+    );*/
   }
 
   Widget allQuestionTab() {
