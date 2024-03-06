@@ -385,7 +385,7 @@ class ProfileRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<SignUpResponseModel>> saveProfileData({required UserSaveProfileDataRequestModel requestModel}) async {
+  Future<DataResponseModel<SignUpResponseModel>> saveSignUpData({required UserSaveProfileDataRequestModel requestModel}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
@@ -400,7 +400,7 @@ class ProfileRepository {
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<Map<String, String>>(
       restCallType: RestCallType.xxxUrlEncodedFormDataRequestCall,
       parsingType: ModelDataParsingType.SignUpResponseModel,
-      url: apiEndpoints.apiSaveProfile(),
+      url: apiEndpoints.apiSaveSignUpData(),
       requestBody: requestModel.toJson(),
     );
 

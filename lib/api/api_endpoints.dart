@@ -127,7 +127,7 @@ class ApiEndpoints {
 
   String apiGetProfileHeader() => '${getBaseApiUrl()}UserProfile/GetProfileHeaderData';
 
-  String apiSaveProfile() => '${getBaseApiUrl()}UserProfile/SaveprofileData';
+  String apiSaveSignUpData() => '${getBaseApiUrl()}UserProfile/SaveSignUpData';
 
   String apiUpdatePersonalDetailsInProfile() => '${getBaseApiUrl()}UserProfile/SaveprofileData';
 

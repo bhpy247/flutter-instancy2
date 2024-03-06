@@ -439,7 +439,7 @@ class AuthenticationController {
       MemberShipDurationID: membershipPlanDetailsModel?.MemberShipDurationID ?? 0,
     );
 
-    DataResponseModel<SignUpResponseModel> responseModel = await ProfileRepository(apiController: authenticationRepository.apiController).saveProfileData(
+    DataResponseModel<SignUpResponseModel> responseModel = await ProfileRepository(apiController: authenticationRepository.apiController).saveSignUpData(
       requestModel: userSaveProfileDataRequestModel,
     );
 
