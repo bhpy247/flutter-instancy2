@@ -120,15 +120,16 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
     }
 
     AddQuestionRequestModel requestModel = AddQuestionRequestModel(
-        UserQuestion: titleTextEditingController.text.trim(),
-        UserQuestionDesc: descriptionTextEditingController.text.trim(),
-        QuestionTypeID: 1,
-        UseruploadedImageName: fileName,
-        strAttachFileBytes: fileBytes,
-        fileUploads: list,
-        EditQueID: -1,
-        skills: commaSeparatedCategoriesName,
-        SeletedSkillIds: commaSeparatedCategoriesIds);
+      UserQuestion: titleTextEditingController.text.trim(),
+      UserQuestionDesc: descriptionTextEditingController.text.trim(),
+      QuestionTypeID: 1,
+      UseruploadedImageName: fileName,
+      strAttachFileBytes: fileBytes,
+      fileUploads: list,
+      EditQueID: widget.arguments.userQuestionListDto?.questionID ?? -1,
+      skills: commaSeparatedCategoriesName,
+      SeletedSkillIds: commaSeparatedCategoriesIds,
+    );
 
     if (widget.arguments.isEdit) {
       requestModel.QuestionTypeID = widget.arguments.userQuestionListDto?.questionID ?? 0;
@@ -152,15 +153,15 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
   }
 
   void setEditData() {
-    UserQuestionListDto? topicModel = widget.arguments.userQuestionListDto;
+    UserQuestionListDto? model = widget.arguments.userQuestionListDto;
 
-    if (topicModel == null) return;
-    titleTextEditingController.text = topicModel.userQuestion;
-    descriptionTextEditingController.text = topicModel.userQuestionDescription;
-    uploadFileTextEditingController.text = topicModel.userQuestionImage;
-    fileName = topicModel.userQuestionImage;
-    List<String> categoriesidsFromString = topicModel.questionCategories.split(",").toList();
-    selectedSkillsList = skillsList.where((element) => categoriesidsFromString.contains(element.preferrenceTitle.toString())).toList();
+    if (model == null) return;
+    titleTextEditingController.text = model.userQuestion;
+    descriptionTextEditingController.text = model.userQuestionDescription;
+    uploadFileTextEditingController.text = model.userQuestionImage;
+    fileName = model.userQuestionImage;
+    List<String> categoriesidsFromString = model.questionCategories.toLowerCase().trim().split(", ").toList();
+    selectedSkillsList = skillsList.where((element) => categoriesidsFromString.contains(element.preferrenceTitle.toLowerCase())).toList();
     selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
       list: selectedSkillsList.map((e) => e.preferrenceTitle).toList(),
       separator: ", ",

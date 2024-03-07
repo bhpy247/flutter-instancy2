@@ -1,4 +1,3 @@
-import 'package:flutter_chat_bot/utils/my_utils.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/data_model/ask_the_expert_dto.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_answer_request_model.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_comment_request_model.dart';
@@ -19,6 +18,7 @@ import '../../models/common/Instancy_multipart_file_upload_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/common/model_data_parser.dart';
 import '../../utils/my_print.dart';
+import '../../utils/my_utils.dart';
 
 class AskTheExpertRepository {
   final ApiController apiController;
@@ -142,9 +142,8 @@ class AskTheExpertRepository {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
-    String userID = "", siteID = "";
+    String userID = "";
     userID = apiUrlConfigurationProvider.getCurrentUserId().toString();
-    siteID = apiUrlConfigurationProvider.getCurrentSiteId().toString();
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
       restCallType: RestCallType.simpleGetCall,
@@ -291,9 +290,9 @@ class AskTheExpertRepository {
     MyPrint.printOnConsole(" getWikiCategories Site Url:${apiEndpoints.siteUrl}  ");
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
     // {"intUserID":"363","intSiteID":"374","intComponentID":1,"Locale":"en-us","strType":"cat"}
-    int userID = apiUrlConfigurationProvider.getCurrentUserId();
+    apiUrlConfigurationProvider.getCurrentUserId();
     int siteID = apiUrlConfigurationProvider.getCurrentSiteId();
-    String localeID = apiUrlConfigurationProvider.getLocale();
+    apiUrlConfigurationProvider.getLocale();
     Map<String, String> request = {
       "intSiteID": siteID.toString(),
     };
@@ -317,9 +316,9 @@ class AskTheExpertRepository {
     MyPrint.printOnConsole(" getUserSkills: ${apiEndpoints.siteUrl}  ");
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
     // {"intUserID":"363","intSiteID":"374","intComponentID":1,"Locale":"en-us","strType":"cat"}
-    int userID = apiUrlConfigurationProvider.getCurrentUserId();
+    apiUrlConfigurationProvider.getCurrentUserId();
     int siteID = apiUrlConfigurationProvider.getCurrentSiteId();
-    String localeID = apiUrlConfigurationProvider.getLocale();
+    apiUrlConfigurationProvider.getLocale();
     Map<String, String> request = {
       "aintSiteID": siteID.toString(),
       "astrType": "all",

@@ -9,7 +9,6 @@ import 'package:provider/provider.dart';
 import '../../../backend/app/app_provider.dart';
 import '../../../backend/app_theme/style.dart';
 import '../../../backend/configurations/app_configuration_operations.dart';
-import '../../../utils/my_print.dart';
 import '../../../utils/my_utils.dart';
 import '../../common/components/common_cached_network_image.dart';
 
@@ -129,7 +128,6 @@ class _QuestionAnswerCardState extends State<QuestionAnswerCard> {
         imagePath: profileImage,
       ),
     );
-    MyPrint.printOnConsole('profileImageUrl:$profileImageUrl');
 
     return Row(
       children: [

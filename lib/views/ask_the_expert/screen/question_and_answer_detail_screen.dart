@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_bot/utils/my_safe_state.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_controller.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
@@ -35,6 +34,7 @@ import '../../../models/ask_the_expert/data_model/answer_comment_dto.dart';
 import '../../../models/common/Instancy_multipart_file_upload_model.dart';
 import '../../../models/common/data_response_model.dart';
 import '../../../utils/my_print.dart';
+import '../../../utils/my_safe_state.dart';
 import '../../../utils/my_toast.dart';
 import '../../../utils/my_utils.dart';
 import '../../common/components/app_ui_components.dart';
@@ -69,20 +69,17 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
   int currentUserId = 0;
   List<UpVotesUsers> upVoteUsersList = const [];
 
-  // TopicCommentModel? selectedCommentModelForReply, selectedCommentModelForEdit;
-  // CommentReplyModel? selectedReplyModelForEdit;
   bool isCommentTextFormFieldVisible = false, isReplyTextFormFieldVisible = false;
 
   bool isLikeEnabled = false;
   bool isShowInAscendingOrder = false;
-
-  // late DiscussionTopicUiActionController uiActionController;
 
   TextEditingController commentTextEditingController = TextEditingController(), replyTextEditingController = TextEditingController();
 
   UserQuestionListDto? userQuestion;
 
   FileType? fileType;
+  final formKey = GlobalKey<FormState>();
 
   bool isExpanded = false;
   String fileName = "";
@@ -364,38 +361,14 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
           uiActionCallbackModel: AnswersCommentUIActionCallbackModel(
             onEditTap: () async {
               Navigator.pop(context);
-              // dynamic data = await NavigationController.navigateToAddEditAnswerScreen(
-              //   navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-              //   arguments: AddEditAnswerScreenNavigationArguments(
-              //     questionId: answerModel.questionID,
-              //     // userQuestionListDto: userQuestionListDto,
-              //     questionAnswerResponse: answerModel,
-              //     isEdit: true,
-              //   ),
-              // );
-              //
-              // if (data == null) return;
-              //
-              // if (data is bool) {
-              //   if (data) {
-              //     await initialization();
-              //   }
-              // }
 
               isCommentTextFormFieldVisible = true;
-              // isReplyTextFormFieldVisible = false;
               selectedAnswerForComment = answerModel;
-              // selectedCommentModelForReply = null;
               commentFocusNode = FocusNode();
               commentFocusNode.requestFocus();
-              // isCommentTextFormFieldVisible = true;
-              // isReplyTextFormFieldVisible = false;
-              // selectedAnswerForComment = answerModel;
               selectedAnswerCommentModel = commentModel;
               commentTextEditingController.text = commentModel.commentDescription;
-              // replyTextEditingController.clear();
-              fileName = commentModel.commentImageUploadName;
-
+              fileName = commentModel.commentImageUploadName.split("/").last;
               mySetState();
             },
             onDeleteTap: () async {
@@ -438,67 +411,6 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
     mySetState();
   }
 
-  //
-  // Future<void> showMoreActionsForReply({
-  //   required CommentReplyModel replyModel,
-  //   required TopicCommentModel commentModel,
-  //   InstancyContentActionsEnum? primaryAction,
-  // }) async {
-  //   LocalStr localStr = appProvider.localStr;
-  //
-  //   DiscussionReplyUiActionController uiActionController = DiscussionReplyUiActionController(appProvider: appProvider);
-  //   List<InstancyUIActionModel> options = uiActionController
-  //       .getSecondaryActions(
-  //         replyModel: replyModel,
-  //         localStr: localStr,
-  //         uiActionCallbackModel: DiscussionReplyUIActionCallbackModel(
-  //           onAddReplyTap: () {
-  //             Navigator.pop(context);
-  //
-  //             isCommentTextFormFieldVisible = false;
-  //             isReplyTextFormFieldVisible = true;
-  //             selectedAnswerForComment = null;
-  //             selectedCommentModelForReply = commentModel;
-  //             replyFocusNode = FocusNode();
-  //             replyFocusNode.requestFocus();
-  //             mySetState();
-  //           },
-  //           onEditTap: () {
-  //             Navigator.pop(context);
-  //
-  //             isCommentTextFormFieldVisible = false;
-  //             isReplyTextFormFieldVisible = true;
-  //             selectedCommentModelForReply = commentModel;
-  //             selectedAnswerForComment = null;
-  //             selectedReplyModelForEdit = replyModel;
-  //             commentTextEditingController.clear();
-  //             replyTextEditingController.text = replyModel.message;
-  //             mySetState();
-  //           },
-  //           onDeleteTap: () async {
-  //             Navigator.pop(context);
-  //
-  //             await discussionController.deleteReply(
-  //               context: context,
-  //               replyModel: replyModel,
-  //               commentModel: commentModel,
-  //               mySetState: mySetState,
-  //             );
-  //           },
-  //         ),
-  //       )
-  //       .toList();
-  //
-  //   if (options.isEmpty) {
-  //     return;
-  //   }
-  //
-  //   InstancyUIActions().showAction(
-  //     context: context,
-  //     actions: options,
-  //   );
-  // }
-
   Future<void> loadAnswersForQuestion({
     required UserQuestionListDto userQuestionListDto,
   }) async {
@@ -513,8 +425,6 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
       intQuestionId: userQuestionListDto.questionID,
     );
     userQuestionListDto.questionsAnswerList = answerList.data?.questionAnswerResponse ?? [];
-    // forumModel.NoOfTopics = forumModel.MainTopicsList.length;
-    // forumModel.calculatePinnedTopics();
 
     userQuestionListDto.isLoadingTopics = false;
     mySetState();
@@ -533,53 +443,14 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
     if (answerCommentList.checkNotEmpty) {
       topicModel.answersCommentList = answerCommentList.where((element) => element.commentResponseID == topicModel.responseID).toList();
     }
-    // topicModel.commentList = commentsList.data ?? [];
-    // topicModel.NoOfReplies = topicModel.commentList.length;
     topicModel.isLoadingComments = false;
     mySetState();
   }
 
-  //
-  // Future<void> loadRepliesForComment({
-  //   required TopicCommentModel topicCommentModel,
-  // }) async {
-  //   if (topicCommentModel.isLoadingReplies) return;
-  //
-  //   topicCommentModel.isLoadingReplies = true;
-  //   mySetState();
-  //
-  //   DataResponseModel<RepliesDTOModel> commentsList = await discussionController.discussionRepository.getCommentReplies(commentId: topicCommentModel.commentid);
-  //   MyPrint.printOnConsole("commentsList.data: ${commentsList.data?.Table}");
-  //
-  //   topicCommentModel.repliesList = commentsList.data?.Table ?? [];
-  //   topicCommentModel.CommentRepliesCount = topicCommentModel.repliesList.length;
-  //
-  //   topicCommentModel.isLoadingReplies = false;
-  //   mySetState();
-  // }
-
-  // Future<void> addTopic({required ForumModel forumModel}) async {
-  //   await NavigationController.navigateToCreateEditTopicScreen(
-  //     navigationOperationParameters: NavigationOperationParameters(
-  //       context: context,
-  //       navigationType: NavigationType.pushNamed,
-  //     ),
-  //     arguments: CreateEditTopicScreenNavigationArguments(
-  //       componentId: widget.arguments.componentId,
-  //       componentInsId: widget.arguments.componentInsId,
-  //       forumModel: forumModel,
-  //     ),
-  //   );
-  //   await loadAnswersForQuestion(forumModel: forumModel);
-  // }
-  //
   Future<void> addComment({required AnswerCommentsModel addCommentModel, required QuestionAnswerResponse selectedTopicModel}) async {
     String message = commentTextEditingController.text.trim();
     if (message.isEmpty) return;
 
-    // UserProfileDetailsModel? userProfileDetailsModel = context.read<ProfileProvider>().userProfileDetails.getList(isNewInstance: false).firstElement;
-    // MyPrint.printOnConsole("userProfileDetailsModel : $userProfileDetailsModel");
-    // if (userProfileDetailsModel == null) return;
     List<InstancyMultipartFileUploadModel>? list;
     if (fileBytes != null) {
       list = [
@@ -590,19 +461,21 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
         ),
       ];
     }
+    MyPrint.printOnConsole("listlistlist: $list");
     isLoading = true;
     mySetState();
-    AddCommentRequestModel discussionTopicCommentRequestModel = AddCommentRequestModel(
+
+    AddCommentRequestModel addCommentRequestModel = AddCommentRequestModel(
       Comment: message,
       CommentID: addCommentModel.commentID ?? -1,
       QuestionID: selectedTopicModel.questionID,
       ResponseID: selectedTopicModel.responseID,
-      UserCommentImage: fileName,
+      UserCommentImage: addCommentModel.commentImage,
       fileUploads: list,
     );
 
     bool isSuccess = await askTheExpertController.addComment(
-      requestModel: discussionTopicCommentRequestModel,
+      requestModel: addCommentRequestModel,
       mySetState: mySetState,
     );
 
@@ -613,6 +486,8 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
       isCommentTextFormFieldVisible = false;
       isReplyTextFormFieldVisible = false;
       selectedAnswerForComment = null;
+      selectedAnswerCommentModel = null;
+
       // selectedCommentModelForReply = null;
       commentTextEditingController.clear();
       replyTextEditingController.clear();
@@ -795,8 +670,7 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
         children: [
           getQuestionCardWidget(userQuestionListDto: userQuestion ?? UserQuestionListDto()),
           getAnswerListWidget(),
-          if (selectedAnswerForComment != null)
-            commentTextFormField(selectedTopicModel: selectedAnswerCommentModel, selectedAnswerModel: selectedAnswerForComment),
+          if (selectedAnswerForComment != null) commentTextFormField(selectedTopicModel: selectedAnswerCommentModel, selectedAnswerModel: selectedAnswerForComment),
           // if (selectedCommentModelForReply != null)
           //   replyTextFormField(
           //     selectedCommentModel: selectedCommentModelForReply,
@@ -1007,6 +881,9 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
                   isCommentTextFormFieldVisible = true;
                   // isReplyTextFormFieldVisible = false;
                   selectedAnswerForComment = topicModel;
+                  selectedAnswerCommentModel = null;
+                  commentTextEditingController.clear();
+                  fileName = "";
                   // selectedCommentModelForReply = null;
                   commentFocusNode = FocusNode();
                   commentFocusNode.requestFocus();
@@ -1057,7 +934,7 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
     url = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: url));
     MyPrint.printOnConsole('thumbnailImageUrl:$url');
     if (url.checkEmpty || uploadedImageName.checkEmpty) return const SizedBox();
-    String extension = uploadedImageName.split(".").last;
+    String extension = uploadedImageName.split(".").last.trim();
     MyPrint.printOnConsole("extension: ${extension}: Url ${url}");
 
     if (["jpeg", "png", "jpg"].contains(extension)) {
@@ -1254,7 +1131,6 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
         imagePath: commentModel.picture,
       ),
     );
-    // MyPrint.printOnConsole('commentThumbnailUrl:commentThumbnailUrl');
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5),
@@ -1290,7 +1166,7 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
                 if (commentModel.userCommentImagePath.checkNotEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 5.0),
-                    child: thumbNailWidget(commentModel.userCommentImagePath, uploadedImageName: commentModel.commentImageUploadName),
+                    child: thumbNailWidget(commentModel.userCommentImagePath, uploadedImageName: commentModel.commentImage),
                   ),
               ],
             ),
@@ -1407,8 +1283,6 @@ class _QuestionAndAnswerDetailsScreenState extends State<QuestionAndAnswerDetail
       ],
     );
   }
-
-  final formKey = GlobalKey<FormState>();
 
   Widget commentTextFormField({required AnswerCommentsModel? selectedTopicModel, required QuestionAnswerResponse? selectedAnswerModel}) {
     if (!isCommentTextFormFieldVisible) return const SizedBox();

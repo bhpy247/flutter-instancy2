@@ -124,7 +124,12 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
 
         await NavigationController.navigateToCreateAddEditQuestionScreen(
           navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-          arguments: CreateEditQuestionNavigationArguments(isEdit: true, userQuestionListDto: model, componentId: componentId, componentInsId: componentInstanceId),
+          arguments: CreateEditQuestionNavigationArguments(
+            isEdit: true,
+            userQuestionListDto: model,
+            componentId: componentId,
+            componentInsId: componentInstanceId,
+          ),
         );
         getQuestionList(
           isRefresh: true,
