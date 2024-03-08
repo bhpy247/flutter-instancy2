@@ -56,37 +56,31 @@ class _FeedbackScreenState extends State<FeedbackScreen> with MySafeState {
       ],
       child: Consumer2<FeedbackProvider, MainScreenProvider>(
         builder: (context, FeedbackProvider discussionProvider, MainScreenProvider mainScreenProvider, _) {
-          return RefreshIndicator(
-            onRefresh: () async {
-              getFeedbackData();
-            },
-            child: Scaffold(
-              floatingActionButton: Padding(
-                padding: EdgeInsets.only(
-                  bottom: mainScreenProvider.isChatBotButtonEnabled.get() && !mainScreenProvider.isChatBotButtonCenterDocked.get() ? 70 : 0,
-                ),
-                child: FloatingActionButton(
-                  shape: const CircleBorder(),
-                  child: const Icon(Icons.add),
-                  onPressed: () async {
-                    bool? value = await NavigationController.navigateToAddFeedbackScreen(
-                      navigationOperationParameters: NavigationOperationParameters(
-                        context: context,
-                        navigationType: NavigationType.pushNamed,
-                      ),
-                    );
-                    if (value == null || !value) return;
-
-                    getFeedbackData();
-                  },
-                ),
+          return Scaffold(
+            floatingActionButton: Padding(
+              padding: EdgeInsets.only(
+                bottom: mainScreenProvider.isChatBotButtonEnabled.get() && !mainScreenProvider.isChatBotButtonCenterDocked.get() ? 70 : 0,
               ),
-              body: ModalProgressHUD(
-                  inAsyncCall: isLoading,
-                  child: getMainWidget(
-                    feedbackList: feedbackProvider.feedbackList.getList(),
-                  )),
+              child: FloatingActionButton(
+                shape: const CircleBorder(),
+                child: const Icon(Icons.add),
+                onPressed: () async {
+                  bool? value = await NavigationController.navigateToAddFeedbackScreen(
+                    navigationOperationParameters: NavigationOperationParameters(
+                      context: context,
+                      navigationType: NavigationType.pushNamed,
+                    ),
+                  );
+                  if (value == null || !value) return;
+                  getFeedbackData();
+                },
+              ),
             ),
+            body: ModalProgressHUD(
+                inAsyncCall: isLoading,
+                child: getMainWidget(
+                  feedbackList: feedbackProvider.feedbackList.getList(),
+                )),
           );
         },
       ),
@@ -102,14 +96,19 @@ class _FeedbackScreenState extends State<FeedbackScreen> with MySafeState {
       return Center(child: AppConfigurations.commonNoDataView());
     }
 
-    return ListView.builder(
-      itemCount: feedbackList.length,
-      physics: const BouncingScrollPhysics(),
-      shrinkWrap: true,
-      itemBuilder: (BuildContext context, int index) {
-        FeedbackDtoModel model = feedbackList[index];
-        return getFeedbackSingleItem(model: model);
+    return RefreshIndicator(
+      onRefresh: () async {
+        getFeedbackData();
       },
+      child: ListView.builder(
+        itemCount: feedbackList.length,
+        physics: const BouncingScrollPhysics(),
+        shrinkWrap: true,
+        itemBuilder: (BuildContext context, int index) {
+          FeedbackDtoModel model = feedbackList[index];
+          return getFeedbackSingleItem(model: model);
+        },
+      ),
     );
   }
 
@@ -158,26 +157,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> with MySafeState {
   }
 
   Widget profileView({required FeedbackDtoModel model}) {
-    // MyPrint.printOnConsole('profileImageUrl:$profileImageUrl');
-
     return Row(
       children: [
         imageWidget(url: model.UserProfilePathdata),
-        // Container(
-        //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(50), border: Border.all(color: Colors.black)),
-        //   child: ClipRRect(
-        //     borderRadius: BorderRadius.circular(50),
-        //     child: CommonCachedNetworkImage(
-        //       // imageUrl: "https://picsum.photos/200/300",
-        //       imageUrl: profileImageUrl,
-        //       // imageUrl: imageUrl,
-        //       height: 30,
-        //       width: 30,
-        //       fit: BoxFit.cover,
-        //       errorIconSize: 30,
-        //     ),
-        //   ),
-        // ),
         const SizedBox(
           width: 10,
         ),
@@ -205,11 +187,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> with MySafeState {
             ],
           ),
         ),
-
         InkWell(
             onTap: () async {
-              await feedbackController.deleteFeedback(id: model.ID, context: context);
-              getFeedbackData();
+              bool isSuccess = await feedbackController.deleteFeedback(id: model.ID, context: context);
+              if (isSuccess) {
+                getFeedbackData();
+              }
             },
             child: const Icon(
               FontAwesomeIcons.trash,

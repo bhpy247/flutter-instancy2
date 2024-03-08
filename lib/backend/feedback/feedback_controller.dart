@@ -59,6 +59,8 @@ class FeedbackController {
 
     if (list.checkNotEmpty) {
       _feedbackProvider.feedbackList.setList(list: list);
+    } else {
+      _feedbackProvider.feedbackList.setList(list: []);
     }
     _feedbackProvider.isLoadingFeedbacks.set(value: false);
 
