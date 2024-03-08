@@ -256,7 +256,7 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
       child: CommonCachedNetworkImage(
         imageUrl: logoUrl,
         height: 80,
-        width: 250,
+        // width: 250,
         errorIconSize: 60,
         placeholder: (_, __) => const SizedBox(),
       ),
