@@ -154,16 +154,28 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
               );
             },
             onDetailsTap: () {
+              Navigator.pop(context);
               onDetailsTap(
-                  model: globalSearchResultModel,
-                  searchComponents: searchComponents,
-                  userId: globalSearchResultModel.SiteUserID,
-                  componentId: searchComponents.componentID,
-                  componentInsId: searchComponents.componentInstanceID);
+                model: globalSearchResultModel,
+                searchComponents: searchComponents,
+                userId: globalSearchResultModel.SiteUserID,
+                componentId: searchComponents.componentID,
+                componentInsId: searchComponents.componentInstanceID,
+              );
+            },
+            onViewProfileTap: () {
+              Navigator.pop(context);
+              String userId = globalSearchResultModel.ViewProfileLink.split("profileuserid/").last.split("/").first;
+              onViewProfileTap(
+                userid: ParsingHelper.parseIntMethod(userId),
+              );
             },
             onShareTap: () {
-              String id = globalSearchResultModel.ViewProfileLink.split("profileuserid/").last.split("/").first;
-              onViewProfileTap(userid: ParsingHelper.parseIntMethod(id));
+              if (isSecondaryAction) Navigator.pop(context);
+
+              MyUtils.shareContent(
+                content: globalSearchResultModel.Sharelink,
+              );
             },
             // onAddToMyLearningTap: () {},
           ),
@@ -762,71 +774,6 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
 
   //endregion
 
-  // region getMyLearningView
-  Widget getMyLearningView({required List<GlobalSearchCourseDTOModel> list}) {
-    if (list.checkEmpty) return const SizedBox();
-    return Column(
-      children: [
-        getBackgroundGreyText("My Learning", isIconVisible: true, iconAsset: "assets/myLearningText.png"),
-        getMyLearningList(),
-      ],
-    );
-  }
-
-  Widget getMyLearningList() {
-    return ListView.builder(
-        itemCount: 4,
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemBuilder: (BuildContext context, int index) {
-          return myLearningListComponent();
-        });
-  }
-
-  Widget myLearningListComponent() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey.withOpacity(0.5)), borderRadius: BorderRadius.circular(7)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 14.0,
-        ).copyWith(top: 10, bottom: 10),
-        child: Row(
-          children: [
-            ClipRRect(borderRadius: BorderRadius.circular(5), child: CachedNetworkImage(imageUrl: "https://picsum.photos/300", height: 50, width: 50, fit: BoxFit.cover)),
-            const SizedBox(
-              width: 15,
-            ),
-            Expanded(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Design Classroom",
-                  style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.black, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Text(
-                  "Manoj Kumar",
-                  style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 11),
-                ),
-              ],
-            )),
-            const Icon(
-              Icons.more_vert,
-              size: 20,
-            )
-            // AppConfigurations().getImageView(url: "assets/arrowUpLeft.png",height: 13,width: 13),
-          ],
-        ),
-      ),
-    );
-  }
-
-  //endregion  // region getMyLearningView
-
   //region Result View
   Widget getResultComponentWidget({required SearchComponents searchComponents, required List<GlobalSearchCourseDTOModel> list}) {
     if (list.checkEmpty) return const SizedBox();
@@ -866,6 +813,41 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
         imagePath: model.ThumbnailImagePath,
       ),
     );
+    MyPrint.printOnConsole("profileImageUrl $profileImageUrl");
+    Widget? getThumbNailWidget;
+    if (searchComponents.componentID == InstancyComponents.PeopleList) {
+      if (profileImageUrl.checkEmpty) {
+        String nameInitials = "${model.Title.split(" ").first.substring(0, 1)}${model.Title.split(" ").last.substring(0, 1)}";
+        getThumbNailWidget = Container(
+          height: 50,
+          color: themeData.primaryColor,
+          width: 50,
+          child: Center(
+            child: Text(
+              nameInitials,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        );
+      } else {
+        getThumbNailWidget = CommonCachedNetworkImage(
+          imageUrl: profileImageUrl,
+          height: 50,
+          width: 50,
+          fit: BoxFit.cover,
+        );
+      }
+    } else {
+      getThumbNailWidget = CommonCachedNetworkImage(
+        imageUrl: profileImageUrl,
+        height: 50,
+        width: 50,
+        fit: BoxFit.cover,
+      );
+    }
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(border: Border.all(color: Colors.grey.withOpacity(0.5)), borderRadius: BorderRadius.circular(7)),
@@ -875,15 +857,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
         ).copyWith(top: 10, bottom: 10),
         child: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(5),
-              child: CommonCachedNetworkImage(
-                imageUrl: profileImageUrl,
-                height: 50,
-                width: 50,
-                fit: BoxFit.cover,
-              ),
-            ),
+            if (searchComponents.componentID == InstancyComponents.PeopleList) ClipRRect(borderRadius: BorderRadius.circular(5), child: getThumbNailWidget),
             const SizedBox(
               width: 15,
             ),

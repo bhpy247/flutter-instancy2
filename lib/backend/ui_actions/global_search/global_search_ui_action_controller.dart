@@ -33,6 +33,7 @@ class GlobalSearchUiActionController {
       InstancyContentActionsEnum.ShareWithPeople: showShareWithPeople,
       InstancyContentActionsEnum.Share: showShare,
       InstancyContentActionsEnum.Details: showDetails,
+      InstancyContentActionsEnum.ViewProfile: showViewProfile,
       // InstancyContentActionsEnum.P: showV,
     };
   }
@@ -56,7 +57,7 @@ class GlobalSearchUiActionController {
   }
 
   bool showShare({required GlobalSearchUiActionParameterModel parameterModel}) {
-    return parameterModel.actionSharewithFriends.checkNotEmpty;
+    return parameterModel.shareLink.checkNotEmpty;
   }
 
   bool showDetails({required GlobalSearchUiActionParameterModel parameterModel}) {
@@ -65,6 +66,10 @@ class GlobalSearchUiActionController {
 
   bool showAddToMyLearning({required GlobalSearchUiActionParameterModel parameterModel}) {
     return parameterModel.addLink.checkNotEmpty;
+  }
+
+  bool showViewProfile({required GlobalSearchUiActionParameterModel parameterModel}) {
+    return parameterModel.ViewProfileLink.checkNotEmpty;
   }
 
   //region Secondary Actions
@@ -95,12 +100,14 @@ class GlobalSearchUiActionController {
     required GlobalSearchCourseDTOModel globalSearchCourseDtoModel,
   }) {
     return GlobalSearchUiActionParameterModel(
-        CreatedUserID: globalSearchCourseDtoModel.UserSiteId,
-        actionSharewithFriends: globalSearchCourseDtoModel.Sharelink,
-        actionSuggestConnection: globalSearchCourseDtoModel.ShareContentwithUser,
-        ViewProfileLink: globalSearchCourseDtoModel.ViewProfileLink,
-        addLink: globalSearchCourseDtoModel.AddLink,
-        detailsLink: globalSearchCourseDtoModel.DetailsLink);
+      CreatedUserID: globalSearchCourseDtoModel.UserSiteId,
+      actionSharewithFriends: globalSearchCourseDtoModel.Sharelink,
+      actionSuggestConnection: globalSearchCourseDtoModel.ShareContentwithUser,
+      ViewProfileLink: globalSearchCourseDtoModel.ViewProfileLink,
+      addLink: globalSearchCourseDtoModel.AddLink,
+      detailsLink: globalSearchCourseDtoModel.DetailsLink,
+      shareLink: globalSearchCourseDtoModel.Sharelink,
+    );
   }
 
   Iterable<InstancyUIActionModel> getInstancyUIActionModelListFromInstancyContentActionsEnumList({
@@ -140,13 +147,13 @@ class GlobalSearchUiActionController {
             actionsEnum: InstancyContentActionsEnum.Share,
           );
         }
-      } else if (action == InstancyContentActionsEnum.View) {
-        if (isShowAction(actionType: InstancyContentActionsEnum.View, parameterModel: parameterModel) && catalogUIActionCallbackModel.onViewProfileTap != null) {
+      } else if (action == InstancyContentActionsEnum.ViewProfile) {
+        if (isShowAction(actionType: InstancyContentActionsEnum.ViewProfile, parameterModel: parameterModel) && catalogUIActionCallbackModel.onViewProfileTap != null) {
           model = InstancyUIActionModel(
             text: "View Profile",
             iconData: InstancyIcons.viewProfile,
             onTap: catalogUIActionCallbackModel.onViewProfileTap,
-            actionsEnum: InstancyContentActionsEnum.View,
+            actionsEnum: InstancyContentActionsEnum.ViewProfile,
           );
         }
       } else if (action == InstancyContentActionsEnum.ShareToConnections) {

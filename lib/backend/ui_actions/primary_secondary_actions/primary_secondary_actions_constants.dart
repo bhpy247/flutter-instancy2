@@ -72,6 +72,10 @@ enum InstancyContentActionsEnum {
   //region Ask the expert
   AddAnswer,
   //endregion
+
+  //region Global search
+  ViewProfile
+  //endregion
 }
 
 enum InstancyContentScreenType {
