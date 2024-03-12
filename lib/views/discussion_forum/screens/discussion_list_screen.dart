@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_bot/utils/my_print.dart';
-import 'package:flutter_chat_bot/utils/my_safe_state.dart';
-import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
@@ -13,26 +10,46 @@ import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../../../api/api_controller.dart';
 import '../../../backend/discussion/discussion_controller.dart';
 import '../../../backend/discussion/discussion_provider.dart';
+import '../../../backend/filter/filter_provider.dart';
 import '../../../backend/share/share_provider.dart';
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import '../../../configs/app_configurations.dart';
 import '../../../configs/app_constants.dart';
+import '../../../models/app_configuration_models/data_models/component_configurations_model.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
 import '../../../models/common/pagination/pagination_model.dart';
 import '../../../models/discussion/data_model/forum_model.dart';
+import '../../../utils/my_print.dart';
+import '../../../utils/my_safe_state.dart';
 import '../../common/components/common_loader.dart';
 import '../../common/components/common_text_form_field.dart';
 import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
+import '../../common/components/modal_progress_hud.dart';
 import '../component/dicussionCard.dart';
 
 class DiscussionListScreen extends StatefulWidget {
   final int componentId;
   final int componentInstanceId;
+  final bool isShowSearchString;
+  final int? userId;
+  final int? siteId;
+  final String? clientUrl;
+  final ApiController? apiController;
 
-  const DiscussionListScreen({super.key, required this.componentId, required this.componentInstanceId});
+  const DiscussionListScreen({
+    super.key,
+    required this.componentId,
+    required this.componentInstanceId,
+    this.isShowSearchString = true,
+    this.userId,
+    this.siteId,
+    this.clientUrl,
+    this.apiController,
+  });
 
   @override
   State<DiscussionListScreen> createState() => _DiscussionListScreenState();
@@ -89,7 +106,7 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
         );
         if (value != true) return;
 
-        discussionController.getForumsList(
+        getDiscussionForumList(
           isRefresh: true,
           isGetFromCache: false,
           isNotify: false,
@@ -122,12 +139,10 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
               componentInstanceId: componentInstanceId,
             );
           }
-          discussionController.getForumsList(
+          getDiscussionForumList(
             isRefresh: true,
             isGetFromCache: false,
             isNotify: true,
-            componentId: componentId,
-            componentInstanceId: componentInstanceId,
           );
         }
       },
@@ -222,7 +237,7 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
 
     if (value != true) return;
 
-    discussionController.getForumsList(
+    getDiscussionForumList(
       isRefresh: true,
       isGetFromCache: false,
       isNotify: false,
@@ -237,8 +252,6 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
   void initializations({
     bool isNotify = false,
   }) {
-    discussionProvider = context.read<DiscussionProvider>();
-    discussionController = DiscussionController(discussionProvider: discussionProvider);
     ProfileController profileController = ProfileController(profileProvider: context.read<ProfileProvider>());
     isShowAddForumFloatingButton = profileController.isShowAddForumButton();
 
@@ -255,7 +268,7 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
     PaginationModel paginationModel = discussionProvider.forumListPaginationModel.get();
     if (!paginationModel.isFirstTimeLoading && !paginationModel.isLoading && paginationModel.hasMore && discussionProvider.forumsList.length == 0) {
       discussionProvider.forumContentId.set(value: "", isNotify: false);
-      discussionController.getForumsList(
+      getDiscussionForumList(
         isRefresh: true,
         isGetFromCache: false,
         isNotify: isNotify,
@@ -269,7 +282,7 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
     super.initState();
     appProvider = context.read<AppProvider>();
     discussionProvider = context.read<DiscussionProvider>();
-
+    discussionController = DiscussionController(discussionProvider: discussionProvider, apiController: widget.apiController);
     initializations();
     textEditingController.text = discussionProvider.forumListSearchString.get();
     // if (discussionProvider.forumsListLength == 0) {
@@ -316,7 +329,7 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
                       );
                       if (value != true) return;
 
-                      discussionController.getForumsList(
+                      getDiscussionForumList(
                         isRefresh: true,
                         isGetFromCache: false,
                         isNotify: false,
@@ -350,12 +363,24 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
   }
 
   Widget getSearchTextFromField() {
+    if (!widget.isShowSearchString) return const SizedBox();
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: CommonTextFormField(
         isOutlineInputBorder: true,
         borderRadius: 30,
+        onTap: () {
+          NavigationController.navigateToGlobalSearchScreen(
+            navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+            arguments: GlobalSearchScreenNavigationArguments(
+              componentId: componentId,
+              componentInsId: componentInstanceId,
+              filterProvider: context.read<FilterProvider>(),
+              componentConfigurationsModel: ComponentConfigurationsModel(),
+            ),
+          );
+        },
         onChanged: (val) {
           mySetState();
         },
@@ -395,7 +420,11 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
         prefixWidget: const Icon(Icons.search),
         onSubmitted: (String? val) {
           discussionProvider.forumListSearchString.set(value: val ?? "");
-          discussionController.getForumsList(isRefresh: true, isGetFromCache: false, isNotify: false, componentId: componentId, componentInstanceId: componentInstanceId);
+          getDiscussionForumList(
+            isRefresh: true,
+            isGetFromCache: false,
+            isNotify: false,
+          );
           mySetState();
         },
       ),
@@ -411,7 +440,7 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
         );
         if (isTrue == null) return;
         if (isTrue) {
-          discussionController.getForumsList(
+          getDiscussionForumList(
             isRefresh: true,
             isGetFromCache: false,
             isNotify: false,

@@ -144,6 +144,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     );
 
     await courseDetailsController.getCourseDetailsData(
+      userId: widget.arguments.userId,
       requestModel: CourseDetailsRequestModel(
         ContentID: contentId,
         intUserID: userId,
@@ -155,7 +156,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             ? "rescheduleenroll"
             : widget.arguments.isReEnroll
                 ? "reenroll"
-                : "",
+            : "",
       ),
     );
 
@@ -1223,21 +1224,21 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     appProvider = context.read<AppProvider>();
 
     courseDetailsProvider = CourseDetailsProvider();
-    courseDetailsController = CourseDetailsController(courseDetailsProvider: courseDetailsProvider);
+    courseDetailsController = CourseDetailsController(courseDetailsProvider: courseDetailsProvider, apiController: widget.arguments.apiController);
 
     catalogProvider = widget.arguments.catalogProvider ?? CatalogProvider();
-    catalogController = CatalogController(provider: catalogProvider);
+    catalogController = CatalogController(provider: catalogProvider, apiController: widget.arguments.apiController);
 
     profileProvider = context.read<ProfileProvider>();
 
     myLearningProvider = widget.arguments.myLearningProvider ?? MyLearningProvider();
-    myLearningController = MyLearningController(provider: myLearningProvider);
+    myLearningController = MyLearningController(provider: myLearningProvider, apiController: widget.arguments.apiController);
 
     contentReviewRatingsProvider = ContentReviewRatingsProvider();
-    contentReviewRatingsController = ContentReviewRatingsController(contentReviewRatingsProvider: contentReviewRatingsProvider);
+    contentReviewRatingsController = ContentReviewRatingsController(contentReviewRatingsProvider: contentReviewRatingsProvider, apiController: widget.arguments.apiController);
 
     eventProvider = EventProvider();
-    eventController = EventController(eventProvider: eventProvider);
+    eventController = EventController(eventProvider: eventProvider, apiController: widget.arguments.apiController);
 
     courseDownloadProvider = context.read<CourseDownloadProvider>();
     courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);

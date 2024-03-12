@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/my_safe_state.dart';
 import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
+import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/discussion_forum/forum/discussion_forum_ui_action_callback_model.dart';
@@ -30,8 +31,22 @@ import '../component/dicussionCard.dart';
 class MyDiscussionListScreen extends StatefulWidget {
   final int componentId;
   final int componentInstanceId;
+  final bool isShowSearchTextField;
+  final int? userId;
+  final int? siteId;
+  final String? clientUrl;
+  final ApiController? apiController;
 
-  const MyDiscussionListScreen({super.key, required this.componentId, required this.componentInstanceId});
+  const MyDiscussionListScreen({
+    super.key,
+    required this.componentId,
+    required this.componentInstanceId,
+    this.isShowSearchTextField = true,
+    this.userId,
+    this.siteId,
+    this.clientUrl,
+    this.apiController,
+  });
 
   @override
   State<MyDiscussionListScreen> createState() => _MyDiscussionListScreenState();
@@ -98,7 +113,7 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
           isGetFromCache: false,
           isNotify: false,
         );
-        discussionController.getMyDiscussionForumsList(
+        getDiscussionForumList(
           isRefresh: true,
           isGetFromCache: false,
           isNotify: true,
@@ -118,12 +133,10 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
 
         if (isSuccess) {
           if (model.CreatedUserID == discussionController.discussionRepository.apiController.apiDataProvider.getCurrentUserId()) {
-            discussionController.getMyDiscussionForumsList(
+            getDiscussionForumList(
               isRefresh: true,
               isGetFromCache: false,
               isNotify: false,
-              componentId: componentId,
-              componentInstanceId: componentInstanceId,
             );
           }
           discussionController.getForumsList(
@@ -232,7 +245,7 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
       isGetFromCache: false,
       isNotify: false,
     );
-    discussionController.getMyDiscussionForumsList(
+    getDiscussionForumList(
       isRefresh: true,
       isGetFromCache: false,
       isNotify: true,
@@ -258,7 +271,7 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
     PaginationModel paginationModel = discussionProvider.myDiscussionForumListPaginationModel.get();
     if (!paginationModel.isFirstTimeLoading && !paginationModel.isLoading && paginationModel.hasMore && discussionProvider.myDiscussionForumsList.length == 0) {
       discussionProvider.myDiscussionForumContentId.set(value: "", isNotify: false);
-      discussionController.getMyDiscussionForumsList(
+      getDiscussionForumList(
         isRefresh: true,
         isGetFromCache: false,
         isNotify: isNotify,
@@ -272,7 +285,7 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
     super.initState();
     appProvider = context.read<AppProvider>();
     discussionProvider = context.read<DiscussionProvider>();
-    discussionController = DiscussionController(discussionProvider: discussionProvider);
+    discussionController = DiscussionController(discussionProvider: discussionProvider, apiController: widget.apiController);
     searchController.text = discussionProvider.myDiscussionForumListSearchString.get();
     initializations();
     // if (discussionProvider.forumsListLength == 0) {
@@ -320,7 +333,7 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
                         isGetFromCache: false,
                         isNotify: false,
                       );
-                      discussionController.getMyDiscussionForumsList(
+                      getDiscussionForumList(
                         isRefresh: true,
                         isGetFromCache: false,
                         isNotify: true,
@@ -347,6 +360,7 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
   }
 
   Widget getSearchTextFromField() {
+    if (!widget.isShowSearchTextField) return const SizedBox();
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -419,7 +433,7 @@ class _MyDiscussionListScreenState extends State<MyDiscussionListScreen> with My
         );
         if (isTrue == null) return;
         if (isTrue) {
-          discussionController.getMyDiscussionForumsList(
+          getDiscussionForumList(
             isRefresh: true,
             isGetFromCache: false,
             isNotify: false,

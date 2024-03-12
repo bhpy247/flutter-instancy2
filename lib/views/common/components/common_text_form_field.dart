@@ -33,6 +33,7 @@ class CommonTextFormField extends StatelessWidget {
       this.maxLength,
       this.label,
       this.prefixIcon,
+      this.onTap,
       this.node})
       : super(key: key);
 
@@ -53,6 +54,7 @@ class CommonTextFormField extends StatelessWidget {
   final TextStyle? textStyle, hintStyle;
   final TextInputAction? textInputAction;
   final List<TextInputFormatter>? inputFormatters;
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +92,7 @@ class CommonTextFormField extends StatelessWidget {
       onFieldSubmitted: onSubmitted,
       minLines: minLines,
       maxLines: maxLines,
+      onTap: onTap,
     );
   }
 

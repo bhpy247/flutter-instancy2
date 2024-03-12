@@ -443,6 +443,8 @@ class InstancyComponents {
   static const int UserSettings = 5000;
   static const int MyCourseDownloads = 5001;
   static const int Feedback = 5002;
+  static const int GlobalSearchComponent = 225;
+  static const int GlobalSearchComponentInsId = 4021;
 }
 
 class ViewTypesForContent {

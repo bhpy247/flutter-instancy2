@@ -52,10 +52,11 @@ class CatalogRepository {
       restCallType: RestCallType.simpleGetCall,
       parsingType: ModelDataParsingType.catalogCategoriesForBrowseModel,
       url: apiEndpoints.apiGetCatalogCategoriesForBrowseModel(
-          componentInstanceId: ParsingHelper.parseStringMethod(componentInstanceId),
-          siteId: apiUrlConfigurationProvider.getCurrentSiteId(),
-          locale: apiUrlConfigurationProvider.getLocale(),
-          userId: apiUrlConfigurationProvider.getCurrentUserId()),
+        componentInstanceId: ParsingHelper.parseStringMethod(componentInstanceId),
+        siteId: apiUrlConfigurationProvider.getCurrentSiteId(),
+        locale: apiUrlConfigurationProvider.getLocale(),
+        userId: apiUrlConfigurationProvider.getCurrentUserId(),
+      ),
       isGetDataFromHive: isFromOffline,
       isStoreDataInHive: isStoreDataInHive,
     );
@@ -67,25 +68,29 @@ class CatalogRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<CatalogResponseDTOModel>> getCatalogContentList({
-    required CatalogRequestModel requestModel,
-    required int componentId,
-    required int componentInstanceId,
-    bool isFromOffline = false,
-    bool isStoreDataInHive = false,
-  }) async {
+  Future<DataResponseModel<CatalogResponseDTOModel>> getCatalogContentList(
+      {required CatalogRequestModel requestModel,
+      required int componentId,
+      required int componentInstanceId,
+      bool isFromOffline = false,
+      bool isStoreDataInHive = false,
+      String? clientUrl,
+      int? userId,
+      int? siteId}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
-      restCallType: RestCallType.simplePostCall,
-      parsingType: ModelDataParsingType.catalogResponseDTOModel,
-      url: apiEndpoints.getCatalogContents(),
-      requestBody: MyUtils.encodeJson(requestModel.toJson()),
-      isGetDataFromHive: isFromOffline,
-      isStoreDataInHive: isStoreDataInHive,
-    );
+        restCallType: RestCallType.simplePostCall,
+        parsingType: ModelDataParsingType.catalogResponseDTOModel,
+        url: apiEndpoints.getCatalogContents(),
+        requestBody: MyUtils.encodeJson(requestModel.toJson()),
+        isGetDataFromHive: isFromOffline,
+        isStoreDataInHive: isStoreDataInHive,
+        userId: userId,
+        siteUrl: clientUrl,
+        siteId: siteId);
 
     DataResponseModel<CatalogResponseDTOModel> apiResponseModel = await apiController.callApi<CatalogResponseDTOModel>(
       apiCallModel: apiCallModel,
@@ -308,11 +313,7 @@ class CatalogRepository {
     MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl} 2023-03-02 20:39:53");
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
     AddToWishlistRequestModel addToWishlistRequestModel = AddToWishlistRequestModel(
-        componentInstanceID: componentInstanceId,
-        addedDate: DateTime.now().toString(),
-        componentID: "$componentId",
-        contentID: contentId,
-        userID: "${apiUrlConfigurationProvider.getCurrentUserId()}");
+        componentInstanceID: componentInstanceId, addedDate: DateTime.now().toString(), componentID: "$componentId", contentID: contentId, userID: "${apiUrlConfigurationProvider.getCurrentUserId()}");
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
       restCallType: RestCallType.simplePostCall,
@@ -428,7 +429,6 @@ class CatalogRepository {
     try {
       ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
-
       MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl} 2023-03-02 20:39:53 ${DateTime.now().toString()}");
       ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
       ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
@@ -442,8 +442,7 @@ class CatalogRepository {
             instanceData: instanceData,
             preRequisiteSequencePathId: preRequisiteSequencePathId,
             siteId: apiUrlConfigurationProvider.getCurrentSiteId(),
-            locale: apiUrlConfigurationProvider.getLocale()
-        ),
+            locale: apiUrlConfigurationProvider.getLocale()),
         isGetDataFromHive: isFromOffline,
         isStoreDataInHive: isStoreDataInHive,
       );
@@ -453,8 +452,7 @@ class CatalogRepository {
       MyPrint.printOnConsole("apiCallModel : ${apiResponseModel.data}");
       MyPrint.printOnConsole("Repo getAssociatedContent : ${apiResponseModel.data}");
       return apiResponseModel;
-
-    } catch (e,s){
+    } catch (e, s) {
       MyPrint.printOnConsole("Error CatalogRepository.getAssociatedContent() :$e");
       MyPrint.printOnConsole(s);
       return const DataResponseModel();
@@ -496,15 +494,14 @@ class CatalogRepository {
     try {
       ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
-
       MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl} 2023-03-02 20:39:53 ${DateTime.now().toString()}");
       ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
       ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
         restCallType: RestCallType.simpleGetCall,
         parsingType: ModelDataParsingType.userComingSoonResponseModel,
         url: apiEndpoints.getUserComingSoonResponse(
-            contentId: contentId,
-            userId: apiUrlConfigurationProvider.getCurrentUserId(),
+          contentId: contentId,
+          userId: apiUrlConfigurationProvider.getCurrentUserId(),
         ),
         isGetDataFromHive: isFromOffline,
         isStoreDataInHive: isStoreDataInHive,
@@ -515,8 +512,7 @@ class CatalogRepository {
       MyPrint.printOnConsole("apiCallModel : ${apiResponseModel.data}");
       MyPrint.printOnConsole("Repo getAssociatedContent : ${apiResponseModel.data}");
       return apiResponseModel;
-
-    } catch (e,s){
+    } catch (e, s) {
       MyPrint.printOnConsole("Error CatalogRepository.getAssociatedContent() :$e");
       MyPrint.printOnConsole(s);
       return const DataResponseModel();
@@ -534,11 +530,8 @@ class CatalogRepository {
 
     MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl} 2023-03-02 20:39:53");
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
-    UserComingSoonRequestModel userComingSoonRequestModel = UserComingSoonRequestModel(
-      contentId: contentId,
-        responseText: text,
-        savingtype:isUpdate? "update" : "create",
-        userID: apiUrlConfigurationProvider.getCurrentUserId());
+    UserComingSoonRequestModel userComingSoonRequestModel =
+        UserComingSoonRequestModel(contentId: contentId, responseText: text, savingtype: isUpdate ? "update" : "create", userID: apiUrlConfigurationProvider.getCurrentUserId());
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
       restCallType: RestCallType.simplePostCall,
@@ -562,7 +555,7 @@ class CatalogRepository {
   }) async {
     MyPrint.printOnConsole('MyLearningRepository().setCompleteStatus() called with contentID:$contentID, scoId:$scoId');
 
-    if(contentID.isEmpty) {
+    if (contentID.isEmpty) {
       return DataResponseModel(
         appErrorModel: AppErrorModel(
           message: "Content ID is empty",
@@ -575,12 +568,11 @@ class CatalogRepository {
     MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
-    Map<String,dynamic> requestBody = {
+    Map<String, dynamic> requestBody = {
       'ContentID': contentID,
       'ScoId': scoId.toString(),
       'UserID': apiUrlConfigurationProvider.getCurrentUserId().toString(),
     };
-
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
       restCallType: RestCallType.simplePostCall,
@@ -595,5 +587,4 @@ class CatalogRepository {
 
     return apiResponseModel;
   }
-
 }

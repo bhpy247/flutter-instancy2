@@ -537,10 +537,11 @@ class _MainScreenState extends State<MainScreen> {
       if (isExpanded) {
         // return MyLearningScreen(componentId: componentId, componentInstanceId: componentInstanceId);
         return MyLearningScreen(
+            arguments: MyLearningScreenNavigationArguments(
           componentId: model.componentid,
-          componentInstanceId: model.repositoryid,
-          provider: context.read<MyLearningProvider>(),
-        );
+          componentInsId: model.repositoryid,
+          myLearningProvider: context.read<MyLearningProvider>(),
+        ));
       } else {
         return const Text("My Learning");
       }
@@ -566,8 +567,8 @@ class _MainScreenState extends State<MainScreen> {
     } else if (model.componentid == InstancyComponents.CatalogEvents) {
       if (isExpanded) {
         return EventCatalogTabScreen(
-          componentId: model.componentid,
-          eventProvider: context.read<EventProvider>(),
+          arguments: EventCatalogTabScreenNavigationArguments(
+              componentId: model.componentid, eventProvider: context.read<EventProvider>(), componentInsId: InstancyComponents.EventCatalogTabsListComponentInsId),
         );
       } else {
         return const Text("Event Catalog");

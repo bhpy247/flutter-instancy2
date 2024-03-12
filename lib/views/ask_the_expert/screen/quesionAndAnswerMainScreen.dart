@@ -8,6 +8,8 @@ import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.da
 import 'package:provider/provider.dart';
 
 class AskTheExpertMainScreen extends StatefulWidget {
+  static const String routeName = "/AskTheExpertMainScreen";
+
   final AskTheExpertScreenNavigationArguments arguments;
 
   const AskTheExpertMainScreen({super.key, required this.arguments});
@@ -27,7 +29,7 @@ class _AskTheExpertMainScreenState extends State<AskTheExpertMainScreen> with My
   void initState() {
     super.initState();
     tabController = TabController(vsync: this, length: 2);
-    askTheExpertProvider = context.read<AskTheExpertProvider>();
+    askTheExpertProvider = widget.arguments.askTheExpertProvider ?? AskTheExpertProvider();
     askTheExpertController = AskTheExpertController(discussionProvider: askTheExpertProvider);
     askTheExpertController.getFilterSkills(componentId: widget.arguments.componentId, componentInstanceId: widget.arguments.componentInsId);
     askTheExpertController.getUserFilterSkills(componentId: widget.arguments.componentId, componentInstanceId: widget.arguments.componentInsId);
@@ -107,6 +109,9 @@ class _AskTheExpertMainScreenState extends State<AskTheExpertMainScreen> with My
     return AllQuestionsTab(
       componentId: widget.arguments.componentId,
       componentInstanceId: widget.arguments.componentInsId,
+      isShowSearchTextField: widget.arguments.isShowSearchTextField,
+      searchString: widget.arguments.searchString,
+      apiController: widget.arguments.apiController,
     );
   }
 
@@ -114,6 +119,9 @@ class _AskTheExpertMainScreenState extends State<AskTheExpertMainScreen> with My
     return AllQuestionsTab(
       componentId: widget.arguments.componentId,
       componentInstanceId: widget.arguments.componentInsId,
+      isShowSearchTextField: widget.arguments.isShowSearchTextField,
+      searchString: widget.arguments.searchString,
+      apiController: widget.arguments.apiController,
     );
   }
 }

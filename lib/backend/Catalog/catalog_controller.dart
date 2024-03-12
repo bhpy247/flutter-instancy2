@@ -117,6 +117,9 @@ class CatalogController {
     required int componentId,
     required int componentInstanceId,
     int? HomeComponentId,
+    String? clientUrl,
+    int? userId,
+    int? siteId,
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
@@ -185,6 +188,8 @@ class CatalogController {
       isWishList: false,
       HomecomponentID: HomeComponentId,
       isPinnedContent: isPinnedContent,
+      userId: userId,
+      siteId: siteId,
     );
     //endregion
 
@@ -195,6 +200,9 @@ class CatalogController {
       componentInstanceId: componentInstanceId,
       isStoreDataInHive: true,
       isFromOffline: false,
+      clientUrl: clientUrl,
+      siteId: siteId,
+      userId: userId,
     );
     MyPrint.printOnConsole("Catalog Contents Length:${response.data?.CourseList.length ?? 0}", tag: tag);
     //endregion
@@ -229,6 +237,9 @@ class CatalogController {
     required int componentId,
     required int componentInstanceId,
     int? HomeComponentId,
+    String? clientUrl,
+    int? userId,
+    int? siteId,
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
@@ -296,17 +307,21 @@ class CatalogController {
       isWishList: true,
       HomecomponentID: HomeComponentId,
       isPinnedContent: isPinnedContent,
+      siteId: siteId,
+      userId: userId,
     );
     //endregion
 
     //region Make Api Call
     DataResponseModel<CatalogResponseDTOModel> response = await catalogRepository.getCatalogContentList(
-      requestModel: catalogRequestModel,
-      componentId: componentId,
-      componentInstanceId: componentInstanceId,
-      isStoreDataInHive: true,
-      isFromOffline: false,
-    );
+        requestModel: catalogRequestModel,
+        componentId: componentId,
+        componentInstanceId: componentInstanceId,
+        isStoreDataInHive: true,
+        isFromOffline: false,
+        clientUrl: clientUrl,
+        siteId: siteId,
+        userId: userId);
     MyPrint.printOnConsole("Catalog Contents Length:${response.data?.CourseList.length ?? 0}", tag: tag);
     //endregion
 
@@ -335,16 +350,17 @@ class CatalogController {
     );
   }
 
-  CatalogRequestModel getCatalogContentDataRequestModelFromProviderData({
-    required CatalogProvider provider,
-    required PaginationModel paginationModel,
-    required int componentId,
-    required int componentInstanceId,
-    required ApiUrlConfigurationProvider apiUrlConfigurationProvider,
-    required bool isWishList,
-    required bool isPinnedContent,
-    int? HomecomponentID,
-  }) {
+  CatalogRequestModel getCatalogContentDataRequestModelFromProviderData(
+      {required CatalogProvider provider,
+      required PaginationModel paginationModel,
+      required int componentId,
+      required int componentInstanceId,
+      required ApiUrlConfigurationProvider apiUrlConfigurationProvider,
+      required bool isWishList,
+      required bool isPinnedContent,
+      int? HomecomponentID,
+      int? userId,
+      int? siteId}) {
     FilterProvider filterProvider = catalogProvider.filterProvider;
     EnabledContentFilterByTypeModel? enabledContentFilterByTypeModel = !isWishList ? filterProvider.getEnabledContentFilterByTypeModel(isNewInstance: false) : null;
 
@@ -368,8 +384,8 @@ class CatalogController {
       componentInsID: ParsingHelper.parseStringMethod(componentInstanceId),
       searchText: isWishList ? "" : provider.catalogContentSearchString.get(),
       // userID: "363",
-      userID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentUserId()),
-      siteID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentSiteId()),
+      userID: userId?.toString() ?? ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentUserId()),
+      siteID: siteId?.toString() ?? ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentSiteId()),
       orgUnitID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentSiteId()),
       locale: apiUrlConfigurationProvider.getLocale().isNotEmpty ? apiUrlConfigurationProvider.getLocale() : "en-us",
       pageIndex: paginationModel.pageIndex,

@@ -19,6 +19,7 @@ import 'package:flutter_instancy_2/models/discussion/data_model/category_model.d
 import 'package:flutter_instancy_2/models/discussion/data_model/forum_info_user_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/forum_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/topic_comment_model.dart';
+import 'package:flutter_instancy_2/models/dto/global_search_dto_model.dart';
 import 'package:flutter_instancy_2/models/event/response_model/re_entrollment_history_response_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/response_model/resource_content_dto_model.dart';
@@ -74,6 +75,7 @@ import '../filter/response_model/component_sort_options_response_model.dart';
 import '../filter/response_model/filter_duration_values_response_model.dart';
 import '../filter/response_model/instructor_list_filter_response_model.dart';
 import '../filter/response_model/learning_provider_filter_response_model.dart';
+import '../global_search/response_model/global_search_component_response_model.dart';
 import '../home/data_model/new_course_list_dto.dart';
 import '../home/response_model/static_web_page_podel.dart';
 import '../in_app_purchase/response_model/ecommerce_order_response_model.dart';
@@ -301,6 +303,11 @@ enum ModelDataParsingType {
   LearningCommunitiesDto,
   //endregion
 
+  //region global search
+  GlobalSearchComponentResponseDto,
+  GlobalSearchResultDto,
+  //endregion
+
   GetCourseTrackingDataResponseModel,
 }
 
@@ -508,6 +515,12 @@ class ModelDataParser {
 
     //region LearningCommunitiesModel
     ModelDataParsingType.LearningCommunitiesDto: parseLearningCommunitiesDtoResponseModel,
+    //endregion
+
+    //region GlobalSearch
+    ModelDataParsingType.GlobalSearchComponentResponseDto: parseGlobalSearchComponentResponseModel,
+    ModelDataParsingType.GlobalSearchResultDto: parseGlobalSearchDtoResponseModel,
+
     //endregion
 
     ModelDataParsingType.GetCourseTrackingDataResponseModel: parseGetCourseTrackingDataResponseModel,
@@ -1473,6 +1486,28 @@ class ModelDataParser {
     }
   }
 
+//endregion
+
+//region Global Search
+  static GlobalSearchComponentResponseModel? parseGlobalSearchComponentResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return GlobalSearchComponentResponseModel.fromJson(json);
+    } else {
+      return null;
+    }
+  }
+
+  static GlobalSearchDTOModel? parseGlobalSearchDtoResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return GlobalSearchDTOModel.fromMap(json);
+    } else {
+      return null;
+    }
+  }
 //endregion
 
   static GetCourseTrackingDataResponseModel? parseGetCourseTrackingDataResponseModel({required dynamic decodedValue}) {

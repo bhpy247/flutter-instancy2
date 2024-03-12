@@ -17,6 +17,7 @@ import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui
 import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_configs.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/component_configurations_model.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
 import 'package:flutter_instancy_2/models/common/pagination/pagination_model.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
@@ -49,14 +50,12 @@ import '../../filter/components/selected_filters_listview_component.dart';
 import '../component/notes_dialog.dart';
 
 class MyLearningScreen extends StatefulWidget {
-  final int componentId, componentInstanceId;
-  final MyLearningProvider? provider;
+  static const String routeName = "/MyLearningScreen";
+  final MyLearningScreenNavigationArguments arguments;
 
   const MyLearningScreen({
     Key? key,
-    required this.componentId,
-    required this.componentInstanceId,
-    this.provider,
+    required this.arguments,
   }) : super(key: key);
 
   @override
@@ -68,6 +67,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
   late MyLearningController myLearningController;
   late AppProvider appProvider;
   late ProfileProvider profileProvider;
+  String? appBarTitle;
 
   late CourseDownloadProvider courseDownloadProvider;
   late CourseDownloadController courseDownloadController;
@@ -84,9 +84,16 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
   TextEditingController archivedSearchController = TextEditingController();
 
   void initializations() {
-    myLearningProvider = widget.provider ?? MyLearningProvider();
-    myLearningController = MyLearningController(provider: myLearningProvider);
+    myLearningProvider = widget.arguments.myLearningProvider ?? MyLearningProvider();
+    myLearningController = MyLearningController(provider: myLearningProvider, apiController: widget.arguments.apiController);
+    if (widget.arguments.searchString.checkNotEmpty) {
+      myLearningProvider.setMyLearningSearchString(value: widget.arguments.searchString);
+    }
+
     appProvider = Provider.of<AppProvider>(context, listen: false);
+    if (widget.arguments.isShowAppbar) {
+      appBarTitle = appProvider.getMenuModelFromComponentId(componentId: InstancyComponents.PeopleList)?.displayname;
+    }
     profileProvider = context.read<ProfileProvider>();
 
     courseDownloadProvider = context.read<CourseDownloadProvider>();
@@ -95,8 +102,8 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
     searchController.text = myLearningProvider.myLearningSearchString;
     archivedSearchController.text = myLearningProvider.myLearningArchivedSearchString;
 
-    componentId = widget.componentId;
-    componentInstanceId = widget.componentInstanceId;
+    componentId = widget.arguments.componentId;
+    componentInstanceId = widget.arguments.componentInsId;
 
     NativeMenuComponentModel? componentModel = appProvider.getMenuComponentModelFromComponentId(componentId: componentId);
     if (componentModel != null) {
@@ -830,7 +837,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
         navigationType: NavigationType.pushNamed,
       ),
       arguments: FiltersScreenNavigationArguments(
-        componentId: widget.componentId,
+        componentId: widget.arguments.componentId,
         filterProvider: myLearningProvider.filterProvider,
         componentConfigurationsModel: componentModel.componentConfigurationsModel,
         contentFilterByTypes: contentFilterByTypes,
@@ -870,7 +877,9 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
 
   @override
   void didUpdateWidget(covariant MyLearningScreen oldWidget) {
-    if (widget.provider != oldWidget.provider || widget.componentId != oldWidget.componentId || widget.componentInstanceId != oldWidget.componentInstanceId) {
+    if (widget.arguments.myLearningProvider != oldWidget.arguments.myLearningProvider ||
+        widget.arguments.componentId != oldWidget.arguments.componentId ||
+        widget.arguments.componentInsId != oldWidget.arguments.componentInsId) {
       initializations();
     }
     super.didUpdateWidget(oldWidget);
@@ -908,7 +917,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
       inAsyncCall: isLoading,
       progressIndicator: const CommonLoader(),
       child: Scaffold(
-        appBar: getAppBar(),
+        appBar: widget.arguments.isShowAppbar ? getAppBarFromGloabalSearch() : getAppBar(),
         body: Container(
           color: Colors.white,
           child: TabBarView(
@@ -923,6 +932,15 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
     );
 
     // return defaultTabBar();
+  }
+
+  AppBar? getAppBarFromGloabalSearch() {
+    if (appBarTitle == null) return null;
+    return AppBar(
+      title: Text(
+        appBarTitle ?? "",
+      ),
+    );
   }
 
   PreferredSize? getAppBar() {
@@ -1241,6 +1259,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
     ValueChanged<String>? onSubmitted,
     bool isShowClearSearchButton = false,
   }) {
+    if (!widget.arguments.isShowSearchTextField) return const SizedBox();
     Widget? filterSuffixIcon;
 
     if (myLearningProvider.filterEnabled.get()) {
@@ -1294,7 +1313,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
               navigationType: NavigationType.pushNamed,
             ),
             arguments: SortingScreenNavigationArguments(
-              componentId: widget.componentId,
+              componentId: widget.arguments.componentId,
               filterProvider: myLearningProvider.filterProvider,
             ),
           );
@@ -1352,6 +1371,18 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20),
       child: CommonTextFormField(
+        enabled: true,
+        onTap: () {
+          NavigationController.navigateToGlobalSearchScreen(
+            navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+            arguments: GlobalSearchScreenNavigationArguments(
+              componentId: componentId,
+              componentInsId: componentInstanceId,
+              filterProvider: context.read<FilterProvider>(),
+              componentConfigurationsModel: ComponentConfigurationsModel(),
+            ),
+          );
+        },
         onSubmitted: onSubmitted,
         onChanged: (String text) {
           mySetState();

@@ -17,13 +17,17 @@ class CourseDetailsController {
     _courseDetailsProvider = courseDetailsProvider ?? CourseDetailsProvider();
     _courseDetailsRepository = repository ?? CourseDetailsRepository(apiController: apiController ?? ApiController());
   }
-  
+
   CourseDetailsProvider get courseDetailsProvider => _courseDetailsProvider;
+
   CourseDetailsRepository get courseDetailsRepository => _courseDetailsRepository;
 
   Future<CourseDTOModel?> getCourseDetailsData({
     required CourseDetailsRequestModel requestModel,
     bool isNotify = true,
+    String? clientUrl,
+    int? userId,
+    int? siteId,
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CourseDetailsController().getCourseDetailsData() called with requestModel:'$requestModel'", tag: tag);
@@ -34,7 +38,7 @@ class CourseDetailsController {
 
     provider.isLoadingCourseDTOModel.set(value: true, isNotify: isNotify);
 
-    DataResponseModel<CourseDTOModel> response = await courseDetailsRepository.getCourseDetailsData(requestModel: requestModel);
+    DataResponseModel<CourseDTOModel> response = await courseDetailsRepository.getCourseDetailsData(requestModel: requestModel, siteId: siteId, userId: userId, clientUrl: clientUrl);
     MyPrint.logOnConsole("getContentDetailsData response:$response", tag: tag);
 
     provider.isLoadingCourseDTOModel.set(value: false, isNotify: isNotify);
@@ -77,7 +81,7 @@ class CourseDetailsController {
       return courseList;
     }
 
-    if(response.data != null) {
+    if (response.data != null) {
       courseList = response.data!.courseList;
     }
     MyPrint.logOnConsole("final ScheduleData courseList:$courseList", tag: tag);

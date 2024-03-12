@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/my_connections/my_connections_controller.dart';
 import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_arguments.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app/data_model/dynamic_tabs_dto_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
@@ -13,6 +15,7 @@ import 'package:flutter_instancy_2/views/my_connections/screens/connections_list
 import 'package:provider/provider.dart';
 
 class MyConnectionsMainScreen extends StatefulWidget {
+  static const String routeName = "/MyConnectionsMainScreen";
   final MyConnectionsMainScreenNavigationArguments arguments;
 
   const MyConnectionsMainScreen({
@@ -28,6 +31,8 @@ class _MyConnectionsMainScreenState extends State<MyConnectionsMainScreen> with 
   TabController? tabController;
   late MyConnectionsController myConnectionsController;
   late MyConnectionsProvider myConnectionsProvider;
+  late AppProvider appProvider;
+  String? appBarTitle;
 
   late int componentId;
   late int componentInsId;
@@ -62,7 +67,14 @@ class _MyConnectionsMainScreenState extends State<MyConnectionsMainScreen> with 
   void initState() {
     super.initState();
     myConnectionsProvider = widget.arguments.myConnectionsProvider ?? MyConnectionsProvider();
-    myConnectionsController = MyConnectionsController(connectionsProvider: myConnectionsProvider);
+    myConnectionsController = MyConnectionsController(connectionsProvider: myConnectionsProvider, apiController: widget.arguments.apiController);
+    if (widget.arguments.searchString.checkNotEmpty) {
+      myConnectionsProvider.peopleListSearchString.set(value: widget.arguments.searchString);
+    }
+    appProvider = context.read<AppProvider>();
+    if (widget.arguments.isShowAppbar) {
+      appBarTitle = appProvider.getMenuModelFromComponentId(componentId: InstancyComponents.PeopleList)?.displayname ?? "My Connection";
+    }
 
     componentId = widget.arguments.componentId;
     componentInsId = InstancyComponents.PeopleListComponentInsId;
@@ -87,10 +99,20 @@ class _MyConnectionsMainScreenState extends State<MyConnectionsMainScreen> with 
           return ModalProgressHUD(
             inAsyncCall: myConnectionsProvider.isLoading.get(),
             child: Scaffold(
+              appBar: getAppBar(),
               body: getMainBody(myConnectionsProvider: myConnectionsProvider),
             ),
           );
         },
+      ),
+    );
+  }
+
+  AppBar? getAppBar() {
+    if (appBarTitle == null) return null;
+    return AppBar(
+      title: Text(
+        appBarTitle ?? "",
       ),
     );
   }
@@ -176,6 +198,7 @@ class _MyConnectionsMainScreenState extends State<MyConnectionsMainScreen> with 
       filterType: tabsDTOModel.MobileDisplayName.replaceAll(" ", "").replaceAll("-", ""),
       componentId: componentId,
       componentInsId: componentInsId,
+      apiController: widget.arguments.apiController,
       onPeopleListingActionPerformed: () {
         for (DynamicTabsDTOModel model in tabModelsList) {
           if (model != tabsDTOModel) {

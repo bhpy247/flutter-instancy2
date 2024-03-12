@@ -25,6 +25,7 @@ import '../../../backend/share/share_provider.dart';
 import '../../../backend/ui_actions/event_catalog/event_catalog_ui_action_callback_model.dart';
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import '../../../configs/app_configurations.dart';
+import '../../../models/app_configuration_models/data_models/component_configurations_model.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
 import '../../../models/catalog/request_model/add_content_to_my_learning_request_model.dart';
@@ -696,7 +697,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
 
     appProvider = context.read<AppProvider>();
     eventProvider = widget.arguments.eventProvider ?? EventProvider();
-    eventController = EventController(eventProvider: eventProvider);
+    eventController = EventController(eventProvider: eventProvider, apiController: widget.arguments.apiController);
 
     componentId = widget.arguments.componentId;
     componentInsId = widget.arguments.componentInsId;
@@ -736,11 +737,6 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
     }
 
     searchController.text = eventProvider.searchString.get();
-    // getEventCatalogContentsList(
-    //   isRefresh: true,
-    //   isGetFromCache: false,
-    //   isNotify: true,
-    // );
     eventController.updateEventListAccordingToCalendarDate();
   }
 
@@ -854,6 +850,8 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
   }
 
   Widget getSearchTextFormField() {
+    if (!widget.arguments.isShowSearchTextField) return const SizedBox();
+
     onSubmitted(String text) {
       bool isSearch = false;
       if (text.isEmpty) {
@@ -997,6 +995,17 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
       child: SizedBox(
         height: 40,
         child: CommonTextFormField(
+          onTap: () {
+            NavigationController.navigateToGlobalSearchScreen(
+              navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+              arguments: GlobalSearchScreenNavigationArguments(
+                componentId: componentId,
+                componentInsId: widget.arguments.componentInsId,
+                filterProvider: context.read<FilterProvider>(),
+                componentConfigurationsModel: ComponentConfigurationsModel(),
+              ),
+            );
+          },
           borderRadius: 50,
           boxConstraints: const BoxConstraints(minWidth: 55),
           prefixWidget: const Icon(Icons.search),
@@ -1010,9 +1019,9 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
           },
           suffixWidget: actions.isNotEmpty
               ? Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: actions,
-                )
+            mainAxisSize: MainAxisSize.min,
+            children: actions,
+          )
               : null,
         ),
       ),

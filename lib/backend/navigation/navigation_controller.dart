@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_instancy_2/views/ask_the_expert/screen/add_edit_answer_screen.dart';
+import 'package:flutter_instancy_2/views/ask_the_expert/screen/quesionAndAnswerMainScreen.dart';
 import 'package:flutter_instancy_2/views/ask_the_expert/screen/question_and_answer_detail_screen.dart';
 import 'package:flutter_instancy_2/views/authentication/screens/forgot_password_screen.dart';
 import 'package:flutter_instancy_2/views/authentication/screens/login_screen.dart';
@@ -13,12 +14,16 @@ import 'package:flutter_instancy_2/views/discussion_forum/component/categories_s
 import 'package:flutter_instancy_2/views/discussion_forum/screens/create_edit_discussion_forum_screen.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/screens/create_edit_topic_screen.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/screens/discussion_detail.dart';
+import 'package:flutter_instancy_2/views/discussion_forum/screens/discussion_forum_list_main_screen.dart';
 import 'package:flutter_instancy_2/views/event/components/re_enrollment_history.dart';
+import 'package:flutter_instancy_2/views/event/screens/event_catalog_tab_screen.dart';
 import 'package:flutter_instancy_2/views/event_track/screens/event_track_screen.dart';
 import 'package:flutter_instancy_2/views/feedBack/screens/add_feedback_screen.dart';
 import 'package:flutter_instancy_2/views/lens_feature/screen/lens_screen.dart';
 import 'package:flutter_instancy_2/views/main_screen/screens/main_screen.dart';
 import 'package:flutter_instancy_2/views/membership/screens/membership_selection_screen.dart';
+import 'package:flutter_instancy_2/views/my_connections/screens/my_connections_main_screen.dart';
+import 'package:flutter_instancy_2/views/my_learning/screens/my_learning_screen.dart';
 import 'package:flutter_instancy_2/views/message/screen/user_message_list_screen.dart';
 import 'package:flutter_instancy_2/views/my_learning_plus/screens/my_learning_plus.dart';
 import 'package:flutter_instancy_2/views/profile/component/add_education_screen.dart';
@@ -40,8 +45,8 @@ import '../../views/course_launch/screens/pdf_launch_screen.dart';
 import '../../views/course_launch/screens/video_launch_screen.dart';
 import '../../views/course_launch/screens/webview_screen.dart';
 import '../../views/filter/screens/filters_screen.dart';
-import '../../views/filter/screens/global_search_screen.dart';
 import '../../views/filter/screens/sort_screen.dart';
+import '../../views/global_search/screens/global_search_screen.dart';
 import '../../views/home/screens/home_screen_view.dart';
 import '../../views/instabot/instabot_screen2.dart';
 import '../../views/lens_feature/component/surface_tracking_keyword_search_screen.dart';
@@ -161,6 +166,11 @@ class NavigationController {
       case AddWikiContentScreen.routeName:
         {
           page = parseAddCatalogContentScreen(settings: settings);
+          break;
+        }
+      case MyLearningScreen.routeName:
+        {
+          page = parseMyLearningScreen(settings: settings);
           break;
         }
       case GlobalSearchScreen.routeName:
@@ -422,6 +432,29 @@ class NavigationController {
           page = parseUserMessageListScreen(settings: settings);
         }
       //endregion
+
+      case AskTheExpertMainScreen.routeName:
+        {
+          page = parseAskTheExpertMainScreen(settings: settings);
+          break;
+        }
+
+      case DiscussionForumMainScreen.routeName:
+        {
+          page = parseDiscussionForumMainScreen(settings: settings);
+          break;
+        }
+
+      case MyConnectionsMainScreen.routeName:
+        {
+          page = parseMyConnectionMainScreen(settings: settings);
+          break;
+        }
+      case EventCatalogTabScreen.routeName:
+        {
+          page = parseEventCatalogScreen(settings: settings);
+          break;
+        }
     }
 
     if (page == null) {
@@ -477,6 +510,21 @@ class NavigationController {
 
       return AddWikiContentScreen(
         addWikiContentScreenNavigationArguments: arguments,
+      );
+    } else {
+      return null;
+    }
+  }
+
+  //endregion
+  //
+  // region MyLearning Component
+  static Widget? parseMyLearningScreen({required RouteSettings settings}) {
+    if (settings.arguments is MyLearningScreenNavigationArguments) {
+      MyLearningScreenNavigationArguments arguments = settings.arguments as MyLearningScreenNavigationArguments;
+
+      return MyLearningScreen(
+        arguments: arguments,
       );
     } else {
       return null;
@@ -999,6 +1047,59 @@ class NavigationController {
   }
 
   //endregion
+
+  //region AskTheExpert
+  static Widget? parseAskTheExpertMainScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AskTheExpertScreenNavigationArguments) {
+      return null;
+    }
+    return AskTheExpertMainScreen(
+      arguments: argument,
+    );
+  }
+
+  //endregion
+  //
+  // region MyConnection
+  static Widget? parseMyConnectionMainScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! MyConnectionsMainScreenNavigationArguments) {
+      return null;
+    }
+    return MyConnectionsMainScreen(
+      arguments: argument,
+    );
+  }
+
+  //endregion
+  //
+  // region Event Catalog
+  static Widget? parseEventCatalogScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! EventCatalogTabScreenNavigationArguments) {
+      return null;
+    }
+    return EventCatalogTabScreen(
+      arguments: argument,
+    );
+  }
+
+  //endregion
+  //
+  // region DiscussionForum
+  static Widget? parseDiscussionForumMainScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! DiscussionForumScreenNavigationArguments) {
+      return null;
+    }
+    return DiscussionForumMainScreen(
+      arguments: argument,
+    );
+  }
+
+  //endregion
+
   //endregion
 
   //region Navigation Methods
@@ -1581,6 +1682,41 @@ class NavigationController {
     MyPrint.printOnConsole("navigateToCategoriesSearchScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(routeName: FilterSkillsScreen.routeName, arguments: arguments),
+    );
+  }
+
+  static Future<dynamic> navigateToMyLearningScreen({required NavigationOperationParameters navigationOperationParameters, required MyLearningScreenNavigationArguments arguments}) {
+    MyPrint.printOnConsole("navigateToMyLearningScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: MyLearningScreen.routeName, arguments: arguments),
+    );
+  }
+
+  static Future<dynamic> navigateToAskTheExpertMainScreen({required NavigationOperationParameters navigationOperationParameters, required AskTheExpertScreenNavigationArguments arguments}) {
+    MyPrint.printOnConsole("navigateAskTheExpertMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: AskTheExpertMainScreen.routeName, arguments: arguments),
+    );
+  }
+
+  static Future<dynamic> navigateToDiscussionForumMainScreen({required NavigationOperationParameters navigationOperationParameters, required DiscussionForumScreenNavigationArguments arguments}) {
+    MyPrint.printOnConsole("navigateDiscussionForumMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: DiscussionForumMainScreen.routeName, arguments: arguments),
+    );
+  }
+
+  static Future<dynamic> navigateToMyConnectionMainScreen({required NavigationOperationParameters navigationOperationParameters, required MyConnectionsMainScreenNavigationArguments arguments}) {
+    MyPrint.printOnConsole("navigateToMyConnectionMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: MyConnectionsMainScreen.routeName, arguments: arguments),
+    );
+  }
+
+  static Future<dynamic> navigateToEventCatalogMainScreen({required NavigationOperationParameters navigationOperationParameters, required EventCatalogTabScreenNavigationArguments arguments}) {
+    MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: EventCatalogTabScreen.routeName, arguments: arguments),
     );
   }
 }

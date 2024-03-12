@@ -61,6 +61,9 @@ class MyConnectionsController {
     bool isNotify = true,
     int componentId = InstancyComponents.PeopleList,
     int componentInstanceId = InstancyComponents.PeopleListComponentInsId,
+    String? clientUrl,
+    int? userId,
+    int? siteId,
   }) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("MyConnectionsController().getTabs() called", tag: tag);
@@ -83,7 +86,9 @@ class MyConnectionsController {
       ComponentInsID: componentInstanceId,
     );
 
-    DataResponseModel<List<DynamicTabsDTOModel>> response = await AppRepository(apiController: connectionsRepository.apiController).getDynamicTabsList(requestModel: requestModel);
+    DataResponseModel<List<DynamicTabsDTOModel>> response = await AppRepository(apiController: connectionsRepository.apiController).getDynamicTabsList(
+      requestModel: requestModel,
+    );
     MyPrint.logOnConsole("getTabs response:$response", tag: tag);
 
     provider.isLoadingTabsList.set(value: false, isNotify: true);
@@ -112,7 +117,7 @@ class MyConnectionsController {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole(
         "MyConnectionsController().getPeopleList() called with isRefresh:$isRefresh, isGetFromCache:$isGetFromCache, "
-            "isNotify:$isNotify, componentId:$componentId, componentInstanceId:$componentInstanceId",
+        "isNotify:$isNotify, componentId:$componentId, componentInstanceId:$componentInstanceId",
         tag: tag);
 
     MyConnectionsProvider provider = connectionsProvider;

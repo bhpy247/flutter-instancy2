@@ -10,22 +10,15 @@ import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:provider/provider.dart';
 
+import '../../../backend/app/app_provider.dart';
 import '../../../utils/my_print.dart';
 import 'event_catalog_list_screen.dart';
 
 class EventCatalogTabScreen extends StatefulWidget {
-  final int componentId;
-  final int componentInsId;
-  final EventProvider? eventProvider;
-  final bool enableSearching;
+  static const String routeName = "/EventCatalogTabScreen";
+  final EventCatalogTabScreenNavigationArguments arguments;
 
-  const EventCatalogTabScreen({
-    super.key,
-    required this.componentId,
-    this.componentInsId = InstancyComponents.EventCatalogTabsListComponentInsId,
-    this.eventProvider,
-    this.enableSearching = true,
-  });
+  const EventCatalogTabScreen({super.key, required this.arguments});
 
   @override
   State<EventCatalogTabScreen> createState() => _EventCatalogTabScreenState();
@@ -34,6 +27,8 @@ class EventCatalogTabScreen extends StatefulWidget {
 class _EventCatalogTabScreenState extends State<EventCatalogTabScreen> with MySafeState, SingleTickerProviderStateMixin {
   late EventProvider eventProvider;
   late EventController eventController;
+  late AppProvider appProvider;
+  String? appBarTitle;
 
   TabController? tabController;
   List<Widget> tabScreensList = [];
@@ -43,8 +38,8 @@ class _EventCatalogTabScreenState extends State<EventCatalogTabScreen> with MySa
     if (tabs.isEmpty) {
       tabs = await eventController.getTabs(
         requestModel: GetDynamicTabsRequestModel(
-          ComponentID: widget.componentId,
-          ComponentInsID: widget.componentInsId,
+          ComponentID: widget.arguments.componentId,
+          ComponentInsID: widget.arguments.componentInsId,
         ),
         isNotify: isNotify,
       );
@@ -59,15 +54,16 @@ class _EventCatalogTabScreenState extends State<EventCatalogTabScreen> with MySa
     tabScreensList = tabs.map((DynamicTabsDTOModel tabDataModel) {
       return EventCatalogListScreen(
         arguments: EventCatalogListScreenNavigationArguments(
-          tabId: tabDataModel.TabID,
-          tabDataModel: tabDataModel,
-          enableSearching: ([EventCatalogTabTypes.calendarView].contains(tabDataModel.TabID)) ? widget.enableSearching : false,
-          // searchString: widget.searchString,
-          eventProvider: tabDataModel.eventProvider,
-          componentId: widget.componentId,
-          componentInsId: widget.componentInsId,
-          isShowAppBar: false,
-        ),
+            tabId: tabDataModel.TabID,
+            tabDataModel: tabDataModel,
+            enableSearching: ([EventCatalogTabTypes.calendarView].contains(tabDataModel.TabID)) ? widget.arguments.enableSearching : false,
+            // searchString: widget.arguments.searchString,
+            eventProvider: tabDataModel.eventProvider,
+            componentId: widget.arguments.componentId,
+            componentInsId: widget.arguments.componentInsId,
+            isShowAppBar: false,
+            isShowSearchTextField: widget.arguments.isShowSearchTextField,
+            apiController: widget.arguments.apiController),
       );
     }).toList();
     MyPrint.printOnConsole("Tab Controller Assigned");
@@ -77,9 +73,12 @@ class _EventCatalogTabScreenState extends State<EventCatalogTabScreen> with MySa
   void initState() {
     super.initState();
 
-    eventProvider = widget.eventProvider ?? context.read<EventProvider>();
-    eventController = EventController(eventProvider: eventProvider);
-
+    eventProvider = widget.arguments.eventProvider ?? context.read<EventProvider>();
+    eventController = EventController(eventProvider: eventProvider, apiController: widget.arguments.apiController);
+    appProvider = context.read<AppProvider>();
+    if (widget.arguments.isShowAppbar) {
+      appBarTitle = appProvider.getMenuModelFromComponentId(componentId: InstancyComponents.CatalogEvents)?.displayname ?? "Event Catalog";
+    }
     getTabs(isNotify: false);
   }
 
@@ -94,9 +93,19 @@ class _EventCatalogTabScreenState extends State<EventCatalogTabScreen> with MySa
       child: Consumer<EventProvider>(
         builder: (BuildContext context, EventProvider eventProvider, Widget? child) {
           return Scaffold(
+            appBar: getAppBar(),
             body: getMainBody(eventProvider: eventProvider),
           );
         },
+      ),
+    );
+  }
+
+  AppBar? getAppBar() {
+    if (appBarTitle == null) return null;
+    return AppBar(
+      title: Text(
+        appBarTitle ?? "",
       ),
     );
   }

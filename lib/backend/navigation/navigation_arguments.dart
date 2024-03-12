@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
+import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/in_app_purchase/in_app_purchase_provider.dart';
 import 'package:flutter_instancy_2/backend/lens_feature/lens_provider.dart';
@@ -18,6 +20,7 @@ import 'package:flutter_instancy_2/models/message/data_model/chat_user_model.dar
 import 'package:flutter_instancy_2/models/profile/data_model/user_experience_data_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
+import '../../api/api_controller.dart';
 import '../../configs/app_constants.dart';
 import '../../models/app/data_model/dynamic_tabs_dto_model.dart';
 import '../../models/app_configuration_models/data_models/component_configurations_model.dart';
@@ -88,11 +91,13 @@ class WishListScreenNavigationArguments extends NavigationArguments {
 
 class GlobalSearchScreenNavigationArguments extends NavigationArguments {
   final int componentId;
+  final int componentInsId;
   final FilterProvider filterProvider;
   final ComponentConfigurationsModel componentConfigurationsModel;
 
   const GlobalSearchScreenNavigationArguments({
     required this.componentId,
+    required this.componentInsId,
     required this.filterProvider,
     required this.componentConfigurationsModel,
   });
@@ -106,29 +111,6 @@ class SortingScreenNavigationArguments extends NavigationArguments {
     required this.componentId,
     required this.filterProvider,
   });
-}
-
-class CatalogContentsListScreenNavigationArguments extends NavigationArguments {
-  final int componentId, componentInstanceId;
-  final int? HomeComponentId;
-  final bool isPinnedContent;
-  final CatalogProvider? catalogProvider;
-  final WikiProvider? wikiProvider;
-  final ContentFilterCategoryTreeModel? selectedCategory;
-  List<CatalogCategoriesForBrowseModel> categoriesListForPath = [];
-
-  CatalogContentsListScreenNavigationArguments({
-    required this.componentInstanceId,
-    required this.componentId,
-    this.isPinnedContent = false,
-    this.HomeComponentId,
-    this.catalogProvider,
-    this.wikiProvider,
-    this.selectedCategory,
-    List<CatalogCategoriesForBrowseModel>? categoriesListForPath,
-  }) {
-    this.categoriesListForPath = categoriesListForPath ?? [];
-  }
 }
 
 class CatalogSubcategoriesListScreenNavigationArguments extends NavigationArguments {
@@ -291,6 +273,7 @@ class CourseDetailScreenNavigationArguments extends NavigationArguments {
   final InstancyContentScreenType screenType;
   final MyLearningProvider? myLearningProvider;
   final CatalogProvider? catalogProvider;
+  final ApiController? apiController;
 
   const CourseDetailScreenNavigationArguments({
     required this.contentId,
@@ -306,6 +289,7 @@ class CourseDetailScreenNavigationArguments extends NavigationArguments {
     this.screenType = InstancyContentScreenType.Catalog,
     this.myLearningProvider,
     this.catalogProvider,
+    this.apiController,
   });
 }
 
@@ -519,16 +503,21 @@ class EventCatalogListScreenNavigationArguments extends NavigationArguments {
   final bool isShowAppBar;
   final int componentId;
   final int componentInsId;
+  final String searchString;
+  final bool isShowSearchTextField;
+  final ApiController? apiController;
 
-  const EventCatalogListScreenNavigationArguments({
-    this.tabId,
-    this.tabDataModel,
-    this.eventProvider,
-    this.enableSearching = true,
-    this.isShowAppBar = true,
-    required this.componentId,
-    required this.componentInsId,
-  });
+  const EventCatalogListScreenNavigationArguments(
+      {this.tabId,
+      this.tabDataModel,
+      this.eventProvider,
+      this.enableSearching = true,
+      this.isShowAppBar = true,
+      required this.componentId,
+      required this.componentInsId,
+      this.searchString = "",
+      this.isShowSearchTextField = true,
+      this.apiController});
 }
 
 class LensScreenNavigationArguments extends NavigationArguments {
@@ -566,26 +555,6 @@ class ReEnrollmentHistoryScreenNavigationArguments extends NavigationArguments {
     required this.ThumbnailImagePath,
     required this.ContentName,
     required this.AuthorDisplayName,
-  });
-}
-
-class DiscussionForumScreenNavigationArguments extends NavigationArguments {
-  final int componentId;
-  final int componentInsId;
-
-  const DiscussionForumScreenNavigationArguments({
-    required this.componentId,
-    required this.componentInsId,
-  });
-}
-
-class AskTheExpertScreenNavigationArguments extends NavigationArguments {
-  final int componentId;
-  final int componentInsId;
-
-  const AskTheExpertScreenNavigationArguments({
-    required this.componentId,
-    required this.componentInsId,
   });
 }
 
@@ -785,11 +754,61 @@ class MyConnectionsMainScreenNavigationArguments extends NavigationArguments {
   final int componentId;
   final int componentInsId;
   final MyConnectionsProvider? myConnectionsProvider;
+  final String searchString;
+  final bool isShowSearchTextField;
+  final bool isShowAppbar;
+  final ApiController? apiController;
 
   const MyConnectionsMainScreenNavigationArguments({
     required this.componentId,
     required this.componentInsId,
     this.myConnectionsProvider,
+    this.searchString = "",
+    this.isShowSearchTextField = true,
+    this.isShowAppbar = false,
+    this.apiController,
+  });
+}
+
+class MyLearningScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+  final MyLearningProvider? myLearningProvider;
+  final String searchString;
+  final bool isShowSearchTextField;
+  final bool isShowAppbar;
+  final ApiController? apiController;
+
+  const MyLearningScreenNavigationArguments({
+    required this.componentId,
+    required this.componentInsId,
+    this.myLearningProvider,
+    this.searchString = "",
+    this.isShowSearchTextField = true,
+    this.isShowAppbar = false,
+    this.apiController,
+  });
+}
+
+class EventCatalogTabScreenNavigationArguments extends NavigationArguments {
+  final EventProvider? eventProvider;
+  final bool enableSearching;
+  final String searchString;
+  final bool isShowSearchTextField;
+  final bool isShowAppbar;
+  final int componentId;
+  final int componentInsId;
+  final ApiController? apiController;
+
+  const EventCatalogTabScreenNavigationArguments({
+    this.eventProvider,
+    this.enableSearching = true,
+    required this.componentId,
+    required this.componentInsId,
+    this.searchString = "",
+    this.isShowSearchTextField = true,
+    this.isShowAppbar = false,
+    this.apiController,
   });
 }
 
@@ -799,4 +818,61 @@ class UserMessageListScreenNavigationArguments extends NavigationArguments {
   const UserMessageListScreenNavigationArguments({
     required this.toUser,
   });
+}
+
+class CatalogContentsListScreenNavigationArguments extends NavigationArguments {
+  final int componentId, componentInstanceId;
+  final int? HomeComponentId;
+  final bool isPinnedContent;
+  final CatalogProvider? catalogProvider;
+  final WikiProvider? wikiProvider;
+  final ContentFilterCategoryTreeModel? selectedCategory;
+  List<CatalogCategoriesForBrowseModel> categoriesListForPath = [];
+  final String searchString;
+  final bool isShowSearchTextField;
+  final bool isShowAppbar;
+  final ApiController? apiController;
+
+  CatalogContentsListScreenNavigationArguments({
+    required this.componentInstanceId,
+    required this.componentId,
+    this.isPinnedContent = false,
+    this.HomeComponentId,
+    this.catalogProvider,
+    this.wikiProvider,
+    this.selectedCategory,
+    this.searchString = "",
+    this.isShowSearchTextField = true,
+    this.isShowAppbar = false,
+    this.apiController,
+    List<CatalogCategoriesForBrowseModel>? categoriesListForPath,
+  }) {
+    this.categoriesListForPath = categoriesListForPath ?? [];
+  }
+}
+
+class DiscussionForumScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+  final String searchString;
+  final bool isShowSearchTextField;
+  final bool isShowAppbar;
+  final DiscussionProvider? discussionProvider;
+  final ApiController? apiController;
+
+  const DiscussionForumScreenNavigationArguments(
+      {required this.componentId, required this.componentInsId, this.searchString = "", this.isShowSearchTextField = true, this.isShowAppbar = false, this.apiController, this.discussionProvider});
+}
+
+class AskTheExpertScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+  final String searchString;
+  final bool isShowSearchTextField;
+  final bool isShowAppbar;
+  final ApiController? apiController;
+  final AskTheExpertProvider? askTheExpertProvider;
+
+  const AskTheExpertScreenNavigationArguments(
+      {required this.componentId, required this.componentInsId, this.searchString = "", this.isShowSearchTextField = true, this.isShowAppbar = false, this.apiController, this.askTheExpertProvider});
 }

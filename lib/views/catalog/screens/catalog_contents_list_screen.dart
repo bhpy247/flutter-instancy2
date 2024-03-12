@@ -32,6 +32,7 @@ import '../../../backend/share/share_provider.dart';
 import '../../../backend/ui_actions/catalog/catalog_ui_actions_controller.dart';
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import '../../../configs/app_constants.dart';
+import '../../../models/app_configuration_models/data_models/component_configurations_model.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
 import '../../../models/catalog/catalogCategoriesForBrowseModel.dart';
@@ -93,8 +94,10 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
 
   void initialization() {
     catalogProvider = widget.arguments.catalogProvider ?? CatalogProvider();
-    catalogController = CatalogController(provider: catalogProvider);
-
+    catalogController = CatalogController(provider: catalogProvider, apiController: widget.arguments.apiController);
+    if (widget.arguments.searchString.checkNotEmpty) {
+      catalogProvider.catalogContentSearchString.set(value: widget.arguments.searchString);
+    }
     wikiProvider = widget.arguments.wikiProvider ?? WikiProvider();
 
     appProvider = Provider.of<AppProvider>(context, listen: false);
@@ -124,6 +127,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
         isWikiButtonEnabled = true;
       }
     }
+    if (widget.arguments.apiController != null) {}
 
     if (catalogProvider.catalogContentLength == 0) {
       getCatalogContentsList(
@@ -532,12 +536,12 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
         navigationType: NavigationType.pushNamed,
       ),
       arguments: CourseDetailScreenNavigationArguments(
-        contentId: model.ContentID,
-        componentId: componentId,
-        componentInstanceId: componentInstanceId,
-        userId: model.SiteUserID,
-        screenType: InstancyContentScreenType.Catalog,
-      ),
+          contentId: model.ContentID,
+          componentId: componentId,
+          componentInstanceId: componentInstanceId,
+          userId: model.SiteUserID,
+          screenType: InstancyContentScreenType.Catalog,
+          apiController: widget.arguments.apiController),
     );
     MyPrint.printOnConsole("CourseDetailScreen return value:$value");
 
@@ -1049,6 +1053,8 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
 
   //region searchTextFormField
   Widget getSearchTextFormField() {
+    if (!widget.arguments.isShowSearchTextField) return const SizedBox();
+
     onSubmitted(String text) {
       bool isSearch = false;
       if (text.isEmpty) {
@@ -1210,6 +1216,19 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
       child: SizedBox(
         height: 40,
         child: CommonTextFormField(
+          onTap: () {
+            MyPrint.printOnConsole("Hello");
+            FocusScope.of(context).requestFocus(FocusNode());
+            NavigationController.navigateToGlobalSearchScreen(
+              navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+              arguments: GlobalSearchScreenNavigationArguments(
+                componentId: componentId,
+                componentInsId: componentInstanceId,
+                filterProvider: context.read<FilterProvider>(),
+                componentConfigurationsModel: ComponentConfigurationsModel(),
+              ),
+            );
+          },
           borderRadius: 50,
           boxConstraints: const BoxConstraints(minWidth: 55),
           prefixWidget: const Icon(Icons.search),
@@ -1223,9 +1242,9 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
           },
           suffixWidget: actions.isNotEmpty
               ? Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: actions,
-                )
+            mainAxisSize: MainAxisSize.min,
+            children: actions,
+          )
               : null,
         ),
       ),

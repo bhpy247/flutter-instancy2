@@ -100,6 +100,11 @@ class CommonProviderMapParameter<K, V> {
     _notify(isNotify: isNotify);
   }
 
+  void updateMap({required K key, required V updatedValue, bool isNotify = true}) {
+    _map.update(key, (value) => updatedValue);
+    _notify(isNotify: isNotify);
+  }
+
   void clearKey({required String key, bool isNotify = true}) {
     _map.remove(key);
     _notify(isNotify: isNotify);

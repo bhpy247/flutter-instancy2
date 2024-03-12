@@ -535,6 +535,12 @@ class ApiEndpoints {
 
   //endregion
 
+  //region Global search
+  String GetGlobalSearchComponent() => '${getBaseApiUrl()}search/GetSearchComponentList';
+
+  String GetGlobalSearchResult() => '${getBaseApiUrl()}search/GetGlobalSearchResults';
+
+  //endregion
   String apiGetSiteBotDetails({required String instancyApiUrl}) {
     if (instancyApiUrl.endsWith("/")) {
       instancyApiUrl = instancyApiUrl.substring(0, instancyApiUrl.length - 1);

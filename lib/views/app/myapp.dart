@@ -10,6 +10,7 @@ import 'package:flutter_instancy_2/backend/download/flutter_download_controller.
 import 'package:flutter_instancy_2/backend/feedback/feedback_provider.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
+import 'package:flutter_instancy_2/backend/global_search/global_search_provider.dart';
 import 'package:flutter_instancy_2/backend/learning_communities/learning_communities_provider.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
@@ -92,6 +93,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<MyConnectionsProvider>(create: (_) => MyConnectionsProvider()),
         ChangeNotifierProvider<NetworkConnectionProvider>(create: (_) => NetworkConnectionController().networkConnectionProvider),
         ChangeNotifierProvider<LearningCommunitiesProvider>(create: (_) => LearningCommunitiesProvider()),
+        ChangeNotifierProvider<GlobalSearchProvider>(create: (_) => GlobalSearchProvider()),
       ],
       child: Builder(
         builder: (BuildContext context) {

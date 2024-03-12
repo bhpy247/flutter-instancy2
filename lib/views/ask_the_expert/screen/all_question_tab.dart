@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/view/common/components/bottom_sheet_dragger.dart';
+import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_controller.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
@@ -13,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../backend/app/app_provider.dart';
+import '../../../backend/filter/filter_provider.dart';
 import '../../../backend/main_screen/main_screen_provider.dart';
 import '../../../backend/profile/profile_controller.dart';
 import '../../../backend/profile/profile_provider.dart';
@@ -21,6 +23,7 @@ import '../../../backend/ui_actions/ask_the_expert/questions/question_ui_action_
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import '../../../configs/app_configurations.dart';
 import '../../../configs/app_constants.dart';
+import '../../../models/app_configuration_models/data_models/component_configurations_model.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/common/pagination/pagination_model.dart';
 import '../../../utils/my_safe_state.dart';
@@ -33,7 +36,11 @@ class AllQuestionsTab extends StatefulWidget {
   final int componentId;
   final int componentInstanceId;
 
-  const AllQuestionsTab({super.key, required this.componentId, required this.componentInstanceId});
+  final bool isShowSearchTextField;
+  final String searchString;
+  final ApiController? apiController;
+
+  const AllQuestionsTab({super.key, required this.componentId, required this.componentInstanceId, this.isShowSearchTextField = true, this.searchString = "", this.apiController});
 
   @override
   State<AllQuestionsTab> createState() => _AllQuestionsTabState();
@@ -222,151 +229,6 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
     );
   }
 
-  // DiscussionForumUIActionCallbackModel getDiscussionForumUIActionCallbackModel({
-  //   required ForumModel model,
-  //   InstancyContentActionsEnum? primaryAction,
-  //   bool isSecondaryAction = true,
-  //   required int index,
-  // }) {
-  //   return DiscussionForumUIActionCallbackModel(
-  //     onAddToTopic: () async {
-  //       if (isSecondaryAction) Navigator.pop(context);
-  //
-  //       addTopic(model: model);
-  //     },
-  //     onEdit: () async {
-  //       if (isSecondaryAction) Navigator.pop(context);
-  //
-  //       dynamic value = await NavigationController.navigateToCreateEditDiscussionForumScreen(
-  //         navigationOperationParameters: NavigationOperationParameters(
-  //           context: context,
-  //           navigationType: NavigationType.pushNamed,
-  //         ),
-  //         arguments: CreateEditDiscussionForumScreenNavigationArguments(forumModel: model, isEdit: true, componentId: componentId, componentInsId: componentInstanceId),
-  //       );
-  //       if (value != true) return;
-  //
-  //       discussionController.getForumsList(
-  //         isRefresh: true,
-  //         isGetFromCache: false,
-  //         isNotify: false,
-  //       );
-  //       discussionController.getMyDiscussionForumsList(
-  //         isRefresh: true,
-  //         isGetFromCache: false,
-  //         isNotify: true,
-  //       );
-  //     },
-  //     onDelete: () async {
-  //       if (isSecondaryAction) Navigator.pop(context);
-  //
-  //       discussionProvider.isLoading.set(value: true);
-  //
-  //       bool isSuccess = await discussionController.deleteForum(
-  //         context: context,
-  //         forumModel: model,
-  //       );
-  //
-  //       discussionProvider.isLoading.set(value: false, isNotify: !isSuccess);
-  //
-  //       if (isSuccess) {
-  //         if (model.CreatedUserID == discussionController.discussionRepository.apiController.apiDataProvider.getCurrentUserId()) {
-  //           discussionController.getMyDiscussionForumsList(
-  //             isRefresh: true,
-  //             isGetFromCache: false,
-  //             isNotify: false,
-  //             componentId: componentId,
-  //             componentInstanceId: componentInstanceId,
-  //           );
-  //         }
-  //         discussionController.getForumsList(
-  //           isRefresh: true,
-  //           isGetFromCache: false,
-  //           isNotify: true,
-  //           componentId: componentId,
-  //           componentInstanceId: componentInstanceId,
-  //         );
-  //       }
-  //     },
-  //     onViewLikes: () async {
-  //       if (isSecondaryAction) Navigator.pop(context);
-  //
-  //       isLoading = true;
-  //       mySetState();
-  //
-  //       await discussionController.showForumLikedUserList(
-  //         context: context,
-  //         forumModel: model,
-  //       );
-  //
-  //       isLoading = false;
-  //       mySetState();
-  //     },
-  //     onShareWithConnectionTap: () {
-  //       MyPrint.printOnConsole("Forum Id: ${model.ForumID}");
-  //       if (isSecondaryAction) Navigator.pop(context);
-  //
-  //       NavigationController.navigateToShareWithConnectionsScreen(
-  //         navigationOperationParameters: NavigationOperationParameters(
-  //           context: context,
-  //           navigationType: NavigationType.pushNamed,
-  //         ),
-  //         arguments: ShareWithConnectionsScreenNavigationArguments(
-  //           shareContentType: ShareContentType.discussionForum,
-  //           contentName: model.Name,
-  //           forumId: model.ForumID,
-  //           shareProvider: context.read<ShareProvider>(),
-  //         ),
-  //       );
-  //     },
-  //     onShareWithPeopleTap: () {
-  //       if (isSecondaryAction) Navigator.pop(context);
-  //
-  //       NavigationController.navigateToShareWithPeopleScreen(
-  //         navigationOperationParameters: NavigationOperationParameters(
-  //           context: context,
-  //           navigationType: NavigationType.pushNamed,
-  //         ),
-  //         arguments: ShareWithPeopleScreenNavigationArguments(
-  //           shareContentType: ShareContentType.discussionForum,
-  //           // contentName: model.Name,
-  //           forumId: model.ForumID,
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-  //
-  // Future<void> showMoreAction({
-  //   required ForumModel model,
-  //   InstancyContentActionsEnum? primaryAction,
-  //   required int index,
-  // }) async {
-  //   LocalStr localStr = appProvider.localStr;
-  //
-  //   DiscussionForumUiActionController discussionForumUiActionController = DiscussionForumUiActionController(appProvider: appProvider);
-  //   List<InstancyUIActionModel> options = discussionForumUiActionController
-  //       .getDiscussionForumScreenSecondaryActions(
-  //     forumModel: model,
-  //     localStr: localStr,
-  //     discussionForumUIActionCallbackModel: getDiscussionForumUIActionCallbackModel(
-  //       model: model,
-  //       primaryAction: primaryAction,
-  //       index: index,
-  //     ),
-  //   )
-  //       .toList();
-  //
-  //   if (options.isEmpty) {
-  //     return;
-  //   }
-  //
-  //   InstancyUIActions().showAction(
-  //     context: context,
-  //     actions: options,
-  //   );
-  // }
-
   Future<void> addTopic() async {
     /*dynamic value = await NavigationController.navigateToCreateEditTopicScreen(
       navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
@@ -394,8 +256,6 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
   void initializations({
     bool isNotify = false,
   }) {
-    askTheExpertProvider = context.read<AskTheExpertProvider>();
-    askTheExpertController = AskTheExpertController(discussionProvider: askTheExpertProvider);
     ProfileController profileController = ProfileController(profileProvider: context.read<ProfileProvider>());
     isShowAddForumFloatingButton = profileController.isShowAddForumButton();
 
@@ -412,12 +272,12 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
     PaginationModel paginationModel = askTheExpertProvider.questionListPaginationModel.get();
     if (!paginationModel.isFirstTimeLoading && !paginationModel.isLoading && paginationModel.hasMore && askTheExpertProvider.questionList.length == 0) {
       askTheExpertProvider.filterCategoriesIds.set(value: "-1", isNotify: false);
-      askTheExpertController.getQuestionsList(
+      getQuestionList(
         isRefresh: true,
         isGetFromCache: false,
         isNotify: isNotify,
-        componentId: componentId,
-        componentInstanceId: componentInstanceId,
+        // componentId: componentId,
+        // componentInstanceId: componentInstanceId,
       );
     }
     mySetState();
@@ -428,16 +288,12 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
     super.initState();
     appProvider = context.read<AppProvider>();
     askTheExpertProvider = context.read<AskTheExpertProvider>();
-
+    askTheExpertController = AskTheExpertController(discussionProvider: askTheExpertProvider, apiController: widget.apiController);
+    if (widget.searchString.checkNotEmpty) {
+      askTheExpertProvider.questionListSearchString.set(value: widget.searchString);
+    }
     initializations();
     textEditingController.text = askTheExpertProvider.questionListSearchString.get();
-    // if (discussionProvider.forumsListLength == 0) {
-    //   getDiscussionForumList(
-    //     isRefresh: true,
-    //     isGetFromCache: false,
-    //     isNotify: false,
-    //   );
-    // }
   }
 
   @override
@@ -512,6 +368,7 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
   }
 
   Widget getSearchTextFromField() {
+    if (!widget.isShowSearchTextField) return SizedBox();
     return Row(
       children: [
         Expanded(
@@ -521,6 +378,17 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
             child: CommonTextFormField(
               isOutlineInputBorder: true,
               borderRadius: 30,
+              onTap: () {
+                NavigationController.navigateToGlobalSearchScreen(
+                  navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+                  arguments: GlobalSearchScreenNavigationArguments(
+                    componentId: componentId,
+                    componentInsId: componentInstanceId,
+                    filterProvider: context.read<FilterProvider>(),
+                    componentConfigurationsModel: ComponentConfigurationsModel(),
+                  ),
+                );
+              },
               onChanged: (val) {
                 mySetState();
               },
@@ -560,7 +428,11 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
               prefixWidget: const Icon(Icons.search),
               onSubmitted: (String? val) {
                 askTheExpertProvider.questionListSearchString.set(value: val ?? "");
-                askTheExpertController.getQuestionsList(isRefresh: true, isGetFromCache: false, isNotify: false, componentId: componentId, componentInstanceId: componentInstanceId);
+                getQuestionList(
+                  isRefresh: true,
+                  isGetFromCache: false,
+                  isNotify: false,
+                );
                 mySetState();
               },
             ),

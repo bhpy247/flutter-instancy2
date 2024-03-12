@@ -18,13 +18,16 @@ class CourseDetailsRepository {
 
   Future<DataResponseModel<CourseDTOModel>> getCourseDetailsData({
     required CourseDetailsRequestModel requestModel,
+    String? clientUrl,
+    int? userId,
+    int? siteId,
   }) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
 
-    requestModel.intUserID ??= apiUrlConfigurationProvider.getCurrentUserId();
-    requestModel.SiteID = apiUrlConfigurationProvider.getCurrentSiteId();
+    requestModel.intUserID ??= userId ?? apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.SiteID = siteId ?? apiUrlConfigurationProvider.getCurrentSiteId();
     requestModel.Locale = apiUrlConfigurationProvider.getLocale();
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<Map<String, String>>(
@@ -32,6 +35,9 @@ class CourseDetailsRepository {
       requestBody: requestModel.toJson(),
       parsingType: ModelDataParsingType.courseDTOModel,
       url: apiEndpoints.getContentDetailsUrl(),
+      userId: userId,
+      siteId: siteId,
+      siteUrl: clientUrl,
     );
 
     DataResponseModel<CourseDTOModel> apiResponseModel = await apiController.callApi<CourseDTOModel>(

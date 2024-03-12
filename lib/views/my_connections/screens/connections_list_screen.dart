@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/message/message_controller.dart';
 import 'package:flutter_instancy_2/backend/message/message_provider.dart';
@@ -19,6 +20,9 @@ import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.da
 import 'package:flutter_instancy_2/views/my_connections/components/connection_list_user_card.dart';
 import 'package:provider/provider.dart';
 
+import '../../../backend/filter/filter_provider.dart';
+import '../../../models/app_configuration_models/data_models/component_configurations_model.dart';
+
 class ConnectionsListScreen extends StatefulWidget {
   final MyConnectionsProvider? myConnectionsProvider;
   final String filterType;
@@ -26,6 +30,8 @@ class ConnectionsListScreen extends StatefulWidget {
   final int componentInsId;
   final void Function()? onPeopleListingActionPerformed;
   final void Function({required bool isLoading})? setParentLoading;
+  final bool isShowSearchTextField;
+  final ApiController? apiController;
 
   const ConnectionsListScreen({
     super.key,
@@ -35,6 +41,8 @@ class ConnectionsListScreen extends StatefulWidget {
     required this.componentInsId,
     this.onPeopleListingActionPerformed,
     this.setParentLoading,
+    this.isShowSearchTextField = true,
+    this.apiController,
   });
 
   @override
@@ -191,7 +199,7 @@ class _ConnectionsListScreenState extends State<ConnectionsListScreen> with MySa
 
     appProvider = context.read<AppProvider>();
     myConnectionsProvider = widget.myConnectionsProvider ?? MyConnectionsProvider();
-    myConnectionsController = MyConnectionsController(connectionsProvider: myConnectionsProvider);
+    myConnectionsController = MyConnectionsController(connectionsProvider: myConnectionsProvider, apiController: widget.apiController);
 
     componentId = widget.componentId;
     componentInsId = widget.componentInsId;
@@ -247,6 +255,7 @@ class _ConnectionsListScreenState extends State<ConnectionsListScreen> with MySa
   }
 
   Widget getSearchTextFromField() {
+    if (!widget.isShowSearchTextField) return const SizedBox();
     return Row(
       children: [
         Expanded(
@@ -256,6 +265,17 @@ class _ConnectionsListScreenState extends State<ConnectionsListScreen> with MySa
             child: CommonTextFormField(
               isOutlineInputBorder: true,
               borderRadius: 30,
+              onTap: () {
+                NavigationController.navigateToGlobalSearchScreen(
+                  navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+                  arguments: GlobalSearchScreenNavigationArguments(
+                    componentId: componentId,
+                    componentInsId: widget.componentInsId,
+                    filterProvider: context.read<FilterProvider>(),
+                    componentConfigurationsModel: ComponentConfigurationsModel(),
+                  ),
+                );
+              },
               onChanged: (val) {
                 mySetState();
               },
