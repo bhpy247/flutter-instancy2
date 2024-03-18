@@ -30,6 +30,7 @@ import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
 import '../../../models/catalog/request_model/add_content_to_my_learning_request_model.dart';
 import '../../../models/catalog/response_model/removeFromWishlistModel.dart';
+import '../../../models/common/navigatingBackFromGlobalSearchModel.dart';
 import '../../../models/common/pagination/pagination_model.dart';
 import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../models/event_track/request_model/view_recording_request_model.dart';
@@ -86,6 +87,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         isGetFromCache: isGetFromCache,
         isNotify: isNotify,
         tabId: tabId ?? "",
+        siteId: widget.arguments.siteId,
         componentId: componentId,
         componentInstanceId: componentInsId,
       ),
@@ -626,7 +628,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         userId: ApiController().apiDataProvider.getCurrentUserId(),
         screenType: InstancyContentScreenType.Catalog,
         isRescheduleEvent: isRescheduleEvent,
-      ),
+          siteId: widget.arguments.siteId),
     );
     MyPrint.printOnConsole("CourseDetailScreen return value:$value");
 
@@ -995,15 +997,23 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
       child: SizedBox(
         height: 40,
         child: CommonTextFormField(
-          onTap: () {
-            NavigationController.navigateToGlobalSearchScreen(
+          onTap: () async {
+            NavigatingBackFromGlobalSearchModel? val = await NavigationController.navigateToGlobalSearchScreen(
               navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
               arguments: GlobalSearchScreenNavigationArguments(
-                componentId: componentId,
-                componentInsId: widget.arguments.componentInsId,
-                filterProvider: context.read<FilterProvider>(),
-                componentConfigurationsModel: ComponentConfigurationsModel(),
-              ),
+                  componentId: componentId,
+                  componentInsId: widget.arguments.componentInsId,
+                  filterProvider: context.read<FilterProvider>(),
+                  componentConfigurationsModel: ComponentConfigurationsModel(),
+                  componentName: "Event Catalog"),
+            );
+            if (val == null || val.isSuccess == false) return;
+            eventProvider.searchString.set(value: val.searchString);
+            searchController.text = val.searchString;
+            getEventCatalogContentsList(
+              isRefresh: true,
+              isGetFromCache: false,
+              isNotify: false,
             );
           },
           borderRadius: 50,

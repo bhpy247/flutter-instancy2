@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_instancy_2/api/api_controller.dart';
+import 'package:flutter_chat_bot/utils/mmy_toast.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
@@ -13,6 +13,7 @@ import 'package:flutter_instancy_2/backend/my_connections/my_connections_provide
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/common/navigatingBackFromGlobalSearchModel.dart';
 import 'package:flutter_instancy_2/models/dto/global_search_course_dto_model.dart';
 import 'package:flutter_instancy_2/models/filter/data_model/all_filters_model.dart';
 import 'package:flutter_instancy_2/models/global_search/response_model/global_search_component_response_model.dart';
@@ -21,11 +22,11 @@ import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:flutter_instancy_2/views/common/components/common_text_form_field.dart';
+import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/views/filter/screens/sort_screen.dart';
 import 'package:flutter_instancy_2/views/global_search/component/global_search_component.dart';
 import 'package:provider/provider.dart';
 
-import '../../../api/api_url_configuration_provider.dart';
 import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../backend/global_search/global_search_provider.dart';
 import '../../../backend/share/share_provider.dart';
@@ -65,6 +66,9 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
   late FilterController filterController;
   late GlobalSearchController globalSearchController;
   late GlobalSearchProvider globalSearchProvider;
+  final formKey = GlobalKey<FormState>();
+  bool isLoading = false;
+  FocusNode focusNode = FocusNode();
 
   late ComponentConfigurationsModel componentConfigurationsModel;
   bool isShowSearchComponentSelector = true;
@@ -92,15 +96,12 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
         navigationType: NavigationType.pushNamed,
       ),
       arguments: CourseDetailScreenNavigationArguments(
-        contentId: model.ContentID,
-        componentId: componentId,
-        componentInstanceId: componentInsId,
-        userId: model.SiteUserID,
-        apiController: setNewInstanceOfApiController(
-          searchComponents,
-          userId,
-        ),
-      ),
+          contentId: model.ContentID,
+          componentId: searchComponents.componentID,
+          componentInstanceId: searchComponents.componentInstanceID,
+          userId: model.SiteUserID,
+          siteId: searchComponents.siteID,
+          courseDtoModel: model),
     );
     MyPrint.printOnConsole("CourseDetailScreen return value:$value");
 
@@ -124,61 +125,57 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
     GlobalSearchUiActionController uiActionController = GlobalSearchUiActionController(appProvider: appProvider);
     List<InstancyUIActionModel> options = uiActionController
         .getSecondaryActions(
-          globalSearchCourseDtoModel: globalSearchResultModel,
+      globalSearchCourseDtoModel: globalSearchResultModel,
           localStr: localStr,
-          uiActionCallbackModel: GlobalSearchUIActionCallbackModel(
-            onShareWithConnectionTap: () {
-              Navigator.pop(context);
+          uiActionCallbackModel: GlobalSearchUIActionCallbackModel(onShareWithConnectionTap: () {
+            Navigator.pop(context);
 
-              NavigationController.navigateToShareWithConnectionsScreen(
-                navigationOperationParameters: NavigationOperationParameters(
-                  context: context,
-                  navigationType: NavigationType.pushNamed,
-                ),
-                arguments: ShareWithConnectionsScreenNavigationArguments(
-                  shareContentType: ShareContentType.askTheExpertQuestion,
-                  contentId: globalSearchResultModel.ContentID,
-                  shareProvider: context.read<ShareProvider>(),
-                ),
-              );
-            },
-            onShareWithPeopleTap: () {
-              Navigator.pop(context);
+            NavigationController.navigateToShareWithConnectionsScreen(
+              navigationOperationParameters: NavigationOperationParameters(
+                context: context,
+                navigationType: NavigationType.pushNamed,
+              ),
+              arguments: ShareWithConnectionsScreenNavigationArguments(
+                shareContentType: ShareContentType.catalogCourse,
+                contentId: globalSearchResultModel.ContentID,
+                shareProvider: context.read<ShareProvider>(),
+                contentName: globalSearchResultModel.Title,
+              ),
+            );
+          }, onShareWithPeopleTap: () {
+            Navigator.pop(context);
 
-              NavigationController.navigateToShareWithPeopleScreen(
-                navigationOperationParameters: NavigationOperationParameters(
-                  context: context,
-                  navigationType: NavigationType.pushNamed,
-                ),
-                arguments: ShareWithPeopleScreenNavigationArguments(shareContentType: ShareContentType.askTheExpertQuestion, contentId: globalSearchResultModel.ContentID),
-              );
-            },
-            onDetailsTap: () {
-              Navigator.pop(context);
-              onDetailsTap(
-                model: globalSearchResultModel,
-                searchComponents: searchComponents,
-                userId: globalSearchResultModel.SiteUserID,
-                componentId: searchComponents.componentID,
-                componentInsId: searchComponents.componentInstanceID,
-              );
-            },
-            onViewProfileTap: () {
-              Navigator.pop(context);
-              String userId = globalSearchResultModel.ViewProfileLink.split("profileuserid/").last.split("/").first;
-              onViewProfileTap(
-                userid: ParsingHelper.parseIntMethod(userId),
-              );
-            },
-            onShareTap: () {
-              if (isSecondaryAction) Navigator.pop(context);
+            NavigationController.navigateToShareWithPeopleScreen(
+              navigationOperationParameters: NavigationOperationParameters(
+                context: context,
+                navigationType: NavigationType.pushNamed,
+              ),
+              arguments: ShareWithPeopleScreenNavigationArguments(
+                shareContentType: ShareContentType.catalogCourse,
+                contentId: globalSearchResultModel.ContentID,
+                contentName: globalSearchResultModel.Title,
+              ),
+            );
+          }, onDetailsTap: () {
+            Navigator.pop(context);
+            onDetailsTap(
+              model: globalSearchResultModel,
+              searchComponents: searchComponents,
+              userId: globalSearchResultModel.SiteUserID,
+              componentId: searchComponents.componentID,
+              componentInsId: searchComponents.componentInstanceID,
+            );
+          }, onShareTap: () {
+            if (isSecondaryAction) Navigator.pop(context);
 
-              MyUtils.shareContent(
-                content: globalSearchResultModel.Sharelink,
-              );
-            },
-            // onAddToMyLearningTap: () {},
-          ),
+            MyUtils.shareContent(content: globalSearchResultModel.Sharelink);
+          }, onViewProfileTap: () {
+            Navigator.pop(context);
+            String id = globalSearchResultModel.ViewProfileLink.split("profileuserid/").last.split("/").first;
+            onViewProfileTap(userid: ParsingHelper.parseIntMethod(id));
+          }
+              // onAddToMyLearningTap: () {},
+              ),
         )
         .toList();
 
@@ -227,30 +224,29 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
       changeTheValueOfAllCheckBox(true);
       globalSearchProvider.isAllChecked.set(value: true);
     }
-    // await globalSearchController.getIdBasedSearchedCourseList(componentId: 225, componentInsId: 4021);
   }
 
-  ApiController setNewInstanceOfApiController(SearchComponents components, int? userId) {
-    ApiUrlConfigurationProvider existingProvider = ApiController().apiDataProvider;
-
-    ApiController apiController = ApiController.getNewInstance();
-
-    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
-
-    apiUrlConfigurationProvider.setMainSiteUrl(existingProvider.getMainSiteUrl());
-    apiUrlConfigurationProvider.setMainClientUrlType(existingProvider.getMainClientUrlType());
-    apiUrlConfigurationProvider.setCurrentBaseApiUrl(existingProvider.getCurrentBaseApiUrl());
-    apiUrlConfigurationProvider.setCurrentSiteUrl(components.learnerSiteURL);
-    apiUrlConfigurationProvider.setCurrentAuthUrl(existingProvider.getCurrentAuthUrl());
-    apiUrlConfigurationProvider.setCurrentSiteLearnerUrl(components.learnerSiteURL);
-    apiUrlConfigurationProvider.setCurrentSiteLMSUrl(existingProvider.getCurrentSiteLMSUrl());
-    apiUrlConfigurationProvider.setCurrentClientUrlType(existingProvider.getCurrentClientUrlType());
-    apiUrlConfigurationProvider.setCurrentUserId(userId ?? existingProvider.getCurrentUserId());
-    apiUrlConfigurationProvider.setCurrentSiteId(components.siteID);
-    apiUrlConfigurationProvider.setLocale(existingProvider.getLocale());
-    apiUrlConfigurationProvider.setAuthToken(existingProvider.getAuthToken());
-    return apiController;
-  }
+  // ApiController setNewInstanceOfApiController(SearchComponents components, int? userId) {
+  //   ApiUrlConfigurationProvider existingProvider = ApiController().apiDataProvider;
+  //
+  //   ApiController apiController = ApiController.getNewInstance();
+  //
+  //   ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+  //
+  //   apiUrlConfigurationProvider.setMainSiteUrl(existingProvider.getMainSiteUrl());
+  //   apiUrlConfigurationProvider.setMainClientUrlType(existingProvider.getMainClientUrlType());
+  //   apiUrlConfigurationProvider.setCurrentBaseApiUrl(existingProvider.getCurrentBaseApiUrl());
+  //   apiUrlConfigurationProvider.setCurrentSiteUrl(components.learnerSiteURL);
+  //   apiUrlConfigurationProvider.setCurrentAuthUrl(existingProvider.getCurrentAuthUrl());
+  //   apiUrlConfigurationProvider.setCurrentSiteLearnerUrl(components.learnerSiteURL);
+  //   apiUrlConfigurationProvider.setCurrentSiteLMSUrl(existingProvider.getCurrentSiteLMSUrl());
+  //   apiUrlConfigurationProvider.setCurrentClientUrlType(existingProvider.getCurrentClientUrlType());
+  //   apiUrlConfigurationProvider.setCurrentUserId(userId ?? existingProvider.getCurrentUserId());
+  //   apiUrlConfigurationProvider.setCurrentSiteId(components.siteID);
+  //   apiUrlConfigurationProvider.setLocale(existingProvider.getLocale());
+  //   apiUrlConfigurationProvider.setAuthToken(existingProvider.getAuthToken());
+  //   return apiController;
+  // }
 
   void onSeeAllTap({required SearchComponents searchComponent, int? userId}) {
     MyPrint.printOnConsole("searchComponent: $searchComponent");
@@ -259,12 +255,13 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
         NavigationController.navigateToCatalogContentsListScreen(
           navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
           arguments: CatalogContentsListScreenNavigationArguments(
-              componentInstanceId: InstancyComponents.CatalogComponentInsId,
-              componentId: InstancyComponents.Catalog,
-              searchString: searchTextController.text.trim(),
-              isShowSearchTextField: false,
-              catalogProvider: CatalogProvider(),
-              apiController: setNewInstanceOfApiController(searchComponent, userId)),
+            componentInstanceId: InstancyComponents.CatalogComponentInsId,
+            componentId: InstancyComponents.Catalog,
+            searchString: searchTextController.text.trim(),
+            isShowSearchTextField: false,
+            catalogProvider: CatalogProvider(),
+            subSiteId: searchComponent.siteID,
+          ),
         );
         break;
       case InstancyComponents.PeopleList:
@@ -277,10 +274,10 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
             isShowAppbar: true,
             searchString: searchTextController.text.trim(),
             myConnectionsProvider: MyConnectionsProvider(),
-            apiController: setNewInstanceOfApiController(
-              searchComponent,
-              userId,
-            ),
+            // apiController: setNewInstanceOfApiController(
+            //   searchComponent,
+            //   userId,
+            // ),
           ),
         );
         break;
@@ -288,16 +285,16 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
         NavigationController.navigateToMyLearningScreen(
           navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
           arguments: MyLearningScreenNavigationArguments(
-            componentInsId: InstancyComponents.CatalogComponentInsId,
-            componentId: InstancyComponents.Catalog,
+            componentInsId: searchComponent.componentInstanceID,
+            componentId: InstancyComponents.MyLearning,
             isShowSearchTextField: false,
             isShowAppbar: true,
             searchString: searchTextController.text.trim(),
             myLearningProvider: MyLearningProvider(),
-            apiController: setNewInstanceOfApiController(
-              searchComponent,
-              userId,
-            ),
+            // apiController: setNewInstanceOfApiController(
+            //   searchComponent,
+            //   userId,
+            // ),
           ),
         );
         break;
@@ -305,16 +302,16 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
         NavigationController.navigateToDiscussionForumMainScreen(
           navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
           arguments: DiscussionForumScreenNavigationArguments(
-            componentInsId: InstancyComponents.CatalogComponentInsId,
-            componentId: InstancyComponents.Catalog,
+            componentInsId: searchComponent.componentInstanceID,
+            componentId: InstancyComponents.discussionForumComponent,
             isShowSearchTextField: false,
             isShowAppbar: true,
             discussionProvider: DiscussionProvider(),
             searchString: searchTextController.text.trim(),
-            apiController: setNewInstanceOfApiController(
-              searchComponent,
-              userId,
-            ),
+            // apiController: setNewInstanceOfApiController(
+            //   searchComponent,
+            //   userId,
+            // ),
           ),
         );
         break;
@@ -328,10 +325,10 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
             isShowAppbar: true,
             askTheExpertProvider: AskTheExpertProvider(),
             searchString: searchTextController.text.trim(),
-            apiController: setNewInstanceOfApiController(
-              searchComponent,
-              userId,
-            ),
+            // apiController: setNewInstanceOfApiController(
+            //   searchComponent,
+            //   userId,
+            // ),
           ),
         );
         break;
@@ -343,12 +340,13 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
             componentId: searchComponent.componentID,
             isShowSearchTextField: false,
             isShowAppbar: true,
+            siteId: searchComponent.siteID,
             eventProvider: EventProvider(),
             searchString: searchTextController.text.trim(),
-            apiController: setNewInstanceOfApiController(
-              searchComponent,
-              userId,
-            ),
+            // apiController: setNewInstanceOfApiController(
+            //   searchComponent,
+            //   userId,
+            // ),
           ),
         );
 
@@ -382,11 +380,50 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
     }).toList();
   }
 
+  Future<void> onSubmitCall({String value = ""}) async {
+    isLoading = true;
+    mySetState();
+    List<SearchComponents> searchComponent = [], addCheckComponent = [];
+
+    globalSearchProvider.globalSearchComponent.getMap().values.forEach((element) {
+      searchComponent.addAll(element);
+    });
+    for (var element in searchComponent) {
+      if (element.check) {
+        MyPrint.printOnConsole("Is Check ${element.componentID} : ${element.check}");
+        addCheckComponent.add(element);
+      }
+    }
+    if (addCheckComponent.length == 1) {
+      if (addCheckComponent.first.componentID == widget.arguments.componentId) {
+        globalSearchProvider.globalSearchListSearchString.set(value: value);
+
+        Navigator.pop(
+          context,
+          NavigatingBackFromGlobalSearchModel(
+            searchString: searchTextController.text.trim(),
+            isSuccess: true,
+            siteId: addCheckComponent.first.siteID,
+          ),
+        );
+        return;
+      }
+    }
+    globalSearchProvider.courseListBasedOnIdMap.setMap(map: {}, isClear: true);
+    // globalSearchProvider.globalSearchListSearchString.set(value: value);
+    isShowSearchComponentSelector = false;
+    await globalSearchController.getIdBasedSearchedCourseList(componentId: 225, componentInsId: 4021);
+    isLoading = false;
+    mySetState();
+
+    mySetState();
+  }
+
   @override
   void initState() {
     super.initState();
     appProvider = Provider.of<AppProvider>(context, listen: false);
-    globalSearchProvider = context.read<GlobalSearchProvider>();
+    globalSearchProvider = widget.arguments.globalSearchProvider ?? context.read<GlobalSearchProvider>();
     globalSearchController = GlobalSearchController(globalSearchProvider: globalSearchProvider);
     componentId = widget.arguments.componentId;
     filterProvider = widget.arguments.filterProvider;
@@ -395,10 +432,11 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
     filterController.initializeMainFiltersList(
       componentConfigurationsModel: componentConfigurationsModel,
     );
-
     future = getData();
+    if (widget.arguments.searchString.checkNotEmpty) {
+      searchTextController.text = widget.arguments.searchString;
+    }
   }
-
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
@@ -406,91 +444,12 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
 
     return ChangeNotifierProvider<FilterProvider>.value(
       value: filterProvider,
-      child: Consumer2<FilterProvider, GlobalSearchProvider>(
-        builder: (BuildContext context, FilterProvider filterProvider, GlobalSearchProvider globalSearchProvider, Widget? child) {
+      child: Consumer<FilterProvider>(
+        builder: (BuildContext context, FilterProvider filterProvider, Widget? child) {
           return Scaffold(
             backgroundColor: Colors.white,
             appBar: getAppBarWithTextFormField(),
             body: getMainWidget(),
-            // bottomNavigationBar: Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 13.0),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //     children: <Widget>[
-            //       Expanded(
-            //         flex: 3,
-            //         // child: CommonPrimarySecondaryButton(
-            //         child: CommonButton(
-            //           onPressed: (){
-            //             // myLearningBloc.add(ResetFilterEvent());
-            //             Navigator.pop(context);
-            //           },
-            //           // isPrimary: false,
-            //           text: appProvider.localStr.filterBtnResetbutton,
-            //         ),
-            //       ),
-            //       const SizedBox(width: 13,),
-            //       Expanded(
-            //         flex: 3,
-            //         // child: CommonPrimarySecondaryButton(
-            //         child: CommonButton(
-            //           onPressed: (){
-            //             // myLearningBloc.add(ApplyFilterEvent());
-            //             Navigator.pop(context);
-            //           },
-            //           // isPrimary: true,
-            //           text: appProvider.localStr.filterBtnApplybutton,
-            //         ),
-            //       ),
-            //       // Expanded(
-            //       //   child: OutlineButton(
-            //       //     border: Border.all(
-            //       //         color: Color(int.parse(
-            //       //             "0xFF${appBloc.uiSettingModel.appButtonBgColor.substring(1, 7).toUpperCase()}"))),
-            //       //     child: Text(appBloc.localstr.filterBtnResetbutton,
-            //       //         style: TextStyle(
-            //       //             fontSize: 14,
-            //       //             color: Color(int.parse(
-            //       //                 "0xFF${appBloc.uiSettingModel.appButtonBgColor.substring(1, 7).toUpperCase()}")))),
-            //       //     onPressed: () {
-            //       //       myLearningBloc.add(ResetFilterEvent());
-            //       //       /* Navigator.pushAndRemoveUntil(
-            //       //         context,
-            //       //         MaterialPageRoute(
-            //       //             builder: (BuildContext context) => ActBase()),
-            //       //         ModalRoute.withName('/'),
-            //       //       );*/
-            //       //       Navigator.pop(context);
-            //       //     },
-            //       //   ),
-            //       // ),
-            //       // Expanded(
-            //       //   child: MaterialButton(
-            //       //     disabledColor: Color(int.parse(
-            //       //             "0xFF${appBloc.uiSettingModel.appButtonBgColor.substring(1, 7).toUpperCase()}"))
-            //       //         .withOpacity(0.5),
-            //       //     color: Color(int.parse(
-            //       //         "0xFF${appBloc.uiSettingModel.appButtonBgColor.substring(1, 7).toUpperCase()}")),
-            //       //     child: Text(appBloc.localstr.filterBtnApplybutton,
-            //       //         style: TextStyle(
-            //       //             fontSize: 14,
-            //       //             color: Color(int.parse(
-            //       //                 "0xFF${appBloc.uiSettingModel.appButtonTextColor.substring(1, 7).toUpperCase()}")))),
-            //       //     onPressed: () {
-            //       //       myLearningBloc.add(ApplyFilterEvent());
-            //       //       /* Navigator.pushAndRemoveUntil(
-            //       //         context,
-            //       //         MaterialPageRoute(
-            //       //             builder: (BuildContext context) => ActBase()),
-            //       //         ModalRoute.withName('/'),
-            //       //       );*/
-            //       //       Navigator.pop(context);
-            //       //     },
-            //       //   ),
-            //       // ),
-            //     ],
-            //   ),
-            // ),
           );
         },
       ),
@@ -513,20 +472,19 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
           if (isShowSearchComponentSelector) {
             return getGlobalSearchComponentWidget();
           }
+          Map<SearchComponents, List<GlobalSearchCourseDTOModel>> map = globalSearchProvider.courseListBasedOnIdMap.getMap();
 
-          return Consumer<GlobalSearchProvider>(
-            builder: (context, GlobalSearchProvider globalSearchProvider, _) {
-              Map<SearchComponents, List<GlobalSearchCourseDTOModel>> map = globalSearchProvider.courseListBasedOnIdMap.getMap();
-
-              if (map.checkEmpty) {
-                return Center(child: AppConfigurations.commonNoDataView());
-              }
-              return SingleChildScrollView(
-                child: Column(
-                  children: map.entries.map((e) => getWidgetBasedOnTheId(objectType: e.key, list: e.value)).toList(),
-                ),
-              );
-            },
+          if (map.checkEmpty) {
+            return Center(child: AppConfigurations.commonNoDataView());
+          }
+          return ModalProgressHUD(
+            inAsyncCall: isLoading,
+            progressIndicator: const CommonLoader(),
+            child: SingleChildScrollView(
+              child: Column(
+                children: map.entries.map((e) => getWidgetBasedOnTheId(objectType: e.key, list: e.value)).toList(),
+              ),
+            ),
           );
         },
       ),
@@ -546,59 +504,79 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
       elevation: 1.5,
       bottom: PreferredSize(
         preferredSize: const Size(double.infinity, 20),
-        child: Row(
-          children: [
-            const SizedBox(
-              width: 10,
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: const Icon(
-                Icons.arrow_back_outlined,
-                size: 22,
+        child: Form(
+          key: formKey,
+          child: Row(
+            children: [
+              const SizedBox(
+                width: 10,
               ),
-            ),
-            const SizedBox(
-              width: 30,
-            ),
-            Expanded(
-              child: CommonTextFormField(
-                controller: searchTextController,
-                borderColor: Colors.transparent,
-                hintText: "Search",
-                onSubmitted: (String value) async {
-                  globalSearchProvider.courseListBasedOnIdMap.setMap(map: {}, isClear: true);
-                  globalSearchProvider.globalSearchListSearchString.set(value: value);
-                  isShowSearchComponentSelector = false;
-                  await globalSearchController.getIdBasedSearchedCourseList(componentId: 225, componentInsId: 4021);
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: const Icon(
+                  Icons.arrow_back_outlined,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(
+                width: 30,
+              ),
+              Expanded(
+                child: CommonTextFormField(
+                  controller: searchTextController,
+                  borderColor: Colors.transparent,
+                  hintText: "Search",
+                  node: focusNode,
+                  onSubmitted: (String value) async {
+                    // if(formKey.currentState?.validate() ?? false){
+                    if (searchTextController.text.trim().checkEmpty) {
+                      MyToast.showError(context: context, msg: "Please enter the text");
+                      return;
+                    }
+                    await onSubmitCall(value: value);
+                    mySetState();
+                    // },
+                  },
+                  focusedBorderColor: Colors.transparent,
+                  validator: (String? val) {
+                    if (val == null || val.checkEmpty) {
+                      return "Please enter the value";
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: const Icon(Icons.close),
+              ),
+              InkWell(
+                onTap: () {
+                  // sortBottomSheet();
+                  FocusScope.of(context).requestFocus(focusNode);
+                  isShowSearchComponentSelector = !isShowSearchComponentSelector;
                   mySetState();
                 },
-                focusedBorderColor: Colors.transparent,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 9.0),
+                  child: AppConfigurations().getImageView(url: "assets/orderList.png", width: 18, height: 18),
+                ),
               ),
-            ),
-            InkWell(
-              onTap: () {
-                // sortBottomSheet();
-                isShowSearchComponentSelector = !isShowSearchComponentSelector;
-                mySetState();
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 9.0),
-                child: AppConfigurations().getImageView(url: "assets/orderList.png", width: 18, height: 18),
-              ),
-            ),
-            // InkWell(
-            //   onTap: () {
-            //     filterOnTap();
-            //   },
-            //   child: Padding(
-            //     padding: const EdgeInsets.symmetric(horizontal: 9.0).copyWith(right: 12),
-            //     child: AppConfigurations().getImageView(url: "assets/filters.png", width: 18, height: 18),
-            //   ),
-            // ),
-          ],
+              // InkWell(
+              //   onTap: () {
+              //     filterOnTap();
+              //   },
+              //   child: Padding(
+              //     padding: const EdgeInsets.symmetric(horizontal: 9.0).copyWith(right: 12),
+              //     child: AppConfigurations().getImageView(url: "assets/filters.png", width: 18, height: 18),
+              //   ),
+              // ),
+            ],
+          ),
         ),
       ),
     );
@@ -706,11 +684,16 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
       child: Row(
         children: [
           Visibility(
-              visible: isIconVisible,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: AppConfigurations().getImageView(url: iconAsset, width: 18, height: 18),
-              )),
+            visible: isIconVisible,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: coursesIcon(
+                assetName: iconAsset,
+              ),
+
+              // child: AppConfigurations().getImageView(url: iconAsset, width: 18, height: 18),
+            ),
+          ),
           Expanded(
             child: Text(
               text,
@@ -774,12 +757,60 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
 
   //endregion
 
+  Widget myLearningListComponent() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: BoxDecoration(border: Border.all(color: Colors.grey.withOpacity(0.5)), borderRadius: BorderRadius.circular(7)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 14.0,
+        ).copyWith(top: 10, bottom: 10),
+        child: Row(
+          children: [
+            ClipRRect(borderRadius: BorderRadius.circular(5), child: CachedNetworkImage(imageUrl: "https://picsum.photos/300", height: 50, width: 50, fit: BoxFit.cover)),
+            const SizedBox(
+              width: 15,
+            ),
+            Expanded(
+                child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Design Classroom",
+                  style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.black, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  "Manoj Kumar",
+                  style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 11),
+                ),
+              ],
+            )),
+            const Icon(
+              Icons.more_vert,
+              size: 20,
+            )
+            // AppConfigurations().getImageView(url: "assets/arrowUpLeft.png",height: 13,width: 13),
+          ],
+        ),
+      ),
+    );
+  }
+
+  //endregion  // region getMyLearningView
+
   //region Result View
   Widget getResultComponentWidget({required SearchComponents searchComponents, required List<GlobalSearchCourseDTOModel> list}) {
     if (list.checkEmpty) return const SizedBox();
     return Column(
       children: [
-        getBackgroundGreyText("${searchComponents.name} - ${searchComponents.siteName}", isIconVisible: true, iconAsset: "assets/myLearningText.png"),
+        getBackgroundGreyText(
+          "${searchComponents.name} - ${searchComponents.siteName}",
+          isIconVisible: true,
+          iconAsset: AppConfigurations.getContentIconFromObjectAndMediaType(objectTypeId: 8, mediaTypeId: 61),
+        ),
         getComponentItemList(list: list, searchComponents: searchComponents),
         CommonButton(
           text: "See All",
@@ -789,10 +820,20 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
             onSeeAllTap(searchComponent: searchComponents, userId: userId);
           },
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
       ],
+    );
+  }
+
+  Widget coursesIcon({String assetName = ""}) {
+    return Image.asset(
+      "assets/catalog_gs.png",
+      height: 15,
+      width: 15,
+      fit: BoxFit.cover,
+      color: Colors.black,
     );
   }
 
@@ -813,7 +854,6 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
         imagePath: model.ThumbnailImagePath,
       ),
     );
-    MyPrint.printOnConsole("profileImageUrl $profileImageUrl");
     Widget? getThumbNailWidget;
     if (searchComponents.componentID == InstancyComponents.PeopleList) {
       if (profileImageUrl.checkEmpty) {
@@ -825,7 +865,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
           child: Center(
             child: Text(
               nameInitials,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
               ),
@@ -857,7 +897,10 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
         ).copyWith(top: 10, bottom: 10),
         child: Row(
           children: [
-            if (searchComponents.componentID == InstancyComponents.PeopleList) ClipRRect(borderRadius: BorderRadius.circular(5), child: getThumbNailWidget),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: getThumbNailWidget,
+            ),
             const SizedBox(
               width: 15,
             ),
@@ -873,7 +916,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
                     height: 5,
                   ),
                   Text(
-                    model.SiteName,
+                    model.AuthorName,
                     style: themeData.textTheme.bodyMedium?.copyWith(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 11),
                   ),
                 ],
@@ -899,6 +942,8 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
 
   Widget getGlobalSearchComponentWidget() {
     return GlobalSearchComponent(
+      componentName: widget.arguments.componentName,
+      componentId: widget.arguments.componentId,
       globalSearchProvider: globalSearchProvider,
     );
   }

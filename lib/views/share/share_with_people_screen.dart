@@ -397,7 +397,11 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
                       message: message,
                       forumId: widget.arguments.forumId,
                       contentId: widget.arguments.contentId,
-                      questionId: widget.arguments.responseId != 0 ? widget.arguments.responseId.toString() : widget.arguments.questionId.toString(),
+                      questionId: widget.arguments.responseId == null
+                          ? ""
+                          : widget.arguments.responseId != 0
+                              ? widget.arguments.responseId.toString()
+                              : widget.arguments.questionId.toString(),
                     );
                   } else {
                     isShared = await shareController.shareWithConnections(
@@ -408,7 +412,11 @@ class _ShareWithPeopleScreenState extends State<ShareWithPeopleScreen> with MySa
                       contentId: widget.arguments.contentId,
                       scoId: widget.arguments.scoId,
                       objecttypeId: widget.arguments.objecttypeId,
-                      questionId: widget.arguments.responseId != 0 ? widget.arguments.responseId.toString() : widget.arguments.questionId.toString(),
+                      questionId: widget.arguments.responseId == null
+                          ? ""
+                          : widget.arguments.responseId != 0
+                              ? widget.arguments.responseId.toString()
+                              : widget.arguments.questionId.toString(),
                     );
                   }
 

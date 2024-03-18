@@ -6,6 +6,7 @@ import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provide
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/ask_the_expert/questions/question_ui_action_controller.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/data_model/ask_the_expert_dto.dart';
+import 'package:flutter_instancy_2/models/common/navigatingBackFromGlobalSearchModel.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/ask_the_expert/component/questionAnswerCard.dart';
@@ -378,15 +379,23 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
             child: CommonTextFormField(
               isOutlineInputBorder: true,
               borderRadius: 30,
-              onTap: () {
-                NavigationController.navigateToGlobalSearchScreen(
+              onTap: () async {
+                NavigatingBackFromGlobalSearchModel? val = await NavigationController.navigateToGlobalSearchScreen(
                   navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
                   arguments: GlobalSearchScreenNavigationArguments(
-                    componentId: componentId,
-                    componentInsId: componentInstanceId,
-                    filterProvider: context.read<FilterProvider>(),
-                    componentConfigurationsModel: ComponentConfigurationsModel(),
-                  ),
+                      componentId: componentId,
+                      componentInsId: componentInstanceId,
+                      filterProvider: context.read<FilterProvider>(),
+                      componentConfigurationsModel: ComponentConfigurationsModel(),
+                      componentName: "Ask the expert"),
+                );
+                if (val == null || val.isSuccess == false) return;
+                askTheExpertProvider.questionListSearchString.set(value: val.searchString);
+                textEditingController.text = val.searchString;
+                getQuestionList(
+                  isRefresh: true,
+                  isGetFromCache: false,
+                  isNotify: false,
                 );
               },
               onChanged: (val) {

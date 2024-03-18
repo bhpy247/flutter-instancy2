@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_provider.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 
 import '../../../configs/app_constants.dart';
 import '../../../models/filter/data_model/content_filter_category_tree_model.dart';
@@ -32,7 +34,7 @@ class _SelectedFiltersListviewComponentState extends State<SelectedFiltersListvi
     super.pageBuild();
 
     List<Widget> selectedFilterWidget = getFilterChipsList(filterProvider: widget.filterProvider).toList();
-
+    MyPrint.printOnConsole("selectedFilterWidget :$selectedFilterWidget");
     if (selectedFilterWidget.isNotEmpty) {
       return Row(
         children: [
@@ -134,13 +136,15 @@ class _SelectedFiltersListviewComponentState extends State<SelectedFiltersListvi
       List<LearningProviderModel> selectedModels = filterProvider.selectedLearningProviders.getList();
       int length = selectedModels.length;
 
-      yield getFilterChipWidget(
-        name: "${selectedModels.first.LearningProviderName}${length > 1 ? " ($length)" : ""}",
-        hasMoreValues: selectedModels.length > 1,
-        onTap: () {
-          if(widget.onFilterChipTap != null) widget.onFilterChipTap!(contentFilterByTypes: ContentFilterByTypes.learningprovider);
-        },
-      );
+      if (selectedModels.first.LearningProviderName.checkNotEmpty) {
+        yield getFilterChipWidget(
+          name: "${selectedModels.first.LearningProviderName}${length > 1 ? " ($length)" : ""}",
+          hasMoreValues: selectedModels.length > 1,
+          onTap: () {
+            if (widget.onFilterChipTap != null) widget.onFilterChipTap!(contentFilterByTypes: ContentFilterByTypes.learningprovider);
+          },
+        );
+      }
     }
     if (filterProvider.selectedInstructor.length > 0) {
       List<InstructorUserModel> selectedModels = filterProvider.selectedInstructor.getList();

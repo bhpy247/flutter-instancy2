@@ -12,6 +12,7 @@ import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/models/catalog/request_model/add_content_to_my_learning_request_model.dart';
 import 'package:flutter_instancy_2/models/filter/data_model/content_filter_category_tree_model.dart';
+import 'package:flutter_instancy_2/models/filter/data_model/learning_provider_model.dart';
 import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
@@ -37,6 +38,7 @@ import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
 import '../../../models/catalog/catalogCategoriesForBrowseModel.dart';
 import '../../../models/catalog/response_model/removeFromWishlistModel.dart';
+import '../../../models/common/navigatingBackFromGlobalSearchModel.dart';
 import '../../../models/common/pagination/pagination_model.dart';
 import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../models/course_launch/data_model/course_launch_model.dart';
@@ -107,6 +109,14 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
     MyPrint.printOnConsole("componentId: $componentId componentinstance $componentInstanceId");
 
     selectedCategoryId = widget.arguments.selectedCategory;
+    if (widget.arguments.subSiteId != null) {
+      catalogProvider.filterProvider.selectedLearningProviders.setList(
+        list: [
+          LearningProviderModel(SiteID: widget.arguments.subSiteId ?? 0),
+        ],
+      );
+    }
+
     if (selectedCategoryId != null) {
       catalogProvider.filterProvider.setEnabledContentFilterByTypeModelFromList(filterByList: [ContentFilterByTypes.categories], isNotify: false);
       catalogProvider.filterProvider.selectedCategories.setList(
@@ -116,7 +126,9 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
       );
     }
     pathList = widget.arguments.categoriesListForPath;
-
+    if (widget.arguments.searchString.checkNotEmpty) {
+      catalogProvider.catalogContentSearchString.set(value: widget.arguments.searchString);
+    }
     NativeMenuComponentModel? componentModel = appProvider.getMenuComponentModelFromComponentId(componentId: componentId);
     if (componentModel != null) {
       catalogController.initializeCatalogConfigurationsFromComponentConfigurationsModel(
@@ -127,7 +139,6 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
         isWikiButtonEnabled = true;
       }
     }
-    if (widget.arguments.apiController != null) {}
 
     if (catalogProvider.catalogContentLength == 0) {
       getCatalogContentsList(
@@ -536,12 +547,13 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
         navigationType: NavigationType.pushNamed,
       ),
       arguments: CourseDetailScreenNavigationArguments(
-          contentId: model.ContentID,
-          componentId: componentId,
-          componentInstanceId: componentInstanceId,
-          userId: model.SiteUserID,
-          screenType: InstancyContentScreenType.Catalog,
-          apiController: widget.arguments.apiController),
+        contentId: model.ContentID,
+        componentId: componentId,
+        componentInstanceId: componentInstanceId,
+        userId: model.SiteUserID,
+        siteId: widget.arguments.subSiteId,
+        screenType: InstancyContentScreenType.Catalog,
+          courseDtoModel: model),
     );
     MyPrint.printOnConsole("CourseDetailScreen return value:$value");
 
@@ -1216,18 +1228,41 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
       child: SizedBox(
         height: 40,
         child: CommonTextFormField(
-          onTap: () {
+          onTap: () async {
             MyPrint.printOnConsole("Hello");
             FocusScope.of(context).requestFocus(FocusNode());
-            NavigationController.navigateToGlobalSearchScreen(
+            NavigatingBackFromGlobalSearchModel? val = await NavigationController.navigateToGlobalSearchScreen(
               navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
               arguments: GlobalSearchScreenNavigationArguments(
-                componentId: componentId,
-                componentInsId: componentInstanceId,
-                filterProvider: context.read<FilterProvider>(),
-                componentConfigurationsModel: ComponentConfigurationsModel(),
-              ),
+                  componentName: "Catalog",
+                  componentId: componentId,
+                  componentInsId: componentInstanceId,
+                  filterProvider: context.read<FilterProvider>(),
+                  componentConfigurationsModel: ComponentConfigurationsModel(),
+                  searchString: textEditingController.text.trim()),
             );
+            if (val == null) return;
+
+            if (val.isSuccess) {
+              if (val.searchString.checkNotEmpty) {
+                catalogProvider.catalogContentSearchString.set(value: val.searchString);
+                textEditingController.text = val.searchString;
+              }
+              if (val.siteId != 0) {
+                catalogProvider.filterProvider.selectedLearningProviders.setList(
+                  list: [
+                    LearningProviderModel(SiteID: val.siteId),
+                  ],
+                );
+              }
+              MyPrint.printOnConsole("val.siteId : ${val.siteId} , ${val.searchString}");
+              mySetState();
+              getCatalogContentsList(
+                isRefresh: true,
+                isGetFromCache: false,
+                isNotify: true,
+              );
+            }
           },
           borderRadius: 50,
           boxConstraints: const BoxConstraints(minWidth: 55),

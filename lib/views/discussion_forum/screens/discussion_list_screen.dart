@@ -21,6 +21,7 @@ import '../../../configs/app_constants.dart';
 import '../../../models/app_configuration_models/data_models/component_configurations_model.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
+import '../../../models/common/navigatingBackFromGlobalSearchModel.dart';
 import '../../../models/common/pagination/pagination_model.dart';
 import '../../../models/discussion/data_model/forum_model.dart';
 import '../../../utils/my_print.dart';
@@ -370,16 +371,25 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
       child: CommonTextFormField(
         isOutlineInputBorder: true,
         borderRadius: 30,
-        onTap: () {
-          NavigationController.navigateToGlobalSearchScreen(
+        onTap: () async {
+          NavigatingBackFromGlobalSearchModel? val = await NavigationController.navigateToGlobalSearchScreen(
             navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
             arguments: GlobalSearchScreenNavigationArguments(
-              componentId: componentId,
-              componentInsId: componentInstanceId,
-              filterProvider: context.read<FilterProvider>(),
-              componentConfigurationsModel: ComponentConfigurationsModel(),
-            ),
+                componentId: componentId,
+                componentInsId: componentInstanceId,
+                filterProvider: context.read<FilterProvider>(),
+                componentConfigurationsModel: ComponentConfigurationsModel(),
+                componentName: "Discussion"),
           );
+          if (val == null || val.isSuccess == false) return;
+          discussionProvider.forumListSearchString.set(value: val.searchString);
+          textEditingController.text = val.searchString;
+          getDiscussionForumList(
+            isRefresh: true,
+            isGetFromCache: false,
+            isNotify: false,
+          );
+          mySetState();
         },
         onChanged: (val) {
           mySetState();

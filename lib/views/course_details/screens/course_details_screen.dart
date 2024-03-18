@@ -143,22 +143,26 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
       isRefresh: true,
     );
 
-    await courseDetailsController.getCourseDetailsData(
-      userId: widget.arguments.userId,
-      requestModel: CourseDetailsRequestModel(
-        ContentID: contentId,
-        intUserID: userId,
-        metadata: 1,
-        ComponentID: componentId,
-        DetailsCompID: InstancyComponents.Details,
-        DetailsCompInsID: InstancyComponents.DetailsComponentInsId,
-        MultiInstanceEventEnroll: widget.arguments.isRescheduleEvent
-            ? "rescheduleenroll"
-            : widget.arguments.isReEnroll
-                ? "reenroll"
-            : "",
-      ),
-    );
+    if (widget.arguments.courseDtoModel != null) {
+      courseDetailsProvider.contentDetailsDTOModel.set(value: widget.arguments.courseDtoModel);
+    } else {
+      await courseDetailsController.getCourseDetailsData(
+        siteId: widget.arguments.siteId,
+        requestModel: CourseDetailsRequestModel(
+          ContentID: contentId,
+          intUserID: userId,
+          metadata: 1,
+          ComponentID: componentId,
+          DetailsCompID: InstancyComponents.Details,
+          DetailsCompInsID: InstancyComponents.DetailsComponentInsId,
+          MultiInstanceEventEnroll: widget.arguments.isRescheduleEvent
+              ? "rescheduleenroll"
+              : widget.arguments.isReEnroll
+                  ? "reenroll"
+                  : "",
+        ),
+      );
+    }
 
     CourseDTOModel? contentDetailsDTOModel = courseDetailsProvider.contentDetailsDTOModel.get();
     MyPrint.printOnConsole("contentDetailsDTOModel.ContentTypeId:${contentDetailsDTOModel?.ContentTypeId}");
@@ -1224,21 +1228,21 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
     appProvider = context.read<AppProvider>();
 
     courseDetailsProvider = CourseDetailsProvider();
-    courseDetailsController = CourseDetailsController(courseDetailsProvider: courseDetailsProvider, apiController: widget.arguments.apiController);
+    courseDetailsController = CourseDetailsController(courseDetailsProvider: courseDetailsProvider);
 
     catalogProvider = widget.arguments.catalogProvider ?? CatalogProvider();
-    catalogController = CatalogController(provider: catalogProvider, apiController: widget.arguments.apiController);
+    catalogController = CatalogController(provider: catalogProvider);
 
     profileProvider = context.read<ProfileProvider>();
 
     myLearningProvider = widget.arguments.myLearningProvider ?? MyLearningProvider();
-    myLearningController = MyLearningController(provider: myLearningProvider, apiController: widget.arguments.apiController);
+    myLearningController = MyLearningController(provider: myLearningProvider);
 
     contentReviewRatingsProvider = ContentReviewRatingsProvider();
-    contentReviewRatingsController = ContentReviewRatingsController(contentReviewRatingsProvider: contentReviewRatingsProvider, apiController: widget.arguments.apiController);
+    contentReviewRatingsController = ContentReviewRatingsController(contentReviewRatingsProvider: contentReviewRatingsProvider);
 
     eventProvider = EventProvider();
-    eventController = EventController(eventProvider: eventProvider, apiController: widget.arguments.apiController);
+    eventController = EventController(eventProvider: eventProvider);
 
     courseDownloadProvider = context.read<CourseDownloadProvider>();
     courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);

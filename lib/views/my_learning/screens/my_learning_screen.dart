@@ -7,6 +7,7 @@ import 'package:flutter_instancy_2/backend/course_download/course_download_provi
 import 'package:flutter_instancy_2/backend/course_launch/course_launch_controller.dart';
 import 'package:flutter_instancy_2/backend/event/event_controller.dart';
 import 'package:flutter_instancy_2/backend/filter/filter_controller.dart';
+import 'package:flutter_instancy_2/backend/global_search/global_search_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_controller.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
@@ -40,6 +41,7 @@ import '../../../backend/ui_actions/my_learning/my_learning_ui_actions_controlle
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import '../../../models/app_configuration_models/data_models/local_str.dart';
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
+import '../../../models/common/navigatingBackFromGlobalSearchModel.dart';
 import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../models/course_launch/data_model/course_launch_model.dart';
 import '../../../models/event_track/request_model/view_recording_request_model.dart';
@@ -1372,15 +1374,25 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20),
       child: CommonTextFormField(
         enabled: true,
-        onTap: () {
-          NavigationController.navigateToGlobalSearchScreen(
+        onTap: () async {
+          FocusScope.of(context).requestFocus(FocusNode());
+          NavigatingBackFromGlobalSearchModel? val = await NavigationController.navigateToGlobalSearchScreen(
             navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
             arguments: GlobalSearchScreenNavigationArguments(
-              componentId: componentId,
-              componentInsId: componentInstanceId,
-              filterProvider: context.read<FilterProvider>(),
-              componentConfigurationsModel: ComponentConfigurationsModel(),
-            ),
+                componentId: componentId,
+                componentInsId: componentInstanceId,
+                globalSearchProvider: GlobalSearchProvider(),
+                filterProvider: context.read<FilterProvider>(),
+                componentConfigurationsModel: ComponentConfigurationsModel(),
+                componentName: "My Learning"),
+          );
+          if (val == null || val.isSuccess == false) return;
+          myLearningProvider.setMyLearningSearchString(value: val.searchString);
+          searchController.text = val.searchString;
+          getMyLearningContentsList(
+            isRefresh: true,
+            isGetFromCache: false,
+            isNotify: false,
           );
         },
         onSubmitted: onSubmitted,

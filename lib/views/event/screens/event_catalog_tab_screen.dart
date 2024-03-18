@@ -55,6 +55,7 @@ class _EventCatalogTabScreenState extends State<EventCatalogTabScreen> with MySa
       return EventCatalogListScreen(
         arguments: EventCatalogListScreenNavigationArguments(
             tabId: tabDataModel.TabID,
+            siteId: widget.arguments.siteId,
             tabDataModel: tabDataModel,
             enableSearching: ([EventCatalogTabTypes.calendarView].contains(tabDataModel.TabID)) ? widget.arguments.enableSearching : false,
             // searchString: widget.arguments.searchString,

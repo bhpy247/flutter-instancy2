@@ -82,15 +82,16 @@ class CatalogRepository {
     MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
-        restCallType: RestCallType.simplePostCall,
-        parsingType: ModelDataParsingType.catalogResponseDTOModel,
-        url: apiEndpoints.getCatalogContents(),
-        requestBody: MyUtils.encodeJson(requestModel.toJson()),
-        isGetDataFromHive: isFromOffline,
-        isStoreDataInHive: isStoreDataInHive,
-        userId: userId,
-        siteUrl: clientUrl,
-        siteId: siteId);
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.catalogResponseDTOModel,
+      url: apiEndpoints.getCatalogContents(),
+      requestBody: MyUtils.encodeJson(requestModel.toJson()),
+      isGetDataFromHive: isFromOffline,
+      isStoreDataInHive: isStoreDataInHive,
+      // userId: userId,
+      // siteUrl: clientUrl,
+      // siteId: siteId,
+    );
 
     DataResponseModel<CatalogResponseDTOModel> apiResponseModel = await apiController.callApi<CatalogResponseDTOModel>(
       apiCallModel: apiCallModel,

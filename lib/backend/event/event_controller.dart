@@ -146,6 +146,7 @@ class EventController {
     bool isRefresh = true,
     bool isGetFromCache = false,
     bool isNotify = true,
+    int? siteId,
     required String tabId,
     required int componentId,
     required int componentInstanceId,
@@ -217,7 +218,7 @@ class EventController {
       componentInstanceId: componentInstanceId,
       apiUrlConfigurationProvider: apiUrlConfigurationProvider,
       isWishList: false,
-    );
+        siteId: siteId);
     //endregion
 
     //region Make Api Call
@@ -317,7 +318,7 @@ class EventController {
     required int componentInstanceId,
     required ApiUrlConfigurationProvider apiUrlConfigurationProvider,
     required bool isWishList,
-  }) {
+    int? siteId}) {
     FilterProvider filterProvider = eventProvider.filterProvider;
     EnabledContentFilterByTypeModel? enabledContentFilterByTypeModel = !isWishList ? filterProvider.getEnabledContentFilterByTypeModel(isNewInstance: false) : null;
 
@@ -388,6 +389,7 @@ class EventController {
       orgUnitID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentSiteId()),
       locale: apiUrlConfigurationProvider.getLocale().isNotEmpty ? apiUrlConfigurationProvider.getLocale() : "en-us",
       pageIndex: pageIndex,
+      learningprotals: "$siteId",
       // pageSize: 500,
       pageSize: pageSize,
       contentID: "",

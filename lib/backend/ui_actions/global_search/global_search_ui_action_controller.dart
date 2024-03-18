@@ -49,7 +49,7 @@ class GlobalSearchUiActionController {
   }
 
   bool showShareWithConnection({required GlobalSearchUiActionParameterModel parameterModel}) {
-    return parameterModel.actionSuggestConnection.checkNotEmpty;
+    return parameterModel.actionSharewithFriends.checkNotEmpty;
   }
 
   bool showShareWithPeople({required GlobalSearchUiActionParameterModel parameterModel}) {
@@ -101,8 +101,8 @@ class GlobalSearchUiActionController {
   }) {
     return GlobalSearchUiActionParameterModel(
       CreatedUserID: globalSearchCourseDtoModel.UserSiteId,
-      actionSharewithFriends: globalSearchCourseDtoModel.Sharelink,
-      actionSuggestConnection: globalSearchCourseDtoModel.ShareContentwithUser,
+      actionSharewithFriends: globalSearchCourseDtoModel.SuggestwithFriendLink,
+      actionSuggestConnection: globalSearchCourseDtoModel.SuggesttoConnLink,
       ViewProfileLink: globalSearchCourseDtoModel.ViewProfileLink,
       addLink: globalSearchCourseDtoModel.AddLink,
       detailsLink: globalSearchCourseDtoModel.DetailsLink,

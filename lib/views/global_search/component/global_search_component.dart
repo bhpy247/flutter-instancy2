@@ -6,8 +6,10 @@ import 'package:flutter_instancy_2/models/global_search/response_model/global_se
 
 class GlobalSearchComponent extends StatefulWidget {
   final GlobalSearchProvider globalSearchProvider;
+  final String componentName;
+  final int componentId;
 
-  const GlobalSearchComponent({super.key, required this.globalSearchProvider});
+  const GlobalSearchComponent({super.key, required this.globalSearchProvider, required this.componentName, required this.componentId});
 
   @override
   State<GlobalSearchComponent> createState() => _GlobalSearchComponentState();
@@ -17,6 +19,7 @@ class _GlobalSearchComponentState extends State<GlobalSearchComponent> with MySa
   bool isAllChecked = true;
   late GlobalSearchProvider globalSearchProvider;
   Map<String, List<SearchComponents>> list = {};
+  bool isCurrentCheckedBoxSelected = true;
 
   List<SearchComponents> _setValueCheckValueToTrue(List<SearchComponents> list, bool value) {
     return list.map((e) {
@@ -34,6 +37,18 @@ class _GlobalSearchComponentState extends State<GlobalSearchComponent> with MySa
     globalSearchProvider.globalSearchComponent.setMap(map: list, isNotify: false);
   }
 
+  void changeOnlyTheComponentId({required int componentId, required bool changedValue}) {
+    Map<String, List<SearchComponents>> tempList = list;
+    tempList.forEach((key, value2) {
+      for (var element in value2) {
+        if (element.componentID == componentId) {
+          element.check = changedValue;
+        }
+      }
+      list.update(key, (value) => value2);
+    });
+  }
+
   void updateTheValueOfMap({required String key, required List<SearchComponents> mapValue}) {
     globalSearchProvider.updateSearchComponentMap(key: key, list: mapValue);
   }
@@ -41,17 +56,32 @@ class _GlobalSearchComponentState extends State<GlobalSearchComponent> with MySa
   @override
   void initState() {
     super.initState();
-    MyPrint.printOnConsole("isInitiCalled");
+    MyPrint.printOnConsole("isInitCalled");
     globalSearchProvider = widget.globalSearchProvider;
     list = globalSearchProvider.globalSearchComponent.getMap();
-    // isAllChecked = globalSearchProvider.isAllChecked.get();
-    // changeTheValueOfAllCheckBox(isAllChecked);
   }
 
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
     return Scaffold(body: getGlobalSearchComponent(list: list));
+  }
+
+  Widget getCurrentScreenWidget() {
+    return CheckboxListTile(
+      dense: true,
+      controlAffinity: ListTileControlAffinity.leading,
+      contentPadding: EdgeInsets.zero,
+      value: isCurrentCheckedBoxSelected,
+      onChanged: (bool? val) {
+        isCurrentCheckedBoxSelected = val ?? false;
+        changeOnlyTheComponentId(componentId: widget.componentId, changedValue: isCurrentCheckedBoxSelected);
+        mySetState();
+      },
+      title: Text(
+        widget.componentName,
+      ),
+    );
   }
 
   Widget getGlobalSearchComponent({required Map<String, List<SearchComponents>> list}) {
@@ -71,6 +101,7 @@ class _GlobalSearchComponentState extends State<GlobalSearchComponent> with MySa
             contentPadding: EdgeInsets.zero,
             title: const Text("All"),
           ),
+          getCurrentScreenWidget(),
           Column(
             children: list.entries
                 .map(

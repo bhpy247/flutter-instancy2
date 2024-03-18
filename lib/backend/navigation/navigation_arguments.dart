@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
+import 'package:flutter_instancy_2/backend/global_search/global_search_provider.dart';
 import 'package:flutter_instancy_2/backend/in_app_purchase/in_app_purchase_provider.dart';
 import 'package:flutter_instancy_2/backend/lens_feature/lens_provider.dart';
 import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
@@ -94,13 +95,18 @@ class GlobalSearchScreenNavigationArguments extends NavigationArguments {
   final int componentInsId;
   final FilterProvider filterProvider;
   final ComponentConfigurationsModel componentConfigurationsModel;
+  final String componentName;
+  final String searchString;
+  final GlobalSearchProvider? globalSearchProvider;
 
-  const GlobalSearchScreenNavigationArguments({
-    required this.componentId,
-    required this.componentInsId,
-    required this.filterProvider,
-    required this.componentConfigurationsModel,
-  });
+  const GlobalSearchScreenNavigationArguments(
+      {required this.componentId,
+      required this.componentInsId,
+      required this.filterProvider,
+      required this.componentConfigurationsModel,
+      required this.componentName,
+      this.searchString = "",
+      this.globalSearchProvider});
 }
 
 class SortingScreenNavigationArguments extends NavigationArguments {
@@ -193,7 +199,7 @@ class ShareWithPeopleScreenNavigationArguments extends NavigationArguments {
   final int forumId;
   final int scoId;
   final int objecttypeId;
-  final int responseId;
+  final int? responseId;
   final int questionId;
   final bool isSuggestToConnections;
   final List<int>? userIds;
@@ -207,7 +213,7 @@ class ShareWithPeopleScreenNavigationArguments extends NavigationArguments {
     this.scoId = 0,
     this.questionId = 0,
     this.objecttypeId = 0,
-    this.responseId = 0,
+    this.responseId,
     this.isSuggestToConnections = false,
     this.userIds,
   });
@@ -266,6 +272,7 @@ class CourseDetailScreenNavigationArguments extends NavigationArguments {
   final int componentId;
   final int componentInstanceId;
   final int? userId;
+  final int? siteId;
   final bool isFromCatalog;
   final bool isConsolidated;
   final bool isRescheduleEvent;
@@ -274,23 +281,25 @@ class CourseDetailScreenNavigationArguments extends NavigationArguments {
   final MyLearningProvider? myLearningProvider;
   final CatalogProvider? catalogProvider;
   final ApiController? apiController;
+  final CourseDTOModel? courseDtoModel;
 
-  const CourseDetailScreenNavigationArguments({
-    required this.contentId,
-    this.parentEventId = "",
-    this.parentTrackId = "",
-    required this.componentId,
-    required this.componentInstanceId,
-    required this.userId,
-    this.isFromCatalog = false,
-    this.isConsolidated = false,
-    this.isRescheduleEvent = false,
+  const CourseDetailScreenNavigationArguments(
+      {required this.contentId,
+      this.parentEventId = "",
+      this.parentTrackId = "",
+      required this.componentId,
+      required this.componentInstanceId,
+      required this.userId,
+      this.isFromCatalog = false,
+      this.isConsolidated = false,
+      this.isRescheduleEvent = false,
     this.isReEnroll = false,
     this.screenType = InstancyContentScreenType.Catalog,
     this.myLearningProvider,
     this.catalogProvider,
     this.apiController,
-  });
+    this.siteId,
+    this.courseDtoModel});
 }
 
 class PreRequisiteScreenNavigationArguments extends NavigationArguments {
@@ -506,6 +515,7 @@ class EventCatalogListScreenNavigationArguments extends NavigationArguments {
   final String searchString;
   final bool isShowSearchTextField;
   final ApiController? apiController;
+  final int? siteId;
 
   const EventCatalogListScreenNavigationArguments(
       {this.tabId,
@@ -517,7 +527,8 @@ class EventCatalogListScreenNavigationArguments extends NavigationArguments {
       required this.componentInsId,
       this.searchString = "",
       this.isShowSearchTextField = true,
-      this.apiController});
+      this.apiController,
+      this.siteId});
 }
 
 class LensScreenNavigationArguments extends NavigationArguments {
@@ -799,17 +810,18 @@ class EventCatalogTabScreenNavigationArguments extends NavigationArguments {
   final int componentId;
   final int componentInsId;
   final ApiController? apiController;
+  final int? siteId;
 
-  const EventCatalogTabScreenNavigationArguments({
-    this.eventProvider,
-    this.enableSearching = true,
-    required this.componentId,
-    required this.componentInsId,
-    this.searchString = "",
-    this.isShowSearchTextField = true,
-    this.isShowAppbar = false,
-    this.apiController,
-  });
+  const EventCatalogTabScreenNavigationArguments(
+      {this.eventProvider,
+      this.enableSearching = true,
+      required this.componentId,
+      required this.componentInsId,
+      this.searchString = "",
+      this.isShowSearchTextField = true,
+      this.isShowAppbar = false,
+      this.apiController,
+      this.siteId});
 }
 
 class UserMessageListScreenNavigationArguments extends NavigationArguments {
@@ -832,6 +844,7 @@ class CatalogContentsListScreenNavigationArguments extends NavigationArguments {
   final bool isShowSearchTextField;
   final bool isShowAppbar;
   final ApiController? apiController;
+  final int? subSiteId;
 
   CatalogContentsListScreenNavigationArguments({
     required this.componentInstanceId,
@@ -845,6 +858,7 @@ class CatalogContentsListScreenNavigationArguments extends NavigationArguments {
     this.isShowSearchTextField = true,
     this.isShowAppbar = false,
     this.apiController,
+    this.subSiteId,
     List<CatalogCategoriesForBrowseModel>? categoriesListForPath,
   }) {
     this.categoriesListForPath = categoriesListForPath ?? [];

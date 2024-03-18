@@ -22,6 +22,7 @@ import 'package:provider/provider.dart';
 
 import '../../../backend/filter/filter_provider.dart';
 import '../../../models/app_configuration_models/data_models/component_configurations_model.dart';
+import '../../../models/common/navigatingBackFromGlobalSearchModel.dart';
 
 class ConnectionsListScreen extends StatefulWidget {
   final MyConnectionsProvider? myConnectionsProvider;
@@ -265,15 +266,24 @@ class _ConnectionsListScreenState extends State<ConnectionsListScreen> with MySa
             child: CommonTextFormField(
               isOutlineInputBorder: true,
               borderRadius: 30,
-              onTap: () {
-                NavigationController.navigateToGlobalSearchScreen(
+              onTap: () async {
+                NavigatingBackFromGlobalSearchModel? val = await NavigationController.navigateToGlobalSearchScreen(
                   navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
                   arguments: GlobalSearchScreenNavigationArguments(
                     componentId: componentId,
+                    componentName: "My Connection",
                     componentInsId: widget.componentInsId,
                     filterProvider: context.read<FilterProvider>(),
                     componentConfigurationsModel: ComponentConfigurationsModel(),
                   ),
+                );
+                if (val == null || val.isSuccess == false) return;
+                myConnectionsProvider.peopleListSearchString.set(value: val.searchString);
+                textEditingController.text = val.searchString;
+                getConnectionsList(
+                  isRefresh: true,
+                  isGetFromCache: false,
+                  isNotify: false,
                 );
               },
               onChanged: (val) {
