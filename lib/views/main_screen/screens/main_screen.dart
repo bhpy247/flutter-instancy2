@@ -31,10 +31,11 @@ import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/configs/ui_configurations.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
-import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/views/ask_the_expert/screen/quesionAndAnswerMainScreen.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/catalog_categories_list_screen.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
+import 'package:flutter_instancy_2/views/common/components/course_offline_syncing_loader_widget.dart';
+import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/views/course_download/screens/my_course_download_screen.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/screens/discussion_forum_list_main_screen.dart';
 import 'package:flutter_instancy_2/views/event/screens/event_catalog_tab_screen.dart';
@@ -149,8 +150,14 @@ class _MainScreenState extends State<MainScreen> {
           MyPrint.printOnConsole("Couldn't Get My Downloads Menu");
         }
       } else {
-        CourseOfflineController().syncCourseDataOnline();
-        if (context.mounted) MyToast.showSuccess(context: context, msg: "Syncing data with server");
+        CourseOfflineController().syncCourseDataOnline(
+          onSyncStarted: () {
+            mainScreenProvider.isCourseOfflineTrackingDataSyncing.set(value: true);
+          },
+          onSyncCompleted: () {
+            mainScreenProvider.isCourseOfflineTrackingDataSyncing.set(value: false);
+          },
+        );
       }
     });
 
@@ -169,7 +176,8 @@ class _MainScreenState extends State<MainScreen> {
     }
     GamificationController(provider: gamificationProvider).getUserAchievementDataForDrawer();
 
-    CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider).getAllMyCourseDownloadsAndSaveInProvider(isNotify: false);
+    // CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider).getAllMyCourseDownloadsAndSaveInProvider(isNotify: false);
+    CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider).syncAllTheDownloadDataInOffline();
   }
 
   @override
@@ -242,38 +250,42 @@ class _MainScreenState extends State<MainScreen> {
           mainScreenProvider.isChatBotButtonCenterDocked.set(value: isCenterDocked, isNotify: false);
           mainScreenProvider.isChatBotButtonEnabled.set(value: floatingActionButton != null, isNotify: false);
 
-          return Scaffold(
-            key: _scaffoldKey,
-            appBar: getAppBar(
-              menuModel: menuModel,
-              components: components,
-            ),
-            drawer: getDrawerWidget(drawerMenusList: drawerMenusList),
-            floatingActionButtonLocation: floatingActionButtonLocation,
-            floatingActionButton: floatingActionButton,
-            bottomNavigationBar: getBottomBarWidget(
-              bottomBarMenusList: bottomBarMenusList,
-              hasMoreMenus: hasMoreMenus,
-              isCenterDocked: isCenterDocked,
-            ),
-            body: future != null && components.isEmpty
-                ? FutureBuilder(
-                    future: future,
-                    builder: (BuildContext context, AsyncSnapshot snapshot) {
-                      if (snapshot.connectionState != ConnectionState.done) {
-                        return const CommonLoader();
-                      }
+          return ModalProgressHUD(
+            inAsyncCall: mainScreenProvider.isCourseOfflineTrackingDataSyncing.get(),
+            progressIndicator: mainScreenProvider.isCourseOfflineTrackingDataSyncing.get() ? const CourseOfflineSyncingLoaderWidget() : const CommonLoader(),
+            child: Scaffold(
+              key: _scaffoldKey,
+              appBar: getAppBar(
+                menuModel: menuModel,
+                components: components,
+              ),
+              drawer: getDrawerWidget(drawerMenusList: drawerMenusList),
+              floatingActionButtonLocation: floatingActionButtonLocation,
+              floatingActionButton: floatingActionButton,
+              bottomNavigationBar: getBottomBarWidget(
+                bottomBarMenusList: bottomBarMenusList,
+                hasMoreMenus: hasMoreMenus,
+                isCenterDocked: isCenterDocked,
+              ),
+              body: future != null && components.isEmpty
+                  ? FutureBuilder(
+                      future: future,
+                      builder: (BuildContext context, AsyncSnapshot snapshot) {
+                        if (snapshot.connectionState != ConnectionState.done) {
+                          return const CommonLoader();
+                        }
 
-                      return getRoundedCornerWidget(
-                        menuModel: menuModel,
-                        components: components,
-                      );
-                    },
-                  )
-                : getRoundedCornerWidget(
-                    menuModel: menuModel,
-                    components: components,
-                  ),
+                        return getRoundedCornerWidget(
+                          menuModel: menuModel,
+                          components: components,
+                        );
+                      },
+                    )
+                  : getRoundedCornerWidget(
+                      menuModel: menuModel,
+                      components: components,
+                    ),
+            ),
           );
         },
       ),

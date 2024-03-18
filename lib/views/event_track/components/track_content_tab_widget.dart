@@ -270,7 +270,7 @@ class _TrackContentTabWidgetState extends State<TrackContentTabWidget> with MySa
 
         await courseDownloadController.setCompleteDownload(courseDownloadDataModel: model);
 
-        if (widget.onPulledTORefresh != null) widget.onPulledTORefresh!();
+        if (widget.refreshParentAndChildContentsCallback != null) widget.refreshParentAndChildContentsCallback!();
       },
     );
   }

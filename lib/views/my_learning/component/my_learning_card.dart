@@ -176,7 +176,7 @@ class _MyLearningCardState extends State<MyLearningCard> {
         Consumer<CourseDownloadProvider>(
           builder: (BuildContext context, CourseDownloadProvider courseDownloadProvider, Widget? child) {
             String courseDownloadId = CourseDownloadDataModel.getDownloadId(contentId: model.ContentID);
-            CourseDownloadDataModel? downloadModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: courseDownloadId);
+            CourseDownloadDataModel? downloadModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: courseDownloadId, isNewInstance: false);
 
             if (downloadModel?.isCourseDownloaded == true && downloadModel?.courseDTOModel != null) {
               CourseDTOModel newModel = downloadModel!.courseDTOModel!;
@@ -314,43 +314,19 @@ class _MyLearningCardState extends State<MyLearningCard> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              "${percentCompleted.toInt()}% ",
-              style: themeData.textTheme.titleSmall?.copyWith(
-                fontSize: 12,
+            if (ContentTypeId != InstancyObjectTypes.events)
+              Text(
+                "${percentCompleted.toInt()}% ",
+                style: themeData.textTheme.titleSmall?.copyWith(
+                  fontSize: 12,
+                ),
               ),
-            ),
             Text(
               _parseHtmlString(contentStatus),
               style: const TextStyle(fontSize: 12),
-            )
-
-            // Expanded(
-            //   child: Container(
-            //     color: Colors.red,
-            //     height: 20,
-            //     child: Html(
-            //       data: contentStatus,
-            //       shrinkWrap: true,
-            //       style: {
-            //         "span": Style(
-            //           textAlign: TextAlign.left,
-            //           // backgroundColor: Colors.green,
-            //           alignment: Alignment.centerLeft,
-            //           verticalAlign: VerticalAlign.sup,
-            //
-            //           padding: EdgeInsets.zero,
-            //           fontSize: FontSize(12),
-            //
-            //           margin: Margins.symmetric(vertical: 0),
-            //           lineHeight: LineHeight.number(0),
-            //         ),
-            //       },
-            //     ),
-            //   ),
-            // )
+            ),
           ],
-        )
+        ),
       ],
     );
   }

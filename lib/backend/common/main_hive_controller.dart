@@ -36,7 +36,7 @@ class MainHiveController {
   Future<Box?> initializeCurrentSiteBox({String currentSiteUrl = "", bool isForceInitialize = false}) async {
     MyPrint.printOnConsole("initializeCurrentSiteBox called with currentSiteUrl:'$currentSiteUrl' and isForceInitialize:'$isForceInitialize'");
 
-    if((isForceInitialize || _currentSiteBox == null) && currentSiteUrl.isNotEmpty) {
+    if ((isForceInitialize || _currentSiteBox == null || !_currentSiteBox!.isOpen) && currentSiteUrl.isNotEmpty) {
       String host = MyUtils.getHostNameFromSiteUrl(currentSiteUrl);
       MyPrint.printOnConsole("host:$host");
 
@@ -68,7 +68,7 @@ class MainHiveController {
     String host = MyUtils.getHostNameFromSiteUrl(currentSiteUrl);
     MyPrint.printOnConsole("host:$host", tag: tag);
 
-    if (isForceInitialize || _myCourseDownloadModelsBox == null) {
+    if (isForceInitialize || _myCourseDownloadModelsBox == null || !_myCourseDownloadModelsBox!.isOpen) {
       await closeMyCourseDownloadModelsBox();
       if (host.isNotEmpty && userId > 0) {
         String boxName = "${HiveKeys.myCourseDownloadModelsBox}_${host}_$userId";
@@ -104,7 +104,7 @@ class MainHiveController {
     String host = MyUtils.getHostNameFromSiteUrl(currentSiteUrl);
     MyPrint.printOnConsole("host:$host", tag: tag);
 
-    if (isForceInitialize || _myCourseDownloadIdsBox == null) {
+    if (isForceInitialize || _myCourseDownloadIdsBox == null || !_myCourseDownloadIdsBox!.isOpen) {
       await closeMyCourseDownloadModelsBox();
       if (host.isNotEmpty && userId > 0) {
         String boxName = "${HiveKeys.myCourseDownloadIdsBox}_${host}_$userId";
@@ -140,7 +140,7 @@ class MainHiveController {
     String host = MyUtils.getHostNameFromSiteUrl(currentSiteUrl);
     MyPrint.printOnConsole("host:$host", tag: tag);
 
-    if (isForceInitialize || _myLearningIdsBox == null) {
+    if (isForceInitialize || _myLearningIdsBox == null || !_myLearningIdsBox!.isOpen) {
       await closeMyCourseDownloadModelsBox();
       if (host.isNotEmpty && userId > 0) {
         String boxName = "${HiveKeys.myLearningIdsBox}_${host}_$userId";
@@ -176,7 +176,7 @@ class MainHiveController {
     String host = MyUtils.getHostNameFromSiteUrl(currentSiteUrl);
     MyPrint.printOnConsole("host:$host", tag: tag);
 
-    if (isForceInitialize || _myLearningModelsBox == null) {
+    if (isForceInitialize || _myLearningModelsBox == null || !_myLearningModelsBox!.isOpen) {
       await closeMyLearningModelsBox();
       if (host.isNotEmpty && userId > 0) {
         String boxName = "${HiveKeys.myLearningModelsBox}_${host}_$userId";

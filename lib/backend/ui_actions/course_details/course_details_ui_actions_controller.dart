@@ -348,7 +348,9 @@ class CourseDetailsUIActionsController {
       suggestWithFriendLink: model.SuggestwithFriendLink,
       shareLink: model.Sharelink,
       ReEnrollmentHistoryLink: model.ReEnrollmentHistory,
-      InstanceEventReclass: model.InstanceEventReclass);
+      InstanceEventReclass: model.InstanceEventReclass,
+      JWVideoKey: model.JWVideoKey,
+    );
   }
 
   CatalogUIActionParameterModel getCatalogUIActionParameterModelFromCourseDTOModel({required CourseDTOModel contentDetailsDTOModel}) {

@@ -3,6 +3,11 @@ import 'dart:io';
 import 'package:document_file_save_plus/document_file_save_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/app/app_controller.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/event_track/event_track_hive_repository.dart';
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
@@ -12,6 +17,7 @@ import 'package:flutter_instancy_2/models/course/data_model/gloassary_model.dart
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_reference_item_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/track_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/request_model/event_related_contents_data_request_model.dart';
 import 'package:flutter_instancy_2/models/event_track/request_model/event_track_tab_request_model.dart';
@@ -20,10 +26,12 @@ import 'package:flutter_instancy_2/models/event_track/response_model/event_track
 import 'package:flutter_instancy_2/models/event_track/response_model/resource_content_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/response_model/track_list_view_data_response_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:http/http.dart';
 import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 import '../../api/api_controller.dart';
 import '../../models/common/data_response_model.dart';
@@ -95,6 +103,23 @@ class EventTrackController {
 
     provider.eventTrackHeaderData.set(value: eventTrackHeaderDTOModel ?? EventTrackHeaderDTOModel(), isNotify: false);
     provider.isHeaderDataLoading.set(value: false, isNotify: true);
+
+    BuildContext? context = AppController.mainAppContext;
+    if (context != null && eventTrackHeaderDTOModel != null) {
+      AppProvider appProvider = context.read<AppProvider>();
+      CourseDownloadProvider courseDownloadProvider = context.read<CourseDownloadProvider>();
+      CourseDownloadController courseDownloadController = CourseDownloadController(
+        appProvider: appProvider,
+        courseDownloadProvider: courseDownloadProvider,
+      );
+
+      courseDownloadController.updateEventTrackParentModelInDownloadsAndHeaderModel(
+        eventTrackContentId: eventTrackHeaderDTOModel.ContentID,
+        PercentageCompleted: ParsingHelper.parseDoubleNullableMethod(eventTrackHeaderDTOModel.percentagecompleted),
+        CoreLessonStatus: eventTrackHeaderDTOModel.ContentStatus,
+        DisplayStatus: eventTrackHeaderDTOModel.DisplayStatus,
+      );
+    }
 
     return true;
   }
@@ -303,6 +328,25 @@ class EventTrackController {
         }
         contentsBlocksList = responseModel.TrackListData;
         eventTrackHiveRepository.addTrackContentsDataInBox(trackContentData: {contentId: responseModel}, isClear: false);
+
+        List<Future> futures = [];
+
+        AppProvider? appProvider = AppController.mainAppContext?.read<AppProvider>();
+        CourseDownloadProvider? courseDownloadProvider = AppController.mainAppContext?.read<CourseDownloadProvider>();
+        if (appProvider != null && courseDownloadProvider != null) {
+          CourseDownloadController courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+
+          Map<String, TrackCourseDTOModel> contentsList = <String, TrackCourseDTOModel>{};
+          for (TrackDTOModel trackDTOModel in contentsBlocksList) {
+            for (TrackCourseDTOModel trackCourseDTOModel in trackDTOModel.TrackList) {
+              contentsList[trackCourseDTOModel.ContentID] = trackCourseDTOModel;
+            }
+          }
+
+          if (contentsList.isNotEmpty) futures.add(courseDownloadController.updateTrackContentsInDownloadsAndSyncDataOffline(contentsList: contentsList.values.toList(), parentCourseId: contentId));
+        }
+
+        if (futures.isNotEmpty) await Future.wait(futures);
       } else {
         eventTrackHiveRepository.removeRecordsFromTrackContentsDataBoxById(trackIds: [contentId]);
       }
@@ -387,6 +431,25 @@ class EventTrackController {
         }
         contentsBlocksList = responseModel.TrackListData;
         eventTrackHiveRepository.addTrackAssignmentDataInBox(trackContentData: {contentId: responseModel}, isClear: false);
+
+        List<Future> futures = [];
+
+        AppProvider? appProvider = AppController.mainAppContext?.read<AppProvider>();
+        CourseDownloadProvider? courseDownloadProvider = AppController.mainAppContext?.read<CourseDownloadProvider>();
+        if (appProvider != null && courseDownloadProvider != null) {
+          CourseDownloadController courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+
+          Map<String, TrackCourseDTOModel> contentsList = <String, TrackCourseDTOModel>{};
+          for (TrackDTOModel trackDTOModel in contentsBlocksList) {
+            for (TrackCourseDTOModel trackCourseDTOModel in trackDTOModel.TrackList) {
+              contentsList[trackCourseDTOModel.ContentID] = trackCourseDTOModel;
+            }
+          }
+
+          if (contentsList.isNotEmpty) futures.add(courseDownloadController.updateTrackContentsInDownloadsAndSyncDataOffline(contentsList: contentsList.values.toList(), parentCourseId: contentId));
+        }
+
+        if (futures.isNotEmpty) await Future.wait(futures);
       } else {
         eventTrackHiveRepository.removeRecordsFromTrackAssignmentsDataBoxById(trackIds: [contentId]);
       }
@@ -509,6 +572,18 @@ class EventTrackController {
       } else {
         eventTrackHiveRepository.removeRecordsFromEventRelatedContentModelsBoxById(eventIds: [contentId]);
       }
+
+      List<Future> futures = [];
+
+      AppProvider? appProvider = AppController.mainAppContext?.read<AppProvider>();
+      CourseDownloadProvider? courseDownloadProvider = AppController.mainAppContext?.read<CourseDownloadProvider>();
+      if (appProvider != null && courseDownloadProvider != null) {
+        CourseDownloadController courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+
+        if (contentsList.isNotEmpty) futures.add(courseDownloadController.updateEventRelatedContentsInDownloadsAndSyncDataOffline(contentsList: contentsList, parentCourseId: contentId));
+      }
+
+      if (futures.isNotEmpty) await Future.wait(futures);
     } else {
       ResourceContentDTOModel? resourceContentDTOModel = await eventTrackHiveRepository.getEventRelatedContentDataForEventId(eventId: contentId);
       MyPrint.printOnConsole("getEventRelatedContentDataForEventId response not null:${resourceContentDTOModel != null}", tag: tag);
@@ -634,6 +709,18 @@ class EventTrackController {
       } else {
         eventTrackHiveRepository.removeRecordsFromEventRelatedAssignmentModelsBoxById(eventIds: [contentId]);
       }
+
+      List<Future> futures = [];
+
+      AppProvider? appProvider = AppController.mainAppContext?.read<AppProvider>();
+      CourseDownloadProvider? courseDownloadProvider = AppController.mainAppContext?.read<CourseDownloadProvider>();
+      if (appProvider != null && courseDownloadProvider != null) {
+        CourseDownloadController courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+
+        if (contentsList.isNotEmpty) futures.add(courseDownloadController.updateEventRelatedContentsInDownloadsAndSyncDataOffline(contentsList: contentsList, parentCourseId: contentId));
+      }
+
+      if (futures.isNotEmpty) await Future.wait(futures);
     } else {
       ResourceContentDTOModel? resourceContentDTOModel = await eventTrackHiveRepository.getEventRelatedContentDataForEventId(eventId: contentId);
       MyPrint.printOnConsole("getEventRelatedContentDataForEventId response not null:${resourceContentDTOModel != null}", tag: tag);

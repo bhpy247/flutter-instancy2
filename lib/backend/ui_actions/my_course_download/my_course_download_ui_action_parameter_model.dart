@@ -1,5 +1,6 @@
 class MyCourseDownloadUIActionParameterModel {
   final String CoreLessonStatus;
+  final String JWVideoKey;
   final int ContentTypeId;
   final int MediaTypeId;
   final bool isCourseDownloaded;
@@ -12,6 +13,7 @@ class MyCourseDownloadUIActionParameterModel {
 
   const MyCourseDownloadUIActionParameterModel({
     this.CoreLessonStatus = "",
+    this.JWVideoKey = "",
     this.ContentTypeId = -1,
     this.MediaTypeId = -1,
     this.isCourseDownloaded = false,

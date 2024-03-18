@@ -450,7 +450,7 @@ class GotoCourseLaunch {
             encodedStr.toLowerCase().contains(".xls") ||
             encodedStr.toLowerCase().contains(".ppt") ||
             encodedStr.toLowerCase().contains(".pptx") ||
-            // encodedStr.toLowerCase().contains(".pdf") ||
+            encodedStr.toLowerCase().contains(".csv") ||
             encodedStr.toLowerCase().contains(".doc") ||
             encodedStr.toLowerCase().contains(".docx")) {
           MyPrint.printOnConsole("......xxxxxxx.....", tag: tag);

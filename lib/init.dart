@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +12,7 @@ import 'package:flutter_instancy_2/backend/network_connection/network_connection
 import 'package:flutter_instancy_2/firebase_options.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:shake/shake.dart';
 
 import 'utils/my_utils.dart';
 
@@ -36,9 +39,9 @@ Future<void>? runErrorSafeApp(VoidCallback appRunner) {
 Future<void> initApp() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  NetworkConnectionController().startNetworkConnectionSubscription();
-
-  List<Future> futures = [];
+  List<Future> futures = [
+    MyPrint.initializeRecordVlog(),
+  ];
 
   if (kIsWeb) {
     FirebaseOptions options = DefaultFirebaseOptions.web;
@@ -52,12 +55,11 @@ Future<void> initApp() async {
         DeviceOrientation.landscapeLeft,
       ]),*/
     ]);
-  }
-  else {
-    if(Platform.isAndroid || Platform.isIOS) {
+  } else {
+    if (Platform.isAndroid || Platform.isIOS) {
       MyUtils.initializeHttpOverrides();
 
-      MyPrint.printOnConsole("Adding Firebase.initializeApp()");
+      // MyPrint.printOnConsole("Adding Firebase.initializeApp()");
       futures.addAll([
         Firebase.initializeApp(),
         /*SystemChrome.setPreferredOrientations(<DeviceOrientation>[
@@ -69,9 +71,14 @@ Future<void> initApp() async {
 
   await Future.wait(futures);
 
-  MyPrint.printOnConsole("Finished Firebase.initializeApp()");
+  // MyPrint.printOnConsole("Finished Firebase.initializeApp()");
 
-  if(!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    await Future.wait([
+      FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true),
+      FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true),
+    ]);
+
     await Future.wait([
       FirebaseMessaging.instance.requestPermission(),
       FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
@@ -81,5 +88,26 @@ Future<void> initApp() async {
       ),
       FlutterDownloadController.initializePlugin(),
     ]);
+
+    FlutterError.onError = (errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    };
+    // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+
+    NetworkConnectionController().startNetworkConnectionSubscription();
+
+    ShakeDetector.autoStart(
+      onPhoneShake: () {
+        print("Phone Shacked");
+        // Do stuff on phone shake
+
+        MyPrint.exportLog();
+      },
+      minimumShakeCount: 3,
+    );
   }
 }

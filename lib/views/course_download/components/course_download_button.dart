@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_provider.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
@@ -76,6 +77,7 @@ class CourseDownloadButton extends StatelessWidget {
     Color? iconColor;
     GestureTapCallback? onTap = onDownloadTap;
     double downloadProgress = 0;
+    double? iconSize;
     bool isShowProgressIndicator = false;
     Color? progressColor = Colors.grey;
 
@@ -88,8 +90,10 @@ class CourseDownloadButton extends StatelessWidget {
         iconData = Icons.download_done;
       } else if (courseDownloadDataModel.isFileDownloading || courseDownloadDataModel.isFileExtracting) {
         progressColor = Colors.orangeAccent;
-      } else if (courseDownloadDataModel.isFileDownloadingPaused) {
         iconData = Icons.pause;
+      } else if (courseDownloadDataModel.isFileDownloadingPaused) {
+        iconData = InstancyIcons.resumeDownload;
+        iconSize = 16;
       }
     }
 
@@ -115,6 +119,7 @@ class CourseDownloadButton extends StatelessWidget {
           child: Icon(
             iconData,
             color: iconColor,
+            size: iconSize,
           ),
         ),
       ),

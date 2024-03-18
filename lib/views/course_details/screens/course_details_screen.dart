@@ -1444,7 +1444,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
           Consumer<CourseDownloadProvider>(
             builder: (BuildContext context, CourseDownloadProvider courseDownloadProvider, Widget? child) {
               String courseDownloadId = CourseDownloadDataModel.getDownloadId(contentId: contentDetailsDTOModel.ContentID);
-              CourseDownloadDataModel? downloadModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: courseDownloadId);
+              CourseDownloadDataModel? downloadModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: courseDownloadId, isNewInstance: false);
 
               if (downloadModel?.isCourseDownloaded == true && downloadModel?.courseDTOModel != null) {
                 CourseDTOModel newModel = downloadModel!.courseDTOModel!;
@@ -1463,7 +1463,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
                 // color: AppConfigurations.getContentStatusColor(status: contentDetailsDTOModel.ContentStatus),
                 // color: InstancyColors.progressBarFillColor,
                 color: AppConfigurations.getContentStatusColorFromActualStatus(status: contentDetailsDTOModel.ActualStatus),
-                percentCompleted: contentDetailsDTOModel.percentagecompleted,
+                percentCompleted: contentDetailsDTOModel.PercentCompleted,
                 objectTypeId: contentDetailsDTOModel.ContentTypeId,
                 contentStatus: contentDetailsDTOModel.ContentStatus,
               );

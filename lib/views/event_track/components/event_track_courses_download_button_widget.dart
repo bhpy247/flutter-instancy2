@@ -72,8 +72,11 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
     return response;
   }
 
-  Future<void> downloadEventTrackContents(
-      {required DownloadContentIdsResponse downloadableContentResponse, required CourseDownloadProvider courseDownloadProvider, required AppProvider appProvider}) async {
+  Future<void> downloadEventTrackContents({
+    required DownloadContentIdsResponse downloadableContentResponse,
+    required CourseDownloadProvider courseDownloadProvider,
+    required AppProvider appProvider,
+  }) async {
     for (String contentId in downloadableContentResponse.downloadbleContentIds) {
       String downloadId = CourseDownloadDataModel.getDownloadId(contentId: contentId, eventTrackContentId: parentEventTrackModel?.ContentID ?? "");
       CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: downloadId);
@@ -130,6 +133,60 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
     }
   }
 
+  Future<void> pauseDownloadEventTrackContents({
+    required DownloadContentIdsResponse downloadableContentResponse,
+    required CourseDownloadProvider courseDownloadProvider,
+    required AppProvider appProvider,
+  }) async {
+    CourseDownloadController courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+
+    for (String contentId in downloadableContentResponse.downloadbleContentIds) {
+      String downloadId = CourseDownloadDataModel.getDownloadId(contentId: contentId, eventTrackContentId: parentEventTrackModel?.ContentID ?? "");
+      CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: downloadId);
+
+      if (courseDownloadDataModel == null ||
+          courseDownloadDataModel.isCourseDownloaded ||
+          !courseDownloadDataModel.isCourseDownloading ||
+          courseDownloadDataModel.isFileDownloaded ||
+          !courseDownloadDataModel.isFileDownloading ||
+          courseDownloadDataModel.isFileDownloadCanceled ||
+          courseDownloadDataModel.isFileExtracting ||
+          courseDownloadDataModel.isFileExtracted ||
+          courseDownloadDataModel.isFileDownloadingPaused) {
+        continue;
+      }
+
+      courseDownloadController.pauseDownload(downloadId: downloadId);
+    }
+  }
+
+  Future<void> resumeDownloadEventTrackContents({
+    required DownloadContentIdsResponse downloadableContentResponse,
+    required CourseDownloadProvider courseDownloadProvider,
+    required AppProvider appProvider,
+  }) async {
+    CourseDownloadController courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+
+    for (String contentId in downloadableContentResponse.downloadbleContentIds) {
+      String downloadId = CourseDownloadDataModel.getDownloadId(contentId: contentId, eventTrackContentId: parentEventTrackModel?.ContentID ?? "");
+      CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: downloadId);
+
+      if (courseDownloadDataModel == null ||
+          courseDownloadDataModel.isCourseDownloaded ||
+          !courseDownloadDataModel.isCourseDownloading ||
+          courseDownloadDataModel.isFileDownloaded ||
+          courseDownloadDataModel.isFileDownloading ||
+          courseDownloadDataModel.isFileDownloadCanceled ||
+          courseDownloadDataModel.isFileExtracting ||
+          courseDownloadDataModel.isFileExtracted ||
+          !courseDownloadDataModel.isFileDownloadingPaused) {
+        continue;
+      }
+
+      courseDownloadController.resumeDownload(downloadId: downloadId);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
@@ -164,9 +221,10 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
         // MyPrint.printOnConsole("Downloads:${myLearningDownloadProvider.downloads.map((e) => "Name:${e.table2.name}, Track:${e.trackContentName}\n").join(",")}");
         for (String contentId in downloadableContentResponse.downloadbleContentIds) {
           String downloadId = CourseDownloadDataModel.getDownloadId(contentId: contentId, eventTrackContentId: parentEventTrackModel?.ContentID ?? "");
-          CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: downloadId);
+          CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: downloadId, isNewInstance: false);
 
-          if (courseDownloadDataModel == null) {} else {
+          if (courseDownloadDataModel == null) {
+          } else {
             if (courseDownloadDataModel.isCourseDownloaded) {
               downloadedCount++;
             } else {
@@ -187,15 +245,15 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
         // MyPrint.printOnConsole("downloadedCount:$downloadedCount");
         // MyPrint.printOnConsole("isDownloading:$isDownloading, isDownloadPasued:$isDownloadPasued, isAllDownloaded:$isAllDownloaded, isAllDownloaded:$isAllDownloaded");
 
-        if (isDownloading) {
-          icon = Icons.pause;
-          progressColor = Colors.orangeAccent;
+        if (isAllDownloaded) {
+          icon = Icons.check;
+          progressColor = Colors.green;
         } else if (isDownloadPaused) {
           icon = Icons.play_arrow;
           progressColor = Colors.orangeAccent;
-        } else if (isAllDownloaded) {
-          icon = Icons.check;
-          progressColor = Colors.green;
+        } else if (isDownloading) {
+          icon = Icons.pause;
+          progressColor = Colors.orangeAccent;
         }
         //endregion
 
@@ -207,11 +265,26 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
           ),
           child: InkWell(
             onTap: () {
-              downloadEventTrackContents(
-                downloadableContentResponse: downloadableContentResponse,
-                courseDownloadProvider: courseDownloadProvider,
-                appProvider: context.read<AppProvider>(),
-              );
+              if (isAllDownloaded) {
+              } else if (isDownloadPaused) {
+                resumeDownloadEventTrackContents(
+                  downloadableContentResponse: downloadableContentResponse,
+                  courseDownloadProvider: courseDownloadProvider,
+                  appProvider: context.read<AppProvider>(),
+                );
+              } else if (isDownloading) {
+                pauseDownloadEventTrackContents(
+                  downloadableContentResponse: downloadableContentResponse,
+                  courseDownloadProvider: courseDownloadProvider,
+                  appProvider: context.read<AppProvider>(),
+                );
+              } else {
+                downloadEventTrackContents(
+                  downloadableContentResponse: downloadableContentResponse,
+                  courseDownloadProvider: courseDownloadProvider,
+                  appProvider: context.read<AppProvider>(),
+                );
+              }
             },
             child: Padding(
               padding: const EdgeInsets.all(3.0),
@@ -225,4 +298,3 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
     );
   }
 }
-

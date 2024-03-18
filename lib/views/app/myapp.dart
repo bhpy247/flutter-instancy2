@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
@@ -113,6 +114,9 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
+  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  static FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
+
   @override
   void initState() {
     super.initState();
@@ -143,6 +147,7 @@ class _MainAppState extends State<MainApp> {
             debugShowCheckedModeBanner: false,
             title: 'Instancy',
             theme: appThemeProvider.getThemeData(),
+            navigatorObservers: [observer],
             localizationsDelegates: const [
               /*AppTranslationsDelegate(
                   newLocale:

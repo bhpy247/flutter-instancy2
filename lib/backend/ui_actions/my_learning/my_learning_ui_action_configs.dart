@@ -24,6 +24,7 @@ class MyLearningUIActionConfigs {
       InstancyMediaTypes.ppt,
       InstancyMediaTypes.mpp,
       InstancyMediaTypes.visioTypes,
+      InstancyMediaTypes.csv,
     ],
     InstancyObjectTypes.dictionaryGlossary: null,
     InstancyObjectTypes.html: [

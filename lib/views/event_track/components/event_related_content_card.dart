@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_configs.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
+import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:flutter_instancy_2/views/common/components/common_icon_button.dart';
@@ -88,10 +91,6 @@ class _EventRelatedContentCardState extends State<EventRelatedContentCard> {
   }
 
   Widget detailColumn(RelatedTrackDataDTOModel model) {
-    double percentageCompleted = model.PercentCompleted;
-    String contentStatus = model.ContentDisplayStatus;
-    String actualStatus = model.CoreLessonStatus;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -148,7 +147,7 @@ class _EventRelatedContentCardState extends State<EventRelatedContentCard> {
                 ],
               ),
             ),
-            if (MyLearningUIActionConfigs.isContentTypeDownloadable(objectTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeID))
+            if (MyLearningUIActionConfigs.isContentTypeDownloadable(objectTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeID) && widget.onDownloadTap != null)
               CourseDownloadButton(
                 contentId: model.ContentID,
                 parentEventTrackId: widget.parentEventTrackId,
@@ -157,10 +156,40 @@ class _EventRelatedContentCardState extends State<EventRelatedContentCard> {
           ],
         ),
         const SizedBox(height: 8),
-        linearProgressBar(
-          percentCompleted: percentageCompleted.toInt(),
-          contentStatus: contentStatus,
-          actualStatus: actualStatus,
+        Consumer<CourseDownloadProvider>(
+          builder: (BuildContext context, CourseDownloadProvider courseDownloadProvider, Widget? child) {
+            MyPrint.printOnConsole("EventRelatedContentCard  Consumer Called");
+
+            double percentageCompleted = model.PercentCompleted;
+            String actualStatus = model.CoreLessonStatus;
+            String contentStatus = model.ContentDisplayStatus;
+
+            String courseDownloadId = CourseDownloadDataModel.getDownloadId(
+              contentId: model.ContentID,
+              eventTrackContentId: widget.parentEventTrackId,
+            );
+            // MyPrint.printOnConsole("courseDownloadId:$courseDownloadId");
+            CourseDownloadDataModel? downloadModel = courseDownloadProvider.getCourseDownloadDataModelFromId(
+              courseDownloadId: courseDownloadId,
+              isNewInstance: false,
+            );
+
+            if (downloadModel?.isCourseDownloaded == true && downloadModel?.relatedTrackDataDTOModel != null) {
+              RelatedTrackDataDTOModel newModel = downloadModel!.relatedTrackDataDTOModel!;
+
+              return linearProgressBar(
+                percentCompleted: newModel.PercentCompleted.toInt(),
+                actualStatus: newModel.CoreLessonStatus,
+                contentStatus: newModel.ContentDisplayStatus,
+              );
+            }
+
+            return linearProgressBar(
+              percentCompleted: percentageCompleted.toInt(),
+              contentStatus: contentStatus,
+              actualStatus: actualStatus,
+            );
+          },
         ),
         /*getPrimaryActionButton(
           model: model,

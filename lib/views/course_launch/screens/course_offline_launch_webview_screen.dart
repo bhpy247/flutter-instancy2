@@ -1,28 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/course_offline/course_offline_controller.dart';
-import 'package:flutter_instancy_2/backend/event_track/event_track_hive_repository.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
-import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/data_model/cmi_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/data_model/student_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/request_model/course_offline_launch_request_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/course_learner_session_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/student_course_response_model.dart';
-import 'package:flutter_instancy_2/models/event_track/data_model/event_track_header_dto_model.dart';
-import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
-import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
-import 'package:flutter_instancy_2/models/event_track/data_model/track_dto_model.dart';
-import 'package:flutter_instancy_2/models/event_track/response_model/resource_content_dto_model.dart';
-import 'package:flutter_instancy_2/models/event_track/response_model/track_list_view_data_response_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
@@ -164,10 +155,10 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
             },
           ),
           updateQuestionData(questionData: quesdata),
-          updateCourseProgress(coreLessonStatus: status),
         ];
 
         await Future.wait(futures);
+        await updateCourseProgress(coreLessonStatus: status);
       }
 
       if (!isCourseCloseCalled && context.mounted) {
@@ -666,195 +657,14 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
     MyPrint.printOnConsole("Final ContentStatus:'$ContentStatus'", tag: tag);
     MyPrint.printOnConsole("Final contentProgress:'$contentProgress'", tag: tag);
 
-    await Future.wait([
-      courseDownloadController.updateCourseDownloadTrackingProgress(
-        contentId: courseLaunchModel.ContentID,
-        parentContentId: courseLaunchModel.ParentEventTrackContentID,
-        coreLessonStatus: coreLessonStatus,
-        displayStatus: ContentStatus,
-        contentProgress: contentProgress,
-      ),
-    ]);
-
-    MyPrint.printOnConsole("Main Course Operations Done", tag: tag);
-
-    if (courseLaunchModel.ParentEventTrackContentID.isNotEmpty && [InstancyObjectTypes.track, InstancyObjectTypes.events].contains(courseLaunchModel.ParentContentTypeId)) {
-      MyPrint.printOnConsole("This Course is Event Track Content", tag: tag);
-      List<Future> futures = <Future>[];
-
-      EventTrackHiveRepository eventTrackHiveRepository = EventTrackHiveRepository(apiController: ApiController());
-
-      TrackListViewDataResponseModel? trackListViewDataResponseModel;
-      ResourceContentDTOModel? resourceContentDTOModel;
-
-      // region Update Course Progress Data in Event Track Contents Offline List
-      //For Track Contents
-      if (courseLaunchModel.ParentContentTypeId == InstancyObjectTypes.track) {
-        bool isCourseProgressUpdated = false;
-        bool isAssignmentContent = false;
-
-        trackListViewDataResponseModel = await eventTrackHiveRepository.getTrackContentDataForTrackId(trackId: courseLaunchModel.ParentEventTrackContentID);
-        if (trackListViewDataResponseModel == null) {
-          isAssignmentContent = true;
-          trackListViewDataResponseModel = await eventTrackHiveRepository.getTrackAssignmentDataForTrackId(trackId: courseLaunchModel.ParentEventTrackContentID);
-        }
-        if (trackListViewDataResponseModel != null) {
-          TrackCourseDTOModel? trackCourseDTOModel;
-          for (TrackDTOModel trackDTOModel in trackListViewDataResponseModel.TrackListData) {
-            for (TrackCourseDTOModel model in trackDTOModel.TrackList) {
-              if (model.ContentID == courseOfflineLaunchRequestModel.ContentId) {
-                trackCourseDTOModel = model;
-                break;
-              }
-            }
-            if (trackCourseDTOModel != null) {
-              break;
-            }
-          }
-
-          if (trackCourseDTOModel != null) {
-            trackCourseDTOModel.CoreLessonStatus = coreLessonStatus;
-            trackCourseDTOModel.ContentStatus = ContentStatus;
-            trackCourseDTOModel.ContentProgress = contentProgress.toString();
-            isCourseProgressUpdated = true;
-          }
-        }
-
-        if (isCourseProgressUpdated && trackListViewDataResponseModel != null) {
-          if (isAssignmentContent) {
-            futures.add(eventTrackHiveRepository.addTrackAssignmentDataInBox(trackContentData: {courseLaunchModel.ParentEventTrackContentID: trackListViewDataResponseModel}, isClear: false));
-          } else {
-            futures.add(eventTrackHiveRepository.addTrackContentsDataInBox(trackContentData: {courseLaunchModel.ParentEventTrackContentID: trackListViewDataResponseModel}, isClear: false));
-          }
-        }
-      }
-      //For Event Related Contents
-      else {
-        bool isCourseProgressUpdated = false;
-        bool isAssignmentContent = false;
-
-        resourceContentDTOModel = await eventTrackHiveRepository.getEventRelatedContentDataForEventId(eventId: courseLaunchModel.ParentEventTrackContentID);
-        if (resourceContentDTOModel == null) {
-          isAssignmentContent = true;
-          resourceContentDTOModel = await eventTrackHiveRepository.getEventRelatedAssignmentDataForEventId(eventId: courseLaunchModel.ParentEventTrackContentID);
-        }
-        if (resourceContentDTOModel != null) {
-          RelatedTrackDataDTOModel? relatedTrackDataDTOModel;
-          for (RelatedTrackDataDTOModel model in resourceContentDTOModel.ResouseList) {
-            if (model.ContentID == courseOfflineLaunchRequestModel.ContentId) {
-              relatedTrackDataDTOModel = model;
-              break;
-            }
-          }
-
-          if (relatedTrackDataDTOModel != null) {
-            relatedTrackDataDTOModel.CoreLessonStatus = coreLessonStatus;
-            relatedTrackDataDTOModel.ContentDisplayStatus = ContentStatus;
-            relatedTrackDataDTOModel.PercentCompleted = contentProgress;
-            isCourseProgressUpdated = true;
-          }
-        }
-
-        if (isCourseProgressUpdated && resourceContentDTOModel != null) {
-          if (isAssignmentContent) {
-            futures.add(eventTrackHiveRepository.addEventRelatedAssignmentDataInBox(eventRelatedContentData: {courseLaunchModel.ParentEventTrackContentID: resourceContentDTOModel}, isClear: false));
-          } else {
-            futures.add(eventTrackHiveRepository.addEventRelatedContentDataInBox(eventRelatedContentData: {courseLaunchModel.ParentEventTrackContentID: resourceContentDTOModel}, isClear: false));
-          }
-        }
-      }
-      // endregion
-
-      // region Update Main Event Track Progress
-      if (trackListViewDataResponseModel != null || resourceContentDTOModel != null) {
-        int courseCount = 0;
-        int completeCount = 0;
-
-        if (trackListViewDataResponseModel != null) {
-          for (TrackDTOModel trackDTOModel in trackListViewDataResponseModel.TrackListData) {
-            for (TrackCourseDTOModel trackCourseDTOModel in trackDTOModel.TrackList) {
-              courseCount++;
-
-              if ([
-                ContentStatusTypes.completed,
-                ContentStatusTypes.passed,
-                ContentStatusTypes.failed,
-                ContentStatusTypes.attended,
-                ContentStatusTypes.notattended,
-              ].contains(trackCourseDTOModel.CoreLessonStatus)) {
-                completeCount++;
-              }
-            }
-          }
-        } else {
-          for (RelatedTrackDataDTOModel relatedTrackDataDTOModel in resourceContentDTOModel!.ResouseList) {
-            courseCount++;
-
-            if ([
-              ContentStatusTypes.completed,
-              ContentStatusTypes.passed,
-              ContentStatusTypes.failed,
-              ContentStatusTypes.attended,
-              ContentStatusTypes.notattended,
-            ].contains(relatedTrackDataDTOModel.CoreLessonStatus)) {
-              completeCount++;
-            }
-          }
-        }
-
-        double percentageCompleted = (100 * completeCount) / courseCount;
-        if (percentageCompleted == double.infinity) {
-          percentageCompleted = 0;
-        } else if (percentageCompleted < 0) {
-          percentageCompleted = 0;
-        } else if (percentageCompleted > 100) {
-          percentageCompleted = 100;
-        }
-
-        String contentStatus = "";
-        String actualStatus = "";
-        if (percentageCompleted == 0) {
-          contentStatus = "Not Started";
-          actualStatus = ContentStatusTypes.notAttempted;
-        } else if (percentageCompleted == 100) {
-          contentStatus = "Completed";
-          actualStatus = ContentStatusTypes.completed;
-        } else {
-          contentStatus = "In Progress";
-          actualStatus = ContentStatusTypes.incomplete;
-        }
-
-        List<CourseDownloadDataModel> eventTrackCourseDownloadDataList = await courseDownloadController.getEventTrackContentDownloadsList(
-          eventTrackContentId: courseLaunchModel.ParentEventTrackContentID,
-        );
-        for (CourseDownloadDataModel courseDownloadDataModel in eventTrackCourseDownloadDataList) {
-          if (courseDownloadDataModel.parentCourseModel != null) {
-            courseDownloadDataModel.parentCourseModel!.ContentStatus = contentStatus;
-            courseDownloadDataModel.parentCourseModel!.ActualStatus = actualStatus;
-            courseDownloadDataModel.parentCourseModel!.PercentCompleted = percentageCompleted;
-          }
-        }
-        futures.add(courseDownloadController.setCourseDownloadModelInProviderAndHive(
-          courseDownloads: Map<String, CourseDownloadDataModel>.fromEntries(eventTrackCourseDownloadDataList.map((e) => MapEntry<String, CourseDownloadDataModel>(e.id, e))),
-          isClear: false,
-          isNotify: false,
-        ));
-
-        EventTrackHeaderDTOModel? eventTrackHeaderDTOModel = await eventTrackHiveRepository.getEventTrackHeaderDTOModelById(eventTrackContentId: courseLaunchModel.ParentEventTrackContentID);
-        if (eventTrackHeaderDTOModel != null) {
-          eventTrackHeaderDTOModel.percentagecompleted = percentageCompleted.toString();
-          eventTrackHeaderDTOModel.DisplayStatus = contentStatus;
-          eventTrackHeaderDTOModel.ContentStatus = actualStatus;
-
-          futures.add(eventTrackHiveRepository.addEventTrackHeaderDTOModelInBox(headerData: {courseLaunchModel.ParentEventTrackContentID: eventTrackHeaderDTOModel}, isClear: false));
-        }
-      }
-      // endregion
-
-      if (futures.isNotEmpty) {
-        await Future.wait(futures);
-      }
-    }
+    await courseOfflineController.updateContentProgressInOfflineAndDownloadWithTrackProgress(
+      ContentId: courseLaunchModel.ContentID,
+      CoreLessonStatus: coreLessonStatus,
+      ContentDisplayStatus: ContentStatus,
+      contentProgress: contentProgress,
+      ParentContentId: courseLaunchModel.ParentEventTrackContentID,
+      ParentContentTypeId: courseLaunchModel.ParentContentTypeId,
+    );
   }
 
   @override

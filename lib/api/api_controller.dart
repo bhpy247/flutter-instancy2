@@ -21,7 +21,9 @@ import 'api_url_configuration_provider.dart';
 
 class ApiController {
   static final ApiController _instance = ApiController.getNewInstance();
+
   ApiController.getNewInstance();
+
   factory ApiController() => _instance;
 
   final ApiUrlConfigurationProvider _apiDataProvider = ApiUrlConfigurationProvider();
@@ -29,23 +31,25 @@ class ApiController {
   ApiUrlConfigurationProvider get apiDataProvider => _apiDataProvider;
 
   ApiEndpoints get apiEndpoints => ApiEndpoints(
-    siteUrl: apiDataProvider.getCurrentSiteUrl(),
+        siteUrl: apiDataProvider.getCurrentSiteUrl(),
         authUrl: apiDataProvider.getCurrentAuthUrl(),
         apiUrl: apiDataProvider.getCurrentBaseApiUrl(),
       );
 
   //(1) This is the main method which is responsible for Making the API Call and Handle That
-  Future<DataResponseModel<T>> callApi<T>({required ApiCallModel apiCallModel, bool isLogoutOnAuthorizationExpired = true, bool isIsolateCall = true}) async {
+  Future<DataResponseModel<T>> callApi<T>({required ApiCallModel apiCallModel, bool isLogoutOnAuthorizationExpired = true}) async {
     DataResponseModel<T> responseModel;
 
-    if(isIsolateCall && !apiCallModel.isGetDataFromHive && !apiCallModel.isStoreDataInHive) {
+    if (apiCallModel.isIsolateCall && !apiCallModel.isGetDataFromHive && !apiCallModel.isStoreDataInHive) {
       responseModel = await compute<ApiCallModel, DataResponseModel<T>>(makeApiCallAndParseData<T>, apiCallModel);
-    }
-    else {
+      if (responseModel.printLogMessage != null) {
+        MyPrint.appendLogData(logMessage: responseModel.printLogMessage!);
+      }
+    } else {
       responseModel = await makeApiCallAndParseData<T>(apiCallModel);
     }
 
-    if(responseModel.appErrorModel?.code == 401 && isLogoutOnAuthorizationExpired) {
+    if (responseModel.appErrorModel?.code == 401 && isLogoutOnAuthorizationExpired) {
       //Logout
       AppController(provider: null).sessionTimeOut();
     }
@@ -55,7 +59,7 @@ class ApiController {
 
   //(2) This Method is Responsible for Making a ApiCall and parse the data in the desired format
   Future<DataResponseModel<T>> makeApiCallAndParseData<T>(ApiCallModel apiCallModel) async {
-    if(apiCallModel.isGetDataFromHive) {
+    if (apiCallModel.isGetDataFromHive) {
       return HiveOperationController().makeCall(
         hiveCallModel: HiveCallModel(
           operationType: HiveOperationType.get,
@@ -64,20 +68,24 @@ class ApiController {
           box: apiCallModel.hiveBox,
         ),
       );
-    }
-    else {
-      MyUtils.initializeHttpOverrides();
+    } else {
+      if (apiCallModel.isIsolateCall) {
+        MyUtils.initializeHttpOverrides();
+        if (MyPrint.isRecordLog == null) {
+          MyPrint.setIsRecordLog(true);
+        }
+      }
 
       Response? response = await RestClient.callApi(apiCallModel: apiCallModel);
 
       T? data;
       AppErrorModel? appErrorModel;
 
-      if(response?.statusCode == 200) {
+      if (response?.statusCode == 200) {
         MyPrint.printOnConsole("Parsing Data For Type:${apiCallModel.parsingType}");
         data = ModelDataParser.parseDataFromDecodedValue<T>(parsingType: apiCallModel.parsingType, decodedValue: MyUtils.decodeJson(response!.body));
 
-        if(apiCallModel.isStoreDataInHive) {
+        if (apiCallModel.isStoreDataInHive) {
           HiveOperationController().makeCall(
             hiveCallModel: HiveCallModel(
               operationType: HiveOperationType.set,
@@ -88,14 +96,12 @@ class ApiController {
             ),
           );
         }
-      }
-      else if(response?.statusCode == 401) {
+      } else if (response?.statusCode == 401) {
         appErrorModel = AppErrorModel(
           message: AppStrings.tokenExpired,
           code: 401,
         );
-      }
-      else {
+      } else {
         appErrorModel = AppErrorModel(
           message: response?.body ?? AppStrings.errorInApiCall,
           code: response?.statusCode ?? -1,
@@ -106,12 +112,13 @@ class ApiController {
         data: data,
         appErrorModel: appErrorModel,
         statusCode: response?.statusCode ?? -1,
+        printLogMessage: apiCallModel.isIsolateCall ? MyPrint.getLog() : null,
       );
     }
   }
 
   Future<DataResponseModel<T>> makeMultipartCallAndParseData<T>(ApiCallModel apiCallModel) async {
-    if(apiCallModel.isGetDataFromHive) {
+    if (apiCallModel.isGetDataFromHive) {
       return HiveOperationController().makeCall(
         hiveCallModel: HiveCallModel(
           operationType: HiveOperationType.get,
@@ -120,8 +127,7 @@ class ApiController {
           box: apiCallModel.hiveBox,
         ),
       );
-    }
-    else {
+    } else {
       MyUtils.initializeHttpOverrides();
 
       Response? response = await RestClient.multipartRequestCall(apiCallModel: apiCallModel);
@@ -129,7 +135,7 @@ class ApiController {
       T? data;
       AppErrorModel? appErrorModel;
 
-      if(response?.statusCode == 200) {
+      if (response?.statusCode == 200) {
         MyPrint.printOnConsole("Parsing Data For Type:${apiCallModel.parsingType}");
         data = ModelDataParser.parseDataFromDecodedValue<T>(parsingType: apiCallModel.parsingType, decodedValue: MyUtils.decodeJson(response!.body));
 
@@ -144,14 +150,12 @@ class ApiController {
         //     ),
         //   );
         // }
-      }
-      else if(response?.statusCode == 401) {
+      } else if (response?.statusCode == 401) {
         appErrorModel = AppErrorModel(
           message: AppStrings.tokenExpired,
           code: 401,
         );
-      }
-      else {
+      } else {
         appErrorModel = AppErrorModel(
           message: response?.body ?? AppStrings.errorInApiCall,
           code: response?.statusCode ?? -1,
@@ -165,7 +169,6 @@ class ApiController {
       );
     }
   }
-
 
   //To Get Api Request Data with the minimum required values, other parameters it will get from ApiProvider present in the object
   Future<ApiCallModel> getApiCallModelFromData<RequestBodyType>({
@@ -184,11 +187,12 @@ class ApiController {
     bool isAuthenticatedApiCall = true,
     bool isGetDataFromHive = false,
     bool isStoreDataInHive = false,
+    bool isIsolateCall = true,
   }) async {
     String currentSiteUrl = siteUrl.checkNotEmpty ? siteUrl! : apiDataProvider.getCurrentSiteUrl();
 
     Box? box;
-    if(isGetDataFromHive || isStoreDataInHive) {
+    if (isGetDataFromHive || isStoreDataInHive) {
       box = await MainHiveController().initializeCurrentSiteBox(
         currentSiteUrl: currentSiteUrl,
       );
@@ -210,10 +214,8 @@ class ApiController {
       isAuthenticatedApiCall: isAuthenticatedApiCall,
       isGetDataFromHive: isGetDataFromHive,
       isStoreDataInHive: isStoreDataInHive,
+      isIsolateCall: isIsolateCall,
       hiveBox: box,
     );
   }
-
-
 }
-

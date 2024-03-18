@@ -32,11 +32,22 @@ class EventTrackHiveRepository {
   static const String eventRelatedContentModelsBox = "eventRelatedContentModelsBox";
   static const String eventRelatedAssignmentModelsBox = "eventRelatedAssignmentModelsBox";
 
+  //Type: Map<String, EventTrackHeaderDTOModel>
   Box? _eventTrackScreenHeaderDataBox;
+
+  //Type: Map<String, List<EventTrackTabDTOModel>>
   Box? _eventTrackScreenTabDataBox;
+
+  //Type: Map<String, TrackListViewDataResponseModel>
   Box? _trackContentModelsBox;
+
+  //Type: Map<String, TrackListViewDataResponseModel>
   Box? _trackAssignmentModelsBox;
+
+  //Type: Map<String, ResourceContentDTOModel>
   Box? _eventRelatedContentModelsBox;
+
+  //Type: Map<String, ResourceContentDTOModel>
   Box? _eventRelatedAssignmentModelsBox;
 
   //region Box Initialization Operations

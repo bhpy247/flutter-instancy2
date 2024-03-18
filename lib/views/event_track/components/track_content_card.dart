@@ -15,6 +15,7 @@ import 'package:flutter_instancy_2/views/common/components/common_cached_network
 import 'package:flutter_instancy_2/views/common/components/common_icon_button.dart';
 import 'package:flutter_instancy_2/views/course_download/components/course_download_button.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:html/parser.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -47,6 +48,15 @@ class TrackContentCard extends StatefulWidget {
 
 class _TrackContentCardState extends State<TrackContentCard> {
   late ThemeData themeData;
+
+  String _parseHtmlString(String htmlString) {
+    final document = parse(htmlString);
+    if (document.body?.text != null) {
+      return parse(document.body!.text).documentElement!.text;
+    }
+
+    return "";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,12 +193,14 @@ class _TrackContentCardState extends State<TrackContentCard> {
             );
             CourseDownloadDataModel? downloadModel = courseDownloadProvider.getCourseDownloadDataModelFromId(
               courseDownloadId: courseDownloadId,
+              isNewInstance: false,
             );
 
             if (downloadModel?.isCourseDownloaded == true && downloadModel?.trackCourseDTOModel != null) {
               TrackCourseDTOModel newModel = downloadModel!.trackCourseDTOModel!;
 
               return linearProgressBar(
+                ContentTypeId: newModel.ContentTypeId,
                 percentCompleted: ParsingHelper.parseIntMethod(newModel.ContentProgress),
                 contentStatus: newModel.ContentStatus,
                 actualStatus: newModel.CoreLessonStatus,
@@ -196,6 +208,7 @@ class _TrackContentCardState extends State<TrackContentCard> {
             }
 
             return linearProgressBar(
+              ContentTypeId: model.ContentTypeId,
               percentCompleted: percentageCompleted.toInt(),
               contentStatus: contentStatus,
               actualStatus: actualStatus,
@@ -235,6 +248,7 @@ class _TrackContentCardState extends State<TrackContentCard> {
   }
 
   Widget linearProgressBar({
+    required int ContentTypeId,
     required int percentCompleted,
     required String contentStatus,
     required String actualStatus,
@@ -255,12 +269,22 @@ class _TrackContentCardState extends State<TrackContentCard> {
           ),
         ),
         const SizedBox(height: 10),
-        Text(
-          "$percentCompleted% $contentStatus",
-          style: themeData.textTheme.titleSmall?.copyWith(
-            fontSize: 12,
-          ),
-        )
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (ContentTypeId != InstancyObjectTypes.events)
+              Text(
+                "${percentCompleted.toInt()}% ",
+                style: themeData.textTheme.titleSmall?.copyWith(
+                  fontSize: 12,
+                ),
+              ),
+            Text(
+              _parseHtmlString(contentStatus),
+              style: const TextStyle(fontSize: 12),
+            ),
+          ],
+        ),
       ],
     );
   }

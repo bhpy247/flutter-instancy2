@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart' as in_app_webview;
@@ -164,6 +166,9 @@ class CourseLaunchController {
           MyPrint.printOnConsole("isLaunched:$isLaunched", tag: tag);
         }
         if (isLaunched) {
+          if (!NetworkConnectionController().checkConnection()) {
+            MyLearningController.isGetMyLearningData = true;
+          }
           await CourseOfflineController().syncCourseDataOnline();
         }
         return isLaunched;
@@ -547,7 +552,10 @@ class CourseLaunchController {
         return false;
       }
 
-      checkNonTrackableContentStatusUpdateOffline(model: model);
+      Completer<void> checkNonTrackableContentStatusUpdateOfflineCompleter = Completer<void>();
+      checkNonTrackableContentStatusUpdateOffline(model: model).whenComplete(() {
+        checkNonTrackableContentStatusUpdateOfflineCompleter.complete();
+      });
 
       // For Learning Modules
       if ([
@@ -557,6 +565,7 @@ class CourseLaunchController {
             InstancyObjectTypes.reference,
             InstancyObjectTypes.xApi,
             InstancyObjectTypes.webPage,
+            InstancyObjectTypes.dictionaryGlossary,
           ].contains(model.ContentTypeId) ||
           (model.ContentTypeId == InstancyObjectTypes.mediaResource && model.MediaTypeId == InstancyMediaTypes.video && model.JWVideoKey.isNotEmpty)) {
         String folderPath = await CourseDownloadController(
@@ -577,7 +586,13 @@ class CourseLaunchController {
           return false;
         }
 
-        String finalFilePath = "$folderPath${AppController.getPathSeparator()}${model.startPage}";
+        String startPage = model.startPage;
+
+        if (model.ContentTypeId == InstancyObjectTypes.dictionaryGlossary) {
+          startPage = "glossary_english.html";
+        }
+
+        String finalFilePath = "$folderPath${AppController.getPathSeparator()}$startPage";
         MyPrint.printOnConsole("finalFilePath:'$finalFilePath'", tag: tag);
 
         bool isPathExist = await AppController.checkCourseFileDirectoryExist(path: finalFilePath, isFile: true);
@@ -587,6 +602,8 @@ class CourseLaunchController {
           MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourseOffline() because finalFilePath is not exist i file system", tag: tag);
           return false;
         }
+
+        if (!checkNonTrackableContentStatusUpdateOfflineCompleter.isCompleted) await checkNonTrackableContentStatusUpdateOfflineCompleter.future;
 
         if (!context.mounted) {
           MyPrint.printOnConsole("Returning from CourseLaunchController().launchCourseOffline() because context not mounted", tag: tag);
@@ -666,6 +683,8 @@ class CourseLaunchController {
           ),
         );
 
+        if (!checkNonTrackableContentStatusUpdateOfflineCompleter.isCompleted) await checkNonTrackableContentStatusUpdateOfflineCompleter.future;
+
         if (value is! bool) {
           return true;
         }
@@ -673,7 +692,7 @@ class CourseLaunchController {
         return value;
       }
       //For Other Documents
-      else if ([InstancyMediaTypes.word, InstancyMediaTypes.excel, InstancyMediaTypes.ppt].contains(model.MediaTypeId)) {
+      else if ([InstancyMediaTypes.word, InstancyMediaTypes.excel, InstancyMediaTypes.csv, InstancyMediaTypes.ppt].contains(model.MediaTypeId)) {
         OpenResult result = await OpenFile.open(finalFilePath);
         if (result.type != ResultType.done) {
           if (context.mounted) {
@@ -682,10 +701,16 @@ class CourseLaunchController {
           }
           return false;
         }
+
+        // await Future.delayed(const Duration(seconds: 1));
+        if (!checkNonTrackableContentStatusUpdateOfflineCompleter.isCompleted) await checkNonTrackableContentStatusUpdateOfflineCompleter.future;
+
         return true;
       }
       // For Coursebot
       else if (model.ContentTypeId == InstancyObjectTypes.courseBot) {
+        if (!checkNonTrackableContentStatusUpdateOfflineCompleter.isCompleted) await checkNonTrackableContentStatusUpdateOfflineCompleter.future;
+
         return await NavigationController.navigateToInstaBotScreen2(
           navigationOperationParameters: NavigationOperationParameters(
             context: context,
@@ -698,6 +723,8 @@ class CourseLaunchController {
       }
       // For AR Content
       else if (AppConfigurationOperations.isARContent(contentTypeId: model.ContentTypeId, mediaTypeId: model.MediaTypeId)) {}
+
+      if (!checkNonTrackableContentStatusUpdateOfflineCompleter.isCompleted) await checkNonTrackableContentStatusUpdateOfflineCompleter.future;
 
       // For All the Other Content Types
       dynamic value = await navigateToOfflineLaunchScreen(

@@ -89,6 +89,7 @@ class MyCourseDownloadUIActionsController {
           mediaTypeId: parameterModel.MediaTypeId,
           actualContentStatus: parameterModel.CoreLessonStatus,
           profileProvider: AppController.mainAppContext?.read<ProfileProvider>() ?? ProfileProvider(),
+          jwVideoKey: parameterModel.JWVideoKey,
         );
   }
 
@@ -140,6 +141,7 @@ class MyCourseDownloadUIActionsController {
       isFileExtracted: model.isFileExtracted,
       isCourseDownloading: model.isCourseDownloading,
       isCourseDownloaded: model.isCourseDownloaded,
+      JWVideoKey: model.courseDTOModel?.JWVideoKey ?? model.trackCourseDTOModel?.JWVideoKey ?? model.relatedTrackDataDTOModel?.JWVideoKey ?? "",
     );
   }
 

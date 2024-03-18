@@ -13,6 +13,7 @@ class EventTrackUIActionParameterModel {
   final String ReEnrollmentHistoryLink;
   final String InstanceEventReSchedule;
   final String InstanceEventReclass;
+  final String JWVideoKey;
   final bool showRelatedContents;
   final bool showReportAction;
 
@@ -26,13 +27,14 @@ class EventTrackUIActionParameterModel {
     this.viewType = 0,
     this.eventScheduleType = 0,
     this.parentId = "",
-    this.actualStatus = "",
-    this.CancelEventLink = "",
     this.eventEndDatetime = "",
     this.actionviewqrcode = "",
+    this.actualStatus = "",
+    this.CancelEventLink = "",
+    this.ReEnrollmentHistoryLink = "",
     this.InstanceEventReSchedule = "",
     this.InstanceEventReclass = "",
-    this.ReEnrollmentHistoryLink = "",
+    this.JWVideoKey = "",
     this.showRelatedContents = false,
     this.showReportAction = false,
     this.recordingDetails,

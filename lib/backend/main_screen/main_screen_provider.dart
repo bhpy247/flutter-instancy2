@@ -17,10 +17,15 @@ class MainScreenProvider extends CommonProvider {
       value: false,
       notify: notify,
     );
+    isCourseOfflineTrackingDataSyncing = CommonProviderPrimitiveParameter<bool>(
+      value: false,
+      notify: notify,
+    );
   }
 
   late CommonProviderPrimitiveParameter<bool> isChatBotButtonCenterDocked;
   late CommonProviderPrimitiveParameter<bool> isChatBotButtonEnabled;
+  late CommonProviderPrimitiveParameter<bool> isCourseOfflineTrackingDataSyncing;
 
   //region Selected Menu Model
   NativeMenuModel? _selectedMenuModel;
@@ -92,6 +97,9 @@ class MainScreenProvider extends CommonProvider {
   }
 
   void resetData({required AppProvider appProvider, required AppThemeProvider appThemeProvider}) {
+    isChatBotButtonCenterDocked.set(value: false, isNotify: false);
+    isChatBotButtonEnabled.set(value: false, isNotify: false);
+    isCourseOfflineTrackingDataSyncing.set(value: false, isNotify: false);
     setSelectedMenuModel(value: null, isNotify: false);
     setFutureGetMenuComponentData(future: null, isNotify: false);
     setMenusApiCalledMap(menusMap: {}, isClear: true, isNotify: false);

@@ -39,6 +39,8 @@ class MyLearningController {
   late MyLearningRepository myLearningRepository;
   late MyLearningHiveRepository myLearningHiveRepository;
 
+  static bool isGetMyLearningData = false;
+
   MyLearningController({required MyLearningProvider? provider, MyLearningRepository? repository, MyLearningHiveRepository? hiveRepository, ApiController? apiController}) {
     _myLearningProvider = provider ?? MyLearningProvider();
     myLearningRepository = repository ?? MyLearningRepository(apiController: apiController ?? ApiController());
@@ -145,7 +147,7 @@ class MyLearningController {
         requestModel: myLearningDataRequestModel,
         componentId: componentId,
         componentInstanceId: componentInstanceId,
-        isStoreDataInHive: false,
+        isStoreDataInHive: true,
         isFromOffline: false,
       );
       MyPrint.printOnConsole("My Learning Contents Length From Api:${response.data?.CourseList.length ?? 0}", tag: tag);
@@ -167,10 +169,21 @@ class MyLearningController {
       if (contentsList.isNotEmpty) provider.updateMyLearningPaginationData(pageIndex: paginationModel.pageIndex + 1);
       provider.addMyLearningContentsInList(myLearningContentModels: contentsList, isClear: false, isNotify: false);
 
-      await Future.wait([
+      List<Future> futures = [
         myLearningHiveRepository.addMyLearningCourseIdInHive(myLearningCourseIds: contentsList.map((e) => e.ContentID).toList(), isClear: isRefresh),
         myLearningHiveRepository.setMyLearningCourseModelInHive(courseModelsMap: Map.fromEntries(contentsList.map((e) => MapEntry(e.ContentID, e))), isClear: isRefresh),
-      ]);
+      ];
+
+      AppProvider? appProvider = AppController.mainAppContext?.read<AppProvider>();
+      CourseDownloadProvider? courseDownloadProvider = AppController.mainAppContext?.read<CourseDownloadProvider>();
+
+      if (appProvider != null && courseDownloadProvider != null) {
+        CourseDownloadController courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+
+        futures.add(courseDownloadController.updateMyLearningContentsInDownloadsAndSyncDataOffline(contentsList: contentsList));
+      }
+
+      await Future.wait(futures);
     } else {
       provider.updateMyLearningPaginationData(hasMore: false);
       provider.setMyLearningContentIdsList(contentIds: <String>[], isClear: true, isNotify: false);
@@ -251,27 +264,54 @@ class MyLearningController {
     );
     //endregion
 
+    bool isInternetAvailable = NetworkConnectionController().checkConnection();
+    MyPrint.printOnConsole("isInternetAvailable:$isInternetAvailable", tag: tag);
+    List<CourseDTOModel> contentsList = <CourseDTOModel>[];
+
     //region Make Api Call
-    DataResponseModel<MyLearningResponseDTOModel> response = await myLearningRepository.getMyLearningContentsListMain(
-      requestModel: myLearningDataRequestModel,
-      componentId: componentId,
-      componentInstanceId: componentInstanceId,
-      isStoreDataInHive: true,
-      isFromOffline: false,
-    );
-    MyPrint.printOnConsole("My Learning Archived Contents Length:${response.data?.CourseList.length ?? 0}", tag: tag);
+    if (isInternetAvailable) {
+      DataResponseModel<MyLearningResponseDTOModel> response = await myLearningRepository.getMyLearningContentsListMain(
+        requestModel: myLearningDataRequestModel,
+        componentId: componentId,
+        componentInstanceId: componentInstanceId,
+        isStoreDataInHive: true,
+        isFromOffline: false,
+      );
+      MyPrint.printOnConsole("My Learning Contents Length From Api:${response.data?.CourseList.length ?? 0}", tag: tag);
+
+      contentsList = response.data?.CourseList ?? <CourseDTOModel>[];
+    } else {
+      // contentsList = await myLearningHiveRepository.getAllMyLearningCourseModelsListFromHive();
+    }
     //endregion
 
     DateTime endTime = DateTime.now();
     MyPrint.printOnConsole("My Learning Archived Data got in ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: tag);
 
-    List<CourseDTOModel> contentsList = response.data?.CourseList ?? <CourseDTOModel>[];
     MyPrint.printOnConsole("My Learning Archived Contents Length got in Api:${contentsList.length}", tag: tag);
 
     //region Set Provider Data After Getting Data From Api
-    if (contentsList.length < provider.pageSize.get()) provider.updateMyLearningArchivedPaginationData(hasMore: false);
-    if (contentsList.isNotEmpty) provider.updateMyLearningArchivedPaginationData(pageIndex: paginationModel.pageIndex + 1);
-    provider.addMyLearningArchivedContentsInList(myLearningContentModels: contentsList, isClear: false, isNotify: false);
+    if (isInternetAvailable) {
+      if (contentsList.length < provider.pageSize.get()) provider.updateMyLearningArchivedPaginationData(hasMore: false);
+      if (contentsList.isNotEmpty) provider.updateMyLearningArchivedPaginationData(pageIndex: paginationModel.pageIndex + 1);
+      provider.addMyLearningArchivedContentsInList(myLearningContentModels: contentsList, isClear: false, isNotify: false);
+
+      List<Future> futures = [];
+
+      AppProvider? appProvider = AppController.mainAppContext?.read<AppProvider>();
+      CourseDownloadProvider? courseDownloadProvider = AppController.mainAppContext?.read<CourseDownloadProvider>();
+      if (appProvider != null && courseDownloadProvider != null) {
+        CourseDownloadController courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+
+        futures.add(courseDownloadController.updateMyLearningContentsInDownloadsAndSyncDataOffline(contentsList: contentsList));
+      }
+
+      await Future.wait(futures);
+    } else {
+      provider.updateMyLearningArchivedPaginationData(hasMore: false);
+      provider.setMyLearningArchivedContentIdsList(contentIds: <String>[], isClear: true, isNotify: false);
+      provider.addMyLearningArchivedContentsInList(myLearningContentModels: contentsList, isClear: false, isNotify: false);
+    }
     provider.updateMyLearningArchivedPaginationData(isFirstTimeLoading: false, isNotify: false);
     provider.updateMyLearningArchivedPaginationData(isLoading: false, isNotify: true);
     //endregion

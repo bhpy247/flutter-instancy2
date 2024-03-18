@@ -29,7 +29,12 @@ class CourseDownloadProvider extends CommonProvider {
   late CommonProviderMapParameter<String, CourseDownloadDataModel> courseDownloadMap;
 
   CourseDownloadDataModel? getCourseDownloadDataModelFromId({required courseDownloadId, bool isNewInstance = true}) {
-    return courseDownloadMap.getMap(isNewInstance: isNewInstance)[courseDownloadId];
+    CourseDownloadDataModel? courseDownloadDataModel = courseDownloadMap.getMap(isNewInstance: false)[courseDownloadId];
+    if (isNewInstance && courseDownloadDataModel != null) {
+      courseDownloadDataModel = CourseDownloadDataModel.fromMap(courseDownloadDataModel.toMap());
+    }
+
+    return courseDownloadDataModel;
   }
 
   void resetData({bool isNotify = false}) {

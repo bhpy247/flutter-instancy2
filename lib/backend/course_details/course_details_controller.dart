@@ -53,6 +53,7 @@ class CourseDetailsController {
     }
     MyPrint.logOnConsole("final courseDetailsModel:$courseDetailsModel", tag: tag);
 
+    courseDetailsModel?.PercentCompleted = courseDetailsModel.percentagecompleted;
     provider.contentDetailsDTOModel.set(value: courseDetailsModel);
 
     return courseDetailsModel;

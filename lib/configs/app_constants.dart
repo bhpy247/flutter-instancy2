@@ -300,6 +300,7 @@ class InstancyMediaTypes {
   static const int assessment24x7 = 65;
   static const int threeDObject = 66;
   static const int threeDAvatar = 67;
+  static const int csv = 68;
 }
 
 /*

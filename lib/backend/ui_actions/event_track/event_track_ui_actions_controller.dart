@@ -75,6 +75,7 @@ class EventTrackUIActionsController {
           mediaTypeId: parameterModel.mediaTypeId,
           actualContentStatus: parameterModel.actualStatus,
           profileProvider: profileProvider,
+          jwVideoKey: parameterModel.JWVideoKey,
         );
   }
 
@@ -189,7 +190,7 @@ class EventTrackUIActionsController {
   }
 
   bool showReport({required EventTrackUIActionParameterModel parameterModel}) {
-    return parameterModel.showReportAction;
+    return parameterModel.showReportAction && NetworkConnectionController().checkConnection();
   }
 
   bool showJoin({required EventTrackUIActionParameterModel parameterModel}) {
@@ -338,6 +339,7 @@ class EventTrackUIActionsController {
       InstanceEventReSchedule: model.InstanceEventReSchedule,
       ReEnrollmentHistoryLink: model.ReEnrollmentHistory,
       InstanceEventReclass: model.InstanceEventReclass,
+      JWVideoKey: model.JWVideoKey,
       // bit4: model.b,
     );
   }
@@ -407,6 +409,7 @@ class EventTrackUIActionsController {
       mediaTypeId: model.MediaTypeID,
       viewType: model.ViewType,
       actualStatus: model.CoreLessonStatus,
+      JWVideoKey: model.JWVideoKey,
     );
   }
 

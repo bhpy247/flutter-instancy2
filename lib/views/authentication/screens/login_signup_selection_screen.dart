@@ -249,9 +249,27 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
 
     // return CachedNetworkImage(imageUrl: logoUrl);
 
-    return InkWell(
-      onLongPress: () {
-        SplashController(appProvider: appProvider, appThemeProvider: context.read<AppThemeProvider>()).changeCurrentSite(context: context);
+    return RawGestureDetector(
+      gestures: {
+        SerialTapGestureRecognizer: GestureRecognizerFactoryWithHandlers<SerialTapGestureRecognizer>(
+          SerialTapGestureRecognizer.new,
+          (SerialTapGestureRecognizer instance) {
+            instance.onSerialTapDown = (SerialTapDownDetails details) {
+              if (details.count == 3) {
+                print('Consecutive tap 3');
+                MyPrint.toggleRecordLog();
+              }
+            };
+          },
+        ),
+        LongPressGestureRecognizer: GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+          LongPressGestureRecognizer.new,
+          (LongPressGestureRecognizer instance) {
+            instance.onLongPress = () {
+              SplashController(appProvider: appProvider, appThemeProvider: context.read<AppThemeProvider>()).changeCurrentSite(context: context);
+            };
+          },
+        ),
       },
       child: CommonCachedNetworkImage(
         imageUrl: logoUrl,

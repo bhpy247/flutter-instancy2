@@ -1,7 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
+import 'package:flutter_instancy_2/backend/app/app_controller.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
+import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/course_offline/course_offline_provider.dart';
 import 'package:flutter_instancy_2/backend/course_offline/course_offline_repository.dart';
+import 'package:flutter_instancy_2/backend/event_track/event_track_hive_repository.dart';
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
@@ -13,11 +19,17 @@ import 'package:flutter_instancy_2/models/course_offline/request_model/get_cours
 import 'package:flutter_instancy_2/models/course_offline/response_model/course_learner_session_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/get_course_tracking_data_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/student_course_response_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/data_model/track_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/response_model/resource_content_dto_model.dart';
+import 'package:flutter_instancy_2/models/event_track/response_model/track_list_view_data_response_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/course_offline/request_model/update_offline_tracked_data_request_model.dart';
+import 'package:provider/provider.dart';
 
 class CourseOfflineController {
   static final CourseOfflineController _instance = CourseOfflineController._();
@@ -363,8 +375,10 @@ class CourseOfflineController {
       cmiModel.scoid = requestModel.ScoId;
       cmiModel.siteid = requestModel.SiteId;
       cmiModel.userid = requestModel.UserId;
+      cmiModel.objecttypeid = requestModel.ContentTypeId.toString();
 
       MyPrint.printOnConsole("Adding cmiModel in Hive and Provider", tag: tag);
+      MyPrint.printOnConsole("new cmiModel:$cmiModel", tag: tag);
       provider.cmiData.setMap(map: {cmiId: cmiModel}, isClear: false, isNotify: false);
       await repository.addCmiModelsInBox(cmiData: {cmiId: cmiModel}, isClear: false);
     }
@@ -523,6 +537,7 @@ class CourseOfflineController {
     bool isCompleted = false;
 
     CMIModel? cmiModel = await getCmiModelFromRequestModel(requestModel: requestModel);
+    MyPrint.printOnConsole("cmiModel:$cmiModel", tag: tag);
 
     String currentDateTime = getCurrentDateTime();
     if (cmiModel == null) {
@@ -703,7 +718,7 @@ class CourseOfflineController {
   }
 
   //region Sync Data to Online
-  Future<void> syncCourseDataOnline() async {
+  Future<void> syncCourseDataOnline({void Function()? onSyncStarted, void Function()? onSyncCompleted}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CourseOfflineController().syncCourseDataOnline() called", tag: tag);
 
@@ -711,6 +726,8 @@ class CourseOfflineController {
       MyPrint.printOnConsole("Returning from CourseOfflineController().syncCourseDataOnline() because No Internet Connection Available", tag: tag);
       return;
     }
+
+    onSyncStarted?.call();
 
     Map<String, CMIModel> cmiModels = await getAllCmiModels(isRefresh: true, isNewInstance: true);
     Map<String, CourseLearnerSessionResponseModel> courseLearnerSessionModels = await getAllCourseLearnerSessionResponseModels(isRefresh: true, isNewInstance: true);
@@ -720,10 +737,14 @@ class CourseOfflineController {
 
     MyPrint.printOnConsole("Final CmiModels To Update:${cmiModels.keys.toList()}", tag: tag);
 
-    List<Future> future = <Future>[];
+    DateTime startDateTime = DateTime.now();
 
-    cmiModels.forEach((String cmiId, CMIModel cmiModel) {
-      syncDataForContent(
+    for (MapEntry<String, CMIModel> entry in cmiModels.entries) {
+      CMIModel cmiModel = entry.value;
+
+      DateTime startDateTime = DateTime.now();
+      MyPrint.printOnConsole("Syncing cmiId:${entry.key}", tag: tag);
+      await syncDataForContent(
         cmiModel: cmiModel,
         courseLearnerSessionModel: courseLearnerSessionModels[CourseLearnerSessionResponseModel.getCourseLearnerSessionId(
           siteId: cmiModel.siteid,
@@ -736,11 +757,20 @@ class CourseOfflineController {
           scoId: cmiModel.scoid,
         )],
       );
-    });
+      DateTime endDateTime = DateTime.now();
+      MyPrint.printOnConsole(
+        "Syncing Completed for cmiId:${entry.key} in ${endDateTime.difference(startDateTime).inMilliseconds} Milliseconds",
+        tag: tag,
+      );
+    }
 
-    if (future.isNotEmpty) await Future.wait(future);
+    DateTime endDateTime = DateTime.now();
+    MyPrint.printOnConsole(
+      "Synced All Course Tracking Data To Online in ${endDateTime.difference(startDateTime).inMilliseconds} Milliseconds",
+      tag: tag,
+    );
 
-    MyPrint.printOnConsole("Synced All Course Tracking Data To Online", tag: tag);
+    onSyncCompleted?.call();
   }
 
   Future<bool> syncDataForContent({required CMIModel cmiModel, required CourseLearnerSessionResponseModel? courseLearnerSessionModel, StudentCourseResponseModel? studentCourseResponseModel}) async {
@@ -944,8 +974,10 @@ class CourseOfflineController {
     List<Future> databaseUpdateFuture = <Future>[];
 
     courseTrackingDataToUpdate.forEach((CourseOfflineLaunchRequestModel requestModel, GetCourseTrackingDataResponseModel responseModel) {
+      CMIModel? cmiModel = responseModel.cmi.firstElement;
+
       databaseUpdateFuture.addAll([
-        setCmiModelFromRequestModel(requestModel: requestModel, cmiModel: responseModel.cmi.firstElement),
+        setCmiModelFromRequestModel(requestModel: requestModel, cmiModel: cmiModel),
         setLearnerSessionModelFromRequestModel(
           requestModel: requestModel,
           courseLearnerSessionModel: CourseLearnerSessionResponseModel(
@@ -979,5 +1011,209 @@ class CourseOfflineController {
     if (databaseUpdateFuture.isNotEmpty) await Future.wait(databaseUpdateFuture);
     MyPrint.printOnConsole("Database Calls Completed", tag: tag);
   }
+
 //endregion
+
+  Future<void> updateContentProgressInOfflineAndDownloadWithTrackProgress({
+    required String ContentId,
+    required String CoreLessonStatus,
+    required String ContentDisplayStatus,
+    required double contentProgress,
+    required String ParentContentId,
+    required int ParentContentTypeId,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole(
+        "CourseOfflineController().updateContentProgressInOfflineAndDownloadWithTrackProgress() called with ContentId:'$ContentId', CoreLessonStatus:'$CoreLessonStatus',"
+        " ContentDisplayStatus:'$ContentDisplayStatus', contentProgress:$contentProgress, ParentContentId:'$ParentContentId', ParentContentTypeId:$ParentContentTypeId",
+        tag: tag);
+
+    BuildContext context = AppController.mainAppContext!;
+    AppProvider appProvider = context.read<AppProvider>();
+    CourseDownloadProvider courseDownloadProvider = context.read<CourseDownloadProvider>();
+    CourseDownloadController courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+
+    bool isUpdatedInDownload = await courseDownloadController.updateCourseDownloadTrackingProgress(
+      contentId: ContentId,
+      parentContentId: ParentContentId,
+      coreLessonStatus: CoreLessonStatus,
+      displayStatus: ContentDisplayStatus,
+      contentProgress: contentProgress,
+    );
+    MyPrint.printOnConsole("isUpdatedInDownload:$isUpdatedInDownload", tag: tag);
+
+    MyPrint.printOnConsole("Main Course Operations Done", tag: tag);
+
+    if (ParentContentId.isNotEmpty && [InstancyObjectTypes.track, InstancyObjectTypes.events].contains(ParentContentTypeId)) {
+      List<Future> futures = <Future>[];
+
+      EventTrackHiveRepository eventTrackHiveRepository = EventTrackHiveRepository(apiController: ApiController());
+
+      Map<String, TrackCourseDTOModel> trackContentsList = <String, TrackCourseDTOModel>{};
+      Map<String, RelatedTrackDataDTOModel> eventRelatedContentsList = <String, RelatedTrackDataDTOModel>{};
+
+      // region Update Course Progress Data in Event Track Contents Offline List
+      //For Track Contents
+      if (ParentContentTypeId == InstancyObjectTypes.track) {
+        bool isCourseProgressUpdated = false;
+        bool isAssignmentContent = false;
+
+        TrackListViewDataResponseModel? trackListViewDataResponseModel = await eventTrackHiveRepository.getTrackContentDataForTrackId(trackId: ParentContentId);
+        if (trackListViewDataResponseModel != null) {
+          TrackCourseDTOModel? trackCourseDTOModel;
+          for (TrackDTOModel trackDTOModel in trackListViewDataResponseModel.TrackListData) {
+            for (TrackCourseDTOModel model in trackDTOModel.TrackList) {
+              trackContentsList[model.ContentID] = model;
+
+              if (model.ContentID == ContentId) {
+                trackCourseDTOModel = model;
+                isAssignmentContent = false;
+              }
+            }
+          }
+
+          if (trackCourseDTOModel != null) {
+            trackCourseDTOModel.CoreLessonStatus = CoreLessonStatus;
+            trackCourseDTOModel.ContentStatus = ContentDisplayStatus;
+            trackCourseDTOModel.ContentProgress = contentProgress.toString();
+            isCourseProgressUpdated = true;
+          }
+        }
+
+        TrackListViewDataResponseModel? assignmentTrackListViewDataResponseModel = await eventTrackHiveRepository.getTrackAssignmentDataForTrackId(trackId: ParentContentId);
+        if (assignmentTrackListViewDataResponseModel != null) {
+          TrackCourseDTOModel? trackCourseDTOModel;
+          for (TrackDTOModel trackDTOModel in assignmentTrackListViewDataResponseModel.TrackListData) {
+            for (TrackCourseDTOModel model in trackDTOModel.TrackList) {
+              trackContentsList[model.ContentID] = model;
+
+              if (model.ContentID == ContentId) {
+                trackCourseDTOModel = model;
+                isAssignmentContent = true;
+              }
+            }
+          }
+
+          if (trackCourseDTOModel != null) {
+            trackCourseDTOModel.CoreLessonStatus = CoreLessonStatus;
+            trackCourseDTOModel.ContentStatus = ContentDisplayStatus;
+            trackCourseDTOModel.ContentProgress = contentProgress.toString();
+            isCourseProgressUpdated = true;
+          }
+        }
+
+        if (isCourseProgressUpdated && (trackListViewDataResponseModel != null || assignmentTrackListViewDataResponseModel != null)) {
+          if (isAssignmentContent) {
+            futures.add(eventTrackHiveRepository.addTrackAssignmentDataInBox(trackContentData: {ParentContentId: assignmentTrackListViewDataResponseModel!}, isClear: false));
+          } else {
+            futures.add(eventTrackHiveRepository.addTrackContentsDataInBox(trackContentData: {ParentContentId: trackListViewDataResponseModel!}, isClear: false));
+          }
+        }
+      }
+      //For Event Related Contents
+      else {
+        bool isCourseProgressUpdated = false;
+        bool isAssignmentContent = false;
+
+        ResourceContentDTOModel? resourceContentDTOModel = await eventTrackHiveRepository.getEventRelatedContentDataForEventId(eventId: ParentContentId);
+        if (resourceContentDTOModel != null) {
+          RelatedTrackDataDTOModel? relatedTrackDataDTOModel;
+          for (RelatedTrackDataDTOModel model in resourceContentDTOModel.ResouseList) {
+            eventRelatedContentsList[model.ContentID] = model;
+
+            if (model.ContentID == ContentId) {
+              relatedTrackDataDTOModel = model;
+              isAssignmentContent = false;
+            }
+          }
+
+          if (relatedTrackDataDTOModel != null) {
+            relatedTrackDataDTOModel.CoreLessonStatus = CoreLessonStatus;
+            relatedTrackDataDTOModel.ContentDisplayStatus = ContentDisplayStatus;
+            relatedTrackDataDTOModel.PercentCompleted = contentProgress;
+            isCourseProgressUpdated = true;
+          }
+        }
+
+        ResourceContentDTOModel? assignmentResourceContentDTOModel = await eventTrackHiveRepository.getEventRelatedContentDataForEventId(eventId: ParentContentId);
+        if (assignmentResourceContentDTOModel != null) {
+          RelatedTrackDataDTOModel? relatedTrackDataDTOModel;
+          for (RelatedTrackDataDTOModel model in assignmentResourceContentDTOModel.ResouseList) {
+            eventRelatedContentsList[model.ContentID] = model;
+
+            if (model.ContentID == ContentId) {
+              relatedTrackDataDTOModel = model;
+              isAssignmentContent = true;
+            }
+          }
+
+          if (relatedTrackDataDTOModel != null) {
+            relatedTrackDataDTOModel.CoreLessonStatus = CoreLessonStatus;
+            relatedTrackDataDTOModel.ContentDisplayStatus = ContentDisplayStatus;
+            relatedTrackDataDTOModel.PercentCompleted = contentProgress;
+            isCourseProgressUpdated = true;
+          }
+        }
+
+        if (isCourseProgressUpdated && (resourceContentDTOModel != null || assignmentResourceContentDTOModel != null)) {
+          if (isAssignmentContent) {
+            futures.add(eventTrackHiveRepository.addEventRelatedAssignmentDataInBox(eventRelatedContentData: {ParentContentId: assignmentResourceContentDTOModel!}, isClear: false));
+          } else {
+            futures.add(eventTrackHiveRepository.addEventRelatedContentDataInBox(eventRelatedContentData: {ParentContentId: resourceContentDTOModel!}, isClear: false));
+          }
+        }
+      }
+      // endregion
+
+      // region Update Main Event Track Progress
+      if (trackContentsList.isNotEmpty) {
+        double totalProgress = 0;
+        double currentProgress = 0;
+
+        if (trackContentsList.isNotEmpty) {
+          for (TrackCourseDTOModel trackCourseDTOModel in trackContentsList.values) {
+            totalProgress += 100;
+            currentProgress += ParsingHelper.parseDoubleMethod(trackCourseDTOModel.ContentProgress);
+          }
+        }
+
+        MyPrint.printOnConsole("currentProgress:$currentProgress", tag: tag);
+        MyPrint.printOnConsole("totalProgress:$totalProgress", tag: tag);
+
+        double percentageCompleted = (100 * currentProgress) / totalProgress;
+        if (percentageCompleted == double.infinity) {
+          percentageCompleted = 0;
+        } else if (percentageCompleted < 0) {
+          percentageCompleted = 0;
+        } else if (percentageCompleted > 100) {
+          percentageCompleted = 100;
+        }
+
+        String contentStatus = "";
+        String actualStatus = "";
+        if (percentageCompleted == 0) {
+          contentStatus = "Not Started";
+          actualStatus = ContentStatusTypes.notAttempted;
+        } else if (percentageCompleted == 100) {
+          contentStatus = "Completed";
+          actualStatus = ContentStatusTypes.completed;
+        } else {
+          contentStatus = "In Progress";
+          actualStatus = ContentStatusTypes.incomplete;
+        }
+
+        futures.add(courseDownloadController.updateEventTrackParentModelInDownloadsAndHeaderModel(
+          eventTrackContentId: ParentContentId,
+          PercentageCompleted: percentageCompleted,
+          CoreLessonStatus: actualStatus,
+          DisplayStatus: contentStatus,
+        ));
+      }
+      // endregion
+
+      if (futures.isNotEmpty) {
+        await Future.wait(futures);
+      }
+    }
+  }
 }

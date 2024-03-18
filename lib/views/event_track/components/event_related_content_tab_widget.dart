@@ -36,6 +36,7 @@ class EventRelatedContentTabWidget extends StatefulWidget {
   final int userId;
   final int componentId;
   final int componentInsId;
+  final bool isParentContentEnrolled;
   final CourseDownloadProvider? courseDownloadProvider;
   final void Function()? onPulledTORefresh;
   final void Function()? onPagination;
@@ -52,6 +53,7 @@ class EventRelatedContentTabWidget extends StatefulWidget {
     required this.userId,
     required this.componentId,
     required this.componentInsId,
+    required this.isParentContentEnrolled,
     required this.courseDownloadProvider,
     this.onPulledTORefresh,
     this.onPagination,
@@ -134,7 +136,7 @@ class _EventRelatedContentTabWidgetState extends State<EventRelatedContentTabWid
 
         await courseDownloadController.setCompleteDownload(courseDownloadDataModel: model);
 
-        if (widget.onPulledTORefresh != null) widget.onPulledTORefresh!();
+        if (widget.refreshParentAndChildContentsCallback != null) widget.refreshParentAndChildContentsCallback!();
       },
     );
   }
@@ -359,9 +361,11 @@ class _EventRelatedContentTabWidgetState extends State<EventRelatedContentTabWid
 
         if (primaryAction?.onTap != null) primaryAction!.onTap!();
       },
-      onDownloadTap: () {
-        onDownloadButtonTapped(model: model);
-      },
+      onDownloadTap: widget.isParentContentEnrolled
+          ? () {
+              onDownloadButtonTapped(model: model);
+            }
+          : null,
     );
   }
 }

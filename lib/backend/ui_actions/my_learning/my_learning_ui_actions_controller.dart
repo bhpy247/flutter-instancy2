@@ -212,6 +212,7 @@ class MyLearningUIActionsController {
       mediaTypeId: parameterModel.mediaTypeId,
       actualContentStatus: parameterModel.actualStatus,
       profileProvider: profileProvider,
+      jwVideoKey: parameterModel.JWVideoKey,
     );
   }
 
@@ -455,6 +456,7 @@ class MyLearningUIActionsController {
       ViewSessionsLink: model.ViewSessionsLink,
       ReEnrollmentHistoryLink: model.ReEnrollmentHistory,
       InstanceEventReclass: model.InstanceEventReclass,
+      JWVideoKey: model.JWVideoKey,
     );
   }
 

@@ -210,9 +210,9 @@ class FlutterDownloadController {
         url: requestModel.downloadUrl,
         savedDir: requestModel.destinationFolderPath,
         fileName: requestModel.fileName,
-        requiresStorageNotLow: true,
-        showNotification: false,
-        openFileFromNotification: false,
+        requiresStorageNotLow: requestModel.requiresStorageNotLow,
+        showNotification: requestModel.showNotification,
+        openFileFromNotification: requestModel.openFileFromNotification,
       );
       MyPrint.printOnConsole("Task Id:$taskId", tag: tag);
 

@@ -11,6 +11,7 @@ import 'package:flutter_instancy_2/backend/event_track/event_track_controller.da
 import 'package:flutter_instancy_2/backend/event_track/event_track_provider.dart';
 import 'package:flutter_instancy_2/backend/my_connections/my_connections_controller.dart';
 import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
+import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_provider.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
@@ -35,6 +36,7 @@ import 'package:flutter_instancy_2/views/event_track/components/overview_tab_wid
 import 'package:flutter_instancy_2/views/event_track/components/resource_tab_widget.dart';
 import 'package:flutter_instancy_2/views/event_track/components/track_content_tab_widget.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:html/parser.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -112,12 +114,13 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
         scoid: widget.arguments.scoId,
         iscontentenrolled: widget.arguments.isContentEnrolled,
       ),
-      isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
+      isGetDataFromOffline: !NetworkConnectionController().checkConnection(),
+      // isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
       isNotify: isNotify,
     );
   }
 
-  Future<void> getTabList({bool isGetDataFromOffline = false}) async {
+  Future<void> getTabList({bool isGetDataFromOffline = false, bool isRefreshTrackTabsData = false}) async {
     await eventTrackController.getEventTrackTabsData(
       requestModel: EventTrackTabRequestModel(
         parentcontentID: widget.arguments.parentContentId,
@@ -158,10 +161,10 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
 
     isAssignmentTabEnabled = tabsList.where((element) => element.tabidName == EventTrackTabs.trackAssignments).isNotEmpty;
 
-    getContentDataFromTabsList(tabsList: tabsList);
+    getContentDataFromTabsList(tabsList: tabsList, isRefreshTrackTabsData: isRefreshTrackTabsData);
   }
 
-  void getContentDataFromTabsList({required List<EventTrackTabDTOModel> tabsList}) {
+  void getContentDataFromTabsList({required List<EventTrackTabDTOModel> tabsList, bool isRefreshTrackTabsData = false}) {
     for (EventTrackTabDTOModel model in tabsList) {
       switch (model.tabidName) {
         case EventTrackTabs.overview:
@@ -179,7 +182,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
         case EventTrackTabs.trackContents:
           {
             getTrackContentsData(
-              isRefresh: false,
+              isRefresh: isRefreshTrackTabsData,
               isNotify: true,
             );
             break;
@@ -187,7 +190,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
         case EventTrackTabs.eventContents:
           {
             getEventRelatedContentsData(
-              isRefresh: false,
+              isRefresh: isRefreshTrackTabsData,
               isNotify: true,
               isGetFromCache: false,
             );
@@ -196,7 +199,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
         case EventTrackTabs.trackAssignments:
           {
             getTrackAssignmentsData(
-              isRefresh: false,
+              isRefresh: isRefreshTrackTabsData,
               isNotify: true,
             );
             break;
@@ -204,7 +207,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
         case EventTrackTabs.eventAssignments:
           {
             getEventRelatedAssignmentsData(
-              isRefresh: false,
+              isRefresh: isRefreshTrackTabsData,
               isNotify: true,
               isGetFromCache: false,
             );
@@ -265,7 +268,8 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
       componentId: componentId,
       componentInsId: componentId,
       isAssignmentTabEnabled: isAssignmentTabEnabled,
-      isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
+      isGetDataFromOffline: !NetworkConnectionController().checkConnection(),
+      // isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
       isNotify: isNotify,
     );
   }
@@ -281,7 +285,8 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
       componentId: componentId,
       componentInsId: componentId,
       isAssignmentTabEnabled: isAssignmentTabEnabled,
-      isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
+      isGetDataFromOffline: !NetworkConnectionController().checkConnection(),
+      // isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
       isNotify: isNotify,
     );
   }
@@ -296,7 +301,8 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
       componentId: componentId,
       componentInstanceId: componentId,
       isAssignmentTabEnabled: isAssignmentTabEnabled,
-      isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
+      isGetDataFromOffline: !NetworkConnectionController().checkConnection(),
+      // isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
       isNotify: isNotify,
     );
   }
@@ -311,9 +317,19 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
       componentId: componentId,
       componentInstanceId: componentId,
       isAssignmentTabEnabled: isAssignmentTabEnabled,
-      isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
+      isGetDataFromOffline: !NetworkConnectionController().checkConnection(),
+      // isGetDataFromOffline: widget.arguments.isLoadDataFromOffline,
       isNotify: isNotify,
     );
+  }
+
+  String _parseHtmlString(String htmlString) {
+    final document = parse(htmlString);
+    if (document.body?.text != null) {
+      return parse(document.body!.text).documentElement!.text;
+    }
+
+    return "";
   }
 
   @override
@@ -351,12 +367,13 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
       if (!isNetworkConnected) {
         Navigator.pop(context);
       } else {
-        getTabList(isGetDataFromOffline: widget.arguments.isLoadDataFromOffline);
+        getTabList(isGetDataFromOffline: false, isRefreshTrackTabsData: true);
       }
     });
 
     getLearningPathHeaderData();
-    getTabList(isGetDataFromOffline: widget.arguments.isLoadDataFromOffline);
+    // getTabList(isGetDataFromOffline: widget.arguments.isLoadDataFromOffline);
+    getTabList(isGetDataFromOffline: !NetworkConnectionController().checkConnection());
   }
 
   @override
@@ -485,19 +502,19 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
                 ],
               ),
             ),
-            EventTrackCoursesDownloadButtonWidget(
-              parentEventTrackModel: widget.arguments.eventTrackContentModel,
-              eventTrackProvider: eventTrackProvider,
-            ),
+            if (widget.arguments.isContentEnrolled)
+              EventTrackCoursesDownloadButtonWidget(
+                parentEventTrackModel: widget.arguments.eventTrackContentModel,
+                eventTrackProvider: eventTrackProvider,
+              ),
           ],
         ),
         const SizedBox(height: 8),
-        if (widget.arguments.objectTypeId != InstancyObjectTypes.events)
-          linearProgressBar(
-            percentCompleted: ParsingHelper.parseIntMethod(model.percentagecompleted),
-            contentStatus: model.ContentStatus,
-            displayStatus: model.DisplayStatus,
-          ),
+        linearProgressBar(
+          percentCompleted: model.percentagecompleted,
+          contentStatus: model.ContentStatus,
+          displayStatus: model.DisplayStatus,
+        ),
       ],
     );
   }
@@ -525,26 +542,27 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
     );
   }
 
-  Widget linearProgressBar({required int percentCompleted, required String contentStatus, required String displayStatus}) {
+  Widget linearProgressBar({required String percentCompleted, required String contentStatus, required String displayStatus}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: LinearProgressBar(
-            maxSteps: 100,
-            progressType: LinearProgressBar.progressTypeLinear,
-            // Use Dots progress
-            currentStep: percentCompleted,
-            progressColor: AppConfigurations.getContentStatusColorFromActualStatus(status: contentStatus),
-            backgroundColor: const Color(0xffDCDCDC),
+        if (widget.arguments.objectTypeId != InstancyObjectTypes.events) ...[
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: LinearProgressBar(
+              maxSteps: 10000,
+              progressType: LinearProgressBar.progressTypeLinear,
+              // Use Dots progress
+              currentStep: (ParsingHelper.parseDoubleMethod(percentCompleted) * 100).toInt(),
+              progressColor: AppConfigurations.getContentStatusColorFromActualStatus(status: contentStatus),
+              backgroundColor: const Color(0xffDCDCDC),
+            ),
           ),
-        ),
-        const SizedBox(height: 10),
+          const SizedBox(height: 10),
+        ],
         Text(
-          "$percentCompleted% $displayStatus",
-          // "$contentStatus",
+          widget.arguments.objectTypeId != InstancyObjectTypes.events ? "$percentCompleted% Completed" : (displayStatus.isNotEmpty ? displayStatus : _parseHtmlString(contentStatus)),
           style: themeData.textTheme.titleSmall?.copyWith(fontSize: 12),
         )
       ],
@@ -595,7 +613,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
           },
           tabs: List.generate(
             learningPathTabList.length,
-                (index) => tabTitleWidget(
+            (index) => tabTitleWidget(
               title: learningPathTabList[index].tabName,
               assetPath: "assets/myLearning/${learningPathTabList[index].tabName.toLowerCase()}.png",
               index: index,
@@ -1035,6 +1053,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
       userId: eventTrackController.eventTrackRepository.apiController.apiDataProvider.getCurrentUserId(),
       componentId: widget.arguments.componentId,
       componentInsId: widget.arguments.componentInstanceId,
+      isParentContentEnrolled: widget.arguments.isContentEnrolled,
       courseDownloadProvider: courseDownloadProvider,
       onPulledTORefresh: () {
         getEventRelatedContentsData(
@@ -1146,6 +1165,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
       userId: eventTrackController.eventTrackRepository.apiController.apiDataProvider.getCurrentUserId(),
       componentId: widget.arguments.componentId,
       componentInsId: widget.arguments.componentInstanceId,
+      isParentContentEnrolled: widget.arguments.isContentEnrolled,
       courseDownloadProvider: courseDownloadProvider,
       onPulledTORefresh: () {
         getEventRelatedAssignmentsData(

@@ -51,12 +51,14 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
     themeData = Theme.of(context);
 
     MyCourseDownloadCardDataModel? myCourseDownloadDataModel;
+    bool isEvent = false;
 
     if (widget.courseDownloadDataModel.parentCourseModel != null) {
       CourseDTOModel courseDTOModel = widget.courseDownloadDataModel.parentCourseModel!;
 
+      isEvent = courseDTOModel.ContentTypeId == InstancyObjectTypes.events;
       myCourseDownloadDataModel = MyCourseDownloadCardDataModel(
-        TitleName: courseDTOModel.TitleName,
+        TitleName: courseDTOModel.ContentName,
         AuthorDisplayName: courseDTOModel.AuthorDisplayName,
         ContentType: courseDTOModel.ContentType,
         ThumbnailImagePath: courseDTOModel.ThumbnailImagePath,
@@ -74,7 +76,7 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
       CourseDTOModel courseDTOModel = widget.courseDownloadDataModel.courseDTOModel!;
 
       myCourseDownloadDataModel = MyCourseDownloadCardDataModel(
-        TitleName: courseDTOModel.TitleName,
+        TitleName: courseDTOModel.ContentName,
         AuthorDisplayName: courseDTOModel.AuthorDisplayName,
         ContentType: courseDTOModel.ContentType,
         ThumbnailImagePath: courseDTOModel.ThumbnailImagePath,
@@ -136,59 +138,50 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
           widget.onPrimaryActionTap!();
         }
       },
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.green,
-            width: 1,
-          ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Column(
-            children: [
-              /*if (widget.courseDownloadDataModel.parentContentName.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
+      child: Column(
+        children: [
+          /*if (widget.courseDownloadDataModel.parentContentName.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              decoration: const BoxDecoration(
+                color: Colors.green,
+              ),
+              child: Center(
+                child: Text(
+                  widget.courseDownloadDataModel.parentContentName,
+                  style: themeData.textTheme.labelMedium?.copyWith(
+                    color: themeData.colorScheme.onPrimary,
                   ),
-                  child: Center(
-                    child: Text(
-                      widget.courseDownloadDataModel.parentContentName,
-                      style: themeData.textTheme.labelMedium?.copyWith(
-                        color: themeData.colorScheme.onPrimary,
-                      ),
-                    ),
-                  ),
-                ),*/
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                decoration: BoxDecoration(
-                  color: themeData.colorScheme.onPrimary,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        if (widget.onThumbnailClick != null) {
-                          widget.onThumbnailClick!();
-                        }
-                      },
-                      child: imageWidget(myCourseDownloadDataModel.ThumbnailImagePath),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: detailColumn(myCourseDownloadCardDataModel: myCourseDownloadDataModel),
-                    ),
-                  ],
                 ),
               ),
-            ],
+            ),*/
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            decoration: BoxDecoration(
+              color: themeData.colorScheme.onPrimary,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  onTap: () {
+                    if (widget.onThumbnailClick != null) {
+                      widget.onThumbnailClick!();
+                    }
+                  },
+                  child: imageWidget(myCourseDownloadDataModel.ThumbnailImagePath),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: detailColumn(
+                    myCourseDownloadCardDataModel: myCourseDownloadDataModel,
+                    isEvent: isEvent,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -222,7 +215,7 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
     );
   }
 
-  Widget detailColumn({required MyCourseDownloadCardDataModel myCourseDownloadCardDataModel}) {
+  Widget detailColumn({required MyCourseDownloadCardDataModel myCourseDownloadCardDataModel, bool isEvent = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -291,13 +284,15 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
           ],
         ),
         eventStartDateAndTime(myCourseDownloadCardDataModel: myCourseDownloadCardDataModel),
-        const SizedBox(height: 8),
-        linearProgressBar(
-          ContentTypeId: myCourseDownloadCardDataModel.ContentTypeId,
-          actualStatus: myCourseDownloadCardDataModel.CoreLessonStatus,
-          contentStatus: myCourseDownloadCardDataModel.ContentStatus,
-          percentCompleted: myCourseDownloadCardDataModel.PercentCompleted,
-        ),
+        if (!isEvent) ...[
+          const SizedBox(height: 8),
+          linearProgressBar(
+            ContentTypeId: myCourseDownloadCardDataModel.ContentTypeId,
+            actualStatus: myCourseDownloadCardDataModel.CoreLessonStatus,
+            contentStatus: myCourseDownloadCardDataModel.ContentStatus,
+            percentCompleted: myCourseDownloadCardDataModel.PercentCompleted,
+          ),
+        ],
       ],
     );
   }
@@ -411,8 +406,9 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              "${percentCompleted.toInt()}% ",
+            if (ContentTypeId != InstancyObjectTypes.events)
+              Text(
+                "${percentCompleted.toInt()}% ",
               style: themeData.textTheme.titleSmall?.copyWith(
                 fontSize: 12,
               ),

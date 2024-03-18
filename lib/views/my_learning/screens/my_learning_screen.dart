@@ -134,6 +134,11 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
       myLearningProvider.setMyLearningSearchString(value: "", isNotify: false);
       myLearningProvider.setMyLearningArchivedSearchString(value: "", isNotify: false);
       FilterController(filterProvider: myLearningProvider.filterProvider).resetFilterData();
+    } else if (MyLearningController.isGetMyLearningData) {
+      MyLearningController.isGetMyLearningData = false;
+
+      isGetMyLearningContents = true;
+      isGetMyLearningArchivedContents = true;
     }
 
     if (isGetMyLearningContents) {
@@ -299,7 +304,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
                   componentId: componentId,
                   scoId: model.ScoID,
                   componentInstanceId: componentInstanceId,
-                  isContentEnrolled: model.isCourseEnrolled(),
+                  isContentEnrolled: true,
                   eventTrackContentModel: model,
                 ),
               );
@@ -516,7 +521,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
             componentId: componentId,
             scoId: model.ScoID,
             componentInstanceId: componentInstanceId,
-            isContentEnrolled: model.isCourseEnrolled(),
+            isContentEnrolled: true,
             eventTrackContentModel: model,
           ),
         );

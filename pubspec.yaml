@@ -45,8 +45,9 @@ dependencies:
   video_thumbnail: ^0.5.3
   in_app_purchase: ^3.1.11
   confetti: ^0.7.0
-  lottie: ^2.7.0
+  lottie: ^3.1.0
   xml: ^6.5.0
+  shake: ^2.2.0
   #endregion
 
   #region State Management:
@@ -102,6 +103,8 @@ dependencies:
   firebase_core: ^2.24.2
   cloud_firestore: ^4.13.6
   firebase_messaging: ^14.7.9
+  firebase_analytics: ^10.7.4
+  firebase_crashlytics: ^3.4.8
   #endregion
 
   #region Webview:

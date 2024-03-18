@@ -307,8 +307,11 @@ class AppConfigurationOperations {
     return [17, 2, 62].contains(menuId);
   }
 
-  bool isShowSetComplete({required int objectTypeId, required int mediaTypeId, required String actualContentStatus, required ProfileProvider profileProvider}) {
-    bool isShowSetComplete = false, isHavingPrivilegeForSetComplete = false, isValidContentTypeForSetComplete = false, isContentStatusValid = false;
+  bool isShowSetComplete({required int objectTypeId, required int mediaTypeId, required String actualContentStatus, required ProfileProvider profileProvider, required String jwVideoKey}) {
+    bool isShowSetComplete = false;
+    bool isHavingPrivilegeForSetComplete = false;
+    bool isValidContentTypeForSetComplete = false;
+    bool isContentStatusValid = false;
 
     //region Check showSetCompletedlink present in userprivileges or not
     {
@@ -342,6 +345,8 @@ class AppConfigurationOperations {
         isContentStatusValid = true;
 
         if (appProvider.appSystemConfigurationModel.setcompletehidefornotstarted && actualContentStatus == ContentStatusTypes.notAttempted) {
+          isContentStatusValid = false;
+        } else if (jwVideoKey.isNotEmpty) {
           isContentStatusValid = false;
         }
       }

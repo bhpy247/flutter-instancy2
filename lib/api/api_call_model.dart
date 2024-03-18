@@ -16,8 +16,9 @@ class ApiCallModel<RequestBodyType> {
   final Map<String, String>? fields;
   final bool isAuthenticatedApiCall, isGetDataFromHive, isStoreDataInHive;
   final Box? hiveBox;
+  bool isIsolateCall;
 
-  const ApiCallModel({
+  ApiCallModel({
     required this.restCallType,
     required this.parsingType,
     required this.url,
@@ -33,6 +34,7 @@ class ApiCallModel<RequestBodyType> {
     this.isAuthenticatedApiCall = true,
     this.isGetDataFromHive = false,
     this.isStoreDataInHive = false,
+    this.isIsolateCall = true,
     this.hiveBox,
   });
 

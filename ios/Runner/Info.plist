@@ -58,6 +58,8 @@
 		<true/>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
+		<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
+    <true/>
 	</dict>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>Access audio files from storage</string>
