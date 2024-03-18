@@ -98,7 +98,6 @@ Future<void> initApp() async {
       return true;
     };
 
-    NetworkConnectionController().startNetworkConnectionSubscription();
 
     ShakeDetector.autoStart(
       onPhoneShake: () {
@@ -110,4 +109,6 @@ Future<void> initApp() async {
       minimumShakeCount: 3,
     );
   }
+
+  NetworkConnectionController().startNetworkConnectionSubscription();
 }
