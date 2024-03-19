@@ -400,8 +400,6 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
     }
     if (addCheckComponent.length == 1) {
       if (addCheckComponent.first.componentID == widget.arguments.componentId) {
-        globalSearchProvider.globalSearchListSearchString.set(value: value);
-
         Navigator.pop(
           context,
           NavigatingBackFromGlobalSearchModel(
@@ -413,6 +411,8 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
         return;
       }
     }
+    globalSearchProvider.globalSearchListSearchString.set(value: value);
+
     globalSearchProvider.courseListBasedOnIdMap.setMap(map: {}, isClear: true);
     // globalSearchProvider.globalSearchListSearchString.set(value: value);
     isShowSearchComponentSelector = false;
