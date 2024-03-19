@@ -283,7 +283,7 @@ class _ConnectionsListScreenState extends State<ConnectionsListScreen> with MySa
                 getConnectionsList(
                   isRefresh: true,
                   isGetFromCache: false,
-                  isNotify: false,
+                  isNotify: true,
                 );
               },
               onChanged: (val) {

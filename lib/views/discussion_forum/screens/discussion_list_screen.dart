@@ -387,7 +387,7 @@ class _DiscussionListScreenState extends State<DiscussionListScreen> with MySafe
           getDiscussionForumList(
             isRefresh: true,
             isGetFromCache: false,
-            isNotify: false,
+            isNotify: true,
           );
           mySetState();
         },

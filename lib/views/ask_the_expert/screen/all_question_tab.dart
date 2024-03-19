@@ -395,7 +395,7 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
                 getQuestionList(
                   isRefresh: true,
                   isGetFromCache: false,
-                  isNotify: false,
+                  isNotify: true,
                 );
               },
               onChanged: (val) {

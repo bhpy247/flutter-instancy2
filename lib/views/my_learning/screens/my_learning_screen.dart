@@ -1397,7 +1397,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
           getMyLearningContentsList(
             isRefresh: true,
             isGetFromCache: false,
-            isNotify: false,
+            isNotify: true,
           );
         },
         onSubmitted: onSubmitted,
