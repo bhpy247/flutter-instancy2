@@ -198,6 +198,8 @@ class _MyConnectionsMainScreenState extends State<MyConnectionsMainScreen> with 
       filterType: tabsDTOModel.MobileDisplayName.replaceAll(" ", "").replaceAll("-", ""),
       componentId: componentId,
       componentInsId: componentInsId,
+      isShowSearchTextField: widget.arguments.isShowSearchTextField,
+      searchString: widget.arguments.searchString,
       apiController: widget.arguments.apiController,
       onPeopleListingActionPerformed: () {
         for (DynamicTabsDTOModel model in tabModelsList) {

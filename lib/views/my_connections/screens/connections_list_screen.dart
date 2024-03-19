@@ -33,6 +33,7 @@ class ConnectionsListScreen extends StatefulWidget {
   final void Function({required bool isLoading})? setParentLoading;
   final bool isShowSearchTextField;
   final ApiController? apiController;
+  final String searchString;
 
   const ConnectionsListScreen({
     super.key,
@@ -44,7 +45,7 @@ class ConnectionsListScreen extends StatefulWidget {
     this.setParentLoading,
     this.isShowSearchTextField = true,
     this.apiController,
-  });
+      this.searchString = ""});
 
   @override
   State<ConnectionsListScreen> createState() => _ConnectionsListScreenState();
@@ -204,7 +205,9 @@ class _ConnectionsListScreenState extends State<ConnectionsListScreen> with MySa
 
     componentId = widget.componentId;
     componentInsId = widget.componentInsId;
-
+    if (widget.searchString.checkNotEmpty) {
+      myConnectionsProvider.peopleListSearchString.set(value: widget.searchString);
+    }
     textEditingController.text = myConnectionsProvider.peopleListSearchString.get();
 
     if (myConnectionsProvider.isPeopleListingActionPerformed.get()) {
