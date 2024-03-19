@@ -92,6 +92,7 @@ class _GlobalSearchComponentState extends State<GlobalSearchComponent> with MySa
             value: globalSearchProvider.isAllChecked.get(),
             onChanged: (bool? val) {
               isAllChecked = val ?? false;
+              isCurrentCheckedBoxSelected = val ?? false;
               globalSearchProvider.isAllChecked.set(value: isAllChecked);
               changeTheValueOfAllCheckBox(isAllChecked);
               mySetState();
