@@ -88,7 +88,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
     );
   }
 
-  Future<void> onDetailsTap({required CourseDTOModel model, required int userId, required SearchComponents searchComponents, required int componentId, required int componentInsId}) async {
+  Future<void> onDetailsTap({required CourseDTOModel model, required SearchComponents searchComponents, required int componentId, required int componentInsId}) async {
     MyPrint.printOnConsole("contentId ${model.ContentID}");
     dynamic value = await NavigationController.navigateToCourseDetailScreen(
       navigationOperationParameters: NavigationOperationParameters(
@@ -158,10 +158,14 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
             );
           }, onDetailsTap: () {
             Navigator.pop(context);
+            if (searchComponents.componentID == InstancyComponents.PeopleList) {
+              String id = globalSearchResultModel.ViewProfileLink.split("profileuserid/").last.split("/").first;
+              onViewProfileTap(userid: ParsingHelper.parseIntMethod(id));
+              return;
+            }
             onDetailsTap(
               model: globalSearchResultModel,
               searchComponents: searchComponents,
-              userId: globalSearchResultModel.SiteUserID,
               componentId: searchComponents.componentID,
               componentInsId: searchComponents.componentInstanceID,
             );
@@ -557,7 +561,11 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
               InkWell(
                 onTap: () {
                   // sortBottomSheet();
-                  FocusScope.of(context).requestFocus(focusNode);
+                  if (isShowSearchComponentSelector) {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  } else {
+                    FocusScope.of(context).requestFocus(focusNode);
+                  }
                   isShowSearchComponentSelector = !isShowSearchComponentSelector;
                   mySetState();
                 },
