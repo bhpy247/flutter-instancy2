@@ -5,12 +5,15 @@ import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
+import 'package:flutter_instancy_2/backend/course_launch/course_launch_repository.dart';
 import 'package:flutter_instancy_2/backend/course_offline/course_offline_provider.dart';
 import 'package:flutter_instancy_2/backend/course_offline/course_offline_repository.dart';
 import 'package:flutter_instancy_2/backend/event_track/event_track_hive_repository.dart';
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
+import 'package:flutter_instancy_2/models/course_launch/request_model/update_jw_video_progress_request_model.dart';
+import 'package:flutter_instancy_2/models/course_launch/request_model/update_jw_video_time_details_request_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/data_model/cmi_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/data_model/learner_session_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/data_model/student_response_model.dart';
@@ -87,6 +90,7 @@ class CourseOfflineController {
         startdate: currentDateTime,
         corelessonstatus: ContentStatusTypes.incomplete,
         siteurl: ApiController().apiDataProvider.getCurrentSiteUrl(),
+        isJWVideo: requestModel.isJWVideo,
       );
       futures.add(setCmiModelFromRequestModel(requestModel: requestModel, cmiModel: cmiModel));
     } else {
@@ -272,6 +276,7 @@ class CourseOfflineController {
     if (onUpdate != null) {
       cmiModel = onUpdate(cmiModel: cmiModel);
       cmiModel.isupdate = isUpdatedOnline.toString();
+      cmiModel.isJWVideo = requestModel.isJWVideo;
       MyPrint.printOnConsole("cmiModel:$cmiModel", tag: tag);
       await setCmiModelFromRequestModel(requestModel: requestModel, cmiModel: cmiModel);
       isSuccess = true;
@@ -376,6 +381,7 @@ class CourseOfflineController {
       cmiModel.siteid = requestModel.SiteId;
       cmiModel.userid = requestModel.UserId;
       cmiModel.objecttypeid = requestModel.ContentTypeId.toString();
+      cmiModel.isJWVideo = requestModel.isJWVideo;
 
       MyPrint.printOnConsole("Adding cmiModel in Hive and Provider", tag: tag);
       MyPrint.printOnConsole("new cmiModel:$cmiModel", tag: tag);
@@ -562,6 +568,7 @@ class CourseOfflineController {
           percentageCompleted: "100",
           datecompleted: currentDateTime,
           siteurl: ApiController().apiDataProvider.getCurrentSiteUrl(),
+          isJWVideo: requestModel.isJWVideo,
         ),
       );
       isCompleted = true;
@@ -655,6 +662,7 @@ class CourseOfflineController {
           corelessonstatus: ContentStatusTypes.incomplete,
           percentageCompleted: "50",
           siteurl: ApiController().apiDataProvider.getCurrentSiteUrl(),
+          isJWVideo: requestModel.isJWVideo,
         ),
       );
       isCompleted = true;
@@ -894,6 +902,34 @@ class CourseOfflineController {
       return false;
     }
 
+    if (cmiModel.isJWVideo) {
+      MyPrint.printOnConsole("Updating JW Video Time Details Progress", tag: tag);
+      DataResponseModel<int> responseModel1 = await CourseLaunchRepository(apiController: repository.apiController).updateJWVideoTimeDetails(
+        requestModel: UpdateJWVideoTimeDetailsRequestModel(
+          videoID: cmiModel.contentId,
+          parentContentID: cmiModel.parentContentId,
+          time: "1:46.138005",
+          userID: cmiModel.userid,
+        ),
+      );
+      MyPrint.printOnConsole("Updated JW Video Time Details Progress", tag: tag);
+      MyPrint.printOnConsole("Response Status Code:${responseModel1.statusCode}", tag: tag);
+      MyPrint.printOnConsole("Response Body:${responseModel1.data}", tag: tag);
+
+      MyPrint.printOnConsole("Updating JW Video Progress", tag: tag);
+      DataResponseModel<String> responseModel2 = await CourseLaunchRepository(apiController: repository.apiController).updateJWVideoProgress(
+        requestModel: UpdateJWVideoProgressRequestModel(
+          SiteID: cmiModel.siteid,
+          userId: cmiModel.userid,
+          SCOID: cmiModel.scoid,
+          timeProgress: ParsingHelper.parseIntMethod(cmiModel.percentageCompleted),
+        ),
+      );
+      MyPrint.printOnConsole("Updated JW Video Progress", tag: tag);
+      MyPrint.printOnConsole("Response Status Code:${responseModel2.statusCode}", tag: tag);
+      MyPrint.printOnConsole("Response Body:${responseModel2.data}", tag: tag);
+    }
+
     MyPrint.printOnConsole("Course Tracing Update Api Succeed", tag: tag);
 
     MyPrint.printOnConsole("Marking CMI As Updated in Hive", tag: tag);
@@ -902,6 +938,7 @@ class CourseOfflineController {
         SiteId: cmiModel.siteid,
         UserId: cmiModel.userid,
         ScoId: cmiModel.scoid,
+        isJWVideo: cmiModel.isJWVideo,
       ),
       onUpdate: ({required CMIModel cmiModel}) => cmiModel,
       isUpdatedOnline: true,
@@ -975,6 +1012,7 @@ class CourseOfflineController {
 
     courseTrackingDataToUpdate.forEach((CourseOfflineLaunchRequestModel requestModel, GetCourseTrackingDataResponseModel responseModel) {
       CMIModel? cmiModel = responseModel.cmi.firstElement;
+      cmiModel?.isJWVideo = requestModel.isJWVideo;
 
       databaseUpdateFuture.addAll([
         setCmiModelFromRequestModel(requestModel: requestModel, cmiModel: cmiModel),

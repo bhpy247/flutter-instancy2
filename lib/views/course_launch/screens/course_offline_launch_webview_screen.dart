@@ -608,6 +608,8 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
           capturedImgFilepath: imageFilePath,
         );
 
+        studentResponseModel.questionattempt = 1;
+
         studentCourseResponseModel.questionResponseMap[studentResponseModel.questionid] = studentResponseModel;
 
         MyPrint.printOnConsole("Saving studentResponseModel:$studentResponseModel", tag: tag);
@@ -691,6 +693,7 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
       ContentId: courseLaunchModel.ContentID,
       ParentContentId: courseLaunchModel.ParentEventTrackContentID,
       UserName: UserName,
+      isJWVideo: courseLaunchModel.JWVideoKey.isNotEmpty,
     );
 
     MyPrint.printOnConsole("CourseOfflineLaunchWebViewScreen init called for coursePath:'${widget.arguments.coursePath}'");

@@ -101,6 +101,7 @@ enum ModelDataParsingType {
   dynamic,
   string,
   bool,
+  int,
 
   //region App Module
   CurrencyDataResponseModel,
@@ -316,6 +317,7 @@ class ModelDataParser {
     ModelDataParsingType.dynamic: parseDynamic,
     ModelDataParsingType.string: parseString,
     ModelDataParsingType.bool: parseBool,
+    ModelDataParsingType.int: parseInt,
 
     //region App Module
     ModelDataParsingType.CurrencyDataResponseModel: parseCurrencyDataResponseModel,
@@ -571,6 +573,10 @@ class ModelDataParser {
 
   static bool parseBool({required dynamic decodedValue}) {
     return ParsingHelper.parseBoolMethod(decodedValue);
+  }
+
+  static int parseInt({required dynamic decodedValue}) {
+    return ParsingHelper.parseIntMethod(decodedValue);
   }
 
   static MobileGetLearningPortalInfoResponseModel? parseLearningPortalInfo({required dynamic decodedValue}) {

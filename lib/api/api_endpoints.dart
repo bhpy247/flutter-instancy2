@@ -352,6 +352,10 @@ class ApiEndpoints {
 
   String getInitializeTrackingforMediaObjectsApiCall() => '${getBaseApiUrl()}CourseTracking/InitializeTrackingforMediaObjects';
 
+  String getUpdateJWVideoProgressApiCall() => '${getBaseApiUrl()}CourseTracking/updateJWVideoProgress';
+
+  String getUpdateJWVideoTimeDetailsApiCall() => '${getBaseApiUrl()}CourseTracking/upateJWVideoTimeDetails';
+
   //endregion
 
   // region Discussion

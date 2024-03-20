@@ -364,11 +364,10 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
     networkConnectionStreamSubscription = networkConnectionProvider.networkConnectedSubscription.get()?.stream.listen((bool isNetworkConnected) {
       MyPrint.printOnConsole("isNetworkConnected in EventTrackScreen().initState():$isNetworkConnected");
 
-      if (!isNetworkConnected) {
-        Navigator.pop(context);
-      } else {
+      Navigator.pop(context);
+      /*if (isNetworkConnected) {
         getTabList(isGetDataFromOffline: false, isRefreshTrackTabsData: true);
-      }
+      }*/
     });
 
     getLearningPathHeaderData();

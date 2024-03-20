@@ -18,7 +18,6 @@ import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_configs.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
-import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/course_download/request_model/course_download_request_model.dart';
@@ -521,15 +520,23 @@ class CourseDownloadController {
     int SiteId = apiUrlConfigurationProvider.getCurrentSiteId();
     int UserId = apiUrlConfigurationProvider.getCurrentUserId();
 
+    String UserName = AppController.mainAppContext?.read<AuthenticationProvider>().getEmailLoginResponseModel()?.username ?? "";
+
     return CourseOfflineLaunchRequestModel(
       ContentId: downloadDataModel.contentId,
       ContentTypeId: downloadDataModel.contentTypeId,
+      MediaTypeId: downloadDataModel.mediaTypeId,
       ScoId: downloadDataModel.scoId,
       ParentContentId: downloadDataModel.parentContentId,
+      UserName: UserName,
       ParentContentTypeId: downloadDataModel.parentContentTypeId,
       ParentContentScoId: downloadDataModel.parentContentScoId,
       SiteId: SiteId,
       UserId: UserId,
+      isJWVideo: downloadDataModel.courseDTOModel?.JWVideoKey.isNotEmpty ??
+          downloadDataModel.trackCourseDTOModel?.JWVideoKey.isNotEmpty ??
+          downloadDataModel.relatedTrackDataDTOModel?.JWVideoKey.isNotEmpty ??
+          false,
     );
   }
 
@@ -565,6 +572,25 @@ class CourseDownloadController {
       }),
       repository.removeCourseDownloadDataModelsFromHive(downloadIds: [downloadId]).then((value) {
         isRemovedDownloadModelFromHive = value;
+      }),
+      Future(() async {
+        MyPrint.printOnConsole("Deleting Course From File System", tag: tag);
+
+        MyPrint.printOnConsole("downloadFileDirectoryPath:${courseDownloadDataModel?.downloadFileDirectoryPath}", tag: tag);
+
+        if (courseDownloadDataModel == null || courseDownloadDataModel.downloadFileDirectoryPath.isEmpty) {
+          MyPrint.printOnConsole("Returning from Deleting Course From File System because courseDownloadDataModel is null or downloadFileDirectoryPath is empty", tag: tag);
+          return;
+        }
+
+        try {
+          Directory directory = Directory(courseDownloadDataModel.downloadFileDirectoryPath);
+          await directory.delete(recursive: true);
+          MyPrint.printOnConsole("Deleted Course From File System", tag: tag);
+        } catch (e, s) {
+          MyPrint.printOnConsole("Error in Deleting Course From File System:$e", tag: tag);
+          MyPrint.printOnConsole(s, tag: tag);
+        }
       }),
     ]);
 
@@ -680,20 +706,12 @@ class CourseDownloadController {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CourseDownloadController().setCompleteDownload() called with downloadId:'${courseDownloadDataModel.id}'", tag: tag);
 
-    ApiUrlConfigurationProvider apiUrlConfigurationProvider = ApiController().apiDataProvider;
-    int SiteId = apiUrlConfigurationProvider.getCurrentSiteId();
-    int UserId = apiUrlConfigurationProvider.getCurrentUserId();
+    CourseOfflineLaunchRequestModel? courseOfflineLaunchRequestModel = getCourseOfflineLaunchRequestModelFromCourseDownloadDataModel(downloadDataModel: courseDownloadDataModel);
 
-    CourseOfflineLaunchRequestModel courseOfflineLaunchRequestModel = CourseOfflineLaunchRequestModel(
-      ContentId: courseDownloadDataModel.contentId,
-      ContentTypeId: courseDownloadDataModel.contentTypeId,
-      ScoId: courseDownloadDataModel.scoId,
-      ParentContentId: courseDownloadDataModel.parentContentId,
-      ParentContentTypeId: courseDownloadDataModel.parentContentTypeId,
-      ParentContentScoId: courseDownloadDataModel.parentContentScoId,
-      SiteId: SiteId,
-      UserId: UserId,
-    );
+    if (courseOfflineLaunchRequestModel == null) {
+      MyPrint.printOnConsole("Returning from CourseDownloadController().setCompleteDownload() because courseOfflineLaunchRequestModel is null", tag: tag);
+      return false;
+    }
 
     bool isSetCompletedInOffline = await CourseOfflineController().setCompleteOffline(requestModel: courseOfflineLaunchRequestModel);
     MyPrint.printOnConsole("isSetCompletedInOffline:$isSetCompletedInOffline", tag: tag);
@@ -721,20 +739,12 @@ class CourseDownloadController {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CourseDownloadController().setContentToInProgress() called with downloadId:'${courseDownloadDataModel.id}'", tag: tag);
 
-    ApiUrlConfigurationProvider apiUrlConfigurationProvider = ApiController().apiDataProvider;
-    int SiteId = apiUrlConfigurationProvider.getCurrentSiteId();
-    int UserId = apiUrlConfigurationProvider.getCurrentUserId();
+    CourseOfflineLaunchRequestModel? courseOfflineLaunchRequestModel = getCourseOfflineLaunchRequestModelFromCourseDownloadDataModel(downloadDataModel: courseDownloadDataModel);
 
-    CourseOfflineLaunchRequestModel courseOfflineLaunchRequestModel = CourseOfflineLaunchRequestModel(
-      ContentId: courseDownloadDataModel.contentId,
-      ContentTypeId: courseDownloadDataModel.contentTypeId,
-      ScoId: courseDownloadDataModel.scoId,
-      ParentContentId: courseDownloadDataModel.parentContentId,
-      ParentContentTypeId: courseDownloadDataModel.parentContentTypeId,
-      ParentContentScoId: courseDownloadDataModel.parentContentScoId,
-      SiteId: SiteId,
-      UserId: UserId,
-    );
+    if (courseOfflineLaunchRequestModel == null) {
+      MyPrint.printOnConsole("Returning from CourseDownloadController().setContentToInProgress() because courseOfflineLaunchRequestModel is null", tag: tag);
+      return false;
+    }
 
     bool isSetContentToInProgress = await CourseOfflineController().setContentToInProgress(requestModel: courseOfflineLaunchRequestModel);
     MyPrint.printOnConsole("isSetContentToInProgress:$isSetContentToInProgress", tag: tag);
@@ -1091,8 +1101,6 @@ class CourseDownloadController {
       Map<String, CourseDownloadDataModel> courseDownloadDataModelsMap = <String, CourseDownloadDataModel>{};
       List<CourseOfflineLaunchRequestModel> requestModels = <CourseOfflineLaunchRequestModel>[];
 
-      String UserName = AppController.mainAppContext?.read<AuthenticationProvider>().getEmailLoginResponseModel()?.username ?? "";
-
       for (CourseDTOModel model in contentsList) {
         if ([InstancyObjectTypes.events, InstancyObjectTypes.track].contains(model.ContentTypeId)) {
           futures.add(updateEventTrackParentModelInDownloadsAndHeaderModel(
@@ -1108,15 +1116,13 @@ class CourseDownloadController {
             courseDownloadDataModel.courseDTOModel = model;
             courseDownloadDataModelsMap[downloadId] = courseDownloadDataModel;
 
-            CourseOfflineLaunchRequestModel courseOfflineLaunchRequestModel = CourseOfflineLaunchRequestModel(
-              ContentId: model.ContentID,
-              ContentTypeId: model.ContentTypeId,
-              MediaTypeId: model.MediaTypeID,
-              ScoId: model.ScoID,
-              SiteId: model.SiteId,
-              UserId: model.SiteUserID,
-              UserName: UserName,
-            );
+            CourseOfflineLaunchRequestModel? courseOfflineLaunchRequestModel = getCourseOfflineLaunchRequestModelFromCourseDownloadDataModel(downloadDataModel: courseDownloadDataModel);
+
+            if (courseOfflineLaunchRequestModel == null) {
+              MyPrint.printOnConsole("Continuing in Loop for CourseDownloadController().setContentToInProgress() because courseOfflineLaunchRequestModel is null", tag: tag);
+              continue;
+            }
+
             requestModels.add(courseOfflineLaunchRequestModel);
           }
         }
@@ -1147,12 +1153,6 @@ class CourseDownloadController {
       Map<String, CourseDownloadDataModel> courseDownloadDataModelsMap = <String, CourseDownloadDataModel>{};
       List<CourseOfflineLaunchRequestModel> requestModels = <CourseOfflineLaunchRequestModel>[];
 
-      ApiUrlConfigurationProvider apiUrlConfigurationProvider = ApiController().apiDataProvider;
-      NativeLoginDTOModel? nativeLoginDTOModel = AppController.mainAppContext?.read<AuthenticationProvider>().getEmailLoginResponseModel();
-      int SiteId = nativeLoginDTOModel?.siteid ?? apiUrlConfigurationProvider.getCurrentSiteId();
-      int UserId = nativeLoginDTOModel?.userid ?? apiUrlConfigurationProvider.getCurrentUserId();
-      String UserName = nativeLoginDTOModel?.username ?? "";
-
       for (TrackCourseDTOModel model in contentsList) {
         String downloadId = CourseDownloadDataModel.getDownloadId(contentId: model.ContentID, eventTrackContentId: parentCourseId);
         CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: downloadId);
@@ -1160,15 +1160,13 @@ class CourseDownloadController {
           courseDownloadDataModel.trackCourseDTOModel = model;
           courseDownloadDataModelsMap[downloadId] = courseDownloadDataModel;
 
-          CourseOfflineLaunchRequestModel courseOfflineLaunchRequestModel = CourseOfflineLaunchRequestModel(
-            ContentId: model.ContentID,
-            ContentTypeId: model.ContentTypeId,
-            MediaTypeId: model.MediaTypeID,
-            ScoId: model.ScoID,
-            SiteId: SiteId,
-            UserId: UserId,
-            UserName: UserName,
-          );
+          CourseOfflineLaunchRequestModel? courseOfflineLaunchRequestModel = getCourseOfflineLaunchRequestModelFromCourseDownloadDataModel(downloadDataModel: courseDownloadDataModel);
+
+          if (courseOfflineLaunchRequestModel == null) {
+            MyPrint.printOnConsole("Continuing in Loop for CourseDownloadController().setContentToInProgress() because courseOfflineLaunchRequestModel is null", tag: tag);
+            continue;
+          }
+
           requestModels.add(courseOfflineLaunchRequestModel);
         }
       }
@@ -1198,12 +1196,6 @@ class CourseDownloadController {
       Map<String, CourseDownloadDataModel> courseDownloadDataModelsMap = <String, CourseDownloadDataModel>{};
       List<CourseOfflineLaunchRequestModel> requestModels = <CourseOfflineLaunchRequestModel>[];
 
-      ApiUrlConfigurationProvider apiUrlConfigurationProvider = ApiController().apiDataProvider;
-      NativeLoginDTOModel? nativeLoginDTOModel = AppController.mainAppContext?.read<AuthenticationProvider>().getEmailLoginResponseModel();
-      int SiteId = nativeLoginDTOModel?.siteid ?? apiUrlConfigurationProvider.getCurrentSiteId();
-      int UserId = nativeLoginDTOModel?.userid ?? apiUrlConfigurationProvider.getCurrentUserId();
-      String UserName = nativeLoginDTOModel?.username ?? "";
-
       for (RelatedTrackDataDTOModel model in contentsList) {
         String downloadId = CourseDownloadDataModel.getDownloadId(contentId: model.ContentID, eventTrackContentId: parentCourseId);
         CourseDownloadDataModel? courseDownloadDataModel = courseDownloadProvider.getCourseDownloadDataModelFromId(courseDownloadId: downloadId);
@@ -1211,15 +1203,14 @@ class CourseDownloadController {
           courseDownloadDataModel.relatedTrackDataDTOModel = model;
           courseDownloadDataModelsMap[downloadId] = courseDownloadDataModel;
 
-          CourseOfflineLaunchRequestModel courseOfflineLaunchRequestModel = CourseOfflineLaunchRequestModel(
-            ContentId: model.ContentID,
-            ContentTypeId: model.ContentTypeId,
-            MediaTypeId: model.MediaTypeID,
-            ScoId: model.ScoID,
-            SiteId: SiteId,
-            UserId: UserId,
-            UserName: UserName,
-          );
+          CourseOfflineLaunchRequestModel? courseOfflineLaunchRequestModel = getCourseOfflineLaunchRequestModelFromCourseDownloadDataModel(downloadDataModel: courseDownloadDataModel);
+
+          if (courseOfflineLaunchRequestModel == null) {
+            MyPrint.printOnConsole("Continuing in Loop for CourseDownloadController().updateEventRelatedContentsInDownloadsAndSyncDataOffline() because courseOfflineLaunchRequestModel is null",
+                tag: tag);
+            continue;
+          }
+
           requestModels.add(courseOfflineLaunchRequestModel);
         }
       }
@@ -1271,7 +1262,9 @@ class CourseDownloadController {
       if (eventTrackHeaderDTOModel != null) {
         if (CoreLessonStatus != null) eventTrackHeaderDTOModel.ContentStatus = CoreLessonStatus;
         if (DisplayStatus != null) eventTrackHeaderDTOModel.DisplayStatus = DisplayStatus;
-        if (PercentageCompleted != null) eventTrackHeaderDTOModel.percentagecompleted = PercentageCompleted.toString();
+        if (PercentageCompleted != null) {
+          eventTrackHeaderDTOModel.percentagecompleted = PercentageCompleted.toStringAsFixed(PercentageCompleted == PercentageCompleted.toInt() ? 0 : 2);
+        }
         await eventTrackHiveRepository.addEventTrackHeaderDTOModelInBox(headerData: {eventTrackHeaderDTOModel.ContentID: eventTrackHeaderDTOModel}, isClear: false);
 
         MyPrint.printOnConsole("Updated Event Track Header Model in Hive", tag: tag);

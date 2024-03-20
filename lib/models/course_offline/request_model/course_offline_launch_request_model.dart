@@ -11,6 +11,7 @@ class CourseOfflineLaunchRequestModel {
   String ContentId = "";
   String ParentContentId = "";
   String UserName = "";
+  bool isJWVideo = false;
 
   CourseOfflineLaunchRequestModel({
     this.UserId = 0,
@@ -23,6 +24,7 @@ class CourseOfflineLaunchRequestModel {
     this.ContentId = "",
     this.ParentContentId = "",
     this.UserName = "",
+    this.isJWVideo = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -37,6 +39,7 @@ class CourseOfflineLaunchRequestModel {
       "ContentId": ContentId,
       "ParentContentId": ParentContentId,
       "UserName": UserName,
+      "isJWVideo": isJWVideo,
     };
   }
 

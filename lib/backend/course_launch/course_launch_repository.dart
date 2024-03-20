@@ -1,4 +1,6 @@
 import 'package:flutter_instancy_2/models/course_launch/request_model/content_status_request_model.dart';
+import 'package:flutter_instancy_2/models/course_launch/request_model/update_jw_video_progress_request_model.dart';
+import 'package:flutter_instancy_2/models/course_launch/request_model/update_jw_video_time_details_request_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/response_model/content_status_response_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
@@ -123,6 +125,48 @@ class CourseLaunchRepository {
     );
 
     DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<String>> updateJWVideoProgress({
+    required UpdateJWVideoProgressRequestModel requestModel,
+  }) async {
+    MyPrint.printOnConsole('CourseLaunchRepository().updateJWVideoProgress() called with requestModel:$requestModel');
+
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.string,
+      url: apiEndpoints.getUpdateJWVideoProgressApiCall(),
+      queryParameters: requestModel.toJson(),
+    );
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<int>> updateJWVideoTimeDetails({
+    required UpdateJWVideoTimeDetailsRequestModel requestModel,
+  }) async {
+    MyPrint.printOnConsole('CourseLaunchRepository().updateJWVideoTimeDetails() called with requestModel:$requestModel');
+
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.int,
+      url: apiEndpoints.getUpdateJWVideoTimeDetailsApiCall(),
+      queryParameters: requestModel.toJson(),
+    );
+
+    DataResponseModel<int> apiResponseModel = await apiController.callApi<int>(
       apiCallModel: apiCallModel,
     );
 
