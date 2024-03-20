@@ -70,6 +70,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
   late AppProvider appProvider;
   late ProfileProvider profileProvider;
   String? appBarTitle;
+  GlobalSearchProvider globalSearchProvider = GlobalSearchProvider();
 
   late CourseDownloadProvider courseDownloadProvider;
   late CourseDownloadController courseDownloadController;
@@ -1194,7 +1195,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
 
     List<InstancyUIActionModel> options = myLearningUIActionsController
         .getMyLearningScreenPrimaryActions(
-      model: model,
+          model: model,
           myLearningUIActionCallbackModel: getMyLearningUIActionCallbackModel(
             model: model,
             isSecondaryAction: false,
@@ -1384,21 +1385,30 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
           NavigatingBackFromGlobalSearchModel? val = await NavigationController.navigateToGlobalSearchScreen(
             navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
             arguments: GlobalSearchScreenNavigationArguments(
-                componentId: componentId,
-                componentInsId: componentInstanceId,
-                globalSearchProvider: GlobalSearchProvider(),
-                filterProvider: context.read<FilterProvider>(),
-                componentConfigurationsModel: ComponentConfigurationsModel(),
-                componentName: "My Learning"),
+              componentId: componentId,
+              searchString: searchController.text.trim(),
+              componentInsId: componentInstanceId,
+              globalSearchProvider: globalSearchProvider,
+              filterProvider: context.read<FilterProvider>(),
+              componentConfigurationsModel: ComponentConfigurationsModel(),
+              componentName: "My Learning",
+            ),
           );
           if (val == null || val.isSuccess == false) return;
           myLearningProvider.setMyLearningSearchString(value: val.searchString);
           searchController.text = val.searchString;
           getMyLearningContentsList(
+            isArchive: false,
             isRefresh: true,
             isGetFromCache: false,
             isNotify: true,
           );
+          mySetState();
+          // getMyLearningContentsList(
+          //   isRefresh: true,
+          //   isGetFromCache: false,
+          //   isNotify: true,
+          // );
         },
         onSubmitted: onSubmitted,
         onChanged: (String text) {

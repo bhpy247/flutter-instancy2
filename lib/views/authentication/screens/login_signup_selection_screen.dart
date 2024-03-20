@@ -166,6 +166,21 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
       initializeImages(appProvider: appProvider);
 
       return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          actions: [
+            InkWell(
+              onTap: () {
+                SplashController(appProvider: appProvider, appThemeProvider: context.read<AppThemeProvider>()).changeCurrentSite(context: context);
+              },
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Icon(Icons.more_vert),
+              ),
+            )
+          ],
+        ),
         resizeToAvoidBottomInset: false,
         body: getMainBody2(),
       );

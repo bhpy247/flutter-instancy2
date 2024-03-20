@@ -174,7 +174,7 @@ class ShareWithConnectionsScreenNavigationArguments extends NavigationArguments 
   final int scoId;
   final int objecttypeId;
   final int questionId;
-  final int responseId;
+  final int? responseId;
   final ShareProvider? shareProvider;
 
   const ShareWithConnectionsScreenNavigationArguments({
@@ -185,7 +185,7 @@ class ShareWithConnectionsScreenNavigationArguments extends NavigationArguments 
     this.forumId = 0,
     this.scoId = 0,
     this.questionId = 0,
-    this.responseId = 0,
+    this.responseId,
     this.objecttypeId = 0,
     this.shareProvider,
   });
