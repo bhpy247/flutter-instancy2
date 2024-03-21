@@ -586,7 +586,7 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
     // MyPrint.printOnConsole("isWIshlishContent: ${model.isWishListContent}");
     List<InstancyUIActionModel> options = catalogUIActionsController
         .getEventCatalogScreenSecondaryActions(
-      courseDTOModel: model,
+          courseDTOModel: model,
           localStr: localStr,
           eventCatalogUIActionCallbackModel: getEventCatalogUIActionCallbackModel(
             model: model,
@@ -622,12 +622,12 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
         navigationType: NavigationType.pushNamed,
       ),
       arguments: CourseDetailScreenNavigationArguments(
-        contentId: isRescheduleEvent ? parentContentId : model.ContentID,
-        componentId: isRescheduleEvent ? InstancyComponents.Catalog : widget.arguments.componentId,
-        componentInstanceId: widget.arguments.componentInsId,
-        userId: ApiController().apiDataProvider.getCurrentUserId(),
-        screenType: InstancyContentScreenType.Catalog,
-        isRescheduleEvent: isRescheduleEvent,
+          contentId: isRescheduleEvent ? parentContentId : model.ContentID,
+          componentId: isRescheduleEvent ? InstancyComponents.Catalog : widget.arguments.componentId,
+          componentInstanceId: widget.arguments.componentInsId,
+          userId: ApiController().apiDataProvider.getCurrentUserId(),
+          screenType: InstancyContentScreenType.Catalog,
+          isRescheduleEvent: isRescheduleEvent,
           siteId: widget.arguments.siteId),
     );
     MyPrint.printOnConsole("CourseDetailScreen return value:$value");
@@ -1001,11 +1001,12 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
             NavigatingBackFromGlobalSearchModel? val = await NavigationController.navigateToGlobalSearchScreen(
               navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
               arguments: GlobalSearchScreenNavigationArguments(
-                  componentId: componentId,
-                  componentInsId: widget.arguments.componentInsId,
-                  filterProvider: context.read<FilterProvider>(),
-                  componentConfigurationsModel: ComponentConfigurationsModel(),
-                  componentName: "Event Catalog"),
+                componentId: componentId,
+                componentInsId: widget.arguments.componentInsId,
+                filterProvider: context.read<FilterProvider>(),
+                componentConfigurationsModel: ComponentConfigurationsModel(),
+                componentName: "Event Catalog",
+              ),
             );
             if (val == null || val.isSuccess == false) return;
             eventProvider.searchString.set(value: val.searchString);
@@ -1029,9 +1030,9 @@ class _EventCatalogListScreenState extends State<EventCatalogListScreen> with My
           },
           suffixWidget: actions.isNotEmpty
               ? Row(
-            mainAxisSize: MainAxisSize.min,
-            children: actions,
-          )
+                  mainAxisSize: MainAxisSize.min,
+                  children: actions,
+                )
               : null,
         ),
       ),

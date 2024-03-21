@@ -353,12 +353,10 @@ class CatalogController {
       FilterDurationValueModel? model = filterProvider.selectedFilterCredit.get();
       if (model != null) filtercredits = "${model.Minvalue},${model.Maxvalue}";
     }
-    MyPrint.printOnConsole("HomeComponentIDDDDDDDDD: $HomecomponentID");
     List<LearningProviderModel> learningProviderList = filterProvider.selectedLearningProviders.getList();
     String learningPortalsIds = "";
     if (learningProviderList.checkNotEmpty) {
       learningPortalsIds = learningProviderList.map((e) => e.SiteID).toList().join(",");
-      MyPrint.printOnConsole("learningPortalsIds : $learningPortalsIds");
     }
 
     return CatalogRequestModel(

@@ -218,7 +218,8 @@ class EventController {
       componentInstanceId: componentInstanceId,
       apiUrlConfigurationProvider: apiUrlConfigurationProvider,
       isWishList: false,
-        siteId: siteId);
+      siteId: siteId,
+    );
     //endregion
 
     //region Make Api Call
@@ -310,15 +311,15 @@ class EventController {
     eventProvider.selectedCalendarDateEventList.setList(list: selectedEventList);
   }
 
-  CatalogRequestModel getCatalogRequestModelModelFromProviderData({
-    required EventProvider provider,
-    required String tabId,
-    required PaginationModel paginationModel,
-    required int componentId,
-    required int componentInstanceId,
-    required ApiUrlConfigurationProvider apiUrlConfigurationProvider,
-    required bool isWishList,
-    int? siteId}) {
+  CatalogRequestModel getCatalogRequestModelModelFromProviderData(
+      {required EventProvider provider,
+      required String tabId,
+      required PaginationModel paginationModel,
+      required int componentId,
+      required int componentInstanceId,
+      required ApiUrlConfigurationProvider apiUrlConfigurationProvider,
+      required bool isWishList,
+      int? siteId}) {
     FilterProvider filterProvider = eventProvider.filterProvider;
     EnabledContentFilterByTypeModel? enabledContentFilterByTypeModel = !isWishList ? filterProvider.getEnabledContentFilterByTypeModel(isNewInstance: false) : null;
 
@@ -389,7 +390,7 @@ class EventController {
       orgUnitID: ParsingHelper.parseStringMethod(apiUrlConfigurationProvider.getCurrentSiteId()),
       locale: apiUrlConfigurationProvider.getLocale().isNotEmpty ? apiUrlConfigurationProvider.getLocale() : "en-us",
       pageIndex: pageIndex,
-      learningprotals: "$siteId",
+      learningprotals: "${siteId ?? ""}",
       // pageSize: 500,
       pageSize: pageSize,
       contentID: "",

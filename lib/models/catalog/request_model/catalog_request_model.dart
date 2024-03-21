@@ -70,7 +70,7 @@ class CatalogRequestModel {
     this.filtercredits = "",
     this.duration = "",
     this.instructors = "",
-    this.learningprotals = "0",
+    this.learningprotals = "",
     this.PinnedContent = false,
   });
 
