@@ -20,6 +20,7 @@ import 'package:flutter_instancy_2/backend/learning_communities/learning_communi
 import 'package:flutter_instancy_2/backend/learning_communities/learning_communities_provider.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/backend/my_connections/my_connections_provider.dart';
+import 'package:flutter_instancy_2/backend/my_learning/my_learning_controller.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
@@ -150,14 +151,18 @@ class _MainScreenState extends State<MainScreen> {
           MyPrint.printOnConsole("Couldn't Get My Downloads Menu");
         }
       } else {
-        CourseOfflineController().syncCourseDataOnline(
-          onSyncStarted: () {
-            mainScreenProvider.isCourseOfflineTrackingDataSyncing.set(value: true);
-          },
-          onSyncCompleted: () {
-            mainScreenProvider.isCourseOfflineTrackingDataSyncing.set(value: false);
-          },
-        );
+        CourseDownloadController courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+        courseDownloadController.checkAndValidateDownloadedItemsEnrollmentStatus().then((value) async {
+          MyLearningController.isGetMyLearningData = true;
+          CourseOfflineController().syncCourseDataOnline(
+            onSyncStarted: () {
+              mainScreenProvider.isCourseOfflineTrackingDataSyncing.set(value: true);
+            },
+            onSyncCompleted: () {
+              mainScreenProvider.isCourseOfflineTrackingDataSyncing.set(value: false);
+            },
+          );
+        });
       }
     });
 

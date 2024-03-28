@@ -10,6 +10,9 @@ class InstancyUIActions {
   }) async {
     await showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      isDismissible: true,
+      useSafeArea: true,
       builder: (BuildContext context) {
         ThemeData themeData = Theme.of(context);
 
@@ -22,23 +25,30 @@ class InstancyUIActions {
               topRight: Radius.circular(20),
             ),
           ),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const BottomSheetDragger(),
-                ...actions.map((InstancyUIActionModel actionModel) {
-                  return BottomSheetOptionTile(
-                    text: actionModel.text,
-                    onTap: actionModel.onTap,
-                    iconData: actionModel.iconData,
-                    iconColor: actionModel.iconColor,
-                    iconSize: actionModel.iconSize,
-                    svgImageUrl: actionModel.svgImageUrl,
-                    textColor: actionModel.textColor,
-                  );
-                }).toList(),
-              ],
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const BottomSheetDragger(),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      ...actions.map((InstancyUIActionModel actionModel) {
+                        return BottomSheetOptionTile(
+                          text: actionModel.text,
+                          onTap: actionModel.onTap,
+                          iconData: actionModel.iconData,
+                          iconColor: actionModel.iconColor,
+                          iconSize: actionModel.iconSize,
+                          svgImageUrl: actionModel.svgImageUrl,
+                          textColor: actionModel.textColor,
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },

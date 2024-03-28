@@ -771,7 +771,6 @@ class ARContentBGVRType {
   static const String video_360 = "video_360";
 }
 
-
 class MessageRoleTypes {
   static const int learner = 5;
   static const int admin = 8;
@@ -871,4 +870,32 @@ class PeopleListingActionTypes {
   static const String Accept = "Accept";
   static const String Ignore = "Ignore";
   static const String RemoveConnection = "RemoveConnection";
+}
+
+class ProfileAdditionalTabTypes {
+  static const String summary = "summary";
+  static const String activities = "activities";
+  static const String privacy = "privacy";
+  static const String experience = "experience";
+  static const String education = "education";
+}
+
+class ProfileTabTypes {
+  static const String summary = "summary";
+  static const String personalInfo = "personalInfo";
+  static const String contactInfo = "contactInfo";
+  static const String activities = "activities";
+  static const String privacy = "privacy";
+  static const String experience = "experience";
+  static const String education = "education";
+
+  static List<String> get values => <String>[
+        summary,
+        personalInfo,
+        contactInfo,
+        activities,
+        privacy,
+        experience,
+        education,
+      ];
 }

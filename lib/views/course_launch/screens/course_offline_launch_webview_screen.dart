@@ -139,6 +139,11 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
               if ([ContentStatusTypes.completed, ContentStatusTypes.passed, ContentStatusTypes.failed].contains(status)) {
                 dateCompleted = courseOfflineController.getCurrentDateTime();
                 cmiModel.percentageCompleted = "100";
+                if (cmiModel.noofattempts == null) {
+                  cmiModel.noofattempts = 1;
+                } else {
+                  cmiModel.noofattempts = cmiModel.noofattempts! + 1;
+                }
               }
               MyPrint.printOnConsole("dateCompleted:$dateCompleted", tag: tag);
               cmiModel.datecompleted = dateCompleted;
@@ -306,7 +311,24 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
 
         if (args.firstOrNull != true) {
           MyPrint.printOnConsole('Returning from RetakeCourseWithIsRetake handler because it is not called with true', tag: tag);
+          return;
         }
+
+        courseOfflineController.updateCmiModel(
+          requestModel: courseOfflineLaunchRequestModel,
+          onUpdate: ({required CMIModel cmiModel}) {
+            cmiModel.corelessonstatus = ContentStatusTypes.inProgress;
+            cmiModel.corelessonlocation = "1";
+            if (cmiModel.noofattempts == null) {
+              cmiModel.noofattempts = 1;
+            } else {
+              cmiModel.noofattempts = cmiModel.noofattempts! + 1;
+            }
+
+            return cmiModel;
+          },
+          isRetake: true,
+        );
 
         courseOfflineController.updateStudentResponse(
           requestModel: courseOfflineLaunchRequestModel,
@@ -535,9 +557,7 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
       MyPrint.printOnConsole("Returning from CourseOfflineLaunchWebViewScreen().updateQuestionData() because questionData not got", tag: tag);
       return;
     }
-
-    CMIModel? cmiModel = await courseOfflineController.getCmiModelFromRequestModel(requestModel: courseOfflineLaunchRequestModel);
-
+    
     String optionalNotes = "";
 
     String attachFileName = "";
@@ -591,7 +611,6 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
           siteid: courseOfflineLaunchRequestModel.SiteId,
           userid: courseOfflineLaunchRequestModel.UserId,
           scoid: courseOfflineLaunchRequestModel.ScoId,
-          assessmentattempt: cmiModel?.noofattempts ?? 1,
           questionid: ParsingHelper.parseIntMethod(list.elementAtOrNull(0)) + (courseOfflineLaunchRequestModel.ContentTypeId == InstancyObjectTypes.contentObject ? 1 : 0),
           studentresponses: ParsingHelper.parseStringMethod(list.elementAtOrNull(2)),
           result: ParsingHelper.parseStringMethod(list.elementAtOrNull(3)),
@@ -606,9 +625,9 @@ class _CourseOfflineLaunchWebViewScreenState extends State<CourseOfflineLaunchWe
           capturedimgfilename: imageFileName,
           capturedimgid: imageFileId,
           capturedImgFilepath: imageFilePath,
+          questionattempt: 1,
+          assessmentattempt: 1,
         );
-
-        studentResponseModel.questionattempt = 1;
 
         studentCourseResponseModel.questionResponseMap[studentResponseModel.questionid] = studentResponseModel;
 

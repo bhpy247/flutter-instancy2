@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/backend/configurations/app_configuration_oper
 import 'package:flutter_instancy_2/backend/profile/profile_controller.dart';
 import 'package:flutter_instancy_2/backend/profile/profile_provider.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/data_field_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_profile_details_model.dart';
@@ -335,8 +336,30 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
   //endregion
 
   Widget getTabBarView() {
+    List<String> tabItems = appProvider.appSystemConfigurationModel.addProfileAdditionalTab.split(",");
+    List<String> tabsList = <String>[];
+
+    if (profileProvider.isPersonalInfoEnabled.get()) {
+      tabsList.add(ProfileTabTypes.personalInfo);
+    }
+    if (profileProvider.isContactInfoEnabled.get()) {
+      tabsList.add(ProfileTabTypes.contactInfo);
+    }
+    if (tabItems.contains(ProfileAdditionalTabTypes.education)) {
+      tabsList.add(ProfileTabTypes.education);
+    }
+    if (tabItems.contains(ProfileAdditionalTabTypes.experience)) {
+      tabsList.add(ProfileTabTypes.experience);
+    }
+
+    if (tabsList.isEmpty) {
+      return const SizedBox();
+    } else if (tabsList.length == 1) {
+      return getTabBodyFromTabType(tabType: tabsList.first);
+    }
+
     return DefaultTabController(
-      length: 4,
+      length: tabsList.length,
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -397,12 +420,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
           child: TabBarView(
             // physics:  NeverScrollableScrollPhysics(),
             controller: controller,
-            children: <Widget>[
-              getAboutTabWidget(),
-              getContactTabWidget(),
-              getExperienceTabWidget(),
-              getEducationTabWidget(),
-            ],
+            children: tabsList.map((e) => getTabBodyFromTabType(tabType: e)).toList(),
           ),
         ),
       ),
@@ -437,6 +455,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> with MySafeState,
         ],
       ),
     );
+  }
+
+  Widget getTabBodyFromTabType({required String tabType}) {
+    return switch (tabType) {
+      ProfileTabTypes.personalInfo => getAboutTabWidget(),
+      ProfileTabTypes.contactInfo => getContactTabWidget(),
+      ProfileTabTypes.experience => getExperienceTabWidget(),
+      ProfileTabTypes.education => getEducationTabWidget(),
+      _ => const SizedBox(),
+    };
   }
 
   Widget getAboutTabWidget() {

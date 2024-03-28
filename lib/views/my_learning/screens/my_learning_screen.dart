@@ -593,7 +593,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
         if (isSecondaryAction) Navigator.pop(context);
 
         MyPrint.printOnConsole("model.Sharelink:${model.Sharelink}");
-        MyUtils.shareContent(content: model.Sharelink);
+        MyUtils.shareContent(content: model.Sharelink, context: context);
       },
     );
   }

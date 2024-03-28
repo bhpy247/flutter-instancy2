@@ -7,6 +7,8 @@ import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/common/model_data_parser.dart';
 import 'package:flutter_instancy_2/models/course_offline/data_model/cmi_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/request_model/get_course_tracking_data_request_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/request_model/retake_assessment_data_request_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/request_model/update_offline_tracked_data_request_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/course_learner_session_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/get_course_tracking_data_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/student_course_response_model.dart';
@@ -14,7 +16,6 @@ import 'package:flutter_instancy_2/utils/hive_manager.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
-import 'package:flutter_instancy_2/views/course_offline/request_model/update_offline_tracked_data_request_model.dart';
 import 'package:hive/hive.dart';
 
 class CourseOfflineRepository {
@@ -487,6 +488,26 @@ class CourseOfflineRepository {
     );
 
     DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel> RetakeAssessmentData({
+    required RetakeAssessmentDataRequestModel requestModel,
+  }) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<Map<String, String>>(
+      url: apiEndpoints.RetakeAssessmentData(),
+      restCallType: RestCallType.xxxUrlEncodedFormDataRequestCall,
+      queryParameters: requestModel.toMap(),
+      requestBody: requestModel.toMap(),
+      parsingType: ModelDataParsingType.dynamic,
+    );
+
+    DataResponseModel apiResponseModel = await apiController.callApi(
       apiCallModel: apiCallModel,
     );
 

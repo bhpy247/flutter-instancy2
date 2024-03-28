@@ -433,7 +433,7 @@ class _LensOcrScreenState extends State<LensOcrScreen> with WidgetsBindingObserv
       onShareTap: () {
         if (isSecondaryAction) Navigator.pop(context);
 
-        MyUtils.shareContent(content: model.Sharelink);
+        MyUtils.shareContent(content: model.Sharelink, context: context);
       },
       onDownloadTap: () {},
     );

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
-import 'package:flutter_instancy_2/models/authentication/response_model/country_response_model.dart';
+import 'package:flutter_instancy_2/models/authentication/response_model/mobile_get_user_details_response_model.dart';
 import 'package:flutter_instancy_2/models/profile/request_model/create_education_request_model.dart';
 import 'package:flutter_instancy_2/models/profile/request_model/create_experience_request_model.dart';
 import 'package:flutter_instancy_2/models/profile/request_model/remove_experience_request_model.dart';
@@ -131,7 +131,7 @@ class ProfileRepository {
   //   return apiResponseModel;
   // }
 
-  Future<DataResponseModel<CountryResponseModel>> getMultipleChoicesListForProfileEdit() async {
+  Future<DataResponseModel<MobileGetUserDetailsResponseModel>> getMultipleChoicesListForProfileEdit() async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
@@ -140,7 +140,7 @@ class ProfileRepository {
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData(
       restCallType: RestCallType.simpleGetCall,
-      parsingType: ModelDataParsingType.countryResponseModel,
+      parsingType: ModelDataParsingType.MobileGetUserDetailsResponseModel,
       url: apiEndpoints.getUserDetails(),
       queryParameters: {
         "UserID": apiUrlConfigurationProvider.getCurrentUserId().toString(),
@@ -149,7 +149,7 @@ class ProfileRepository {
       },
     );
 
-    DataResponseModel<CountryResponseModel> apiResponseModel = await apiController.callApi<CountryResponseModel>(
+    DataResponseModel<MobileGetUserDetailsResponseModel> apiResponseModel = await apiController.callApi<MobileGetUserDetailsResponseModel>(
       apiCallModel: apiCallModel,
     );
 

@@ -47,9 +47,9 @@ import '../app_configuration_models/response_model/mobile_get_learning_portal_in
 import '../ar_vr_module/response_model/ar_content_model.dart';
 import '../ask_the_expert/data_model/ask_the_expert_dto.dart';
 import '../authentication/data_model/successful_user_login_model.dart';
-import '../authentication/response_model/country_response_model.dart';
 import '../authentication/response_model/email_login_response_model.dart';
 import '../authentication/response_model/mobile_create_sign_up_response_model.dart';
+import '../authentication/response_model/mobile_get_user_details_response_model.dart';
 import '../catalog/catalogCategoriesForBrowseModel.dart';
 import '../catalog/response_model/add_associated_content_to_mylearning_response_model.dart';
 import '../catalog/response_model/add_expired_event_to_mylearning_response_model.dart';
@@ -102,6 +102,8 @@ enum ModelDataParsingType {
   string,
   bool,
   int,
+  List,
+  StringList,
 
   //region App Module
   CurrencyDataResponseModel,
@@ -141,7 +143,7 @@ enum ModelDataParsingType {
 
   //region Profile Menu
   profileResponseModel,
-  countryResponseModel,
+  MobileGetUserDetailsResponseModel,
   educationTitleResponseModel,
   userProfileHeaderDTOModel,
   SignUpResponseModel,
@@ -318,6 +320,8 @@ class ModelDataParser {
     ModelDataParsingType.string: parseString,
     ModelDataParsingType.bool: parseBool,
     ModelDataParsingType.int: parseInt,
+    ModelDataParsingType.List: parseList,
+    ModelDataParsingType.StringList: parseStringList,
 
     //region App Module
     ModelDataParsingType.CurrencyDataResponseModel: parseCurrencyDataResponseModel,
@@ -357,7 +361,7 @@ class ModelDataParser {
 
     //region Profile Menu
     ModelDataParsingType.profileResponseModel: parseProfileResponseModel,
-    ModelDataParsingType.countryResponseModel: parseCountryResponseModel,
+    ModelDataParsingType.MobileGetUserDetailsResponseModel: parseMobileGetUserDetailsResponseModel,
     ModelDataParsingType.educationTitleResponseModel: parseEducationTitleResponseModel,
     ModelDataParsingType.userProfileHeaderDTOModel: parseUserProfileHeaderDTOModel,
     ModelDataParsingType.SignUpResponseModel: parseSignUpResponseModel,
@@ -528,30 +532,6 @@ class ModelDataParser {
     ModelDataParsingType.GetCourseTrackingDataResponseModel: parseGetCourseTrackingDataResponseModel,
   };
 
-  //region App Module
-  static CurrencyDataResponseModel? parseCurrencyDataResponseModel({required dynamic decodedValue}) {
-    Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
-
-    if (map.isNotEmpty) {
-      return CurrencyDataResponseModel.fromMap(map);
-    } else {
-      return null;
-    }
-  }
-
-  static List<DynamicTabsDTOModel>? parseDynamicTabsDTOModelList({required dynamic decodedValue}) {
-    List<Map<String, dynamic>> list = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
-
-    if (list.isNotEmpty) {
-      return list.map((e) => DynamicTabsDTOModel.fromJson(e)).toList();
-    } else {
-      return null;
-    }
-  }
-
-  //endregion
-
-  //region Splash Module
   static T? parseDataFromDecodedValue<T>({required ModelDataParsingType parsingType, dynamic decodedValue}) {
     ModelDataParsingCallbackTypeDef? type = callsMap[parsingType];
     MyPrint.printOnConsole("Parsing Callback:$type");
@@ -579,6 +559,38 @@ class ModelDataParser {
     return ParsingHelper.parseIntMethod(decodedValue);
   }
 
+  static List parseList({required dynamic decodedValue}) {
+    return ParsingHelper.parseListMethod(decodedValue);
+  }
+
+  static List<String> parseStringList({required dynamic decodedValue}) {
+    return ParsingHelper.parseListMethod<dynamic, String>(decodedValue);
+  }
+
+  //region App Module
+  static CurrencyDataResponseModel? parseCurrencyDataResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
+
+    if (map.isNotEmpty) {
+      return CurrencyDataResponseModel.fromMap(map);
+    } else {
+      return null;
+    }
+  }
+
+  static List<DynamicTabsDTOModel>? parseDynamicTabsDTOModelList({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> list = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+
+    if (list.isNotEmpty) {
+      return list.map((e) => DynamicTabsDTOModel.fromJson(e)).toList();
+    } else {
+      return null;
+    }
+  }
+
+  //endregion
+
+  //region Splash Module
   static MobileGetLearningPortalInfoResponseModel? parseLearningPortalInfo({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
@@ -751,11 +763,11 @@ class ModelDataParser {
     }
   }
 
-  static CountryResponseModel? parseCountryResponseModel({required dynamic decodedValue}) {
+  static MobileGetUserDetailsResponseModel? parseMobileGetUserDetailsResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
 
     if (map.isNotEmpty) {
-      return CountryResponseModel.fromJson(map);
+      return MobileGetUserDetailsResponseModel.fromJson(map);
     } else {
       return null;
     }

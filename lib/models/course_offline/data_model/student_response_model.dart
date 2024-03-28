@@ -16,7 +16,7 @@ class StudentResponseModel {
   String capturedimgid = "";
   String capturedImgFilepath = "";
   String starredquestions = "";
-  int responseid = 0;
+  int? responseid;
   int siteid = 0;
   int scoid = 0;
   int userid = 0;
@@ -40,7 +40,7 @@ class StudentResponseModel {
     this.capturedimgid = "",
     this.capturedImgFilepath = "",
     this.starredquestions = "",
-    this.responseid = 0,
+    this.responseid,
     this.siteid = 0,
     this.scoid = 0,
     this.userid = 0,
@@ -73,7 +73,7 @@ class StudentResponseModel {
     capturedimgid = ParsingHelper.parseStringMethod(map["capturedimgid"]);
     capturedImgFilepath = ParsingHelper.parseStringMethod(map["capturedImgFilepath"]);
     starredquestions = ParsingHelper.parseStringMethod(map["starredquestions"]);
-    responseid = ParsingHelper.parseIntMethod(map["responseid"]);
+    responseid = ParsingHelper.parseIntNullableMethod(map["responseid"]);
     siteid = ParsingHelper.parseIntMethod(map["siteid"]);
     scoid = ParsingHelper.parseIntMethod(map["scoid"]);
     userid = ParsingHelper.parseIntMethod(map["userid"]);

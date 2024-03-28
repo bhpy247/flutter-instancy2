@@ -14,6 +14,7 @@ import 'package:flutter_instancy_2/backend/course_download/course_download_repos
 import 'package:flutter_instancy_2/backend/course_offline/course_offline_controller.dart';
 import 'package:flutter_instancy_2/backend/download/flutter_download_controller.dart';
 import 'package:flutter_instancy_2/backend/event_track/event_track_hive_repository.dart';
+import 'package:flutter_instancy_2/backend/my_learning/my_learning_controller.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart';
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_configs.dart';
@@ -21,12 +22,16 @@ import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/course_download/request_model/course_download_request_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/data_model/cmi_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/request_model/course_offline_launch_request_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/response_model/course_learner_session_response_model.dart';
+import 'package:flutter_instancy_2/models/course_offline/response_model/student_course_response_model.dart';
 import 'package:flutter_instancy_2/models/download/request_model/flutter_download_request_model.dart';
 import 'package:flutter_instancy_2/models/download/response_model/flutter_download_response_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/event_track_header_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
+import 'package:flutter_instancy_2/models/my_learning/request_model/check_contents_enrollment_status_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
@@ -554,9 +559,9 @@ class CourseDownloadController {
       CourseOfflineLaunchRequestModel? courseOfflineLaunchRequestModel = getCourseOfflineLaunchRequestModelFromCourseDownloadDataModel(downloadDataModel: courseDownloadDataModel);
       if (courseOfflineLaunchRequestModel != null) {
         CourseOfflineController courseOfflineController = CourseOfflineController();
-        courseOfflineController.setCmiModelFromRequestModel(requestModel: courseOfflineLaunchRequestModel, cmiModel: null);
-        courseOfflineController.setStudentResponseModelFromRequestModel(requestModel: courseOfflineLaunchRequestModel, studentCourseResponseModel: null);
-        courseOfflineController.setLearnerSessionModelFromRequestModel(requestModel: courseOfflineLaunchRequestModel, courseLearnerSessionModel: null);
+        courseOfflineController.setCmiModelsFromRequestModels(requests: {courseOfflineLaunchRequestModel: null});
+        courseOfflineController.setLearnerSessionModelsFromRequestModels(requests: {courseOfflineLaunchRequestModel: null});
+        courseOfflineController.setStudentResponseModelsFromRequestModels(requests: {courseOfflineLaunchRequestModel: null});
       }
     }
 
@@ -573,25 +578,7 @@ class CourseDownloadController {
       repository.removeCourseDownloadDataModelsFromHive(downloadIds: [downloadId]).then((value) {
         isRemovedDownloadModelFromHive = value;
       }),
-      Future(() async {
-        MyPrint.printOnConsole("Deleting Course From File System", tag: tag);
-
-        MyPrint.printOnConsole("downloadFileDirectoryPath:${courseDownloadDataModel?.downloadFileDirectoryPath}", tag: tag);
-
-        if (courseDownloadDataModel == null || courseDownloadDataModel.downloadFileDirectoryPath.isEmpty) {
-          MyPrint.printOnConsole("Returning from Deleting Course From File System because courseDownloadDataModel is null or downloadFileDirectoryPath is empty", tag: tag);
-          return;
-        }
-
-        try {
-          Directory directory = Directory(courseDownloadDataModel.downloadFileDirectoryPath);
-          await directory.delete(recursive: true);
-          MyPrint.printOnConsole("Deleted Course From File System", tag: tag);
-        } catch (e, s) {
-          MyPrint.printOnConsole("Error in Deleting Course From File System:$e", tag: tag);
-          MyPrint.printOnConsole(s, tag: tag);
-        }
-      }),
+      deleteCourseFromFileSystem(downloadId: downloadId, courseDownloadDataModel: courseDownloadDataModel),
     ]);
 
     MyPrint.printOnConsole("isRemovedDownloadIdFromHive:$isRemovedDownloadIdFromHive", tag: tag);
@@ -732,6 +719,10 @@ class CourseDownloadController {
 
     MyPrint.printOnConsole("Updated Course Tracking Data in Downloads", tag: tag);
 
+    if (isSetCompletedInOffline) {
+      MyLearningController.isGetMyLearningData = true;
+    }
+
     return isSetCompletedInOffline;
   }
 
@@ -821,6 +812,52 @@ class CourseDownloadController {
     }
 
     return isUpdated;
+  }
+
+  Future<bool> deleteCourseFromFileSystem({required String downloadId, CourseDownloadDataModel? courseDownloadDataModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole(
+        "CourseDownloadController().deleteCourseFromFileSystem() called with downloadId:'$downloadId',"
+        " courseDownloadDataModel not null:'${courseDownloadDataModel != null}'",
+        tag: tag);
+
+    bool isDeleted = false;
+
+    if (downloadId.isEmpty) {
+      MyPrint.printOnConsole("Returning from CourseDownloadController().deleteCourseFromFileSystem() because downloadId is empty", tag: tag);
+      return isDeleted;
+    }
+
+    CourseDownloadProvider provider = courseDownloadProvider;
+
+    courseDownloadDataModel ??= provider.courseDownloadMap.getMap(isNewInstance: false)[downloadId];
+
+    if (courseDownloadDataModel == null) {
+      MyPrint.printOnConsole("Returning from CourseDownloadController().deleteCourseFromFileSystem() because courseDownloadDataModel is null", tag: tag);
+      return isDeleted;
+    }
+
+    MyPrint.printOnConsole("downloadFileDirectoryPath:${courseDownloadDataModel.downloadFileDirectoryPath}", tag: tag);
+
+    if (courseDownloadDataModel.downloadFileDirectoryPath.isEmpty) {
+      MyPrint.printOnConsole("Returning from CourseDownloadController().deleteCourseFromFileSystem() because downloadFileDirectoryPath is empty", tag: tag);
+      return isDeleted;
+    }
+
+    try {
+      Directory directory = Directory(courseDownloadDataModel.downloadFileDirectoryPath);
+      await directory.delete(recursive: true);
+      MyPrint.printOnConsole("Deleted Course From File System", tag: tag);
+
+      isDeleted = true;
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in CourseDownloadController().deleteCourseFromFileSystem():$e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+    }
+
+    MyPrint.printOnConsole("Final isDeleted:$isDeleted", tag: tag);
+
+    return isDeleted;
   }
 
   // endregion
@@ -978,6 +1015,8 @@ class CourseDownloadController {
 
       provider.courseDownloadList.setList(list: list.reversed.toList(), isClear: true, isNotify: false);
       provider.courseDownloadMap.setMap(map: map, isClear: true, isNotify: false);
+
+      if (list.isNotEmpty) await checkAndValidateDownloadedItemsEnrollmentStatus();
 
       provider.isLoadingCourseDownloadsData.set(value: false, isNotify: true);
     }
@@ -1278,5 +1317,141 @@ class CourseDownloadController {
 
     MyPrint.printOnConsole("Updated Event Track Parent Data in Downloads and Hive", tag: tag);
   }
+
 //endregion
+
+  Future<void> checkAndValidateDownloadedItemsEnrollmentStatus() async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CourseDownloadController().checkAndValidateDownloadedItemsEnrollmentStatus() called", tag: tag);
+
+    CourseDownloadProvider provider = courseDownloadProvider;
+    CourseDownloadRepository repository = courseDownloadRepository;
+
+    if (!NetworkConnectionController().checkConnection()) {
+      MyPrint.printOnConsole("Returning from CourseDownloadController().checkAndValidateDownloadedItemsEnrollmentStatus() because no internet connection", tag: tag);
+      return;
+    }
+
+    Map<String, CourseDownloadDataModel> courseDownloadModelsMap = provider.courseDownloadMap.getMap();
+
+    // region Initialization of contentIdsToVerify
+    // Map<ContentId, IsEventTrackContent>
+    Map<String, bool> contentIdsToVerify = <String, bool>{};
+
+    for (CourseDownloadDataModel courseDownloadDataModel in courseDownloadModelsMap.values) {
+      String contentId = "";
+      bool isEventTrackContent = false;
+
+      if (courseDownloadDataModel.parentContentId.isNotEmpty) {
+        contentId = courseDownloadDataModel.parentContentId;
+        isEventTrackContent = true;
+      } else {
+        contentId = courseDownloadDataModel.contentId;
+      }
+
+      if (contentId.isNotEmpty && contentIdsToVerify[contentId] == null) {
+        contentIdsToVerify[contentId] = isEventTrackContent;
+      }
+    }
+
+    MyPrint.printOnConsole("Final contentIdsToVerify:$contentIdsToVerify", tag: tag);
+    // endregion
+
+    // region Get Enrollment Status for contentIdsToVerify
+    Map<String, bool> contentEnrollmentStatusMap = await MyLearningController(provider: null).checkContentIdsEnrolled(
+      requestModel: CheckContentsEnrollmentStatusRequestModel(contentIds: contentIdsToVerify.keys.toList()),
+    );
+    MyPrint.printOnConsole("contentEnrollmentStatusMap:$contentEnrollmentStatusMap", tag: tag);
+    // endregion
+
+    // region Calculate Download Models To Remove From Download
+    // Map<DownloadId, CourseOfflineLaunchRequestModel>
+    Map<String, CourseOfflineLaunchRequestModel> requestModelsToRemoveFromDownload = <String, CourseOfflineLaunchRequestModel>{};
+
+    for (MapEntry<String, bool> mapEntry in contentEnrollmentStatusMap.entries.where((element) => element.value == false)) {
+      bool? isEventTrackContent = contentIdsToVerify[mapEntry.key];
+      List<CourseDownloadDataModel> downloadModelsToDelete = <CourseDownloadDataModel>[];
+
+      if (isEventTrackContent == true) {
+        List<CourseDownloadDataModel> downloadModelsList = await getEventTrackContentDownloadsList(eventTrackContentId: mapEntry.key);
+        downloadModelsToDelete.addAll(downloadModelsList);
+      } else if (isEventTrackContent == false) {
+        String downloadId = CourseDownloadDataModel.getDownloadId(contentId: mapEntry.key);
+        CourseDownloadDataModel? courseDownloadDataModel = courseDownloadModelsMap[downloadId];
+        if (courseDownloadDataModel != null) {
+          downloadModelsToDelete.add(courseDownloadDataModel);
+        }
+      }
+
+      if (downloadModelsToDelete.isNotEmpty) {
+        for (CourseDownloadDataModel courseDownloadDataModel in downloadModelsToDelete) {
+          CourseOfflineLaunchRequestModel? courseOfflineLaunchRequestModel = getCourseOfflineLaunchRequestModelFromCourseDownloadDataModel(downloadDataModel: courseDownloadDataModel);
+          if (courseOfflineLaunchRequestModel != null) {
+            requestModelsToRemoveFromDownload[courseDownloadDataModel.id] = courseOfflineLaunchRequestModel;
+          }
+        }
+      }
+    }
+    MyPrint.printOnConsole("requestModelsToRemoveFromDownload:${requestModelsToRemoveFromDownload.keys.toList()}", tag: tag);
+
+    if (requestModelsToRemoveFromDownload.isEmpty) {
+      MyPrint.printOnConsole("Returning from CourseDownloadController().checkAndValidateDownloadedItemsEnrollmentStatus() because requestModelsToRemoveFromDownload is empty", tag: tag);
+      return;
+    }
+    // endregion
+
+    // region Remove Course Tracking Data From Offline
+    CourseOfflineController courseOfflineController = CourseOfflineController();
+    await Future.wait([
+      courseOfflineController.setCmiModelsFromRequestModels(
+        requests: Map<CourseOfflineLaunchRequestModel, CMIModel?>.fromEntries(
+          requestModelsToRemoveFromDownload.values.map<MapEntry<CourseOfflineLaunchRequestModel, CMIModel?>>(
+            (e) => MapEntry<CourseOfflineLaunchRequestModel, CMIModel?>(e, null),
+          ),
+        ),
+      ),
+      courseOfflineController.setLearnerSessionModelsFromRequestModels(
+        requests: Map<CourseOfflineLaunchRequestModel, CourseLearnerSessionResponseModel?>.fromEntries(
+          requestModelsToRemoveFromDownload.values.map<MapEntry<CourseOfflineLaunchRequestModel, CourseLearnerSessionResponseModel?>>(
+            (e) => MapEntry<CourseOfflineLaunchRequestModel, CourseLearnerSessionResponseModel?>(e, null),
+          ),
+        ),
+      ),
+      courseOfflineController.setStudentResponseModelsFromRequestModels(
+        requests: Map<CourseOfflineLaunchRequestModel, StudentCourseResponseModel?>.fromEntries(
+          requestModelsToRemoveFromDownload.values.map<MapEntry<CourseOfflineLaunchRequestModel, StudentCourseResponseModel?>>(
+            (e) => MapEntry<CourseOfflineLaunchRequestModel, StudentCourseResponseModel?>(e, null),
+          ),
+        ),
+      ),
+    ]);
+    // endregion
+
+    // region Remove Course Download Models from Provider, Hive and File System
+    bool isRemovedDownloadIdFromHive = false;
+    bool isRemovedDownloadModelFromHive = false;
+
+    List<String> downloadIdsToRemove = requestModelsToRemoveFromDownload.keys.toList();
+
+    await Future.wait([
+      repository.removeCourseDownloadIdsFromHive(downloadIds: downloadIdsToRemove).then((value) {
+        isRemovedDownloadIdFromHive = value;
+      }),
+      repository.removeCourseDownloadDataModelsFromHive(downloadIds: downloadIdsToRemove).then((value) {
+        isRemovedDownloadModelFromHive = value;
+      }),
+      ...downloadIdsToRemove.map((String downloadId) {
+        return deleteCourseFromFileSystem(downloadId: downloadId, courseDownloadDataModel: courseDownloadModelsMap[downloadId]);
+      }).toList(),
+    ]);
+
+    MyPrint.printOnConsole("isRemovedDownloadIdFromHive:$isRemovedDownloadIdFromHive", tag: tag);
+    MyPrint.printOnConsole("isRemovedDownloadModelFromHive:$isRemovedDownloadModelFromHive", tag: tag);
+
+    provider.courseDownloadList.removeItems(items: downloadIdsToRemove, isNotify: false);
+    provider.courseDownloadMap.clearKeys(keys: downloadIdsToRemove, isNotify: true);
+    // endregion
+
+    MyPrint.printOnConsole("Validation of Course Downloads Successful", tag: tag);
+  }
 }

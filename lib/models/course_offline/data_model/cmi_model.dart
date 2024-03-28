@@ -32,9 +32,10 @@ class CMIModel {
   int scoid = 0;
   int userid = 0;
   int siteid = 0;
-  int noofattempts = 0;
+  int? noofattempts;
   int sequencenumber = 0;
   bool isJWVideo = false;
+  bool isRetake = false;
 
   CMIModel({
     this.cmiId = "",
@@ -67,9 +68,10 @@ class CMIModel {
     this.scoid = 0,
     this.userid = 0,
     this.siteid = 0,
-    this.noofattempts = 0,
+    this.noofattempts,
     this.sequencenumber = 0,
     this.isJWVideo = false,
+    this.isRetake = false,
   });
 
   CMIModel.fromMap(Map<String, dynamic> map) {
@@ -111,9 +113,10 @@ class CMIModel {
     scoid = ParsingHelper.parseIntMethod(map["scoid"]);
     userid = ParsingHelper.parseIntMethod(map["userid"]);
     siteid = ParsingHelper.parseIntMethod(map["siteid"]);
-    noofattempts = ParsingHelper.parseIntMethod(map["noofattempts"]);
+    noofattempts = ParsingHelper.parseIntNullableMethod(map["noofattempts"]);
     sequencenumber = ParsingHelper.parseIntMethod(map["sequencenumber"]);
     isJWVideo = ParsingHelper.parseBoolMethod(map["isJWVideo"]);
+    isRetake = ParsingHelper.parseBoolMethod(map["isRetake"]);
   }
 
   Map<String, dynamic> toMap() {
@@ -151,6 +154,7 @@ class CMIModel {
       "noofattempts": noofattempts,
       "sequencenumber": sequencenumber,
       "isJWVideo": isJWVideo,
+      "isRetake": isRetake,
     };
   }
 

@@ -172,7 +172,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> with MySafeStat
           }, onShareTap: () {
             if (isSecondaryAction) Navigator.pop(context);
 
-            MyUtils.shareContent(content: globalSearchResultModel.Sharelink);
+            MyUtils.shareContent(content: globalSearchResultModel.Sharelink, context: context);
           }, onViewProfileTap: () {
             Navigator.pop(context);
             String id = globalSearchResultModel.ViewProfileLink.split("profileuserid/").last.split("/").first;

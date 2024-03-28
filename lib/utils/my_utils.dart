@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -17,19 +18,18 @@ import 'my_toast.dart';
 
 class MyUtils {
   static Future<void> copyToClipboard(BuildContext? context, String string) async {
-    if(string.isNotEmpty) {
+    if (string.isNotEmpty) {
       await Clipboard.setData(ClipboardData(text: string));
-      if(context != null) {
+      if (context != null) {
         MyToast.showSuccess(context: context, msg: "Copied");
       }
     }
   }
 
   static String getNewId({bool isFromUUuid = true}) {
-    if(isFromUUuid) {
+    if (isFromUUuid) {
       return const Uuid().v1().replaceAll("-", "");
-    }
-    else {
+    } else {
       return FirebaseFirestore.instance.collection("sdf").doc().id;
     }
   }
@@ -37,8 +37,7 @@ class MyUtils {
   static String encodeJson(Object? object) {
     try {
       return jsonEncode(object);
-    }
-    catch(e, s) {
+    } catch (e, s) {
       MyPrint.printOnConsole("Error in MyUtils.encodeJson():$e");
       MyPrint.printOnConsole(s);
       return "";
@@ -48,8 +47,7 @@ class MyUtils {
   static dynamic decodeJson(String body) {
     try {
       return jsonDecode(body);
-    }
-    catch(e, s) {
+    } catch (e, s) {
       MyPrint.printOnConsole("Error in MyUtils.decodeJson():$e");
       MyPrint.printOnConsole(s);
       return null;
@@ -57,12 +55,10 @@ class MyUtils {
   }
 
   static Future<String> getDocumentsDirectory() async {
-    if(kIsWeb) {
+    if (kIsWeb) {
       return "";
     }
-    final directory = Platform.isAndroid
-        ? await getExternalStorageDirectory()
-        : await getApplicationDocumentsDirectory();
+    final directory = Platform.isAndroid ? await getExternalStorageDirectory() : await getApplicationDocumentsDirectory();
     return directory?.path ?? "";
   }
 
@@ -71,7 +67,7 @@ class MyUtils {
   }
 
   static void initializeHttpOverrides() {
-    if(!kIsWeb) {
+    if (!kIsWeb) {
       HttpOverrides.global = MyHttpOverrides();
       HttpClient httpClient = HttpClient();
       httpClient.badCertificateCallback = ((X509Certificate cert, String host, int port) => true);
@@ -83,24 +79,23 @@ class MyUtils {
     // MyPrint.printOnConsole("scheme:$scheme");
 
     String current = "", target = "";
-    if(scheme == "http") {
+    if (scheme == "http") {
       current = "https:";
       target = "http:";
-    }
-    else if(scheme == "https") {
+    } else if (scheme == "https") {
       current = "http:";
       target = "https:";
     }
     // MyPrint.printOnConsole("current:$current");
 
-    if(current.isNotEmpty && target.isNotEmpty && url.startsWith(current)) {
+    if (current.isNotEmpty && target.isNotEmpty && url.startsWith(current)) {
       url = url.replaceFirst(current, target);
     }
     return url;
   }
 
   static String getHostNameFromSiteUrl(String url) {
-    if(url.startsWith("http://") || url.startsWith("https://")) {
+    if (url.startsWith("http://") || url.startsWith("https://")) {
       Uri uri = Uri.parse(url);
       return uri.host;
     }
@@ -110,10 +105,9 @@ class MyUtils {
 
   static Future<List<PlatformFile>> pickFiles({required FileType pickingType, bool multiPick = false, String extensions = "", bool getBytes = false}) async {
     String extension = "";
-    if(extensions.isNotEmpty) {
+    if (extensions.isNotEmpty) {
       extension = extensions;
-    }
-    else if (pickingType == FileType.custom) {
+    } else if (pickingType == FileType.custom) {
       extension = 'xlsx,pptx,docx,txt,doc,pdf';
     }
 
@@ -122,19 +116,15 @@ class MyUtils {
       FilePickerResult? filePickerResult = await FilePicker.platform.pickFiles(
         type: pickingType,
         allowMultiple: multiPick,
-        allowedExtensions: (extension.isNotEmpty)
-            ? extension.replaceAll(' ', '').split(',')
-            : null,
+        allowedExtensions: (extension.isNotEmpty) ? extension.replaceAll(' ', '').split(',') : null,
         withData: getBytes,
       );
       paths = filePickerResult?.files ?? [];
-    }
-    on PlatformException catch (e, s) {
+    } on PlatformException catch (e, s) {
       MyPrint.printOnConsole('Error PlatformException in MyUtils.pickFiles():$e');
       MyPrint.printOnConsole(s);
       MyPrint.printOnConsole("Unsupported operation$e");
-    }
-    catch (e, s) {
+    } catch (e, s) {
       MyPrint.printOnConsole('Error in MyUtils.pickFiles():$e');
       MyPrint.printOnConsole(s);
     }
@@ -149,21 +139,18 @@ class MyUtils {
 
     try {
       isCanLaunch = await canLaunchUrlString(url);
-    }
-    catch(e, s) {
+    } catch (e, s) {
       MyPrint.printOnConsole("Error in Checking canLaunchUrlString in MyUtils.launchUrl():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
     }
 
-
-    if(isCanLaunch) {
+    if (isCanLaunch) {
       try {
         isLaunched = await launchUrlString(
           url,
           mode: launchMode,
         );
-      }
-      catch(e, s) {
+      } catch (e, s) {
         MyPrint.printOnConsole("Error in Checking canLaunchUrlString in MyUtils.launchUrl():$e", tag: tag);
         MyPrint.printOnConsole(s, tag: tag);
       }
@@ -172,8 +159,11 @@ class MyUtils {
     return isLaunched;
   }
 
-  static Future<void> shareContent({required String content}) async {
-    await Share.share(content);
+  static Future<void> shareContent({required BuildContext context, required String content}) async {
+    // _onShare method:
+    final box = context.findRenderObject() as RenderBox?;
+
+    await Share.share(content, sharePositionOrigin: Rect.fromLTWH(0, 0, MediaQuery.of(context).size.width, MediaQuery.of(context).size.height / 2));
   }
 
   static List<DateTime> getDaysInBetween(DateTime startDate, DateTime endDate) {

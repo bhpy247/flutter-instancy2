@@ -257,7 +257,7 @@ class _SurfaceTrackingKeywordSearchScreenState extends State<SurfaceTrackingKeyw
       onShareTap: () {
         if (isSecondaryAction) Navigator.pop(context);
 
-        MyUtils.shareContent(content: model.Sharelink);
+        MyUtils.shareContent(content: model.Sharelink, context: context);
       },
       onDownloadTap: () {},
     );

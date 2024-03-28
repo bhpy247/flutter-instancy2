@@ -431,7 +431,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
       onShareTap: () {
         if (isSecondaryAction) Navigator.pop(context);
 
-        MyUtils.shareContent(content: model.Sharelink);
+        MyUtils.shareContent(content: model.Sharelink, context: context);
       },
     );
   }
@@ -720,7 +720,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
       onShareTap: () {
         if (isSecondaryAction) Navigator.pop(context);
 
-        MyUtils.shareContent(content: model.Sharelink);
+        MyUtils.shareContent(content: model.Sharelink, context: context);
       },
       onShareWithPeopleTap: () async {
         if (isSecondaryAction) Navigator.pop(context);

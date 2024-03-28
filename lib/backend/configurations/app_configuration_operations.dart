@@ -184,7 +184,7 @@ class AppConfigurationOperations {
   }
 
   bool? isEventCompleted(String eventDate, {String dateFormat = ""}) {
-    MyPrint.printOnConsole("AppConfigurationOperations().isEventCompleted() called with eventDate:'$eventDate', dateFormat:'$dateFormat'");
+    // MyPrint.printOnConsole("AppConfigurationOperations().isEventCompleted() called with eventDate:'$eventDate', dateFormat:'$dateFormat'");
 
     if (!isValidString(eventDate)) return null;
 

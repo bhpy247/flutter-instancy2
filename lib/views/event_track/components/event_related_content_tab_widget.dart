@@ -77,7 +77,7 @@ class _EventRelatedContentTabWidgetState extends State<EventRelatedContentTabWid
     InstancyContentActionsEnum? primaryAction,
     bool isSecondaryAction = true,
   }) {
-    MyPrint.printOnConsole("In the content tab widget");
+    // MyPrint.printOnConsole("In the content tab widget");
     return EventTrackUIActionCallbackModel(
       onSetCompleteTap: () {
         if (isSecondaryAction) Navigator.pop(context);

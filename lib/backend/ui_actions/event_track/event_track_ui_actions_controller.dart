@@ -197,7 +197,7 @@ class EventTrackUIActionsController {
     bool isShow = true;
 
     bool isEventCompleted = (AppConfigurationOperations(appProvider: appProvider).isEventCompleted(parameterModel.eventEndDatetime) ?? true);
-    MyPrint.printOnConsole("isEventCompleted in showJoin:$isEventCompleted");
+    // MyPrint.printOnConsole("isEventCompleted in showJoin:$isEventCompleted");
 
     if (parameterModel.objectTypeId != InstancyObjectTypes.events || parameterModel.mediaTypeId != InstancyMediaTypes.virtualClassroomEvent || isEventCompleted) {
       isShow = false;
@@ -230,7 +230,7 @@ class EventTrackUIActionsController {
     EventRecordingDetailsModel? recordingDetails = parameterModel.recordingDetails;
 
     if (recordingDetails == null) {
-      MyPrint.printOnConsole("recordingDetails are null");
+      // MyPrint.printOnConsole("recordingDetails are null");
       return false;
     }
 
@@ -323,7 +323,7 @@ class EventTrackUIActionsController {
   }
 
   EventTrackUIActionParameterModel getParameterModelFromTrackCourseDTOModel({required TrackCourseDTOModel model}) {
-    MyPrint.printOnConsole("EventTrackContentModel status: ${model.ContentStatus} actual status : ${model.CoreLessonStatus}");
+    // MyPrint.printOnConsole("EventTrackContentModel status: ${model.ContentStatus} actual status : ${model.CoreLessonStatus}");
     return EventTrackUIActionParameterModel(
       objectTypeId: model.ContentTypeId,
       mediaTypeId: model.MediaTypeID,

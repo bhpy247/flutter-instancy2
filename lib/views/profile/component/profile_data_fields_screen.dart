@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_instancy_2/models/authentication/response_model/country_response_model.dart';
+import 'package:flutter_instancy_2/models/authentication/response_model/mobile_get_user_details_response_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/data_field_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';

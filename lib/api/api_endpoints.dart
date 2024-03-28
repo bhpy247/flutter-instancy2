@@ -164,6 +164,8 @@ class ApiEndpoints {
 
   String getMyLearningCompletionCertificate() => '${getBaseApiUrl()}MobileLMS/MobiledownloadHTMLasPDF';
 
+  String GetDownloadedMyLearningData() => '${getBaseApiUrl()}MobileLMS/GetDownloadedMyLearningdata';
+
   //endregion
 
   //region Review and Rating
@@ -554,6 +556,8 @@ class ApiEndpoints {
 
   // region Offline Module
   String UpdateOfflineTrackedData() => '${getBaseApiUrl()}MobileLMS/MobileUpdateOfflineTrackedData';
+
+  String RetakeAssessmentData() => '${getBaseApiUrl()}CourseTracking/RetakeAssessmentData';
 
   String GetCourseTrackingData() => '${getBaseApiUrl()}MobileLMS/MobileGetContentTrackedData';
 // endregion

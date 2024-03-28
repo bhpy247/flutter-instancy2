@@ -24,7 +24,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/app_configuration_models/data_models/local_str.dart';
-import '../../models/authentication/response_model/country_response_model.dart';
+import '../../models/authentication/response_model/mobile_get_user_details_response_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/profile/data_model/user_privilege_model.dart';
 import '../../models/profile/data_model/user_profile_details_model.dart';
@@ -90,6 +90,8 @@ class ProfileController {
       profileProvider.profileDataFields.setList(list: profileResponseModel.profileDataFieldName, isNotify: false);
       profileProvider.userPrivilegeData.setList(list: profileResponseModel.userPrivileges, isNotify: false);
       profileProvider.userProfileDetails.setList(list: profileResponseModel.userProfileDetails, isNotify: false);
+      profileProvider.isPersonalInfoEnabled.set(value: profileResponseModel.userProfileGroups.where((element) => element.groupid == ProfileGroupType.personalInfo).isNotEmpty, isNotify: false);
+      profileProvider.isContactInfoEnabled.set(value: profileResponseModel.userProfileGroups.where((element) => element.groupid == ProfileGroupType.contactInfo).isNotEmpty, isNotify: false);
 
       UserProfileDetailsModel? userProfileDetailsModel = profileResponseModel.userProfileDetails.firstElement;
 
@@ -259,7 +261,7 @@ class ProfileController {
       if (isFromCache && profileProvider.multipleChoicesList.getList(isNewInstance: false).isNotEmpty) {
         choices = profileProvider.multipleChoicesList.getList(isNewInstance: true);
       } else {
-        DataResponseModel<CountryResponseModel> responseModel = await profileRepository.getMultipleChoicesListForProfileEdit();
+        DataResponseModel<MobileGetUserDetailsResponseModel> responseModel = await profileRepository.getMultipleChoicesListForProfileEdit();
         if (responseModel.data != null) {
           choices = responseModel.data!.table5;
           profileProvider.multipleChoicesList.setList(list: choices);

@@ -477,7 +477,7 @@ class _LensImageSearchScreenState extends State<LensImageSearchScreen> with Widg
       onShareTap: () {
         if (isSecondaryAction) Navigator.pop(context);
 
-        MyUtils.shareContent(content: model.Sharelink);
+        MyUtils.shareContent(content: model.Sharelink, context: context);
       },
       onDownloadTap: () {},
     );

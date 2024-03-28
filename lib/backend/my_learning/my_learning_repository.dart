@@ -1,4 +1,5 @@
 import 'package:flutter_instancy_2/models/common/app_error_model.dart';
+import 'package:flutter_instancy_2/models/my_learning/request_model/check_contents_enrollment_status_request_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/request_model/my_learning_data_request_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
@@ -324,6 +325,28 @@ class MyLearningRepository {
     );
 
     DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<List<String>>> checkContentsEnrollmentStatus({required CheckContentsEnrollmentStatusRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+    requestModel.userId = apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.siteId = apiUrlConfigurationProvider.getCurrentSiteId();
+    requestModel.localeId = apiUrlConfigurationProvider.getLocale();
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<Map<String, dynamic>>(
+      url: apiEndpoints.GetDownloadedMyLearningData(),
+      restCallType: RestCallType.simpleGetCall,
+      queryParameters: requestModel.toJson(),
+      parsingType: ModelDataParsingType.StringList,
+    );
+
+    DataResponseModel<List<String>> apiResponseModel = await apiController.callApi<List<String>>(
       apiCallModel: apiCallModel,
     );
 

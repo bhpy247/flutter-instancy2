@@ -627,7 +627,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
           child: TabBarView(
             controller: controller,
             children: learningPathTabList.map((e) {
-              MyPrint.printOnConsole("element:$e");
+              // MyPrint.printOnConsole("element:$e");
               return getWidgetAccordingToTabs(e);
             }).toList(),
           ),
@@ -785,6 +785,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
         }
       },
       onPulledTORefresh: () {
+        getLearningPathHeaderData();
         getTrackContentsData(
           isRefresh: true,
           isNotify: true,
@@ -937,6 +938,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
         }
       },
       onPulledTORefresh: () {
+        getLearningPathHeaderData();
         getTrackAssignmentsData(
           isRefresh: true,
           isNotify: true,
@@ -1055,6 +1057,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
       isParentContentEnrolled: widget.arguments.isContentEnrolled,
       courseDownloadProvider: courseDownloadProvider,
       onPulledTORefresh: () {
+        getLearningPathHeaderData();
         getEventRelatedContentsData(
           isRefresh: true,
           isGetFromCache: false,
@@ -1167,6 +1170,7 @@ class _EventTrackScreenState extends State<EventTrackScreen> with TickerProvider
       isParentContentEnrolled: widget.arguments.isContentEnrolled,
       courseDownloadProvider: courseDownloadProvider,
       onPulledTORefresh: () {
+        getLearningPathHeaderData();
         getEventRelatedAssignmentsData(
           isRefresh: true,
           isGetFromCache: false,

@@ -1,5 +1,5 @@
 import 'package:flutter_instancy_2/backend/common/common_provider.dart';
-import 'package:flutter_instancy_2/models/authentication/response_model/country_response_model.dart';
+import 'package:flutter_instancy_2/models/authentication/response_model/mobile_get_user_details_response_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/profile_data_field_name_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_education_data_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_experience_data_model.dart';
@@ -80,6 +80,14 @@ class ProfileProvider extends CommonProvider {
       list: <EducationTitleModel>[],
       notify: notify,
     );
+    isPersonalInfoEnabled = CommonProviderPrimitiveParameter<bool>(
+      value: false,
+      notify: notify,
+    );
+    isContactInfoEnabled = CommonProviderPrimitiveParameter<bool>(
+      value: false,
+      notify: notify,
+    );
 
     headerDTOModel = CommonProviderPrimitiveParameter<UserProfileHeaderDTOModel?>(
       value: null,
@@ -104,6 +112,8 @@ class ProfileProvider extends CommonProvider {
 
   late final CommonProviderListParameter<Table5> multipleChoicesList;
   late final CommonProviderListParameter<EducationTitleModel> educationTitlesList;
+  late final CommonProviderPrimitiveParameter<bool> isPersonalInfoEnabled;
+  late final CommonProviderPrimitiveParameter<bool> isContactInfoEnabled;
 
   late final CommonProviderPrimitiveParameter<UserProfileHeaderDTOModel?> headerDTOModel;
 
@@ -125,6 +135,8 @@ class ProfileProvider extends CommonProvider {
 
     multipleChoicesList.setList(list: [], isClear: true, isNotify: false);
     educationTitlesList.setList(list: [], isClear: true, isNotify: false);
+    isPersonalInfoEnabled.set(value: false, isNotify: false);
+    isContactInfoEnabled.set(value: false, isNotify: false);
 
     headerDTOModel.set(value: null, isNotify: true);
   }

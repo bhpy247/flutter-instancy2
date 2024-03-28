@@ -89,6 +89,21 @@ class EventTrackController {
         eventTrackHiveRepository.removeRecordsFromEventTrackScreenHeaderDataBoxById(eventTrackContentIds: [requestModel.parentcontentID]);
       }
 
+      try {
+        BuildContext? context = AppController.mainAppContext;
+        if (context != null && context.mounted) {
+          AppProvider appProvider = context.read<AppProvider>();
+          CourseDownloadProvider courseDownloadProvider = context.read<CourseDownloadProvider>();
+          await CourseDownloadController(
+            appProvider: appProvider,
+            courseDownloadProvider: courseDownloadProvider,
+          ).checkAndValidateDownloadedItemsEnrollmentStatus();
+        }
+      } catch (e, s) {
+        MyPrint.printOnConsole("Error in Calling CourseDownloadController().checkAndValidateDownloadedItemsEnrollmentStatus() from EventTrackController().getEventTrackHeaderData():$e", tag: tag);
+        MyPrint.printOnConsole(s, tag: tag);
+      }
+
       if (dataResponseModel.appErrorModel != null) {
         MyPrint.printOnConsole("Returning from EventTrackController().getEventTrackHeaderData() because getEventTrackTrackHeader had some error", tag: tag);
 

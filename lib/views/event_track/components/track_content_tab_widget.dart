@@ -86,7 +86,7 @@ class _TrackContentTabWidgetState extends State<TrackContentTabWidget> with MySa
     InstancyContentActionsEnum? primaryAction,
     bool isSecondaryAction = true,
   }) {
-    MyPrint.printOnConsole("In the content tab widget");
+    // MyPrint.printOnConsole("In the content tab widget");
     return EventTrackUIActionCallbackModel(
       onEnrollTap: () {
         if (isSecondaryAction) Navigator.pop(context);
@@ -160,7 +160,7 @@ class _TrackContentTabWidgetState extends State<TrackContentTabWidget> with MySa
         EventRecordingDetailsModel? recordingDetails = model.RecordingDetails;
 
         if (recordingDetails == null) {
-          MyPrint.printOnConsole("recordingDetails are null");
+          // MyPrint.printOnConsole("recordingDetails are null");
           return;
         }
         ViewRecordingRequestModel viewRecordingRequestModel = ViewRecordingRequestModel(
