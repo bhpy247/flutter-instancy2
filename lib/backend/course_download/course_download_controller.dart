@@ -15,10 +15,12 @@ import 'package:flutter_instancy_2/backend/course_offline/course_offline_control
 import 'package:flutter_instancy_2/backend/download/flutter_download_controller.dart';
 import 'package:flutter_instancy_2/backend/event_track/event_track_hive_repository.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_controller.dart';
+import 'package:flutter_instancy_2/backend/my_learning/my_learning_repository.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart';
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_configs.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/course_download/request_model/course_download_request_model.dart';
@@ -32,6 +34,7 @@ import 'package:flutter_instancy_2/models/event_track/data_model/event_track_hea
 import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/request_model/check_contents_enrollment_status_request_model.dart';
+import 'package:flutter_instancy_2/models/my_learning/response_model/check_contents_enrollment_status_response_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
@@ -1358,37 +1361,62 @@ class CourseDownloadController {
     // endregion
 
     // region Get Enrollment Status for contentIdsToVerify
-    Map<String, bool> contentEnrollmentStatusMap = await MyLearningController(provider: null).checkContentIdsEnrolled(
+    DataResponseModel<CheckContentsEnrollmentStatusResponseModel> responseModel = await MyLearningRepository(apiController: ApiController()).checkContentsEnrollmentStatus(
       requestModel: CheckContentsEnrollmentStatusRequestModel(contentIds: contentIdsToVerify.keys.toList()),
     );
-    MyPrint.printOnConsole("contentEnrollmentStatusMap:$contentEnrollmentStatusMap", tag: tag);
+
+    MyPrint.printOnConsole("checkContentsEnrollmentStatus response:$responseModel", tag: tag);
+
+    if (responseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CourseDownloadController().checkAndValidateDownloadedItemsEnrollmentStatus() because Error Occurred in Api:${responseModel.appErrorModel?.message}",
+          tag: tag);
+      MyPrint.printOnConsole(responseModel.appErrorModel?.stackTrace ?? "", tag: tag);
+      return;
+    } else if (responseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CourseDownloadController().checkAndValidateDownloadedItemsEnrollmentStatus() because Response Data is null", tag: tag);
+      MyPrint.printOnConsole(responseModel.appErrorModel?.stackTrace ?? "", tag: tag);
+      return;
+    }
+
+    CheckContentsEnrollmentStatusResponseModel checkContentsEnrollmentStatusResponseModel = responseModel.data!;
+    MyPrint.printOnConsole("checkContentsEnrollmentStatusResponseModel:$checkContentsEnrollmentStatusResponseModel", tag: tag);
     // endregion
 
     // region Calculate Download Models To Remove From Download
     // Map<DownloadId, CourseOfflineLaunchRequestModel>
     Map<String, CourseOfflineLaunchRequestModel> requestModelsToRemoveFromDownload = <String, CourseOfflineLaunchRequestModel>{};
 
-    for (MapEntry<String, bool> mapEntry in contentEnrollmentStatusMap.entries.where((element) => element.value == false)) {
-      bool? isEventTrackContent = contentIdsToVerify[mapEntry.key];
-      List<CourseDownloadDataModel> downloadModelsToDelete = <CourseDownloadDataModel>[];
+    for (MapEntry<String, CourseDownloadDataModel> mapEntry in courseDownloadModelsMap.entries) {
+      CourseDownloadDataModel courseDownloadDataModel = mapEntry.value;
 
-      if (isEventTrackContent == true) {
-        List<CourseDownloadDataModel> downloadModelsList = await getEventTrackContentDownloadsList(eventTrackContentId: mapEntry.key);
-        downloadModelsToDelete.addAll(downloadModelsList);
-      } else if (isEventTrackContent == false) {
-        String downloadId = CourseDownloadDataModel.getDownloadId(contentId: mapEntry.key);
-        CourseDownloadDataModel? courseDownloadDataModel = courseDownloadModelsMap[downloadId];
-        if (courseDownloadDataModel != null) {
-          downloadModelsToDelete.add(courseDownloadDataModel);
+      CheckContentsEnrollmentStatusContentDataModel? checkContentsEnrollmentStatusContentDataModel = checkContentsEnrollmentStatusResponseModel.CourseData[courseDownloadDataModel.contentId];
+
+      bool isRemove = false;
+
+      if (checkContentsEnrollmentStatusContentDataModel == null) {
+        isRemove = true;
+      } else {
+        if (courseDownloadDataModel.parentContentId.isNotEmpty) {
+          if (courseDownloadDataModel.parentContentTypeId == InstancyObjectTypes.track) {
+            if (courseDownloadDataModel.trackCourseDTOModel != null) {
+              isRemove = checkContentsEnrollmentStatusContentDataModel.ModifiedDate != courseDownloadDataModel.trackCourseDTOModel!.ContentModifiedDateTime;
+            }
+          } else if (courseDownloadDataModel.parentContentTypeId == InstancyObjectTypes.events) {
+            if (courseDownloadDataModel.relatedTrackDataDTOModel != null) {
+              isRemove = checkContentsEnrollmentStatusContentDataModel.ModifiedDate != courseDownloadDataModel.relatedTrackDataDTOModel!.ContentModifiedDateTime;
+            }
+          }
+        } else {
+          if (courseDownloadDataModel.courseDTOModel != null) {
+            isRemove = checkContentsEnrollmentStatusContentDataModel.ModifiedDate != courseDownloadDataModel.courseDTOModel!.ContentModifiedDateTime;
+          }
         }
       }
 
-      if (downloadModelsToDelete.isNotEmpty) {
-        for (CourseDownloadDataModel courseDownloadDataModel in downloadModelsToDelete) {
-          CourseOfflineLaunchRequestModel? courseOfflineLaunchRequestModel = getCourseOfflineLaunchRequestModelFromCourseDownloadDataModel(downloadDataModel: courseDownloadDataModel);
-          if (courseOfflineLaunchRequestModel != null) {
-            requestModelsToRemoveFromDownload[courseDownloadDataModel.id] = courseOfflineLaunchRequestModel;
-          }
+      if (isRemove) {
+        CourseOfflineLaunchRequestModel? courseOfflineLaunchRequestModel = getCourseOfflineLaunchRequestModelFromCourseDownloadDataModel(downloadDataModel: courseDownloadDataModel);
+        if (courseOfflineLaunchRequestModel != null) {
+          requestModelsToRemoveFromDownload[courseDownloadDataModel.id] = courseOfflineLaunchRequestModel;
         }
       }
     }
