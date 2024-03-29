@@ -1,6 +1,7 @@
 import 'package:flutter_instancy_2/models/common/app_error_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/request_model/check_contents_enrollment_status_request_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/request_model/my_learning_data_request_model.dart';
+import 'package:flutter_instancy_2/models/my_learning/response_model/check_contents_enrollment_status_response_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
 import '../../api/api_call_model.dart';
@@ -331,7 +332,7 @@ class MyLearningRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<List<String>>> checkContentsEnrollmentStatus({required CheckContentsEnrollmentStatusRequestModel requestModel}) async {
+  Future<DataResponseModel<CheckContentsEnrollmentStatusResponseModel>> checkContentsEnrollmentStatus({required CheckContentsEnrollmentStatusRequestModel requestModel}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
@@ -343,10 +344,10 @@ class MyLearningRepository {
       url: apiEndpoints.GetDownloadedMyLearningData(),
       restCallType: RestCallType.simpleGetCall,
       queryParameters: requestModel.toJson(),
-      parsingType: ModelDataParsingType.StringList,
+      parsingType: ModelDataParsingType.CheckContentsEnrollmentStatusResponseModel,
     );
 
-    DataResponseModel<List<String>> apiResponseModel = await apiController.callApi<List<String>>(
+    DataResponseModel<CheckContentsEnrollmentStatusResponseModel> apiResponseModel = await apiController.callApi<CheckContentsEnrollmentStatusResponseModel>(
       apiCallModel: apiCallModel,
     );
 
