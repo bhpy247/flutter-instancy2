@@ -32,6 +32,7 @@ import 'package:flutter_instancy_2/models/gamification/response_model/user_achie
 import 'package:flutter_instancy_2/models/home/data_model/web_list_data_dto.dart';
 import 'package:flutter_instancy_2/models/home/response_model/categorywise_course_dto_model.dart';
 import 'package:flutter_instancy_2/models/learning_communities/data_model/learning_communities_dto_model.dart';
+import 'package:flutter_instancy_2/models/my_learning/response_model/check_contents_enrollment_status_response_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/response_model/page_notes_response_model.dart';
 import 'package:flutter_instancy_2/models/waitlist/response_model/add_to_waitList_response_model.dart';
 import 'package:flutter_instancy_2/models/wiki_component/response_model/fileUploadControlModel.dart';
@@ -154,6 +155,7 @@ enum ModelDataParsingType {
   myLearningContentDataResponseModel,
   contentUserRatingsDataResponseModel,
   myLearningResponseDTOModel,
+  CheckContentsEnrollmentStatusResponseModel,
   pageNoteResponseModel,
   //endregion
 
@@ -371,6 +373,7 @@ class ModelDataParser {
     ModelDataParsingType.myLearningContentModel: parseMyLearningContentModel,
     ModelDataParsingType.contentUserRatingsDataResponseModel: parseContentUserRatingsDataResponseModel,
     ModelDataParsingType.myLearningResponseDTOModel: parseMyLearningResponseDTOModel,
+    ModelDataParsingType.CheckContentsEnrollmentStatusResponseModel: parseCheckContentsEnrollmentStatusResponseModel,
     ModelDataParsingType.pageNoteResponseModel: parsePageNoteResponseModel,
     //endregion
 
@@ -831,6 +834,16 @@ class ModelDataParser {
 
     if (map.isNotEmpty) {
       return MyLearningResponseDTOModel.fromMap(map);
+    } else {
+      return null;
+    }
+  }
+
+  static CheckContentsEnrollmentStatusResponseModel? parseCheckContentsEnrollmentStatusResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> map = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (map.isNotEmpty) {
+      return CheckContentsEnrollmentStatusResponseModel.fromMap(map);
     } else {
       return null;
     }
