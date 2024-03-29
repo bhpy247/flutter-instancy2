@@ -18,6 +18,7 @@ import 'package:flutter_instancy_2/models/course_download/data_model/course_down
 import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/request_model/check_contents_enrollment_status_request_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/request_model/my_learning_data_request_model.dart';
+import 'package:flutter_instancy_2/models/my_learning/response_model/check_contents_enrollment_status_response_model.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:provider/provider.dart';
 
@@ -723,7 +724,7 @@ class MyLearningController {
 
     Map<String, bool> response = <String, bool>{};
 
-    DataResponseModel<List<String>> responseModel = await myLearningRepository.checkContentsEnrollmentStatus(requestModel: requestModel);
+    DataResponseModel<CheckContentsEnrollmentStatusResponseModel> responseModel = await myLearningRepository.checkContentsEnrollmentStatus(requestModel: requestModel);
 
     MyPrint.printOnConsole("checkContentsEnrollmentStatus response:$responseModel", tag: tag);
 
@@ -731,12 +732,16 @@ class MyLearningController {
       MyPrint.printOnConsole("Returning from MyLearningController().checkContentIdsEnrolled() because Error Occurred in Api:${responseModel.appErrorModel?.message}", tag: tag);
       MyPrint.printOnConsole(responseModel.appErrorModel?.stackTrace ?? "", tag: tag);
       return response;
+    } else if (responseModel.data == null) {
+      MyPrint.printOnConsole("Returning from MyLearningController().checkContentIdsEnrolled() because Response Data is null", tag: tag);
+      MyPrint.printOnConsole(responseModel.appErrorModel?.stackTrace ?? "", tag: tag);
+      return response;
     }
 
-    List<String> responseContentIds = responseModel.data ?? <String>[];
+    CheckContentsEnrollmentStatusResponseModel responseContentIds = responseModel.data!;
 
     for (String contentId in requestModel.contentIds) {
-      response[contentId] = responseContentIds.contains(contentId.toUpperCase());
+      response[contentId] = responseContentIds.CourseData[contentId] != null;
     }
 
     MyPrint.printOnConsole("Final response:$response", tag: tag);
