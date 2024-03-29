@@ -37,6 +37,7 @@ class RelatedTrackDataDTOModel {
   String FolderPath = "";
   String jwstartpage = "";
   String startpage = "";
+  String ContentModifiedDateTime = "";
   int ScoID = 0;
   int UserID = 0;
   int SiteID = 0;
@@ -83,6 +84,7 @@ class RelatedTrackDataDTOModel {
     this.FolderPath = "",
     this.jwstartpage = "",
     this.startpage = "",
+    this.ContentModifiedDateTime = "",
     this.ScoID = 0,
     this.UserID = 0,
     this.SiteID = 0,
@@ -138,6 +140,7 @@ class RelatedTrackDataDTOModel {
     FolderPath = ParsingHelper.parseStringMethod(map["FolderPath"]);
     jwstartpage = ParsingHelper.parseStringMethod(map["jwstartpage"]);
     startpage = ParsingHelper.parseStringMethod(map["startpage"]);
+    ContentModifiedDateTime = ParsingHelper.parseStringMethod(map["ContentModifiedDateTime"]);
     ScoID = ParsingHelper.parseIntMethod(map["ScoID"]);
     UserID = ParsingHelper.parseIntMethod(map["UserID"]);
     SiteID = ParsingHelper.parseIntMethod(map["SiteID"]);
@@ -186,6 +189,7 @@ class RelatedTrackDataDTOModel {
       "FolderPath": FolderPath,
       "jwstartpage": jwstartpage,
       "startpage": startpage,
+      "ContentModifiedDateTime": ContentModifiedDateTime,
       "ScoID": ScoID,
       "UserID": UserID,
       "SiteID": SiteID,
