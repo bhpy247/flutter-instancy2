@@ -93,6 +93,7 @@ class TrackCourseDTOModel {
   String FolderPath = "";
   String jwstartpage = "";
   String startpage = "";
+  String ContentModifiedDateTime = "";
   int Count = 0;
   int ScoID = 0;
   int TrackScoID = 0;
@@ -201,6 +202,7 @@ class TrackCourseDTOModel {
     this.FolderPath = "",
     this.jwstartpage = "",
     this.startpage = "",
+    this.ContentModifiedDateTime = "",
     this.Count = 0,
     this.ScoID = 0,
     this.TrackScoID = 0,
@@ -318,6 +320,7 @@ class TrackCourseDTOModel {
     FolderPath = ParsingHelper.parseStringMethod(map["FolderPath"]);
     jwstartpage = ParsingHelper.parseStringMethod(map["jwstartpage"]);
     startpage = ParsingHelper.parseStringMethod(map["startpage"]);
+    ContentModifiedDateTime = ParsingHelper.parseStringMethod(map["ContentModifiedDateTime"]);
     Count = ParsingHelper.parseIntMethod(map["Count"]);
     ScoID = ParsingHelper.parseIntMethod(map["ScoID"]);
     TrackScoID = ParsingHelper.parseIntMethod(map["TrackScoID"]);
@@ -437,6 +440,7 @@ class TrackCourseDTOModel {
       "FolderPath": FolderPath,
       "jwstartpage": jwstartpage,
       "startpage": startpage,
+      "ContentModifiedDateTime": ContentModifiedDateTime,
       "Count": Count,
       "ScoID": ScoID,
       "TrackScoID": TrackScoID,
