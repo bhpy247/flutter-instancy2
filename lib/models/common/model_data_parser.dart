@@ -540,8 +540,10 @@ class ModelDataParser {
     MyPrint.printOnConsole("Parsing Callback:$type");
 
     if (type is ModelDataParsingCallbackTypeDef<T>) {
+      MyPrint.printOnConsole("Parsing Callback Matched");
       return type(decodedValue: decodedValue);
     } else {
+      MyPrint.printOnConsole("Parsing Callback Not Matched");
       return null;
     }
   }
@@ -840,7 +842,7 @@ class ModelDataParser {
   }
 
   static CheckContentsEnrollmentStatusResponseModel? parseCheckContentsEnrollmentStatusResponseModel({required dynamic decodedValue}) {
-    Map<String, dynamic> map = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+    Map<String, dynamic> map = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(MyUtils.decodeJson(decodedValue));
 
     if (map.isNotEmpty) {
       return CheckContentsEnrollmentStatusResponseModel.fromMap(map);

@@ -1361,7 +1361,7 @@ class CourseDownloadController {
     // endregion
 
     // region Get Enrollment Status for contentIdsToVerify
-    DataResponseModel<CheckContentsEnrollmentStatusResponseModel> responseModel = await MyLearningRepository(apiController: ApiController()).checkContentsEnrollmentStatus(
+    DataResponseModel<CheckContentsEnrollmentStatusResponseModel?> responseModel = await MyLearningRepository(apiController: ApiController()).checkContentsEnrollmentStatus(
       requestModel: CheckContentsEnrollmentStatusRequestModel(contentIds: contentIdsToVerify.keys.toList()),
     );
 
@@ -1389,30 +1389,46 @@ class CourseDownloadController {
     for (MapEntry<String, CourseDownloadDataModel> mapEntry in courseDownloadModelsMap.entries) {
       CourseDownloadDataModel courseDownloadDataModel = mapEntry.value;
 
+      MyPrint.printOnConsole("Checking Enrolled and Modified for ContentId:${courseDownloadDataModel.contentId}", tag: tag);
       CheckContentsEnrollmentStatusContentDataModel? checkContentsEnrollmentStatusContentDataModel = checkContentsEnrollmentStatusResponseModel.CourseData[courseDownloadDataModel.contentId];
 
       bool isRemove = false;
 
       if (checkContentsEnrollmentStatusContentDataModel == null) {
+        MyPrint.printOnConsole("ContentId ${courseDownloadDataModel.contentId} Not Enrolled", tag: tag);
         isRemove = true;
       } else {
         if (courseDownloadDataModel.parentContentId.isNotEmpty) {
+          MyPrint.printOnConsole("ContentId ${courseDownloadDataModel.contentId} Enrolled, Checking Modified Date", tag: tag);
           if (courseDownloadDataModel.parentContentTypeId == InstancyObjectTypes.track) {
+            MyPrint.printOnConsole("ContentId ${courseDownloadDataModel.contentId} Is Track Content", tag: tag);
             if (courseDownloadDataModel.trackCourseDTOModel != null) {
+              MyPrint.printOnConsole(
+                  "For ContentId ${courseDownloadDataModel.contentId}, Saved Time:${courseDownloadDataModel.trackCourseDTOModel!.ContentModifiedDateTime}, Current Time:${checkContentsEnrollmentStatusContentDataModel.ModifiedDate}",
+                  tag: tag);
               isRemove = checkContentsEnrollmentStatusContentDataModel.ModifiedDate != courseDownloadDataModel.trackCourseDTOModel!.ContentModifiedDateTime;
             }
           } else if (courseDownloadDataModel.parentContentTypeId == InstancyObjectTypes.events) {
+            MyPrint.printOnConsole("ContentId ${courseDownloadDataModel.contentId} Is Event Related Content", tag: tag);
             if (courseDownloadDataModel.relatedTrackDataDTOModel != null) {
+              MyPrint.printOnConsole(
+                  "For ContentId ${courseDownloadDataModel.contentId}, Saved Time:${courseDownloadDataModel.relatedTrackDataDTOModel!.ContentModifiedDateTime}, Current Time:${checkContentsEnrollmentStatusContentDataModel.ModifiedDate}",
+                  tag: tag);
               isRemove = checkContentsEnrollmentStatusContentDataModel.ModifiedDate != courseDownloadDataModel.relatedTrackDataDTOModel!.ContentModifiedDateTime;
             }
           }
         } else {
           if (courseDownloadDataModel.courseDTOModel != null) {
+            MyPrint.printOnConsole("ContentId ${courseDownloadDataModel.contentId} Is Regular MyLearning Content", tag: tag);
+            MyPrint.printOnConsole(
+                "For ContentId ${courseDownloadDataModel.contentId}, Saved Time:${courseDownloadDataModel.courseDTOModel!.ContentModifiedDateTime}, Current Time:${checkContentsEnrollmentStatusContentDataModel.ModifiedDate}",
+                tag: tag);
             isRemove = checkContentsEnrollmentStatusContentDataModel.ModifiedDate != courseDownloadDataModel.courseDTOModel!.ContentModifiedDateTime;
           }
         }
       }
 
+      MyPrint.printOnConsole("isRemove:$isRemove", tag: tag);
       if (isRemove) {
         CourseOfflineLaunchRequestModel? courseOfflineLaunchRequestModel = getCourseOfflineLaunchRequestModelFromCourseDownloadDataModel(downloadDataModel: courseDownloadDataModel);
         if (courseOfflineLaunchRequestModel != null) {

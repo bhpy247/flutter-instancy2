@@ -332,7 +332,7 @@ class MyLearningRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<CheckContentsEnrollmentStatusResponseModel>> checkContentsEnrollmentStatus({required CheckContentsEnrollmentStatusRequestModel requestModel}) async {
+  Future<DataResponseModel<CheckContentsEnrollmentStatusResponseModel?>> checkContentsEnrollmentStatus({required CheckContentsEnrollmentStatusRequestModel requestModel}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
@@ -347,7 +347,7 @@ class MyLearningRepository {
       parsingType: ModelDataParsingType.CheckContentsEnrollmentStatusResponseModel,
     );
 
-    DataResponseModel<CheckContentsEnrollmentStatusResponseModel> apiResponseModel = await apiController.callApi<CheckContentsEnrollmentStatusResponseModel>(
+    DataResponseModel<CheckContentsEnrollmentStatusResponseModel?> apiResponseModel = await apiController.callApi<CheckContentsEnrollmentStatusResponseModel?>(
       apiCallModel: apiCallModel,
     );
 

@@ -90,6 +90,12 @@ class MyLearningController {
     PaginationModel paginationModel = provider.myLearningPaginationModel;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = myLearningRepository.apiController.apiDataProvider;
+    AppProvider? appProvider = AppController.mainAppContext?.read<AppProvider>();
+    CourseDownloadProvider? courseDownloadProvider = AppController.mainAppContext?.read<CourseDownloadProvider>();
+    CourseDownloadController? courseDownloadController;
+    if (appProvider != null && courseDownloadProvider != null) {
+      courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+    }
 
     //region If Not refresh and Data available, return Cached Data
     if (!isRefresh && isGetFromCache && provider.myLearningContentsLength > 0) {
@@ -145,6 +151,10 @@ class MyLearningController {
 
     //region Make Api Call
     if (isInternetAvailable) {
+      if (courseDownloadController != null) {
+        await courseDownloadController.checkAndValidateDownloadedItemsEnrollmentStatus();
+      }
+
       DataResponseModel<MyLearningResponseDTOModel> response = await myLearningRepository.getMyLearningContentsListMain(
         requestModel: myLearningDataRequestModel,
         componentId: componentId,
@@ -176,14 +186,7 @@ class MyLearningController {
         myLearningHiveRepository.setMyLearningCourseModelInHive(courseModelsMap: Map.fromEntries(contentsList.map((e) => MapEntry(e.ContentID, e))), isClear: isRefresh),
       ];
 
-      AppProvider? appProvider = AppController.mainAppContext?.read<AppProvider>();
-      CourseDownloadProvider? courseDownloadProvider = AppController.mainAppContext?.read<CourseDownloadProvider>();
-
-      if (appProvider != null && courseDownloadProvider != null) {
-        CourseDownloadController courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
-
-        await courseDownloadController.checkAndValidateDownloadedItemsEnrollmentStatus();
-
+      if (courseDownloadController != null) {
         futures.add(courseDownloadController.updateMyLearningContentsInDownloadsAndSyncDataOffline(contentsList: contentsList));
       }
 
@@ -219,6 +222,12 @@ class MyLearningController {
     PaginationModel paginationModel = provider.myLearningArchivedPaginationModel;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = myLearningRepository.apiController.apiDataProvider;
+    AppProvider? appProvider = AppController.mainAppContext?.read<AppProvider>();
+    CourseDownloadProvider? courseDownloadProvider = AppController.mainAppContext?.read<CourseDownloadProvider>();
+    CourseDownloadController? courseDownloadController;
+    if (appProvider != null && courseDownloadProvider != null) {
+      courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
+    }
 
     //region If Not refresh and Data available, return Cached Data
     if (!isRefresh && isGetFromCache && provider.myLearningArchivedContentsLength > 0) {
@@ -274,6 +283,10 @@ class MyLearningController {
 
     //region Make Api Call
     if (isInternetAvailable) {
+      if (courseDownloadController != null) {
+        await courseDownloadController.checkAndValidateDownloadedItemsEnrollmentStatus();
+      }
+
       DataResponseModel<MyLearningResponseDTOModel> response = await myLearningRepository.getMyLearningContentsListMain(
         requestModel: myLearningDataRequestModel,
         componentId: componentId,
@@ -302,13 +315,7 @@ class MyLearningController {
 
       List<Future> futures = [];
 
-      AppProvider? appProvider = AppController.mainAppContext?.read<AppProvider>();
-      CourseDownloadProvider? courseDownloadProvider = AppController.mainAppContext?.read<CourseDownloadProvider>();
-      if (appProvider != null && courseDownloadProvider != null) {
-        CourseDownloadController courseDownloadController = CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider);
-
-        await courseDownloadController.checkAndValidateDownloadedItemsEnrollmentStatus();
-
+      if (courseDownloadController != null) {
         futures.add(courseDownloadController.updateMyLearningContentsInDownloadsAndSyncDataOffline(contentsList: contentsList));
       }
 
@@ -724,7 +731,7 @@ class MyLearningController {
 
     Map<String, bool> response = <String, bool>{};
 
-    DataResponseModel<CheckContentsEnrollmentStatusResponseModel> responseModel = await myLearningRepository.checkContentsEnrollmentStatus(requestModel: requestModel);
+    DataResponseModel<CheckContentsEnrollmentStatusResponseModel?> responseModel = await myLearningRepository.checkContentsEnrollmentStatus(requestModel: requestModel);
 
     MyPrint.printOnConsole("checkContentsEnrollmentStatus response:$responseModel", tag: tag);
 
