@@ -536,6 +536,7 @@ class InstancyIcons {
   static const IconData cancelDownload = FontAwesomeIcons.ban;
   static const IconData pauseDownload = FontAwesomeIcons.circlePause;
   static const IconData resumeDownload = FontAwesomeIcons.play;
+  static const IconData extractDownload = FontAwesomeIcons.fileZipper;
 // endregion
 }
 
@@ -897,5 +898,19 @@ class ProfileTabTypes {
         privacy,
         experience,
         education,
+      ];
+}
+
+class SocialLoginTypes {
+  static const String google = 'google';
+  static const String facebook = 'facebook';
+  static const String twitter = 'twitter';
+  static const String linkedin = 'linkedin';
+
+  static List<String> get values => <String>[
+        google,
+        facebook,
+        twitter,
+        linkedin,
       ];
 }

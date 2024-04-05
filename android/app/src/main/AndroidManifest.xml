@@ -35,7 +35,8 @@
         android:required="true" />
     <uses-feature
         android:name="android.hardware.camera.ar"
-        android:required="true" />
+        android:required="false"
+        tools:node="replace" />
 
     <application
         android:name="${applicationName}"

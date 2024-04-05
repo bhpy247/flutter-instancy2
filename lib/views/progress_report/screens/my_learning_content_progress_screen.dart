@@ -4,6 +4,7 @@ import 'package:flutter_instancy_2/backend/configurations/app_configuration_oper
 import 'package:flutter_instancy_2/backend/content_review_ratings/content_review_ratings_controller.dart';
 import 'package:flutter_instancy_2/backend/content_review_ratings/content_review_ratings_provider.dart';
 import 'package:flutter_instancy_2/backend/course_details/course_details_controller.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/progress_report/progress_report_provider.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/configs/ui_configurations.dart';
@@ -20,7 +21,6 @@ import 'package:flutter_instancy_2/views/content_review_ratings/components/conte
 import 'package:provider/provider.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
-import '../../../backend/navigation/navigation_arguments.dart';
 import '../../../backend/progress_report/progress_report_controller.dart';
 import '../../../configs/app_configurations.dart';
 import '../../../models/progress_report/data_model/content_progress_details_question_data_model.dart';
@@ -124,8 +124,7 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
       progressReportContentModel = ProgressReportContentModel(
         name: model.ContentName,
         author: model.ContentTypeId == InstancyObjectTypes.events ? model.PresenterDisplayName : model.AuthorDisplayName,
-        thumbnailImageUrl:
-            MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: appProvider).getInstancyImageUrlFromImagePath(imagePath: model.ThumbnailImagePath)),
+        thumbnailImageUrl: MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: appProvider).getInstancyImageUrlFromImagePath(imagePath: model.ThumbnailImagePath)),
         createdDate: ParsingHelper.parseDateTimeMethod(model.CreatedOn, dateFormat: "MM/dd/yyyy"),
         ratingId: model.RatingID,
         contentTypeId: model.ContentTypeId,
@@ -194,8 +193,7 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
         ChangeNotifierProvider<ContentReviewRatingsProvider>.value(value: contentReviewRatingsProvider),
       ],
       child: Consumer2<ProgressReportProvider, ContentReviewRatingsProvider>(
-        builder:
-            (BuildContext context, ProgressReportProvider progressReportProvider, ContentReviewRatingsProvider contentReviewRatingsProvider, Widget? child) {
+        builder: (BuildContext context, ProgressReportProvider progressReportProvider, ContentReviewRatingsProvider contentReviewRatingsProvider, Widget? child) {
           return ModalProgressHUD(
             inAsyncCall: isLoading,
             child: Scaffold(
@@ -433,9 +431,7 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
                     children: <Widget>[
                       Text(
                         "${score.round()}%",
-                        style: themeData.textTheme.titleLarge?.copyWith(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600),
+                        style: themeData.textTheme.titleLarge?.copyWith(fontSize: 20, fontWeight: FontWeight.w600),
                       ),
                       Text(
                         appProvider.localStr.myprogressreportLabelScorelabel,
@@ -491,12 +487,7 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
   //endregion
 
   //region Progress Timings
-  Widget getProgressTimingMainWidget({
-    required String dateStarted,
-    required String timeSpent,
-    required String dateCompleted,
-    required String status
-  }) {
+  Widget getProgressTimingMainWidget({required String dateStarted, required String timeSpent, required String dateCompleted, required String status}) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 18),
       child: Row(
@@ -655,9 +646,7 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 40),
-          Center(
-              child: Image.asset("assets/myLearning/reportNotDataView.png", height: 155,width: 155)
-          ),
+          Center(child: Image.asset("assets/myLearning/reportNotDataView.png", height: 155, width: 155)),
         ],
       );
     }
@@ -691,9 +680,7 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 40),
-          Center(
-            child: Image.asset("assets/myLearning/reportNotDataView.png", height: 155,width: 155)
-          ),
+          Center(child: Image.asset("assets/myLearning/reportNotDataView.png", height: 155, width: 155)),
         ],
       );
     }
@@ -782,8 +769,29 @@ class _MyLearningContentProgressScreenState extends State<MyLearningContentProgr
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Flexible(
+            /*child: flutter_html.Html(
+              // data: questionDataModel.pageQuestionTitle,
+              data: "<a href=\"https://qalearning-admin.instancy.com//Content/Instancy V2 Folders/2157/en-us/1471aca2-72ab-480a-9b45-9783e1fc5a6e.jpg\">Image</a>>True/False",
+              shrinkWrap: true,
+              onLinkTap: (String? url, Map<String, String> attributes, html.Element? element) {
+                MyPrint.printOnConsole("String Url:$url");
+
+                if (url.checkNotEmpty) {
+                  NavigationController.navigateToCommonViewImageScreen(
+                    navigationOperationParameters: NavigationOperationParameters(
+                      context: context,
+                      navigationType: NavigationType.pushNamed,
+                    ),
+                    arguments: CommonViewImageScreenNavigationArguments(
+                      imageUrl: url!,
+                    ),
+                  );
+                }
+              },
+            ),*/
             child: Text(
-              questionDataModel.pageQuestionTitle,
+              // MyUtils.parseHtmlString("<a href=\"https://qalearning-admin.instancy.com//Content/Instancy V2 Folders/2157/en-us/1471aca2-72ab-480a-9b45-9783e1fc5a6e.jpg\">Image</a>>True/False"),
+              MyUtils.parseHtmlString(questionDataModel.pageQuestionTitle),
               style: themeData.textTheme.bodySmall,
             ),
           ),

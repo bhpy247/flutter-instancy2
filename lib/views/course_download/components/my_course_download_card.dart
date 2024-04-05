@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/models/course_download/data_model/course_down
 import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
@@ -408,8 +409,8 @@ class _MyCourseDownloadCardState extends State<MyCourseDownloadCard> {
           children: [
             if (ContentTypeId != InstancyObjectTypes.events)
               Text(
-                "${percentCompleted.toInt()}% ",
-              style: themeData.textTheme.titleSmall?.copyWith(
+                "${percentCompleted.getFormattedNumber(precision: 2)}% ",
+                style: themeData.textTheme.titleSmall?.copyWith(
                 fontSize: 12,
               ),
             ),

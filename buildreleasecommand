@@ -77,10 +77,12 @@ To Rub nestle Web Server :- flutter run -d web-server --web-port 8080 --web-host
 3) modify Build Version Code in xcode
 4) modify app name in xcode
 5) modify GoogleService-Info.plist in ios/Runner according to BundleId
-6) modify App Logo icons
-7) modify Site Configurations in main.dart
-8) Run Xcode/Product/Archive
-9) Distribute that on TestFlight
+6) modify google client id GIDClientID in Info.plist
+7) modify google reverse client id CFBundleURLSchemes in Info.plist
+8) modify App Logo icons
+9) modify Site Configurations in main.dart
+10) Run Xcode/Product/Archive
+11) Distribute that on TestFlight
 
 *) When build starts, check for pods that required Development Team, if not assigned, then assign. This has to be done before build completes.
 

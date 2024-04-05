@@ -2,6 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+  <key>GIDClientID</key>
+  <!-- Copied from GoogleService-Info.plist key CLIENT_ID -->
+  <string>639139368781-7tu1rlpa7on48uhks9oidgoacbo8e5b2.apps.googleusercontent.com</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
@@ -29,12 +32,14 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.639139368781-e7kcgikhb42udcb95uejnd2hsdfa4h8r</string>
+      <key>CFBundleTypeRole</key>
+      <string>Editor</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>com.googleusercontent.apps.639139368781-7tu1rlpa7on48uhks9oidgoacbo8e5b2</string>
 				<string>fb1191975697818155</string>
-			</array>
-		</dict>
+      </array>
+    </dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
@@ -59,7 +64,7 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 		<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-    <true/>
+		<true/>
 	</dict>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>Access audio files from storage</string>

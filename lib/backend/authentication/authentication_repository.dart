@@ -1,10 +1,19 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_instancy_2/api/api_call_model.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
+import 'package:flutter_instancy_2/models/authentication/request_model/save_social_network_users_request_model.dart';
+import 'package:flutter_instancy_2/models/authentication/request_model/social_login_request_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/forgot_password_response_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/mobile_create_sign_up_response_model.dart';
+import 'package:flutter_instancy_2/models/authentication/response_model/save_social_network_users_response_dto_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/signup_field_response_model.dart';
 import 'package:flutter_instancy_2/models/common/app_error_model.dart';
+import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart';
 
 import '../../api/api_controller.dart';
@@ -61,6 +70,212 @@ class AuthenticationRepository {
     return apiResponseModel;
   }*/
 
+  Future<DataResponseModel<SaveSocialNetworkUsersResponseDtoModel>> saveSocialNetworkUsers({required SaveSocialNetworkUsersRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.SaveSocialNetworkUsersResponseDtoModel,
+      url: apiEndpoints.SaveSocialNetworkUsers(),
+      requestBody: MyUtils.encodeJson(requestModel.toJson()),
+      isAuthenticatedApiCall: false,
+    );
+
+    DataResponseModel<SaveSocialNetworkUsersResponseDtoModel> apiResponseModel = await apiController.callApi<SaveSocialNetworkUsersResponseDtoModel>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<NativeLoginDTOModel>> loginWithSocialCredentials({required SocialLoginRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.NativeLoginDTOModel,
+      url: apiEndpoints.SocialLogin(),
+      queryParameters: requestModel.toJson(),
+      isAuthenticatedApiCall: false,
+    );
+
+    DataResponseModel<NativeLoginDTOModel> apiResponseModel = await apiController.callApi<NativeLoginDTOModel>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<UserCredential?> signInWithGoogle({required BuildContext context}) async {
+    AuthProvider? authProvider;
+    AuthCredential? authCredential;
+
+    if (kIsWeb) {
+      // Create a new provider
+      GoogleAuthProvider googleProvider = GoogleAuthProvider();
+
+      // googleProvider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+      authProvider = googleProvider;
+      /*googleProvider.setCustomParameters({
+        'login_hint': 'user@example.com'
+      });*/
+    } else {
+      GoogleSignInAccount? googleSignInAccount;
+
+      try {
+        googleSignInAccount = await GoogleSignIn(scopes: [
+          'https://www.googleapis.com/auth/userinfo.email',
+          "https://www.googleapis.com/auth/userinfo.profile",
+        ]).signIn();
+      } catch (e) {
+        MyPrint.printOnConsole("Error in Google Sign In:$e");
+      }
+
+      if (googleSignInAccount == null) {
+        return null;
+      }
+
+      final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
+      authCredential = GoogleAuthProvider.credential(
+        accessToken: googleSignInAuthentication.accessToken,
+        idToken: googleSignInAuthentication.idToken,
+      );
+    }
+
+    UserCredential? userCredential = await firebaseSocialLogin(context: context, authProvider: authProvider, credential: authCredential);
+
+    return userCredential;
+  }
+
+  Future<UserCredential?> signInWithFacebook({required BuildContext context}) async {
+    AuthProvider? authProvider;
+    AuthCredential? authCredential;
+
+    if (kIsWeb) {
+      FacebookAuthProvider facebookProvider = FacebookAuthProvider();
+
+      facebookProvider.addScope('email');
+      facebookProvider.setCustomParameters({
+        'display': 'popup',
+      });
+      authProvider = facebookProvider;
+    } else {
+      LoginResult? loginResult;
+
+      try {
+        // Trigger the sign-in flow
+        loginResult = await FacebookAuth.instance.login();
+      } catch (e) {
+        MyPrint.printOnConsole("Error in Facebook:$e");
+      }
+
+      if (loginResult == null || loginResult.accessToken == null) {
+        return null;
+      }
+
+      // Create a credential from the access token
+      authCredential = FacebookAuthProvider.credential(loginResult.accessToken!.token);
+    }
+
+    UserCredential? userCredential = await firebaseSocialLogin(context: context, authProvider: authProvider, credential: authCredential);
+
+    return userCredential;
+  }
+
+  Future<UserCredential?> signInWithTwitter({required BuildContext context}) async {
+    AuthProvider authProvider = TwitterAuthProvider();
+
+    UserCredential? userCredential = await firebaseSocialLogin(context: context, authProvider: authProvider);
+
+    return userCredential;
+  }
+
+  Future<UserCredential?> firebaseSocialLogin({required BuildContext context, AuthProvider? authProvider, AuthCredential? credential}) async {
+    try {
+      if (!kIsWeb && credential != null) {
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+
+        return userCredential;
+      } else if (authProvider != null) {
+        UserCredential userCredential;
+
+        if (kIsWeb) {
+          userCredential = await FirebaseAuth.instance.signInWithPopup(authProvider);
+        } else {
+          userCredential = await FirebaseAuth.instance.signInWithProvider(authProvider);
+        }
+
+        return userCredential;
+
+        // Or use signInWithRedirect
+        // return await FirebaseAuth.instance.signInWithRedirect(googleProvider);
+      }
+    } on FirebaseAuthException catch (e) {
+      MyPrint.printOnConsole("Code:${e.code}");
+      switch (e.code) {
+        case "account-exists-with-different-credential":
+          {
+            List<String> methods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(e.email!);
+            MyPrint.printOnConsole("Methods:$methods");
+
+            MyPrint.printOnConsole("Message:Account Already Exist With Different Method");
+            if (context.mounted) MyToast.showError(context: context, msg: "Account Already Exist With Different Method");
+          }
+          break;
+
+        case "invalid-credential":
+          {
+            MyPrint.printOnConsole("Message:Invalid Credentials");
+            if (context.mounted) MyToast.showError(context: context, msg: "Invalid Credentials");
+          }
+          break;
+
+        case "operation-not-allowed":
+          {
+            MyPrint.printOnConsole("Message:${e.message}");
+            if (context.mounted) MyToast.showError(context: context, msg: "${e.message}");
+          }
+          break;
+
+        case "user-disabled":
+          {
+            MyPrint.printOnConsole("Message:${e.message}");
+            if (context.mounted) MyToast.showError(context: context, msg: "${e.message}");
+          }
+          break;
+
+        case "user-not-found":
+          {
+            MyPrint.printOnConsole("Message:${e.message}");
+            if (context.mounted) MyToast.showError(context: context, msg: "${e.message}");
+          }
+          break;
+
+        case "wrong-password":
+          {
+            MyPrint.printOnConsole("Message:${e.message}");
+            if (context.mounted) MyToast.showError(context: context, msg: "${e.message}");
+          }
+          break;
+
+        default:
+          {
+            MyPrint.printOnConsole("Message:${e.message}");
+            if (context.mounted) MyToast.showError(context: context, msg: "${e.message}");
+          }
+      }
+
+      return null;
+    } catch (e, s) {
+      return null;
+    }
+    return null;
+  }
+
   Future<DataResponseModel<ForgotPasswordResponseModel>> getForgotPasswordStatus({required String email}) async {
     try {
       print('email req $email');
@@ -72,7 +287,8 @@ class AuthenticationRepository {
       ApiCallModel apiCallModel = ApiCallModel(
         restCallType: RestCallType.simpleGetCall,
         parsingType: ModelDataParsingType.forgotPasswordResponseModel,
-        url: apiEndpoints.apiGetUserStatusAPI(email:email), siteUrl: apiEndpoints.siteUrl,
+        url: apiEndpoints.apiGetUserStatusAPI(email: email),
+        siteUrl: apiEndpoints.siteUrl,
       );
 
       DataResponseModel<ForgotPasswordResponseModel> apiResponseModel = await apiController.callApi<ForgotPasswordResponseModel>(
@@ -81,8 +297,7 @@ class AuthenticationRepository {
       MyPrint.printOnConsole("Response data of the getForgotPasswordStatus: ${apiResponseModel.data}");
 
       return apiResponseModel;
-    }
-    catch (e, s) {
+    } catch (e, s) {
       MyPrint.printOnConsole("Error in AuthenticationRepository.loginWithEmailAndPassword():$e");
       MyPrint.printOnConsole(s);
       return DataResponseModel<ForgotPasswordResponseModel>(
@@ -94,7 +309,7 @@ class AuthenticationRepository {
     }
   }
 
-  Future<DataResponseModel> resetUserdata({required  UserStatus userStatus, required String resetId}) async {
+  Future<DataResponseModel> resetUserdata({required UserStatus userStatus, required String resetId}) async {
     try {
       print('userStatus $userStatus');
 
@@ -119,8 +334,7 @@ class AuthenticationRepository {
       // }
 
       return apiResponseModel;
-    }
-    catch (e, s) {
+    } catch (e, s) {
       MyPrint.printOnConsole("Error in AuthenticationRepository.loginWithEmailAndPassword():$e");
       MyPrint.printOnConsole(s);
       return DataResponseModel<String>(
@@ -132,7 +346,7 @@ class AuthenticationRepository {
     }
   }
 
-  Future<DataResponseModel> sendPassword({required  int siteId, required int userId, required String email, required String resetId}) async {
+  Future<DataResponseModel> sendPassword({required int siteId, required int userId, required String email, required String resetId}) async {
     try {
       // print('userStatus $userStatus');
 
@@ -152,10 +366,8 @@ class AuthenticationRepository {
       );
       MyPrint.printOnConsole("Response data of the sendPassword: ${apiResponseModel.data}");
 
-
       return apiResponseModel;
-    }
-    catch (e, s) {
+    } catch (e, s) {
       MyPrint.printOnConsole("Error in AuthenticationRepository.loginWithEmailAndPassword():$e");
       MyPrint.printOnConsole(s);
       return DataResponseModel<Response>(
@@ -194,8 +406,7 @@ class AuthenticationRepository {
 
       MyPrint.printOnConsole("Response data of the resetUserDataApi: $apiResponseModel");
       return apiResponseModel;
-    }
-    catch (e,s) {
+    } catch (e, s) {
       MyPrint.printOnConsole("Error in AuthenticationRepository.getSignupFields():$e");
       MyPrint.printOnConsole(s);
       return DataResponseModel<SignupFieldResponseModel>(
@@ -230,8 +441,7 @@ class AuthenticationRepository {
       MyPrint.printOnConsole("Response data of the signUpUser: ${apiResponseModel.data}");
 
       return apiResponseModel;
-    }
-    catch (e, s) {
+    } catch (e, s) {
       MyPrint.printOnConsole("Error in AuthenticationRepository.loginWithEmailAndPassword():$e");
       MyPrint.printOnConsole(s);
       return DataResponseModel<MobileCreateSignUpResponseModel>(

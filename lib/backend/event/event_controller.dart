@@ -1,6 +1,8 @@
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_repository.dart';
+import 'package:flutter_instancy_2/backend/app/app_controller.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/app/app_repository.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
@@ -15,6 +17,7 @@ import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/event/components/event_cancel_enrolment_dialog.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../api/api_controller.dart';
@@ -259,11 +262,14 @@ class EventController {
 
     Map<String, int> eventDate = {};
 
+    AppProvider? appProvider = AppController.mainAppContext?.read<AppProvider>();
+    String dateFormat = appProvider?.appSystemConfigurationModel.eventDateTimeFormat ?? "MM/dd/yyyy hh:mm aa";
+
     for (CourseDTOModel event in contentsList) {
       MyPrint.printOnConsole("StartDateTime:${event.EventStartDateTime}, EndDateTime:${event.EventEndDateTime}", tag: tag);
 
-      DateTime? startDate = ParsingHelper.parseDateTimeMethod(event.EventStartDateTime, dateFormat: "MM/dd/yyyy hh:mm aa");
-      DateTime? endDate = ParsingHelper.parseDateTimeMethod(event.EventEndDateTime, dateFormat: "MM/dd/yyyy hh:mm aa");
+      DateTime? startDate = ParsingHelper.parseDateTimeMethod(event.EventStartDateTime, dateFormat: dateFormat);
+      DateTime? endDate = ParsingHelper.parseDateTimeMethod(event.EventEndDateTime, dateFormat: dateFormat);
       if (endDate != null && startDate != null) {
         List<DateTime> dates = MyUtils.getDaysInBetween(startDate, endDate);
         MyPrint.printOnConsole("dates:${dates.map((e) => e.toIso8601String())}", tag: tag);
@@ -290,10 +296,13 @@ class EventController {
     DateTime selectedCalenderDate = eventProvider.selectedCalenderDate.get();
     MyPrint.printOnConsole("selectedCalenderDate: $selectedCalenderDate");
 
+    AppProvider? appProvider = AppController.mainAppContext?.read<AppProvider>();
+    String dateFormat = appProvider?.appSystemConfigurationModel.eventDateTimeFormat ?? "MM/dd/yyyy hh:mm aa";
+
     List<CourseDTOModel> selectedEventList = eventList.where(
       (element) {
-        DateTime? eventStartDate = ParsingHelper.parseDateTimeMethod(element.EventStartDateTime, dateFormat: "MM/dd/yyyy hh:mm aa");
-        DateTime? eventEndDate = ParsingHelper.parseDateTimeMethod(element.EventEndDateTime, dateFormat: "MM/dd/yyyy hh:mm aa");
+        DateTime? eventStartDate = ParsingHelper.parseDateTimeMethod(element.EventStartDateTime, dateFormat: dateFormat);
+        DateTime? eventEndDate = ParsingHelper.parseDateTimeMethod(element.EventEndDateTime, dateFormat: dateFormat);
 
         if (eventStartDate == null || eventEndDate == null) return false;
 

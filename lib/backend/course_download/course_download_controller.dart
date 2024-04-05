@@ -234,6 +234,7 @@ class CourseDownloadController {
       model.isFileExtracted = false;
       model.isFileExtracting = true;
       updateCourseDownload(courseDownloadDataModel: model);
+      courseDownloadProvider.notify(isNotify: true);
 
       bool isZipFileExtracted = await FlutterDownloadController().extractZipFile(
         destinationFolderPath: folderPath,
@@ -266,6 +267,7 @@ class CourseDownloadController {
       model.isFileExtracted = true;
       model.isFileExtracting = false;
       MyPrint.printOnConsole("Zip File Extracted", tag: tag);
+      courseDownloadProvider.notify(isNotify: true);
     }
 
     String coreLessonStatus = courseDTOModel?.ActualStatus ?? trackCourseDTOModel?.CoreLessonStatus ?? relatedTrackDataDTOModel?.CoreLessonStatus ?? "";
@@ -1305,7 +1307,7 @@ class CourseDownloadController {
         if (CoreLessonStatus != null) eventTrackHeaderDTOModel.ContentStatus = CoreLessonStatus;
         if (DisplayStatus != null) eventTrackHeaderDTOModel.DisplayStatus = DisplayStatus;
         if (PercentageCompleted != null) {
-          eventTrackHeaderDTOModel.percentagecompleted = PercentageCompleted.toStringAsFixed(PercentageCompleted == PercentageCompleted.toInt() ? 0 : 2);
+          eventTrackHeaderDTOModel.percentagecompleted = PercentageCompleted.getFormattedNumber(precision: 2) ?? "0";
         }
         await eventTrackHiveRepository.addEventTrackHeaderDTOModelInBox(headerData: {eventTrackHeaderDTOModel.ContentID: eventTrackHeaderDTOModel}, isClear: false);
 
@@ -1359,6 +1361,11 @@ class CourseDownloadController {
 
     MyPrint.printOnConsole("Final contentIdsToVerify:$contentIdsToVerify", tag: tag);
     // endregion
+
+    if (contentIdsToVerify.isEmpty) {
+      MyPrint.printOnConsole("Returning from CourseDownloadController().checkAndValidateDownloadedItemsEnrollmentStatus() because contentIdsToVerify is empty", tag: tag);
+      return;
+    }
 
     // region Get Enrollment Status for contentIdsToVerify
     DataResponseModel<CheckContentsEnrollmentStatusResponseModel?> responseModel = await MyLearningRepository(apiController: ApiController()).checkContentsEnrollmentStatus(

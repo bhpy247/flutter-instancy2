@@ -9,6 +9,7 @@ import 'package:flutter_instancy_2/models/ask_the_expert/response_model/add_ques
 import 'package:flutter_instancy_2/models/ask_the_expert/response_model/filter_user_skills_dto.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/forgot_password_response_model.dart';
+import 'package:flutter_instancy_2/models/authentication/response_model/save_social_network_users_response_dto_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/signup_field_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/associated_content_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
@@ -123,6 +124,7 @@ enum ModelDataParsingType {
   //region Authentication Module
   emailLoginResponseModel,
   NativeLoginDTOModel,
+  SaveSocialNetworkUsersResponseDtoModel,
   successfulUserLoginModel,
   MobileCreateSignUpResponseModel,
   //endregion
@@ -342,6 +344,7 @@ class ModelDataParser {
     //region Authentication Module
     ModelDataParsingType.emailLoginResponseModel: parseEmailLoginResponseModel,
     ModelDataParsingType.NativeLoginDTOModel: parseNativeLoginDTOModel,
+    ModelDataParsingType.SaveSocialNetworkUsersResponseDtoModel: parseSaveSocialNetworkUsersResponseDtoModel,
     ModelDataParsingType.successfulUserLoginModel: parseSuccessfulUserLoginModel,
     ModelDataParsingType.MobileCreateSignUpResponseModel: parseMobileCreateSignUpResponseModel,
     //endregion
@@ -666,6 +669,16 @@ class ModelDataParser {
 
     if (map.isNotEmpty) {
       return NativeLoginDTOModel.fromMap(map);
+    } else {
+      return null;
+    }
+  }
+
+  static SaveSocialNetworkUsersResponseDtoModel? parseSaveSocialNetworkUsersResponseDtoModel({required dynamic decodedValue}) {
+    Map<String, dynamic> map = ParsingHelper.parseMapMethod(decodedValue);
+
+    if (map.isNotEmpty) {
+      return SaveSocialNetworkUsersResponseDtoModel.fromMap(map);
     } else {
       return null;
     }

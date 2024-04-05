@@ -834,7 +834,7 @@ class _ProgressReportDetailScreenState extends State<ProgressReportDetailScreen>
         children: [
           Flexible(
             child: Text(
-              questionDataModel.pageQuestionTitle,
+              MyUtils.parseHtmlString(questionDataModel.pageQuestionTitle),
               style: themeData.textTheme.bodySmall,
             ),
           ),

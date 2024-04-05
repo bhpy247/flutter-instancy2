@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:html/parser.dart' as html_parser;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -175,4 +176,13 @@ class MyUtils {
   }
 
   static double roundTo(double value, double precision) => (value * precision).round() / precision;
+
+  static String parseHtmlString(String htmlString) {
+    final document = html_parser.parse(htmlString);
+    if (document.body?.text != null) {
+      return html_parser.parse(document.body!.text).documentElement!.text;
+    }
+
+    return "";
+  }
 }

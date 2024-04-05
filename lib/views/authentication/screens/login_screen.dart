@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/backend/network_connection/network_connection
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/app_ststem_configurations.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/sign_up_response_dto_model.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/authentication/authentication_controller.dart';
@@ -34,6 +35,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> with MySafeState {
+  bool isLoading = false;
+  bool isSocialLoginInProgress = false;
+
   late AppProvider appProvider;
 
   late AuthenticationController authenticationController;
@@ -98,6 +102,66 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
       mySetState();
 
       if (context.mounted) MyToast.showError(context: context, msg: appProvider.localStr.loginAlerttitleSigninfailed);
+    }
+  }
+
+  Future<void> loginWithGoogle() async {
+    FocusScope.of(context).requestFocus(FocusNode());
+
+    if (isSignInProgress) return;
+
+    if (!NetworkConnectionController().checkConnection(isShowErrorSnakbar: true, context: context)) {
+      MyPrint.printOnConsole("Internet Not Available");
+      return;
+    }
+
+    AppProvider appProvider = Provider.of<AppProvider>(context, listen: false);
+
+    isSocialLoginInProgress = true;
+    mySetState();
+
+    bool isUserLoggedIn = await authenticationController.loginWithGoogle(context: context);
+
+    isSocialLoginInProgress = false;
+
+    if (isUserLoggedIn) {
+      mySetState();
+
+      Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, MainScreen.routeName, (route) => false);
+    } else {
+      mySetState();
+
+      if (context.mounted) MyToast.showError(context: context, msg: appProvider.localStr.loginAlerttitleGoogleSigninfailed);
+    }
+  }
+
+  Future<void> loginWithLinkedIn() async {
+    FocusScope.of(context).requestFocus(FocusNode());
+
+    if (isSignInProgress) return;
+
+    if (!NetworkConnectionController().checkConnection(isShowErrorSnakbar: true, context: context)) {
+      MyPrint.printOnConsole("Internet Not Available");
+      return;
+    }
+
+    AppProvider appProvider = Provider.of<AppProvider>(context, listen: false);
+
+    isSocialLoginInProgress = true;
+    mySetState();
+
+    bool isUserLoggedIn = await authenticationController.loginWithLinkedIn(context: context);
+
+    isSocialLoginInProgress = false;
+
+    if (isUserLoggedIn) {
+      mySetState();
+
+      Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, MainScreen.routeName, (route) => false);
+    } else {
+      mySetState();
+
+      if (context.mounted) MyToast.showError(context: context, msg: appProvider.localStr.loginAlerttitleLinkedInSigninfailed);
     }
   }
 
@@ -188,9 +252,12 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
         onTap: () {
           FocusScope.of(context).requestFocus(FocusNode());
         },
-        child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          body: getMainBody2(),
+        child: ModalProgressHUD(
+          inAsyncCall: isLoading || isSocialLoginInProgress,
+          child: Scaffold(
+            resizeToAvoidBottomInset: true,
+            body: getMainBody2(),
+          ),
         ),
       ),
     );
@@ -212,6 +279,8 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
           isLinkedInLoginEnabled,
         ];
 
+        bool isSocialLoginsEnabled = socialEnabledList.contains(true);
+
         return Stack(
           children: [
             backGround(),
@@ -224,14 +293,15 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
                       children: [
                         welcomeText(),
                         loginSignUpView(isSignUpAllowed: appSystemConfigurationModel.selfRegistrationAllowed),
-                        if (socialEnabledList.contains(true)) getOrText(),
-                        if (socialEnabledList.contains(true))
+                        if (isSocialLoginsEnabled) ...[
+                          getOrText(),
                           socialsView(
                             isGoogleLoginEnabled: isGoogleLoginEnabled,
                             isFacebookLoginEnabled: isFacebookLoginEnabled,
                             isTwitterLoginEnabled: isTwitterLoginEnabled,
                             isLinkedInLoginEnabled: isLinkedInLoginEnabled,
                           ),
+                        ],
                         const SizedBox(
                           height: 30,
                         ),
@@ -469,26 +539,86 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          if (isGoogleLoginEnabled) socialsIcon(googleLogoUrl),
-          if (isFacebookLoginEnabled) socialsIcon(fbLogoUrl),
-          if (isTwitterLoginEnabled) socialsIcon(twitterLogoUrl),
-          if (isLinkedInLoginEnabled) socialsIcon(linkDineLogoUrl),
+          if (isGoogleLoginEnabled)
+            Flexible(
+              child: socialsIcon(
+                imagePath: googleLogoUrl,
+                onTap: () {
+                  loginWithGoogle();
+                },
+              ),
+            ),
+          if (isFacebookLoginEnabled)
+            Flexible(
+              child: socialsIcon(
+                imagePath: fbLogoUrl,
+              ),
+            ),
+          if (isTwitterLoginEnabled)
+            Flexible(
+              child: socialsIcon(
+                imagePath: twitterLogoUrl,
+              ),
+            ),
+          if (isLinkedInLoginEnabled)
+            Flexible(
+              child: socialsIcon(
+                imagePath: linkDineLogoUrl,
+                onTap: () {
+                  loginWithLinkedIn();
+                },
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget socialsIcon(String url) {
-    return Card(
-      elevation: 2,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+  Widget socialsIcon({required String imagePath, void Function()? onTap}) {
+    Color shadowColor = Colors.black.withAlpha(13);
+    double offset = 1;
+    double cardSize = 60;
+
+    return GestureDetector(
+      onTap: () {
+        onTap?.call();
+      },
       child: Container(
+        width: cardSize,
+        height: cardSize,
         padding: const EdgeInsets.all(15),
-        height: 60,
-        width: 60,
+        decoration: BoxDecoration(
+          color: themeData.scaffoldBackgroundColor,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(offset, offset),
+              color: shadowColor,
+              blurRadius: 5,
+              spreadRadius: 2,
+            ),
+            BoxShadow(
+              offset: Offset(-offset, -offset),
+              color: shadowColor,
+              blurRadius: 5,
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              offset: Offset(offset, -offset),
+              color: shadowColor,
+              blurRadius: 5,
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              offset: Offset(-offset, offset),
+              color: shadowColor,
+              blurRadius: 5,
+              spreadRadius: 0,
+            ),
+          ],
+        ),
         child: Image.asset(
-          url,
+          imagePath,
           height: 10,
           width: 10,
           fit: BoxFit.contain,

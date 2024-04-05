@@ -11,6 +11,26 @@ extension MyStringExtension on String? {
   bool get checkEmpty => (this ?? '').isEmpty;
 }
 
+extension MyDoubleExtension on double? {
+  String? getFormattedNumber({int? precision}) {
+    if (this == null) return null;
+
+    if (precision == null) {
+      String strNumber = this!.toString();
+      if (strNumber.contains('.')) {
+        return strNumber.replaceAll(RegExp(r"0*$"), "").replaceAll(RegExp(r"\.$"), "");
+      }
+      return strNumber;
+    }
+
+    String formattedNumber = this!.toStringAsFixed(precision);
+    if (formattedNumber.contains('.')) {
+      formattedNumber = formattedNumber.replaceAll(RegExp(r"0*$"), "").replaceAll(RegExp(r"\.$"), "");
+    }
+    return formattedNumber;
+  }
+}
+
 extension MyMapExtension on Map? {
   bool get checkNotEmpty => (this ?? {}).isNotEmpty;
 

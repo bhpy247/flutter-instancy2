@@ -3,6 +3,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
+import 'package:flutter_instancy_2/backend/authentication/authentication_controller.dart';
+import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/membership/membership_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
@@ -41,6 +43,9 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
   final PageController _pageController = PageController();
 
   late AppProvider appProvider;
+
+  late AuthenticationProvider authenticationProvider;
+  late AuthenticationController authenticationController;
 
   void initializeImages({required AppProvider appProvider}) {
     String backgroundImage = appProvider.loginScreenBackgroundImage.get();
@@ -157,6 +162,8 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
     super.initState();
 
     appProvider = context.read<AppProvider>();
+    authenticationProvider = context.read<AuthenticationProvider>();
+    authenticationController = AuthenticationController(provider: authenticationProvider);
   }
 
   @override
@@ -229,6 +236,7 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
                       isSignUpEnabled: false,
                     ),
                   );
+                  // authenticationController.loginWithFacebook(context: context);
                 },
               ),
             ),

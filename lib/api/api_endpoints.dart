@@ -56,6 +56,10 @@ class ApiEndpoints {
     return "${getBaseApiUrl()}MobileLMS/PostLoginDetails";
   }
 
+  String SaveSocialNetworkUsers() => '${getBaseApiUrl()}SocialNetworkLink/SaveSocailNetworkUsers';
+
+  String SocialLogin() => '${getBaseApiUrl()}MobileLMS/SocialLogin';
+
   String apiSignUpUser({
     required String locale,
   }) =>

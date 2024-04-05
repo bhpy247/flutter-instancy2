@@ -88,12 +88,18 @@ class CourseDownloadButton extends StatelessWidget {
       if (courseDownloadDataModel.isCourseDownloaded) {
         progressColor = Colors.green;
         iconData = Icons.download_done;
-      } else if (courseDownloadDataModel.isFileDownloading || courseDownloadDataModel.isFileExtracting) {
+      } else if (courseDownloadDataModel.isFileDownloading) {
         progressColor = Colors.orangeAccent;
         iconData = Icons.pause;
       } else if (courseDownloadDataModel.isFileDownloadingPaused) {
         iconData = InstancyIcons.resumeDownload;
         iconSize = 16;
+      } else if (courseDownloadDataModel.isFileExtracting) {
+        iconData = InstancyIcons.extractDownload;
+        progressColor = Colors.orangeAccent;
+        // downloadProgress = courseDownloadDataModel.zipFileExtractionPercentage / 100;
+        onTap = null;
+        iconSize = 17;
       }
     }
 

@@ -201,7 +201,7 @@ class _TrackContentCardState extends State<TrackContentCard> {
 
               return linearProgressBar(
                 ContentTypeId: newModel.ContentTypeId,
-                percentCompleted: ParsingHelper.parseIntMethod(newModel.ContentProgress),
+                percentCompleted: ParsingHelper.parseDoubleMethod(newModel.ContentProgress),
                 contentStatus: newModel.ContentStatus,
                 actualStatus: newModel.CoreLessonStatus,
               );
@@ -209,7 +209,7 @@ class _TrackContentCardState extends State<TrackContentCard> {
 
             return linearProgressBar(
               ContentTypeId: model.ContentTypeId,
-              percentCompleted: percentageCompleted.toInt(),
+              percentCompleted: percentageCompleted,
               contentStatus: contentStatus,
               actualStatus: actualStatus,
             );
@@ -249,7 +249,7 @@ class _TrackContentCardState extends State<TrackContentCard> {
 
   Widget linearProgressBar({
     required int ContentTypeId,
-    required int percentCompleted,
+    required double percentCompleted,
     required String contentStatus,
     required String actualStatus,
   }) {
@@ -263,7 +263,7 @@ class _TrackContentCardState extends State<TrackContentCard> {
             maxSteps: 100,
             progressType: LinearProgressBar.progressTypeLinear,
             // Use Dots progress
-            currentStep: percentCompleted,
+            currentStep: percentCompleted.toInt(),
             progressColor: AppConfigurations.getContentStatusColorFromActualStatus(status: actualStatus),
             backgroundColor: const Color(0xffDCDCDC),
           ),
@@ -274,7 +274,7 @@ class _TrackContentCardState extends State<TrackContentCard> {
           children: [
             if (ContentTypeId != InstancyObjectTypes.events)
               Text(
-                "${percentCompleted.toInt()}% ",
+                "${percentCompleted.getFormattedNumber(precision: 2)}% ",
                 style: themeData.textTheme.titleSmall?.copyWith(
                   fontSize: 12,
                 ),

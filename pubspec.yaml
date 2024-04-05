@@ -101,15 +101,17 @@ dependencies:
 
   #region Firebase:
   firebase_core: ^2.24.2
+  firebase_auth: ^4.15.3
   cloud_firestore: ^4.13.6
   firebase_messaging: ^14.7.9
   firebase_analytics: ^10.7.4
   firebase_crashlytics: ^3.4.8
+  google_sign_in: ^6.2.1
+  flutter_facebook_auth: ^6.1.1
   #endregion
 
   #region Webview:
   flutter_inappwebview: ^6.0.0
-  webviewx: ^0.2.2
   #endregion
 
   #region Media Players
@@ -131,6 +133,11 @@ dependencies:
   arcore_flutter_plugin:
     git:
       url: https://github.com/Rockstar95/arcore_flutter_plugin
+      ref: master
+
+  linkedin_login:
+    git:
+      url: https://github.com/Rockstar95/linkedin_login
       ref: master
 
 dependency_overrides:

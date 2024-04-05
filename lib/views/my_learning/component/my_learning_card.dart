@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:flutter_instancy_2/views/common/components/common_icon_button.dart';
@@ -316,7 +317,8 @@ class _MyLearningCardState extends State<MyLearningCard> {
           children: [
             if (ContentTypeId != InstancyObjectTypes.events)
               Text(
-                "${percentCompleted.toInt()}% ",
+                // "$percentCompleted% ",
+                "${percentCompleted.getFormattedNumber(precision: 2)}% ",
                 style: themeData.textTheme.titleSmall?.copyWith(
                   fontSize: 12,
                 ),

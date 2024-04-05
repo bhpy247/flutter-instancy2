@@ -8,12 +8,14 @@ import 'package:flutter_instancy_2/backend/course_download/course_download_provi
 import 'package:flutter_instancy_2/backend/event_track/event_track_provider.dart';
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_provider.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui_action_configs.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/course_download/request_model/course_download_request_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/track_course_dto_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/track_dto_model.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:provider/provider.dart';
 
 typedef DownloadContentIdsResponse = ({
@@ -215,8 +217,9 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
         //region Defining of icon from list download status
         IconData icon = Icons.file_download_outlined;
         Color? progressColor = Colors.grey;
-        bool isDownloading = false, isDownloadPaused = false, isAllDownloaded = false;
+        bool isDownloading = false, isDownloadPaused = false, isAllDownloaded = false, isExtracting = false;
         int downloadedCount = 0;
+        double? iconSize;
 
         // MyPrint.printOnConsole("Downloads:${myLearningDownloadProvider.downloads.map((e) => "Name:${e.table2.name}, Track:${e.trackContentName}\n").join(",")}");
         for (String contentId in downloadableContentResponse.downloadbleContentIds) {
@@ -228,11 +231,14 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
             if (courseDownloadDataModel.isCourseDownloaded) {
               downloadedCount++;
             } else {
-              if (courseDownloadDataModel.isCourseDownloading) {
+              if (courseDownloadDataModel.isFileDownloading) {
                 isDownloading = true;
               }
               if (courseDownloadDataModel.isFileDownloadingPaused) {
                 isDownloadPaused = true;
+              }
+              if (courseDownloadDataModel.isFileExtracting) {
+                isExtracting = true;
               }
             }
           }
@@ -254,8 +260,14 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
         } else if (isDownloading) {
           icon = Icons.pause;
           progressColor = Colors.orangeAccent;
+        } else if (isExtracting) {
+          icon = InstancyIcons.extractDownload;
+          progressColor = Colors.orangeAccent;
+          iconSize = 23;
         }
         //endregion
+
+        MyPrint.printOnConsole("isExtracting in EventTrackCoursesDownloadButtonWidget:$isExtracting");
 
         return Container(
           decoration: BoxDecoration(
@@ -278,6 +290,7 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
                   courseDownloadProvider: courseDownloadProvider,
                   appProvider: context.read<AppProvider>(),
                 );
+              } else if (isExtracting) {
               } else {
                 downloadEventTrackContents(
                   downloadableContentResponse: downloadableContentResponse,
@@ -287,9 +300,10 @@ class EventTrackCoursesDownloadButtonWidget extends StatelessWidget {
               }
             },
             child: Padding(
-              padding: const EdgeInsets.all(3.0),
+              padding: const EdgeInsets.all(7),
               child: Icon(
                 icon,
+                size: iconSize,
               ),
             ),
           ),

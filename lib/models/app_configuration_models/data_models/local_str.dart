@@ -24,6 +24,10 @@ class LocalStr {
   String brandingButtonLoginbutton = "";
   String loginHeaderLogintitlelabel = "";
   String loginAlerttitleSigninfailed = "";
+  String loginAlerttitleGoogleSigninfailed = "";
+  String loginAlerttitleFacebookSigninfailed = "";
+  String loginAlerttitleTwitterSigninfailed = "";
+  String loginAlerttitleLinkedInSigninfailed = "";
   String loginAlertsubtitleUsernameorpasswordcannotbeempty = "";
   String loginAlertsubtitleInvalidusernameorpassword = "";
   String loginActionsheetCanceloption = "";
@@ -833,6 +837,10 @@ class LocalStr {
     this.brandingButtonLoginbutton = "",
     this.loginHeaderLogintitlelabel = "",
     this.loginAlerttitleSigninfailed = "",
+    this.loginAlerttitleGoogleSigninfailed = "",
+    this.loginAlerttitleFacebookSigninfailed = "",
+    this.loginAlerttitleTwitterSigninfailed = "",
+    this.loginAlerttitleLinkedInSigninfailed = "",
     this.loginAlertsubtitleUsernameorpasswordcannotbeempty = "",
     this.loginAlertsubtitleInvalidusernameorpassword = "",
     this.loginActionsheetCanceloption = "",
@@ -1621,6 +1629,10 @@ class LocalStr {
     brandingButtonLoginbutton = ParsingHelper.parseStringMethod(json['branding_button_loginbutton']);
     loginHeaderLogintitlelabel = ParsingHelper.parseStringMethod(json['login_header_logintitlelabel']);
     loginAlerttitleSigninfailed = ParsingHelper.parseStringMethod(json['login_alerttitle_signinfailed']);
+    loginAlerttitleGoogleSigninfailed = ParsingHelper.parseStringMethod(json['loginAlerttitleGoogleSigninfailed']);
+    loginAlerttitleFacebookSigninfailed = ParsingHelper.parseStringMethod(json['loginAlerttitleFacebookSigninfailed']);
+    loginAlerttitleTwitterSigninfailed = ParsingHelper.parseStringMethod(json['loginAlerttitleTwitterSigninfailed']);
+    loginAlerttitleLinkedInSigninfailed = ParsingHelper.parseStringMethod(json['loginAlerttitleLinkedInSigninfailed']);
     loginAlertsubtitleUsernameorpasswordcannotbeempty = ParsingHelper.parseStringMethod(json['login_alertsubtitle_usernameorpasswordcannotbeempty']);
     loginAlertsubtitleInvalidusernameorpassword = ParsingHelper.parseStringMethod(json['login_alertsubtitle_invalidusernameorpassword']);
     loginActionsheetCanceloption = ParsingHelper.parseStringMethod(json['login_actionsheet_canceloption']);
@@ -2426,6 +2438,10 @@ class LocalStr {
     data['branding_button_loginbutton'] = brandingButtonLoginbutton;
     data['login_header_logintitlelabel'] = loginHeaderLogintitlelabel;
     data['login_alerttitle_signinfailed'] = loginAlerttitleSigninfailed;
+    data['loginAlerttitleGoogleSigninfailed'] = loginAlerttitleGoogleSigninfailed;
+    data['loginAlerttitleFacebookSigninfailed'] = loginAlerttitleFacebookSigninfailed;
+    data['loginAlerttitleTwitterSigninfailed'] = loginAlerttitleTwitterSigninfailed;
+    data['loginAlerttitleLinkedInSigninfailed'] = loginAlerttitleLinkedInSigninfailed;
     data['login_alertsubtitle_usernameorpasswordcannotbeempty'] = loginAlertsubtitleUsernameorpasswordcannotbeempty;
     data['login_alertsubtitle_invalidusernameorpassword'] = loginAlertsubtitleInvalidusernameorpassword;
     data['login_actionsheet_canceloption'] = loginActionsheetCanceloption;

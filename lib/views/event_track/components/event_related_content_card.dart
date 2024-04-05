@@ -6,6 +6,7 @@ import 'package:flutter_instancy_2/backend/ui_actions/my_learning/my_learning_ui
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/event_track/data_model/related_track_data_dto_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
@@ -178,14 +179,14 @@ class _EventRelatedContentCardState extends State<EventRelatedContentCard> {
               RelatedTrackDataDTOModel newModel = downloadModel!.relatedTrackDataDTOModel!;
 
               return linearProgressBar(
-                percentCompleted: newModel.PercentCompleted.toInt(),
+                percentCompleted: newModel.PercentCompleted,
                 actualStatus: newModel.CoreLessonStatus,
                 contentStatus: newModel.ContentDisplayStatus,
               );
             }
 
             return linearProgressBar(
-              percentCompleted: percentageCompleted.toInt(),
+              percentCompleted: percentageCompleted,
               contentStatus: contentStatus,
               actualStatus: actualStatus,
             );
@@ -210,7 +211,7 @@ class _EventRelatedContentCardState extends State<EventRelatedContentCard> {
   }
 
   Widget linearProgressBar({
-    required int percentCompleted,
+    required double percentCompleted,
     required String contentStatus,
     required String actualStatus,
   }) {
@@ -224,14 +225,14 @@ class _EventRelatedContentCardState extends State<EventRelatedContentCard> {
             maxSteps: 100,
             progressType: LinearProgressBar.progressTypeLinear,
             // Use Dots progress
-            currentStep: percentCompleted,
+            currentStep: percentCompleted.toInt(),
             progressColor: AppConfigurations.getContentStatusColorFromActualStatus(status: actualStatus),
             backgroundColor: const Color(0xffDCDCDC),
           ),
         ),
         const SizedBox(height: 10),
         Text(
-          "$percentCompleted% $contentStatus",
+          "${percentCompleted.getFormattedNumber(precision: 2)}% $contentStatus",
           style: themeData.textTheme.titleSmall?.copyWith(
             fontSize: 12,
           ),

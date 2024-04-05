@@ -1533,7 +1533,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          "${percentCompleted.toInt()}% ${AppConfigurations().parseHtmlString(contentStatus)}",
+          "${percentCompleted.getFormattedNumber(precision: 2)}% ${AppConfigurations().parseHtmlString(contentStatus)}",
           style: themeData.textTheme.labelSmall?.copyWith(
             fontSize: 10,
             color: color,

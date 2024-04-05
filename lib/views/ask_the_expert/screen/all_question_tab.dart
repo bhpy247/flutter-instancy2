@@ -369,7 +369,7 @@ class _AllQuestionsTabState extends State<AllQuestionsTab> with MySafeState {
   }
 
   Widget getSearchTextFromField() {
-    if (!widget.isShowSearchTextField) return SizedBox();
+    if (!widget.isShowSearchTextField) return const SizedBox();
     return Row(
       children: [
         Expanded(
@@ -662,7 +662,7 @@ class _SortingScreenState extends State<SortingScreen> with MySafeState {
             children: [
               const BottomSheetDragger(),
               ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: sortingList.length,
                 itemBuilder: (BuildContext context, int index) {

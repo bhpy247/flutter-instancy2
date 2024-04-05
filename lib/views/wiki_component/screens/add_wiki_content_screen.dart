@@ -222,7 +222,7 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
               const SizedBox(
                 height: 19,
               ),
-              getImageDescriptionTextFormField(),
+              getDescriptionTextFormField(),
               const SizedBox(
                 height: 19,
               ),
@@ -264,6 +264,8 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
         return null;
       },
       isMandatory: true,
+      minLines: 1,
+      maxLines: 1,
       controller: titleController,
       iconUrl: "assets/catalog/title.png",
       labelText: "${widget.addWikiContentScreenNavigationArguments.title} Title",
@@ -272,8 +274,8 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
 
   //endregion
 
-  //region getImageDescription
-  Widget getImageDescriptionTextFormField() {
+  //region getDescription
+  Widget getDescriptionTextFormField() {
     return getTexFormField(
       validator: (String? val) {
         if (val == null || val.isEmpty) {
@@ -282,6 +284,8 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
         return null;
       },
       isMandatory: true,
+      minLines: 1,
+      maxLines: 5,
       controller: descriptionController,
       labelText: "${widget.addWikiContentScreenNavigationArguments.title} Description",
       iconUrl: "assets/catalog/imageDescription.png",
@@ -462,12 +466,23 @@ class _AddWikiContentScreenState extends State<AddWikiContentScreen> {
 
   //Supporting Widgets
   //region textFieldView
-  Widget getTexFormField({TextEditingController? controller, String iconUrl = "", String? Function(String?)? validator, String labelText = "Label", Widget? suffixWidget, required bool isMandatory}) {
+  Widget getTexFormField({
+    TextEditingController? controller,
+    String iconUrl = "",
+    String? Function(String?)? validator,
+    String labelText = "Label",
+    Widget? suffixWidget,
+    required bool isMandatory,
+    int? minLines,
+    int? maxLines,
+  }) {
     return CommonTextFormFieldWithLabel(
       controller: controller,
       label: isMandatory ? labelWithStar(labelText) : null,
       labelText: isMandatory ? null : labelText,
       validator: validator,
+      minLines: minLines,
+      maxLines: maxLines,
       isOutlineInputBorder: true,
       prefixWidget: iconUrl.isNotEmpty ? getImageView(url: iconUrl, height: 15, width: 15) : const Icon(FontAwesomeIcons.globe),
       suffixWidget: suffixWidget,
