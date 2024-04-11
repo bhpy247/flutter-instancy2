@@ -28,8 +28,8 @@ dependencies:
   logger: ^2.0.2+1
   open_file_plus: ^3.4.1
   path_provider: ^2.1.1
-  readmore: ^2.2.0
-  share_plus: ^7.2.1
+  readmore: ^3.0.0
+  share_plus: ^8.0.3
   shared_preferences: ^2.2.2
   step_progress_indicator: ^1.0.2
   url_launcher: ^6.2.2
@@ -38,8 +38,8 @@ dependencies:
   document_file_save_plus: ^2.0.0
   googleapis_auth: ^1.4.1
   google_mlkit_text_recognition: ^0.11.0
-  speech_to_text: 6.5.1
-  speech_to_text_platform_interface: 2.1.0
+  speech_to_text: ^6.6.0
+  speech_to_text_platform_interface: ^2.2.0
   just_audio: ^0.9.36
   rxdart: ^0.27.7
   video_thumbnail: ^0.5.3
@@ -82,8 +82,8 @@ dependencies:
   material_design_icons_flutter: ^7.0.7296
   percent_indicator: ^4.2.3
   scrollable_positioned_list: ^0.3.8
-  syncfusion_flutter_calendar: ^24.1.41
-  syncfusion_flutter_charts: ^24.1.41
+  syncfusion_flutter_calendar: ^25.1.39
+  syncfusion_flutter_charts: ^25.1.39+1
   stylish_bottom_bar: ^1.0.3
 
   #region Loaders:
@@ -100,14 +100,14 @@ dependencies:
   #endregion
 
   #region Firebase:
-  firebase_core: ^2.24.2
-  firebase_auth: ^4.15.3
-  cloud_firestore: ^4.13.6
-  firebase_messaging: ^14.7.9
-  firebase_analytics: ^10.7.4
-  firebase_crashlytics: ^3.4.8
+  firebase_core: ^2.29.0
+  firebase_auth: ^4.19.1
+  cloud_firestore: ^4.16.1
+  firebase_messaging: ^14.8.1
+  firebase_analytics: ^10.10.1
+  firebase_crashlytics: ^3.5.1
   google_sign_in: ^6.2.1
-  flutter_facebook_auth: ^6.1.1
+  flutter_facebook_auth: ^6.2.0
   #endregion
 
   #region Webview:
@@ -166,7 +166,7 @@ dev_dependencies:
     sdk: flutter
 
   build_runner:
-  flutter_lints: ^2.0.1
+  flutter_lints: ^3.0.2
   flutter_launcher_icons: ^0.13.1
 
 flutter:
