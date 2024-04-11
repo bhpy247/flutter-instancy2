@@ -60,30 +60,38 @@ class _LinkedinLoginScreenState extends State<LinkedinLoginScreen> {
 
   @override
   Widget build(final BuildContext context) {
-    return InjectorWidget(
-      graph: graph,
-      child: LinkedInWebViewHandler(
-        appBar: widget.appBar,
-        destroySession: widget.destroySession,
-        useVirtualDisplay: widget.useVirtualDisplay,
-        onUrlMatch: (final config) {
-          print("onUrlMatch called with Config Url:${config.url}");
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) {
+        if (didPop) return;
 
-          ClientFetcher(
-            graph: graph,
-            url: config.url,
-          ).fetchUser().then(
-            (final action) {
-              if (action is UserSucceededAction) {
-                widget.onGetUserProfile?.call(action);
-              }
+        Navigator.pop(context, false);
+      },
+      child: InjectorWidget(
+        graph: graph,
+        child: LinkedInWebViewHandler(
+          appBar: widget.appBar,
+          destroySession: widget.destroySession,
+          useVirtualDisplay: widget.useVirtualDisplay,
+          onUrlMatch: (final config) {
+            print("onUrlMatch called with Config Url:${config.url}");
 
-              if (action is UserFailedAction) {
-                widget.onError?.call(action);
-              }
-            },
-          );
-        },
+            ClientFetcher(
+              graph: graph,
+              url: config.url,
+            ).fetchUser().then(
+              (final action) {
+                if (action is UserSucceededAction) {
+                  widget.onGetUserProfile?.call(action);
+                }
+
+                if (action is UserFailedAction) {
+                  widget.onError?.call(action);
+                }
+              },
+            );
+          },
+        ),
       ),
     );
   }

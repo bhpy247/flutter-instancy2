@@ -3,6 +3,8 @@ import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
 class SocialLoginCredentialDataModel {
   String id = "";
+  String firstName = "";
+  String lastName = "";
   String userDisplayName = "";
   String profileImageUrl = "";
   String email = "";
@@ -10,6 +12,8 @@ class SocialLoginCredentialDataModel {
 
   SocialLoginCredentialDataModel({
     this.id = "",
+    this.firstName = "",
+    this.lastName = "",
     this.userDisplayName = "",
     this.profileImageUrl = "",
     this.email = "",
@@ -18,6 +22,8 @@ class SocialLoginCredentialDataModel {
 
   SocialLoginCredentialDataModel.fromJson(Map<String, dynamic> json) {
     id = ParsingHelper.parseStringMethod(json['id']);
+    firstName = ParsingHelper.parseStringMethod(json['firstName']);
+    lastName = ParsingHelper.parseStringMethod(json['lastName']);
     userDisplayName = ParsingHelper.parseStringMethod(json['userDisplayName']);
     profileImageUrl = ParsingHelper.parseStringMethod(json['profileImageUrl']);
     email = ParsingHelper.parseStringMethod(json['email']);
@@ -27,6 +33,8 @@ class SocialLoginCredentialDataModel {
   Map<String, dynamic> toJson() {
     return {
       "id": id,
+      "firstName": firstName,
+      "lastName": lastName,
       "userDisplayName": userDisplayName,
       "profileImageUrl": profileImageUrl,
       "email": email,

@@ -88,7 +88,7 @@ To Rub nestle Web Server :- flutter run -d web-server --web-port 8080 --web-host
 
 //For IOS Apps Name and Package Name
 Instancy : com.instancy.instancyLearningMarket
-Enterprise learning : com.instancy.enterpriseapp
+Enterprise Learning : com.instancy.enterpriseapp
 QA Learning : com.instancy.qalearning2
 
 // To update icon in flutter command

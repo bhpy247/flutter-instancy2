@@ -111,10 +111,15 @@ class AuthenticationRepository {
   }
 
   Future<UserCredential?> signInWithGoogle({required BuildContext context}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("AuthenticationRepository().signInWithGoogle() called", tag: tag);
+
     AuthProvider? authProvider;
     AuthCredential? authCredential;
 
     if (kIsWeb) {
+      MyPrint.printOnConsole("Initializing authProvider because it's web platform", tag: tag);
+
       // Create a new provider
       GoogleAuthProvider googleProvider = GoogleAuthProvider();
 
@@ -124,26 +129,37 @@ class AuthenticationRepository {
         'login_hint': 'user@example.com'
       });*/
     } else {
+      MyPrint.printOnConsole("Initializing authCredential because it's native platform", tag: tag);
+
       GoogleSignInAccount? googleSignInAccount;
 
       try {
+        MyPrint.printOnConsole("Initializing Google signIn", tag: tag);
+
+        GoogleSignIn.kSignInCanceledError;
         googleSignInAccount = await GoogleSignIn(scopes: [
           'https://www.googleapis.com/auth/userinfo.email',
           "https://www.googleapis.com/auth/userinfo.profile",
         ]).signIn();
-      } catch (e) {
-        MyPrint.printOnConsole("Error in Google Sign In:$e");
+
+        MyPrint.printOnConsole("Google signIn Completed with account:$googleSignInAccount", tag: tag);
+      } catch (e, s) {
+        MyPrint.printOnConsole("Error in Google Sign In:$e", tag: tag);
+        MyPrint.printOnConsole(s, tag: tag);
       }
 
       if (googleSignInAccount == null) {
+        MyPrint.printOnConsole("Returning from AuthenticationRepository().signInWithGoogle() because googleSignInAccount is null", tag: tag);
         return null;
       }
 
+      MyPrint.printOnConsole("Initializing Getting Auth Credentials", tag: tag);
       final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
       authCredential = GoogleAuthProvider.credential(
         accessToken: googleSignInAuthentication.accessToken,
         idToken: googleSignInAuthentication.idToken,
       );
+      MyPrint.printOnConsole("Initialized Auth Credentials", tag: tag);
     }
 
     UserCredential? userCredential = await firebaseSocialLogin(context: context, authProvider: authProvider, credential: authCredential);

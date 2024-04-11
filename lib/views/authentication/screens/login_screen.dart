@@ -120,18 +120,26 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
     isSocialLoginInProgress = true;
     mySetState();
 
-    bool isUserLoggedIn = await authenticationController.loginWithGoogle(context: context);
+    SocialLoginResponse response = await authenticationController.loginWithGoogle(context: context);
 
     isSocialLoginInProgress = false;
 
-    if (isUserLoggedIn) {
+    if (response.isLoginCancelled) {
       mySetState();
 
-      Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, MainScreen.routeName, (route) => false);
-    } else {
+      if (context.mounted) MyToast.showError(context: context, msg: response.failedMessage ?? appProvider.localStr.loginAlertTitleGoogleSignInCancelled);
+    } else if (response.isSocialLoginFailed) {
       mySetState();
 
       if (context.mounted) MyToast.showError(context: context, msg: appProvider.localStr.loginAlerttitleGoogleSigninfailed);
+    } else if (response.isInstancyLoginFailed) {
+      mySetState();
+
+      if (context.mounted) MyToast.showError(context: context, msg: response.failedMessage ?? appProvider.localStr.loginAlertTitleSocialSignInFailed);
+    } else {
+      mySetState();
+
+      Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, MainScreen.routeName, (route) => false);
     }
   }
 
@@ -150,18 +158,26 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
     isSocialLoginInProgress = true;
     mySetState();
 
-    bool isUserLoggedIn = await authenticationController.loginWithLinkedIn(context: context);
+    SocialLoginResponse response = await authenticationController.loginWithLinkedIn(context: context);
 
     isSocialLoginInProgress = false;
 
-    if (isUserLoggedIn) {
+    if (response.isLoginCancelled) {
       mySetState();
 
-      Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, MainScreen.routeName, (route) => false);
-    } else {
+      if (context.mounted) MyToast.showError(context: context, msg: response.failedMessage ?? appProvider.localStr.loginAlertTitleLinkedInSignInCancelled);
+    } else if (response.isSocialLoginFailed) {
       mySetState();
 
       if (context.mounted) MyToast.showError(context: context, msg: appProvider.localStr.loginAlerttitleLinkedInSigninfailed);
+    } else if (response.isInstancyLoginFailed) {
+      mySetState();
+
+      if (context.mounted) MyToast.showError(context: context, msg: response.failedMessage ?? appProvider.localStr.loginAlertTitleSocialSignInFailed);
+    } else {
+      mySetState();
+
+      Navigator.pushNamedAndRemoveUntil(NavigationController.mainNavigatorKey.currentContext!, MainScreen.routeName, (route) => false);
     }
   }
 
@@ -537,9 +553,9 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
     return Container(
       alignment: Alignment.bottomCenter,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (isGoogleLoginEnabled)
+          /*if (isGoogleLoginEnabled)
             Flexible(
               child: socialsIcon(
                 imagePath: googleLogoUrl,
@@ -559,7 +575,7 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
               child: socialsIcon(
                 imagePath: twitterLogoUrl,
               ),
-            ),
+            ),*/
           if (isLinkedInLoginEnabled)
             Flexible(
               child: socialsIcon(
@@ -579,49 +595,52 @@ class _LoginScreenState extends State<LoginScreen> with MySafeState {
     double offset = 1;
     double cardSize = 60;
 
-    return GestureDetector(
-      onTap: () {
-        onTap?.call();
-      },
-      child: Container(
-        width: cardSize,
-        height: cardSize,
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: themeData.scaffoldBackgroundColor,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              offset: Offset(offset, offset),
-              color: shadowColor,
-              blurRadius: 5,
-              spreadRadius: 2,
-            ),
-            BoxShadow(
-              offset: Offset(-offset, -offset),
-              color: shadowColor,
-              blurRadius: 5,
-              spreadRadius: 0,
-            ),
-            BoxShadow(
-              offset: Offset(offset, -offset),
-              color: shadowColor,
-              blurRadius: 5,
-              spreadRadius: 0,
-            ),
-            BoxShadow(
-              offset: Offset(-offset, offset),
-              color: shadowColor,
-              blurRadius: 5,
-              spreadRadius: 0,
-            ),
-          ],
-        ),
-        child: Image.asset(
-          imagePath,
-          height: 10,
-          width: 10,
-          fit: BoxFit.contain,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      child: GestureDetector(
+        onTap: () {
+          onTap?.call();
+        },
+        child: Container(
+          width: cardSize,
+          height: cardSize,
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: themeData.scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                offset: Offset(offset, offset),
+                color: shadowColor,
+                blurRadius: 5,
+                spreadRadius: 2,
+              ),
+              BoxShadow(
+                offset: Offset(-offset, -offset),
+                color: shadowColor,
+                blurRadius: 5,
+                spreadRadius: 0,
+              ),
+              BoxShadow(
+                offset: Offset(offset, -offset),
+                color: shadowColor,
+                blurRadius: 5,
+                spreadRadius: 0,
+              ),
+              BoxShadow(
+                offset: Offset(-offset, offset),
+                color: shadowColor,
+                blurRadius: 5,
+                spreadRadius: 0,
+              ),
+            ],
+          ),
+          child: Image.asset(
+            imagePath,
+            height: 10,
+            width: 10,
+            fit: BoxFit.contain,
+          ),
         ),
       ),
     );

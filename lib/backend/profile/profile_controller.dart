@@ -98,7 +98,10 @@ class ProfileController {
       if (userProfileDetailsModel != null) {
         NativeLoginDTOModel? successfulUserLoginModel = authenticationProvider.getEmailLoginResponseModel();
         if (successfulUserLoginModel != null) {
-          successfulUserLoginModel.image = "${ApiController().apiDataProvider.getCurrentBaseApiUrl().replaceAll("/api/", "")}${userProfileDetailsModel.picture}";
+          successfulUserLoginModel.image =
+              userProfileDetailsModel.picture.isNotEmpty && !userProfileDetailsModel.picture.startsWith("http://") && !userProfileDetailsModel.picture.startsWith("https://")
+                  ? "${ApiController().apiDataProvider.getCurrentBaseApiUrl().replaceAll("/api/", "")}${userProfileDetailsModel.picture}"
+                  : userProfileDetailsModel.picture;
         }
         MyPrint.printOnConsole('successfulUserLoginModel.img : ${successfulUserLoginModel?.image}');
         authenticationProvider.setEmailLoginResponseModel(emailLoginResponseModel: successfulUserLoginModel);

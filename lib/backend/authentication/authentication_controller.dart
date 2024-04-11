@@ -73,6 +73,9 @@ import '../in_app_purchase/in_app_purchase_controller.dart';
 import '../main_screen/main_screen_provider.dart';
 import 'authentication_repository.dart';
 
+typedef SocialLoginResponse = ({bool isSocialLoginFailed, bool isInstancyLoginFailed, bool isLoginCancelled, String? failedMessage});
+typedef SocialAndInstancyLoginResponse = ({bool isUserLoggedId, NativeLoginDTOModel? nativeLoginDTOModel});
+
 class AuthenticationController {
   late AuthenticationProvider authenticationProvider;
   late AuthenticationRepository authenticationRepository;
@@ -203,11 +206,11 @@ class AuthenticationController {
   }*/
 
   // region Social Login
-  Future<bool> loginWithGoogle({required BuildContext context}) async {
+  Future<SocialLoginResponse> loginWithGoogle({required BuildContext context}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("AuthenticationController().loginWithGoogle() called", tag: tag);
 
-    bool isUserLoggedId = false;
+    SocialLoginResponse response = (isInstancyLoginFailed: true, isSocialLoginFailed: false, isLoginCancelled: false, failedMessage: null);
 
     try {
       UserCredential? userCredential = await authenticationRepository.signInWithGoogle(context: context);
@@ -215,7 +218,8 @@ class AuthenticationController {
       User? user = userCredential?.user;
       if (user == null) {
         MyPrint.printOnConsole("Returning from AuthenticationController().loginWithGoogle() because Couldn't Get Google User", tag: tag);
-        return false;
+        response = (isSocialLoginFailed: true, isInstancyLoginFailed: false, isLoginCancelled: false, failedMessage: null);
+        return response;
       }
 
       SocialLoginCredentialDataModel socialLoginCredentialDataModel = SocialLoginCredentialDataModel(
@@ -226,22 +230,46 @@ class AuthenticationController {
         socialLoginType: SocialLoginTypes.google,
       );
 
-      isUserLoggedId = await loginWithSocialCredentials(socialLoginCredentialDataModel: socialLoginCredentialDataModel);
+      SocialAndInstancyLoginResponse socialAndInstancyLoginResponse = await loginWithSocialCredentials(socialLoginCredentialDataModel: socialLoginCredentialDataModel);
+
+      if (!socialAndInstancyLoginResponse.isUserLoggedId) {
+        try {
+          GoogleSignIn().signOut();
+        } catch (e, s) {
+          MyPrint.printOnConsole("Error in Signing Out From Google Account:$e", tag: tag);
+          MyPrint.printOnConsole(s, tag: tag);
+        }
+        try {
+          FirebaseAuth.instance.signOut();
+        } catch (e, s) {
+          MyPrint.printOnConsole("Error in Signing Out From Firebase Account:$e", tag: tag);
+          MyPrint.printOnConsole(s, tag: tag);
+        }
+      }
+
+      response = (
+        isSocialLoginFailed: false,
+        isInstancyLoginFailed: !socialAndInstancyLoginResponse.isUserLoggedId,
+        isLoginCancelled: false,
+        failedMessage: socialAndInstancyLoginResponse.nativeLoginDTOModel?.userstatus,
+      );
     } catch (e, s) {
       MyPrint.printOnConsole("Error in AuthenticationController().loginWithGoogle():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
+
+      response = (isSocialLoginFailed: true, isInstancyLoginFailed: false, isLoginCancelled: false, failedMessage: null);
     }
 
-    MyPrint.printOnConsole("Final isUserLoggedId:$isUserLoggedId", tag: tag);
+    MyPrint.printOnConsole("Final response:$response", tag: tag);
 
-    return isUserLoggedId;
+    return response;
   }
 
-  Future<bool> loginWithFacebook({required BuildContext context}) async {
+  Future<SocialLoginResponse> loginWithFacebook({required BuildContext context}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("AuthenticationController().loginWithFacebook() called", tag: tag);
 
-    bool isUserLoggedId = false;
+    SocialLoginResponse response = (isInstancyLoginFailed: true, isSocialLoginFailed: false, isLoginCancelled: false, failedMessage: null);
 
     try {
       UserCredential? userCredential = await authenticationRepository.signInWithFacebook(context: context);
@@ -249,7 +277,8 @@ class AuthenticationController {
       User? user = userCredential?.user;
       if (user == null) {
         MyPrint.printOnConsole("Returning from AuthenticationController().loginWithFacebook() because Couldn't Get Google User", tag: tag);
-        return false;
+        response = (isSocialLoginFailed: true, isInstancyLoginFailed: false, isLoginCancelled: false, failedMessage: null);
+        return response;
       }
 
       SocialLoginCredentialDataModel socialLoginCredentialDataModel = SocialLoginCredentialDataModel(
@@ -260,22 +289,31 @@ class AuthenticationController {
         socialLoginType: SocialLoginTypes.facebook,
       );
 
-      isUserLoggedId = await loginWithSocialCredentials(socialLoginCredentialDataModel: socialLoginCredentialDataModel);
+      SocialAndInstancyLoginResponse socialAndInstancyLoginResponse = await loginWithSocialCredentials(socialLoginCredentialDataModel: socialLoginCredentialDataModel);
+
+      response = (
+        isSocialLoginFailed: false,
+        isInstancyLoginFailed: !socialAndInstancyLoginResponse.isUserLoggedId,
+        isLoginCancelled: false,
+        failedMessage: socialAndInstancyLoginResponse.nativeLoginDTOModel?.userstatus,
+      );
     } catch (e, s) {
       MyPrint.printOnConsole("Error in AuthenticationController().loginWithFacebook():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
+
+      response = (isSocialLoginFailed: true, isInstancyLoginFailed: false, isLoginCancelled: false, failedMessage: null);
     }
 
-    MyPrint.printOnConsole("Final isUserLoggedId:$isUserLoggedId", tag: tag);
+    MyPrint.printOnConsole("Final response:$response", tag: tag);
 
-    return isUserLoggedId;
+    return response;
   }
 
-  Future<bool> loginWithTwitter({required BuildContext context}) async {
+  Future<SocialLoginResponse> loginWithTwitter({required BuildContext context}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("AuthenticationController().loginWithTwitter() called", tag: tag);
 
-    bool isUserLoggedId = false;
+    SocialLoginResponse response = (isInstancyLoginFailed: true, isSocialLoginFailed: false, isLoginCancelled: false, failedMessage: null);
 
     try {
       UserCredential? userCredential = await authenticationRepository.signInWithTwitter(context: context);
@@ -283,7 +321,8 @@ class AuthenticationController {
       User? user = userCredential?.user;
       if (user == null) {
         MyPrint.printOnConsole("Returning from AuthenticationController().loginWithTwitter() because Couldn't Get Google User", tag: tag);
-        return false;
+        response = (isSocialLoginFailed: true, isInstancyLoginFailed: false, isLoginCancelled: false, failedMessage: null);
+        return response;
       }
 
       SocialLoginCredentialDataModel socialLoginCredentialDataModel = SocialLoginCredentialDataModel(
@@ -294,22 +333,31 @@ class AuthenticationController {
         socialLoginType: SocialLoginTypes.twitter,
       );
 
-      isUserLoggedId = await loginWithSocialCredentials(socialLoginCredentialDataModel: socialLoginCredentialDataModel);
+      SocialAndInstancyLoginResponse socialAndInstancyLoginResponse = await loginWithSocialCredentials(socialLoginCredentialDataModel: socialLoginCredentialDataModel);
+
+      response = (
+        isSocialLoginFailed: false,
+        isInstancyLoginFailed: !socialAndInstancyLoginResponse.isUserLoggedId,
+        isLoginCancelled: false,
+        failedMessage: socialAndInstancyLoginResponse.nativeLoginDTOModel?.userstatus,
+      );
     } catch (e, s) {
       MyPrint.printOnConsole("Error in AuthenticationController().loginWithTwitter():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
+
+      response = (isSocialLoginFailed: true, isInstancyLoginFailed: false, isLoginCancelled: false, failedMessage: null);
     }
 
-    MyPrint.printOnConsole("Final isUserLoggedId:$isUserLoggedId", tag: tag);
+    MyPrint.printOnConsole("Final response:$response", tag: tag);
 
-    return isUserLoggedId;
+    return response;
   }
 
-  Future<bool> loginWithLinkedIn({required BuildContext context}) async {
+  Future<SocialLoginResponse> loginWithLinkedIn({required BuildContext context}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("AuthenticationController().loginWithLinkedIn() called", tag: tag);
 
-    bool isUserLoggedId = false;
+    SocialLoginResponse response = (isSocialLoginFailed: false, isInstancyLoginFailed: false, isLoginCancelled: false, failedMessage: null);
 
     try {
       dynamic value = await Navigator.push(
@@ -318,6 +366,12 @@ class AuthenticationController {
           builder: (final BuildContext context) => LinkedinLoginScreen(
             // builder: (final BuildContext context) => LinkedInUserWidget(
             appBar: AppBar(
+              leading: IconButton(
+                onPressed: () {
+                  Navigator.pop(context, false);
+                },
+                icon: const Icon(Icons.close),
+              ),
               title: const Text('OAuth User'),
             ),
             destroySession: true,
@@ -326,10 +380,11 @@ class AuthenticationController {
             redirectUrl: "https://qalearning.instancy.com/SocialLoginSSO?Name=LinkedIn",
             // redirectUrl: "https://qalearning.instancy.com/PublicModules/SocailNetworkIntegration.aspx?Name=Linkedin&type=1&nativesociallogin=true",
             onError: (final UserFailedAction e) {
-              MyPrint.printOnConsole('Error: ${e.toString()}', tag: tag);
+              MyPrint.printOnConsole('Error: $e', tag: tag);
+              MyPrint.printOnConsole('Error exception.runtimeType: ${e.exception.runtimeType}', tag: tag);
               MyPrint.printOnConsole('Error: ${e.stackTrace.toString()}', tag: tag);
 
-              Navigator.pop(context);
+              Navigator.pop(context, e);
             },
             onGetUserProfile: (final UserSucceededAction linkedInUser) {
               MyPrint.printOnConsole(
@@ -347,35 +402,64 @@ class AuthenticationController {
       );
       MyPrint.printOnConsole("value:$value", tag: tag);
 
-      if (value is! UserSucceededAction) {
+      if (value == false) {
+        MyPrint.printOnConsole("Returning from AuthenticationController().loginWithLinkedIn() because user cancelled", tag: tag);
+        response = (isSocialLoginFailed: true, isInstancyLoginFailed: false, isLoginCancelled: true, failedMessage: null);
+        return response;
+      }
+      if (value is UserFailedAction) {
+        MyPrint.printOnConsole("Returning from AuthenticationController().loginWithLinkedIn() because Error Occurred", tag: tag);
+
+        if (value.exception.toString().contains("user_cancelled_login")) {
+          response = (isSocialLoginFailed: true, isInstancyLoginFailed: false, isLoginCancelled: true, failedMessage: null);
+        } else {
+          response = (isSocialLoginFailed: true, isInstancyLoginFailed: false, isLoginCancelled: false, failedMessage: null);
+        }
+
+        return response;
+      } else if (value is! UserSucceededAction) {
         MyPrint.printOnConsole("Returning from AuthenticationController().loginWithLinkedIn() because Couldn't Get LinkedIn User", tag: tag);
-        return false;
+
+        response = (isSocialLoginFailed: true, isInstancyLoginFailed: false, isLoginCancelled: false, failedMessage: null);
+
+        return response;
       }
 
       SocialLoginCredentialDataModel socialLoginCredentialDataModel = SocialLoginCredentialDataModel(
         id: "",
+        firstName: value.user.givenName ?? "",
+        lastName: value.user.familyName ?? "",
         userDisplayName: "${value.user.givenName ?? ""}${value.user.givenName.checkNotEmpty && value.user.familyName.checkNotEmpty ? " " : ""}${value.user.familyName ?? ""}",
         profileImageUrl: value.user.picture ?? "",
         email: value.user.email ?? "",
         socialLoginType: SocialLoginTypes.linkedin,
       );
 
-      isUserLoggedId = await loginWithSocialCredentials(socialLoginCredentialDataModel: socialLoginCredentialDataModel);
+      SocialAndInstancyLoginResponse socialAndInstancyLoginResponse = await loginWithSocialCredentials(socialLoginCredentialDataModel: socialLoginCredentialDataModel);
+
+      response = (
+        isSocialLoginFailed: false,
+        isInstancyLoginFailed: !socialAndInstancyLoginResponse.isUserLoggedId,
+        isLoginCancelled: false,
+        failedMessage: socialAndInstancyLoginResponse.nativeLoginDTOModel?.userstatus,
+      );
     } catch (e, s) {
       MyPrint.printOnConsole("Error in AuthenticationController().loginWithLinkedIn():$e", tag: tag);
       MyPrint.printOnConsole(s, tag: tag);
+
+      response = (isSocialLoginFailed: true, isInstancyLoginFailed: false, isLoginCancelled: false, failedMessage: null);
     }
 
-    MyPrint.printOnConsole("Final isUserLoggedId:$isUserLoggedId", tag: tag);
+    MyPrint.printOnConsole("Final response:$response", tag: tag);
 
-    return isUserLoggedId;
+    return response;
   }
 
-  Future<bool> loginWithSocialCredentials({required SocialLoginCredentialDataModel socialLoginCredentialDataModel}) async {
+  Future<SocialAndInstancyLoginResponse> loginWithSocialCredentials({required SocialLoginCredentialDataModel socialLoginCredentialDataModel}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("AuthenticationController().loginWithSocialCredentials() called with socialLoginCredentialDataModel:'$socialLoginCredentialDataModel'", tag: tag);
 
-    bool isUserLoggedId = false;
+    SocialAndInstancyLoginResponse response = (isUserLoggedId: false, nativeLoginDTOModel: null);
     // EmailLoginResponseModel? emailLoginResponseModel;
 
     try {
@@ -384,14 +468,26 @@ class AuthenticationController {
       var parts = socialLoginCredentialDataModel.userDisplayName.split(' ');
       MyPrint.printOnConsole('DisplayName parts:$parts', tag: tag);
 
+      String first_name = socialLoginCredentialDataModel.firstName;
+      String last_name = socialLoginCredentialDataModel.lastName;
+      MyPrint.printOnConsole('first_name:$first_name', tag: tag);
+      MyPrint.printOnConsole('last_name:$last_name', tag: tag);
+
+      if (first_name.isEmpty && last_name.isEmpty) {
+        if (parts.length > 1) {
+          last_name = parts.removeLast();
+        }
+        first_name = parts.join(" ");
+      }
+
       SocialLoginUserDataModel socialLoginUserDataModel = SocialLoginUserDataModel(
         id: socialLoginCredentialDataModel.id,
         username: socialLoginCredentialDataModel.userDisplayName,
         picture: socialLoginCredentialDataModel.profileImageUrl,
         email: socialLoginCredentialDataModel.email,
         link: "",
-        first_name: parts.elementAtOrNull(0)?.trim() ?? "",
-        last_name: parts.elementAtOrNull(1)?.trim() ?? "",
+        first_name: first_name,
+        last_name: last_name,
         gender: "",
       );
 
@@ -413,7 +509,9 @@ class AuthenticationController {
         _initializeUserDataInApiControllerFromNativeLoginDTOModel(nativeLoginDTOModel: null);
         authenticationHiveRepository.saveLoggedInUserDataInHive(responseModel: null);
 
-        return false;
+        response = (isUserLoggedId: false, nativeLoginDTOModel: null);
+
+        return response;
       }
 
       SaveSocialNetworkUsersResponseDtoModel saveSocialNetworkUsersResponseDtoModel = saveSocialNetworkUsersResponseModel.data!;
@@ -426,7 +524,7 @@ class AuthenticationController {
 
       NativeLoginDTOModel? loginResponseModel = loginWithSocialCredentialsResponseModel.data;
 
-      isUserLoggedId = loginResponseModel != null && loginResponseModel.userid > 0 && loginResponseModel.userstatus == "Active";
+      bool isUserLoggedId = loginResponseModel != null && loginResponseModel.userid > 0 && loginResponseModel.userstatus == "Active";
 
       if (!isUserLoggedId) {
         MyPrint.printOnConsole("Returning from AuthenticationController().loginWithSocialCredentials() because isUserLoggedId is false", tag: tag);
@@ -435,18 +533,22 @@ class AuthenticationController {
         _initializeUserDataInApiControllerFromNativeLoginDTOModel(nativeLoginDTOModel: null);
         authenticationHiveRepository.saveLoggedInUserDataInHive(responseModel: null);
 
-        return false;
+        response = (isUserLoggedId: false, nativeLoginDTOModel: loginResponseModel);
+
+        return response;
       }
 
       loginResponseModel.email = socialLoginUserDataModel.email;
-      MyPrint.printOnConsole("loginResponseModel:$loginResponseModel", tag: tag);
       loginResponseModel.image = loginResponseModel.image.isNotEmpty && !loginResponseModel.image.startsWith("http://") && !loginResponseModel.image.startsWith("https://")
           ? '${apiUrlConfigurationProvider.getCurrentSiteUrl()}/Content/SiteFiles/374/ProfileImages/${loginResponseModel.image}'
           : loginResponseModel.image;
+      MyPrint.printOnConsole("loginResponseModel:$loginResponseModel", tag: tag);
 
       authenticationProvider.setEmailLoginResponseModel(emailLoginResponseModel: loginResponseModel);
       _initializeUserDataInApiControllerFromNativeLoginDTOModel(nativeLoginDTOModel: loginResponseModel);
       authenticationHiveRepository.saveLoggedInUserDataInHive(responseModel: loginResponseModel);
+
+      response = (isUserLoggedId: true, nativeLoginDTOModel: loginResponseModel);
 
       if (loginResponseModel.GameActivities.isNotEmpty) GamificationController(provider: null).showGamificationEarnedPopup(GameActivities: loginResponseModel.GameActivities);
     } catch (e, s) {
@@ -454,7 +556,7 @@ class AuthenticationController {
       MyPrint.printOnConsole(s, tag: tag);
     }
 
-    return isUserLoggedId;
+    return response;
   }
 
   // endregion

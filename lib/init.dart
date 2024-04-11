@@ -10,9 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/download/flutter_download_controller.dart';
 import 'package:flutter_instancy_2/backend/network_connection/network_connection_controller.dart';
 import 'package:flutter_instancy_2/firebase_options.dart';
+import 'package:flutter_instancy_2/packages/shake.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
-import 'package:shake/shake.dart';
 
 import 'utils/my_utils.dart';
 
