@@ -31,6 +31,7 @@ import 'package:flutter_instancy_2/backend/share/share_provider.dart';
 import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/currency_model.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/external_integration_data_model.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/local_str.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/site_configuration_model.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/tincan_data_model.dart';
@@ -359,6 +360,14 @@ class AuthenticationController {
 
     SocialLoginResponse response = (isSocialLoginFailed: false, isInstancyLoginFailed: false, isLoginCancelled: false, failedMessage: null);
 
+    AppProvider appProvider = context.read<AppProvider>();
+    ExternalIntegrationDataModel? linkedInDataModel = appProvider.appSystemConfigurationModel.linkedInDataModel;
+
+    if (linkedInDataModel == null) {
+      response = (isSocialLoginFailed: false, isInstancyLoginFailed: true, isLoginCancelled: false, failedMessage: appProvider.localStr.loginAlertTitleCredentialsNotAvailable);
+      return response;
+    }
+
     try {
       dynamic value = await Navigator.push(
         context,
@@ -375,10 +384,12 @@ class AuthenticationController {
               title: const Text('OAuth User'),
             ),
             destroySession: true,
-            clientId: "8650f1v9nnra8n",
-            clientSecret: "ECGamnIf5MdbjxXm",
-            redirectUrl: "https://qalearning.instancy.com/SocialLoginSSO?Name=LinkedIn",
-            // redirectUrl: "https://qalearning.instancy.com/PublicModules/SocailNetworkIntegration.aspx?Name=Linkedin&type=1&nativesociallogin=true",
+            clientId: linkedInDataModel.apikeyorclientid,
+            clientSecret: linkedInDataModel.apisecretorclientidsecret,
+            redirectUrl: "${ApiController().apiDataProvider.getCurrentSiteUrl()}/SocialLoginSSO?Name=LinkedIn",
+            // clientId: "8650f1v9nnra8n",
+            // clientSecret: "ECGamnIf5MdbjxXm",
+            // redirectUrl: "https://qalearning.instancy.com/SocialLoginSSO?Name=LinkedIn",
             onError: (final UserFailedAction e) {
               MyPrint.printOnConsole('Error: $e', tag: tag);
               MyPrint.printOnConsole('Error exception.runtimeType: ${e.exception.runtimeType}', tag: tag);
