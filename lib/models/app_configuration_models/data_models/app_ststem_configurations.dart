@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/external_integration_data_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
@@ -428,6 +429,38 @@ class AppSystemConfigurationModel {
   bool get isLinkedIn => _isLinkedIn;
   void setIsLinkedIn(bool value) {
     _isLinkedIn = value;
+  }
+
+  ExternalIntegrationDataModel? _faceBookDataModel;
+
+  ExternalIntegrationDataModel? get faceBookDataModel => _faceBookDataModel;
+
+  void setFaceBookDataModel(ExternalIntegrationDataModel? value) {
+    _faceBookDataModel = value;
+  }
+
+  ExternalIntegrationDataModel? _googleDataModel;
+
+  ExternalIntegrationDataModel? get googleDataModel => _googleDataModel;
+
+  void setGoogleDataModel(ExternalIntegrationDataModel? value) {
+    _googleDataModel = value;
+  }
+
+  ExternalIntegrationDataModel? _twitterDataModel;
+
+  ExternalIntegrationDataModel? get twitterDataModel => _twitterDataModel;
+
+  void setTwitterDataModel(ExternalIntegrationDataModel? value) {
+    _twitterDataModel = value;
+  }
+
+  ExternalIntegrationDataModel? _linkedInDataModel;
+
+  ExternalIntegrationDataModel? get linkedInDataModel => _linkedInDataModel;
+
+  void setLinkedInDataModel(ExternalIntegrationDataModel? value) {
+    _linkedInDataModel = value;
   }
 
   List<LocalizationSelectionModel> _localeList = [];
