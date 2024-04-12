@@ -368,6 +368,18 @@ class AuthenticationController {
       return response;
     }
 
+    String siteUrl = ApiController().apiDataProvider.getCurrentSiteLearnerUrl();
+    if (siteUrl.endsWith("/")) siteUrl = siteUrl.substring(0, siteUrl.length - 1);
+    siteUrl = siteUrl.replaceAll("http://", "https://");
+
+    String redirectUrl = "$siteUrl/SocialLoginSSO?Name=LinkedIn";
+    String clientId = linkedInDataModel.apikeyorclientid;
+    String clientSecret = linkedInDataModel.apisecretorclientidsecret;
+
+    MyPrint.printOnConsole("redirectUrl:$redirectUrl");
+    MyPrint.printOnConsole("clientId:$clientId");
+    MyPrint.printOnConsole("clientSecret:$clientSecret");
+
     try {
       dynamic value = await Navigator.push(
         context,
@@ -386,7 +398,7 @@ class AuthenticationController {
             destroySession: true,
             clientId: linkedInDataModel.apikeyorclientid,
             clientSecret: linkedInDataModel.apisecretorclientidsecret,
-            redirectUrl: "${ApiController().apiDataProvider.getCurrentSiteUrl()}/SocialLoginSSO?Name=LinkedIn",
+            redirectUrl: redirectUrl,
             // clientId: "8650f1v9nnra8n",
             // clientSecret: "ECGamnIf5MdbjxXm",
             // redirectUrl: "https://qalearning.instancy.com/SocialLoginSSO?Name=LinkedIn",
