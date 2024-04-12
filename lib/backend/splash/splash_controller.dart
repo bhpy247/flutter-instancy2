@@ -341,6 +341,8 @@ class SplashController {
   }
 
   Future<void> initializeAppConfigurationsFromMobileGetLearningPortalInfoResponseModel({required MobileGetLearningPortalInfoResponseModel model}) async {
+    MyPrint.printOnConsole("SplashController().initializeAppConfigurationsFromMobileGetLearningPortalInfoResponseModel() called", tag: newId);
+
     SiteUrlConfigurationModel? siteUrlConfigurationModel = getSiteUrlConfigurationModelFromLearningPortalInfoResponse(model.table);
     MyPrint.printOnConsole("siteUrlConfigurationModel in SplashController().initializeAppConfigurationsFromMobileGetLearningPortalInfoResponseModel():$siteUrlConfigurationModel");
     if (siteUrlConfigurationModel != null) {
@@ -467,12 +469,16 @@ class SplashController {
       MyPrint.printOnConsole('privilegeid${element.privilegeid}');
       if (element.privilegeid == 908) {
         appSystemConfigurationModel.setIsFaceBook(element.ismobileprivilege);
+        appSystemConfigurationModel.setFaceBookDataModel(data.table8.where((element) => element.privilegeid == 908).firstOrNull);
       } else if (element.privilegeid == 911) {
         appSystemConfigurationModel.setIsTwitter(element.ismobileprivilege);
+        appSystemConfigurationModel.setTwitterDataModel(data.table8.where((element) => element.privilegeid == 911).firstOrNull);
       } else if (element.privilegeid == 909) {
         appSystemConfigurationModel.setIsLinkedIn(element.ismobileprivilege);
+        appSystemConfigurationModel.setLinkedInDataModel(data.table8.where((element) => element.privilegeid == 909).firstOrNull);
       } else if (element.privilegeid == 910) {
         appSystemConfigurationModel.setIsGoogle(element.ismobileprivilege);
+        appSystemConfigurationModel.setGoogleDataModel(data.table8.where((element) => element.privilegeid == 910).firstOrNull);
       } else if (element.privilegeid == 910) {}
     }
 
