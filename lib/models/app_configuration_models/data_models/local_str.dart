@@ -23,6 +23,7 @@ class LocalStr {
   String errorAlertsubtitleInapppurchasenotconfigureinitunes = "";
   String brandingButtonLoginbutton = "";
   String loginHeaderLogintitlelabel = "";
+  String loginAlertTitleCredentialsNotAvailable = "";
   String loginAlerttitleSigninfailed = "";
   String loginAlertTitleSocialSignInFailed = "";
   String loginAlerttitleGoogleSigninfailed = "";
@@ -839,6 +840,7 @@ class LocalStr {
     this.errorAlertsubtitleInapppurchasenotconfigureinitunes = "",
     this.brandingButtonLoginbutton = "",
     this.loginHeaderLogintitlelabel = "",
+    this.loginAlertTitleCredentialsNotAvailable = "",
     this.loginAlerttitleSigninfailed = "",
     this.loginAlertTitleSocialSignInFailed = "",
     this.loginAlerttitleGoogleSigninfailed = "",
@@ -1634,6 +1636,7 @@ class LocalStr {
     errorAlertsubtitleInapppurchasenotconfigureinitunes = ParsingHelper.parseStringMethod(json['error_alertsubtitle_inapppurchasenotconfigureinitunes']);
     brandingButtonLoginbutton = ParsingHelper.parseStringMethod(json['branding_button_loginbutton']);
     loginHeaderLogintitlelabel = ParsingHelper.parseStringMethod(json['login_header_logintitlelabel']);
+    loginAlertTitleCredentialsNotAvailable = ParsingHelper.parseStringMethod(json['loginAlertTitleCredentialsNotAvailable']);
     loginAlerttitleSigninfailed = ParsingHelper.parseStringMethod(json['login_alerttitle_signinfailed']);
     loginAlertTitleSocialSignInFailed = ParsingHelper.parseStringMethod(json['loginAlertTitleSocialSignInFailed']);
     loginAlerttitleGoogleSigninfailed = ParsingHelper.parseStringMethod(json['loginAlerttitleGoogleSigninfailed']);
@@ -2446,6 +2449,7 @@ class LocalStr {
     data['error_alertsubtitle_inapppurchasenotconfigureinitunes'] = errorAlertsubtitleInapppurchasenotconfigureinitunes;
     data['branding_button_loginbutton'] = brandingButtonLoginbutton;
     data['login_header_logintitlelabel'] = loginHeaderLogintitlelabel;
+    data['loginAlertTitleCredentialsNotAvailable'] = loginAlertTitleCredentialsNotAvailable;
     data['login_alerttitle_signinfailed'] = loginAlerttitleSigninfailed;
     data['loginAlertTitleSocialSignInFailed'] = loginAlertTitleSocialSignInFailed;
     data['loginAlerttitleGoogleSigninfailed'] = loginAlerttitleGoogleSigninfailed;
