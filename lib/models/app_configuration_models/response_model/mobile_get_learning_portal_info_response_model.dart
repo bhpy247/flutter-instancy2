@@ -2,6 +2,7 @@
 //
 //     final mobileGetLearningPortalInfoResponse = mobileGetLearningPortalInfoResponseFromJson(jsonString);
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/external_integration_data_model.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
 class MobileGetLearningPortalInfoResponseModel {
@@ -12,6 +13,9 @@ class MobileGetLearningPortalInfoResponseModel {
     this.table3 = const [],
     this.table4 = const [],
     this.table5 = const [],
+    this.table6 = const [],
+    this.table7 = const [],
+    this.table8 = const [],
   });
 
   List<Table> table = <Table>[];
@@ -22,6 +26,7 @@ class MobileGetLearningPortalInfoResponseModel {
   List<Table5> table5 = <Table5>[];
   List<Table6> table6 = <Table6>[];
   List<Table7> table7 = <Table7>[];
+  List<ExternalIntegrationDataModel> table8 = <ExternalIntegrationDataModel>[];
 
   MobileGetLearningPortalInfoResponseModel.fromJson(Map<String, dynamic> json) {
     table = ParsingHelper.parseListMethod(json["table"]).map((x) => Table.fromJson(ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(x))).toList();
@@ -32,6 +37,7 @@ class MobileGetLearningPortalInfoResponseModel {
     table5 = ParsingHelper.parseListMethod(json["table5"]).map((x) => Table5.fromJson(ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(x))).toList();
     table6 = ParsingHelper.parseListMethod(json["table6"]).map((x) => Table6.fromJson(ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(x))).toList();
     table7 = ParsingHelper.parseListMethod(json["table7"]).map((x) => Table7.fromJson(ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(x))).toList();
+    table8 = ParsingHelper.parseListMethod(json["table8"]).map((x) => ExternalIntegrationDataModel.fromMap(ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(x))).toList();
   }
 
   Map<String, dynamic> toJson() {
@@ -42,6 +48,9 @@ class MobileGetLearningPortalInfoResponseModel {
       "table3": table3.map((x) => x.toJson()).toList(),
       "table4": table4.map((x) => x.toJson()).toList(),
       "table5": table5.map((x) => x.toJson()).toList(),
+      "table6": table6.map((x) => x.toJson()).toList(),
+      "table7": table7.map((x) => x.toJson()).toList(),
+      "table8": table8.map((x) => x.toMap()).toList(),
     };
   }
 
