@@ -341,7 +341,7 @@ class SplashController {
   }
 
   Future<void> initializeAppConfigurationsFromMobileGetLearningPortalInfoResponseModel({required MobileGetLearningPortalInfoResponseModel model}) async {
-    MyPrint.printOnConsole("SplashController().initializeAppConfigurationsFromMobileGetLearningPortalInfoResponseModel() called", tag: newId);
+    MyPrint.printOnConsole("SplashController().initializeAppConfigurationsFromMobileGetLearningPortalInfoResponseModel() called");
 
     SiteUrlConfigurationModel? siteUrlConfigurationModel = getSiteUrlConfigurationModelFromLearningPortalInfoResponse(model.table);
     MyPrint.printOnConsole("siteUrlConfigurationModel in SplashController().initializeAppConfigurationsFromMobileGetLearningPortalInfoResponseModel():$siteUrlConfigurationModel");
