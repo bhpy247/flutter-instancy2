@@ -169,29 +169,16 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
   @override
   Widget build(BuildContext context) {
     themeData = Theme.of(context);
-    return Consumer<AppProvider>(builder: (BuildContext context, AppProvider appProvider, Widget? child) {
-      initializeImages(appProvider: appProvider);
+    return Consumer<AppProvider>(
+      builder: (BuildContext context, AppProvider appProvider, Widget? child) {
+        initializeImages(appProvider: appProvider);
 
-      return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          actions: [
-            InkWell(
-              onTap: () {
-                SplashController(appProvider: appProvider, appThemeProvider: context.read<AppThemeProvider>()).changeCurrentSite(context: context);
-              },
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Icon(Icons.more_vert),
-              ),
-            )
-          ],
-        ),
-        resizeToAvoidBottomInset: false,
-        body: getMainBody2(),
-      );
-    });
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: getMainBody2(),
+        );
+      },
+    );
   }
 
   Widget getMainBody2() {
@@ -199,9 +186,8 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
       alignment: Alignment.topCenter,
       fit: StackFit.expand,
       children: [
-        Positioned(
-          top: 0,
-          // alignment: Alignment.topCenter,
+        Align(
+          alignment: Alignment.topCenter,
           child: getCircles(),
         ),
         Column(
@@ -244,7 +230,24 @@ class _LoginSignUpSelectionScreenState extends State<LoginSignUpSelectionScreen>
             signUpText(),
             const SizedBox(height: 10)
           ],
-        )
+        ),
+        Positioned(
+          top: 30,
+          right: 0,
+          child: InkWell(
+            onTap: () {
+              SplashController(appProvider: appProvider, appThemeProvider: context.read<AppThemeProvider>()).changeCurrentSite(context: context);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(
+                Icons.more_vert,
+                color: themeData.colorScheme.onBackground,
+                size: 20,
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
