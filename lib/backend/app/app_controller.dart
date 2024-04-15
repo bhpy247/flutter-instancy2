@@ -43,6 +43,10 @@ class AppController {
 
   AppRepository get appRepository => _appRepository;
 
+  static const bool _isDemoApp = true;
+
+  static bool get isDemoApp => _isDemoApp;
+
   Future<void> sessionTimeOut() async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("AppController().sessionTimeOut() called", tag: tag);
