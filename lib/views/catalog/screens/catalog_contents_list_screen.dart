@@ -46,6 +46,7 @@ import '../../../models/waitlist/response_model/add_to_waitList_response_model.d
 import '../../../utils/my_print.dart';
 import '../../../utils/my_toast.dart';
 import '../../../utils/my_utils.dart';
+import '../../co_create_learning/screens/my_knowledge_tab.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/comment_dialog.dart';
 import '../../common/components/common_loader.dart';
@@ -714,16 +715,60 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
       onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
       },
-      child: MultiProvider(
-        providers: [
-          ChangeNotifierProvider<CatalogProvider>.value(value: catalogProvider),
-        ],
-        child: Consumer<CatalogProvider>(
-          builder: (BuildContext context, CatalogProvider catalogProvider, Widget? child) {
-            return ModalProgressHUD(
-              inAsyncCall: isLoading,
-              child: Scaffold(
-                appBar: widget.isShowAppBar ? getAppBar() : null,
+        child: Scaffold(
+          appBar: widget.isShowAppBar ? getAppBar() : null,
+          body: AppUIComponents.getBackGroundBordersRounded(context: context, child: getTabBarView()),
+        ));
+  }
+
+  Widget getTabBarView() {
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          toolbarHeight: 0,
+          bottom: TabBar(
+            indicator: UnderlineTabIndicator(
+              borderSide: BorderSide(width: 4, color: themeData.tabBarTheme.indicatorColor ?? themeData.primaryColor),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(100),
+                topRight: Radius.circular(100),
+              ),
+            ),
+            labelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+            tabs: const [
+              Tab(
+                // icon: Icon(Icons.library_books),
+                text: 'Shared Knowledge',
+              ),
+              Tab(
+                // icon: Icon(Icons.share),
+                text: 'My Knowledge',
+              ),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            getSharedKnowledge(),
+            MyKnowledgeTab(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget getSharedKnowledge() {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CatalogProvider>.value(value: catalogProvider),
+      ],
+      child: Consumer<CatalogProvider>(
+        builder: (BuildContext context, CatalogProvider catalogProvider, Widget? child) {
+          return ModalProgressHUD(
+            inAsyncCall: isLoading,
+            child: Scaffold(
                 floatingActionButton: isWikiButtonEnabled
                     ? AddWikiButtonComponent(
                         componentId: componentId,
@@ -732,21 +777,17 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
                         isHandleChatBotSpaceMargin: !widget.isShowAppBar,
                       )
                     : null,
-                body: AppUIComponents.getBackGroundBordersRounded(
-                  context: context,
-                  child: getMainWidget(),
-                ),
-              ),
-            );
-          },
-        ),
+                body: getMainWidget()),
+          );
+        },
       ),
     );
   }
 
   PreferredSizeWidget getAppBar() {
     return AppConfigurations().commonAppBar(
-      title: "Catalog",
+      // title: "Catalog",
+      title: "Co-create Knowledge",
       actions: [
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 10),

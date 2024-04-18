@@ -34,6 +34,7 @@ import 'package:flutter_instancy_2/models/app_configuration_models/data_models/n
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/views/ask_the_expert/screen/quesionAndAnswerMainScreen.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/catalog_categories_list_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/co_create_knowledge_screen.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:flutter_instancy_2/views/common/components/course_offline_syncing_loader_widget.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
@@ -653,6 +654,12 @@ class _MainScreenState extends State<MainScreen> {
         );
       } else {
         return const Text("My Connections");
+      }
+    } else if (model.componentid == InstancyComponents.coCreateKnowledge) {
+      if (isExpanded) {
+        return CoCreateKnowledgeScreen();
+      } else {
+        return const Text("CoCreateKnowledgeScreen");
       }
     } else {
       return const SizedBox();

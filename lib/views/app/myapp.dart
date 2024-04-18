@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_controller.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/download/flutter_download_controller.dart';
@@ -95,6 +96,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<NetworkConnectionProvider>(create: (_) => NetworkConnectionController().networkConnectionProvider),
         ChangeNotifierProvider<LearningCommunitiesProvider>(create: (_) => LearningCommunitiesProvider()),
         ChangeNotifierProvider<GlobalSearchProvider>(create: (_) => GlobalSearchProvider()),
+        ChangeNotifierProvider<CoCreateKnowledgeProvider>(create: (_) => CoCreateKnowledgeProvider()),
       ],
       child: Builder(
         builder: (BuildContext context) {

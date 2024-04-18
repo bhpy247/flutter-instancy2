@@ -7,6 +7,8 @@ import 'package:flutter_instancy_2/views/authentication/screens/forgot_password_
 import 'package:flutter_instancy_2/views/authentication/screens/login_screen.dart';
 import 'package:flutter_instancy_2/views/authentication/screens/sign_up_screen.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/PrerequisiteScreen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/documentsScreen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/refrence_link_screen.dart';
 import 'package:flutter_instancy_2/views/common/screen/common_view_image_screen.dart';
 import 'package:flutter_instancy_2/views/course_details/screens/course_details_screen.dart';
 import 'package:flutter_instancy_2/views/course_launch/screens/course_offline_launch_webview_screen.dart';
@@ -22,9 +24,9 @@ import 'package:flutter_instancy_2/views/feedBack/screens/add_feedback_screen.da
 import 'package:flutter_instancy_2/views/lens_feature/screen/lens_screen.dart';
 import 'package:flutter_instancy_2/views/main_screen/screens/main_screen.dart';
 import 'package:flutter_instancy_2/views/membership/screens/membership_selection_screen.dart';
+import 'package:flutter_instancy_2/views/message/screen/user_message_list_screen.dart';
 import 'package:flutter_instancy_2/views/my_connections/screens/my_connections_main_screen.dart';
 import 'package:flutter_instancy_2/views/my_learning/screens/my_learning_screen.dart';
-import 'package:flutter_instancy_2/views/message/screen/user_message_list_screen.dart';
 import 'package:flutter_instancy_2/views/my_learning_plus/screens/my_learning_plus.dart';
 import 'package:flutter_instancy_2/views/profile/component/add_education_screen.dart';
 import 'package:flutter_instancy_2/views/profile/screens/connection_profile_screen.dart';
@@ -453,6 +455,17 @@ class NavigationController {
       case EventCatalogTabScreen.routeName:
         {
           page = parseEventCatalogScreen(settings: settings);
+          break;
+        }
+
+      case ReferenceLink.routeName:
+        {
+          page = parseReferenceLinkScreen(settings: settings);
+          break;
+        }
+      case DocumentsScreen.routeName:
+        {
+          page = parseReferenceLinkScreen(settings: settings);
           break;
         }
     }
@@ -1102,6 +1115,18 @@ class NavigationController {
 
   //endregion
 
+  //region Co-Create Knowledge
+
+  static Widget? parseReferenceLinkScreen({required RouteSettings settings}) {
+    return ReferenceLink();
+  }
+
+  static Widget? parseDocumentScreen({required RouteSettings settings}) {
+    return DocumentsScreen();
+  }
+
+  //endregion
+
   //region Navigation Methods
   //region Common
   static Future<dynamic> navigateToSplashScreen({required NavigationOperationParameters navigationOperationParameters}) async {
@@ -1717,6 +1742,20 @@ class NavigationController {
     MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(routeName: EventCatalogTabScreen.routeName, arguments: arguments),
+    );
+  }
+
+  static Future<dynamic> navigateToDocumentScreen({required NavigationOperationParameters navigationOperationParameters}) {
+    MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: DocumentsScreen.routeName),
+    );
+  }
+
+  static Future<dynamic> navigateToReferenceLinkScreen({required NavigationOperationParameters navigationOperationParameters}) {
+    MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: ReferenceLink.routeName),
     );
   }
 }

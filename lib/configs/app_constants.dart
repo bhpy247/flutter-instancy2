@@ -233,6 +233,15 @@ class InstancyObjectTypes {
   static const int arModule = 695;
   static const int vrModule = 696;
   static const int courseBot = 697;
+  static const int flashCard = 698;
+  static const int rolePlay = 699;
+  static const int podcastEpisode = 700;
+  static const int referenceUrl = 701;
+  static const int article = 702;
+  static const int videos = 703;
+  static const int quiz = 704;
+  static const int learningMaps = 705;
+  static const int aiAgent = 706;
 }
 
 class InstancyMediaTypes {
@@ -441,6 +450,7 @@ class InstancyComponents {
   static const int PeopleListComponentInsId = 3473;
   static const int EventCatalogTabsListComponentInsId = 3497;
   static const int transferToAgentComponent = 4001;
+  static const int coCreateKnowledge = 4002;
   static const int UserSettings = 5000;
   static const int MyCourseDownloads = 5001;
   static const int Feedback = 5002;

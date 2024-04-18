@@ -190,6 +190,7 @@ flutter:
     - assets/app-logo/
     - assets/js/
     - assets/images/
+    - assets/imagess/
     - assets/onBoarding/
     - assets/socials/
     - assets/myLearning/
@@ -199,3 +200,4 @@ flutter:
     - lang/
     - assets/my_dashboard/
     - assets/lottie/
+    - assets/cocreate/
