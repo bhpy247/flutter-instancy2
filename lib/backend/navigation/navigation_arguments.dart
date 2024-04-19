@@ -426,6 +426,25 @@ class PDFLaunchScreenNavigationArguments extends NavigationArguments {
   }
 }
 
+class RolePlayLaunchScreenNavigationArguments extends NavigationArguments {
+  final CourseDTOModel? courseDTOModel;
+
+  const RolePlayLaunchScreenNavigationArguments({
+    this.courseDTOModel,
+  });
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      "courseDTOModel": courseDTOModel?.toMap(),
+    };
+  }
+
+  @override
+  String toString() {
+    return MyUtils.encodeJson(toMap());
+  }
+}
+
 class WebViewScreenNavigationArguments extends NavigationArguments {
   final String title;
   final String url;

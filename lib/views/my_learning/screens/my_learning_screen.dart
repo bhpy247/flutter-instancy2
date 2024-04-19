@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_controller.dart';
+import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
@@ -31,6 +32,8 @@ import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/common/components/common_text_form_field.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
+import 'package:flutter_instancy_2/views/my_learning/component/add_external_learning_content_dialog.dart';
+import 'package:flutter_instancy_2/views/my_learning/component/external_learning_generate_using_url_confirmation_dialog.dart';
 import 'package:flutter_instancy_2/views/my_learning/component/my_learning_card.dart';
 import 'package:provider/provider.dart';
 
@@ -56,9 +59,9 @@ class MyLearningScreen extends StatefulWidget {
   final MyLearningScreenNavigationArguments arguments;
 
   const MyLearningScreen({
-    Key? key,
+    super.key,
     required this.arguments,
-  }) : super(key: key);
+  });
 
   @override
   State<MyLearningScreen> createState() => _MyLearningScreenState();
@@ -79,12 +82,17 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
 
   int componentId = 0, componentInstanceId = 0;
 
-  ScrollController myLearningScrollController = ScrollController(), myLearningArchivedScrollController = ScrollController();
+  ScrollController myLearningScrollController = ScrollController();
+  ScrollController myLearningArchivedScrollController = ScrollController();
+  ScrollController externalContentsScrollController = ScrollController();
 
   TabController? tabController;
 
   TextEditingController searchController = TextEditingController();
   TextEditingController archivedSearchController = TextEditingController();
+  TextEditingController externalContentsSearchController = TextEditingController();
+
+  int externalLearningCourseCount = 1;
 
   void initializations() {
     myLearningProvider = widget.arguments.myLearningProvider ?? MyLearningProvider();
@@ -160,7 +168,13 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
       );
     }
 
-    tabController = TabController(vsync: this, length: myLearningProvider.archieveEnabled.get() ? 2 : 1);
+    int tabsLength = 1;
+    if (myLearningProvider.archieveEnabled.get()) tabsLength++;
+
+    //For External Learning
+    if (AppController.isDemoApp) tabsLength++;
+
+    tabController = TabController(vsync: this, length: tabsLength);
   }
 
   Future<void> getMyLearningContentsList({bool isArchive = true, bool isRefresh = true, bool isGetFromCache = true, bool isNotify = true}) async {
@@ -789,12 +803,14 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
         navigationType: NavigationType.pushNamed,
       ),
       arguments: CourseDetailScreenNavigationArguments(
-          contentId: isReEnroll ? model.InstanceParentContentID : model.ContentID,
-          componentId: isReEnroll ? InstancyComponents.Catalog : componentId,
-          componentInstanceId: componentInstanceId,
-          userId: model.SiteUserID,
-          screenType: InstancyContentScreenType.MyLearning,
-          isReEnroll: isReEnroll),
+        contentId: isReEnroll ? model.InstanceParentContentID : model.ContentID,
+        componentId: isReEnroll ? InstancyComponents.Catalog : componentId,
+        componentInstanceId: componentInstanceId,
+        userId: model.SiteUserID,
+        screenType: InstancyContentScreenType.MyLearning,
+        isReEnroll: isReEnroll,
+        courseDtoModel: model,
+      ),
     );
     MyPrint.printOnConsole("CourseDetailScreen return value:$value");
 
@@ -877,6 +893,36 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
     }
   }
 
+  Future<void> addExternalLearning() async {
+    dynamic value = await showDialog(
+      context: context,
+      builder: (BuildContext context) => const ExternalLearningGenerateUsingUrlConfirmationDialog(),
+    );
+
+    if (value is! String) {
+      return;
+    }
+
+    dynamic value1 = await showDialog(
+      context: context,
+      builder: (BuildContext context) => AddExternalLearningContentDialog(
+        isPrefillData: value.isNotEmpty,
+        url: value,
+      ),
+    );
+
+    if (value1 is! CourseDTOModel) {
+      return;
+    }
+
+    if (value1.TitleName.trim() == "Course Title") {
+      value1.TitleName += " $externalLearningCourseCount";
+      value1.Title = value1.TitleName;
+    }
+    externalLearningCourseCount++;
+    myLearningProvider.myLearningExternalContents.setList(list: [value1], isClear: false, isNotify: true);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -904,7 +950,9 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
       value: myLearningProvider,
       child: Consumer<MyLearningProvider>(
         builder: (BuildContext context, MyLearningProvider myLearningProvider, Widget? child) {
-          int tabsLengthToKeep = myLearningProvider.archieveEnabled.get() ? 2 : 1;
+          int tabsLengthToKeep = 1;
+          if (myLearningProvider.archieveEnabled.get()) tabsLengthToKeep++;
+          if (AppController.isDemoApp) tabsLengthToKeep++;
           // MyPrint.printOnConsole("tabsLengthToKeep:$tabsLengthToKeep");
           if (tabController != null) {
             if (tabController!.length != tabsLengthToKeep) {
@@ -933,6 +981,11 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
             children: <Widget>[
               getMyLearningContentsListView(),
               if (myLearningProvider.archieveEnabled.get()) getMyLearningArchiveContentsListView(),
+              if (AppController.isDemoApp)
+                Scaffold(
+                  body: getExternalContentsListView(),
+                  floatingActionButton: getAddExternalLearningButton(),
+                ),
             ],
           ),
         ),
@@ -952,7 +1005,7 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
   }
 
   PreferredSize? getAppBar() {
-    if (!myLearningProvider.archieveEnabled.get()) {
+    if (!myLearningProvider.archieveEnabled.get() && !AppController.isDemoApp) {
       return null;
     }
 
@@ -989,12 +1042,28 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
                       padding: EdgeInsets.all(8.0),
                       child: Text("Archive"),
                     ),
+                  if (AppController.isDemoApp)
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text("External"),
+                    ),
                 ],
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget? getAddExternalLearningButton() {
+    if (!AppController.isDemoApp) return null;
+
+    return FloatingActionButton(
+      onPressed: () {
+        addExternalLearning();
+      },
+      child: const Icon(Icons.add),
     );
   }
 
@@ -1086,6 +1155,145 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
       },
       isShowClearSearchButton: archivedSearchController.text.isNotEmpty ||
           (myLearningProvider.myLearningArchivedSearchString.isNotEmpty && myLearningProvider.myLearningArchivedSearchString == archivedSearchController.text),
+    );
+  }
+
+  Widget getExternalContentsListView() {
+    List<CourseDTOModel> list = myLearningProvider.myLearningExternalContents.getList();
+
+    TextEditingController searchController = externalContentsSearchController;
+    String searchString = "";
+    ScrollController scrollController = externalContentsScrollController;
+    ValueChanged<String>? onSubmitted;
+    bool isShowClearSearchButton = externalContentsSearchController.text.isNotEmpty;
+    PaginationModel paginationModel = myLearningProvider.myLearningExternalPaginationModel.get();
+    int contentsLength = list.length;
+    List<CourseDTOModel> contents = list;
+    onRefresh() async {
+      externalLearningCourseCount = 1;
+      myLearningController.getExternalContentsListFromApi(
+        componentId: componentId,
+        componentInstanceId: componentInstanceId,
+        isRefresh: true,
+        isGetFromCache: false,
+        isNotify: true,
+      );
+    }
+
+    onPagination() async {
+      myLearningController.getExternalContentsListFromApi(
+        componentId: componentId,
+        componentInstanceId: componentInstanceId,
+        isRefresh: false,
+        isGetFromCache: false,
+        isNotify: false,
+      );
+    }
+
+    Widget child;
+
+    if (paginationModel.isFirstTimeLoading) {
+      child = const Center(
+        child: CommonLoader(),
+      );
+    } else if (!paginationModel.isLoading && contentsLength == 0) {
+      child = RefreshIndicator(
+        onRefresh: onRefresh,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            SizedBox(height: context.sizeData.height * 0.2),
+            AppConfigurations.commonNoDataView(),
+          ],
+        ),
+      );
+    } else {
+      // MyPrint.printOnConsole("My Learning Contents length In MyLearningScreen().getMyLearningContentsListView():${contents.length}");
+
+      child = RefreshIndicator(
+        onRefresh: onRefresh,
+        child: ListView.builder(
+          controller: scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          itemCount: contents.length + 1,
+          itemBuilder: (BuildContext context, int index) {
+            if ((index == 0 && contents.isEmpty) || index == contents.length) {
+              if (paginationModel.isLoading) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 5),
+                  child: const Center(
+                    child: CommonLoader(
+                      size: 70,
+                    ),
+                  ),
+                );
+              } else {
+                return const SizedBox();
+              }
+            }
+
+            if (index > (contentsLength - paginationModel.refreshLimit)) {
+              if (paginationModel.hasMore && !paginationModel.isLoading) {
+                onPagination();
+              }
+            }
+
+            CourseDTOModel model = contents[index];
+
+            List<InstancyUIActionModel> options = [
+              InstancyUIActionModel(
+                text: "Details",
+                actionsEnum: InstancyContentActionsEnum.Details,
+                onTap: () {
+                  Navigator.pop(context);
+
+                  onDetailsTap(model: model);
+                },
+                iconData: InstancyIcons.details,
+              ),
+            ];
+            InstancyUIActionModel? primaryAction = options.firstElement;
+
+            return MyLearningCard(
+              courseDTOModel: model,
+              primaryAction: primaryAction,
+              onMoreButtonTap: () {
+                InstancyUIActions().showAction(
+                  context: context,
+                  actions: options,
+                );
+              },
+              onPrimaryActionTap: () async {
+                MyPrint.printOnConsole("primaryActionsEnum:${primaryAction?.actionsEnum}");
+
+                onDetailsTap(model: model);
+              },
+              onThumbnailClick: () async {
+                if (primaryAction?.onTap != null) primaryAction!.onTap!();
+              },
+            );
+          },
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        searchTextFormField(
+          searchController: searchController,
+          searchString: searchString,
+          onSubmitted: onSubmitted,
+          isShowClearSearchButton: isShowClearSearchButton,
+        ),
+        getSelectedFiltersListviewWidget(
+          searchController: searchController,
+          searchString: searchString,
+        ),
+        Expanded(
+          child: child,
+        ),
+      ],
     );
   }
 

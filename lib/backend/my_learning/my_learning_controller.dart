@@ -442,6 +442,120 @@ class MyLearningController {
     return provider.myLearningWaitlistContents.getList();
   }
 
+  Future<List<CourseDTOModel>> getExternalContentsListFromApi({
+    bool isRefresh = true,
+    bool isGetFromCache = false,
+    bool isNotify = true,
+    required int componentId,
+    required int componentInstanceId,
+  }) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole(
+        "MyLearningController().getExternalContentsListFromApi() called with isRefresh:$isRefresh, isGetFromCache:$isGetFromCache, "
+        "isNotify:$isNotify, componentId:$componentId, componentInstanceId:$componentInstanceId",
+        tag: tag);
+
+    MyLearningProvider provider = myLearningProvider;
+    PaginationModel paginationModel = provider.myLearningExternalPaginationModel.get();
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = myLearningRepository.apiController.apiDataProvider;
+
+    //region If Not refresh and Data available, return Cached Data
+    if (!isRefresh && isGetFromCache && provider.myLearningExternalContentsLength > 0) {
+      MyPrint.printOnConsole("Returning Cached Data", tag: tag);
+      return provider.myLearningExternalContents.getList();
+    }
+    //endregion
+
+    //region If refresh, then reset provider data
+    if (isRefresh) {
+      MyPrint.printOnConsole("Refresh", tag: tag);
+      PaginationModel.updatePaginationData(
+        paginationModel: paginationModel,
+        hasMore: true,
+        pageIndex: 1,
+        isFirstTimeLoading: true,
+        isLoading: false,
+        notifier: provider.notify,
+        notify: false,
+      );
+      provider.myLearningExternalContents.setList(list: [], isClear: true, isNotify: isNotify);
+    }
+    //endregion
+
+    //region If Not Has More Data, then return
+    if (!paginationModel.hasMore) {
+      MyPrint.printOnConsole('No More My Learning Contents', tag: tag);
+      return provider.myLearningExternalContents.getList();
+    }
+    //endregion
+
+    //region If Data already Loading, then return
+    if (paginationModel.isLoading) return provider.myLearningExternalContents.getList();
+    //endregion
+
+    //region Set Loading True
+    PaginationModel.updatePaginationData(
+      paginationModel: paginationModel,
+      isLoading: true,
+      notifier: provider.notify,
+      notify: isNotify,
+    );
+    //endregion
+
+    DateTime startTime = DateTime.now();
+
+    //region Get Request Model From Provider Data
+    MyLearningDataRequestModel myLearningDataRequestModel = getMyLearningDataRequestModelFromProviderData(
+      myLearningProvider: provider,
+      filterProvider: provider.filterProvider,
+      paginationModel: paginationModel,
+      componentId: componentId,
+      componentInstanceId: componentInstanceId,
+      apiUrlConfigurationProvider: apiUrlConfigurationProvider,
+      isArchived: false,
+      isWaitList: false,
+    );
+    //endregion
+
+    //region Make Api Call
+    DataResponseModel<MyLearningResponseDTOModel> response = await Future<DataResponseModel<MyLearningResponseDTOModel>>.delayed(
+      const Duration(seconds: 1),
+      () => const DataResponseModel<MyLearningResponseDTOModel>(),
+    );
+    /*DataResponseModel<MyLearningResponseDTOModel> response = await myLearningRepository.getMyLearningContentsListMain(
+      requestModel: myLearningDataRequestModel,
+      componentId: componentId,
+      componentInstanceId: componentInstanceId,
+      isStoreDataInHive: true,
+      isFromOffline: false,
+    );*/
+    MyPrint.printOnConsole("My Learning External Contents Length:${response.data?.CourseList.length ?? 0}", tag: tag);
+    //endregion
+
+    DateTime endTime = DateTime.now();
+    MyPrint.printOnConsole("My Learning External Data got in ${endTime.difference(startTime).inMilliseconds} Milliseconds", tag: tag);
+
+    List<CourseDTOModel> contentsList = response.data?.CourseList ?? <CourseDTOModel>[];
+    MyPrint.printOnConsole("My Learning External Contents Length got in Api:${contentsList.length}", tag: tag);
+
+    //region Set Provider Data After Getting Data From Api
+    PaginationModel.updatePaginationData(
+      paginationModel: paginationModel,
+      hasMore: contentsList.length == provider.pageSize.get(),
+      pageIndex: paginationModel.pageIndex + 1,
+      isFirstTimeLoading: false,
+      isLoading: false,
+      notifier: provider.notify,
+      notify: true,
+    );
+
+    provider.myLearningExternalContents.setList(list: contentsList, isClear: false, isNotify: false);
+    //endregion
+
+    return provider.myLearningExternalContents.getList();
+  }
+
   MyLearningDataRequestModel getMyLearningDataRequestModelFromProviderData({
     required MyLearningProvider myLearningProvider,
     required PaginationModel paginationModel,

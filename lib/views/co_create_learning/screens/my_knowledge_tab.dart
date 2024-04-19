@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_chat_bot/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
+import 'package:flutter_instancy_2/views/common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:provider/provider.dart';
 
@@ -15,6 +19,15 @@ import '../component/item_widget.dart';
 import '../component/size_utils.dart';
 
 class MyKnowledgeTab extends StatefulWidget {
+  final int componentId;
+  final int componentInstanceId;
+
+  const MyKnowledgeTab({
+    super.key,
+    required this.componentId,
+    required this.componentInstanceId,
+  });
+
   @override
   State<MyKnowledgeTab> createState() => _MyKnowledgeTabState();
 }
@@ -25,62 +38,104 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 
   late Future future;
 
-  // void showPopupMenu(BuildContext context) async {
-  //   final RenderObject? sliver = Scrollable.of(context);
-  //   if (sliver == null) return; // Handle null case (e.g., no scrollable parent)
-  //
-  //   final offset = sliver.localToGlobal(Offset.zero);
-  //   final size = ListItemWidget.buttonSize;
-  //
-  //   // final RenderBox button = context.findRenderObject() as RenderBox;
-  //   // final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-  //   // final RelativeRect position = RelativeRect.fromRect(
-  //   //   Rect.fromPoints(
-  //   //     button.localToGlobal(Offset.zero, ancestor: overlay),
-  //   //     button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay),
-  //   //   ),
-  //   //   Offset.zero & overlay.size,
-  //   // );
-  //   await showMenu(
-  //     context: context,
-  //     position: RelativeRect.fromSize(
-  //       Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height), // Position below button
-  //       Size(300, 200.0), // Set desired menu width and height
-  //     ),
-  //     items: [
-  //       const PopupMenuItem(
-  //         value: 'Edit',
-  //         child: Text('Edit'),
-  //       ),
-  //       const PopupMenuItem(
-  //         value: 'Share',
-  //         child: Text('Share'),
-  //       ),
-  //       const PopupMenuItem(
-  //         value: 'Delete',
-  //         child: Text('Delete'),
-  //       ),
-  //     ],
-  //     elevation: 8.0,
-  //   );
-  // }
-
-  // void showKnowledgeContentDialog() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AddContentDialog();
-  //     },
-  //   );
-  // }
-
   Future<void> getFutureData() async {
     await _controller.getMyKnowledgeList();
   }
 
-  void onCardTapCallBack({required int objectType}) {
+  List<InstancyUIActionModel> getActionsList({required CourseDTOModel model}) {
+    List<InstancyUIActionModel> actions = [
+      InstancyUIActionModel(
+        text: "View",
+        actionsEnum: InstancyContentActionsEnum.View,
+        onTap: () {
+          Navigator.pop(context);
+
+          onViewTap(model: model);
+        },
+        iconData: InstancyIcons.view,
+      ),
+      InstancyUIActionModel(
+        text: "Details",
+        actionsEnum: InstancyContentActionsEnum.Details,
+        onTap: () {
+          Navigator.pop(context);
+
+          onDetailsTap(model: model);
+        },
+        iconData: InstancyIcons.details,
+      ),
+      InstancyUIActionModel(
+        text: "Delete",
+        actionsEnum: InstancyContentActionsEnum.Delete,
+        onTap: () {
+          Navigator.pop(context);
+
+          _provider.myKnowledgeList.removeItems(items: [model], isNotify: true);
+        },
+        iconData: InstancyIcons.delete,
+      ),
+      InstancyUIActionModel(
+        text: "Share",
+        actionsEnum: InstancyContentActionsEnum.Share,
+        onTap: () {
+          Navigator.pop(context);
+        },
+        iconData: InstancyIcons.share,
+      ),
+    ];
+
+    return actions;
+  }
+
+  Future<void> showMoreActions({required CourseDTOModel model}) async {
+    List<InstancyUIActionModel> actions = getActionsList(model: model);
+
+    InstancyUIActions().showAction(
+      context: context,
+      actions: actions,
+    );
+  }
+
+  Future<void> onDetailsTap({required CourseDTOModel model}) async {
+    dynamic value = await NavigationController.navigateToCourseDetailScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      arguments: CourseDetailScreenNavigationArguments(
+        contentId: model.ContentID,
+        componentId: widget.componentId,
+        componentInstanceId: widget.componentInstanceId,
+        userId: model.SiteUserID,
+        screenType: InstancyContentScreenType.Catalog,
+        courseDtoModel: model,
+      ),
+    );
+    MyPrint.printOnConsole("CourseDetailScreen return value:$value");
+
+    if (value == true) {
+      /*getContentData = getCatalogContentsList(
+        isRefresh: true,
+        isGetFromCache: false,
+        isNotify: true,
+      );*/
+    }
+  }
+
+  Future<void> onViewTap({required CourseDTOModel model}) async {
+    int objectType = model.ContentTypeId;
+
     if (objectType == InstancyObjectTypes.flashCard) {
     } else if (objectType == InstancyObjectTypes.rolePlay) {
+      dynamic value = await NavigationController.navigateToRolePlayLaunchScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: RolePlayLaunchScreenNavigationArguments(
+          courseDTOModel: model,
+        ),
+      );
     } else if (objectType == InstancyObjectTypes.podcastEpisode) {
     } else if (objectType == InstancyObjectTypes.referenceUrl) {
     } else if (objectType == InstancyObjectTypes.document) {
@@ -126,31 +181,39 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           providers: [
             ChangeNotifierProvider<CoCreateKnowledgeProvider>.value(value: _provider),
           ],
-          child: Consumer<CoCreateKnowledgeProvider>(builder: (context, CoCreateKnowledgeProvider provider, _) {
-            if (provider.isLoading.get()) return const CommonLoader();
-            List<CourseDTOModel> list = provider.myKnowledgeList.getList();
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0).copyWith(top: 15, bottom: 10),
-                  child: CustomSearchView(),
-                ),
-                Expanded(
-                  child: ListView.builder(
+          child: Consumer<CoCreateKnowledgeProvider>(
+            builder: (context, CoCreateKnowledgeProvider provider, _) {
+              if (provider.isLoading.get()) return const CommonLoader();
+              List<CourseDTOModel> list = provider.myKnowledgeList.getList();
+              return Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0).copyWith(top: 15, bottom: 10),
+                    child: CustomSearchView(),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
                       itemCount: list.length,
                       padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(bottom: 10),
                       itemBuilder: (BuildContext listContext, int index) {
+                        CourseDTOModel model = list[index];
+
                         return myKnowledgeItemWidget(
-                          model: list[index],
-                          // onMoreTap: (){
-                          //   showPopupMenu(listContext);
-                          // },
+                          model: model,
+                          onMoreTap: () {
+                            showMoreActions(model: model);
+                          },
+                          onCardTap: () {
+                            onViewTap(model: model);
+                          },
                         );
-                      }),
-                ),
-              ],
-            );
-          }),
+                      },
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         );
       },
     );
@@ -183,19 +246,197 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
   ValueNotifier<bool> isDialOpen = ValueNotifier<bool>(false);
 
   void onCardTapCallBack({required int objectType}) {
+    Map<String, dynamic> map = <String, dynamic>{
+      "Titlewithlink": "",
+      "rcaction": "",
+      "Categories": "",
+      "IsSubSite": "False",
+      "MembershipName": "",
+      "EventAvailableSeats": "",
+      "EventCompletedProgress": "",
+      "EventContentProgress": "",
+      "Count": 0,
+      "PreviewLink": "",
+      "ApproveLink": "",
+      "RejectLink": "",
+      "ReadLink": "",
+      "AddLink": "javascript:fnAddItemtoMyLearning('d40d27cd-dd15-4bf4-b769-f341ceee213d');",
+      "EnrollNowLink": "",
+      "CancelEventLink": "",
+      "WaitListLink": "",
+      "InapppurchageLink": "",
+      "AlredyinmylearnigLink": "",
+      "RecommendedLink": "",
+      "Sharelink": "https://qalearning.instancy.com/InviteURLID/contentId/d40d27cd-dd15-4bf4-b769-f341ceee213d/ComponentId/1",
+      "EditMetadataLink": "",
+      "ReplaceLink": "",
+      "EditLink": "",
+      "DeleteLink": "",
+      "SampleContentLink": "",
+      "TitleExpired": "",
+      "PracticeAssessmentsAction": "",
+      "CreateAssessmentAction": "",
+      "OverallProgressReportAction": "",
+      "ContentName": "Web Page 141",
+      "ContentScoID": "26712",
+      "isContentEnrolled": "False",
+      "ContentViewType": "Subscription",
+      "WindowProperties": "status=no,toolbar=no,menubar=no,resizable=yes,location=no,scrollbars=yes,left=10,top=10,width=1000,height=680",
+      "isWishListContent": 0,
+      "AddtoWishList": "Y",
+      "RemoveFromWishList": null,
+      "Duration": "",
+      "Credits": "",
+      "DetailspopupTags": "",
+      "ThumbnailIconPath": "",
+      "JWVideoKey": "",
+      "Modules": "",
+      "salepricestrikeoff": "",
+      "isBadCancellationEnabled": "true",
+      "EnrollmentLimit": "",
+      "AvailableSeats": "0",
+      "NoofUsersEnrolled": "1",
+      "WaitListLimit": "",
+      "WaitListEnrolls": "0",
+      "isBookingOpened": false,
+      "EventStartDateforEnroll": null,
+      "DownLoadLink": "",
+      "EventType": 0,
+      "EventScheduleType": 0,
+      "EventRecording": false,
+      "ShowParentPrerequisiteEventDate": false,
+      "ShowPrerequisiteEventDate": false,
+      "PrerequisiteDateConflictName": null,
+      "PrerequisiteDateConflictDateTime": null,
+      "SkinID": "1",
+      "FilterId": 0,
+      "SiteId": 374,
+      "UserSiteId": 0,
+      "SiteName": "Instancy Social Learning Network",
+      "ContentTypeId": 36,
+      "ContentID": "d40d27cd-dd15-4bf4-b769-f341ceee213d",
+      "Title": "Web Page 141",
+      "TotalRatings": "0",
+      "RatingID": "0",
+      "ShortDescription": "",
+      "ThumbnailImagePath": "/Content/SiteFiles/Images/Webpage.jpg",
+      "InstanceParentContentID": "",
+      "ImageWithLink": "",
+      "AuthorWithLink": "",
+      "EventStartDateTime": "",
+      "EventEndDateTime": "",
+      "EventStartDateTimeWithoutConvert": "",
+      "EventEndDateTimeTimeWithoutConvert": "",
+      "expandiconpath": "",
+      "AuthorDisplayName": "Pradeep Rana 123",
+      "ContentType": "Webpage",
+      "CreatedOn": "",
+      "TimeZone": "",
+      "Tags": "",
+      "SalePrice": "",
+      "Currency": "",
+      "ViewLink": "",
+      "DetailsLink": "https://qalearning.instancy.com/Catalog Details/Contentid/d40d27cd-dd15-4bf4-b769-f341ceee213d/componentid/1/componentInstanceID/3131",
+      "RelatedContentLink": "",
+      "ViewSessionsLink": null,
+      "SuggesttoConnLink": "d40d27cd-dd15-4bf4-b769-f341ceee213d",
+      "SuggestwithFriendLink": "d40d27cd-dd15-4bf4-b769-f341ceee213d",
+      "SharetoRecommendedLink": "",
+      "IsCoursePackage": "",
+      "IsRelatedcontent": "",
+      "isaddtomylearninglogo": "0",
+      "LocationName": "",
+      "BuildingName": null,
+      "JoinURL": "",
+      "Categorycolor": "#67BD4E",
+      "InvitationURL": "",
+      "HeaderLocationName": "",
+      "SubSiteUserID": null,
+      "PresenterDisplayName": "",
+      "PresenterWithLink": "",
+      "ShowMembershipExpiryAlert": false,
+      "AuthorName": null,
+      "FreePrice": "",
+      "SiteUserID": 1962,
+      "ScoID": 26712,
+      "BuyNowLink": "",
+      "bit5": false,
+      "bit4": false,
+      "OpenNewBrowserWindow": false,
+      "CreditScoreWithCreditTypes": "",
+      "CreditScoreFirstPrefix": "",
+      "MediaTypeID": 0,
+      "isEnrollFutureInstance": "",
+      "InstanceEventReclass": "",
+      "InstanceEventReclassStatus": "",
+      "InstanceEventReSchedule": "",
+      "InstanceEventEnroll": "",
+      "ReEnrollmentHistory": "",
+      "BackGroundColor": "#2f2d3a",
+      "FontColor": "#fff",
+      "ExpiredContentExpiryDate": "",
+      "ExpiredContentAvailableUntill": "",
+      "Gradient1": "",
+      "Gradient2": "",
+      "GradientColor": "radial-gradient(circle,  0%,  100%)",
+      "ShareContentwithUser": "",
+      "bit1": false,
+      "ViewType": 2,
+      "startpage": "ins_content.html",
+      "CategoryID": 0,
+      "AddLinkTitle": "Add to My learning",
+      "ContentStatus": "",
+      "PercentCompletedClass": "",
+      "PercentCompleted": "",
+      "GoogleProductId": "",
+      "ItunesProductId": "",
+      "FolderPath": "82b071da-52e8-4cd9-a0a8-9b43f3c546e7",
+      "CloudMediaPlayerKey": "",
+      "ActivityId": "http://instancy.com/d40d27cd-dd15-4bf4-b769-f341ceee213d",
+      "ActualStatus": null,
+      "CoreLessonStatus": null,
+      "jwstartpage": null,
+      "IsReattemptCourse": false,
+      "AttemptsLeft": 0,
+      "TotalAttempts": 0,
+      "ListPrice": "",
+      "ContentModifiedDateTime": null
+    };
+
+    CourseDTOModel? courseDTOModel = CourseDTOModel.fromMap(map);
+
+    courseDTOModel.ContentID = MyUtils.getNewId();
+    courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
+
     if (objectType == InstancyObjectTypes.flashCard) {
       MyPrint.printOnConsole("in flsh Card");
-      widget.provider.addToMyKnowledgeList(CourseDTOModel(
-        ContentTypeId: InstancyObjectTypes.flashCard,
-        Title: "Flash Card Title",
-      ));
+
+      courseDTOModel.TitleName = "Flash Card Title";
+      courseDTOModel.Title = courseDTOModel.TitleName;
+      courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
+      courseDTOModel.ContentType = "Flashcard";
+      courseDTOModel.ContentTypeId = InstancyObjectTypes.flashCard;
+      courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
     } else if (objectType == InstancyObjectTypes.rolePlay) {
+      MyPrint.printOnConsole("in Role Play");
+
+      courseDTOModel.TitleName = "Role Play Title";
+      courseDTOModel.Title = courseDTOModel.TitleName;
+      courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
+      courseDTOModel.ContentType = "Roleplay";
+      courseDTOModel.ContentTypeId = InstancyObjectTypes.rolePlay;
+      courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
     } else if (objectType == InstancyObjectTypes.podcastEpisode) {
     } else if (objectType == InstancyObjectTypes.referenceUrl) {
     } else if (objectType == InstancyObjectTypes.document) {
     } else if (objectType == InstancyObjectTypes.videos) {
-    } else if (objectType == InstancyObjectTypes.quiz) {
-    } else if (objectType == InstancyObjectTypes.article) {}
+    } else if (objectType == InstancyObjectTypes.quiz) {} else if (objectType == InstancyObjectTypes.article) {} else {
+      courseDTOModel = null;
+    }
+
+    if (courseDTOModel != null) {
+      widget.provider.addToMyKnowledgeList(courseDTOModel);
+    }
   }
 
   @override

@@ -548,12 +548,12 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
         navigationType: NavigationType.pushNamed,
       ),
       arguments: CourseDetailScreenNavigationArguments(
-        contentId: model.ContentID,
-        componentId: componentId,
-        componentInstanceId: componentInstanceId,
-        userId: model.SiteUserID,
-        siteId: widget.arguments.subSiteId,
-        screenType: InstancyContentScreenType.Catalog,
+          contentId: model.ContentID,
+          componentId: componentId,
+          componentInstanceId: componentInstanceId,
+          userId: model.SiteUserID,
+          siteId: widget.arguments.subSiteId,
+          screenType: InstancyContentScreenType.Catalog,
           courseDtoModel: model),
     );
     MyPrint.printOnConsole("CourseDetailScreen return value:$value");
@@ -712,9 +712,9 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
     super.pageBuild();
 
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).requestFocus(FocusNode());
-      },
+        onTap: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
         child: Scaffold(
           appBar: widget.isShowAppBar ? getAppBar() : null,
           body: AppUIComponents.getBackGroundBordersRounded(context: context, child: getTabBarView()),
@@ -752,7 +752,10 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
         body: TabBarView(
           children: [
             getSharedKnowledge(),
-            MyKnowledgeTab(),
+            MyKnowledgeTab(
+              componentId: componentId,
+              componentInstanceId: componentInstanceId,
+            ),
           ],
         ),
       ),
@@ -769,15 +772,16 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
           return ModalProgressHUD(
             inAsyncCall: isLoading,
             child: Scaffold(
-                floatingActionButton: isWikiButtonEnabled
-                    ? AddWikiButtonComponent(
-                        componentId: componentId,
-                        componentInstanceId: componentInstanceId,
-                        wikiProvider: wikiProvider,
-                        isHandleChatBotSpaceMargin: !widget.isShowAppBar,
-                      )
-                    : null,
-                body: getMainWidget()),
+              floatingActionButton: isWikiButtonEnabled
+                  ? AddWikiButtonComponent(
+                      componentId: componentId,
+                      componentInstanceId: componentInstanceId,
+                      wikiProvider: wikiProvider,
+                      isHandleChatBotSpaceMargin: !widget.isShowAppBar,
+                    )
+                  : null,
+              body: getMainWidget(),
+            ),
           );
         },
       ),
@@ -1318,9 +1322,9 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
           },
           suffixWidget: actions.isNotEmpty
               ? Row(
-            mainAxisSize: MainAxisSize.min,
-            children: actions,
-          )
+                  mainAxisSize: MainAxisSize.min,
+                  children: actions,
+                )
               : null,
         ),
       ),

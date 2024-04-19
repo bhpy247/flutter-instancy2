@@ -64,7 +64,10 @@ class _CoCreateKnowledgeScreenState extends State<CoCreateKnowledgeScreen> with 
         ),
         body: TabBarView(
           children: [
-            MyKnowledgeTab(),
+            const MyKnowledgeTab(
+              componentId: 0,
+              componentInstanceId: 0,
+            ),
             ShareKnowledgeTab(),
           ],
         ),

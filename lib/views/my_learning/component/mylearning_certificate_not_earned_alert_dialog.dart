@@ -7,9 +7,9 @@ class MyLearningCertificateNotEarnedAlertDialog extends StatelessWidget {
   final LocalStr? localStr;
 
   const MyLearningCertificateNotEarnedAlertDialog({
-    Key? key,
+    super.key,
     this.localStr,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

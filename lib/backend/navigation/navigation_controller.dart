@@ -12,6 +12,7 @@ import 'package:flutter_instancy_2/views/co_create_learning/screens/refrence_lin
 import 'package:flutter_instancy_2/views/common/screen/common_view_image_screen.dart';
 import 'package:flutter_instancy_2/views/course_details/screens/course_details_screen.dart';
 import 'package:flutter_instancy_2/views/course_launch/screens/course_offline_launch_webview_screen.dart';
+import 'package:flutter_instancy_2/views/course_launch/screens/roleplay_launch_screen.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/component/categories_search_screen.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/screens/create_edit_discussion_forum_screen.dart';
 import 'package:flutter_instancy_2/views/discussion_forum/screens/create_edit_topic_screen.dart';
@@ -236,7 +237,7 @@ class NavigationController {
           page = parseRecommendToScreen(settings: settings);
           break;
         }
-    //endregion
+      //endregion
 
       // region Course Details Module
       case CourseDetailScreen.routeName:
@@ -280,7 +281,7 @@ class NavigationController {
           page = parseAddEducationScreen(settings: settings);
           break;
         }
-    //endregion
+      //endregion
 
       //region PreRequisiteScreen
       case PrerequisiteScreen.routeName:
@@ -288,7 +289,7 @@ class NavigationController {
           page = parsePreRequisiteScreen(settings: settings);
           break;
         }
-    //endregion
+      //endregion
 
       //region Instabot
       case InstaBotScreen2.routeName:
@@ -324,7 +325,7 @@ class NavigationController {
           page = parseWebViewScreen(settings: settings);
           break;
         }
-    //endregion
+      //endregion
 
       //region Lens Feature Module
       case LensScreen.routeName:
@@ -465,7 +466,12 @@ class NavigationController {
         }
       case DocumentsScreen.routeName:
         {
-          page = parseReferenceLinkScreen(settings: settings);
+          page = parseDocumentScreen(settings: settings);
+          break;
+        }
+      case RolePlayLaunchScreen.routeName:
+        {
+          page = parseRolePlayLaunchScreen(settings: settings);
           break;
         }
     }
@@ -1121,6 +1127,17 @@ class NavigationController {
     return ReferenceLink();
   }
 
+  static Widget? parseRolePlayLaunchScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! RolePlayLaunchScreenNavigationArguments) {
+      return null;
+    }
+
+    return RolePlayLaunchScreen(
+      arguments: argument,
+    );
+  }
+
   static Widget? parseDocumentScreen({required RouteSettings settings}) {
     return DocumentsScreen();
   }
@@ -1756,6 +1773,16 @@ class NavigationController {
     MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(routeName: ReferenceLink.routeName),
+    );
+  }
+
+  static Future<dynamic> navigateToRolePlayLaunchScreen({required NavigationOperationParameters navigationOperationParameters, required RolePlayLaunchScreenNavigationArguments arguments}) {
+    MyPrint.printOnConsole("navigateToRolePlayLaunchScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: RolePlayLaunchScreen.routeName,
+        arguments: arguments,
+      ),
     );
   }
 }

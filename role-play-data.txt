@@ -1,0 +1,35 @@
+you: Hello, welcome to Ace Home Devices. How may I help you today?
+customer:  I'm angry because my appliances were not delivered on the promised delivery date! This is unacceptable!
+
+you:  I am sorry for the inconvenience sir. can you tell me your order id so that I can help you to track your order?
+customer:  I don't have the order ID with me right now. But that doesn't change the fact that the appliances were not delivered on time. I need a solution to this problem immediately!
+
+you: I can understand sir. but I will not be able to track and see what happened with your order without order id can you please tell me that?
+customer:  I understand your process, but as a customer, I expect my order to be delivered on time as promised. Can you please check with your team and see why there was a delay in the delivery? I need a proper explanation for this inconvenience.
+
+you: sure sir. If you provide me the order id I will tell ypu where is your order and give you a specific reason why it is not there yet.
+customer:  I appreciate your willingness to help, but I don't have the order ID handy. Is there any other way you can look into this issue and provide me with an update on the delivery status? I really need to know when my appliances will be delivered.
+
+you: ok sir. can you confirm that the number you are calling with is the same you used to order from the website?
+customer:  Yes, the number I am calling from is the same number I used to place the order on your website. Can you please check the status of my order with this phone number?
+
+you: ok I will track your order based on that. please wait a moment while I am looking into your order details.
+customer:  Thank you for your assistance. I appreciate your help in resolving this issue regarding the late delivery of my appliances. I look forward to hearing an update on the status of my order.
+
+you: your oder is out for delivery. As we prepare each and every item carefully after getting the order and we have so many orders in this festive season and or sale is going on that's why it got delayed by one day. I am really sorry for that. It will reach your home by an hour.
+customer:  Thank you for the update and clarification. I appreciate your explanation and quick resolution to this issue. I understand that delays can happen, especially during busy times, and I thank you for your help in ensuring that my appliances are delivered today.
+
+you: thank you sir. Is there any other thing that I can help you with?
+customer:  No, that will be all for now. Thank you for your assistance in resolving the issue with my order. Have a great day.
+
+you: thank you sir. have a nice day to you too.
+
+
+
+
+feedback: feed back:
+feedback: feed back:
+Based on the dialogue between you, the trainee, and me as the simulated angry customer, here is the feedback:
+1. You demonstrated courteous responses to the customer's anger and frustration, which is commendable. It is essential to remain polite and understanding in such situations.  2. You showed good listening skills by trying to gather all the necessary information to address the customer's issue, such as asking for the order ID and confirming the phone number.  3. You managed to bring the matter to closure rapidly by actively seeking a solution and updating the customer on the status of their order.
+Overall, you handled the simulated customer interaction well by addressing the issue effectively and providing a satisfactory resolution. Your ability to remain calm, listen to the customer, and work towards a solution was evident.
+has context menu

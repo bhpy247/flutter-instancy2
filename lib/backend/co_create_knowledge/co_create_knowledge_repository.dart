@@ -34,7 +34,7 @@ class CoCreateKnowledgeRepository {
         locale: apiUrlConfigurationProvider.getLocale(),
       ),
     );
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
 
     // DataResponseModel<List<CourseDTOModel>> apiResponseModel = await apiController.callApi<List<CourseDTOModel>>(
     //   apiCallModel: apiCallModel,

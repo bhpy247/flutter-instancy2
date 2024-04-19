@@ -39,6 +39,19 @@ class MyLearningProvider extends CommonProvider {
       ),
       notify: notify,
     );
+
+    myLearningExternalContents = CommonProviderListParameter<CourseDTOModel>(
+      list: [],
+      notify: notify,
+    );
+    myLearningExternalPaginationModel = CommonProviderPrimitiveParameter<PaginationModel>(
+      value: PaginationModel(
+        pageIndex: 1,
+        pageSize: 10,
+        refreshLimit: 3,
+      ),
+      notify: notify,
+    );
   }
 
   //region My Learning Content Models map
@@ -267,6 +280,15 @@ class MyLearningProvider extends CommonProvider {
 
   //endregion
 
+  //region My Learning External Contents
+  late final CommonProviderListParameter<CourseDTOModel> myLearningExternalContents;
+
+  int get myLearningExternalContentsLength => myLearningExternalContents.getList(isNewInstance: false).length;
+
+  late final CommonProviderPrimitiveParameter<PaginationModel> myLearningExternalPaginationModel;
+
+  //endregion
+
   //region Configurations
   late final CommonProviderPrimitiveParameter<int> pageSize;
   late final CommonProviderPrimitiveParameter<bool> filterEnabled;
@@ -306,6 +328,16 @@ class MyLearningProvider extends CommonProvider {
 
     myLearningWaitlistContents.setList(list: [], isNotify: false);
     myLearningWaitlistPaginationModel.set(
+      value: PaginationModel(
+        pageIndex: 1,
+        pageSize: 10,
+        refreshLimit: 3,
+      ),
+      isNotify: false,
+    );
+
+    myLearningExternalContents.setList(list: [], isNotify: false);
+    myLearningExternalPaginationModel.set(
       value: PaginationModel(
         pageIndex: 1,
         pageSize: 10,
