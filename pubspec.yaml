@@ -48,6 +48,7 @@ dependencies:
   lottie: ^3.1.0
   xml: ^6.5.0
   sensors_plus: ^5.0.1
+  audioplayers: ^6.0.0
   #endregion
 
   #region State Management:

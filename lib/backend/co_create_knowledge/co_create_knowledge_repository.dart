@@ -62,7 +62,7 @@ class CoCreateKnowledgeRepository {
         CourseDTOModel(
             Title: "Artificial intelligence (AI)",
             AuthorDisplayName: "Rana Pratap Jayadev DND",
-            ContentTypeId: InstancyObjectTypes.document,
+            ContentTypeId: InstancyObjectTypes.flashCard,
             MediaTypeID: InstancyMediaTypes.audio,
             ContentType: "Flashcards"),
         CourseDTOModel(

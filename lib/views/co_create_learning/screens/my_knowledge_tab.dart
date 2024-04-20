@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_bot/utils/my_print.dart';
-import 'package:flutter_chat_bot/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
+import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:flutter_instancy_2/views/common/components/instancy_ui_actions/instancy_ui_actions.dart';
@@ -126,6 +126,12 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
     int objectType = model.ContentTypeId;
 
     if (objectType == InstancyObjectTypes.flashCard) {
+      NavigationController.navigateToFlashCardScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+      );
     } else if (objectType == InstancyObjectTypes.rolePlay) {
       dynamic value = await NavigationController.navigateToRolePlayLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
@@ -137,9 +143,30 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         ),
       );
     } else if (objectType == InstancyObjectTypes.podcastEpisode) {
+      NavigationController.navigateToPodcastEpisodeScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+      );
     } else if (objectType == InstancyObjectTypes.referenceUrl) {
     } else if (objectType == InstancyObjectTypes.document) {
+      NavigationController.navigateToPDFLaunchScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: const PDFLaunchScreenNavigationArguments(
+              contntName: "Transformative Potential of Generative AI",
+              isNetworkPDF: true,
+              pdfUrl: "https://qalearning.instancy.com//content/publishfiles/d6caf328-6c9e-43b1-8ba0-eb8d4d065e66/en-us/41cea17c-728d-4c88-9cd8-1e0473fa6f21.pdf?fromNativeapp=true",),);
     } else if (objectType == InstancyObjectTypes.videos) {
+      NavigationController.navigateToVideoScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+      );
     } else if (objectType == InstancyObjectTypes.quiz) {
     } else if (objectType == InstancyObjectTypes.article) {}
   }
@@ -198,7 +225,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
                       itemBuilder: (BuildContext listContext, int index) {
                         CourseDTOModel model = list[index];
 
-                        return myKnowledgeItemWidget(
+                        return MyKnowledgeItemWidget(
                           model: model,
                           onMoreTap: () {
                             showMoreActions(model: model);

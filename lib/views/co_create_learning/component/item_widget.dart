@@ -10,12 +10,12 @@ import 'custom_icon_button.dart';
 import 'custom_image_view.dart';
 import 'image_constants.dart';
 
-class myKnowledgeItemWidget extends StatelessWidget {
+class MyKnowledgeItemWidget extends StatelessWidget {
   final Function()? onMoreTap;
   final Function()? onCardTap;
   final CourseDTOModel model;
 
-  myKnowledgeItemWidget({super.key, this.onMoreTap, required this.model, this.onCardTap});
+  MyKnowledgeItemWidget({super.key, this.onMoreTap, required this.model, this.onCardTap});
 
   final Map<int, dynamic> imageList = {
     InstancyObjectTypes.flashCard: "assets/cocreate/Card.png",

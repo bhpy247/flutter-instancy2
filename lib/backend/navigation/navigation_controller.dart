@@ -7,6 +7,11 @@ import 'package:flutter_instancy_2/views/authentication/screens/forgot_password_
 import 'package:flutter_instancy_2/views/authentication/screens/login_screen.dart';
 import 'package:flutter_instancy_2/views/authentication/screens/sign_up_screen.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/PrerequisiteScreen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/AddDocumentsScreen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/flash_card_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/podcast_episode_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/refrence_link_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/video_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/documentsScreen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/refrence_link_screen.dart';
 import 'package:flutter_instancy_2/views/common/screen/common_view_image_screen.dart';
@@ -464,9 +469,25 @@ class NavigationController {
           page = parseReferenceLinkScreen(settings: settings);
           break;
         }
-      case DocumentsScreen.routeName:
+      case AddDocumentsScreen.routeName:
         {
-          page = parseDocumentScreen(settings: settings);
+          page = parseReferenceLinkScreen(settings: settings);
+          break;
+        }
+      case VideoScreen.routeName:
+        {
+          page = parseVideoScreen(settings: settings);
+          break;
+        }
+      case PodcastEpisodeScreen.routeName:
+        {
+          page = parsePodcastEpisodeScreen(settings: settings);
+          break;
+        }
+
+      case FlashCardScreen.routeName:
+        {
+          page = parseFlashCardScreen(settings: settings);
           break;
         }
       case RolePlayLaunchScreen.routeName:
@@ -1127,6 +1148,22 @@ class NavigationController {
     return ReferenceLink();
   }
 
+  static Widget? parseDocumentScreen({required RouteSettings settings}) {
+    return AddDocumentsScreen();
+  }
+
+  static Widget? parseVideoScreen({required RouteSettings settings}) {
+    return VideoScreen();
+  }
+
+  static Widget? parsePodcastEpisodeScreen({required RouteSettings settings}) {
+    return PodcastEpisodeScreen();
+  }
+
+  static Widget? parseFlashCardScreen({required RouteSettings settings}) {
+    return FlashCardScreen();
+  }
+
   static Widget? parseRolePlayLaunchScreen({required RouteSettings settings}) {
     dynamic argument = settings.arguments;
     if (argument is! RolePlayLaunchScreenNavigationArguments) {
@@ -1136,10 +1173,6 @@ class NavigationController {
     return RolePlayLaunchScreen(
       arguments: argument,
     );
-  }
-
-  static Widget? parseDocumentScreen({required RouteSettings settings}) {
-    return DocumentsScreen();
   }
 
   //endregion
@@ -1765,7 +1798,7 @@ class NavigationController {
   static Future<dynamic> navigateToDocumentScreen({required NavigationOperationParameters navigationOperationParameters}) {
     MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
-      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: DocumentsScreen.routeName),
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: AddDocumentsScreen.routeName),
     );
   }
 
@@ -1773,6 +1806,27 @@ class NavigationController {
     MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(routeName: ReferenceLink.routeName),
+    );
+  }
+
+  static Future<dynamic> navigateToVideoScreen({required NavigationOperationParameters navigationOperationParameters}) {
+    MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: VideoScreen.routeName),
+    );
+  }
+
+  static Future<dynamic> navigateToPodcastEpisodeScreen({required NavigationOperationParameters navigationOperationParameters}) {
+    MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: PodcastEpisodeScreen.routeName),
+    );
+  }
+
+  static Future<dynamic> navigateToFlashCardScreen({required NavigationOperationParameters navigationOperationParameters}) {
+    MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: FlashCardScreen.routeName),
     );
   }
 

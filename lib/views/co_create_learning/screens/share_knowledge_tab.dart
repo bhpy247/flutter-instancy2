@@ -80,7 +80,7 @@ class _ShareKnowledgeTabState extends State<ShareKnowledgeTab> {
                         itemCount: list.length,
                         padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(bottom: 10),
                         itemBuilder: (BuildContext listContext, int index) {
-                          return myKnowledgeItemWidget(
+                          return MyKnowledgeItemWidget(
                             model: list[index],
                             // onMoreTap: (){
                             //   showPopupMenu(listContext);
