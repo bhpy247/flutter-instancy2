@@ -36,7 +36,7 @@ class _VideoScreenState extends State<VideoScreen> with MySafeState {
       allowBackgroundPlayback: false,
       mixWithOthers: false,
     );
-    Uri? uri = Uri.tryParse("https://qalearning.instancy.com//Content/PublishFiles/B536A875-3C10-43F4-BAFB-4526A0054D20/en-us/60ec988e-0106-442b-9bb8-98e68d0180f7.mp4");
+    Uri? uri = Uri.tryParse("http://qalearning.instancy.com//content/publishfiles/e4402b33-1067-4b36-a5d9-25b2e1cff6ff/en-us/cc975201-8544-45e8-a123-a7b77298e8b0.mp4?fromNativeapp=true");
     if (uri != null) {
       _videoPlayerController = VideoPlayerController.networkUrl(
         uri,
@@ -46,6 +46,12 @@ class _VideoScreenState extends State<VideoScreen> with MySafeState {
     if (_videoPlayerController != null) {
       futureInitializeVideo = getData();
     }
+  }
+
+  @override
+  void dispose() {
+    _videoPlayerController?.dispose();
+    super.dispose();
   }
 
   @override

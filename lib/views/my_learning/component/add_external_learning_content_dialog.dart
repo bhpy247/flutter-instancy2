@@ -46,8 +46,8 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
     DateTime? dateTime = await showDatePicker(
       context: context,
       initialDate: initialDate,
-      firstDate: DateTime(1957),
-      lastDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2050),
     );
 
     return dateTime;
@@ -262,12 +262,12 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
     appProvider = context.read<AppProvider>();
 
     if (widget.isPrefillData) {
-      titleController.text = "Course Title";
+      titleController.text = "The Complete 2024 Web Development Bootcamp";
       urlController.text = widget.url ?? "";
       typeController.text = "Udemy";
-      descriptionController.text = "This is a udemy course description";
+      descriptionController.text = "Become a Full-Stack Web Developer with just ONE course. HTML, CSS, Javascript, Node, React, PostgreSQL, Web3 and DApps";
       startDateTime = DateTime.now();
-      endDateTime = startDateTime!.add(const Duration(minutes: 30));
+      endDateTime = startDateTime!.add(const Duration(days: 15));
     }
 
     skillsList = <String>[

@@ -363,7 +363,7 @@ class CourseDetailsUIActionsController {
       isWishlistMode: false,
       hasRelatedContents: contentDetailsDTOModel.AddLink.startsWith("addrecommenedrelatedcontent"),
       isContentEnrolled: contentDetailsDTOModel.isContentEnrolled.toLowerCase() == "1" || contentDetailsDTOModel.isContentEnrolled.toLowerCase() == "true",
-      bit4: contentDetailsDTOModel.bit4,
+      bit4: contentDetailsDTOModel.bit4 is bool ? contentDetailsDTOModel.bit4 : false,
       eventRecording: contentDetailsDTOModel.RecordingDetails != null,
       ViewLink: contentDetailsDTOModel.ViewLink,
       AddLink: contentDetailsDTOModel.AddLink,

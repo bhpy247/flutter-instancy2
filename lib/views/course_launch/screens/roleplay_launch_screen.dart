@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/backend/app_theme/style.dart';
-import 'package:flutter_chat_bot/backend/common/app_controller.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
-import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:video_player/video_player.dart';
 
@@ -467,93 +465,19 @@ class _RolePlayLaunchScreenState extends State<RolePlayLaunchScreen> with MySafe
                   },
                   textInputAction: TextInputAction.send,
                   style: themeData.textTheme.labelMedium,
+                  minLines: 1,
+                  maxLines: 3,
                   decoration: InputDecoration(
                     hintText: "Write Your Message...",
                     hintStyle: themeData.inputDecorationTheme.hintStyle?.copyWith(
                       fontSize: themeData.textTheme.labelMedium?.fontSize,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     filled: true,
                     fillColor: Styles.greyColor,
                     border: border,
                     enabledBorder: border,
                     focusedBorder: border,
-                    prefixIcon: Container(
-                      margin: const EdgeInsets.all(10),
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(30),
-                          child: userImageUrl.isNotEmpty
-                              ? CommonCachedNetworkImage(
-                                  imageUrl: userImageUrl,
-                                  width: 35,
-                                  height: 35,
-                                  errorIconSize: 20,
-                                  shimmerIconSize: 20,
-                                )
-                              : Image.asset(
-                                  "assets/images/chatbot-chat-Icon.png",
-                                  width: 35,
-                                  height: 35,
-                                  errorBuilder: (_, __, ___) {
-                                    return Container(
-                                      width: 20,
-                                      height: 20,
-                                      color: Colors.grey[200],
-                                      child: Icon(
-                                        Icons.image_outlined,
-                                        color: Colors.grey[400],
-                                        size: 20,
-                                      ),
-                                    );
-                                  },
-                                  package: AppController.getImagePackageName(),
-                                ),
-                        ),
-                      ),
-                    ),
-                    suffixIcon: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        InkWell(onTap: () {}, child: const Icon(Icons.camera_alt_outlined)),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // _speechToText.isNotListening
-                            true
-                                ? const SizedBox()
-                                : Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                    child: SpinKitWave(color: themeData.primaryColor, size: 15, type: SpinKitWaveType.center),
-                                  ),
-                            Container(
-                              margin: const EdgeInsets.only(left: 0, right: 10),
-                              child: GestureDetector(
-                                /*onTap: isSendingMessage
-                                    ? null
-                                    : _speechToText.isNotListening
-                                        ? _startListening
-                                        : _stopListening,*/
-                                child: Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.mic,
-                                    color: themeData.textTheme.labelMedium?.color,
-                                    size: 22,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ),

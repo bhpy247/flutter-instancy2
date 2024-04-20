@@ -127,7 +127,7 @@ class _FlashCardScreenState extends State<FlashCardScreen> {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.all(20),
-        padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 30),
         decoration: BoxDecoration(color: Colors.white, border: Border.all(), borderRadius: BorderRadius.circular(10)),
         width: double.infinity,
         child: Column(
@@ -135,9 +135,9 @@ class _FlashCardScreenState extends State<FlashCardScreen> {
           children: [
             Image.asset(
               "assets/cocreate/flashCard.png",
-              height: 100,
-              width: 100,
+              width: double.maxFinite,
             ),
+            const SizedBox(height: 20),
             Text(
               text,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),

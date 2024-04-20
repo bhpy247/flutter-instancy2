@@ -21,12 +21,12 @@ class CatalogContentListComponent extends StatelessWidget {
   final Function()? onPrimaryActionTap, onMoreButtonTap;
 
   const CatalogContentListComponent({
-    Key? key,
+    super.key,
     required this.model,
     this.primaryAction,
     this.onPrimaryActionTap,
     this.onMoreButtonTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
