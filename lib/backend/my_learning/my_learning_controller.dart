@@ -547,10 +547,14 @@ class MyLearningController {
       isFirstTimeLoading: false,
       isLoading: false,
       notifier: provider.notify,
-      notify: true,
+      notify: false,
     );
 
     provider.myLearningExternalContents.setList(list: contentsList, isClear: false, isNotify: false);
+
+    if (isRefresh) {
+      checkAndAddDummyContentsInExternalLearning(isNotify: true);
+    }
     //endregion
 
     return provider.myLearningExternalContents.getList();
@@ -868,5 +872,225 @@ class MyLearningController {
     MyPrint.printOnConsole("Final response:$response", tag: tag);
 
     return response;
+  }
+
+  Future<void> checkAndAddDummyContentsInExternalLearning({bool isNotify = true}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("MyLearningController().checkAndAddDummyContentsInExternalLearning() called with isNotify:$isNotify", tag: tag);
+
+    MyLearningProvider provider = myLearningProvider;
+
+    if (provider.myLearningExternalContentsLength > 0) {
+      MyPrint.printOnConsole("Returning from MyLearningController().checkAndAddDummyContentsInExternalLearning() because data are not empty", tag: tag);
+      return;
+    }
+
+    Map<String, dynamic> contentMap = <String, dynamic>{
+      "Expired": "",
+      "ContentStatus": " <span title='Not Started' class='statusNotStarted'>Not Started</span>",
+      "ReportLink":
+          "<a class='fa viewicon' href='#' title='Delete' onclick=\"javascript:fnDelete(this,'Please confirm before deleting this content item?',3,688,'2ce73a32-0165-4266-bc7e-34a1d87e3b39',0,'Economic Developments','Delete Content');\">Delete</a>",
+      "DiscussionsLink": "",
+      "CertificateLink": "",
+      "NotesLink": "",
+      "CancelEventLink": "",
+      "DownLoadLink": "",
+      "RepurchaseLink": "",
+      "SetcompleteLink": "",
+      "ViewRecordingLink": "",
+      "InstructorCommentsLink": "",
+      "Required": 0,
+      "DownloadCalender": "",
+      "EventScheduleLink": "",
+      "EventScheduleStatus": "",
+      "EventScheduleConfirmLink": "",
+      "EventScheduleCancelLink": "",
+      "EventScheduleReserveTime": "",
+      "EventScheduleReserveStatus": "",
+      "ReScheduleEvent": "",
+      "Addorremoveattendees": "",
+      "CancelScheduleEvent": "",
+      "Sharelink": "https://qalearning.instancy.com/InviteURLID/contentId/2ce73a32-0165-4266-bc7e-34a1d87e3b39/ComponentId/1",
+      "SurveyLink": "",
+      "RemoveLink":
+          "<a id='remove_2ce73a32-0165-4266-bc7e-34a1d87e3b39' title='Delete' href=\"Javascript:fnUnassignUserContent('2ce73a32-0165-4266-bc7e-34a1d87e3b39','Are you sure you want to remove the content item?');\">Delete</a> ",
+      "RatingLink": "https://qalearning.instancy.com/MyCatalog Details/Contentid/2ce73a32-0165-4266-bc7e-34a1d87e3b39/componentid/3/componentInstanceID/3134/Muserid/1962",
+      "DurationEndDate": null,
+      "PracticeAssessmentsAction": "",
+      "CreateAssessmentAction": "",
+      "OverallProgressReportAction": "",
+      "EditLink": "",
+      "TitleName": "Economic Developments",
+      "PercentCompleted": 0.0,
+      "PercentCompletedClass": "statusNotStarted",
+      "WindowProperties": "status=no,toolbar=no,menubar=no,resizable=yes,location=no,scrollbars=yes,left=10,top=10,width=1000,height=680",
+      "CancelOrderData": "",
+      "CombinedTransaction": false,
+      "EventScheduleType": 0,
+      "TypeofEvent": 1,
+      "Duration": "",
+      "IsViewReview": true,
+      "JWVideoKey": "",
+      "Credits": "",
+      "IsArchived": false,
+      "DetailspopupTags": "",
+      "ThumbnailIconPath": null,
+      "InstanceEventEnroll": "",
+      "Modules": "",
+      "InstanceEventReSchedule": "",
+      "InstanceEventReclass": "",
+      "isEnrollFutureInstance": "",
+      "ReEnrollmentHistory": "",
+      "isBadCancellationEnabled": "true",
+      "MediaTypeID": 0,
+      "ActionViewQRcode": "",
+      "RecordingDetails": null,
+      "EnrollmentLimit": null,
+      "AvailableSeats": null,
+      "NoofUsersEnrolled": null,
+      "WaitListLimit": null,
+      "WaitListEnrolls": null,
+      "isBookingOpened": false,
+      "SubSiteMemberShipExpiried": false,
+      "ShowLearnerActions": true,
+      "SkinID": "",
+      "BackGroundColor": "#2f2d3a",
+      "FontColor": "#fff",
+      "FilterId": 0,
+      "SiteId": 374,
+      "UserSiteId": 0,
+      "SiteName": "Instancy Social Learning Network",
+      "ContentTypeId": 688,
+      "ContentID": "2ce73a32-0165-4266-bc7e-34a1d87e3b39",
+      "Title": "Economic Developments",
+      "TotalRatings": "0",
+      "RatingID": "0",
+      "ShortDescription":
+          "This course will teach you how the Economic Developments of India Works. It will describe all the factors that affects it. Also the ways by which we can increase Economic Development.",
+      "ThumbnailImagePath": "/Content/SiteFiles/Images/External Training.jpg",
+      "InstanceParentContentID": "",
+      "ImageWithLink": null,
+      "AuthorWithLink": "Richard Parker",
+      "EventStartDateTime": "",
+      "EventEndDateTime": null,
+      "EventStartDateTimeWithoutConvert": null,
+      "EventEndDateTimeTimeWithoutConvert": null,
+      "expandiconpath": null,
+      "AuthorDisplayName": "Richard Parker",
+      "ContentType": "External Training",
+      "CreatedOn": null,
+      "TimeZone": null,
+      "Tags": null,
+      "SalePrice": null,
+      "Currency": null,
+      "ViewLink": "",
+      "DetailsLink": "https://qalearning.instancy.com/MyCatalog Details/Contentid/2ce73a32-0165-4266-bc7e-34a1d87e3b39/componentid/3/componentInstanceID/3134/Muserid/1962",
+      "RelatedContentLink": "",
+      "ViewSessionsLink": "",
+      "SuggesttoConnLink": "2ce73a32-0165-4266-bc7e-34a1d87e3b39",
+      "SuggestwithFriendLink": "2ce73a32-0165-4266-bc7e-34a1d87e3b39",
+      "SharetoRecommendedLink": null,
+      "IsCoursePackage": null,
+      "IsRelatedcontent": "",
+      "isaddtomylearninglogo": null,
+      "LocationName": null,
+      "BuildingName": null,
+      "JoinURL": null,
+      "Categorycolor": "#67BD4E",
+      "InvitationURL": null,
+      "HeaderLocationName": "none",
+      "SubSiteUserID": null,
+      "PresenterDisplayName": "",
+      "PresenterWithLink": null,
+      "ShowMembershipExpiryAlert": false,
+      "AuthorName": "Richard Parker",
+      "FreePrice": null,
+      "SiteUserID": 1962,
+      "ScoID": 26746,
+      "BuyNowLink": "",
+      "bit5": false,
+      "bit4": false,
+      "OpenNewBrowserWindow": false,
+      "salepricestrikeoff": "",
+      "CreditScoreWithCreditTypes": null,
+      "CreditScoreFirstPrefix": null,
+      "EventType": 0,
+      "InstanceEventReclassStatus": "",
+      "ExpiredContentExpiryDate": "",
+      "ExpiredContentAvailableUntill": "",
+      "Gradient1": null,
+      "Gradient2": null,
+      "GradientColor": null,
+      "ShareContentwithUser": "",
+      "bit1": false,
+      "ViewType": 1,
+      "startpage": "",
+      "CategoryID": 0,
+      "AddLinkTitle": null,
+      "GoogleProductId": null,
+      "ItunesProductId": null,
+      "ContentName": "Economic Developments",
+      "FolderPath": "2CE73A32-0165-4266-BC7E-34A1D87E3B39",
+      "CloudMediaPlayerKey": "",
+      "ActivityId": "http://instancy.com/2ce73a32-0165-4266-bc7e-34a1d87e3b39",
+      "ActualStatus": "not attempted",
+      "CoreLessonStatus": " <span title='Not Started' class='statusNotStarted'>Not Started</span>",
+      "jwstartpage": "en-us/2ce73a32-0165-4266-bc7e-34a1d87e3b39.html",
+      "IsReattemptCourse": false,
+      "AttemptsLeft": 0,
+      "TotalAttempts": 0,
+      "ListPrice": null,
+      "ContentModifiedDateTime": "04/22/2024 05:27:03 AM"
+    };
+
+    List<CourseDTOModel> list = List<CourseDTOModel>.generate(4, (index) {
+      CourseDTOModel courseDTOModel = CourseDTOModel.fromMap(contentMap);
+
+      courseDTOModel.ContentID = MyUtils.getNewId();
+      courseDTOModel.UserProfileImagePath = "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg";
+
+      switch (index) {
+        case 0:
+          {
+            courseDTOModel.ContentName = "Certification in Economic Growth and development";
+            courseDTOModel.Title = courseDTOModel.ContentName;
+            courseDTOModel.TitleName = courseDTOModel.ContentName;
+            courseDTOModel.ShortDescription = "Unleash the potential of nations through economic growth and development";
+            break;
+          }
+        case 1:
+          {
+            courseDTOModel.ContentName = "Microeconomics: A Comprehensive Economics Course";
+            courseDTOModel.Title = courseDTOModel.ContentName;
+            courseDTOModel.TitleName = courseDTOModel.ContentName;
+            courseDTOModel.ShortDescription = "A Course Designed to Give You a Better Understanding of the World Around You--Perfect for University and Adult Learners!";
+            break;
+          }
+        case 2:
+          {
+            courseDTOModel.ContentName = "(Oxford) Master Diploma : Economics (Includes Macro/Micro)";
+            courseDTOModel.Title = courseDTOModel.ContentName;
+            courseDTOModel.TitleName = courseDTOModel.ContentName;
+            courseDTOModel.ShortDescription = "92 HOURS : Micro/Macro/Global/Business/Behavioural Economics";
+            break;
+          }
+        case 3:
+          {
+            courseDTOModel.ContentName = "International Economics: A Comprehensive Economics Course";
+            courseDTOModel.Title = courseDTOModel.ContentName;
+            courseDTOModel.TitleName = courseDTOModel.ContentName;
+            courseDTOModel.ShortDescription = "A Course Designed to Give You a Better Understanding International Business--Perfect for University and Adult Learners!";
+            break;
+          }
+        default:
+          {
+            break;
+          }
+      }
+
+      return courseDTOModel;
+    });
+
+    provider.myLearningExternalContents.setList(list: list, isClear: true, isNotify: isNotify);
   }
 }

@@ -85,9 +85,9 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
 
     Map<String, dynamic> contentMap = <String, dynamic>{
       "Expired": "",
-      "ContentStatus": " <span title='Not Started' class='statusComplete'>Not Started</span>",
+      "ContentStatus": " <span title='Not Started' class='statusNotStarted'>Not Started</span>",
       "ReportLink":
-          "<a class='fa viewicon' href='#' title='Delete' onclick=\"javascript:fnDelete(this,'Please confirm before deleting this content item?',3,688,'131aeefc-ba5f-4063-a1af-3e2246107595',0,'rthsrt','Delete Content');\">Delete</a>",
+          "<a class='fa viewicon' href='#' title='Delete' onclick=\"javascript:fnDelete(this,'Please confirm before deleting this content item?',3,688,'2ce73a32-0165-4266-bc7e-34a1d87e3b39',0,'Economic Developments','Delete Content');\">Delete</a>",
       "DiscussionsLink": "",
       "CertificateLink": "",
       "NotesLink": "",
@@ -108,19 +108,19 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
       "ReScheduleEvent": "",
       "Addorremoveattendees": "",
       "CancelScheduleEvent": "",
-      "Sharelink": "https://qalearning.instancy.com/InviteURLID/contentId/131aeefc-ba5f-4063-a1af-3e2246107595/ComponentId/1",
+      "Sharelink": "https://qalearning.instancy.com/InviteURLID/contentId/2ce73a32-0165-4266-bc7e-34a1d87e3b39/ComponentId/1",
       "SurveyLink": "",
       "RemoveLink":
-          "<a id='remove_131aeefc-ba5f-4063-a1af-3e2246107595' title='Delete' href=\"Javascript:fnUnassignUserContent('131aeefc-ba5f-4063-a1af-3e2246107595','Are you sure you want to remove the content item?');\">Delete</a> ",
-      "RatingLink": "https://qalearning.instancy.com/MyCatalog Details/Contentid/131aeefc-ba5f-4063-a1af-3e2246107595/componentid/3/componentInstanceID/3134/Muserid/1962",
+          "<a id='remove_2ce73a32-0165-4266-bc7e-34a1d87e3b39' title='Delete' href=\"Javascript:fnUnassignUserContent('2ce73a32-0165-4266-bc7e-34a1d87e3b39','Are you sure you want to remove the content item?');\">Delete</a> ",
+      "RatingLink": "https://qalearning.instancy.com/MyCatalog Details/Contentid/2ce73a32-0165-4266-bc7e-34a1d87e3b39/componentid/3/componentInstanceID/3134/Muserid/1962",
       "DurationEndDate": null,
       "PracticeAssessmentsAction": "",
       "CreateAssessmentAction": "",
       "OverallProgressReportAction": "",
       "EditLink": "",
-      "TitleName": "rthsrt",
+      "TitleName": "Economic Developments",
       "PercentCompleted": 0.0,
-      "PercentCompletedClass": "statusComplete",
+      "PercentCompletedClass": "statusNotStarted",
       "WindowProperties": "status=no,toolbar=no,menubar=no,resizable=yes,location=no,scrollbars=yes,left=10,top=10,width=1000,height=680",
       "CancelOrderData": "",
       "CombinedTransaction": false,
@@ -159,21 +159,22 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
       "UserSiteId": 0,
       "SiteName": "Instancy Social Learning Network",
       "ContentTypeId": 688,
-      "ContentID": "131aeefc-ba5f-4063-a1af-3e2246107595",
-      "Title": "rthsrt&nbsp;&nbsp;&nbsp;",
+      "ContentID": "2ce73a32-0165-4266-bc7e-34a1d87e3b39",
+      "Title": "Economic Developments",
       "TotalRatings": "0",
       "RatingID": "0",
-      "ShortDescription": "",
+      "ShortDescription":
+          "This course will teach you how the Economic Developments of India Works. It will describe all the factors that affects it. Also the ways by which we can increase Economic Development.",
       "ThumbnailImagePath": "/Content/SiteFiles/Images/External Training.jpg",
       "InstanceParentContentID": "",
       "ImageWithLink": null,
-      "AuthorWithLink": "Dishant Agrawal",
+      "AuthorWithLink": "Richard Parker",
       "EventStartDateTime": "",
       "EventEndDateTime": null,
       "EventStartDateTimeWithoutConvert": null,
       "EventEndDateTimeTimeWithoutConvert": null,
       "expandiconpath": null,
-      "AuthorDisplayName": "Dishant Agrawal",
+      "AuthorDisplayName": "Richard Parker",
       "ContentType": "External Training",
       "CreatedOn": null,
       "TimeZone": null,
@@ -181,11 +182,11 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
       "SalePrice": null,
       "Currency": null,
       "ViewLink": "",
-      "DetailsLink": "https://qalearning.instancy.com/MyCatalog Details/Contentid/131aeefc-ba5f-4063-a1af-3e2246107595/componentid/3/componentInstanceID/3134/Muserid/1962",
+      "DetailsLink": "https://qalearning.instancy.com/MyCatalog Details/Contentid/2ce73a32-0165-4266-bc7e-34a1d87e3b39/componentid/3/componentInstanceID/3134/Muserid/1962",
       "RelatedContentLink": "",
       "ViewSessionsLink": "",
-      "SuggesttoConnLink": "131aeefc-ba5f-4063-a1af-3e2246107595",
-      "SuggestwithFriendLink": "131aeefc-ba5f-4063-a1af-3e2246107595",
+      "SuggesttoConnLink": "2ce73a32-0165-4266-bc7e-34a1d87e3b39",
+      "SuggestwithFriendLink": "2ce73a32-0165-4266-bc7e-34a1d87e3b39",
       "SharetoRecommendedLink": null,
       "IsCoursePackage": null,
       "IsRelatedcontent": "",
@@ -203,7 +204,7 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
       "AuthorName": "Dishant Agrawal",
       "FreePrice": null,
       "SiteUserID": 1962,
-      "ScoID": 26689,
+      "ScoID": 26746,
       "BuyNowLink": "",
       "bit5": false,
       "bit4": false,
@@ -226,18 +227,18 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
       "AddLinkTitle": null,
       "GoogleProductId": null,
       "ItunesProductId": null,
-      "ContentName": "rthsrt",
-      "FolderPath": "131AEEFC-BA5F-4063-A1AF-3E2246107595",
+      "ContentName": "Economic Developments",
+      "FolderPath": "2CE73A32-0165-4266-BC7E-34A1D87E3B39",
       "CloudMediaPlayerKey": "",
-      "ActivityId": "http://instancy.com/131aeefc-ba5f-4063-a1af-3e2246107595",
-      "ActualStatus": "completed",
-      "CoreLessonStatus": " <span title='Not Started' class='statusComplete'>Not Started</span>",
-      "jwstartpage": "en-us/131aeefc-ba5f-4063-a1af-3e2246107595.html",
+      "ActivityId": "http://instancy.com/2ce73a32-0165-4266-bc7e-34a1d87e3b39",
+      "ActualStatus": "not attempted",
+      "CoreLessonStatus": " <span title='Not Started' class='statusNotStarted'>Not Started</span>",
+      "jwstartpage": "en-us/2ce73a32-0165-4266-bc7e-34a1d87e3b39.html",
       "IsReattemptCourse": false,
       "AttemptsLeft": 0,
       "TotalAttempts": 0,
       "ListPrice": null,
-      "ContentModifiedDateTime": "04/16/2024 02:38:39 PM"
+      "ContentModifiedDateTime": "04/22/2024 05:27:03 AM"
     };
 
     CourseDTOModel courseDTOModel = CourseDTOModel.fromMap(contentMap);
@@ -247,6 +248,7 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
     courseDTOModel.Title = titleController.text;
     courseDTOModel.JoinURL = urlController.text;
     courseDTOModel.ShortDescription = descriptionController.text;
+    courseDTOModel.UserProfileImagePath = "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg";
 
     String dateFormat = appProvider.appSystemConfigurationModel.eventDateTimeFormat;
     courseDTOModel.EventStartDateTime = DatePresentation.getFormattedDate(dateFormat: dateFormat, dateTime: startDateTime) ?? "";

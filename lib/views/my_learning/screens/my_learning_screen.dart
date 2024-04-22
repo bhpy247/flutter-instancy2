@@ -101,6 +101,8 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
       myLearningProvider.setMyLearningSearchString(value: widget.arguments.searchString);
     }
 
+    myLearningController.checkAndAddDummyContentsInExternalLearning(isNotify: false);
+
     appProvider = Provider.of<AppProvider>(context, listen: false);
     if (widget.arguments.isShowAppbar) {
       appBarTitle = appProvider.getMenuModelFromComponentId(componentId: InstancyComponents.PeopleList)?.displayname;

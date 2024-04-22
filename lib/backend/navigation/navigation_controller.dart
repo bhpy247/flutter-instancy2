@@ -8,6 +8,7 @@ import 'package:flutter_instancy_2/views/authentication/screens/login_screen.dar
 import 'package:flutter_instancy_2/views/authentication/screens/sign_up_screen.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/PrerequisiteScreen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/AddDocumentsScreen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/article_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/flash_card_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/podcast_episode_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/quiz_screen.dart';
@@ -492,6 +493,11 @@ class NavigationController {
       case RolePlayLaunchScreen.routeName:
         {
           page = parseRolePlayLaunchScreen(settings: settings);
+          break;
+        }
+      case ArticleScreen.routeName:
+        {
+          page = parseArticleScreen(settings: settings);
           break;
         }
       case QuizScreen.routeName:
@@ -1179,6 +1185,15 @@ class NavigationController {
     );
   }
 
+  static Widget? parseArticleScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! ArticleScreenNavigationArguments) {
+      return null;
+    }
+
+    return ArticleScreen(arguments: argument);
+  }
+
   static Widget? parseQuizScreen({required RouteSettings settings}) {
     return const QuizScreen();
   }
@@ -1843,6 +1858,16 @@ class NavigationController {
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: RolePlayLaunchScreen.routeName,
+        arguments: arguments,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToArticleScreen({required NavigationOperationParameters navigationOperationParameters, required ArticleScreenNavigationArguments arguments}) {
+    MyPrint.printOnConsole("navigateToArticleScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: ArticleScreen.routeName,
         arguments: arguments,
       ),
     );

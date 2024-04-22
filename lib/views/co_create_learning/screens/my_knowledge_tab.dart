@@ -51,14 +51,14 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       if (![InstancyObjectTypes.events].contains(model.ContentTypeId))
         InstancyUIActionModel(
           text: "View",
-        actionsEnum: InstancyContentActionsEnum.View,
-        onTap: () {
-          Navigator.pop(context);
+          actionsEnum: InstancyContentActionsEnum.View,
+          onTap: () {
+            Navigator.pop(context);
 
-          onViewTap(model: model);
-        },
-        iconData: InstancyIcons.view,
-      ),
+            onViewTap(model: model);
+          },
+          iconData: InstancyIcons.view,
+        ),
       InstancyUIActionModel(
         text: "Details",
         actionsEnum: InstancyContentActionsEnum.Details,
@@ -164,14 +164,16 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       );
     } else if (objectType == InstancyObjectTypes.document) {
       NavigationController.navigateToPDFLaunchScreen(
-          navigationOperationParameters: NavigationOperationParameters(
-            context: context,
-            navigationType: NavigationType.pushNamed,
-          ),
-          arguments: const PDFLaunchScreenNavigationArguments(
-              contntName: "Transformative Potential of Generative AI",
-              isNetworkPDF: true,
-              pdfUrl: "https://qalearning.instancy.com//content/publishfiles/d6caf328-6c9e-43b1-8ba0-eb8d4d065e66/en-us/41cea17c-728d-4c88-9cd8-1e0473fa6f21.pdf?fromNativeapp=true",),);
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: const PDFLaunchScreenNavigationArguments(
+          contntName: "Transformative Potential of Generative AI",
+          isNetworkPDF: true,
+          pdfUrl: "https://qalearning.instancy.com//content/publishfiles/d6caf328-6c9e-43b1-8ba0-eb8d4d065e66/en-us/41cea17c-728d-4c88-9cd8-1e0473fa6f21.pdf?fromNativeapp=true",
+        ),
+      );
     } else if (objectType == InstancyObjectTypes.videos) {
       NavigationController.navigateToVideoScreen(
         navigationOperationParameters: NavigationOperationParameters(
@@ -187,13 +189,17 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         ),
       );
     } else if (objectType == InstancyObjectTypes.article) {
-      NavigationController.navigateToWebViewScreen(
+      NavigationController.navigateToArticleScreen(
+        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+        arguments: ArticleScreenNavigationArguments(courseDTOModel: model),
+      );
+      /*NavigationController.navigateToWebViewScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         arguments: WebViewScreenNavigationArguments(
           title: model.Title,
           url: "https://enterprisedemo.instancy.com/content/publishfiles/1539fc5c-7bde-4d82-a0f6-9612f9e6c426/ins_content.html?fromNativeapp=true",
         ),
-      );
+      );*/
     }
   }
 
@@ -672,10 +678,10 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
     CourseDTOModel? courseDTOModel = CourseDTOModel.fromMap(map);
 
     courseDTOModel.ContentID = MyUtils.getNewId();
-    courseDTOModel.AuthorName = "Pradeep Reddy";
-    courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
+    courseDTOModel.AuthorName = "Richard Parker";
+    courseDTOModel.AuthorDisplayName = "Richard Parker";
     courseDTOModel.ThumbnailImagePath = "Content/SiteFiles/Images/assignment-thumbnail.png";
-    courseDTOModel.UserProfileImagePath = "Content/SiteFiles//374/ProfileImages/0.gif";
+    courseDTOModel.UserProfileImagePath = "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg";
 
     if (objectType == InstancyObjectTypes.flashCard) {
       MyPrint.printOnConsole("in flsh Card");

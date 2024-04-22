@@ -445,6 +445,25 @@ class RolePlayLaunchScreenNavigationArguments extends NavigationArguments {
   }
 }
 
+class ArticleScreenNavigationArguments extends NavigationArguments {
+  final CourseDTOModel? courseDTOModel;
+
+  const ArticleScreenNavigationArguments({
+    this.courseDTOModel,
+  });
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      "courseDTOModel": courseDTOModel?.toMap(),
+    };
+  }
+
+  @override
+  String toString() {
+    return MyUtils.encodeJson(toMap());
+  }
+}
+
 class WebViewScreenNavigationArguments extends NavigationArguments {
   final String title;
   final String url;
