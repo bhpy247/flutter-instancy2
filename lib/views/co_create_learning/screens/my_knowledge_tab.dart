@@ -11,13 +11,13 @@ import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/catalog/components/catalogContentListComponent.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
+import 'package:flutter_instancy_2/views/common/components/common_text_form_field.dart';
 import 'package:flutter_instancy_2/views/common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import '../component/add_content_dialog.dart';
-import '../component/custom_search_view.dart';
 import '../component/size_utils.dart';
 
 class MyKnowledgeTab extends StatefulWidget {
@@ -248,10 +248,13 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
             builder: (context, CoCreateKnowledgeProvider provider, _) {
               return Column(
                 children: [
-                  Padding(
+                  /*Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0).copyWith(top: 15, bottom: 10),
-                    child: CustomSearchView(),
-                  ),
+                    child: const CustomSearchView(),
+                  ),*/
+                  const SizedBox(height: 10),
+                  getSearchTextFormField(),
+                  const SizedBox(height: 5),
                   Expanded(
                     child: getCoursesListView(),
                   ),
@@ -261,6 +264,74 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           ),
         );
       },
+    );
+  }
+
+  Widget getSearchTextFormField() {
+    int selectedFiltersCount = 0;
+
+    Widget filterSuffixIcon = Stack(
+      children: [
+        Container(
+          margin: selectedFiltersCount > 0 ? const EdgeInsets.only(top: 5, right: 5) : null,
+          child: InkWell(
+            onTap: () async {
+              // navigateToFilterScreen();
+            },
+            child: const Icon(
+              Icons.tune,
+            ),
+          ),
+        ),
+        if (selectedFiltersCount > 0)
+          Positioned(
+            right: 0,
+            top: 0,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: themeData.primaryColor,
+              ),
+              child: Text(
+                selectedFiltersCount.toString(),
+                style: themeData.textTheme.labelSmall?.copyWith(
+                  color: themeData.colorScheme.onPrimary,
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+
+    List<Widget> actions = <Widget>[];
+    // if (filterSuffixIcon != null) actions.add(filterSuffixIcon);
+    actions.add(filterSuffixIcon);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: SizedBox(
+        height: 40,
+        child: CommonTextFormField(
+          borderRadius: 50,
+          boxConstraints: const BoxConstraints(minWidth: 55),
+          prefixWidget: const Icon(Icons.search),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+          hintText: "Search",
+          isOutlineInputBorder: true,
+          onChanged: (String text) {
+            mySetState();
+          },
+          suffixWidget: actions.isNotEmpty
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: actions,
+                )
+              : null,
+        ),
+      ),
     );
   }
 
