@@ -179,8 +179,14 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           navigationType: NavigationType.pushNamed,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.quiz) {}
-    else if (objectType == InstancyObjectTypes.article) {
+    } else if (objectType == InstancyObjectTypes.quiz) {
+      NavigationController.navigateToQuizScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.article) {
       NavigationController.navigateToWebViewScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         arguments: WebViewScreenNavigationArguments(

@@ -10,10 +10,9 @@ import 'package:flutter_instancy_2/views/catalog/screens/PrerequisiteScreen.dart
 import 'package:flutter_instancy_2/views/co_create_learning/screens/AddDocumentsScreen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/flash_card_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/podcast_episode_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/quiz_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/refrence_link_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/video_screen.dart';
-import 'package:flutter_instancy_2/views/co_create_learning/screens/documentsScreen.dart';
-import 'package:flutter_instancy_2/views/co_create_learning/screens/refrence_link_screen.dart';
 import 'package:flutter_instancy_2/views/common/screen/common_view_image_screen.dart';
 import 'package:flutter_instancy_2/views/course_details/screens/course_details_screen.dart';
 import 'package:flutter_instancy_2/views/course_launch/screens/course_offline_launch_webview_screen.dart';
@@ -493,6 +492,11 @@ class NavigationController {
       case RolePlayLaunchScreen.routeName:
         {
           page = parseRolePlayLaunchScreen(settings: settings);
+          break;
+        }
+      case QuizScreen.routeName:
+        {
+          page = parseQuizScreen(settings: settings);
           break;
         }
     }
@@ -1145,23 +1149,23 @@ class NavigationController {
   //region Co-Create Knowledge
 
   static Widget? parseReferenceLinkScreen({required RouteSettings settings}) {
-    return ReferenceLink();
+    return const ReferenceLink();
   }
 
   static Widget? parseDocumentScreen({required RouteSettings settings}) {
-    return AddDocumentsScreen();
+    return const AddDocumentsScreen();
   }
 
   static Widget? parseVideoScreen({required RouteSettings settings}) {
-    return VideoScreen();
+    return const VideoScreen();
   }
 
   static Widget? parsePodcastEpisodeScreen({required RouteSettings settings}) {
-    return PodcastEpisodeScreen();
+    return const PodcastEpisodeScreen();
   }
 
   static Widget? parseFlashCardScreen({required RouteSettings settings}) {
-    return FlashCardScreen();
+    return const FlashCardScreen();
   }
 
   static Widget? parseRolePlayLaunchScreen({required RouteSettings settings}) {
@@ -1173,6 +1177,10 @@ class NavigationController {
     return RolePlayLaunchScreen(
       arguments: argument,
     );
+  }
+
+  static Widget? parseQuizScreen({required RouteSettings settings}) {
+    return const QuizScreen();
   }
 
   //endregion
@@ -1836,6 +1844,15 @@ class NavigationController {
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: RolePlayLaunchScreen.routeName,
         arguments: arguments,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToQuizScreen({required NavigationOperationParameters navigationOperationParameters}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: QuizScreen.routeName,
       ),
     );
   }
