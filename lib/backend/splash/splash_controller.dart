@@ -785,11 +785,11 @@ class SplashController {
         menuid: 1002,
         menuIconData: material.Icons.person,
       ),
-      NativeMenuModel(
+      /*NativeMenuModel(
         displayname: "Co-Create Knowledge",
         menuid: 1003,
         menuIconData: material.Icons.person,
-      ),
+      ),*/
     ];
     appProvider.setMenuModelsList(list: data, isNotify: false, isClear: false);
 
