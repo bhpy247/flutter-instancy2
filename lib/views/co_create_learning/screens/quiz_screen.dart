@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_bot/utils/mmy_toast.dart';
-import 'package:flutter_chat_bot/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/quiz_summary_widget.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 
@@ -99,6 +99,8 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
   }
 
   Widget getSingleItemWidget(QuizModel model, int index) {
+    bool isForwardNavigationEnabled = model.isAnswerGiven;
+
     return Container(
       margin: const EdgeInsets.all(10),
       child: Column(
@@ -114,7 +116,7 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
                   ),
                 ),
               ),
-              const Icon(Icons.more_vert)
+              // const Icon(Icons.more_vert)
             ],
           ),
           const SizedBox(
@@ -149,7 +151,7 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
                 ),
                 InkWell(
                   onTap: () {
-                    if (!model.isAnswerGiven) {
+                    if (!isForwardNavigationEnabled) {
                       MyToast.showError(context: context, msg: "Please submit answer");
                       return;
                     }
@@ -161,7 +163,12 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
                       mySetState();
                     }
                   },
-                  child: const Text("Next"),
+                  child: Text(
+                    "Next",
+                    style: TextStyle(
+                      color: isForwardNavigationEnabled ? null : Colors.grey,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -178,9 +185,10 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
                         mySetState();
                       }
                     : null,
-                text: "Save",
+                text: "Submit",
                 fontColor: Colors.white,
                 backGroundColor: model.selectedAnswer.checkNotEmpty ? null : Colors.grey[400],
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
               ),
             ],
           ),
@@ -237,6 +245,8 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
       shrinkWrap: true,
       itemCount: answerList.length,
       itemBuilder: (BuildContext context, int index) {
+        bool isSelected = model.selectedAnswer == answerList[index];
+
         return InkWell(
           onTap: model.isAnswerGiven
               ? null
@@ -251,12 +261,15 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5),
               border: Border.all(
-                color: model.selectedAnswer == answerList[index] ? Colors.green : const Color(0xffDCDCDC),
+                color: isSelected ? themeData.primaryColor : const Color(0xffDCDCDC),
               ),
             ),
             child: Text(
               answerList[index],
-              style: const TextStyle(fontSize: 14, color: Colors.black54),
+              style: TextStyle(
+                fontSize: 14,
+                color: isSelected ? themeData.primaryColor : Colors.black54,
+              ),
             ),
           ),
         );
