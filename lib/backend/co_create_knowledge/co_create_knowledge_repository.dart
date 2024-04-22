@@ -182,6 +182,19 @@ class CoCreateKnowledgeRepository {
           ShortDescription:
               "Dive into the world of Artificial Intelligence (AI) with this comprehensive program. Explore key concepts, algorithms, and applications to develop the skills needed for success in this dynamic field.",
         ),
+        CourseDTOModel(
+          Title: "Certification in Economic Growth and development",
+          TitleName: "Certification in Economic Growth and development",
+          ContentName: "Certification in Economic Growth and development",
+          AuthorName: "Richard Parker",
+          AuthorDisplayName: "Richard Parker",
+          UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
+          ContentTypeId: InstancyObjectTypes.events,
+          MediaTypeID: InstancyMediaTypes.none,
+          ContentType: "Events",
+          ThumbnailImagePath: "/Content/SiteFiles/Images/Event.jpg",
+          ShortDescription: "Unleash the potential of nations through economic growth and development",
+        ),
       ],
     );
 
