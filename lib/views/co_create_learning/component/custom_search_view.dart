@@ -6,32 +6,30 @@ import 'custom_image_view.dart';
 import 'image_constants.dart';
 
 class CustomSearchView extends StatelessWidget {
-  CustomSearchView(
-      {Key? key,
-      this.alignment,
-      this.width,
-      this.scrollPadding,
-      this.controller,
-      this.focusNode,
-      this.autofocus = false,
-      this.textStyle,
-      this.textInputType = TextInputType.text,
-      this.maxLines,
-      this.hintText,
-      this.hintStyle,
-      this.prefix,
-      this.prefixConstraints,
-      this.suffix,
-      this.suffixConstraints,
-      this.contentPadding,
-      this.borderDecoration,
-      this.fillColor,
-      this.filled = true,
-      this.validator,
-      this.onChanged})
-      : super(
-          key: key,
-        );
+  const CustomSearchView({
+    super.key,
+    this.alignment,
+    this.width,
+    this.scrollPadding,
+    this.controller,
+    this.focusNode,
+    this.autofocus = false,
+    this.textStyle,
+    this.textInputType = TextInputType.text,
+    this.maxLines,
+    this.hintText,
+    this.hintStyle,
+    this.prefix,
+    this.prefixConstraints,
+    this.suffix,
+    this.suffixConstraints,
+    this.contentPadding,
+    this.borderDecoration,
+    this.fillColor,
+    this.filled = true,
+    this.validator,
+    this.onChanged,
+  });
 
   final Alignment? alignment;
 
