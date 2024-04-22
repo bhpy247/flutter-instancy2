@@ -346,7 +346,7 @@ class PopUpDialog extends StatefulWidget {
 
 class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
   final List<KnowledgeTypeModel> knowledgeTypeList = [
-    KnowledgeTypeModel(name: "Flashcard", iconUrl: "assets/cocreate/Card.png", objectTypeId: InstancyObjectTypes.flashCard),
+    KnowledgeTypeModel(name: "Flashcards", iconUrl: "assets/cocreate/Card.png", objectTypeId: InstancyObjectTypes.flashCard),
     KnowledgeTypeModel(name: "Quiz", iconUrl: "assets/cocreate/Chat Question.png", objectTypeId: InstancyObjectTypes.quiz),
     KnowledgeTypeModel(name: "Podcast Episode", iconUrl: "assets/cocreate/Vector-4.png", objectTypeId: InstancyObjectTypes.podcastEpisode),
     KnowledgeTypeModel(name: "Article", iconUrl: "assets/cocreate/Vector-2.png", objectTypeId: InstancyObjectTypes.article),
@@ -689,7 +689,7 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       courseDTOModel.TitleName = "Flash Card Title";
       courseDTOModel.Title = courseDTOModel.TitleName;
       courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      courseDTOModel.ContentType = "Flash Card";
+      courseDTOModel.ContentType = "Flashcards";
       courseDTOModel.ContentTypeId = InstancyObjectTypes.flashCard;
       courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
     } else if (objectType == InstancyObjectTypes.rolePlay) {
