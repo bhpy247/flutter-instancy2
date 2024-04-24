@@ -31,7 +31,7 @@ class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> {
 
     // Start the player as soon as the app is displayed.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await player.setSourceUrl("https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3");
+      await player.setSourceAsset("audio/audio.mp3");
       await player.resume();
     });
   }
@@ -67,19 +67,15 @@ class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> {
                     )
                   ],
                 ),
-                Text("""
-[Opening Music]
-Host: Hello and welcome to another episode of our podcast! Today is Friday, April 19, 2024, and it's 4:34 PM. We have an exciting show lined up for you today, so let's get started.
+                Text(
+                  """
+Nigel:
 
-[Intro Music]
-Host: Welcome back to our podcast! Today we are going to talk about the latest trends in the world of technology. Our first topic of discussion is the advancements in Artificial Intelligence (AI) and its impact on various industries.
+Glad to see things are going well and business is starting to pick up. Andrea told me about your outstanding numbers on Tuesday. Keep up the good work. Now to other business, I am going to suggest a payment schedule for the outstanding monies that is due. One, can you pay the balance of the license agreement as soon as possible? Two, I suggest we setup or you suggest, what you can pay on the back royalties, would you feel comfortable with paying every two weeks? Every month, I will like to catch up and maintain current royalties. So, if we can start the current royalties and maintain them every two weeks as all stores are required to do, I would appreciate it. Let me know if this works for you.
 
-[Background Music]
-Host: AI has been a game-changer in many sectors, including healthcare, finance, and education. It has enabled businesses to automate their processes, improve efficiency, and reduce costs. For instance, AI-powered chatbots are being used to handle customer queries, and AI-powered algorithms are being used to diagnose diseases in the medical field.
-
-[Background Music]
-Host: Our next topic is the rise of virtual reality (VR) and augmented reality (AR) technology. VR and AR are becoming increasingly popular in the gaming industry, but they are also being used in other sectors such as education, healthcare, and real estate. VR and AR are being used to create immersive experiences, train employees, and provide remote assistance.
-                """)
+Thanks.
+ """,
+                )
               ],
             ),
           ),
