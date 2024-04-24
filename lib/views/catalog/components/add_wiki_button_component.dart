@@ -193,14 +193,16 @@ class _AddWikiButtonComponentState extends State<AddWikiButtonComponent> with My
                   icon: Icons.add,
                   activeIcon: Icons.close,
                   spacing: 3,
+                  overlayColor: Colors.black,
+                  overlayOpacity: .6,
                   mini: false,
                   openCloseDial: isDialOpen,
                   childPadding: const EdgeInsets.all(5),
-                  spaceBetweenChildren: 4,
+                  spaceBetweenChildren: 2,
                   buttonSize: const Size(56.0, 56.0),
                   // it's the SpeedDial size which defaults to 56 itself
                   /// The below button size defaults to 56 itself, its the SpeedDial childrens size
-                  childrenButtonSize: const Size(70, 70),
+                  childrenButtonSize: const Size(50, 50),
                   visible: true,
                   direction: SpeedDialDirection.up,
                   switchLabelPosition: false,
@@ -209,7 +211,7 @@ class _AddWikiButtonComponentState extends State<AddWikiButtonComponent> with My
                   closeManually: false,
 
                   /// If false, backgroundOverlay will not be rendered.
-                  renderOverlay: false,
+                  renderOverlay: true,
                   onOpen: () {
                     debugPrint('OPENING DIAL');
                     // setState(() {});
@@ -220,7 +222,6 @@ class _AddWikiButtonComponentState extends State<AddWikiButtonComponent> with My
                   },
                   useRotationAnimation: true,
                   tooltip: 'Open Speed Dial',
-                  // heroTag: 'speed-dial-hero-tag',
                   elevation: 1.0,
                   animationCurve: Curves.easeIn,
                   isOpenOnStart: false,
@@ -267,20 +268,10 @@ class _AddWikiButtonComponentState extends State<AddWikiButtonComponent> with My
     required int mediaTypeID,
   }) {
     return SpeedDialChild(
-      child: iconData == null
-          ? Image.asset(
-              assetIconPath,
-              height: 18,
-              width: 18,
-              color: themeData.primaryColor,
-            )
-          : const Icon(Icons.accessibility),
-      foregroundColor: themeData.primaryColor,
-      backgroundColor: themeData.colorScheme.background.withOpacity(0.8),
-      label: null,
-      elevation: 2,
-      onTap: () {
+      onTap: () async {
         MyPrint.printOnConsole(mediaTypeID);
+
+        await Future.delayed(const Duration(milliseconds: 200));
 
         clickOnWikiUploadAction(
           title: title,
@@ -288,7 +279,18 @@ class _AddWikiButtonComponentState extends State<AddWikiButtonComponent> with My
           mediaTypeId: mediaTypeID,
         );
       },
-      onLongPress: () => debugPrint('FIRST CHILD LONG PRESS'),
+      label: title,
+      labelStyle: TextStyle(color: themeData.colorScheme.onPrimary),
+      labelBackgroundColor: themeData.primaryColor,
+      backgroundColor: themeData.colorScheme.onPrimary,
+      elevation: 0,
+      labelShadow: [],
+      child: Image.asset(
+        assetIconPath,
+        height: 20,
+        width: 20,
+        color: themeData.primaryColor,
+      ),
     );
   }
 }

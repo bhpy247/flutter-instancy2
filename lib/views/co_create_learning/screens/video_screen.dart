@@ -36,7 +36,8 @@ class _VideoScreenState extends State<VideoScreen> with MySafeState {
       allowBackgroundPlayback: false,
       mixWithOthers: false,
     );
-    Uri? uri = Uri.tryParse("http://qalearning.instancy.com//content/publishfiles/e4402b33-1067-4b36-a5d9-25b2e1cff6ff/en-us/cc975201-8544-45e8-a123-a7b77298e8b0.mp4?fromNativeapp=true");
+    Uri? uri = Uri.tryParse(
+        "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fvideos%2FAI%20agents%20memory%20and%20Personalize%20learning.mp4?alt=media&token=84ba039a-fc26-4868-9e3e-070197764d68");
     if (uri != null) {
       _videoPlayerController = VideoPlayerController.networkUrl(
         uri,
@@ -71,7 +72,7 @@ class _VideoScreenState extends State<VideoScreen> with MySafeState {
 
   PreferredSizeWidget getAppBar() {
     return AppConfigurations().commonAppBar(
-      title: "Mastering Communication",
+      title: "AI agents memory and Personalize learning",
     );
   }
 
@@ -141,22 +142,63 @@ class _VideoScreenState extends State<VideoScreen> with MySafeState {
                     ],
                   ),
                 ),
-                Padding(
+                const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.0),
                   child: Text(
                     """
-               
-Host: "Hello and welcome to today's video! In the next three minutes, we'll be discussing how to transcribe a video to text. Let's get started.
+0:00
+Enhancing corporate Learning with AI Agents and LLM featuring large memory, AI agents and large language model applications are revolutionizing learning and skill development by leveraging advanced AI capabilities.
 
-(00:04-00:12)
-Host: "Transcribing a video to text can be a time-consuming process, but with the right tools and services, it can be done efficiently and accurately."
+0:14
+These technologies enhance personalized learning experiences by remembering and processing vast amounts of information over extended periods.
 
-00:13-00:25)
-Host: "Whether you're using a human-powered transcription service like Rev1
-or an AI-powered tool, it's essential to choose the right service for your needs."
+0:22
+Here are the top five benefits of long memory in AI agents and LL, and applications for learning and skill development.
 
-(00:26-00:40)
-Host: "Additional features like timestamping, verbatim transcription, and instant first draft can help you customize the transcript to your needs.""",
+0:30
+Number one, personalized learning experiences.
+
+0:33
+Long memory allows AI systems to remember individual learners, progress, preferences, and past interactions.
+
+0:41
+This capability enables AI to tailor educational content to match each user's learning pace and style, providing a highly customized learning journey that addresses specific needs and accelerates skill acquisition #2 Consistent learning support.
+
+0:58
+AI with long term memory can be a consistent learning companion.
+
+1:02
+It retains information about a learner's long term development path, including past achievements and areas of difficulty, ensuring that the learning process is continuous and builds on previous knowledge without unnecessary repetition #3 Adaptive learning paths.
+
+1:19
+With access to historical learning data, AI can adapt the learning path dynamically.
+
+1:24
+It assesses the effectiveness of past learning activities and modifies upcoming sessions to meet the learner's goals better.
+
+1:31
+This adaptive approach helps in closing skill gaps more efficiently and effectively #4 proactive performance support.
+
+1:39
+AI agents can proactively offer assistance by predicting when a learner might struggle or need reinforcement based on past performance patterns.
+
+1:48
+This timely intervention helps reinforce learning at critical moments, potentially improving the retention and application of knowledge #5 enhanced assessment and feedback.
+
+1:59
+Long memory enables AI to provide more accurate assessments and constructive feedback by analyzing A learner's progress trajectory over time.
+
+2:09
+This long term perspective allows for a more nuanced understanding of a learner's development, enabling better alignment of feedback and recommendations with the learner specific context and history.
+
+2:21
+These benefits demonstrate how AI with long memory significantly enhances the learning and skill development process, making it more personalized, supportive, and responsive to individual learner needs.
+
+2:34
+Instancy offers a comprehensive learning ecosystem featuring a generative AI and AI agents platform seamlessly integrated with a learning management system, content management, web and mobile learning experiences, and robust data analytics.
+
+2:50
+Connect with us to elevate your learning journey.""",
                     textAlign: TextAlign.justify,
                   ),
                 )

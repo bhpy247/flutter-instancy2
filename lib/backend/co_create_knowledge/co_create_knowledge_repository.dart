@@ -68,9 +68,9 @@ class CoCreateKnowledgeRepository {
           ShortDescription: "Uncover the revolutionary capabilities of Generative AI, poised to reshape industries and creative expression with its innovative potential.",
         ),
         CourseDTOModel(
-          Title: "Mastering Communication: Essential Skills for Success",
-          TitleName: "Mastering Communication: Essential Skills for Success",
-          ContentName: "Mastering Communication: Essential Skills for Success",
+          Title: "AI agents memory and Personalize learning",
+          TitleName: "AI agents memory and Personalize learning",
+          ContentName: "AI agents memory and Personalize learning",
           AuthorName: "Richard Parker",
           AuthorDisplayName: "Richard Parker",
           UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
@@ -79,7 +79,8 @@ class CoCreateKnowledgeRepository {
           ContentType: "Video",
           ThumbnailImagePath:
               "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FMastering%20Communication%20(1).jpg?alt=media&token=a5031b2e-2f73-4270-b710-6373ede36b4e",
-          ShortDescription: "Unlock the vital keys to success through honing essential communication skills, indispensable in navigating personal and professional landscapes.",
+          ShortDescription:
+              "Unlock the power of AI agents in personalized learning! This course explores the intricacies of memory systems in AI, guiding you through techniques to tailor learning experiences for individual students. Learn how AI agents adapt content delivery based on learner preferences, track progress, and create personalized pathways. Perfect for educators, AI enthusiasts, and developers looking to revolutionize education with AI.",
         ),
         CourseDTOModel(
           Title: "Artificial intelligence (AI)",
@@ -194,6 +195,12 @@ class CoCreateKnowledgeRepository {
           ContentType: "Events",
           ThumbnailImagePath: "/Content/SiteFiles/Images/Event.jpg",
           ShortDescription: "Unleash the potential of nations through economic growth and development",
+          EventStartDateTime: "30 May 2024",
+          EventStartDateTimeWithoutConvert: "05/30/2024 05:30:00 PM",
+          EventEndDateTime: "30 May 2024",
+          EventEndDateTimeTimeWithoutConvert: "05/30/2024 06:00:00 PM",
+          Duration: "30 Minutes",
+          AvailableSeats: "10",
         ),
       ],
     );

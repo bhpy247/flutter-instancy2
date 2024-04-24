@@ -385,6 +385,40 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
 
   //region searchTextFormField
   Widget getSearchTextFormField() {
+    List<Widget> actions = <Widget>[];
+
+    if (searchController.text.isNotEmpty) {
+      actions.add(IconButton(
+        onPressed: () async {
+          searchController.clear();
+          mySetState();
+        },
+        icon: const Icon(
+          Icons.close,
+        ),
+      ));
+    }
+
+    Widget cameraSuffixIcon = InkWell(
+      onTap: () {
+        NavigationController.navigateToLensScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: LensScreenNavigationArguments(
+            componentId: componentId,
+            componentInsId: componentInstanceId,
+          ),
+        );
+      },
+      child: const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 14),
+        child: Icon(Icons.camera_alt_outlined),
+      ),
+    );
+    actions.add(cameraSuffixIcon);
+
     return CommonTextFormField(
       controller: searchController,
       onChanged: (String text) {
@@ -396,21 +430,14 @@ class _CatalogCategoriesListScreenState extends State<CatalogCategoriesListScree
       hintText: "Search",
       textInputAction: TextInputAction.search,
       prefixWidget: const Icon(Icons.search),
-      suffixWidget: searchController.text.isNotEmpty
-          ? IconButton(
-              onPressed: () async {
-                searchController.clear();
-                mySetState();
-              },
-              icon: const Icon(
-                Icons.close,
-              ),
+      suffixWidget: actions.isNotEmpty
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: actions,
             )
           : null,
     );
   }
 
-  //endregion
+//endregion
 }
-
-

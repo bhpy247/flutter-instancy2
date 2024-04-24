@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/discussion/discussion_provider.dart';
 import 'package:flutter_instancy_2/backend/gamification/gamification_provider.dart';
 import 'package:flutter_instancy_2/backend/global_search/global_search_provider.dart';
@@ -293,13 +294,13 @@ class CourseDetailScreenNavigationArguments extends NavigationArguments {
       this.isFromCatalog = false,
       this.isConsolidated = false,
       this.isRescheduleEvent = false,
-    this.isReEnroll = false,
-    this.screenType = InstancyContentScreenType.Catalog,
-    this.myLearningProvider,
-    this.catalogProvider,
-    this.apiController,
-    this.siteId,
-    this.courseDtoModel});
+      this.isReEnroll = false,
+      this.screenType = InstancyContentScreenType.Catalog,
+      this.myLearningProvider,
+      this.catalogProvider,
+      this.apiController,
+      this.siteId,
+      this.courseDtoModel});
 }
 
 class PreRequisiteScreenNavigationArguments extends NavigationArguments {
@@ -927,4 +928,43 @@ class AskTheExpertScreenNavigationArguments extends NavigationArguments {
 
   const AskTheExpertScreenNavigationArguments(
       {required this.componentId, required this.componentInsId, this.searchString = "", this.isShowSearchTextField = true, this.isShowAppbar = false, this.apiController, this.askTheExpertProvider});
+}
+
+class AddEditFlashcardScreenNavigationArguments extends NavigationArguments {
+  final CourseDTOModel? courseDTOModel;
+
+  const AddEditFlashcardScreenNavigationArguments({
+    this.courseDTOModel,
+  });
+}
+
+class CoCreateKnowledgeScreenNavigationArguments extends NavigationArguments {
+  final int componentId, componentInstanceId;
+  final int? HomeComponentId;
+  final CatalogProvider? catalogProvider;
+  final CoCreateKnowledgeProvider? coCreateKnowledgeProvider;
+  final WikiProvider? wikiProvider;
+  final ContentFilterCategoryTreeModel? selectedCategory;
+  final List<CatalogCategoriesForBrowseModel>? categoriesListForPath;
+  final String searchString;
+  final bool isShowSearchTextField;
+  final bool isShowAppbar;
+  final ApiController? apiController;
+  final int? subSiteId;
+
+  const CoCreateKnowledgeScreenNavigationArguments({
+    required this.componentInstanceId,
+    required this.componentId,
+    this.HomeComponentId,
+    this.catalogProvider,
+    this.coCreateKnowledgeProvider,
+    this.wikiProvider,
+    this.selectedCategory,
+    this.searchString = "",
+    this.isShowSearchTextField = true,
+    this.isShowAppbar = false,
+    this.apiController,
+    this.subSiteId,
+    this.categoriesListForPath,
+  });
 }

@@ -8,6 +8,7 @@ import 'package:flutter_instancy_2/views/authentication/screens/login_screen.dar
 import 'package:flutter_instancy_2/views/authentication/screens/sign_up_screen.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/PrerequisiteScreen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/AddDocumentsScreen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_flashcard_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/article_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/flash_card_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/podcast_episode_screen.dart';
@@ -503,6 +504,11 @@ class NavigationController {
       case QuizScreen.routeName:
         {
           page = parseQuizScreen(settings: settings);
+          break;
+        }
+      case AddEditFlashcardScreen.routeName:
+        {
+          page = parseAddEditFlashcardScreen(settings: settings);
           break;
         }
     }
@@ -1198,6 +1204,15 @@ class NavigationController {
     return const QuizScreen();
   }
 
+  static Widget? parseAddEditFlashcardScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditFlashcardScreenNavigationArguments) {
+      return null;
+    }
+
+    return AddEditFlashcardScreen(arguments: argument);
+  }
+
   //endregion
 
   //region Navigation Methods
@@ -1878,6 +1893,19 @@ class NavigationController {
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: QuizScreen.routeName,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToAddEditFlashcardScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required AddEditFlashcardScreenNavigationArguments arguments,
+  }) {
+    MyPrint.printOnConsole("navigateToAddEditFlashcardScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: AddEditFlashcardScreen.routeName,
+        arguments: arguments,
       ),
     );
   }

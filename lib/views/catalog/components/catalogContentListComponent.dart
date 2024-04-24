@@ -100,6 +100,7 @@ class CatalogContentListComponent extends StatelessWidget {
                 ],
               ),
             ),
+            getSharedLabel(themeData: themeData),
             getMoreOptionsButton()
           ],
         ),
@@ -192,6 +193,22 @@ class CatalogContentListComponent extends StatelessWidget {
       height: 13,
       width: 13,
       fit: BoxFit.contain,
+    );
+  }
+
+  Widget getSharedLabel({required ThemeData themeData}) {
+    if (!model.IsShared) return const SizedBox();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color(0xffFDF1C8),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Text(
+        "Shared",
+        style: themeData.textTheme.labelSmall,
+      ),
     );
   }
 

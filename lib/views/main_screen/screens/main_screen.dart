@@ -5,8 +5,10 @@ import 'package:flutter_chat_bot/models/authorization/response_model/bot_details
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/backend/Catalog/catalog_provider.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
+import 'package:flutter_instancy_2/backend/app/dependency_injection.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
 import 'package:flutter_instancy_2/backend/course_offline/course_offline_controller.dart';
@@ -574,13 +576,15 @@ class _MainScreenState extends State<MainScreen> {
             wikiProvider: context.read<WikiProvider>(),
           ),
         );
-      } else {
+      } else if (model.landingpagetype == CatalogLandingPageType.contentsListScreen) {
         return CatalogCategoriesListScreen(
           componentId: model.componentid,
           componentInstanceId: model.repositoryid,
           catalogProvider: context.read<CatalogProvider>(),
           wikiProvider: context.read<WikiProvider>(),
         );
+      } else {
+        return const Text("Catalog");
       }
     } else if (model.componentid == InstancyComponents.CatalogEvents) {
       if (isExpanded) {
@@ -655,9 +659,18 @@ class _MainScreenState extends State<MainScreen> {
       } else {
         return const Text("My Connections");
       }
-    } else if (model.componentid == InstancyComponents.coCreateKnowledge) {
+    } else if (model.componentid == InstancyComponents.CoCreateKnowledgeComponent) {
       if (isExpanded) {
-        return CoCreateKnowledgeScreen();
+        return CoCreateKnowledgeScreen(
+          arguments: CoCreateKnowledgeScreenNavigationArguments(
+            componentInstanceId: model.repositoryid,
+            componentId: model.componentid,
+            catalogProvider: DependencyInjection.coCreateCatalogProvider,
+            coCreateKnowledgeProvider: context.read<CoCreateKnowledgeProvider>(),
+            wikiProvider: context.read<WikiProvider>(),
+            isShowAppbar: false,
+          ),
+        );
       } else {
         return const Text("CoCreateKnowledgeScreen");
       }

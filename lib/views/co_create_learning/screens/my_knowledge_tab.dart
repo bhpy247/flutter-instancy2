@@ -42,7 +42,11 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 
   late Future future;
 
-  Future<void> getFutureData() async {
+  Future<void> getFutureData({bool isRefresh = true}) async {
+    if (!isRefresh && _provider.myKnowledgeList.length > 0) {
+      return;
+    }
+
     await _controller.getMyKnowledgeList();
   }
 
@@ -84,6 +88,8 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         actionsEnum: InstancyContentActionsEnum.Share,
         onTap: () {
           Navigator.pop(context);
+
+          onShareTap(model: model);
         },
         iconData: InstancyIcons.share,
       ),
@@ -159,7 +165,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         arguments: WebViewScreenNavigationArguments(
           title: model.Title,
-          url: "https://www.instancy.com/learn/",
+          url: "https://smartbridge.com/introduction-generative-ai-transformative-potential-enterprises/",
         ),
       );
     } else if (objectType == InstancyObjectTypes.document) {
@@ -168,10 +174,10 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: const PDFLaunchScreenNavigationArguments(
-          contntName: "Transformative Potential of Generative AI",
+        arguments: PDFLaunchScreenNavigationArguments(
+          contntName: model.ContentName,
           isNetworkPDF: true,
-          pdfUrl: "https://qalearning.instancy.com//content/publishfiles/d6caf328-6c9e-43b1-8ba0-eb8d4d065e66/en-us/41cea17c-728d-4c88-9cd8-1e0473fa6f21.pdf?fromNativeapp=true",
+          pdfUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fdocuments%2Fai%20for%20biotechnology.pdf?alt=media&token=ab06fadc-ba08-4114-88e1-529213d117bf",
         ),
       );
     } else if (objectType == InstancyObjectTypes.videos) {
@@ -203,6 +209,11 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
     }
   }
 
+  Future<void> onShareTap({required CourseDTOModel model}) async {
+    model.IsShared = true;
+    mySetState();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -210,7 +221,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 
     _provider = context.read<CoCreateKnowledgeProvider>();
     _controller = CoCreateKnowledgeController(coCreateKnowledgeProvider: _provider);
-    future = getFutureData();
+    future = getFutureData(isRefresh: false);
   }
 
   @override
@@ -979,7 +990,13 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       model.AuthorName = model.AuthorDisplayName;
       model.UserProfileImagePath = "Content/SiteFiles//374/ProfileImages/0.gif";
       model.MediaTypeID = InstancyMediaTypes.none;
-      courseDTOModel.ContentType = "Event";
+      model.ContentType = "Events";
+      model.EventStartDateTime = "30 May 2024";
+      model.EventStartDateTimeWithoutConvert = "05/30/2024 05:30:00 PM";
+      model.EventEndDateTime = "30 May 2024";
+      model.EventEndDateTimeTimeWithoutConvert = "05/30/2024 06:00:00 PM";
+      model.Duration = "30 Minutes";
+      model.AvailableSeats = "10";
 
       courseDTOModel = model;
     } else {
@@ -1036,11 +1053,14 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       children: List.generate(
         knowledgeTypeList.length,
         (index) => SpeedDialChild(
-          onTap: () {
+          onTap: () async {
             // Navigator.pop(context);
             isDialOpen.value = false;
             mySetState();
             MyPrint.printOnConsole("Index: ${knowledgeTypeList[index].objectTypeId}");
+
+            await Future.delayed(const Duration(milliseconds: 200));
+
             onCardTapCallBack(objectType: knowledgeTypeList[index].objectTypeId);
           },
           label: knowledgeTypeList[index].name,

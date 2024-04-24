@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
+import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:flutter_instancy_2/views/common/components/common_text_form_field.dart';
 import 'package:provider/provider.dart';
@@ -12,11 +13,13 @@ import 'package:provider/provider.dart';
 class AddExternalLearningContentDialog extends StatefulWidget {
   final bool isPrefillData;
   final String? url;
+  final CourseDTOModel? courseDTOModel;
 
   const AddExternalLearningContentDialog({
     super.key,
     this.isPrefillData = false,
     this.url,
+    this.courseDTOModel,
   });
 
   @override
@@ -32,6 +35,9 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
   TextEditingController urlController = TextEditingController();
   TextEditingController typeController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+  TextEditingController institutionController = TextEditingController();
+  TextEditingController creditsController = TextEditingController();
+  TextEditingController costController = TextEditingController();
 
   final GlobalKey expansionTile = GlobalKey();
   bool isSkillsExpanded = false;
@@ -41,6 +47,7 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
 
   DateTime? startDateTime;
   DateTime? endDateTime;
+  TimeOfDay? trainingTime;
 
   Future<DateTime?> pickDateTime({required DateTime? initialDate}) async {
     DateTime? dateTime = await showDatePicker(
@@ -51,6 +58,15 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
     );
 
     return dateTime;
+  }
+
+  Future<TimeOfDay?> pickTime({required TimeOfDay? initialTime}) async {
+    TimeOfDay? timeOfDay = await showTimePicker(
+      context: context,
+      initialTime: initialTime ?? TimeOfDay.now(),
+    );
+
+    return timeOfDay;
   }
 
   Future<void> pickStartDateTime() async {
@@ -77,177 +93,201 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
     mySetState();
   }
 
+  Future<void> pickTrainingTime() async {
+    TimeOfDay? timeOfDay = await pickTime(initialTime: trainingTime);
+    Future.delayed(const Duration(milliseconds: 10), () => FocusScope.of(context).unfocus());
+
+    if (timeOfDay == null) {
+      return;
+    }
+
+    trainingTime = timeOfDay;
+    mySetState();
+  }
+
   Future<void> onAddContentButtonTap() async {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
-    // return;
 
-    Map<String, dynamic> contentMap = <String, dynamic>{
-      "Expired": "",
-      "ContentStatus": " <span title='Not Started' class='statusNotStarted'>Not Started</span>",
-      "ReportLink":
-          "<a class='fa viewicon' href='#' title='Delete' onclick=\"javascript:fnDelete(this,'Please confirm before deleting this content item?',3,688,'2ce73a32-0165-4266-bc7e-34a1d87e3b39',0,'Economic Developments','Delete Content');\">Delete</a>",
-      "DiscussionsLink": "",
-      "CertificateLink": "",
-      "NotesLink": "",
-      "CancelEventLink": "",
-      "DownLoadLink": "",
-      "RepurchaseLink": "",
-      "SetcompleteLink": "",
-      "ViewRecordingLink": "",
-      "InstructorCommentsLink": "",
-      "Required": 0,
-      "DownloadCalender": "",
-      "EventScheduleLink": "",
-      "EventScheduleStatus": "",
-      "EventScheduleConfirmLink": "",
-      "EventScheduleCancelLink": "",
-      "EventScheduleReserveTime": "",
-      "EventScheduleReserveStatus": "",
-      "ReScheduleEvent": "",
-      "Addorremoveattendees": "",
-      "CancelScheduleEvent": "",
-      "Sharelink": "https://qalearning.instancy.com/InviteURLID/contentId/2ce73a32-0165-4266-bc7e-34a1d87e3b39/ComponentId/1",
-      "SurveyLink": "",
-      "RemoveLink":
-          "<a id='remove_2ce73a32-0165-4266-bc7e-34a1d87e3b39' title='Delete' href=\"Javascript:fnUnassignUserContent('2ce73a32-0165-4266-bc7e-34a1d87e3b39','Are you sure you want to remove the content item?');\">Delete</a> ",
-      "RatingLink": "https://qalearning.instancy.com/MyCatalog Details/Contentid/2ce73a32-0165-4266-bc7e-34a1d87e3b39/componentid/3/componentInstanceID/3134/Muserid/1962",
-      "DurationEndDate": null,
-      "PracticeAssessmentsAction": "",
-      "CreateAssessmentAction": "",
-      "OverallProgressReportAction": "",
-      "EditLink": "",
-      "TitleName": "Economic Developments",
-      "PercentCompleted": 0.0,
-      "PercentCompletedClass": "statusNotStarted",
-      "WindowProperties": "status=no,toolbar=no,menubar=no,resizable=yes,location=no,scrollbars=yes,left=10,top=10,width=1000,height=680",
-      "CancelOrderData": "",
-      "CombinedTransaction": false,
-      "EventScheduleType": 0,
-      "TypeofEvent": 1,
-      "Duration": "",
-      "IsViewReview": true,
-      "JWVideoKey": "",
-      "Credits": "",
-      "IsArchived": false,
-      "DetailspopupTags": "",
-      "ThumbnailIconPath": null,
-      "InstanceEventEnroll": "",
-      "Modules": "",
-      "InstanceEventReSchedule": "",
-      "InstanceEventReclass": "",
-      "isEnrollFutureInstance": "",
-      "ReEnrollmentHistory": "",
-      "isBadCancellationEnabled": "true",
-      "MediaTypeID": 0,
-      "ActionViewQRcode": "",
-      "RecordingDetails": null,
-      "EnrollmentLimit": null,
-      "AvailableSeats": null,
-      "NoofUsersEnrolled": null,
-      "WaitListLimit": null,
-      "WaitListEnrolls": null,
-      "isBookingOpened": false,
-      "SubSiteMemberShipExpiried": false,
-      "ShowLearnerActions": true,
-      "SkinID": "",
-      "BackGroundColor": "#2f2d3a",
-      "FontColor": "#fff",
-      "FilterId": 0,
-      "SiteId": 374,
-      "UserSiteId": 0,
-      "SiteName": "Instancy Social Learning Network",
-      "ContentTypeId": 688,
-      "ContentID": "2ce73a32-0165-4266-bc7e-34a1d87e3b39",
-      "Title": "Economic Developments",
-      "TotalRatings": "0",
-      "RatingID": "0",
-      "ShortDescription":
-          "This course will teach you how the Economic Developments of India Works. It will describe all the factors that affects it. Also the ways by which we can increase Economic Development.",
-      "ThumbnailImagePath": "/Content/SiteFiles/Images/External Training.jpg",
-      "InstanceParentContentID": "",
-      "ImageWithLink": null,
-      "AuthorWithLink": "Richard Parker",
-      "EventStartDateTime": "",
-      "EventEndDateTime": null,
-      "EventStartDateTimeWithoutConvert": null,
-      "EventEndDateTimeTimeWithoutConvert": null,
-      "expandiconpath": null,
-      "AuthorDisplayName": "Richard Parker",
-      "ContentType": "External Training",
-      "CreatedOn": null,
-      "TimeZone": null,
-      "Tags": null,
-      "SalePrice": null,
-      "Currency": null,
-      "ViewLink": "",
-      "DetailsLink": "https://qalearning.instancy.com/MyCatalog Details/Contentid/2ce73a32-0165-4266-bc7e-34a1d87e3b39/componentid/3/componentInstanceID/3134/Muserid/1962",
-      "RelatedContentLink": "",
-      "ViewSessionsLink": "",
-      "SuggesttoConnLink": "2ce73a32-0165-4266-bc7e-34a1d87e3b39",
-      "SuggestwithFriendLink": "2ce73a32-0165-4266-bc7e-34a1d87e3b39",
-      "SharetoRecommendedLink": null,
-      "IsCoursePackage": null,
-      "IsRelatedcontent": "",
-      "isaddtomylearninglogo": null,
-      "LocationName": null,
-      "BuildingName": null,
-      "JoinURL": null,
-      "Categorycolor": "#67BD4E",
-      "InvitationURL": null,
-      "HeaderLocationName": "none",
-      "SubSiteUserID": null,
-      "PresenterDisplayName": "",
-      "PresenterWithLink": null,
-      "ShowMembershipExpiryAlert": false,
-      "AuthorName": "Dishant Agrawal",
-      "FreePrice": null,
-      "SiteUserID": 1962,
-      "ScoID": 26746,
-      "BuyNowLink": "",
-      "bit5": false,
-      "bit4": false,
-      "OpenNewBrowserWindow": false,
-      "salepricestrikeoff": "",
-      "CreditScoreWithCreditTypes": null,
-      "CreditScoreFirstPrefix": null,
-      "EventType": 0,
-      "InstanceEventReclassStatus": "",
-      "ExpiredContentExpiryDate": "",
-      "ExpiredContentAvailableUntill": "",
-      "Gradient1": null,
-      "Gradient2": null,
-      "GradientColor": null,
-      "ShareContentwithUser": "",
-      "bit1": false,
-      "ViewType": 1,
-      "startpage": "",
-      "CategoryID": 0,
-      "AddLinkTitle": null,
-      "GoogleProductId": null,
-      "ItunesProductId": null,
-      "ContentName": "Economic Developments",
-      "FolderPath": "2CE73A32-0165-4266-BC7E-34A1D87E3B39",
-      "CloudMediaPlayerKey": "",
-      "ActivityId": "http://instancy.com/2ce73a32-0165-4266-bc7e-34a1d87e3b39",
-      "ActualStatus": "not attempted",
-      "CoreLessonStatus": " <span title='Not Started' class='statusNotStarted'>Not Started</span>",
-      "jwstartpage": "en-us/2ce73a32-0165-4266-bc7e-34a1d87e3b39.html",
-      "IsReattemptCourse": false,
-      "AttemptsLeft": 0,
-      "TotalAttempts": 0,
-      "ListPrice": null,
-      "ContentModifiedDateTime": "04/22/2024 05:27:03 AM"
-    };
+    CourseDTOModel courseDTOModel;
 
-    CourseDTOModel courseDTOModel = CourseDTOModel.fromMap(contentMap);
+    if (widget.courseDTOModel != null) {
+      courseDTOModel = widget.courseDTOModel!;
+    } else {
+      Map<String, dynamic> contentMap = <String, dynamic>{
+        "Expired": "",
+        "ContentStatus": " <span title='Not Started' class='statusNotStarted'>Not Started</span>",
+        "ReportLink":
+            "<a class='fa viewicon' href='#' title='Delete' onclick=\"javascript:fnDelete(this,'Please confirm before deleting this content item?',3,688,'2ce73a32-0165-4266-bc7e-34a1d87e3b39',0,'Economic Developments','Delete Content');\">Delete</a>",
+        "DiscussionsLink": "",
+        "CertificateLink": "",
+        "NotesLink": "",
+        "CancelEventLink": "",
+        "DownLoadLink": "",
+        "RepurchaseLink": "",
+        "SetcompleteLink": "",
+        "ViewRecordingLink": "",
+        "InstructorCommentsLink": "",
+        "Required": 0,
+        "DownloadCalender": "",
+        "EventScheduleLink": "",
+        "EventScheduleStatus": "",
+        "EventScheduleConfirmLink": "",
+        "EventScheduleCancelLink": "",
+        "EventScheduleReserveTime": "",
+        "EventScheduleReserveStatus": "",
+        "ReScheduleEvent": "",
+        "Addorremoveattendees": "",
+        "CancelScheduleEvent": "",
+        "Sharelink": "https://qalearning.instancy.com/InviteURLID/contentId/2ce73a32-0165-4266-bc7e-34a1d87e3b39/ComponentId/1",
+        "SurveyLink": "",
+        "RemoveLink":
+            "<a id='remove_2ce73a32-0165-4266-bc7e-34a1d87e3b39' title='Delete' href=\"Javascript:fnUnassignUserContent('2ce73a32-0165-4266-bc7e-34a1d87e3b39','Are you sure you want to remove the content item?');\">Delete</a> ",
+        "RatingLink": "https://qalearning.instancy.com/MyCatalog Details/Contentid/2ce73a32-0165-4266-bc7e-34a1d87e3b39/componentid/3/componentInstanceID/3134/Muserid/1962",
+        "DurationEndDate": null,
+        "PracticeAssessmentsAction": "",
+        "CreateAssessmentAction": "",
+        "OverallProgressReportAction": "",
+        "EditLink": "",
+        "TitleName": "Economic Developments",
+        "PercentCompleted": 0.0,
+        "PercentCompletedClass": "statusNotStarted",
+        "WindowProperties": "status=no,toolbar=no,menubar=no,resizable=yes,location=no,scrollbars=yes,left=10,top=10,width=1000,height=680",
+        "CancelOrderData": "",
+        "CombinedTransaction": false,
+        "EventScheduleType": 0,
+        "TypeofEvent": 1,
+        "Duration": "",
+        "IsViewReview": true,
+        "JWVideoKey": "",
+        "Credits": "",
+        "IsArchived": false,
+        "DetailspopupTags": "",
+        "ThumbnailIconPath": null,
+        "InstanceEventEnroll": "",
+        "Modules": "",
+        "InstanceEventReSchedule": "",
+        "InstanceEventReclass": "",
+        "isEnrollFutureInstance": "",
+        "ReEnrollmentHistory": "",
+        "isBadCancellationEnabled": "true",
+        "MediaTypeID": 0,
+        "ActionViewQRcode": "",
+        "RecordingDetails": null,
+        "EnrollmentLimit": null,
+        "AvailableSeats": null,
+        "NoofUsersEnrolled": null,
+        "WaitListLimit": null,
+        "WaitListEnrolls": null,
+        "isBookingOpened": false,
+        "SubSiteMemberShipExpiried": false,
+        "ShowLearnerActions": true,
+        "SkinID": "",
+        "BackGroundColor": "#2f2d3a",
+        "FontColor": "#fff",
+        "FilterId": 0,
+        "SiteId": 374,
+        "UserSiteId": 0,
+        "SiteName": "Instancy Social Learning Network",
+        "ContentTypeId": 688,
+        "ContentID": "2ce73a32-0165-4266-bc7e-34a1d87e3b39",
+        "Title": "Economic Developments",
+        "TotalRatings": "0",
+        "RatingID": "0",
+        "ShortDescription":
+            "This course will teach you how the Economic Developments of India Works. It will describe all the factors that affects it. Also the ways by which we can increase Economic Development.",
+        "ThumbnailImagePath": "/Content/SiteFiles/Images/External Training.jpg",
+        "InstanceParentContentID": "",
+        "ImageWithLink": null,
+        "AuthorWithLink": "Richard Parker",
+        "EventStartDateTime": "",
+        "EventEndDateTime": null,
+        "EventStartDateTimeWithoutConvert": null,
+        "EventEndDateTimeTimeWithoutConvert": null,
+        "expandiconpath": null,
+        "AuthorDisplayName": "Richard Parker",
+        "ContentType": "External Training",
+        "CreatedOn": null,
+        "TimeZone": null,
+        "Tags": null,
+        "SalePrice": null,
+        "Currency": null,
+        "ViewLink": "",
+        "DetailsLink": "https://qalearning.instancy.com/MyCatalog Details/Contentid/2ce73a32-0165-4266-bc7e-34a1d87e3b39/componentid/3/componentInstanceID/3134/Muserid/1962",
+        "RelatedContentLink": "",
+        "ViewSessionsLink": "",
+        "SuggesttoConnLink": "2ce73a32-0165-4266-bc7e-34a1d87e3b39",
+        "SuggestwithFriendLink": "2ce73a32-0165-4266-bc7e-34a1d87e3b39",
+        "SharetoRecommendedLink": null,
+        "IsCoursePackage": null,
+        "IsRelatedcontent": "",
+        "isaddtomylearninglogo": null,
+        "LocationName": null,
+        "BuildingName": null,
+        "JoinURL": null,
+        "Categorycolor": "#67BD4E",
+        "InvitationURL": null,
+        "HeaderLocationName": "none",
+        "SubSiteUserID": null,
+        "PresenterDisplayName": "",
+        "PresenterWithLink": null,
+        "ShowMembershipExpiryAlert": false,
+        "AuthorName": "Dishant Agrawal",
+        "FreePrice": null,
+        "SiteUserID": 1962,
+        "ScoID": 26746,
+        "BuyNowLink": "",
+        "bit5": false,
+        "bit4": false,
+        "OpenNewBrowserWindow": false,
+        "salepricestrikeoff": "",
+        "CreditScoreWithCreditTypes": null,
+        "CreditScoreFirstPrefix": null,
+        "EventType": 0,
+        "InstanceEventReclassStatus": "",
+        "ExpiredContentExpiryDate": "",
+        "ExpiredContentAvailableUntill": "",
+        "Gradient1": null,
+        "Gradient2": null,
+        "GradientColor": null,
+        "ShareContentwithUser": "",
+        "bit1": false,
+        "ViewType": 1,
+        "startpage": "",
+        "CategoryID": 0,
+        "AddLinkTitle": null,
+        "GoogleProductId": null,
+        "ItunesProductId": null,
+        "ContentName": "Economic Developments",
+        "FolderPath": "2CE73A32-0165-4266-BC7E-34A1D87E3B39",
+        "CloudMediaPlayerKey": "",
+        "ActivityId": "http://instancy.com/2ce73a32-0165-4266-bc7e-34a1d87e3b39",
+        "ActualStatus": "not attempted",
+        "CoreLessonStatus": " <span title='Not Started' class='statusNotStarted'>Not Started</span>",
+        "jwstartpage": "en-us/2ce73a32-0165-4266-bc7e-34a1d87e3b39.html",
+        "IsReattemptCourse": false,
+        "AttemptsLeft": 0,
+        "TotalAttempts": 0,
+        "ListPrice": null,
+        "ContentModifiedDateTime": "04/22/2024 05:27:03 AM"
+      };
+      courseDTOModel = CourseDTOModel.fromMap(contentMap);
 
-    courseDTOModel.ContentID = MyUtils.getNewId();
+      courseDTOModel.ContentID = MyUtils.getNewId();
+    }
+
     courseDTOModel.TitleName = titleController.text;
     courseDTOModel.Title = titleController.text;
     courseDTOModel.JoinURL = urlController.text;
     courseDTOModel.ShortDescription = descriptionController.text;
+    courseDTOModel.SourceType = typeController.text;
+    courseDTOModel.Institution = institutionController.text;
+    courseDTOModel.TrainingTime =
+        trainingTime != null ? (DatePresentation.getFormattedDate(dateFormat: "hh:mm aa", dateTime: DateTime(2000, 1, 1, trainingTime!.hour, trainingTime!.minute)) ?? "") : "";
+    courseDTOModel.Credits = creditsController.text;
+    courseDTOModel.SalePrice = costController.text;
+    courseDTOModel.Skills = selectedSkillsList;
     courseDTOModel.UserProfileImagePath = "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg";
 
     String dateFormat = appProvider.appSystemConfigurationModel.eventDateTimeFormat;
@@ -264,12 +304,36 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
     appProvider = context.read<AppProvider>();
 
     if (widget.isPrefillData) {
-      titleController.text = "The Complete 2024 Web Development Bootcamp";
-      urlController.text = widget.url ?? "";
-      typeController.text = "Udemy";
-      descriptionController.text = "Become a Full-Stack Web Developer with just ONE course. HTML, CSS, Javascript, Node, React, PostgreSQL, Web3 and DApps";
-      startDateTime = DateTime.now();
-      endDateTime = startDateTime!.add(const Duration(days: 15));
+      CourseDTOModel? existingCourseDTOModel = widget.courseDTOModel;
+      if (existingCourseDTOModel != null) {
+        titleController.text = existingCourseDTOModel.TitleName;
+        urlController.text = existingCourseDTOModel.JoinURL;
+        typeController.text = "Udemy";
+        descriptionController.text = existingCourseDTOModel.ShortDescription;
+        typeController.text = existingCourseDTOModel.SourceType;
+        institutionController.text = existingCourseDTOModel.Institution;
+        creditsController.text = existingCourseDTOModel.Credits;
+        costController.text = existingCourseDTOModel.SalePrice;
+        selectedSkillsList = existingCourseDTOModel.Skills;
+
+        String dateFormat = appProvider.appSystemConfigurationModel.eventDateTimeFormat;
+        startDateTime = ParsingHelper.parseDateTimeMethod(existingCourseDTOModel.EventStartDateTime, dateFormat: dateFormat);
+        endDateTime = ParsingHelper.parseDateTimeMethod(existingCourseDTOModel.EventEndDateTime, dateFormat: dateFormat);
+
+        DateTime? TrainingDateTime = ParsingHelper.parseDateTimeMethod(existingCourseDTOModel.TrainingTime, dateFormat: "hh:mm aa");
+        trainingTime = TrainingDateTime != null ? TimeOfDay.fromDateTime(TrainingDateTime) : null;
+      } else {
+        titleController.text = "The Complete 2024 Web Development Bootcamp";
+        urlController.text = widget.url ?? "";
+        typeController.text = "Udemy";
+        descriptionController.text = "Become a Full-Stack Web Developer with just ONE course. HTML, CSS, Javascript, Node, React, PostgreSQL, Web3 and DApps";
+        institutionController.text = "Udemy";
+        creditsController.text = "";
+        costController.text = "";
+        selectedSkillsList.clear();
+        startDateTime = DateTime.now();
+        endDateTime = startDateTime!.add(const Duration(days: 15));
+      }
     }
 
     skillsList = <String>[
@@ -350,7 +414,10 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
                         keyboardType: TextInputType.multiline,
                         textEditingController: descriptionController,
                       ),
-                      getTextFieldWidget(label: "Institution"),
+                      getTextFieldWidget(
+                        label: "Institution",
+                        textEditingController: institutionController,
+                      ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -397,11 +464,25 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
                           ),
                         ],
                       ),
-                      getTextFieldWidget(label: "Credits"),
-                      getTextFieldWidget(label: "Training Time"),
+                      getTextFieldWidget(
+                        label: "Credits",
+                        textEditingController: creditsController,
+                      ),
+                      getTextFieldWidget(
+                        label: "Training Time",
+                        textEditingController: TextEditingController(
+                          text: trainingTime != null ? DatePresentation.getFormattedDate(dateFormat: "hh:mm aa", dateTime: DateTime(2000, 1, 1, trainingTime!.hour, trainingTime!.minute)) : "",
+                        ),
+                        onTap: pickTrainingTime,
+                      ),
                       Row(
                         children: [
-                          Expanded(child: getTextFieldWidget(label: "Cost")),
+                          Expanded(
+                            child: getTextFieldWidget(
+                              label: "Cost",
+                              textEditingController: costController,
+                            ),
+                          ),
                           const SizedBox(width: 10),
                           Text(
                             "USD",
@@ -610,7 +691,7 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
             fontWeight: FontWeight.w600,
             // isPrimary: true,
             padding: const EdgeInsets.symmetric(horizontal: 23, vertical: 7),
-            text: "Add",
+            text: widget.courseDTOModel != null ? "Edit" : "Add",
           ),
         ),
       ],

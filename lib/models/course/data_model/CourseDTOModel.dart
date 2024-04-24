@@ -178,6 +178,9 @@ class CourseDTOModel {
   String GoogleProductId = "";
   String ItunesProductId = "";
   String ContentModifiedDateTime = "";
+  String SourceType = "";
+  String Institution = "";
+  String TrainingTime = "";
   int WaitListLimit = 0;
   int WaitListEnrolls = 0;
   int FilterId = 0;
@@ -221,7 +224,9 @@ class CourseDTOModel {
   bool IsSuccess = false;
   bool NoRecord = false;
   bool showSchedule = false;
+  bool IsShared = false;
   EventRecordingDetailsModel? RecordingDetails;
+  List<String> Skills = <String>[];
   dynamic bit4;
 
   CourseDTOModel({
@@ -398,6 +403,9 @@ class CourseDTOModel {
     this.GoogleProductId = "",
     this.ItunesProductId = "",
     this.ContentModifiedDateTime = "",
+    this.SourceType = "",
+    this.Institution = "",
+    this.TrainingTime = "",
     this.WaitListLimit = 0,
     this.WaitListEnrolls = 0,
     this.FilterId = 0,
@@ -441,9 +449,13 @@ class CourseDTOModel {
     this.IsSuccess = false,
     this.NoRecord = false,
     this.showSchedule = false,
+    this.IsShared = false,
     this.RecordingDetails,
     this.bit4,
-  });
+    List<String>? Skills,
+  }) {
+    this.Skills = Skills ?? <String>[];
+  }
 
   CourseDTOModel.fromMap(Map<String, dynamic> map) {
     _initializeFromMap(map);
@@ -638,6 +650,9 @@ class CourseDTOModel {
     GoogleProductId = ParsingHelper.parseStringMethod(map["GoogleProductId"]);
     ItunesProductId = ParsingHelper.parseStringMethod(map["ItunesProductId"]);
     ContentModifiedDateTime = ParsingHelper.parseStringMethod(map["ContentModifiedDateTime"]);
+    SourceType = ParsingHelper.parseStringMethod(map['SourceType']);
+    Institution = ParsingHelper.parseStringMethod(map['Institution']);
+    TrainingTime = ParsingHelper.parseStringMethod(map['TrainingTime']);
     PercentCompleted = ParsingHelper.parseDoubleMethod(map["PercentCompleted"]);
     percentagecompleted = ParsingHelper.parseDoubleMethod(map["percentagecompleted"]);
     WaitListLimit = ParsingHelper.parseIntMethod(map['WaitListLimit']);
@@ -681,10 +696,13 @@ class CourseDTOModel {
     IsSuccess = ParsingHelper.parseBoolMethod(map["IsSuccess"]);
     NoRecord = ParsingHelper.parseBoolMethod(map["NoRecord"]);
     showSchedule = ParsingHelper.parseBoolMethod(map["showSchedule"]);
+    IsShared = ParsingHelper.parseBoolMethod(map["IsShared"]);
 
     RecordingDetails = null;
     Map<String, dynamic> recordingDetailsMap = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(map['RecordingDetails']);
     if (recordingDetailsMap.isNotEmpty) RecordingDetails = EventRecordingDetailsModel.fromMap(recordingDetailsMap);
+
+    Skills = AppConfigurationOperations.getListFromSeparatorJoinedString(parameterString: ParsingHelper.parseStringMethod(map['Skills']), separator: ",");
 
     bit4 = map["bit4"];
   }
@@ -865,6 +883,9 @@ class CourseDTOModel {
       "GoogleProductId": GoogleProductId,
       "ItunesProductId": ItunesProductId,
       "ContentModifiedDateTime": ContentModifiedDateTime,
+      "SourceType": SourceType,
+      "Institution": Institution,
+      "TrainingTime": TrainingTime,
       "PercentCompleted": PercentCompleted,
       "percentagecompleted": percentagecompleted,
       "WaitListLimit": WaitListLimit,
@@ -907,7 +928,9 @@ class CourseDTOModel {
       "IsSuccess": IsSuccess,
       "NoRecord": NoRecord,
       "showSchedule": showSchedule,
+      "IsShared": IsShared,
       "RecordingDetails": RecordingDetails?.toMap(),
+      "Skills": AppConfigurationOperations.getSeparatorJoinedStringFromStringList(list: Skills, separator: ","),
       "bit4": bit4,
     };
   }

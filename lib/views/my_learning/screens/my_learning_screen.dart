@@ -218,6 +218,51 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
     }
   }
 
+  List<InstancyUIActionModel> getExternalLearningActionsList({required CourseDTOModel model}) {
+    List<InstancyUIActionModel> actions = [
+      InstancyUIActionModel(
+        text: "Details",
+        actionsEnum: InstancyContentActionsEnum.Details,
+        onTap: () {
+          Navigator.pop(context);
+
+          onDetailsTap(model: model);
+        },
+        iconData: InstancyIcons.details,
+      ),
+      InstancyUIActionModel(
+        text: "Edit",
+        actionsEnum: InstancyContentActionsEnum.Edit,
+        onTap: () {
+          Navigator.pop(context);
+
+          editExternalLearning(model: model);
+        },
+        iconData: InstancyIcons.edit,
+      ),
+      InstancyUIActionModel(
+        text: "Delete",
+        actionsEnum: InstancyContentActionsEnum.Delete,
+        onTap: () {
+          Navigator.pop(context);
+
+          myLearningProvider.myLearningExternalContents.removeItems(items: [model], isNotify: true);
+        },
+        iconData: InstancyIcons.delete,
+      ),
+      InstancyUIActionModel(
+        text: "Share",
+        actionsEnum: InstancyContentActionsEnum.Share,
+        onTap: () {
+          Navigator.pop(context);
+        },
+        iconData: InstancyIcons.share,
+      ),
+    ];
+
+    return actions;
+  }
+
   MyLearningUIActionCallbackModel getMyLearningUIActionCallbackModel({
     required CourseDTOModel model,
     InstancyContentActionsEnum? primaryAction,
@@ -925,6 +970,22 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
     myLearningProvider.myLearningExternalContents.setList(list: [value1], isClear: false, isNotify: true);
   }
 
+  Future<void> editExternalLearning({required CourseDTOModel model}) async {
+    dynamic value1 = await showDialog(
+      context: context,
+      builder: (BuildContext context) => AddExternalLearningContentDialog(
+        isPrefillData: true,
+        courseDTOModel: model,
+      ),
+    );
+
+    if (value1 is! CourseDTOModel) {
+      return;
+    }
+
+    mySetState();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -1243,36 +1304,25 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
 
             CourseDTOModel model = contents[index];
 
-            List<InstancyUIActionModel> options = [
-              InstancyUIActionModel(
-                text: "Details",
-                actionsEnum: InstancyContentActionsEnum.Details,
-                onTap: () {
-                  Navigator.pop(context);
-
-                  onDetailsTap(model: model);
-                },
-                iconData: InstancyIcons.details,
-              ),
-            ];
-            InstancyUIActionModel? primaryAction = options.firstElement;
-
             return MyLearningCard(
               courseDTOModel: model,
-              primaryAction: primaryAction,
               onMoreButtonTap: () {
                 InstancyUIActions().showAction(
                   context: context,
-                  actions: options,
+                  actions: getExternalLearningActionsList(model: model),
                 );
               },
               onPrimaryActionTap: () async {
-                MyPrint.printOnConsole("primaryActionsEnum:${primaryAction?.actionsEnum}");
+                InstancyUIActionModel? actionModel = getExternalLearningActionsList(model: model).firstElement;
+                MyPrint.printOnConsole("primaryActionsEnum:${actionModel?.actionsEnum}");
 
-                onDetailsTap(model: model);
+                actionModel?.onTap?.call();
               },
               onThumbnailClick: () async {
-                if (primaryAction?.onTap != null) primaryAction!.onTap!();
+                InstancyUIActionModel? actionModel = getExternalLearningActionsList(model: model).firstElement;
+                MyPrint.printOnConsole("primaryActionsEnum:${actionModel?.actionsEnum}");
+
+                actionModel?.onTap?.call();
               },
             );
           },

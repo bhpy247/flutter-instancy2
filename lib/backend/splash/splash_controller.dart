@@ -785,11 +785,6 @@ class SplashController {
         menuid: 1002,
         menuIconData: material.Icons.person,
       ),
-      /*NativeMenuModel(
-        displayname: "Co-Create Knowledge",
-        menuid: 1003,
-        menuIconData: material.Icons.person,
-      ),*/
     ];
     appProvider.setMenuModelsList(list: data, isNotify: false, isClear: false);
 
@@ -837,16 +832,6 @@ class SplashController {
       list: [
         NativeMenuComponentModel(
           componentid: InstancyComponents.transferToAgentComponent,
-        ),
-      ],
-      isNotify: false,
-    );
-
-    appProvider.setMenuComponentModelsListForMenuId(
-      menuId: 1003,
-      list: [
-        NativeMenuComponentModel(
-          componentid: InstancyComponents.coCreateKnowledge,
         ),
       ],
       isNotify: false,

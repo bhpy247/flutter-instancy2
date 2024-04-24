@@ -450,12 +450,13 @@ class InstancyComponents {
   static const int PeopleListComponentInsId = 3473;
   static const int EventCatalogTabsListComponentInsId = 3497;
   static const int transferToAgentComponent = 4001;
-  static const int coCreateKnowledge = 4002;
   static const int UserSettings = 5000;
   static const int MyCourseDownloads = 5001;
   static const int Feedback = 5002;
   static const int GlobalSearchComponent = 225;
   static const int GlobalSearchComponentInsId = 4021;
+  static const int CoCreateKnowledgeComponent = 10009;
+  static const int CoCreateKnowledgeComponentInsId = 25;
 }
 
 class ViewTypesForContent {

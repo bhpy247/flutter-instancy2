@@ -46,7 +46,6 @@ import '../../../models/waitlist/response_model/add_to_waitList_response_model.d
 import '../../../utils/my_print.dart';
 import '../../../utils/my_toast.dart';
 import '../../../utils/my_utils.dart';
-import '../../co_create_learning/screens/my_knowledge_tab.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/comment_dialog.dart';
 import '../../common/components/common_loader.dart';
@@ -61,10 +60,10 @@ class CatalogContentsListScreen extends StatefulWidget {
   final bool isShowAppBar;
 
   const CatalogContentsListScreen({
-    Key? key,
+    super.key,
     required this.arguments,
     this.isShowAppBar = true,
-  }) : super(key: key);
+  });
 
   @override
   State<CatalogContentsListScreen> createState() => _CatalogContentsListScreenState();
@@ -155,7 +154,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
         componentId: componentId,
         componentInstanceId: componentInstanceId,
         isGetFromCache: false,
-        isNotify: true,
+        isNotify: false,
         HomeComponentId: widget.arguments.HomeComponentId,
         isPinnedContent: widget.arguments.isPinnedContent,
       );
@@ -181,7 +180,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
           HomeComponentId: widget.arguments.HomeComponentId,
           isPinnedContent: widget.arguments.isPinnedContent,
           isGetFromCache: false,
-          isNotify: true,
+          isNotify: isNotify,
         ),
     ]);
   }
@@ -711,76 +710,35 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
   Widget build(BuildContext context) {
     super.pageBuild();
 
-    return GestureDetector(
-        onTap: () {
-          FocusScope.of(context).requestFocus(FocusNode());
-        },
-        child: Scaffold(
-          appBar: widget.isShowAppBar ? getAppBar() : null,
-          body: AppUIComponents.getBackGroundBordersRounded(context: context, child: getTabBarView()),
-        ));
-  }
-
-  Widget getTabBarView() {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          toolbarHeight: 0,
-          bottom: TabBar(
-            indicator: UnderlineTabIndicator(
-              borderSide: BorderSide(width: 4, color: themeData.tabBarTheme.indicatorColor ?? themeData.primaryColor),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(100),
-                topRight: Radius.circular(100),
-              ),
-            ),
-            labelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-            tabs: const [
-              Tab(
-                // icon: Icon(Icons.library_books),
-                text: 'Shared Knowledge',
-              ),
-              Tab(
-                // icon: Icon(Icons.share),
-                text: 'My Knowledge',
-              ),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            getSharedKnowledge(),
-            MyKnowledgeTab(
-              componentId: componentId,
-              componentInstanceId: componentInstanceId,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget getSharedKnowledge() {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<CatalogProvider>.value(value: catalogProvider),
       ],
       child: Consumer<CatalogProvider>(
         builder: (BuildContext context, CatalogProvider catalogProvider, Widget? child) {
-          return ModalProgressHUD(
-            inAsyncCall: isLoading,
+          return GestureDetector(
+            onTap: () {
+              FocusScope.of(context).requestFocus(FocusNode());
+            },
             child: Scaffold(
-              floatingActionButton: isWikiButtonEnabled
-                  ? AddWikiButtonComponent(
-                      componentId: componentId,
-                      componentInstanceId: componentInstanceId,
-                      wikiProvider: wikiProvider,
-                      isHandleChatBotSpaceMargin: !widget.isShowAppBar,
-                    )
-                  : null,
-              body: getMainWidget(),
+              appBar: widget.isShowAppBar ? getAppBar() : null,
+              body: AppUIComponents.getBackGroundBordersRounded(
+                context: context,
+                child: ModalProgressHUD(
+                  inAsyncCall: isLoading,
+                  child: Scaffold(
+                    floatingActionButton: isWikiButtonEnabled
+                        ? AddWikiButtonComponent(
+                            componentId: componentId,
+                            componentInstanceId: componentInstanceId,
+                            wikiProvider: wikiProvider,
+                            isHandleChatBotSpaceMargin: !widget.isShowAppBar,
+                          )
+                        : null,
+                    body: getMainWidget(),
+                  ),
+                ),
+              ),
             ),
           );
         },
@@ -790,8 +748,7 @@ class _CatalogContentsListScreenState extends State<CatalogContentsListScreen> w
 
   PreferredSizeWidget getAppBar() {
     return AppConfigurations().commonAppBar(
-      // title: "Catalog",
-      title: "Co-create Knowledge",
+      title: "Catalog",
       actions: [
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 10),

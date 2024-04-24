@@ -38,115 +38,95 @@ class _RolePlayLaunchScreenState extends State<RolePlayLaunchScreen> with MySafe
   bool isSendingMessage = false;
 
   void initializeDummyRolePlayDataModels() {
-    DateTime now = DateTime.now();
-
     dummyRolePlayDataModels.addAll([
       RolePlayDataModel(
         index: 0,
         message: "Hello, welcome to Ace Home Devices. How may I help you today?",
-        isMyMessage: false,
-        createdDateTime: now.add(const Duration(seconds: 0)),
+        isMyMessage: true,
       ),
       RolePlayDataModel(
         index: 1,
-        message: "I'm angry because my appliances were not delivered on the promised delivery date! This is unacceptable!",
-        isMyMessage: true,
-        createdDateTime: now.add(const Duration(seconds: 10)),
+        message: "I am extremely frustrated because my appliances weren't delivered on the promised date. This is unacceptable!",
+        isMyMessage: false,
       ),
       RolePlayDataModel(
         index: 2,
         message: "I am sorry for the inconvenience sir. can you tell me your order id so that I can help you to track your order?",
-        isMyMessage: false,
-        createdDateTime: now.add(const Duration(seconds: 20)),
+        isMyMessage: true,
       ),
       RolePlayDataModel(
         index: 3,
-        message: "I don't have the order ID with me right now. But that doesn't change the fact that the appliances were not delivered on time. I need a solution to this problem immediately!",
-        isMyMessage: true,
-        createdDateTime: now.add(const Duration(seconds: 30)),
+        message: "I don't have the Order ID at the moment, but the appliances were not delivered on time. I need an immediate solution to this problem!",
+        isMyMessage: false,
       ),
       RolePlayDataModel(
         index: 4,
         message: "I can understand sir. but I will not be able to track and see what happened with your order without order id can you please tell me that?",
-        isMyMessage: false,
-        createdDateTime: now.add(const Duration(seconds: 40)),
+        isMyMessage: true,
       ),
       RolePlayDataModel(
         index: 5,
         message:
-            "I understand your process, but as a customer, I expect my order to be delivered on time as promised. Can you please check with your team and see why there was a delay in the delivery? I need a proper explanation for this inconvenience.",
-        isMyMessage: true,
-        createdDateTime: now.add(const Duration(seconds: 50)),
+            "I understand your process, but as a customer, I expect my order to be delivered on time as promised. Can you please investigate with your team and see why there was a delay in the delivery? I need a proper explanation for this inconvenience.",
+        isMyMessage: false,
       ),
       RolePlayDataModel(
         index: 6,
         message: "sure sir. If you provide me the order id I will tell ypu where is your order and give you a specific reason why it is not there yet.",
-        isMyMessage: false,
-        createdDateTime: now.add(const Duration(seconds: 60)),
+        isMyMessage: true,
       ),
       RolePlayDataModel(
         index: 7,
         message:
-            "I appreciate your willingness to help, but I don't have the order ID handy. Is there any other way you can look into this issue and provide me with an update on the delivery status? I really need to know when my appliances will be delivered.",
-        isMyMessage: true,
-        createdDateTime: now.add(const Duration(seconds: 70)),
+            "I appreciate your willingness to help, but unfortunately, I don't have the Order ID with me at the moment. Is there any other way that you can look into this issue and provide me with an update on the delivery status? I must know when my appliances will be delivered.",
+        isMyMessage: false,
       ),
       RolePlayDataModel(
         index: 8,
         message: "ok sir. can you confirm that the number you are calling with is the same you used to order from the website?",
-        isMyMessage: false,
-        createdDateTime: now.add(const Duration(seconds: 80)),
+        isMyMessage: true,
       ),
       RolePlayDataModel(
         index: 9,
         message: "Yes, the number I am calling from is the same number I used to place the order on your website. Can you please check the status of my order with this phone number?",
-        isMyMessage: true,
-        createdDateTime: now.add(const Duration(seconds: 90)),
+        isMyMessage: false,
       ),
       RolePlayDataModel(
         index: 10,
         message: "ok I will track your order based on that. please wait a moment while I am looking into your order details.",
-        isMyMessage: false,
-        createdDateTime: now.add(const Duration(seconds: 100)),
+        isMyMessage: true,
       ),
       RolePlayDataModel(
         index: 11,
-        message:
-            "Thank you for your assistance. I appreciate your help in resolving this issue regarding the late delivery of my appliances. I look forward to hearing an update on the status of my order.",
-        isMyMessage: true,
-        createdDateTime: now.add(const Duration(seconds: 110)),
+        message: "Thank you for your help with the late delivery of my appliances. I look forward to receiving an update on my order status.",
+        isMyMessage: false,
       ),
       RolePlayDataModel(
         index: 12,
         message:
             "your oder is out for delivery. As we prepare each and every item carefully after getting the order and we have so many orders in this festive season and or sale is going on that's why it got delayed by one day. I am really sorry for that. It will reach your home by an hour.",
-        isMyMessage: false,
-        createdDateTime: now.add(const Duration(seconds: 120)),
+        isMyMessage: true,
       ),
       RolePlayDataModel(
         index: 13,
         message:
             "Thank you for the update and clarification. I appreciate your explanation and quick resolution to this issue. I understand that delays can happen, especially during busy times, and I thank you for your help in ensuring that my appliances are delivered today.",
-        isMyMessage: true,
-        createdDateTime: now.add(const Duration(seconds: 130)),
+        isMyMessage: false,
       ),
       RolePlayDataModel(
         index: 14,
         message: "thank you sir. Is there any other thing that I can help you with?",
-        isMyMessage: false,
-        createdDateTime: now.add(const Duration(seconds: 140)),
+        isMyMessage: true,
       ),
       RolePlayDataModel(
         index: 15,
         message: "No, that will be all for now. Thank you for your assistance in resolving the issue with my order. Have a great day.",
-        isMyMessage: true,
-        createdDateTime: now.add(const Duration(seconds: 150)),
+        isMyMessage: false,
       ),
       RolePlayDataModel(
         index: 16,
         message: "thank you sir. have a nice day to you too.",
-        isMyMessage: false,
-        createdDateTime: now.add(const Duration(seconds: 160)),
+        isMyMessage: true,
       ),
     ]);
   }
@@ -154,20 +134,23 @@ class _RolePlayLaunchScreenState extends State<RolePlayLaunchScreen> with MySafe
   void checkAndAddChat() {
     int newIndex = currentIndex + 1;
 
-    if (newIndex < dummyRolePlayDataModels.length) {
-      currentIndex++;
-      RolePlayDataModel rolePlayDataModel = dummyRolePlayDataModels[currentIndex];
-      rolePlayDataModels.add(rolePlayDataModel);
-      mySetState();
-
-      if (!rolePlayDataModel.isMyMessage) {
-        checkAndPlayVideo();
-      }
-
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        if (scrollController.hasClients) scrollController.jumpTo(scrollController.position.maxScrollExtent);
-      });
+    if (newIndex >= dummyRolePlayDataModels.length) {
+      return;
     }
+
+    currentIndex++;
+    RolePlayDataModel rolePlayDataModel = dummyRolePlayDataModels[currentIndex];
+    rolePlayDataModel.createdDateTime = DateTime.now();
+    rolePlayDataModels.add(rolePlayDataModel);
+    mySetState();
+
+    if (!rolePlayDataModel.isMyMessage) {
+      checkAndPlayVideo();
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (scrollController.hasClients) scrollController.jumpTo(scrollController.position.maxScrollExtent);
+    });
   }
 
   Future<void> initializeVideoPlayerController({required String assetVideoPath}) async {
@@ -198,31 +181,66 @@ class _RolePlayLaunchScreenState extends State<RolePlayLaunchScreen> with MySafe
 
   Future<void> checkAndPlayVideo() async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("initializeVideoPlayerController() called", tag: tag);
+    MyPrint.printOnConsole("checkAndPlayVideo() called", tag: tag);
 
     int index = currentIndex;
     MyPrint.printOnConsole("currentIndex:$index", tag: tag);
 
     if (videoPlayerController?.value.isCompleted ?? true) {
-      MyPrint.printOnConsole("Returning from initializeVideoPlayerController() because player null or completed", tag: tag);
+      MyPrint.printOnConsole("Returning from checkAndPlayVideo() because player null or completed", tag: tag);
       return;
     }
 
-    int pauseMilliseconds = switch (index) {
-      0 => 5500,
-      2 => 7500,
-      4 => 9500,
-      6 => 9000,
-      8 => 7500,
-      10 => 6500,
-      12 => 17700,
-      14 => 3800,
-      16 => 4000,
-      _ => -1,
+    ({int seekMilliseconds, int pauseMilliseconds}) videoData = switch (index) {
+      1 => (seekMilliseconds: 0, pauseMilliseconds: 8100),
+      3 => (seekMilliseconds: 8100, pauseMilliseconds: 9850),
+      5 => (seekMilliseconds: 17000, pauseMilliseconds: 17500),
+      7 => (seekMilliseconds: 34500, pauseMilliseconds: 17000),
+      9 => (seekMilliseconds: 51500, pauseMilliseconds: 11000),
+      11 => (seekMilliseconds: 62000, pauseMilliseconds: 8200),
+      13 => (seekMilliseconds: 70000, pauseMilliseconds: 16500),
+      15 => (seekMilliseconds: 86500, pauseMilliseconds: -1),
+      _ => (seekMilliseconds: -1, pauseMilliseconds: -1),
     };
 
-    if (pauseMilliseconds == -1) {
-      MyPrint.printOnConsole("Returning from initializeVideoPlayerController() because invalid message", tag: tag);
+    if (videoData.seekMilliseconds == -1) {
+      MyPrint.printOnConsole("Returning from checkAndPlayVideo() because invalid message", tag: tag);
+      return;
+    }
+
+    if (videoPlayerController!.value.isPlaying) {
+      try {
+        MyPrint.printOnConsole("Pausing Video", tag: tag);
+        await videoPlayerController!.play();
+        MyPrint.printOnConsole("Paused Video", tag: tag);
+      } catch (e, s) {
+        MyPrint.printOnConsole("Error in Pausing Video:$e", tag: tag);
+        MyPrint.printOnConsole(s, tag: tag);
+
+        clearVideoController();
+        return;
+      }
+    }
+
+    if (index != currentIndex) {
+      MyPrint.printOnConsole("Returning from checkAndPlayVideo() because index not matching", tag: tag);
+      return;
+    }
+
+    try {
+      MyPrint.printOnConsole("Seeking Video", tag: tag);
+      await videoPlayerController!.seekTo(Duration(milliseconds: videoData.seekMilliseconds));
+      MyPrint.printOnConsole("Sought Video", tag: tag);
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in Seeking Video:$e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+
+      clearVideoController();
+      return;
+    }
+
+    if (index != currentIndex) {
+      MyPrint.printOnConsole("Returning from checkAndPlayVideo() because index not matching", tag: tag);
       return;
     }
 
@@ -238,7 +256,22 @@ class _RolePlayLaunchScreenState extends State<RolePlayLaunchScreen> with MySafe
       return;
     }
 
-    await Future.delayed(Duration(milliseconds: pauseMilliseconds));
+    if (index != currentIndex) {
+      MyPrint.printOnConsole("Returning from checkAndPlayVideo() because index not matching", tag: tag);
+      return;
+    }
+
+    if (videoData.pauseMilliseconds == -1) {
+      MyPrint.printOnConsole("Returning from checkAndPlayVideo() because no pause needed", tag: tag);
+      return;
+    }
+
+    await Future.delayed(Duration(milliseconds: videoData.pauseMilliseconds));
+
+    if (index != currentIndex) {
+      MyPrint.printOnConsole("Returning from checkAndPlayVideo() because index not matching", tag: tag);
+      return;
+    }
 
     try {
       MyPrint.printOnConsole("Pausing Video", tag: tag);
@@ -267,7 +300,10 @@ class _RolePlayLaunchScreenState extends State<RolePlayLaunchScreen> with MySafe
 
     initializeDummyRolePlayDataModels();
 
-    initializeVideoPlayerController(assetVideoPath: "assets/demo/ai-avatar-demo1.mp4").then((value) {
+    initializeVideoPlayerController(assetVideoPath: "assets/demo/ai-avatar-demo2.mp4").then((value) async {
+      await Future.delayed(const Duration(seconds: 1));
+      checkAndAddChat();
+      await Future.delayed(const Duration(seconds: 1));
       checkAndAddChat();
     });
   }
@@ -385,7 +421,7 @@ class _RolePlayLaunchScreenState extends State<RolePlayLaunchScreen> with MySafe
   }
 
   Widget getCardBodyWidget({required RolePlayDataModel rolePlayDataModel}) {
-    String formattedTimeStampString = DatePresentation.getFormattedDate(dateFormat: "", dateTime: rolePlayDataModel.createdDateTime) ?? "";
+    String formattedTimeStampString = DatePresentation.getLastChatMessageFormattedDate(dateTime: rolePlayDataModel.createdDateTime) ?? "";
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -413,7 +449,9 @@ class _RolePlayLaunchScreenState extends State<RolePlayLaunchScreen> with MySafe
           ),
           Text(
             formattedTimeStampString,
-            style: themeData.textTheme.labelSmall,
+            style: themeData.textTheme.labelSmall?.copyWith(
+              color: rolePlayDataModel.isMyMessage ? Colors.white : null,
+            ),
           ),
         ],
       ),
@@ -426,7 +464,7 @@ class _RolePlayLaunchScreenState extends State<RolePlayLaunchScreen> with MySafe
       borderSide: BorderSide.none,
     );
 
-    String userImageUrl = "";
+    // String userImageUrl = "";
     // String userImageUrl = widget.arguments.userImageUrl;
     // if (userImageUrl.isNotEmpty) {
     //   userImageUrl = AppConfigurations.getInstancyImageUrlFromImagePath(imagePath: userImageUrl);

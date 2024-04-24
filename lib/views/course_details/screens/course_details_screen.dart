@@ -1566,6 +1566,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
   }) {
     // MyPrint.printOnConsole("eventStartDateTimeWithoutConvert:$eventStartDateTimeWithoutConvert");
     // MyPrint.printOnConsole("eventEndDateTimeTimeWithoutConvert:$eventEndDateTimeTimeWithoutConvert");
+    // MyPrint.printOnConsole("appProvider.appSystemConfigurationModel.eventDateTimeFormat:${appProvider.appSystemConfigurationModel.eventDateTimeFormat}");
 
     if (EventStartDateTime.isEmpty || EventEndDateTime.isEmpty || eventStartDateTimeWithoutConvert.isEmpty || eventEndDateTimeTimeWithoutConvert.isEmpty) {
       return const SizedBox();
