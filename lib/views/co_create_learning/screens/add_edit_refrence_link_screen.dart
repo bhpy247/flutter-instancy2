@@ -1,13 +1,17 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation_arguments.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/configurations/app_configuration_operations.dart';
+import '../../../backend/navigation/navigation_controller.dart';
+import '../../../backend/navigation/navigation_operation_parameters.dart';
+import '../../../backend/navigation/navigation_type.dart';
 import '../../../backend/wiki_component/wiki_controller.dart';
 import '../../../backend/wiki_component/wiki_provider.dart';
 import '../../../configs/app_configurations.dart';
@@ -18,16 +22,17 @@ import '../../common/components/common_button.dart';
 import '../../common/components/common_text_form_field.dart';
 import '../../common/components/modal_progress_hud.dart';
 
-class ReferenceLink extends StatefulWidget {
-  static const String routeName = "/ReferenceLink";
+class AddEditReferenceLink extends StatefulWidget {
+  static const String routeName = "/AddEditReferenceLink";
+  final AddEditReferenceScreenArguments argument;
 
-  const ReferenceLink({super.key});
+  const AddEditReferenceLink({super.key, required this.argument});
 
   @override
-  State<ReferenceLink> createState() => _ReferenceLinkState();
+  State<AddEditReferenceLink> createState() => _AddEditReferenceLinkState();
 }
 
-class _ReferenceLinkState extends State<ReferenceLink> {
+class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafeState {
   late ThemeData themeData;
 
   bool isLoading = false;
@@ -37,19 +42,27 @@ class _ReferenceLinkState extends State<ReferenceLink> {
   TextEditingController websiteUrlController = TextEditingController();
   TextEditingController imageFileText = TextEditingController();
 
+  bool isExpanded = false;
   final GlobalKey expansionTile = GlobalKey();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   bool isUrl = true;
   FileType? fileType;
 
-  bool isExpanded = false;
   String fileName = "";
   Uint8List? fileBytes;
   String selectedCategoriesString = "";
   List<WikiCategoryTable> selectedCategoriesList = [];
+  String thumbNailName = "";
+  Uint8List? thumbNailBytes;
+  late WikiProvider wikiProvider;
+  late WikiController wikiController;
+  CourseDTOModel model = CourseDTOModel();
 
-  Future<String> openFileExplorer(FileType pickingType, bool multiPick) async {
+  Future<String> openFileExplorer(
+    FileType pickingType,
+    bool multiPick,
+  ) async {
     String fileName = "";
     List<PlatformFile> paths = await MyUtils.pickFiles(
       pickingType: pickingType,
@@ -167,8 +180,35 @@ class _ReferenceLinkState extends State<ReferenceLink> {
   //     }
   //   }
   // }
-  late WikiProvider wikiProvider;
-  late WikiController wikiController;
+
+  void onSaveButtonClicked() {
+    model = widget.argument.courseDtoModel ?? CourseDTOModel();
+    model.Title = titleController.text.trim();
+    model.TitleName = titleController.text.trim();
+    model.ContentName = titleController.text.trim();
+    model.ShortDescription = descriptionController.text.trim();
+    model.AuthorName = "Richard Parker";
+    model.ContentTypeId = InstancyObjectTypes.referenceUrl;
+    model.MediaTypeID = InstancyMediaTypes.none;
+    model.AuthorDisplayName = "Richard Parker";
+    model.ContentType = "Reference Link";
+    model.UserProfileImagePath = "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg";
+    model.ViewLink = "https://qalearning.instancy.com//content/publishfiles/d6caf328-6c9e-43b1-8ba0-eb8d4d065e66/en-us/41cea17c-728d-4c88-9cd8-1e0473fa6f21.pdf?fromNativeapp=true";
+    model.Categories = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+      list: selectedCategoriesList.map((e) => e.name).toList(),
+      separator: ",",
+    );
+    MyPrint.printOnConsole(model.Categories);
+    model.ThumbnailImagePath =
+        "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FGenerative%20AI%20(1).jpg?alt=media&token=42d9004b-9dd8-4d30-a889-982996d6cd6d";
+    model.thumbNailFileBytes = thumbNailBytes;
+    // if (widget.arguments.isEdit) {
+    //   provider.updateMyKnowledgeListModel(model, widget.arguments.index);
+    // } else {
+    //   provider.addToMyKnowledgeList(model);
+    // }
+    //
+  }
 
   @override
   void initState() {
@@ -189,7 +229,7 @@ class _ReferenceLinkState extends State<ReferenceLink> {
   Widget build(BuildContext context) {
     // MyPrint.printOnConsole("fileBytes:${fileBytes?.length}");
     // isLoading = false;
-
+    super.pageBuild();
     themeData = Theme.of(context);
     return GestureDetector(
       onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
@@ -215,16 +255,13 @@ class _ReferenceLinkState extends State<ReferenceLink> {
         child: Form(
           key: formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // getImageView(),
               const SizedBox(
                 height: 19,
               ),
               getTitleTextFormField(),
-              const SizedBox(
-                height: 19,
-              ),
-              isUrl ? getWebsiteUrlTextFormField() : getWidgetFromFileType(fileType),
               const SizedBox(
                 height: 19,
               ),
@@ -238,11 +275,86 @@ class _ReferenceLinkState extends State<ReferenceLink> {
               const SizedBox(
                 height: 30,
               ),
+              getThumbNail(FileType.image),
+              const SizedBox(
+                height: 30,
+              ),
               getAddContentButton(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget getThumbNail(FileType? fileType) {
+    if (fileType == null) return const SizedBox();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () async {
+            thumbNailName = await openFileExplorer(
+              fileType,
+              false,
+            );
+            setState(() {});
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: themeData.primaryColor, width: .6),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 2,
+                ),
+              ],
+            ),
+            child: Text(
+              "Add Thumbnail Image",
+              style: TextStyle(color: themeData.primaryColor),
+            ),
+          ),
+        ),
+        if (thumbNailBytes != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0),
+            child: Stack(
+              alignment: Alignment.topRight,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.memory(
+                    thumbNailBytes!,
+                    height: 80,
+                    width: 80,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    thumbNailBytes = null;
+                    mySetState();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.clear,
+                      size: 20,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          )
+      ],
     );
   }
 
@@ -338,7 +450,7 @@ class _ReferenceLinkState extends State<ReferenceLink> {
                     ),
                     Expanded(
                       child: Text(
-                        selectedCategoriesString.isEmpty ? "Categories" : selectedCategoriesString,
+                        selectedCategoriesString.isEmpty ? "Skills" : selectedCategoriesString,
                         style: themeData.textTheme.titleSmall?.copyWith(color: Colors.black45),
                       ),
                     ),
@@ -420,9 +532,16 @@ class _ReferenceLinkState extends State<ReferenceLink> {
       minWidth: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.symmetric(vertical: 15),
       onPressed: () {
-        CoCreateKnowledgeProvider provider = context.read();
-        provider.myKnowledgeList.insertAt(index: 0, element: CourseDTOModel(Title: titleController.text, AuthorDisplayName: "Happy", ContentType: "URL", ContentTypeId: 28, MediaTypeID: 13));
-        Navigator.pop(context);
+        // CoCreateKnowledgeProvider provider = context.read();
+        // provider.myKnowledgeList.insertAt(index: 0, element: CourseDTOModel(Title: titleController.text, AuthorDisplayName: "Happy", ContentType: "URL", ContentTypeId: 28, MediaTypeID: 13));
+        // Navigator.pop(context);
+        if (formKey.currentState!.validate()) {
+          onSaveButtonClicked();
+          NavigationController.navigateToCreateDocumentScreen(
+            navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+            argument: AddEditDocumentScreenArguments(componentId: 0, componentInsId: 0, courseDtoModel: model, isEdit: widget.argument.isEdit, index: widget.argument.index, isFromReference: true),
+          );
+        }
 
         // if (formKey.currentState!.validate()) {
         //   FocusScope.of(context).unfocus();

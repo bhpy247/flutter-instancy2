@@ -468,10 +468,12 @@ class ArticleScreenNavigationArguments extends NavigationArguments {
 class WebViewScreenNavigationArguments extends NavigationArguments {
   final String title;
   final String url;
+  final bool isFromAuthoringTool;
 
   const WebViewScreenNavigationArguments({
     required this.title,
     required this.url,
+    this.isFromAuthoringTool = false,
   });
 }
 
@@ -966,5 +968,61 @@ class CoCreateKnowledgeScreenNavigationArguments extends NavigationArguments {
     this.apiController,
     this.subSiteId,
     this.categoriesListForPath,
+  });
+}
+
+class AddEditDocumentScreenArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+  final CourseDTOModel? courseDtoModel;
+  final int index;
+  final bool isEdit;
+  final bool isFromReference;
+
+  const AddEditDocumentScreenArguments({required this.componentId, required this.componentInsId, this.courseDtoModel, this.index = 0, this.isEdit = false, this.isFromReference = false});
+}
+
+class AddEditReferenceScreenArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+  final CourseDTOModel? courseDtoModel;
+  final int index;
+  final bool isEdit;
+
+  const AddEditReferenceScreenArguments({
+    required this.componentId,
+    required this.componentInsId,
+    this.courseDtoModel,
+    this.index = 0,
+    this.isEdit = false,
+  });
+}
+
+class AddEditReferenceUrlScreenArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+  final CourseDTOModel? courseDtoModel;
+
+  const AddEditReferenceUrlScreenArguments({
+    required this.componentId,
+    required this.componentInsId,
+    this.courseDtoModel,
+  });
+}
+
+class CommonCreateAuthoringToolScreenArgument extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+  final CourseDTOModel? courseDtoModel;
+  final int objectTypeId;
+
+  const CommonCreateAuthoringToolScreenArgument({required this.componentId, required this.componentInsId, this.courseDtoModel, required this.objectTypeId});
+}
+
+class AddEditQuizScreenArgument extends NavigationArguments {
+  final CourseDTOModel? courseDtoModel;
+
+  const AddEditQuizScreenArgument({
+    this.courseDtoModel,
   });
 }

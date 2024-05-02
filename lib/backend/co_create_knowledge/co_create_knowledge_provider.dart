@@ -75,6 +75,14 @@ class CoCreateKnowledgeProvider extends CommonProvider {
     notify();
   }
 
+  void updateMyKnowledgeListModel(CourseDTOModel model, int index) {
+    List<CourseDTOModel> modelList = myKnowledgeList.getList();
+    modelList.removeAt(index);
+    modelList.insert(index, model);
+    myKnowledgeList.setList(list: modelList);
+    notify();
+  }
+
   void resetData() {
     pageSize.set(value: 10, isNotify: false);
     filterEnabled.set(value: false, isNotify: false);

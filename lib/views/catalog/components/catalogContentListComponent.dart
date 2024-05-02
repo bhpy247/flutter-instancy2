@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
@@ -44,7 +46,7 @@ class CatalogContentListComponent extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            imageWidget(url: model.ThumbnailImagePath, context: context),
+            if (model.thumbNailFileBytes != null) imageWidgetFromBytes(url: model.thumbNailFileBytes!) else imageWidget(url: model.ThumbnailImagePath, context: context),
             const SizedBox(width: 20),
             Expanded(child: detailColumn(context: context)),
           ],
@@ -70,6 +72,29 @@ class CatalogContentListComponent extends StatelessWidget {
           width: 80,
           fit: BoxFit.cover,
           errorIconSize: 60,
+        ),
+      ),
+    );
+  }
+
+  Widget imageWidgetFromBytes({
+    required Uint8List url,
+  }) {
+    // MyPrint.printOnConsole("catalog content image url:$url");
+
+    // url = MyUtils.getSecureUrl(AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: url));
+    // MyPrint.printOnConsole("catalog content final image url:$url");
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: SizedBox(
+        height: 80,
+        width: 80,
+        child: Image.memory(
+          url,
+          height: 80,
+          width: 80,
+          fit: BoxFit.cover,
         ),
       ),
     );

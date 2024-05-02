@@ -50,7 +50,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
     await _controller.getMyKnowledgeList();
   }
 
-  List<InstancyUIActionModel> getActionsList({required CourseDTOModel model}) {
+  List<InstancyUIActionModel> getActionsList({required CourseDTOModel model, int index = 0}) {
     List<InstancyUIActionModel> actions = [
       if (![InstancyObjectTypes.events].contains(model.ContentTypeId))
         InstancyUIActionModel(
@@ -63,6 +63,16 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           },
           iconData: InstancyIcons.view,
         ),
+      InstancyUIActionModel(
+        text: "Edit",
+        actionsEnum: InstancyContentActionsEnum.Edit,
+        onTap: () {
+          Navigator.pop(context);
+
+          onEditTap(model: model, index: index);
+        },
+        iconData: InstancyIcons.view,
+      ),
       InstancyUIActionModel(
         text: "Details",
         actionsEnum: InstancyContentActionsEnum.Details,
@@ -98,8 +108,8 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
     return actions;
   }
 
-  Future<void> showMoreActions({required CourseDTOModel model}) async {
-    List<InstancyUIActionModel> actions = getActionsList(model: model);
+  Future<void> showMoreActions({required CourseDTOModel model, int index = 0}) async {
+    List<InstancyUIActionModel> actions = getActionsList(model: model, index: index);
 
     InstancyUIActions().showAction(
       context: context,
@@ -212,6 +222,78 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
   Future<void> onShareTap({required CourseDTOModel model}) async {
     model.IsShared = true;
     mySetState();
+  }
+
+  Future<void> onEditTap({required CourseDTOModel model, int index = 0}) async {
+    int objectType = model.ContentTypeId;
+
+    if (objectType == InstancyObjectTypes.flashCard) {
+      NavigationController.navigateToFlashCardScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.rolePlay) {
+      dynamic value = await NavigationController.navigateToRolePlayLaunchScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: RolePlayLaunchScreenNavigationArguments(
+          courseDTOModel: model,
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.podcastEpisode) {
+      NavigationController.navigateToPodcastEpisodeScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.referenceUrl) {
+      NavigationController.navigateToWebViewScreen(
+        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+        arguments: WebViewScreenNavigationArguments(
+          title: model.Title,
+          url: "https://www.instancy.com/learn/",
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.document) {
+      NavigationController.navigateToAddEditDocumentScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: AddEditDocumentScreenArguments(componentId: 0, componentInsId: 0, courseDtoModel: model, index: index, isEdit: true),
+      );
+    } else if (objectType == InstancyObjectTypes.videos) {
+      NavigationController.navigateToVideoScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.quiz) {
+      NavigationController.navigateToQuizScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.article) {
+      NavigationController.navigateToArticleScreen(
+        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+        arguments: ArticleScreenNavigationArguments(courseDTOModel: model),
+      );
+      /*NavigationController.navigateToWebViewScreen(
+        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+        arguments: WebViewScreenNavigationArguments(
+          title: model.Title,
+          url: "https://enterprisedemo.instancy.com/content/publishfiles/1539fc5c-7bde-4d82-a0f6-9612f9e6c426/ins_content.html?fromNativeapp=true",
+        ),
+      );*/
+    }
   }
 
   @override
@@ -358,7 +440,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       itemBuilder: (BuildContext listContext, int index) {
         CourseDTOModel model = list[index];
 
-        return getCatalogContentWidget(model: model);
+        return getCatalogContentWidget(model: model, index: index);
 
         /*return MyKnowledgeItemWidget(
           model: model,
@@ -373,7 +455,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
     );
   }
 
-  Widget getCatalogContentWidget({required CourseDTOModel model}) {
+  Widget getCatalogContentWidget({required CourseDTOModel model, int index = 0}) {
     LocalStr localStr = appProvider.localStr;
 
     InstancyUIActionModel primaryAction = InstancyUIActionModel(
@@ -410,7 +492,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           }
         },
         onMoreButtonTap: () {
-          showMoreActions(model: model);
+          showMoreActions(model: model, index: index);
         },
       ),
     );
@@ -443,6 +525,8 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
   ValueNotifier<bool> isDialOpen = ValueNotifier<bool>(false);
 
   void onCardTapCallBack({required int objectType}) {
+    MyPrint.printOnConsole("onCardTapCallBack called");
+
     Map<String, dynamic> map = <String, dynamic>{
       "Titlewithlink": "",
       "rcaction": "",
@@ -600,163 +684,6 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       "ContentModifiedDateTime": null
     };
 
-    /*Map<String, dynamic> map = <String, dynamic>{
-      "Titlewithlink": "",
-      "rcaction": "",
-      "Categories": "",
-      "IsSubSite": "False",
-      "MembershipName": "",
-      "EventAvailableSeats": "",
-      "EventCompletedProgress": "",
-      "EventContentProgress": "",
-      "Count": 0,
-      "PreviewLink": "",
-      "ApproveLink": "",
-      "RejectLink": "",
-      "ReadLink": "",
-      "AddLink": "javascript:fnAddItemtoMyLearning('d40d27cd-dd15-4bf4-b769-f341ceee213d');",
-      "EnrollNowLink": "",
-      "CancelEventLink": "",
-      "WaitListLink": "",
-      "InapppurchageLink": "",
-      "AlredyinmylearnigLink": "",
-      "RecommendedLink": "",
-      "Sharelink": "https://qalearning.instancy.com/InviteURLID/contentId/d40d27cd-dd15-4bf4-b769-f341ceee213d/ComponentId/1",
-      "EditMetadataLink": "",
-      "ReplaceLink": "",
-      "EditLink": "",
-      "DeleteLink": "",
-      "SampleContentLink": "",
-      "TitleExpired": "",
-      "PracticeAssessmentsAction": "",
-      "CreateAssessmentAction": "",
-      "OverallProgressReportAction": "",
-      "ContentName": "Web Page 141",
-      "ContentScoID": "26712",
-      "isContentEnrolled": "False",
-      "ContentViewType": "Subscription",
-      "WindowProperties": "status=no,toolbar=no,menubar=no,resizable=yes,location=no,scrollbars=yes,left=10,top=10,width=1000,height=680",
-      "isWishListContent": 0,
-      "AddtoWishList": "Y",
-      "RemoveFromWishList": null,
-      "Duration": "",
-      "Credits": "",
-      "DetailspopupTags": "",
-      "ThumbnailIconPath": "",
-      "JWVideoKey": "",
-      "Modules": "",
-      "salepricestrikeoff": "",
-      "isBadCancellationEnabled": "true",
-      "EnrollmentLimit": "",
-      "AvailableSeats": "0",
-      "NoofUsersEnrolled": "1",
-      "WaitListLimit": "",
-      "WaitListEnrolls": "0",
-      "isBookingOpened": false,
-      "EventStartDateforEnroll": null,
-      "DownLoadLink": "",
-      "EventType": 0,
-      "EventScheduleType": 0,
-      "EventRecording": false,
-      "ShowParentPrerequisiteEventDate": false,
-      "ShowPrerequisiteEventDate": false,
-      "PrerequisiteDateConflictName": null,
-      "PrerequisiteDateConflictDateTime": null,
-      "SkinID": "1",
-      "FilterId": 0,
-      "SiteId": 374,
-      "UserSiteId": 0,
-      "SiteName": "Instancy Social Learning Network",
-      "ContentTypeId": 36,
-      "ContentID": "d40d27cd-dd15-4bf4-b769-f341ceee213d",
-      "Title": "Web Page 141",
-      "TotalRatings": "0",
-      "RatingID": "0",
-      "ShortDescription": "",
-      "ThumbnailImagePath": "/Content/SiteFiles/Images/Webpage.jpg",
-      "InstanceParentContentID": "",
-      "ImageWithLink": "",
-      "AuthorWithLink": "",
-      "EventStartDateTime": "",
-      "EventEndDateTime": "",
-      "EventStartDateTimeWithoutConvert": "",
-      "EventEndDateTimeTimeWithoutConvert": "",
-      "expandiconpath": "",
-      "AuthorDisplayName": "Pradeep Rana 123",
-      "ContentType": "Webpage",
-      "CreatedOn": "",
-      "TimeZone": "",
-      "Tags": "",
-      "SalePrice": "",
-      "Currency": "",
-      "ViewLink": "",
-      "DetailsLink": "https://qalearning.instancy.com/Catalog Details/Contentid/d40d27cd-dd15-4bf4-b769-f341ceee213d/componentid/1/componentInstanceID/3131",
-      "RelatedContentLink": "",
-      "ViewSessionsLink": null,
-      "SuggesttoConnLink": "d40d27cd-dd15-4bf4-b769-f341ceee213d",
-      "SuggestwithFriendLink": "d40d27cd-dd15-4bf4-b769-f341ceee213d",
-      "SharetoRecommendedLink": "",
-      "IsCoursePackage": "",
-      "IsRelatedcontent": "",
-      "isaddtomylearninglogo": "0",
-      "LocationName": "",
-      "BuildingName": null,
-      "JoinURL": "",
-      "Categorycolor": "#67BD4E",
-      "InvitationURL": "",
-      "HeaderLocationName": "",
-      "SubSiteUserID": null,
-      "PresenterDisplayName": "",
-      "PresenterWithLink": "",
-      "ShowMembershipExpiryAlert": false,
-      "AuthorName": null,
-      "FreePrice": "",
-      "SiteUserID": 1962,
-      "ScoID": 26712,
-      "BuyNowLink": "",
-      "bit5": false,
-      "bit4": false,
-      "OpenNewBrowserWindow": false,
-      "CreditScoreWithCreditTypes": "",
-      "CreditScoreFirstPrefix": "",
-      "MediaTypeID": 0,
-      "isEnrollFutureInstance": "",
-      "InstanceEventReclass": "",
-      "InstanceEventReclassStatus": "",
-      "InstanceEventReSchedule": "",
-      "InstanceEventEnroll": "",
-      "ReEnrollmentHistory": "",
-      "BackGroundColor": "#2f2d3a",
-      "FontColor": "#fff",
-      "ExpiredContentExpiryDate": "",
-      "ExpiredContentAvailableUntill": "",
-      "Gradient1": "",
-      "Gradient2": "",
-      "GradientColor": "radial-gradient(circle,  0%,  100%)",
-      "ShareContentwithUser": "",
-      "bit1": false,
-      "ViewType": 2,
-      "startpage": "ins_content.html",
-      "CategoryID": 0,
-      "AddLinkTitle": "Add to My learning",
-      "ContentStatus": "",
-      "PercentCompletedClass": "",
-      "PercentCompleted": "",
-      "GoogleProductId": "",
-      "ItunesProductId": "",
-      "FolderPath": "82b071da-52e8-4cd9-a0a8-9b43f3c546e7",
-      "CloudMediaPlayerKey": "",
-      "ActivityId": "http://instancy.com/d40d27cd-dd15-4bf4-b769-f341ceee213d",
-      "ActualStatus": null,
-      "CoreLessonStatus": null,
-      "jwstartpage": null,
-      "IsReattemptCourse": false,
-      "AttemptsLeft": 0,
-      "TotalAttempts": 0,
-      "ListPrice": "",
-      "ContentModifiedDateTime": null
-    };*/
-
     CourseDTOModel? courseDTOModel = CourseDTOModel.fromMap(map);
 
     courseDTOModel.ContentID = MyUtils.getNewId();
@@ -766,14 +693,24 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
     courseDTOModel.UserProfileImagePath = "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg";
 
     if (objectType == InstancyObjectTypes.flashCard) {
-      MyPrint.printOnConsole("in flsh Card");
+      // MyPrint.printOnConsole("in flsh Card");
+      //
+      // courseDTOModel.TitleName = "Flash Card Title";
+      // courseDTOModel.Title = courseDTOModel.TitleName;
+      // courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
+      // courseDTOModel.ContentType = "Flashcards";
+      // courseDTOModel.ContentTypeId = InstancyObjectTypes.flashCard;
+      // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
 
-      courseDTOModel.TitleName = "Flash Card Title";
-      courseDTOModel.Title = courseDTOModel.TitleName;
-      courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      courseDTOModel.ContentType = "Flashcards";
-      courseDTOModel.ContentTypeId = InstancyObjectTypes.flashCard;
-      courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
+      NavigationController.navigateToAddEditFlashcardScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: const AddEditFlashcardScreenNavigationArguments(
+          courseDTOModel: null,
+        ),
+      );
     } else if (objectType == InstancyObjectTypes.rolePlay) {
       MyPrint.printOnConsole("in Role Play");
 
@@ -791,19 +728,42 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       courseDTOModel.ContentTypeId = InstancyObjectTypes.podcastEpisode;
       courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
     } else if (objectType == InstancyObjectTypes.referenceUrl) {
-      courseDTOModel.TitleName = "Instancy";
-      courseDTOModel.Title = courseDTOModel.TitleName;
-      courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      courseDTOModel.ContentType = "Reference Url";
-      courseDTOModel.ContentTypeId = InstancyObjectTypes.referenceUrl;
-      courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
+      // courseDTOModel.TitleName = "Instancy";
+      // courseDTOModel.Title = courseDTOModel.TitleName;
+      // courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
+      // courseDTOModel.ContentType = "Reference Url";
+      // courseDTOModel.ContentTypeId = InstancyObjectTypes.referenceUrl;
+      // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
+      NavigationController.navigateToAddEditReferenceLinkScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditReferenceScreenArguments(
+          courseDtoModel: courseDTOModel,
+          componentId: 0,
+          componentInsId: 0,
+        ),
+      );
     } else if (objectType == InstancyObjectTypes.document) {
-      courseDTOModel.TitleName = "Document Title";
+      courseDTOModel = null;
+      NavigationController.navigateToAddEditDocumentScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: AddEditDocumentScreenArguments(
+          courseDtoModel: courseDTOModel,
+          componentId: 0,
+          componentInsId: 0,
+        ),
+      );
+      /*courseDTOModel.TitleName = "Document Title";
       courseDTOModel.Title = courseDTOModel.TitleName;
       courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
       courseDTOModel.ContentType = "Document";
       courseDTOModel.ContentTypeId = InstancyObjectTypes.document;
-      courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
+      courseDTOModel.MediaTypeID = InstancyMediaTypes.none;*/
     } else if (objectType == InstancyObjectTypes.videos) {
       courseDTOModel.TitleName = "Video Title";
       courseDTOModel.Title = courseDTOModel.TitleName;
@@ -1003,9 +963,11 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       courseDTOModel = null;
     }
 
-    if (courseDTOModel != null) {
-      widget.provider.addToMyKnowledgeList(courseDTOModel);
+    if (courseDTOModel == null) {
+      return;
     }
+
+    // widget.provider.addToMyKnowledgeList(courseDTOModel);
   }
 
   @override
@@ -1031,25 +993,24 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       switchLabelPosition: false,
 
       /// If true user is forced to close dial manually
-      closeManually: false,
+      closeManually: true,
 
       /// If false, backgroundOverlay will not be rendered.
       renderOverlay: true,
-      onOpen: () {
-        debugPrint('OPENING DIAL');
-        // setState(() {});
-      },
-      onClose: () {
-        debugPrint('DIAL CLOSED');
-        // isDialOpen.value = false;
-      },
+      // onOpen: () {
+      //   debugPrint('OPENING DIAL');
+      //   // setState(() {});
+      // },
+      // onClose: () {
+      //   debugPrint('DIAL CLOSED');
+      //   // isDialOpen.value = false;
+      // },
       useRotationAnimation: true,
       tooltip: 'Open Speed Dial',
       elevation: 1.0,
+      // animationDuration: Duration(seconds: 0),
       animationCurve: Curves.easeIn,
       isOpenOnStart: false,
-      // shape: customDialRoot ? const RoundedRectangleBorder() : const StadiumBorder(),
-      // childMargin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       children: List.generate(
         knowledgeTypeList.length,
         (index) => SpeedDialChild(

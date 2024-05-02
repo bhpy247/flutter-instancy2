@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
+import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 
 import '../../../backend/navigation/navigation.dart';
+import '../../common/components/common_button.dart';
 
 class WebViewScreen extends StatefulWidget {
   static const String routeName = "/WebViewScreen";
@@ -18,7 +20,7 @@ class WebViewScreen extends StatefulWidget {
   State<WebViewScreen> createState() => _WebViewScreenState();
 }
 
-class _WebViewScreenState extends State<WebViewScreen> {
+class _WebViewScreenState extends State<WebViewScreen> with MySafeState {
   String url = "";
 
   InAppWebViewController? webViewController;
@@ -31,11 +33,32 @@ class _WebViewScreenState extends State<WebViewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.pageBuild();
     MyPrint.printOnConsole("WebView Screen url:$url");
 
     return Scaffold(
       appBar: getAppBar(),
-      body: getMainBody(url: url),
+      body: !widget.arguments.isFromAuthoringTool
+          ? getMainBody(url: url)
+          : Column(
+              children: [
+                Expanded(child: getMainBody(url: url)),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: CommonButton(
+                    minWidth: double.infinity,
+                    fontColor: themeData.colorScheme.onPrimary,
+                    fontSize: 15,
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    },
+                    text: "Done",
+                  ),
+                )
+              ],
+            ),
     );
   }
 

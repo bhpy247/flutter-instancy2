@@ -7,13 +7,14 @@ import 'package:flutter_instancy_2/views/authentication/screens/forgot_password_
 import 'package:flutter_instancy_2/views/authentication/screens/login_screen.dart';
 import 'package:flutter_instancy_2/views/authentication/screens/sign_up_screen.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/PrerequisiteScreen.dart';
-import 'package:flutter_instancy_2/views/co_create_learning/screens/AddDocumentsScreen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_document_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_flashcard_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_quiz_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_refrence_link_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/article_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/flash_card_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/podcast_episode_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/quiz_screen.dart';
-import 'package:flutter_instancy_2/views/co_create_learning/screens/refrence_link_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/video_screen.dart';
 import 'package:flutter_instancy_2/views/common/screen/common_view_image_screen.dart';
 import 'package:flutter_instancy_2/views/course_details/screens/course_details_screen.dart';
@@ -465,14 +466,14 @@ class NavigationController {
           break;
         }
 
-      case ReferenceLink.routeName:
+      case AddEditReferenceLink.routeName:
         {
           page = parseReferenceLinkScreen(settings: settings);
           break;
         }
-      case AddDocumentsScreen.routeName:
+      case AddEditDocumentsScreen.routeName:
         {
-          page = parseReferenceLinkScreen(settings: settings);
+          page = parseAddEditDocumentScreen(settings: settings);
           break;
         }
       case VideoScreen.routeName:
@@ -509,6 +510,22 @@ class NavigationController {
       case AddEditFlashcardScreen.routeName:
         {
           page = parseAddEditFlashcardScreen(settings: settings);
+          break;
+        }
+      case CreateDocumentContentScreen.routeName:
+        {
+          page = parseCreateDocumentContentScreen(settings: settings);
+          break;
+        }
+      case DocumentPreviewScreen.routeName:
+        {
+          page = parseDocumentPreviewScreen(settings: settings);
+          break;
+        }
+
+      case AddEditQuizScreen.routeName:
+        {
+          page = parseAddEditQuizScreen(settings: settings);
           break;
         }
     }
@@ -1161,11 +1178,23 @@ class NavigationController {
   //region Co-Create Knowledge
 
   static Widget? parseReferenceLinkScreen({required RouteSettings settings}) {
-    return const ReferenceLink();
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditReferenceScreenArguments) {
+      return null;
+    }
+    return AddEditReferenceLink(
+      argument: argument,
+    );
   }
 
-  static Widget? parseDocumentScreen({required RouteSettings settings}) {
-    return const AddDocumentsScreen();
+  static Widget? parseAddEditDocumentScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditDocumentScreenArguments) {
+      return null;
+    }
+    return AddEditDocumentsScreen(
+      arguments: argument,
+    );
   }
 
   static Widget? parseVideoScreen({required RouteSettings settings}) {
@@ -1211,6 +1240,32 @@ class NavigationController {
     }
 
     return AddEditFlashcardScreen(arguments: argument);
+  }
+
+  static Widget? parseCreateDocumentContentScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditDocumentScreenArguments) {
+      return null;
+    }
+    return CreateDocumentContentScreen(
+      arguments: argument,
+    );
+  }
+
+  static Widget? parseDocumentPreviewScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! PDFLaunchScreenNavigationArguments) {
+      return null;
+    }
+    return DocumentPreviewScreen(arguments: argument);
+  }
+
+  static Widget? parseAddEditQuizScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditQuizScreenArgument) {
+      return null;
+    }
+    return AddEditQuizScreen(arguments: argument);
   }
 
   //endregion
@@ -1829,21 +1884,27 @@ class NavigationController {
   static Future<dynamic> navigateToEventCatalogMainScreen({required NavigationOperationParameters navigationOperationParameters, required EventCatalogTabScreenNavigationArguments arguments}) {
     MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
-      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: EventCatalogTabScreen.routeName, arguments: arguments),
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: EventCatalogTabScreen.routeName,
+        arguments: arguments,
+      ),
     );
   }
 
-  static Future<dynamic> navigateToDocumentScreen({required NavigationOperationParameters navigationOperationParameters}) {
+  static Future<dynamic> navigateToAddEditDocumentScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditDocumentScreenArguments arguments}) {
     MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
-      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: AddDocumentsScreen.routeName),
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: AddEditDocumentsScreen.routeName,
+        arguments: arguments,
+      ),
     );
   }
 
   static Future<dynamic> navigateToReferenceLinkScreen({required NavigationOperationParameters navigationOperationParameters}) {
     MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
-      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: ReferenceLink.routeName),
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: AddEditReferenceLink.routeName),
     );
   }
 
@@ -1906,6 +1967,46 @@ class NavigationController {
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: AddEditFlashcardScreen.routeName,
         arguments: arguments,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToCreateDocumentScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditDocumentScreenArguments argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: CreateDocumentContentScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToDocumentPreviewScreen({required NavigationOperationParameters navigationOperationParameters, required PDFLaunchScreenNavigationArguments argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: DocumentPreviewScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToAddEditReferenceLinkScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditReferenceScreenArguments argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: AddEditReferenceLink.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToAddEditQuizScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditReferenceScreenArguments argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: AddEditQuizScreen.routeName,
+        arguments: argument,
       ),
     );
   }

@@ -191,6 +191,7 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
         // textAlignVertical: TextAlignVertical.top,
 
         decoration: InputDecoration(
+          alignLabelWithHint: true,
           filled: isFilled,
           fillColor: fillColor,
           labelStyle: TextStyle(color: floatingLabelColor, fontSize: 13, letterSpacing: 0.4),
