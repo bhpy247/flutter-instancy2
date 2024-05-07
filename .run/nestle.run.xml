@@ -1,9 +1,10 @@
 <component name="ProjectRunConfigurationManager">
-    <configuration name="nestle" default="false" factoryName="Flutter"
-        type="FlutterRunConfigurationType">
-        <option name="additionalArgs" value="--web-renderer canvaskit" />
-        <option name="buildFlavor" value="nestle" />
-        <option name="filePath" value="$PROJECT_DIR$/lib/main-nestle.dart" />
-        <method v="2" />
-    </configuration>
+  <configuration name="nestle" default="false" factoryName="Flutter"
+      type="FlutterRunConfigurationType">
+    <option name="additionalArgs"
+        value="--web-renderer canvaskit --web-hostname localhost --web-port 50000" />
+    <option name="buildFlavor" value="nestle" />
+    <option name="filePath" value="$PROJECT_DIR$/lib/main-nestle.dart" />
+    <method v="2" />
+  </configuration>
 </component>
