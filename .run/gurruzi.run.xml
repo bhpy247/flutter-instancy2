@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration name="gurruzi" default="false" factoryName="Flutter"
+        type="FlutterRunConfigurationType">
+        <option name="additionalArgs"
+            value="--web-renderer canvaskit --web-hostname localhost --web-port 50000" />
+        <option name="buildFlavor" value="gurruzi" />
+        <option name="filePath" value="$PROJECT_DIR$/lib/main-gurruzi.dart" />
+        <method v="2" />
+    </configuration>
+</component>

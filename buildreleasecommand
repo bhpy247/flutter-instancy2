@@ -64,6 +64,16 @@ To Build nestle Build Web Release :- flutter build web --release -t lib/main-nes
 To Run nestle Build Web Release :- flutter run -d chrome --release -t lib/main-nestle.dart
 To Rub nestle Web Server :- flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0 -t lib/main-nestle.dart --web-renderer canvaskit
 
+8) gurruzi
+
+To Build gurruzi Build Release :- flutter build apk --release -t lib/main-gurruzi.dart --flavor gurruzi --no-tree-shake-icons
+To Build gurruzi Build Debug   :- flutter build apk --debug -t lib/main-gurruzi.dart --flavor gurruzi --no-tree-shake-icons
+To Run gurruzi Build Release   :- flutter run --release -t lib/main-gurruzi.dart --flavor gurruzi
+To Run gurruzi Build Debug     :- flutter run --debug -t lib/main-gurruzi.dart --flavor gurruzi
+To Build gurruzi Build Web Release :- flutter build web --release -t lib/main-gurruzi.dart --no-tree-shake-icons --web-renderer canvaskit
+To Run gurruzi Build Web Release :- flutter run -d chrome --release -t lib/main-gurruzi.dart
+To Rub gurruzi Web Server :- flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0 -t lib/main-gurruzi.dart --web-renderer canvaskit
+
 
 //To Build for Flutter
 1) comment flutter_chat_bot and arcore_flutter_plugin -> PubGet -> uncomment flutter_chat_bot and arcore_flutter_plugin -> PubGet
