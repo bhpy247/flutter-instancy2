@@ -87,6 +87,7 @@ dependencies:
   syncfusion_flutter_charts: ^25.1.39+1
   stylish_bottom_bar: ^1.0.3
   flex_color_picker: ^3.4.1
+  record: ^5.0.5
 
   #region Loaders:
   flutter_spinkit: ^5.2.0

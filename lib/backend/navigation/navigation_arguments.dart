@@ -982,6 +982,22 @@ class AddEditDocumentScreenArguments extends NavigationArguments {
   const AddEditDocumentScreenArguments({required this.componentId, required this.componentInsId, this.courseDtoModel, this.index = 0, this.isEdit = false, this.isFromReference = false});
 }
 
+class CreatePodcastSourceSelectionScreenNavigationArguments extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+  final CourseDTOModel? courseDtoModel;
+  final int index;
+  final bool isEdit;
+
+  const CreatePodcastSourceSelectionScreenNavigationArguments({
+    required this.componentId,
+    required this.componentInsId,
+    this.courseDtoModel,
+    this.index = 0,
+    this.isEdit = false,
+  });
+}
+
 class AddEditReferenceScreenArguments extends NavigationArguments {
   final int componentId;
   final int componentInsId;
@@ -1025,4 +1041,24 @@ class AddEditQuizScreenArgument extends NavigationArguments {
   const AddEditQuizScreenArgument({
     this.courseDtoModel,
   });
+}
+
+class RecordAndUploadPodcastScreenNavigationArgument extends NavigationArguments {
+  final int componentId;
+  final int componentInsId;
+  final CourseDTOModel? courseDtoModel;
+  final int objectTypeId;
+  final bool isFromRecordAudio;
+
+  const RecordAndUploadPodcastScreenNavigationArgument({
+    required this.componentId,
+    required this.componentInsId,
+    this.courseDtoModel,
+    required this.objectTypeId,
+    this.isFromRecordAudio = false,
+  });
+}
+
+class TextToAudioScreenNavigationArgument extends NavigationArguments {
+  const TextToAudioScreenNavigationArgument();
 }

@@ -75,7 +75,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: AddEditFlashcardScreenNavigationArguments(),
+        arguments: const AddEditFlashcardScreenNavigationArguments(),
       );
     } else if (objectTypeId == InstancyObjectTypes.rolePlay) {
       NavigationController.navigateToAddEditFlashcardScreen(
@@ -83,15 +83,20 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: AddEditFlashcardScreenNavigationArguments(),
+        arguments: const AddEditFlashcardScreenNavigationArguments(),
       );
     } else if (objectTypeId == InstancyObjectTypes.podcastEpisode) {
-      NavigationController.navigateToAddEditFlashcardScreen(
+      NavigationController.navigateToCreatePodcastSourceSelectionScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: AddEditFlashcardScreenNavigationArguments(),
+        arguments: const CreatePodcastSourceSelectionScreenNavigationArguments(
+          courseDtoModel: null,
+          componentId: 0,
+          componentInsId: 0,
+          isEdit: false,
+        ),
       );
     } else if (objectTypeId == InstancyObjectTypes.referenceUrl) {
       NavigationController.navigateToAddEditFlashcardScreen(
@@ -99,7 +104,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: AddEditFlashcardScreenNavigationArguments(),
+        arguments: const AddEditFlashcardScreenNavigationArguments(),
       );
     } else if (objectTypeId == InstancyObjectTypes.document) {
       NavigationController.navigateToAddEditFlashcardScreen(
@@ -107,7 +112,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: AddEditFlashcardScreenNavigationArguments(),
+        arguments: const AddEditFlashcardScreenNavigationArguments(),
       );
     } else if (objectTypeId == InstancyObjectTypes.videos) {
       NavigationController.navigateToAddEditFlashcardScreen(
@@ -115,7 +120,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: AddEditFlashcardScreenNavigationArguments(),
+        arguments: const AddEditFlashcardScreenNavigationArguments(),
       );
     } else if (objectTypeId == InstancyObjectTypes.quiz) {
       NavigationController.navigateToAddEditFlashcardScreen(
@@ -123,7 +128,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: AddEditFlashcardScreenNavigationArguments(),
+        arguments: const AddEditFlashcardScreenNavigationArguments(),
       );
     } else if (objectTypeId == InstancyObjectTypes.article) {
       NavigationController.navigateToAddEditFlashcardScreen(
@@ -131,7 +136,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: AddEditFlashcardScreenNavigationArguments(),
+        arguments: const AddEditFlashcardScreenNavigationArguments(),
       );
     } else {}
   }
@@ -175,6 +180,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       MyPrint.printOnConsole("Got file Name:${file.name}");
       MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
       fileBytes = file.bytes;
+      thumbNailBytes = fileBytes;
     } else {
       fileName = "";
       fileBytes = null;
@@ -199,6 +205,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
               padding: const EdgeInsets.all(10.0),
               child: SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(
                       height: 17,
@@ -221,7 +228,9 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
                     ),
                     CommonButton(
                       minWidth: double.infinity,
-                      onPressed: () {},
+                      onPressed: () {
+                        onNextTap(widget.argument.objectTypeId);
+                      },
                       text: "Next",
                       fontColor: themeData.colorScheme.onPrimary,
                     )

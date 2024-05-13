@@ -12,9 +12,12 @@ import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_fla
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_quiz_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_refrence_link_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/article_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/common_create_authoring_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/create_podcast_source_selection_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/flash_card_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/podcast_episode_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/quiz_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/text_to_audio.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/video_screen.dart';
 import 'package:flutter_instancy_2/views/common/screen/common_view_image_screen.dart';
 import 'package:flutter_instancy_2/views/course_details/screens/course_details_screen.dart';
@@ -476,6 +479,16 @@ class NavigationController {
           page = parseAddEditDocumentScreen(settings: settings);
           break;
         }
+      case CreatePodcastSourceSelectionScreen.routeName:
+        {
+          page = parseCreatePodcastSourceSelectionScreen(settings: settings);
+          break;
+        }
+      case RecordAndUploadPodcastScreen.routeName:
+        {
+          page = parseRecordAndUploadPodcastScreen(settings: settings);
+          break;
+        }
       case VideoScreen.routeName:
         {
           page = parseVideoScreen(settings: settings);
@@ -526,6 +539,18 @@ class NavigationController {
       case AddEditQuizScreen.routeName:
         {
           page = parseAddEditQuizScreen(settings: settings);
+          break;
+        }
+
+      case CommonCreateAuthoringToolScreen.routeName:
+        {
+          page = parseCommonCreateAuthoringToolScreen(settings: settings);
+          break;
+        }
+
+      case TextToAudioScreen.routeName:
+        {
+          page = parseTextToAudioScreen(settings: settings);
           break;
         }
     }
@@ -1197,6 +1222,22 @@ class NavigationController {
     );
   }
 
+  static Widget? parseCreatePodcastSourceSelectionScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! CreatePodcastSourceSelectionScreenNavigationArguments) {
+      return null;
+    }
+    return CreatePodcastSourceSelectionScreen(arguments: argument);
+  }
+
+  static Widget? parseRecordAndUploadPodcastScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! RecordAndUploadPodcastScreenNavigationArgument) {
+      return null;
+    }
+    return RecordAndUploadPodcastScreen(argument: argument);
+  }
+
   static Widget? parseVideoScreen({required RouteSettings settings}) {
     return const VideoScreen();
   }
@@ -1266,6 +1307,22 @@ class NavigationController {
       return null;
     }
     return AddEditQuizScreen(arguments: argument);
+  }
+
+  static Widget? parseCommonCreateAuthoringToolScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! CommonCreateAuthoringToolScreenArgument) {
+      return null;
+    }
+    return CommonCreateAuthoringToolScreen(argument: argument);
+  }
+
+  static Widget? parseTextToAudioScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! TextToAudioScreenNavigationArgument) {
+      return null;
+    }
+    return TextToAudioScreen(argument: argument);
   }
 
   //endregion
@@ -1901,6 +1958,32 @@ class NavigationController {
     );
   }
 
+  static Future<dynamic> navigateToCreatePodcastSourceSelectionScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required CreatePodcastSourceSelectionScreenNavigationArguments arguments,
+  }) {
+    MyPrint.printOnConsole("navigateToCreatePodcastSourceSelectionScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: CreatePodcastSourceSelectionScreen.routeName,
+        arguments: arguments,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToRecordAndUploadPodcastScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required RecordAndUploadPodcastScreenNavigationArgument arguments,
+  }) {
+    MyPrint.printOnConsole("navigateToRecordAndUploadPodcastScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: RecordAndUploadPodcastScreen.routeName,
+        arguments: arguments,
+      ),
+    );
+  }
+
   static Future<dynamic> navigateToReferenceLinkScreen({required NavigationOperationParameters navigationOperationParameters}) {
     MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
@@ -2006,6 +2089,26 @@ class NavigationController {
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: AddEditQuizScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateCommonCreateAuthoringToolScreen({required NavigationOperationParameters navigationOperationParameters, required CommonCreateAuthoringToolScreenArgument argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: CommonCreateAuthoringToolScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToTextToAudioScreen({required NavigationOperationParameters navigationOperationParameters, required TextToAudioScreenNavigationArgument argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: TextToAudioScreen.routeName,
         arguments: argument,
       ),
     );

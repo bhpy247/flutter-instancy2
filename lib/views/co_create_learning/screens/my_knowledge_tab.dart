@@ -721,12 +721,26 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       courseDTOModel.ContentTypeId = InstancyObjectTypes.flashCard;
       courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
     } else if (objectType == InstancyObjectTypes.podcastEpisode) {
-      courseDTOModel.TitleName = "Podcast";
-      courseDTOModel.Title = courseDTOModel.TitleName;
-      courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      courseDTOModel.ContentType = "Podcast Episode";
-      courseDTOModel.ContentTypeId = InstancyObjectTypes.podcastEpisode;
-      courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
+      // courseDTOModel.TitleName = "Podcast";
+      // courseDTOModel.Title = courseDTOModel.TitleName;
+      // courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
+      // courseDTOModel.ContentType = "Podcast Episode";
+      // courseDTOModel.ContentTypeId = InstancyObjectTypes.podcastEpisode;
+      // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
+      courseDTOModel = null;
+
+      NavigationController.navigateCommonCreateAuthoringToolScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: CommonCreateAuthoringToolScreenArgument(
+          courseDtoModel: courseDTOModel,
+          objectTypeId: InstancyObjectTypes.podcastEpisode,
+          componentId: 0,
+          componentInsId: 0,
+        ),
+      );
     } else if (objectType == InstancyObjectTypes.referenceUrl) {
       // courseDTOModel.TitleName = "Instancy";
       // courseDTOModel.Title = courseDTOModel.TitleName;

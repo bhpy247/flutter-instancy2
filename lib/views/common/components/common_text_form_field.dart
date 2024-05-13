@@ -145,6 +145,7 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
     this.isFilled = false,
     this.fillColor,
     this.disabledColor,
+    this.isHintText = false,
   }) : super(key: key);
 
   final TextEditingController? controller;
@@ -164,6 +165,7 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
   final int? minLines, maxLines, errorMaxLines;
   final Function()? onTap;
   final Color? disabledColor;
+  final bool isHintText;
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +205,8 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
           enabledBorder: inputBorder(enabledBorderColor ?? themeData.inputDecorationTheme.border?.borderSide.color ?? Colors.black),
           disabledBorder: inputBorder(disabledBorderColor ?? Colors.grey),
           focusedBorder: inputBorder(focusColor ?? Theme.of(context).primaryColor),
-          labelText: labelText,
+          labelText: isHintText ? null : labelText,
+          hintText: isHintText ? labelText : null,
           label: label,
           prefixIconConstraints: const BoxConstraints(minWidth: 40),
           prefixIcon: prefixWidget,
