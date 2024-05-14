@@ -106,8 +106,8 @@ android {
         qalearning2 {
             dimension "app"
             applicationId "com.instancy.qalearning2"
-            versionCode 36
-            versionName "1.0.23"
+            versionCode 37
+            versionName "1.0.24"
             resValue "string", "app_name", "QA Learning 2"
         }
 
