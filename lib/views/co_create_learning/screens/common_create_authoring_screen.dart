@@ -79,14 +79,6 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         ),
         arguments: const AddEditFlashcardScreenNavigationArguments(),
       );
-    } else if (objectTypeId == InstancyObjectTypes.rolePlay) {
-      NavigationController.navigateToAddEditFlashcardScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        arguments: const AddEditFlashcardScreenNavigationArguments(),
-      );
     } else if (objectTypeId == InstancyObjectTypes.podcastEpisode) {
       NavigationController.navigateToCreatePodcastSourceSelectionScreen(
         navigationOperationParameters: NavigationOperationParameters(
@@ -149,6 +141,14 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         argument: const AddEditEventScreenArgument(
           courseDtoModel: null,
         ),
+      );
+    } else if (objectTypeId == InstancyObjectTypes.rolePlay) {
+      NavigationController.navigateToAddEditRoleplayScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: const AddEditRolePlayScreenNavigationArgument(),
       );
     } else {}
   }

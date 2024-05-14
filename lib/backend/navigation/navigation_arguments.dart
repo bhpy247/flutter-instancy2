@@ -1080,3 +1080,11 @@ class RecordAndUploadPodcastScreenNavigationArgument extends NavigationArguments
 class TextToAudioScreenNavigationArgument extends NavigationArguments {
   const TextToAudioScreenNavigationArgument();
 }
+
+class AddEditRolePlayScreenNavigationArgument extends NavigationArguments {
+  final CourseDTOModel? model;
+
+  const AddEditRolePlayScreenNavigationArgument({
+    this.model,
+  });
+}

@@ -12,6 +12,7 @@ import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_eve
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_flashcard_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_quiz_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_refrence_link_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_role_play_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_video_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/article_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/common_create_authoring_screen.dart';
@@ -583,6 +584,11 @@ class NavigationController {
       case TextToAudioScreen.routeName:
         {
           page = parseTextToAudioScreen(settings: settings);
+          break;
+        }
+      case AddEditRolePlayScreen.routeName:
+        {
+          page = parseAddEditRoleplayScreen(settings: settings);
           break;
         }
     }
@@ -1399,6 +1405,14 @@ class NavigationController {
       return null;
     }
     return TextToAudioScreen(argument: argument);
+  }
+
+  static Widget? parseAddEditRoleplayScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditRolePlayScreenNavigationArgument) {
+      return null;
+    }
+    return AddEditRolePlayScreen(arguments: argument);
   }
 
   //endregion
@@ -2235,6 +2249,16 @@ class NavigationController {
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: TextToAudioScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToAddEditRoleplayScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditRolePlayScreenNavigationArgument argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: AddEditRolePlayScreen.routeName,
         arguments: argument,
       ),
     );

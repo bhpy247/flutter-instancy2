@@ -732,7 +732,11 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: const CommonCreateAuthoringToolScreenArgument(componentInsId: 0, componentId: 0, objectTypeId: InstancyObjectTypes.rolePlay),
+        argument: const CommonCreateAuthoringToolScreenArgument(
+          componentInsId: 0,
+          componentId: 0,
+          objectTypeId: InstancyObjectTypes.rolePlay,
+        ),
       );
     } else if (objectType == InstancyObjectTypes.podcastEpisode) {
       // courseDTOModel.TitleName = "Podcast";

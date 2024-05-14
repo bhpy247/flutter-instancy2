@@ -4,11 +4,12 @@ import '../../../backend/app_theme/style.dart';
 
 class CommonBorderDropdown<T> extends StatefulWidget {
   final List<T> items;
-  final T value;
+  final T? value;
   final ValueChanged<T?> onChanged;
   final IconData trailingIcon;
   final String? hintText;
   final bool isExpanded;
+  final Color? borderColor;
 
   const CommonBorderDropdown({
     super.key,
@@ -16,6 +17,7 @@ class CommonBorderDropdown<T> extends StatefulWidget {
     required this.value,
     required this.onChanged,
     this.hintText,
+    this.borderColor,
     this.isExpanded = false,
     this.trailingIcon = Icons.keyboard_arrow_down_outlined,
   });
@@ -29,7 +31,7 @@ class _CommonBorderDropdownState<T> extends State<CommonBorderDropdown<T>> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Styles.textFieldBorderColor),
+        border: Border.all(color: widget.borderColor ?? Styles.textFieldBorderColor),
         borderRadius: BorderRadius.circular(4.0),
       ),
       child: DropdownButtonHideUnderline(
