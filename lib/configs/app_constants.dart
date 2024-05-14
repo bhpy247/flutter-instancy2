@@ -455,8 +455,7 @@ class InstancyComponents {
   static const int Feedback = 5002;
   static const int GlobalSearchComponent = 225;
   static const int GlobalSearchComponentInsId = 4021;
-  static const int CoCreateKnowledgeComponent = 10009;
-  static const int CoCreateKnowledgeComponentInsId = 25;
+  static const int CoCreateKnowledgeComponent = 328;
 }
 
 class ViewTypesForContent {
