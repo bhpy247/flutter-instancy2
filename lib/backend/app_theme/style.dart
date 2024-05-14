@@ -36,6 +36,7 @@ class Styles {
   static const Color leadingBack = Colors.white;
   static const Color backgroundColor = Colors.white;
   static const Color progressbarCompletedColor = Color(0xff013FCC);
+  static const Color textFieldBorderColor = Color(0xffDCDCDC);
 
   static const Color chipBackgroundColor = Color(0xffE9E9E9);
   static const Color borderColor = Color(0xffDFDFDF);

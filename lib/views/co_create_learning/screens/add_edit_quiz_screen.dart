@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/theme_helper.dart';
+import 'package:flutter_instancy_2/views/common/components/common_border_dropdown.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../backend/navigation/navigation_arguments.dart';
+import '../../../backend/app_theme/style.dart';
 import '../../../configs/app_configurations.dart';
 import '../../common/components/common_button.dart';
 import '../../common/components/common_text_form_field.dart';
@@ -22,6 +24,7 @@ class AddEditQuizScreen extends StatefulWidget {
 class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState {
   bool isLoading = false;
   TextEditingController countController = TextEditingController();
+  TextEditingController promptController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -44,13 +47,32 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
                     const SizedBox(
                       height: 17,
                     ),
+                    getPromptTextFormField(),
+                    const SizedBox(
+                      height: 17,
+                    ),
                     getCardCountTextFormField(),
+                    const SizedBox(
+                      height: 17,
+                    ),
+                    getQuestionTypeDropDown(),
+                    const SizedBox(
+                      height: 17,
+                    ),
+                    getDifficultyLevelDropDown(),
                     const SizedBox(
                       height: 17,
                     ),
                     CommonButton(
                       minWidth: double.infinity,
-                      onPressed: () {},
+                      onPressed: () {
+                        NavigationController.navigateToQuizScreen(
+                          navigationOperationParameters: NavigationOperationParameters(
+                            context: context,
+                            navigationType: NavigationType.pushNamed,
+                          ),
+                        );
+                      },
                       text: "Generate With AI",
                       fontColor: theme.colorScheme.onPrimary,
                     )
@@ -72,6 +94,57 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
     );
   }
 
+  Widget getCardCountTextFormField() {
+    return getTexFormField(
+      isMandatory: false,
+      showPrefixIcon: false,
+      controller: countController,
+      labelText: "Question Count",
+      keyBoardType: TextInputType.number,
+      iconUrl: "assets/catalog/imageDescription.png",
+    );
+  }
+
+  Widget getPromptTextFormField() {
+    return getTexFormField(
+        isMandatory: false,
+        showPrefixIcon: false,
+        controller: promptController,
+        labelText: "Write Prompt...",
+        keyBoardType: TextInputType.text,
+        iconUrl: "assets/catalog/imageDescription.png",
+        maxLines: 7,
+        minLines: 7);
+  }
+
+  String? selectedQuestionType, selectedDifficultyLevel;
+
+  Widget getQuestionTypeDropDown() {
+    return CommonBorderDropdown(
+      isExpanded: true,
+      items: const ["Multiple Choice", "True/False", "Both"],
+      value: selectedQuestionType,
+      hintText: "Question Type",
+      onChanged: (val) {
+        selectedQuestionType = val;
+        mySetState();
+      },
+    );
+  }
+
+  Widget getDifficultyLevelDropDown() {
+    return CommonBorderDropdown(
+      isExpanded: true,
+      items: const ["Hard", "Medium", "Easy"],
+      value: selectedDifficultyLevel,
+      hintText: "Difficulty Level",
+      onChanged: (val) {
+        selectedDifficultyLevel = val;
+        mySetState();
+      },
+    );
+  }
+
   //region textFieldView
   Widget getTexFormField(
       {TextEditingController? controller,
@@ -82,25 +155,33 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
       required bool isMandatory,
       int? minLines,
       int? maxLines,
+      bool showPrefixIcon = false,
       TextInputType? keyBoardType,
       double iconHeight = 15,
       double iconWidth = 15}) {
     return CommonTextFormFieldWithLabel(
       controller: controller,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       label: isMandatory ? labelWithStar(labelText) : null,
       labelText: isMandatory ? null : labelText,
       validator: validator,
+      floatingLabelColor: Colors.black.withOpacity(.6),
       minLines: minLines,
       maxLines: maxLines,
+      borderColor: Styles.textFieldBorderColor,
+      enabledBorderColor: Styles.textFieldBorderColor,
+      borderWidth: 1,
       isOutlineInputBorder: true,
       keyboardType: keyBoardType,
-      prefixWidget: iconUrl.isNotEmpty
-          ? getImageView(url: iconUrl, height: iconHeight, width: iconWidth)
-          : const Icon(
-              FontAwesomeIcons.globe,
-              size: 15,
-              color: Colors.grey,
-            ),
+      prefixWidget: showPrefixIcon
+          ? iconUrl.isNotEmpty
+              ? getImageView(url: iconUrl, height: iconHeight, width: iconWidth)
+              : const Icon(
+                  FontAwesomeIcons.globe,
+                  size: 15,
+                  color: Colors.grey,
+                )
+          : null,
       suffixWidget: suffixWidget,
     );
   }
@@ -123,14 +204,4 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
   }
 
 //endregion
-
-  Widget getCardCountTextFormField() {
-    return getTexFormField(
-      isMandatory: false,
-      controller: countController,
-      labelText: "Card Count",
-      keyBoardType: TextInputType.number,
-      iconUrl: "assets/catalog/imageDescription.png",
-    );
-  }
 }

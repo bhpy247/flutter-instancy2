@@ -8,16 +8,21 @@ import 'package:flutter_instancy_2/views/authentication/screens/login_screen.dar
 import 'package:flutter_instancy_2/views/authentication/screens/sign_up_screen.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/PrerequisiteScreen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_document_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_event_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_flashcard_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_quiz_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_refrence_link_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_video_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/article_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/common_create_authoring_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/create_podcast_source_selection_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/create_manually_video_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/flash_card_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/generate_with_ai_video_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/podcast_episode_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/quiz_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/text_to_audio.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/record_video_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/video_screen.dart';
 import 'package:flutter_instancy_2/views/common/screen/common_view_image_screen.dart';
 import 'package:flutter_instancy_2/views/course_details/screens/course_details_screen.dart';
@@ -539,6 +544,33 @@ class NavigationController {
       case AddEditQuizScreen.routeName:
         {
           page = parseAddEditQuizScreen(settings: settings);
+          break;
+        }
+
+      case AddEditVideoScreen.routeName:
+        {
+          page = parseAddEditVideoScreen(settings: settings);
+          break;
+        }
+      case RecordVideoScreen.routeName:
+        {
+          page = parseRecordVideoScreen(settings: settings);
+          break;
+        }
+      case CreateManuallyVideoScreen.routeName:
+        {
+          page = parseCreateManuallyVideoScreen(settings: settings);
+          break;
+        }
+      case GenerateWithAiVideoScreen.routeName:
+        {
+          page = parseGenerateWithAiVideoScreen(settings: settings);
+          break;
+        }
+
+      case AddEditEventScreen.routeName:
+        {
+          page = parseAddEditEventScreen(settings: settings);
           break;
         }
 
@@ -1307,6 +1339,50 @@ class NavigationController {
       return null;
     }
     return AddEditQuizScreen(arguments: argument);
+  }
+
+  static Widget? parseAddEditVideoScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditVideoScreenArgument) {
+      return null;
+    }
+    return AddEditVideoScreen(arguments: argument);
+  }
+
+  static Widget? parseRecordVideoScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditVideoScreenArgument) {
+      return null;
+    }
+    return RecordVideoScreen(
+      argument: argument,
+    );
+  }
+
+  static Widget? parseCreateManuallyVideoScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditVideoScreenArgument) {
+      return null;
+    }
+    return CreateManuallyVideoScreen();
+  }
+
+  static Widget? parseGenerateWithAiVideoScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditVideoScreenArgument) {
+      return null;
+    }
+    return GenerateWithAiVideoScreen();
+  }
+
+  static Widget? parseAddEditEventScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditEventScreenArgument) {
+      return null;
+    }
+    return AddEditEventScreen(
+      arguments: argument,
+    );
   }
 
   static Widget? parseCommonCreateAuthoringToolScreen({required RouteSettings settings}) {
@@ -2084,11 +2160,61 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToAddEditQuizScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditReferenceScreenArguments argument}) {
+  static Future<dynamic> navigateToAddEditQuizScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditQuizScreenArgument argument}) {
     MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: AddEditQuizScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToAddEditVideoScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditVideoScreenArgument argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: AddEditVideoScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToRecordVideoScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditVideoScreenArgument argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: RecordVideoScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToCreateManuallyVideoScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditVideoScreenArgument argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: CreateManuallyVideoScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToGenerateWithAiVideoScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditVideoScreenArgument argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: GenerateWithAiVideoScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToAddEditEventScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditEventScreenArgument argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: AddEditEventScreen.routeName,
         arguments: argument,
       ),
     );

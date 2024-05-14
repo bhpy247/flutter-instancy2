@@ -1,6 +1,6 @@
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_instancy_2/backend/navigation/navigation_arguments.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/flash_card_screen.dart';
@@ -137,6 +137,20 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
         child: RefreshIndicator(
           onRefresh: () async {},
           child: Scaffold(
+            resizeToAvoidBottomInset: true,
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: CommonButton(
+                minWidth: double.infinity,
+                onPressed: () {
+                  NavigationController.navigateToFlashCardScreen(
+                    navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+                  );
+                },
+                text: "Generate With AI",
+                fontColor: themeData.colorScheme.onPrimary,
+              ),
+            ),
             appBar: AppConfigurations().commonAppBar(
               title: widget.arguments.courseDTOModel != null ? "Edit Flashcard" : "Add Flashcard",
             ),
@@ -164,12 +178,6 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
                     const SizedBox(
                       height: 17,
                     ),
-                    CommonButton(
-                      minWidth: double.infinity,
-                      onPressed: () {},
-                      text: "Generate With AI",
-                      fontColor: themeData.colorScheme.onPrimary,
-                    )
                   ],
                 ),
               ),
@@ -237,7 +245,7 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
     return getTexFormField(
       isMandatory: false,
       controller: urlController,
-      labelText: "Add Url",
+      labelText: "Enter Url",
     );
   }
 

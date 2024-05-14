@@ -146,7 +146,8 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
     this.fillColor,
     this.disabledColor,
     this.isHintText = false,
-  }) : super(key: key);
+      this.labelStyle})
+      : super(key: key);
 
   final TextEditingController? controller;
   final String? labelText;
@@ -166,6 +167,7 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
   final Function()? onTap;
   final Color? disabledColor;
   final bool isHintText;
+  final TextStyle? labelStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +198,7 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
           alignLabelWithHint: true,
           filled: isFilled,
           fillColor: fillColor,
-          labelStyle: TextStyle(color: floatingLabelColor, fontSize: 13, letterSpacing: 0.4),
+          labelStyle: labelStyle ?? TextStyle(color: floatingLabelColor, fontSize: 14, letterSpacing: 0.4),
           // floatingLabelBehavior: FloatingLabelBehavior.auto,
           // floatingLabelStyle: TextStyle(color: floatingLabelColor, fontSize: 15),
           floatingLabelAlignment: FloatingLabelAlignment.start,

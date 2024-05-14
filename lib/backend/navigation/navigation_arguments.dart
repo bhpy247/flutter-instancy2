@@ -1043,6 +1043,24 @@ class AddEditQuizScreenArgument extends NavigationArguments {
   });
 }
 
+class AddEditVideoScreenArgument extends NavigationArguments {
+  final CourseDTOModel? courseDtoModel;
+  final bool isUploadScreen;
+
+  const AddEditVideoScreenArgument({
+    this.courseDtoModel,
+    this.isUploadScreen = false,
+  });
+}
+
+class AddEditEventScreenArgument extends NavigationArguments {
+  final CourseDTOModel? courseDtoModel;
+
+  const AddEditEventScreenArgument({
+    this.courseDtoModel,
+  });
+}
+
 class RecordAndUploadPodcastScreenNavigationArgument extends NavigationArguments {
   final int componentId;
   final int componentInsId;

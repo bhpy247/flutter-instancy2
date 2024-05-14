@@ -48,21 +48,23 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
   String setAppBarTitle(int objectTypeId) {
     bool isEdit = widget.argument.courseDtoModel != null ? true : false;
     if (objectTypeId == InstancyObjectTypes.flashCard) {
-      return isEdit ? "Edit Flashcard" : "Add Flashcard";
+      return isEdit ? "Edit Flashcard" : "Create Flashcard";
     } else if (objectTypeId == InstancyObjectTypes.rolePlay) {
-      return isEdit ? "Edit RolePlay" : "Add RolePlay";
+      return isEdit ? "Edit RolePlay" : "Create RolePlay";
     } else if (objectTypeId == InstancyObjectTypes.podcastEpisode) {
-      return isEdit ? "Edit PodCast Episode" : "Add PodCast Episode";
+      return isEdit ? "Edit PodCast Episode" : "Create PodCast Episode";
     } else if (objectTypeId == InstancyObjectTypes.referenceUrl) {
-      return isEdit ? "Edit Reference Url" : "Add Reference Url";
+      return isEdit ? "Edit Reference Url" : "Create Reference Url";
     } else if (objectTypeId == InstancyObjectTypes.document) {
-      return isEdit ? "Edit Document" : "Add Document";
+      return isEdit ? "Edit Document" : "Create Document";
     } else if (objectTypeId == InstancyObjectTypes.videos) {
-      return isEdit ? "Edit Video" : "Add Video";
+      return isEdit ? "Edit Video" : "Create Video";
     } else if (objectTypeId == InstancyObjectTypes.quiz) {
-      return isEdit ? "Edit Quiz" : "Add Quiz";
+      return isEdit ? "Edit Quiz" : "Create Quiz";
     } else if (objectTypeId == InstancyObjectTypes.article) {
-      return isEdit ? "Edit Article" : "Add Article";
+      return isEdit ? "Edit Article" : "Create Article";
+    } else if (objectTypeId == InstancyObjectTypes.events) {
+      return isEdit ? "Edit Event" : "Create Event";
     } else {
       return "";
     }
@@ -99,36 +101,36 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         ),
       );
     } else if (objectTypeId == InstancyObjectTypes.referenceUrl) {
-      NavigationController.navigateToAddEditFlashcardScreen(
+      NavigationController.navigateToReferenceLinkScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: const AddEditFlashcardScreenNavigationArguments(),
+        // argument: const AddEditReferenceScreenArguments(componentId: 0, componentInsId: 0),
       );
     } else if (objectTypeId == InstancyObjectTypes.document) {
-      NavigationController.navigateToAddEditFlashcardScreen(
+      NavigationController.navigateToAddEditDocumentScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: const AddEditFlashcardScreenNavigationArguments(),
+        arguments: const AddEditDocumentScreenArguments(componentId: 0, componentInsId: 0),
       );
     } else if (objectTypeId == InstancyObjectTypes.videos) {
-      NavigationController.navigateToAddEditFlashcardScreen(
+      NavigationController.navigateToAddEditVideoScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: const AddEditFlashcardScreenNavigationArguments(),
+        argument: const AddEditVideoScreenArgument(),
       );
     } else if (objectTypeId == InstancyObjectTypes.quiz) {
-      NavigationController.navigateToAddEditFlashcardScreen(
+      NavigationController.navigateToAddEditQuizScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: const AddEditFlashcardScreenNavigationArguments(),
+        argument: const AddEditQuizScreenArgument(),
       );
     } else if (objectTypeId == InstancyObjectTypes.article) {
       NavigationController.navigateToAddEditFlashcardScreen(
@@ -137,6 +139,16 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           navigationType: NavigationType.pushNamed,
         ),
         arguments: const AddEditFlashcardScreenNavigationArguments(),
+      );
+    } else if (objectTypeId == InstancyObjectTypes.events) {
+      NavigationController.navigateToAddEditEventScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: const AddEditEventScreenArgument(
+          courseDtoModel: null,
+        ),
       );
     } else {}
   }

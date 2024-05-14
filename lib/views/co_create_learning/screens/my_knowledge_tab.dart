@@ -71,7 +71,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 
           onEditTap(model: model, index: index);
         },
-        iconData: InstancyIcons.view,
+        iconData: InstancyIcons.edit,
       ),
       InstancyUIActionModel(
         text: "Details",
@@ -702,24 +702,38 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       // courseDTOModel.ContentTypeId = InstancyObjectTypes.flashCard;
       // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
 
-      NavigationController.navigateToAddEditFlashcardScreen(
+      // NavigationController.navigateToAddEditFlashcardScreen(
+      //   navigationOperationParameters: NavigationOperationParameters(
+      //     context: context,
+      //     navigationType: NavigationType.pushNamed,
+      //   ),
+      //   arguments: const AddEditFlashcardScreenNavigationArguments(
+      //     courseDTOModel: null,
+      //   ),
+      // );
+      NavigationController.navigateCommonCreateAuthoringToolScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: const AddEditFlashcardScreenNavigationArguments(
-          courseDTOModel: null,
-        ),
+        argument: const CommonCreateAuthoringToolScreenArgument(componentInsId: 0, componentId: 0, objectTypeId: InstancyObjectTypes.flashCard),
       );
     } else if (objectType == InstancyObjectTypes.rolePlay) {
-      MyPrint.printOnConsole("in Role Play");
-
-      courseDTOModel.TitleName = "Role Play Title";
-      courseDTOModel.Title = courseDTOModel.TitleName;
-      courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      courseDTOModel.ContentType = "Roleplay";
-      courseDTOModel.ContentTypeId = InstancyObjectTypes.flashCard;
-      courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
+      // MyPrint.printOnConsole("in Role Play");
+      //
+      // courseDTOModel.TitleName = "Role Play Title";
+      // courseDTOModel.Title = courseDTOModel.TitleName;
+      // courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
+      // courseDTOModel.ContentType = "Roleplay";
+      // courseDTOModel.ContentTypeId = InstancyObjectTypes.flashCard;
+      // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
+      NavigationController.navigateCommonCreateAuthoringToolScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: const CommonCreateAuthoringToolScreenArgument(componentInsId: 0, componentId: 0, objectTypeId: InstancyObjectTypes.rolePlay),
+      );
     } else if (objectType == InstancyObjectTypes.podcastEpisode) {
       // courseDTOModel.TitleName = "Podcast";
       // courseDTOModel.Title = courseDTOModel.TitleName;
@@ -779,19 +793,46 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       courseDTOModel.ContentTypeId = InstancyObjectTypes.document;
       courseDTOModel.MediaTypeID = InstancyMediaTypes.none;*/
     } else if (objectType == InstancyObjectTypes.videos) {
-      courseDTOModel.TitleName = "Video Title";
-      courseDTOModel.Title = courseDTOModel.TitleName;
-      courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      courseDTOModel.ContentType = "Videos";
-      courseDTOModel.ContentTypeId = InstancyObjectTypes.videos;
-      courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
+      NavigationController.navigateToAddEditVideoScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: const AddEditVideoScreenArgument(
+          courseDtoModel: null,
+        ),
+      );
+
+      // courseDTOModel.TitleName = "Video Title";
+      // courseDTOModel.Title = courseDTOModel.TitleName;
+      // courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
+      // courseDTOModel.ContentType = "Videos";
+      // courseDTOModel.ContentTypeId = InstancyObjectTypes.videos;
+      // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
     } else if (objectType == InstancyObjectTypes.quiz) {
-      courseDTOModel.TitleName = "Quiz Title";
-      courseDTOModel.Title = courseDTOModel.TitleName;
-      courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      courseDTOModel.ContentType = "Quiz";
-      courseDTOModel.ContentTypeId = InstancyObjectTypes.quiz;
-      courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
+      // courseDTOModel.TitleName = "Quiz Title";
+      // courseDTOModel.Title = courseDTOModel.TitleName;
+      // courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
+      // courseDTOModel.ContentType = "Quiz";
+      // courseDTOModel.ContentTypeId = InstancyObjectTypes.quiz;
+      // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
+      // NavigationController.navigateToAddEditQuizScreen(
+      //   navigationOperationParameters: NavigationOperationParameters(
+      //     context: context,
+      //     navigationType: NavigationType.pushNamed,
+      //   ),
+      //   argument: const AddEditQuizScreenArgument(
+      //     courseDtoModel: null,
+      //   ),
+      // );
+
+      NavigationController.navigateCommonCreateAuthoringToolScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: const CommonCreateAuthoringToolScreenArgument(componentInsId: 0, componentId: 0, objectTypeId: InstancyObjectTypes.quiz),
+      );
     } else if (objectType == InstancyObjectTypes.article) {
       courseDTOModel.TitleName = "Article Title";
       courseDTOModel.Title = courseDTOModel.TitleName;
@@ -801,178 +842,193 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
     } else if (objectType == InstancyObjectTypes.events) {
       MyPrint.printOnConsole("in Role Play");
-
-      Map<String, dynamic> eventModelMap = <String, dynamic>{
-        "Titlewithlink": "",
-        "rcaction": "",
-        "Categories": "",
-        "IsSubSite": "False",
-        "MembershipName": "",
-        "EventAvailableSeats": "",
-        "EventCompletedProgress": "",
-        "EventContentProgress": "",
-        "Count": 0,
-        "PreviewLink": "",
-        "ApproveLink": "",
-        "RejectLink": "",
-        "ReadLink": "",
-        "AddLink": "",
-        "EnrollNowLink": "",
-        "CancelEventLink": "",
-        "WaitListLink": "",
-        "InapppurchageLink": "",
-        "AlredyinmylearnigLink": "",
-        "RecommendedLink": "",
-        "Sharelink": "",
-        "EditMetadataLink": "",
-        "ReplaceLink": "",
-        "EditLink": "",
-        "DeleteLink": "",
-        "SampleContentLink": "",
-        "TitleExpired": "<span class='eventExpiredLabel'>On Demand Recording</span>",
-        "PracticeAssessmentsAction": "",
-        "CreateAssessmentAction": "",
-        "OverallProgressReportAction": "",
-        "ContentName": "TechTalk on system upgradation ",
-        "ContentScoID": "26474",
-        "isContentEnrolled": "False",
-        "ContentViewType": "Subscription",
-        "WindowProperties": "status=no,toolbar=no,menubar=no,resizable=yes,location=no,scrollbars=yes,left=10,top=10,width=1000,height=680",
-        "isWishListContent": 0,
-        "AddtoWishList": "Y",
-        "RemoveFromWishList": null,
-        "Duration": "30Mins",
-        "Credits": "1.00",
-        "DetailspopupTags": "",
-        "ThumbnailIconPath": "",
-        "JWVideoKey": "",
-        "Modules": "",
-        "salepricestrikeoff": "",
-        "isBadCancellationEnabled": "true",
-        "EnrollmentLimit": "10",
-        "AvailableSeats": "7",
-        "NoofUsersEnrolled": "4",
-        "WaitListLimit": "",
-        "WaitListEnrolls": "0",
-        "isBookingOpened": false,
-        "EventStartDateforEnroll": "03/30/2024 04:00 PM",
-        "DownLoadLink": "",
-        "EventType": 1,
-        "EventScheduleType": 0,
-        "EventRecording": false,
-        "ShowParentPrerequisiteEventDate": false,
-        "ShowPrerequisiteEventDate": false,
-        "PrerequisiteDateConflictName": null,
-        "PrerequisiteDateConflictDateTime": null,
-        "SkinID": "",
-        "FilterId": 0,
-        "SiteId": 374,
-        "UserSiteId": 0,
-        "SiteName": "Instancy Social Learning Network",
-        "ContentTypeId": 70,
-        "ContentID": "be06f4c0-ebb7-4a4d-9e00-72461c06c422",
-        "Title": "TechTalk on system upgradation ",
-        "TotalRatings": "0",
-        "RatingID": "0",
-        "ShortDescription": "",
-        "ThumbnailImagePath": "/Content/SiteFiles/Images/Event.jpg",
-        "InstanceParentContentID": "",
-        "ImageWithLink": "",
-        "AuthorWithLink": "",
-        "EventStartDateTime": "",
-        "EventEndDateTime": "",
-        "EventStartDateTimeWithoutConvert": "",
-        "EventEndDateTimeTimeWithoutConvert": "",
-        "expandiconpath": "<img src='/Content/SiteFiles/Images/details_open.png' />",
-        "AuthorDisplayName": "Pradeep Rana 123",
-        "ContentType": "Classroom (in-person)",
-        "CreatedOn": "",
-        "TimeZone": "",
-        "Tags": "",
-        "SalePrice": "",
-        "Currency": "",
-        "ViewLink": "",
-        "DetailsLink": "https://qalearning.instancy.com/Catalog Details/Contentid/be06f4c0-ebb7-4a4d-9e00-72461c06c422/componentid/1/componentInstanceID/3131",
-        "RelatedContentLink": "https://qalearning.instancy.com/CatalogResources-Content/ContentID/be06f4c0-ebb7-4a4d-9e00-72461c06c422",
-        "ViewSessionsLink": null,
-        "SuggesttoConnLink": "be06f4c0-ebb7-4a4d-9e00-72461c06c422",
-        "SuggestwithFriendLink": "be06f4c0-ebb7-4a4d-9e00-72461c06c422",
-        "SharetoRecommendedLink": "",
-        "IsCoursePackage": "",
-        "IsRelatedcontent": "",
-        "isaddtomylearninglogo": "0",
-        "LocationName": "",
-        "BuildingName": null,
-        "JoinURL": "",
-        "Categorycolor": "#67BD4E",
-        "InvitationURL": "http://qalearning.instancy.com//InviteURLID/be06f4c0-ebb7-4a4d-9e00-72461c06c422",
-        "HeaderLocationName": "",
-        "SubSiteUserID": null,
-        "PresenterDisplayName": "",
-        "PresenterWithLink": "",
-        "ShowMembershipExpiryAlert": false,
-        "AuthorName": null,
-        "FreePrice": "",
-        "SiteUserID": 1962,
-        "ScoID": 26474,
-        "BuyNowLink": "",
-        "bit5": true,
-        "bit4": false,
-        "OpenNewBrowserWindow": false,
-        "CreditScoreWithCreditTypes": "",
-        "CreditScoreFirstPrefix": "",
-        "MediaTypeID": 46,
-        "isEnrollFutureInstance": "",
-        "InstanceEventReclass": "",
-        "InstanceEventReclassStatus": "",
-        "InstanceEventReSchedule": "",
-        "InstanceEventEnroll": "",
-        "ReEnrollmentHistory": "",
-        "BackGroundColor": "#2f2d3a",
-        "FontColor": "#fff",
-        "ExpiredContentExpiryDate": "",
-        "ExpiredContentAvailableUntill": "",
-        "Gradient1": "",
-        "Gradient2": "",
-        "GradientColor": "radial-gradient(circle,  0%,  100%)",
-        "ShareContentwithUser": "",
-        "bit1": false,
-        "ViewType": 2,
-        "startpage": "",
-        "CategoryID": 0,
-        "AddLinkTitle": "Add to My learning",
-        "ContentStatus": "",
-        "PercentCompletedClass": "",
-        "PercentCompleted": "",
-        "GoogleProductId": "",
-        "ItunesProductId": "",
-        "FolderPath": "BE06F4C0-EBB7-4A4D-9E00-72461C06C422",
-        "CloudMediaPlayerKey": "",
-        "ActivityId": "http://instancy.com/be06f4c0-ebb7-4a4d-9e00-72461c06c422",
-        "ActualStatus": null,
-        "CoreLessonStatus": null,
-        "jwstartpage": null,
-        "IsReattemptCourse": false,
-        "AttemptsLeft": 0,
-        "TotalAttempts": 0,
-        "ListPrice": "",
-        "ContentModifiedDateTime": null
-      };
-      CourseDTOModel model = CourseDTOModel.fromMap(eventModelMap);
-
-      model.ContentID = courseDTOModel.ContentID;
-      model.AuthorName = model.AuthorDisplayName;
-      model.UserProfileImagePath = "Content/SiteFiles//374/ProfileImages/0.gif";
-      model.MediaTypeID = InstancyMediaTypes.none;
-      model.ContentType = "Events";
-      model.EventStartDateTime = "30 May 2024";
-      model.EventStartDateTimeWithoutConvert = "05/30/2024 05:30:00 PM";
-      model.EventEndDateTime = "30 May 2024";
-      model.EventEndDateTimeTimeWithoutConvert = "05/30/2024 06:00:00 PM";
-      model.Duration = "30 Minutes";
-      model.AvailableSeats = "10";
-
-      courseDTOModel = model;
+      // NavigationController.navigateToAddEditEventScreen(
+      //   navigationOperationParameters: NavigationOperationParameters(
+      //     context: context,
+      //     navigationType: NavigationType.pushNamed,
+      //   ),
+      //   argument: const AddEditEventScreenArgument(
+      //     courseDtoModel: null,
+      //   ),
+      // );
+      NavigationController.navigateCommonCreateAuthoringToolScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: const CommonCreateAuthoringToolScreenArgument(componentInsId: 0, componentId: 0, objectTypeId: InstancyObjectTypes.events),
+      );
+      // Map<String, dynamic> eventModelMap = <String, dynamic>{
+      //   "Titlewithlink": "",
+      //   "rcaction": "",
+      //   "Categories": "",
+      //   "IsSubSite": "False",
+      //   "MembershipName": "",
+      //   "EventAvailableSeats": "",
+      //   "EventCompletedProgress": "",
+      //   "EventContentProgress": "",
+      //   "Count": 0,
+      //   "PreviewLink": "",
+      //   "ApproveLink": "",
+      //   "RejectLink": "",
+      //   "ReadLink": "",
+      //   "AddLink": "",
+      //   "EnrollNowLink": "",
+      //   "CancelEventLink": "",
+      //   "WaitListLink": "",
+      //   "InapppurchageLink": "",
+      //   "AlredyinmylearnigLink": "",
+      //   "RecommendedLink": "",
+      //   "Sharelink": "",
+      //   "EditMetadataLink": "",
+      //   "ReplaceLink": "",
+      //   "EditLink": "",
+      //   "DeleteLink": "",
+      //   "SampleContentLink": "",
+      //   "TitleExpired": "<span class='eventExpiredLabel'>On Demand Recording</span>",
+      //   "PracticeAssessmentsAction": "",
+      //   "CreateAssessmentAction": "",
+      //   "OverallProgressReportAction": "",
+      //   "ContentName": "TechTalk on system upgradation ",
+      //   "ContentScoID": "26474",
+      //   "isContentEnrolled": "False",
+      //   "ContentViewType": "Subscription",
+      //   "WindowProperties": "status=no,toolbar=no,menubar=no,resizable=yes,location=no,scrollbars=yes,left=10,top=10,width=1000,height=680",
+      //   "isWishListContent": 0,
+      //   "AddtoWishList": "Y",
+      //   "RemoveFromWishList": null,
+      //   "Duration": "30Mins",
+      //   "Credits": "1.00",
+      //   "DetailspopupTags": "",
+      //   "ThumbnailIconPath": "",
+      //   "JWVideoKey": "",
+      //   "Modules": "",
+      //   "salepricestrikeoff": "",
+      //   "isBadCancellationEnabled": "true",
+      //   "EnrollmentLimit": "10",
+      //   "AvailableSeats": "7",
+      //   "NoofUsersEnrolled": "4",
+      //   "WaitListLimit": "",
+      //   "WaitListEnrolls": "0",
+      //   "isBookingOpened": false,
+      //   "EventStartDateforEnroll": "03/30/2024 04:00 PM",
+      //   "DownLoadLink": "",
+      //   "EventType": 1,
+      //   "EventScheduleType": 0,
+      //   "EventRecording": false,
+      //   "ShowParentPrerequisiteEventDate": false,
+      //   "ShowPrerequisiteEventDate": false,
+      //   "PrerequisiteDateConflictName": null,
+      //   "PrerequisiteDateConflictDateTime": null,
+      //   "SkinID": "",
+      //   "FilterId": 0,
+      //   "SiteId": 374,
+      //   "UserSiteId": 0,
+      //   "SiteName": "Instancy Social Learning Network",
+      //   "ContentTypeId": 70,
+      //   "ContentID": "be06f4c0-ebb7-4a4d-9e00-72461c06c422",
+      //   "Title": "TechTalk on system upgradation ",
+      //   "TotalRatings": "0",
+      //   "RatingID": "0",
+      //   "ShortDescription": "",
+      //   "ThumbnailImagePath": "/Content/SiteFiles/Images/Event.jpg",
+      //   "InstanceParentContentID": "",
+      //   "ImageWithLink": "",
+      //   "AuthorWithLink": "",
+      //   "EventStartDateTime": "",
+      //   "EventEndDateTime": "",
+      //   "EventStartDateTimeWithoutConvert": "",
+      //   "EventEndDateTimeTimeWithoutConvert": "",
+      //   "expandiconpath": "<img src='/Content/SiteFiles/Images/details_open.png' />",
+      //   "AuthorDisplayName": "Pradeep Rana 123",
+      //   "ContentType": "Classroom (in-person)",
+      //   "CreatedOn": "",
+      //   "TimeZone": "",
+      //   "Tags": "",
+      //   "SalePrice": "",
+      //   "Currency": "",
+      //   "ViewLink": "",
+      //   "DetailsLink": "https://qalearning.instancy.com/Catalog Details/Contentid/be06f4c0-ebb7-4a4d-9e00-72461c06c422/componentid/1/componentInstanceID/3131",
+      //   "RelatedContentLink": "https://qalearning.instancy.com/CatalogResources-Content/ContentID/be06f4c0-ebb7-4a4d-9e00-72461c06c422",
+      //   "ViewSessionsLink": null,
+      //   "SuggesttoConnLink": "be06f4c0-ebb7-4a4d-9e00-72461c06c422",
+      //   "SuggestwithFriendLink": "be06f4c0-ebb7-4a4d-9e00-72461c06c422",
+      //   "SharetoRecommendedLink": "",
+      //   "IsCoursePackage": "",
+      //   "IsRelatedcontent": "",
+      //   "isaddtomylearninglogo": "0",
+      //   "LocationName": "",
+      //   "BuildingName": null,
+      //   "JoinURL": "",
+      //   "Categorycolor": "#67BD4E",
+      //   "InvitationURL": "http://qalearning.instancy.com//InviteURLID/be06f4c0-ebb7-4a4d-9e00-72461c06c422",
+      //   "HeaderLocationName": "",
+      //   "SubSiteUserID": null,
+      //   "PresenterDisplayName": "",
+      //   "PresenterWithLink": "",
+      //   "ShowMembershipExpiryAlert": false,
+      //   "AuthorName": null,
+      //   "FreePrice": "",
+      //   "SiteUserID": 1962,
+      //   "ScoID": 26474,
+      //   "BuyNowLink": "",
+      //   "bit5": true,
+      //   "bit4": false,
+      //   "OpenNewBrowserWindow": false,
+      //   "CreditScoreWithCreditTypes": "",
+      //   "CreditScoreFirstPrefix": "",
+      //   "MediaTypeID": 46,
+      //   "isEnrollFutureInstance": "",
+      //   "InstanceEventReclass": "",
+      //   "InstanceEventReclassStatus": "",
+      //   "InstanceEventReSchedule": "",
+      //   "InstanceEventEnroll": "",
+      //   "ReEnrollmentHistory": "",
+      //   "BackGroundColor": "#2f2d3a",
+      //   "FontColor": "#fff",
+      //   "ExpiredContentExpiryDate": "",
+      //   "ExpiredContentAvailableUntill": "",
+      //   "Gradient1": "",
+      //   "Gradient2": "",
+      //   "GradientColor": "radial-gradient(circle,  0%,  100%)",
+      //   "ShareContentwithUser": "",
+      //   "bit1": false,
+      //   "ViewType": 2,
+      //   "startpage": "",
+      //   "CategoryID": 0,
+      //   "AddLinkTitle": "Add to My learning",
+      //   "ContentStatus": "",
+      //   "PercentCompletedClass": "",
+      //   "PercentCompleted": "",
+      //   "GoogleProductId": "",
+      //   "ItunesProductId": "",
+      //   "FolderPath": "BE06F4C0-EBB7-4A4D-9E00-72461C06C422",
+      //   "CloudMediaPlayerKey": "",
+      //   "ActivityId": "http://instancy.com/be06f4c0-ebb7-4a4d-9e00-72461c06c422",
+      //   "ActualStatus": null,
+      //   "CoreLessonStatus": null,
+      //   "jwstartpage": null,
+      //   "IsReattemptCourse": false,
+      //   "AttemptsLeft": 0,
+      //   "TotalAttempts": 0,
+      //   "ListPrice": "",
+      //   "ContentModifiedDateTime": null
+      // };
+      // CourseDTOModel model = CourseDTOModel.fromMap(eventModelMap);
+      //
+      // model.ContentID = courseDTOModel.ContentID;
+      // model.AuthorName = model.AuthorDisplayName;
+      // model.UserProfileImagePath = "Content/SiteFiles//374/ProfileImages/0.gif";
+      // model.MediaTypeID = InstancyMediaTypes.none;
+      // model.ContentType = "Events";
+      // model.EventStartDateTime = "30 May 2024";
+      // model.EventStartDateTimeWithoutConvert = "05/30/2024 05:30:00 PM";
+      // model.EventEndDateTime = "30 May 2024";
+      // model.EventEndDateTimeTimeWithoutConvert = "05/30/2024 06:00:00 PM";
+      // model.Duration = "30 Minutes";
+      // model.AvailableSeats = "10";
+      //
+      // courseDTOModel = model;
     } else {
       courseDTOModel = null;
     }
