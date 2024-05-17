@@ -146,6 +146,7 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
     this.fillColor,
     this.disabledColor,
     this.isHintText = false,
+      this.textAlign,
       this.labelStyle})
       : super(key: key);
 
@@ -167,6 +168,7 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
   final Function()? onTap;
   final Color? disabledColor;
   final bool isHintText;
+  final TextAlign? textAlign;
   final TextStyle? labelStyle;
 
   @override
@@ -193,7 +195,7 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
         // textAlignVertical: TextAlignVertical.top,
-
+        textAlign: textAlign ?? TextAlign.start,
         decoration: InputDecoration(
           alignLabelWithHint: true,
           filled: isFilled,
@@ -210,6 +212,7 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
           labelText: isHintText ? null : labelText,
           hintText: isHintText ? labelText : null,
           label: label,
+
           prefixIconConstraints: const BoxConstraints(minWidth: 40),
           prefixIcon: prefixWidget,
           // labelStyle: const TextStyle(color: Colors.grey),

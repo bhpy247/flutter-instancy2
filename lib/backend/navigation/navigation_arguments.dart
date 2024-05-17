@@ -1088,3 +1088,27 @@ class AddEditRolePlayScreenNavigationArgument extends NavigationArguments {
     this.model,
   });
 }
+
+class GeneratedQuizScreenNavigationArgument extends NavigationArguments {
+  final CourseDTOModel? model;
+
+  const GeneratedQuizScreenNavigationArgument({
+    this.model,
+  });
+}
+
+class GenerateWithAiVideoScreenNavigationArgument extends NavigationArguments {
+  final CourseDTOModel? model;
+
+  const GenerateWithAiVideoScreenNavigationArgument({
+    this.model,
+  });
+}
+
+class EditFlashcardScreenNavigationArgument extends NavigationArguments {
+  final CourseDTOModel? model;
+  final String front;
+  final String back;
+
+  const EditFlashcardScreenNavigationArgument({this.model, this.front = "", this.back = ''});
+}

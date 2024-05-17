@@ -2,9 +2,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/component/thumbnail_dialog.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../backend/app_theme/style.dart';
 import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../backend/wiki_component/wiki_controller.dart';
 import '../../../backend/wiki_component/wiki_provider.dart';
@@ -44,6 +46,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
   bool isExpanded = false;
   final GlobalKey expansionTile = GlobalKey();
   Uint8List? fileBytes;
+  bool isFromGenerativeAi = false;
 
   String setAppBarTitle(int objectTypeId) {
     bool isEdit = widget.argument.courseDtoModel != null ? true : false;
@@ -153,6 +156,29 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     } else {}
   }
 
+  Future<void> thumbnailDialog() async {
+    var val = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ThumbnailDialog();
+      },
+    );
+
+    MyPrint.printOnConsole("valval: $val");
+    if (val == null) return;
+
+    if (val == 1) {
+      thumbNailName = await openFileExplorer(
+        FileType.image,
+        false,
+      );
+      setState(() {});
+    } else if (val == 2) {
+      isFromGenerativeAi = true;
+      mySetState();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -210,8 +236,20 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         child: RefreshIndicator(
           onRefresh: () async {},
           child: Scaffold(
+            resizeToAvoidBottomInset: true,
             appBar: AppConfigurations().commonAppBar(
               title: setAppBarTitle(widget.argument.objectTypeId),
+            ),
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: CommonButton(
+                minWidth: double.infinity,
+                onPressed: () {
+                  onNextTap(widget.argument.objectTypeId);
+                },
+                text: "Next",
+                fontColor: themeData.colorScheme.onPrimary,
+              ),
             ),
             body: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -238,14 +276,6 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
                     const SizedBox(
                       height: 30,
                     ),
-                    CommonButton(
-                      minWidth: double.infinity,
-                      onPressed: () {
-                        onNextTap(widget.argument.objectTypeId);
-                      },
-                      text: "Next",
-                      fontColor: themeData.colorScheme.onPrimary,
-                    )
                   ],
                 ),
               ),
@@ -256,29 +286,55 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     );
   }
 
-  //region imageView
-  Widget getImageView({String url = "assets/addContentLogo.png", double height = 159, double width = 135}) {
-    return Image.asset(
-      url,
-      height: height,
-      width: width,
-    );
-  }
-
-  //endregion
-
   Widget getThumbNail(FileType? fileType) {
+    if (isFromGenerativeAi) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 10.0),
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Image.asset(
+                "assets/cocreate/flashCard.png",
+                height: 80,
+                width: 80,
+                fit: BoxFit.cover,
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                isFromGenerativeAi = false;
+                mySetState();
+              },
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.clear,
+                  size: 20,
+                ),
+              ),
+            )
+          ],
+        ),
+      );
+    }
     if (fileType == null) return const SizedBox();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
           onTap: () async {
-            thumbNailName = await openFileExplorer(
-              fileType,
-              false,
-            );
-            setState(() {});
+            thumbnailDialog();
+            // thumbNailName = await openFileExplorer(
+            //   fileType,
+            //   false,
+            // );
+            // setState(() {});
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -338,6 +394,17 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     );
   }
 
+  //region imageView
+  Widget getImageView({String url = "assets/addContentLogo.png", double height = 159, double width = 135}) {
+    return Image.asset(
+      url,
+      height: height,
+      width: width,
+    );
+  }
+
+  //endregion
+
   //region getTitleTextFormField
   Widget getTitleTextFormField() {
     return getTexFormField(
@@ -368,8 +435,8 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         return null;
       },
       isMandatory: true,
-      minLines: 1,
-      maxLines: 5,
+      minLines: 7,
+      maxLines: 7,
       controller: descriptionController,
       labelText: "Description",
       iconUrl: "assets/catalog/imageDescription.png",
@@ -485,24 +552,56 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       required bool isMandatory,
       int? minLines,
       int? maxLines,
+      bool showPrefixIcon = false,
+      TextInputType? keyBoardType,
       double iconHeight = 15,
       double iconWidth = 15}) {
-    return CommonTextFormFieldWithLabel(
-      controller: controller,
-      label: isMandatory ? labelWithStar(labelText) : null,
-      labelText: isMandatory ? null : labelText,
-      validator: validator,
-      minLines: minLines,
-      maxLines: maxLines,
-      isOutlineInputBorder: true,
-      prefixWidget: iconUrl.isNotEmpty
-          ? getImageView(url: iconUrl, height: iconHeight, width: iconWidth)
-          : const Icon(
-              FontAwesomeIcons.globe,
-              size: 15,
-              color: Colors.grey,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Styles.textFieldBorderColor,
+        ),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0),
+            child: getImageView(url: iconUrl, height: iconHeight, width: iconWidth),
+          ),
+          Expanded(
+            child: CommonTextFormFieldWithLabel(
+              controller: controller,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              label: isMandatory ? labelWithStar(labelText) : null,
+              isHintText: true,
+              labelText: isMandatory ? null : labelText,
+              validator: validator,
+              floatingLabelColor: Colors.black.withOpacity(.6),
+              minLines: minLines,
+              maxLines: maxLines,
+              borderColor: Colors.transparent,
+              enabledBorderColor: Colors.transparent,
+              focusColor: Colors.transparent,
+              borderWidth: 1,
+              isOutlineInputBorder: true,
+              keyboardType: keyBoardType,
+              prefixWidget: showPrefixIcon
+                  ? iconUrl.isNotEmpty
+                      ? getImageView(url: iconUrl, height: iconHeight, width: iconWidth)
+                      : const Icon(
+                          FontAwesomeIcons.globe,
+                          size: 15,
+                          color: Colors.grey,
+                        )
+                  : null,
+              suffixWidget: suffixWidget,
             ),
-      suffixWidget: suffixWidget,
+          ),
+        ],
+      ),
     );
   }
 

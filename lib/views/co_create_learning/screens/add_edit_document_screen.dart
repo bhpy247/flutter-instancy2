@@ -726,7 +726,7 @@ class _CreateDocumentContentScreenState extends State<CreateDocumentContentScree
     super.pageBuild();
     return Scaffold(
       appBar: AppConfigurations().commonAppBar(
-        title: widget.arguments.isFromReference ? "Generate Reference Link" : "Generate Document",
+        title: widget.arguments.isFromReference ? "Create Reference Link" : "Generate Document",
       ),
       body: getUploadButton(),
     );
@@ -764,14 +764,25 @@ class _CreateDocumentContentScreenState extends State<CreateDocumentContentScree
                   }
 
                   if (widget.arguments.isFromReference) {
-                    NavigationController.navigateToWebViewScreen(
-                      navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-                      arguments: WebViewScreenNavigationArguments(
-                          title: model.Title,
-                          // url: "https://smartbridge.com/introduction-generative-ai-transformative-potential-enterprises/",
-                          url: websiteUrlController.text.trim(),
-                          isFromAuthoringTool: true),
+                    NavigationController.navigateToAddEditReferenceLinkScreen(
+                      navigationOperationParameters: NavigationOperationParameters(
+                        context: context,
+                        navigationType: NavigationType.pushNamed,
+                      ),
+                      argument: AddEditReferenceScreenArguments(
+                        courseDtoModel: null,
+                        componentId: 0,
+                        componentInsId: 0,
+                      ),
                     );
+                    // NavigationController.navigateToWebViewScreen(
+                    //   navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+                    //   arguments: WebViewScreenNavigationArguments(
+                    //       title: model.Title,
+                    //       // url: "https://smartbridge.com/introduction-generative-ai-transformative-potential-enterprises/",
+                    //       url: websiteUrlController.text.trim(),
+                    //       isFromAuthoringTool: true),
+                    // );
                     return;
                   }
 
@@ -790,7 +801,7 @@ class _CreateDocumentContentScreenState extends State<CreateDocumentContentScree
                   );
                 }
               },
-              text: "Generate",
+              text: "Next",
             )
           ],
         ),

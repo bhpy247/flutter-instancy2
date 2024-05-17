@@ -766,15 +766,27 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       // courseDTOModel.ContentType = "Reference Url";
       // courseDTOModel.ContentTypeId = InstancyObjectTypes.referenceUrl;
       // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
-      NavigationController.navigateToAddEditReferenceLinkScreen(
+      // NavigationController.navigateToAddEditReferenceLinkScreen(
+      //   navigationOperationParameters: NavigationOperationParameters(
+      //     context: context,
+      //     navigationType: NavigationType.pushNamed,
+      //   ),
+      //   argument: AddEditReferenceScreenArguments(
+      //     courseDtoModel: courseDTOModel,
+      //     componentId: 0,
+      //     componentInsId: 0,
+      //   ),
+      // );
+
+      NavigationController.navigateToCreateDocumentScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: AddEditReferenceScreenArguments(
-          courseDtoModel: courseDTOModel,
+        argument: AddEditDocumentScreenArguments(
           componentId: 0,
           componentInsId: 0,
+          isFromReference: true,
         ),
       );
     } else if (objectType == InstancyObjectTypes.document) {

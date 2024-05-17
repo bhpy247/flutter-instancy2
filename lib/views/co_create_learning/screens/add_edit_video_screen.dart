@@ -57,7 +57,7 @@ class _AddEditVideoScreenState extends State<AddEditVideoScreen> {
                   height: 20,
                 ),
                 getCommonTextContainer(
-                    text: "Create Manually",
+                    text: "Generate with AI",
                     onTap: () {
                       NavigationController.navigateToCreateManuallyVideoScreen(
                         navigationOperationParameters: NavigationOperationParameters(

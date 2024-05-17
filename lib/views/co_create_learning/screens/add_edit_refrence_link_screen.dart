@@ -5,20 +5,17 @@ import 'package:flutter_instancy_2/backend/navigation/navigation_arguments.dart'
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/component/common_save_exit_button_row.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/configurations/app_configuration_operations.dart';
-import '../../../backend/navigation/navigation_controller.dart';
-import '../../../backend/navigation/navigation_operation_parameters.dart';
-import '../../../backend/navigation/navigation_type.dart';
 import '../../../backend/wiki_component/wiki_controller.dart';
 import '../../../backend/wiki_component/wiki_provider.dart';
 import '../../../configs/app_configurations.dart';
 import '../../../models/wiki_component/response_model/wikiCategoriesModel.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_utils.dart';
-import '../../common/components/common_button.dart';
 import '../../common/components/common_text_form_field.dart';
 import '../../common/components/modal_progress_hud.dart';
 
@@ -238,8 +235,9 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
         child: RefreshIndicator(
           onRefresh: () async {},
           child: Scaffold(
+            bottomNavigationBar: getAddContentButton(),
             appBar: AppConfigurations().commonAppBar(
-              title: "Reference Link",
+              title: "Create Reference Link",
             ),
             body: mainWidget(),
           ),
@@ -279,7 +277,6 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
               const SizedBox(
                 height: 30,
               ),
-              getAddContentButton(),
             ],
           ),
         ),
@@ -527,30 +524,55 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
 
   //region AddContent Button
   Widget getAddContentButton() {
-    return CommonButton(
-      backGroundColor: themeData.primaryColor,
-      minWidth: MediaQuery.of(context).size.width,
-      padding: const EdgeInsets.symmetric(vertical: 15),
-      onPressed: () {
-        // CoCreateKnowledgeProvider provider = context.read();
-        // provider.myKnowledgeList.insertAt(index: 0, element: CourseDTOModel(Title: titleController.text, AuthorDisplayName: "Happy", ContentType: "URL", ContentTypeId: 28, MediaTypeID: 13));
-        // Navigator.pop(context);
-        if (formKey.currentState!.validate()) {
-          onSaveButtonClicked();
-          NavigationController.navigateToCreateDocumentScreen(
-            navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-            argument: AddEditDocumentScreenArguments(componentId: 0, componentInsId: 0, courseDtoModel: model, isEdit: widget.argument.isEdit, index: widget.argument.index, isFromReference: true),
-          );
-        }
-
-        // if (formKey.currentState!.validate()) {
-        //   FocusScope.of(context).unfocus();
-        //   // addCatalogContent();
-        // }
-      },
-      text: "Add",
-      fontColor: themeData.colorScheme.onPrimary,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 19.0, vertical: 20),
+      child: CommonSaveExitButtonRow(
+        onSaveAndExitPressed: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+        onSaveAndViewPressed: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+      ),
     );
+    // return CommonButton(
+    //   backGroundColor: themeData.primaryColor,
+    //   minWidth: MediaQuery.of(context).size.width,
+    //   padding: const EdgeInsets.symmetric(vertical: 15),
+    //   onPressed: () {
+    //     // CoCreateKnowledgeProvider provider = context.read();
+    //     // provider.myKnowledgeList.insertAt(index: 0, element: CourseDTOModel(Title: titleController.text, AuthorDisplayName: "Happy", ContentType: "URL", ContentTypeId: 28, MediaTypeID: 13));
+    //     // Navigator.pop(context);
+    //     if (formKey.currentState!.validate()) {
+    //       onSaveButtonClicked();
+    //       // NavigationController.navigateToCreateDocumentScreen(
+    //       //   navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+    //       //   argument: AddEditDocumentScreenArguments(componentId: 0, componentInsId: 0, courseDtoModel: model, isEdit: widget.argument.isEdit, index: widget.argument.index, isFromReference: true),
+    //       // );
+    //
+    //       // NavigationController.navigateToAddEditReferenceLinkScreen(
+    //       //   navigationOperationParameters: NavigationOperationParameters(
+    //       //     context: context,
+    //       //     navigationType: NavigationType.pushNamed,
+    //       //   ),
+    //       //   argument: const AddEditReferenceScreenArguments(
+    //       //     courseDtoModel: null,
+    //       //     componentId: 0,
+    //       //     componentInsId: 0,
+    //       //   ),
+    //       // );
+    //     }
+    //
+    //     // if (formKey.currentState!.validate()) {
+    //     //   FocusScope.of(context).unfocus();
+    //     //   // addCatalogContent();
+    //     // }
+    //   },
+    //   text: "Add",
+    //   fontColor: themeData.colorScheme.onPrimary,
+    // );
   }
 
   //endregion

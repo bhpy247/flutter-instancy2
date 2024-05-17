@@ -74,7 +74,12 @@ enum InstancyContentActionsEnum {
   //endregion
 
   //region Global search
-  ViewProfile
+  ViewProfile,
+  //endregion
+
+  //coCreate Knowledge
+  Save,
+  Regenerate
   //endregion
 }
 

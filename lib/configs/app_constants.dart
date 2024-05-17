@@ -540,6 +540,7 @@ class InstancyIcons {
   static const IconData pin = FontAwesomeIcons.thumbtack;
   static const IconData unpin = FontAwesomeIcons.linkSlash;
   static const IconData viewLikes = FontAwesomeIcons.thumbsUp;
+  static const IconData save = FontAwesomeIcons.floppyDisk;
 
   // region Course Download
   static const IconData removeFromDownload = FontAwesomeIcons.trash;

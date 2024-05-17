@@ -16,14 +16,14 @@ import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_rol
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_video_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/article_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/common_create_authoring_screen.dart';
-import 'package:flutter_instancy_2/views/co_create_learning/screens/create_podcast_source_selection_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/create_manually_video_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/create_podcast_source_selection_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/flash_card_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/generate_with_ai_video_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/podcast_episode_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/quiz_screen.dart';
-import 'package:flutter_instancy_2/views/co_create_learning/screens/text_to_audio.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/record_video_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/text_to_audio.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/video_screen.dart';
 import 'package:flutter_instancy_2/views/common/screen/common_view_image_screen.dart';
 import 'package:flutter_instancy_2/views/course_details/screens/course_details_screen.dart';
@@ -511,6 +511,12 @@ class NavigationController {
           page = parseFlashCardScreen(settings: settings);
           break;
         }
+
+      case GenerateWithAiFlashCardScreen.routeName:
+        {
+          page = parseGenerateWithAiFlashCardScreen(settings: settings);
+          break;
+        }
       case RolePlayLaunchScreen.routeName:
         {
           page = parseRolePlayLaunchScreen(settings: settings);
@@ -589,6 +595,16 @@ class NavigationController {
       case AddEditRolePlayScreen.routeName:
         {
           page = parseAddEditRoleplayScreen(settings: settings);
+          break;
+        }
+      case GeneratedQuizScreen.routeName:
+        {
+          page = parseGeneratedQuizScreen(settings: settings);
+          break;
+        }
+      case EditFlashCardScreen.routeName:
+        {
+          page = parseEditFlashCardScreen(settings: settings);
           break;
         }
     }
@@ -1288,6 +1304,10 @@ class NavigationController {
     return const FlashCardScreen();
   }
 
+  static Widget? parseGenerateWithAiFlashCardScreen({required RouteSettings settings}) {
+    return const GenerateWithAiFlashCardScreen();
+  }
+
   static Widget? parseRolePlayLaunchScreen({required RouteSettings settings}) {
     dynamic argument = settings.arguments;
     if (argument is! RolePlayLaunchScreenNavigationArguments) {
@@ -1413,6 +1433,22 @@ class NavigationController {
       return null;
     }
     return AddEditRolePlayScreen(arguments: argument);
+  }
+
+  static Widget? parseGeneratedQuizScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! GeneratedQuizScreenNavigationArgument) {
+      return null;
+    }
+    return GeneratedQuizScreen(arguments: argument);
+  }
+
+  static Widget? parseEditFlashCardScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! EditFlashcardScreenNavigationArgument) {
+      return null;
+    }
+    return EditFlashCardScreen(arguments: argument);
   }
 
   //endregion
@@ -2102,6 +2138,13 @@ class NavigationController {
     );
   }
 
+  static Future<dynamic> navigateToGenerateWithAiFlashCardScreen({required NavigationOperationParameters navigationOperationParameters}) {
+    MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: GenerateWithAiFlashCardScreen.routeName),
+    );
+  }
+
   static Future<dynamic> navigateToRolePlayLaunchScreen({required NavigationOperationParameters navigationOperationParameters, required RolePlayLaunchScreenNavigationArguments arguments}) {
     MyPrint.printOnConsole("navigateToRolePlayLaunchScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
@@ -2261,6 +2304,23 @@ class NavigationController {
         routeName: AddEditRolePlayScreen.routeName,
         arguments: argument,
       ),
+    );
+  }
+
+  static Future<dynamic> navigateToGeneratedQuizScreen({required NavigationOperationParameters navigationOperationParameters, required GeneratedQuizScreenNavigationArgument argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: GeneratedQuizScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToEditFlashcardScreen({required NavigationOperationParameters navigationOperationParameters, required EditFlashcardScreenNavigationArgument argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: EditFlashCardScreen.routeName, arguments: argument),
     );
   }
 }

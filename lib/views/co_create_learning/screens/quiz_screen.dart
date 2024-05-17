@@ -285,6 +285,7 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
 class QuizModel {
   String question = "";
   List<String> optionList = [];
+  List<bool> isEditModeEnable = <bool>[];
   String correctAnswer = "";
   String selectedAnswer = "";
   bool isAnswerGiven = false, isCorrectAnswerGiven = false;
@@ -294,6 +295,5 @@ class QuizModel {
     this.correctAnswer = "",
     this.optionList = const [],
     this.isAnswerGiven = false,
-    this.isCorrectAnswerGiven = false,
-  });
+    this.isCorrectAnswerGiven = false, this.isEditModeEnable = const []});
 }

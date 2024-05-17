@@ -109,7 +109,7 @@ class _VideoScreenState extends State<VideoScreen> with MySafeState {
                           alignment: Alignment.bottomCenter,
                           children: [
                             VideoPlayer(_videoPlayerController!),
-                            _ControlsOverlay(
+                            ControlsOverlay(
                               controller: _videoPlayerController!,
                               onPlayTap: () {
                                 (_videoPlayerController!.value.isPlaying) ? _videoPlayerController!.pause() : _videoPlayerController!.play();
@@ -211,10 +211,10 @@ Connect with us to elevate your learning journey.""",
   }
 }
 
-class _ControlsOverlay extends StatelessWidget {
+class ControlsOverlay extends StatelessWidget {
   final Function()? onPlayTap;
 
-  const _ControlsOverlay({required this.controller, this.onPlayTap});
+  const ControlsOverlay({required this.controller, this.onPlayTap});
 
   final VideoPlayerController controller;
 

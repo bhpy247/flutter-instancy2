@@ -85,10 +85,10 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
       child: SingleChildScrollView(
         child: Column(
           children: [
-            getTitleFormField(),
-            const SizedBox(
-              height: 15,
-            ),
+            // getTitleFormField(),
+            // const SizedBox(
+            //   height: 15,
+            // ),
             getDateFormField(),
             const SizedBox(
               height: 15,
@@ -97,6 +97,13 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
               children: [
                 Expanded(
                   child: getStartTimeTextFormField(),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                const Text("To"),
+                SizedBox(
+                  width: 10,
                 ),
                 Expanded(
                   child: getEndTimeTextFormField(),
@@ -152,58 +159,32 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
   }
 
   Widget getEndTimeTextFormField() {
-    return Row(
-      children: [
-        SizedBox(
-          width: 10,
-        ),
-        const Text("To"),
-        SizedBox(
-          width: 10,
-        ),
-        Expanded(
-          child: getTexFormField(
-            onTap: () async {
-              endTimeController.text = await _selectTime(context);
-              mySetState();
-            },
-            isMandatory: false,
-            showPrefixIcon: false,
-            controller: endTimeController,
-            labelText: "End Time",
-            keyBoardType: TextInputType.text,
-            iconUrl: "assets/catalog/imageDescription.png",
-          ),
-        ),
-      ],
+    return getTexFormField(
+      onTap: () async {
+        endTimeController.text = await _selectTime(context);
+        mySetState();
+      },
+      isMandatory: false,
+      showPrefixIcon: false,
+      controller: endTimeController,
+      labelText: "End Time",
+      keyBoardType: TextInputType.text,
+      iconUrl: "assets/catalog/imageDescription.png",
     );
   }
 
   Widget getStartTimeTextFormField() {
-    return Row(
-      children: [
-        SizedBox(
-          width: 10,
-        ),
-        const Text("From"),
-        SizedBox(
-          width: 10,
-        ),
-        Expanded(
-          child: getTexFormField(
-            onTap: () async {
-              startTimeController.text = await _selectTime(context);
-              mySetState();
-            },
-            isMandatory: false,
-            showPrefixIcon: false,
-            controller: startTimeController,
-            labelText: "Start Time",
-            keyBoardType: TextInputType.text,
-            iconUrl: "assets/catalog/imageDescription.png",
-          ),
-        ),
-      ],
+    return getTexFormField(
+      onTap: () async {
+        startTimeController.text = await _selectTime(context);
+        mySetState();
+      },
+      isMandatory: false,
+      showPrefixIcon: false,
+      controller: startTimeController,
+      labelText: "Start Time",
+      keyBoardType: TextInputType.text,
+      iconUrl: "assets/catalog/imageDescription.png",
     );
   }
 
