@@ -576,7 +576,7 @@ class _MainScreenState extends State<MainScreen> {
             wikiProvider: context.read<WikiProvider>(),
           ),
         );
-      } else if (model.landingpagetype == CatalogLandingPageType.contentsListScreen) {
+      } else if (model.landingpagetype == CatalogLandingPageType.categoriesListScreen) {
         return CatalogCategoriesListScreen(
           componentId: model.componentid,
           componentInstanceId: model.repositoryid,
