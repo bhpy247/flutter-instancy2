@@ -2,7 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/extensions.dart';
-import 'package:flutter_instancy_2/views/co_create_learning/component/theme_helper.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/component/common_save_exit_button_row.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -80,19 +80,36 @@ class _RecordVideoScreenState extends State<RecordVideoScreen> with MySafeState 
             children: [
               widget.argument.isUploadScreen ? getUploadVideoScreen() : getRecordVideoWidget(),
               const Spacer(),
-              CommonButton(
-                minWidth: double.infinity,
-                onPressed: () {
-                  NavigationController.navigateToVideoScreen(
+              CommonSaveExitButtonRow(
+                onSaveAndExitPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+                onSaveAndViewPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                  NavigationController.navigateToGenerateWithAiVideoScreen(
+                    argument: AddEditVideoScreenArgument(isNotGenerateWithAiScreen: true),
                     navigationOperationParameters: NavigationOperationParameters(
                       context: context,
                       navigationType: NavigationType.pushNamed,
                     ),
                   );
                 },
-                text: "Save",
-                fontColor: theme.colorScheme.onPrimary,
-              )
+              ),
+              // CommonButton(
+              //   minWidth: double.infinity,
+              //   onPressed: () {
+              //     NavigationController.navigateToVideoScreen(
+              //       navigationOperationParameters: NavigationOperationParameters(
+              //         context: context,
+              //         navigationType: NavigationType.pushNamed,
+              //       ),
+              //     );
+              //   },
+              //   text: "Save",
+              //   fontColor: theme.colorScheme.onPrimary,
+              // )
             ],
           ),
         ),

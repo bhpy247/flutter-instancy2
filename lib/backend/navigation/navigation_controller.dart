@@ -7,6 +7,7 @@ import 'package:flutter_instancy_2/views/authentication/screens/forgot_password_
 import 'package:flutter_instancy_2/views/authentication/screens/login_screen.dart';
 import 'package:flutter_instancy_2/views/authentication/screens/sign_up_screen.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/PrerequisiteScreen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_article_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_document_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_event_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_flashcard_screen.dart';
@@ -597,6 +598,21 @@ class NavigationController {
           page = parseAddEditRoleplayScreen(settings: settings);
           break;
         }
+      case AddEditArticleScreen.routeName:
+        {
+          page = parseAddEditArticleScreen(settings: settings);
+          break;
+        }
+      case ArticleEditorScreen.routeName:
+        {
+          page = parseArticleEditorScreen(settings: settings);
+          break;
+        }
+      case ArticlePreviewScreen.routeName:
+        {
+          page = parseArticlePreviewScreen(settings: settings);
+          break;
+        }
       case GeneratedQuizScreen.routeName:
         {
           page = parseGeneratedQuizScreen(settings: settings);
@@ -605,6 +621,12 @@ class NavigationController {
       case EditFlashCardScreen.routeName:
         {
           page = parseEditFlashCardScreen(settings: settings);
+          break;
+        }
+
+      case PodcastViewScreen.routeName:
+        {
+          page = parsePodcastPreviewScreen(settings: settings);
           break;
         }
     }
@@ -1301,11 +1323,20 @@ class NavigationController {
   }
 
   static Widget? parseFlashCardScreen({required RouteSettings settings}) {
-    return const FlashCardScreen();
+    dynamic arguments = settings.arguments;
+    if (arguments is! FlashCardScreenNavigationArguments) {
+      return null;
+    }
+
+    return FlashCardScreen(arguments: arguments);
   }
 
   static Widget? parseGenerateWithAiFlashCardScreen({required RouteSettings settings}) {
-    return const GenerateWithAiFlashCardScreen();
+    dynamic argument = settings.arguments;
+    if (argument is! GenerateWithAiFlashCardScreenNavigationArguments) {
+      return null;
+    }
+    return GenerateWithAiFlashCardScreen(arguments: argument);
   }
 
   static Widget? parseRolePlayLaunchScreen({required RouteSettings settings}) {
@@ -1449,6 +1480,38 @@ class NavigationController {
       return null;
     }
     return EditFlashCardScreen(arguments: argument);
+  }
+
+  static Widget? parseAddEditArticleScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditArticleScreenNavigationArgument) {
+      return null;
+    }
+    return AddEditArticleScreen(arguments: argument);
+  }
+
+  static Widget? parseArticleEditorScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! ArticleEditorScreenNavigationArgument) {
+      return null;
+    }
+    return ArticleEditorScreen(arguments: argument);
+  }
+
+  static Widget? parseArticlePreviewScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! ArticlePreviewScreenNavigationArgument) {
+      return null;
+    }
+    return ArticlePreviewScreen(arguments: argument);
+  }
+
+  static Widget? parsePodcastPreviewScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! PodcastPreviewScreenNavigationArgument) {
+      return null;
+    }
+    return PodcastViewScreen(arguments: argument);
   }
 
   //endregion
@@ -2131,17 +2194,29 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToFlashCardScreen({required NavigationOperationParameters navigationOperationParameters}) {
+  static Future<dynamic> navigateToFlashCardScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required FlashCardScreenNavigationArguments arguments,
+  }) {
     MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
-      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: FlashCardScreen.routeName),
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: FlashCardScreen.routeName,
+        arguments: arguments,
+      ),
     );
   }
 
-  static Future<dynamic> navigateToGenerateWithAiFlashCardScreen({required NavigationOperationParameters navigationOperationParameters}) {
+  static Future<dynamic> navigateToGenerateWithAiFlashCardScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required GenerateWithAiFlashCardScreenNavigationArguments arguments,
+  }) {
     MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
-      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: GenerateWithAiFlashCardScreen.routeName),
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: GenerateWithAiFlashCardScreen.routeName,
+        arguments: arguments,
+      ),
     );
   }
 
@@ -2321,6 +2396,43 @@ class NavigationController {
     MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(routeName: EditFlashCardScreen.routeName, arguments: argument),
+    );
+  }
+
+  static Future<dynamic> navigateToAddEditArticleScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditArticleScreenNavigationArgument argument}) {
+    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: AddEditArticleScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToArticleEditorScreen({required NavigationOperationParameters navigationOperationParameters, required ArticleEditorScreenNavigationArgument argument}) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: ArticleEditorScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToArticlePreviewScreen({required NavigationOperationParameters navigationOperationParameters, required ArticlePreviewScreenNavigationArgument argument}) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: ArticlePreviewScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToPodcastPreviewScreen({required NavigationOperationParameters navigationOperationParameters, required PodcastPreviewScreenNavigationArgument argument}) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: PodcastViewScreen.routeName,
+        arguments: argument,
+      ),
     );
   }
 }

@@ -1,11 +1,15 @@
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/component/common_save_exit_button_row.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/podcast_episode_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:record/record.dart';
 
@@ -15,6 +19,7 @@ import '../../../utils/my_print.dart';
 import '../../../utils/my_utils.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_button.dart';
+import '../../message/components/audio_player_widget.dart';
 import '../component/mixin/audio_record_mixin.dart';
 
 class CreatePodcastSourceSelectionScreen extends StatefulWidget {
@@ -291,17 +296,21 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
               //     height: 200,
               //     child: getRecorder()),
               const Spacer(),
+
               CommonButton(
                 minWidth: double.infinity,
                 onPressed: () {
-                  NavigationController.navigateToPodcastEpisodeScreen(
+                  NavigationController.navigateToPodcastPreviewScreen(
                     navigationOperationParameters: NavigationOperationParameters(
                       context: context,
                       navigationType: NavigationType.pushNamed,
                     ),
+                    argument: PodcastPreviewScreenNavigationArgument(
+                      model: CourseDTOModel(),
+                    ),
                   );
                 },
-                text: "Save",
+                text: "Done",
                 fontColor: themeData.colorScheme.onPrimary,
               )
             ],
@@ -703,5 +712,122 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
     _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       setState(() => _recordDuration++);
     });
+  }
+}
+
+class PodcastViewScreen extends StatefulWidget {
+  static const String routeName = "/PodcastViewScreen";
+  final PodcastPreviewScreenNavigationArgument arguments;
+
+  const PodcastViewScreen({super.key, required this.arguments});
+
+  @override
+  State<PodcastViewScreen> createState() => _PodcastViewScreenState();
+}
+
+class _PodcastViewScreenState extends State<PodcastViewScreen> {
+  late AudioPlayer player = AudioPlayer();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Create the audio player.
+    player = AudioPlayer();
+
+    // Set the release mode to keep the source after playback has completed.
+    player.setReleaseMode(ReleaseMode.stop);
+
+    // Start the player as soon as the app is displayed.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await player.setSourceAsset("audio/audio.mp3");
+      await player.resume();
+    });
+  }
+
+  @override
+  void dispose() {
+    // Release all sources and dispose the player.
+    player.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: getAppBar(),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 15),
+        child: CommonSaveExitButtonRow(
+          onSaveAndExitPressed: () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+            Navigator.pop(context);
+            Navigator.pop(context);
+          },
+          onSaveAndViewPressed: () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+            Navigator.pop(context);
+            Navigator.pop(context);
+            NavigationController.navigateToPodcastEpisodeScreen(
+              navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+            );
+          },
+        ),
+      ),
+      body: AppUIComponents.getBackGroundBordersRounded(
+        context: context,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                PlayerWidget(
+                  player: player,
+                  onRetakeTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                Row(
+                  children: [
+                    Icon(Icons.keyboard_arrow_up),
+                    Text(
+                      "Transcript",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  ],
+                ),
+                Text(
+                  """
+Nigel:
+
+Glad to see things are going well and business is starting to pick up. Andrea told me about your outstanding numbers on Tuesday. Keep up the good work. Now to other business, I am going to suggest a payment schedule for the outstanding monies that is due. One, can you pay the balance of the license agreement as soon as possible? Two, I suggest we setup or you suggest, what you can pay on the back royalties, would you feel comfortable with paying every two weeks? Every month, I will like to catch up and maintain current royalties. So, if we can start the current royalties and maintain them every two weeks as all stores are required to do, I would appreciate it. Let me know if this works for you.
+
+Thanks.
+ """,
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  PreferredSizeWidget getAppBar() {
+    return AppConfigurations().commonAppBar(
+      title: "Refining Communication",
+    );
+  }
+
+  Widget getMainBody() {
+    return AudioPlayerWidget(
+      url: "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
+      isMessageReceived: true,
+    );
   }
 }

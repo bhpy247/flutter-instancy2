@@ -119,30 +119,35 @@ class _MainScreenBottomBarState extends State<MainScreenBottomBar> with MySafeSt
       highlightColor: Colors.transparent,
       hoverColor: Colors.transparent,
       splashColor: Colors.transparent,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: iconSize != null ? iconSize - 3 : null,
-            child: Icon(
-              icon,
-              color: (selected ?? false) ? themeData.primaryColor : Styles.chipTextColor,
-              size: iconSize ?? 18,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Flexible(
-            child: Text(
-              // "",
-              text,
-              style: themeData.textTheme.labelSmall?.copyWith(
-                color: (selected ?? false) ? themeData.primaryColor : Styles.chipTextColor,
-                fontSize: fontSize,
+      child: Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Center(
+              child: SizedBox(
+                height: iconSize != null ? iconSize - 3 : null,
+                child: Icon(
+                  icon,
+                  color: (selected ?? false) ? themeData.primaryColor : Styles.chipTextColor,
+                  size: iconSize ?? 18,
+                ),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 5),
+            Flexible(
+              child: Text(
+                // "",
+                text,
+                style: themeData.textTheme.labelSmall?.copyWith(
+                  color: (selected ?? false) ? themeData.primaryColor : Styles.chipTextColor,
+                  fontSize: fontSize,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_content_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
@@ -232,6 +233,9 @@ class CourseDTOModel {
   dynamic bit4;
   Uint8List? thumbNailFileBytes;
   Uint8List? uploadedDocumentBytes;
+  String? articleHtmlCode;
+  String? selectedArticleSourceType;
+  FlashcardContentModel? flashcardContentModel;
 
   CourseDTOModel({
     this.SiteName = "",
@@ -456,8 +460,11 @@ class CourseDTOModel {
     this.IsShared = false,
     this.RecordingDetails,
     this.bit4,
-      this.thumbNailFileBytes,
+    this.thumbNailFileBytes,
     this.uploadedDocumentBytes,
+    this.articleHtmlCode,
+    this.selectedArticleSourceType,
+    this.flashcardContentModel,
     List<String>? Skills,
   }) {
     this.Skills = Skills ?? <String>[];

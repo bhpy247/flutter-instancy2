@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/configs/app_strings.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/theme_helper.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/quiz_screen.dart';
@@ -58,7 +59,7 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
                       ),
                       argument: const GeneratedQuizScreenNavigationArgument());
                 },
-                text: "Generate with AI",
+                text: AppStrings.generateWithAI,
                 fontColor: theme.colorScheme.onPrimary,
               ),
             ),
@@ -368,8 +369,6 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
   }
 
   Widget getSingleItemWidget(QuizModel model, int index) {
-    bool isForwardNavigationEnabled = model.isAnswerGiven;
-
     return Container(
       margin: const EdgeInsets.all(15),
       child: Column(
@@ -395,13 +394,7 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
                   const SizedBox(
                     height: 15,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: Text(
-                      "${index + 1}. ${model.question}",
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ),
+                  getQuestionWidget(model: model, index: index),
                   const SizedBox(
                     height: 10,
                   ),
@@ -427,6 +420,33 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
           ),
           getBottomButton(index),
         ],
+      ),
+    );
+  }
+
+  Widget getQuestionWidget({required QuizModel model, int index = 0}) {
+    return InkWell(
+      onLongPress: () {
+        model.isQuestionEditable = true;
+        mySetState();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: model.isQuestionEditable
+            ? getEditableTextField(
+                controller: TextEditingController(text: "${model.question}"),
+                onSubmitted: (String? val) {
+                  if (val == null) return null;
+                  model.question = val;
+                  model.isQuestionEditable = false;
+                  mySetState();
+                  return "";
+                },
+              )
+            : Text(
+                "${index + 1}. ${model.question}",
+                style: const TextStyle(fontSize: 16),
+              ),
       ),
     );
   }
@@ -459,7 +479,7 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
 
   Widget getBottomButton(int index) {
     if ((index + 1) == quizModelList.length) {
-      return CommonSaveExitButtonRow();
+      return const CommonSaveExitButtonRow();
     }
     return Row(
       children: [
@@ -558,8 +578,6 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
       shrinkWrap: true,
       itemCount: answerList.length,
       itemBuilder: (BuildContext context, int index) {
-        bool isSelected = model.selectedAnswer == answerList[index];
-
         return InkWell(
           onTap: model.isAnswerGiven
               ? null
@@ -598,9 +616,9 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
                   )
                 : Text(
                     answerList[index],
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
-                      color: isSelected ? themeData.primaryColor : Colors.black54,
+                      color: Colors.black54,
                     ),
                   ),
           ),

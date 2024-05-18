@@ -2,40 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class CommonTextFormField extends StatelessWidget {
-  const CommonTextFormField(
-      {Key? key,
-      this.controller,
-      this.hintText = "",
-      this.borderColor = Colors.grey,
-      this.borderRadius = 5,
-      this.borderWidth = 0.5,
-      this.contentPadding,
-      this.isOutlineInputBorder = false,
-      this.isSuffix = false,
-      this.obscureText = false,
-      this.validator,
-      this.prefixWidget,
-      this.suffixWidget,
-      this.boxConstraints,
-      this.focusedBorderColor,
-      this.enabled = true,
-      this.autoFocus = false,
-      this.onChanged,
-      this.onSubmitted,
-      this.minLines,
-      this.maxLines = 1,
-      this.textStyle,
-      this.textInputAction,
-      this.inputFormatters,
-      this.isFilled = false,
-      this.fillColor,
-      this.hintStyle,
-      this.maxLength,
-      this.label,
-      this.prefixIcon,
-      this.onTap,
-      this.node})
-      : super(key: key);
+  const CommonTextFormField({
+    super.key,
+    this.controller,
+    this.hintText = "",
+    this.borderColor = Colors.grey,
+    this.borderRadius = 5,
+    this.borderWidth = 0.5,
+    this.contentPadding,
+    this.isOutlineInputBorder = false,
+    this.isSuffix = false,
+    this.obscureText = false,
+    this.validator,
+    this.prefixWidget,
+    this.suffixWidget,
+    this.boxConstraints,
+    this.focusedBorderColor,
+    this.enabled = true,
+    this.autoFocus = false,
+    this.onChanged,
+    this.onSubmitted,
+    this.minLines,
+    this.maxLines,
+    this.textStyle,
+    this.textInputAction,
+    this.inputFormatters,
+    this.isFilled = false,
+    this.fillColor,
+    this.hintStyle,
+    this.maxLength,
+    this.label,
+    this.prefixIcon,
+    this.onTap,
+    this.node,
+    this.keyboardType,
+  });
 
   final TextEditingController? controller;
   final String hintText;
@@ -55,6 +56,7 @@ class CommonTextFormField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final List<TextInputFormatter>? inputFormatters;
   final void Function()? onTap;
+  final TextInputType? keyboardType;
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +95,7 @@ class CommonTextFormField extends StatelessWidget {
       minLines: minLines,
       maxLines: maxLines,
       onTap: onTap,
+      keyboardType: keyboardType,
     );
   }
 
@@ -112,43 +115,43 @@ class CommonTextFormField extends StatelessWidget {
 }
 
 class CommonTextFormFieldWithLabel extends StatelessWidget {
-  const CommonTextFormFieldWithLabel({
-    Key? key,
-    this.controller,
-    this.enabled = true,
-    this.labelText,
-    this.label,
-    this.borderColor = Colors.grey,
-    this.enabledBorderColor,
-    this.disabledBorderColor,
-    this.focusColor,
-    this.borderRadius = 5,
-    this.borderWidth = 0.5,
-    this.contentPadding,
-    this.isOutlineInputBorder = false,
-    this.isSuffix = false,
-    this.obscureText = false,
-    this.validator,
-    this.maxLength = 50,
-    this.suffixWidget,
-    this.prefixWidget,
-    this.keyboardType,
-    this.inputFormatters,
-    this.onChanged,
-    this.onSubmitted,
-    this.focusNode,
-    this.minLines,
-    this.maxLines = 1,
-    this.errorMaxLines = 2,
-    this.onTap,
-    this.floatingLabelColor,
-    this.isFilled = false,
-    this.fillColor,
-    this.disabledColor,
-    this.isHintText = false,
+  const CommonTextFormFieldWithLabel(
+      {super.key,
+      this.controller,
+      this.enabled = true,
+      this.labelText,
+      this.label,
+      this.borderColor = Colors.grey,
+      this.enabledBorderColor,
+      this.disabledBorderColor,
+      this.focusColor,
+      this.borderRadius = 5,
+      this.borderWidth = 0.5,
+      this.contentPadding,
+      this.isOutlineInputBorder = false,
+      this.isSuffix = false,
+      this.obscureText = false,
+      this.validator,
+      this.maxLength = 50,
+      this.suffixWidget,
+      this.prefixWidget,
+      this.keyboardType,
+      this.inputFormatters,
+      this.onChanged,
+      this.onSubmitted,
+      this.focusNode,
+      this.minLines,
+      this.maxLines = 1,
+      this.errorMaxLines = 2,
+      this.onTap,
+      this.floatingLabelColor,
+      this.isFilled = false,
+      this.fillColor,
+      this.disabledColor,
+      this.isHintText = false,
+      this.labelStyle,
       this.textAlign,
-      this.labelStyle})
-      : super(key: key);
+      });
 
   final TextEditingController? controller;
   final String? labelText;
@@ -168,8 +171,8 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
   final Function()? onTap;
   final Color? disabledColor;
   final bool isHintText;
-  final TextAlign? textAlign;
   final TextStyle? labelStyle;
+  final TextAlign? textAlign;
 
   @override
   Widget build(BuildContext context) {
@@ -212,7 +215,6 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
           labelText: isHintText ? null : labelText,
           hintText: isHintText ? labelText : null,
           label: label,
-
           prefixIconConstraints: const BoxConstraints(minWidth: 40),
           prefixIcon: prefixWidget,
           // labelStyle: const TextStyle(color: Colors.grey),

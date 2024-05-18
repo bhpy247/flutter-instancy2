@@ -79,7 +79,8 @@ enum InstancyContentActionsEnum {
 
   //coCreate Knowledge
   Save,
-  Regenerate
+  GenerateText,
+  Regenerate,
   //endregion
 }
 

@@ -269,6 +269,10 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
         child: RefreshIndicator(
           onRefresh: () async {},
           child: Scaffold(
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 19.0, vertical: 20),
+              child: getAddContentButton(),
+            ),
             appBar: AppConfigurations().commonAppBar(
               title: "Document",
             ),
@@ -309,11 +313,14 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
               const SizedBox(
                 height: 19,
               ),
+              getWidgetFromFileType(fileType),
+              const SizedBox(
+                height: 19,
+              ),
               getThumbNail(FileType.image),
               const SizedBox(
                 height: 30,
               ),
-              getAddContentButton(),
             ],
           ),
         ),
@@ -362,15 +369,92 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
         return null;
       },
       isMandatory: true,
-      minLines: 1,
+      minLines: 5,
       maxLines: 5,
       controller: descriptionController,
       labelText: "Description",
       iconUrl: "assets/catalog/imageDescription.png",
     );
   }
-
   //endregion
+
+  Widget getUploadButton() {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Form(
+        key: formKey,
+        child: Column(
+          children: [
+            widget.arguments.isFromReference ? getWebsiteUrlTextFormField() : getWidgetFromFileType(FileType.custom),
+            const Spacer(),
+            CommonButton(
+              minWidth: double.infinity,
+              fontColor: themeData.colorScheme.onPrimary,
+              fontSize: 15,
+              onPressed: () {
+                if (formKey.currentState?.validate() ?? false) {
+                  if (!widget.arguments.isFromReference && fileName.checkEmpty) {
+                    MyToast.showError(context: context, msg: "Please upload the file");
+                    return;
+                  }
+
+                  CoCreateKnowledgeProvider provider = context.read();
+
+                  CourseDTOModel model = widget.arguments.courseDtoModel ?? CourseDTOModel();
+                  model.uploadedDocumentBytes = fileBytes;
+                  model.ViewLink = websiteUrlController.text.trim();
+
+                  if (widget.arguments.isFromReference) {
+                    NavigationController.navigateToAddEditReferenceLinkScreen(
+                      navigationOperationParameters: NavigationOperationParameters(
+                        context: context,
+                        navigationType: NavigationType.pushNamed,
+                      ),
+                      argument: AddEditReferenceScreenArguments(
+                        courseDtoModel: model,
+                        isEdit: false,
+                        index: widget.arguments.index,
+                        componentId: 0,
+                        componentInsId: 0,
+                      ),
+                    );
+                    // NavigationController.navigateToWebViewScreen(
+                    //   navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+                    //   arguments: WebViewScreenNavigationArguments(
+                    //       title: model.Title,
+                    //       // url: "https://smartbridge.com/introduction-generative-ai-transformative-potential-enterprises/",
+                    //       url: websiteUrlController.text.trim(),
+                    //       isFromAuthoringTool: true),
+                    // );
+                    return;
+                  }
+                  if (widget.arguments.isEdit) {
+                    provider.updateMyKnowledgeListModel(model, widget.arguments.index);
+                  } else {
+                    provider.addToMyKnowledgeList(model);
+                  }
+                  NavigationController.navigateToDocumentPreviewScreen(
+                    navigationOperationParameters: NavigationOperationParameters(
+                      context: context,
+                      navigationType: NavigationType.pushNamed,
+                    ),
+                    argument: PDFLaunchScreenNavigationArguments(
+                      contntName: widget.arguments.courseDtoModel?.Title ?? "",
+                      isNetworkPDF: fileBytes == null,
+                      // pdfUrl: "https://qalearning.instancy.com//content/publishfiles/d6caf328-6c9e-43b1-8ba0-eb8d4d065e66/en-us/41cea17c-728d-4c88-9cd8-1e0473fa6f21.pdf?fromNativeapp=true",
+                      pdfUrl: widget.arguments.courseDtoModel?.ViewLink ?? "",
+                      pdfFileBytes: widget.arguments.courseDtoModel?.uploadedDocumentBytes,
+                    ),
+                  );
+                }
+              },
+              text: "Next",
+            )
+          ],
+        ),
+      ),
+    );
+  }
 
   //region getWebsiteUrlTextFormField
   Widget getWebsiteUrlTextFormField() {
@@ -495,20 +579,73 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
       fontSize: 15,
       backGroundColor: themeData.primaryColor,
       // minWidth: MediaQuery.of(context).size.width,
-      padding: const EdgeInsets.symmetric(vertical: 15),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       onPressed: () {
         if (formKey.currentState!.validate()) {
           onSaveButtonClicked();
-          NavigationController.navigateToCreateDocumentScreen(
-            navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-            argument: AddEditDocumentScreenArguments(
-              componentId: 0,
-              componentInsId: 0,
-              courseDtoModel: model,
-              isEdit: widget.arguments.isEdit,
-              index: widget.arguments.index,
+          if (!widget.arguments.isFromReference && fileName.checkEmpty) {
+            MyToast.showError(context: context, msg: "Please upload the file");
+            return;
+          }
+
+          CoCreateKnowledgeProvider provider = context.read();
+
+          CourseDTOModel model = widget.arguments.courseDtoModel ?? CourseDTOModel();
+          model.uploadedDocumentBytes = fileBytes;
+          model.ViewLink = websiteUrlController.text.trim();
+
+          if (widget.arguments.isFromReference) {
+            NavigationController.navigateToAddEditReferenceLinkScreen(
+              navigationOperationParameters: NavigationOperationParameters(
+                context: context,
+                navigationType: NavigationType.pushNamed,
+              ),
+              argument: AddEditReferenceScreenArguments(
+                courseDtoModel: model,
+                isEdit: false,
+                index: widget.arguments.index,
+                componentId: 0,
+                componentInsId: 0,
+              ),
+            );
+            // NavigationController.navigateToWebViewScreen(
+            //   navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+            //   arguments: WebViewScreenNavigationArguments(
+            //       title: model.Title,
+            //       // url: "https://smartbridge.com/introduction-generative-ai-transformative-potential-enterprises/",
+            //       url: websiteUrlController.text.trim(),
+            //       isFromAuthoringTool: true),
+            // );
+            return;
+          }
+          if (widget.arguments.isEdit) {
+            provider.updateMyKnowledgeListModel(model, widget.arguments.index);
+          } else {
+            provider.addToMyKnowledgeList(model);
+          }
+          NavigationController.navigateToDocumentPreviewScreen(
+            navigationOperationParameters: NavigationOperationParameters(
+              context: context,
+              navigationType: NavigationType.pushNamed,
+            ),
+            argument: PDFLaunchScreenNavigationArguments(
+              contntName: widget.arguments.courseDtoModel?.Title ?? "",
+              isNetworkPDF: fileBytes == null,
+              // pdfUrl: "https://qalearning.instancy.com//content/publishfiles/d6caf328-6c9e-43b1-8ba0-eb8d4d065e66/en-us/41cea17c-728d-4c88-9cd8-1e0473fa6f21.pdf?fromNativeapp=true",
+              pdfUrl: widget.arguments.courseDtoModel?.ViewLink ?? "",
+              pdfFileBytes: widget.arguments.courseDtoModel?.uploadedDocumentBytes,
             ),
           );
+          // NavigationController.navigateToCreateDocumentScreen(
+          //   navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+          //   argument: AddEditDocumentScreenArguments(
+          //     componentId: 0,
+          //     componentInsId: 0,
+          //     courseDtoModel: model,
+          //     isEdit: widget.arguments.isEdit,
+          //     index: widget.arguments.index,
+          //   ),
+          // );
         }
         // Navigator.pop(context);
 
@@ -757,11 +894,6 @@ class _CreateDocumentContentScreenState extends State<CreateDocumentContentScree
                   CourseDTOModel model = widget.arguments.courseDtoModel ?? CourseDTOModel();
                   model.uploadedDocumentBytes = fileBytes;
                   model.ViewLink = websiteUrlController.text.trim();
-                  if (widget.arguments.isEdit) {
-                    provider.updateMyKnowledgeListModel(model, widget.arguments.index);
-                  } else {
-                    provider.addToMyKnowledgeList(model);
-                  }
 
                   if (widget.arguments.isFromReference) {
                     NavigationController.navigateToAddEditReferenceLinkScreen(
@@ -770,7 +902,9 @@ class _CreateDocumentContentScreenState extends State<CreateDocumentContentScree
                         navigationType: NavigationType.pushNamed,
                       ),
                       argument: AddEditReferenceScreenArguments(
-                        courseDtoModel: null,
+                        courseDtoModel: model,
+                        isEdit: false,
+                        index: widget.arguments.index,
                         componentId: 0,
                         componentInsId: 0,
                       ),
@@ -785,7 +919,11 @@ class _CreateDocumentContentScreenState extends State<CreateDocumentContentScree
                     // );
                     return;
                   }
-
+                  if (widget.arguments.isEdit) {
+                    provider.updateMyKnowledgeListModel(model, widget.arguments.index);
+                  } else {
+                    provider.addToMyKnowledgeList(model);
+                  }
                   NavigationController.navigateToDocumentPreviewScreen(
                     navigationOperationParameters: NavigationOperationParameters(
                       context: context,
@@ -1045,7 +1183,6 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> with MySa
               fontColor: themeData.colorScheme.onPrimary,
               fontSize: 15,
               onPressed: () {
-                Navigator.pop(context);
                 Navigator.pop(context);
                 Navigator.pop(context);
               },

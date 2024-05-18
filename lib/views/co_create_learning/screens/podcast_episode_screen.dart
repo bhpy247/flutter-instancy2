@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/message/components/audio_player_widget.dart';
 
 import '../../../configs/app_configurations.dart';
 import '../../common/components/app_ui_components.dart';
+import '../../common/components/common_button.dart';
 
 class PodcastEpisodeScreen extends StatefulWidget {
   static const String routeName = "/PodcastEpisodeScreen";
@@ -56,7 +58,7 @@ class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> {
             child: Column(
               children: [
                 PlayerWidget(player: player),
-                Row(
+                const Row(
                   children: [
                     Icon(Icons.keyboard_arrow_up),
                     Text(
@@ -67,7 +69,7 @@ class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> {
                     )
                   ],
                 ),
-                Text(
+                const Text(
                   """
 Nigel:
 
@@ -91,7 +93,7 @@ Thanks.
   }
 
   Widget getMainBody() {
-    return AudioPlayerWidget(
+    return const AudioPlayerWidget(
       url: "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
       isMessageReceived: true,
     );
@@ -103,9 +105,11 @@ Thanks.
 
 class PlayerWidget extends StatefulWidget {
   final AudioPlayer player;
+  final Function()? onRetakeTap;
 
   const PlayerWidget({
     required this.player,
+    this.onRetakeTap,
     super.key,
   });
 
@@ -115,7 +119,7 @@ class PlayerWidget extends StatefulWidget {
   }
 }
 
-class _PlayerWidgetState extends State<PlayerWidget> {
+class _PlayerWidgetState extends State<PlayerWidget> with MySafeState {
   PlayerState? _playerState;
   Duration? _duration;
   Duration? _position;
@@ -214,26 +218,44 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    super.pageBuild();
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 15),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 35),
+      margin: const EdgeInsets.symmetric(vertical: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 20).copyWith(top: 35),
       decoration: BoxDecoration(border: Border.all(color: Colors.black, width: .5)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Container(
-              padding: EdgeInsets.all(15),
-              decoration: BoxDecoration(color: Color(0xff2BA700), shape: BoxShape.circle),
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(color: themeData.primaryColor, shape: BoxShape.circle),
               child: Image.asset(
                 "assets/cocreate/Vector-4.png",
                 color: Colors.white,
                 height: 30,
                 width: 41,
               )),
-          SizedBox(
-            height: 30,
+          const SizedBox(
+            height: 20,
           ),
-          getNewViewOfAudioPlayer()
+          getNewViewOfAudioPlayer(),
+          const SizedBox(
+            height: 20,
+          ),
+          if (widget.onRetakeTap != null)
+            CommonButton(
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+              onPressed: widget.onRetakeTap,
+              text: "Retake",
+              fontColor: themeData.primaryColor,
+              fontWeight: FontWeight.bold,
+              borderWidth: 1,
+              backGroundColor: Colors.transparent,
+              borderColor: themeData.primaryColor,
+            ),
+          const SizedBox(
+            height: 20,
+          ),
         ],
       ),
     );
@@ -241,13 +263,13 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   Widget getNewViewOfAudioPlayer() {
     return Container(
-      margin: EdgeInsets.all(10),
-      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-      decoration: BoxDecoration(color: Color(0xffF1F3F4), borderRadius: BorderRadius.circular(20)),
+      margin: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+      decoration: BoxDecoration(color: const Color(0xffF1F3F4), borderRadius: BorderRadius.circular(20)),
       child: Row(
         children: [
           InkWell(onTap: !_isPlaying ? _play : _pause, child: Icon(_isPlaying ? Icons.pause : Icons.play_arrow)),
-          SizedBox(
+          const SizedBox(
             width: 10,
           ),
           Text(
@@ -271,7 +293,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       child: SliderTheme(
         data: SliderTheme.of(context).copyWith(
           // Define the size of the slider thumb
-          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5.0, elevation: 0),
+          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.0, elevation: 0),
           // Define the size of the slider track
           trackHeight: 3.0,
         ),

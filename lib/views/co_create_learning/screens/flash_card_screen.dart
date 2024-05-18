@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 
 import '../../../configs/app_configurations.dart';
@@ -9,45 +13,95 @@ import '../../common/components/app_ui_components.dart';
 class FlashCardScreen extends StatefulWidget {
   static const String routeName = "/FlashCardScreen";
 
-  const FlashCardScreen({super.key});
+  final FlashCardScreenNavigationArguments arguments;
+
+  const FlashCardScreen({
+    super.key,
+    required this.arguments,
+  });
 
   @override
   State<FlashCardScreen> createState() => _FlashCardScreenState();
 }
 
 class _FlashCardScreenState extends State<FlashCardScreen> with MySafeState {
-  late FlipCardController _controller;
   late PageController pageController;
 
-  List<QuestionAnswerModel> questionList = [
-    QuestionAnswerModel(
-        controller: FlipCardController(),
-        answer: "Artificial intelligence (AI) is made up of units similar to the human brain's neuron called perceptrons, which are the processing power behind AI. ",
-        question: "What is artificial intelligence (AI) ?",
-        imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(
-        controller: FlipCardController(),
-        answer:
-            "Neural networks are a class of machine learning algorithms inspired by the structure and functioning of the human brain. They are composed of interconnected processing units, called neurons or nodes, organized in layers.",
-        question: "What is Neural Networks ?",
-        imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(controller: FlipCardController(), answer: "What are the two main types of AI", question: "Narrow AI and General AI", imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(controller: FlipCardController(), answer: "AI for specific tasks like facial recognition.", question: "What is Narrow AI ?", imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(controller: FlipCardController(), answer: "AI with broad human-like abilities.", question: "What is General AI ?", imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(
-        controller: FlipCardController(), answer: "Virtual assistants, recommendation systems.", question: "What are some examples of Narrow AI ?", imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(
-        controller: FlipCardController(), answer: "Safety, job displacement, misuse concerns.", question: "What are some challenges of General AI ?", imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(controller: FlipCardController(), answer: "Teaching computers to learn from data.", question: "What is machine learning ?", imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(
-        controller: FlipCardController(), answer: "Supervised, unsupervised, reinforcement.", question: "What are the three main types of machine learning ?", imageAsset: "assets/cocreate/Card.png"),
+  String title = "";
+  List<FlashcardModel> flashcards = [
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "Artificial intelligence (AI) is made up of units similar to the human brain's neuron called perceptrons, which are the processing power behind AI. ",
+      question: "What is artificial intelligence (AI) ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer:
+          "Neural networks are a class of machine learning algorithms inspired by the structure and functioning of the human brain. They are composed of interconnected processing units, called neurons or nodes, organized in layers.",
+      question: "What is Neural Networks ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "What are the two main types of AI",
+      question: "Narrow AI and General AI",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "AI for specific tasks like facial recognition.",
+      question: "What is Narrow AI ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "AI with broad human-like abilities.",
+      question: "What is General AI ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "Virtual assistants, recommendation systems.",
+      question: "What are some examples of Narrow AI ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "Safety, job displacement, misuse concerns.",
+      question: "What are some challenges of General AI ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "Teaching computers to learn from data.",
+      question: "What is machine learning ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "Supervised, unsupervised, reinforcement.",
+      question: "What are the three main types of machine learning ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
   ];
+
+  void initializeData() {
+    title = widget.arguments.courseDTOModel.ContentName;
+    if (title.isEmpty) title = "Unveiling the Neurons of AI";
+    FlashcardContentModel? flashcardContentModel = widget.arguments.courseDTOModel.flashcardContentModel;
+
+    if ((flashcardContentModel?.flashcards).checkNotEmpty) {
+      flashcards = flashcardContentModel!.flashcards;
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _controller = FlipCardController();
     pageController = PageController();
+
+    initializeData();
   }
 
   @override
@@ -66,12 +120,12 @@ class _FlashCardScreenState extends State<FlashCardScreen> with MySafeState {
 
   PreferredSizeWidget getAppBar() {
     return AppConfigurations().commonAppBar(
-      title: "Unveiling the Neurons of AI",
+      title: title,
     );
   }
 
   Widget getMainBody() {
-    int length = questionList.length;
+    int length = flashcards.length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,7 +156,7 @@ class _FlashCardScreenState extends State<FlashCardScreen> with MySafeState {
                         const SizedBox(width: 20),
                       Expanded(
                         child: getSingleWidget(
-                          model: questionList[index],
+                          model: flashcards[index],
                           index: index,
                           total: length,
                         ),
@@ -132,7 +186,7 @@ class _FlashCardScreenState extends State<FlashCardScreen> with MySafeState {
     );
   }
 
-  Widget getSingleWidget({required QuestionAnswerModel model, required int index, required int total}) {
+  Widget getSingleWidget({required FlashcardModel model, required int index, required int total}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,13 +239,4 @@ class _FlashCardScreenState extends State<FlashCardScreen> with MySafeState {
       ),
     );
   }
-}
-
-class QuestionAnswerModel {
-  String question;
-  String imageAsset;
-  String answer;
-  FlipCardController controller;
-
-  QuestionAnswerModel({this.answer = "", this.question = "", this.imageAsset = "", required this.controller});
 }

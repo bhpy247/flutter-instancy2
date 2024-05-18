@@ -24,6 +24,7 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController guestController = TextEditingController();
+  TextEditingController eventUrlController = TextEditingController();
   TextEditingController endTimeController = TextEditingController();
   TextEditingController startTimeController = TextEditingController();
   TextEditingController dateController = TextEditingController();
@@ -67,7 +68,10 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
         child: CommonButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+          },
           text: "Create",
           fontColor: themeData.colorScheme.onPrimary,
         ),
@@ -110,14 +114,18 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
                 ),
               ],
             ),
+            // const SizedBox(
+            //   height: 15,
+            // ),
+            // getDescriptionFormField(),
             const SizedBox(
               height: 15,
             ),
-            getDescriptionFormField(),
+            getEventURLFormField(),
             const SizedBox(
               height: 15,
             ),
-            getGuestsFormField(),
+            getLocationFormField(),
           ],
         ),
       ),
@@ -147,12 +155,23 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
         maxLines: 5);
   }
 
-  Widget getGuestsFormField() {
+  Widget getEventURLFormField() {
+    return getTexFormField(
+      isMandatory: false,
+      showPrefixIcon: false,
+      controller: eventUrlController,
+      labelText: "Event URL",
+      keyBoardType: TextInputType.text,
+      iconUrl: "assets/catalog/imageDescription.png",
+    );
+  }
+
+  Widget getLocationFormField() {
     return getTexFormField(
       isMandatory: false,
       showPrefixIcon: false,
       controller: guestController,
-      labelText: "Guests",
+      labelText: "Location",
       keyBoardType: TextInputType.text,
       iconUrl: "assets/catalog/imageDescription.png",
     );

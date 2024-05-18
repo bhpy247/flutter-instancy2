@@ -1,15 +1,20 @@
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_strings.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/common_save_exit_button_row.dart';
-import 'package:flutter_instancy_2/views/co_create_learning/screens/flash_card_screen.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import '../../../configs/app_constants.dart';
@@ -37,22 +42,36 @@ class AddEditFlashcardScreen extends StatefulWidget {
 class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with MySafeState {
   bool isLoading = false;
 
-  int cardCount = 0;
+  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
   Color? selectedColor;
 
   TextEditingController countController = TextEditingController();
   TextEditingController urlController = TextEditingController();
-  TextEditingController promptController = TextEditingController();
-  List<String> skills = <String>[];
-  String thumbnailImageUrl = "";
 
-  List<QuestionAnswerModel> questionList = [];
-
-  // Future<>
   static const Color guidePrimary = Color(0xFF6200EE);
   final Map<ColorSwatch<Object>, String> colorsNameMap = <ColorSwatch<Object>, String>{
     ColorTools.createPrimarySwatch(guidePrimary): 'Guide Purple',
   };
+
+  void initialize() {
+    coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
+
+    FlashcardContentModel? flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel;
+    if (flashcardContentModel != null) {
+      countController.text = flashcardContentModel.cardCount.toString();
+      urlController.text = flashcardContentModel.queryUrl.toString();
+      selectedColor = flashcardContentModel.backgroundColor.toColorMaybeNull;
+    }
+
+    initializeDataForNewContent();
+  }
+
+  void initializeDataForNewContent() {
+    countController.text = "3";
+    urlController.text = "https://www.Unveiling the Neurons of Alsss.com";
+    selectedColor = const Color(0xff2ba700);
+  }
 
   Future<bool> colorPickerDialog() async {
     return ColorPicker(
@@ -131,9 +150,28 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
     );
   }
 
+  void onGenerateTap() {
+    FlashcardContentModel flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel ?? FlashcardContentModel();
+    flashcardContentModel.cardCount = int.tryParse(countController.text) ?? 0;
+    flashcardContentModel.queryUrl = urlController.text;
+    flashcardContentModel.backgroundColor = selectedColor?.toHex() ?? "";
+
+    coCreateContentAuthoringModel.flashcardContentModel = flashcardContentModel;
+
+    NavigationController.navigateToGenerateWithAiFlashCardScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      arguments: GenerateWithAiFlashCardScreenNavigationArguments(coCreateContentAuthoringModel: coCreateContentAuthoringModel),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
+
+    initialize();
   }
 
   @override
@@ -154,16 +192,14 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
               child: CommonButton(
                 minWidth: double.infinity,
                 onPressed: () {
-                  NavigationController.navigateToGenerateWithAiFlashCardScreen(
-                    navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-                  );
+                  onGenerateTap();
                 },
                 text: AppStrings.generateWithAI,
                 fontColor: themeData.colorScheme.onPrimary,
               ),
             ),
             appBar: AppConfigurations().commonAppBar(
-              title: widget.arguments.courseDTOModel != null ? "Edit Flashcard" : "Create Flashcard",
+              title: coCreateContentAuthoringModel.isEdit ? "Edit Flashcard" : "Create Flashcard",
             ),
             body: AppUIComponents.getBackGroundBordersRounded(
               context: context,
@@ -265,17 +301,6 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
     );
   }
 
-  Widget getPromptTextFormField() {
-    return getTexFormField(
-      isMandatory: false,
-      controller: promptController,
-      labelText: "Write a prompt",
-      minLines: 1,
-      maxLines: 5,
-      iconUrl: "assets/catalog/imageDescription.png",
-    );
-  }
-
   //region textFieldView
   Widget getTexFormField(
       {TextEditingController? controller,
@@ -331,41 +356,96 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
 class GenerateWithAiFlashCardScreen extends StatefulWidget {
   static const String routeName = "/GenerateWithAiFlashCardScreen";
 
-  const GenerateWithAiFlashCardScreen({super.key});
+  final GenerateWithAiFlashCardScreenNavigationArguments arguments;
+
+  const GenerateWithAiFlashCardScreen({
+    super.key,
+    required this.arguments,
+  });
 
   @override
   State<GenerateWithAiFlashCardScreen> createState() => _GenerateWithAiFlashCardScreenState();
 }
 
 class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardScreen> with MySafeState {
-  late FlipCardController _controller;
   late PageController pageController;
 
-  List<QuestionAnswerModel> questionList = [
-    QuestionAnswerModel(
-        controller: FlipCardController(),
-        answer: "Artificial intelligence (AI) is made up of units similar to the human brain's neuron called perceptrons, which are the processing power behind AI. ",
-        question: "What is artificial intelligence (AI) ?",
-        imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(
-        controller: FlipCardController(),
-        answer:
-            "Neural networks are a class of machine learning algorithms inspired by the structure and functioning of the human brain. They are composed of interconnected processing units, called neurons or nodes, organized in layers.",
-        question: "What is Neural Networks ?",
-        imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(controller: FlipCardController(), answer: "What are the two main types of AI", question: "Narrow AI and General AI", imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(controller: FlipCardController(), answer: "AI for specific tasks like facial recognition.", question: "What is Narrow AI ?", imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(controller: FlipCardController(), answer: "AI with broad human-like abilities.", question: "What is General AI ?", imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(
-        controller: FlipCardController(), answer: "Virtual assistants, recommendation systems.", question: "What are some examples of Narrow AI ?", imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(
-        controller: FlipCardController(), answer: "Safety, job displacement, misuse concerns.", question: "What are some challenges of General AI ?", imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(controller: FlipCardController(), answer: "Teaching computers to learn from data.", question: "What is machine learning ?", imageAsset: "assets/cocreate/Card.png"),
-    QuestionAnswerModel(
-        controller: FlipCardController(), answer: "Supervised, unsupervised, reinforcement.", question: "What are the three main types of machine learning ?", imageAsset: "assets/cocreate/Card.png"),
+  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
+  List<FlashcardModel> questionList = [
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "Artificial intelligence (AI) is made up of units similar to the human brain's neuron called perceptrons, which are the processing power behind AI. ",
+      question: "What is artificial intelligence (AI) ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer:
+          "Neural networks are a class of machine learning algorithms inspired by the structure and functioning of the human brain. They are composed of interconnected processing units, called neurons or nodes, organized in layers.",
+      question: "What is Neural Networks ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "What are the two main types of AI",
+      question: "Narrow AI and General AI",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "AI for specific tasks like facial recognition.",
+      question: "What is Narrow AI ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "AI with broad human-like abilities.",
+      question: "What is General AI ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "Virtual assistants, recommendation systems.",
+      question: "What are some examples of Narrow AI ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "Safety, job displacement, misuse concerns.",
+      question: "What are some challenges of General AI ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "Teaching computers to learn from data.",
+      question: "What is machine learning ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
+    FlashcardModel(
+      controller: FlipCardController(),
+      answer: "Supervised, unsupervised, reinforcement.",
+      question: "What are the three main types of machine learning ?",
+      assetImagePath: "assets/cocreate/Card.png",
+    ),
   ];
 
-  List<InstancyUIActionModel> getActionsListOfMainWidget({required CourseDTOModel model, int index = 0}) {
+  void initializeData() {
+    coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
+
+    FlashcardContentModel? flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel;
+    if (flashcardContentModel != null) {
+      if (flashcardContentModel.flashcards.isNotEmpty) {
+        questionList = flashcardContentModel!.flashcards.toList();
+      }
+
+      if (questionList.length > flashcardContentModel.cardCount) {
+        questionList = questionList.sublist(0, flashcardContentModel.cardCount);
+      }
+    }
+  }
+
+  List<InstancyUIActionModel> getActionsListOfMainWidget({required CourseDTOModel model}) {
     List<InstancyUIActionModel> actions = [
       if (![InstancyObjectTypes.events].contains(model.ContentTypeId))
         InstancyUIActionModel(
@@ -397,9 +477,8 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
     return actions;
   }
 
-  Future<void> showMoreActions({required CourseDTOModel model, int index = 0, bool isOfMainWidget = true, String frontString = "", String backString = ""}) async {
-    List<InstancyUIActionModel> actions =
-        isOfMainWidget ? getActionsListOfMainWidget(model: model, index: index) : getActionsListOfIndividualFlashCard(model: model, index: index, backString: backString, frontString: frontString);
+  Future<void> showMoreActionsForMainContent({required CourseDTOModel model}) async {
+    List<InstancyUIActionModel> actions = getActionsListOfMainWidget(model: model);
 
     InstancyUIActions().showAction(
       context: context,
@@ -407,24 +486,37 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
     );
   }
 
-  List<InstancyUIActionModel> getActionsListOfIndividualFlashCard({required CourseDTOModel model, int index = 0, required String frontString, required String backString}) {
+  Future<void> showMoreActionsForFlashcard({required FlashcardModel model}) async {
+    List<InstancyUIActionModel> actions = getActionsListOfIndividualFlashCard(model: model);
+
+    InstancyUIActions().showAction(
+      context: context,
+      actions: actions,
+    );
+  }
+
+  List<InstancyUIActionModel> getActionsListOfIndividualFlashCard({required FlashcardModel model}) {
     List<InstancyUIActionModel> actions = [
-      if (![InstancyObjectTypes.events].contains(model.ContentTypeId))
-        InstancyUIActionModel(
-          text: "Edit this Flashcard",
-          actionsEnum: InstancyContentActionsEnum.Save,
-          onTap: () {
-            Navigator.pop(context);
-            NavigationController.navigateToEditFlashcardScreen(
-              navigationOperationParameters: NavigationOperationParameters(
-                context: context,
-                navigationType: NavigationType.pushNamed,
-              ),
-              argument: EditFlashcardScreenNavigationArgument(back: backString, front: frontString),
-            );
-          },
-          iconData: InstancyIcons.edit,
-        ),
+      InstancyUIActionModel(
+        text: "Edit this Flashcard",
+        actionsEnum: InstancyContentActionsEnum.Save,
+        onTap: () async {
+          Navigator.pop(context);
+
+          dynamic value = await NavigationController.navigateToEditFlashcardScreen(
+            navigationOperationParameters: NavigationOperationParameters(
+              context: context,
+              navigationType: NavigationType.pushNamed,
+            ),
+            argument: EditFlashcardScreenNavigationArgument(model: model),
+          );
+
+          if (value == true) {
+            mySetState();
+          }
+        },
+        iconData: InstancyIcons.edit,
+      ),
       InstancyUIActionModel(
         text: "Regenerate this Flashcard",
         actionsEnum: InstancyContentActionsEnum.View,
@@ -446,11 +538,75 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
     return actions;
   }
 
+  Future<CourseDTOModel?> saveFlashcard() async {
+    FlashcardContentModel flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel ?? FlashcardContentModel();
+    flashcardContentModel.flashcards = questionList.toList();
+    coCreateContentAuthoringModel.flashcardContentModel = flashcardContentModel;
+
+    CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
+
+    if (courseDTOModel != null) {
+      courseDTOModel.ContentName = coCreateContentAuthoringModel.title;
+      courseDTOModel.Title = coCreateContentAuthoringModel.title;
+      courseDTOModel.TitleName = coCreateContentAuthoringModel.title;
+
+      courseDTOModel.ShortDescription = coCreateContentAuthoringModel.description;
+      courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
+
+      courseDTOModel.Skills = coCreateContentAuthoringModel.skills;
+
+      courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
+
+      courseDTOModel.flashcardContentModel = flashcardContentModel;
+
+      if (!coCreateContentAuthoringModel.isEdit) {
+        context.read<CoCreateKnowledgeProvider>().myKnowledgeList.setList(list: [courseDTOModel], isClear: false, isNotify: true);
+      }
+    }
+
+    return courseDTOModel;
+  }
+
+  Future<void> onSaveAndExitTap() async {
+    CourseDTOModel? courseDTOModel = await saveFlashcard();
+
+    if (courseDTOModel == null) {
+      return;
+    }
+
+    Navigator.pop(context);
+    Navigator.pop(context);
+    Navigator.pop(context);
+  }
+
+  Future<void> onSaveAndViewTap() async {
+    CourseDTOModel? courseDTOModel = await saveFlashcard();
+
+    if (courseDTOModel == null) {
+      return;
+    }
+
+    Navigator.pop(context);
+    Navigator.pop(context);
+    Navigator.pop(context);
+
+    NavigationController.navigateToFlashCardScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      arguments: FlashCardScreenNavigationArguments(
+        courseDTOModel: courseDTOModel,
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-    _controller = FlipCardController();
     pageController = PageController();
+
+    initializeData();
   }
 
   @override
@@ -468,16 +624,20 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
   }
 
   PreferredSizeWidget getAppBar() {
-    return AppConfigurations().commonAppBar(title: "Unveiling the Neurons of AIsss", actions: [
-      InkWell(
+    return AppConfigurations().commonAppBar(
+      title: "Unveiling the Neurons of AIsss",
+      actions: [
+        InkWell(
           onTap: () {
-            showMoreActions(model: CourseDTOModel());
+            showMoreActionsForMainContent(model: CourseDTOModel());
           },
           child: const Icon(
             Icons.more_vert,
             size: 22,
-          ))
-    ]);
+          ),
+        ),
+      ],
+    );
   }
 
   Widget getMainBody() {
@@ -486,9 +646,7 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: 20,
-        ),
+        const SizedBox(height: 20),
         Expanded(
           child: PageView.builder(
             controller: pageController,
@@ -550,7 +708,7 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
     );
   }
 
-  Widget getSingleWidget({required QuestionAnswerModel model, required int index, required int total}) {
+  Widget getSingleWidget({required FlashcardModel model, required int index, required int total}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -570,7 +728,7 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
             ),
             InkWell(
                 onTap: () {
-                  showMoreActions(model: CourseDTOModel(), isOfMainWidget: false, frontString: model.question, backString: model.answer);
+                  showMoreActionsForFlashcard(model: model);
                 },
                 child: const Icon(Icons.more_vert))
           ],
@@ -622,9 +780,13 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
     if ((index + 1) == questionList.length) {
       return Padding(
         padding: const EdgeInsets.all(20.0),
-        child: CommonSaveExitButtonRow(),
+        child: CommonSaveExitButtonRow(
+          onSaveAndExitPressed: onSaveAndExitTap,
+          onSaveAndViewPressed: onSaveAndViewTap,
+        ),
       );
     }
+
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Row(
@@ -642,9 +804,7 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
               borderColor: themeData.primaryColor,
             ),
           ),
-          const SizedBox(
-            width: 20,
-          ),
+          const SizedBox(width: 20),
           Expanded(
             child: CommonButton(
               onPressed: () {
@@ -675,12 +835,18 @@ class _EditFlashCardScreenState extends State<EditFlashCardScreen> with MySafeSt
   TextEditingController frontController = TextEditingController();
   TextEditingController backController = TextEditingController();
 
+  void onSaveTap() {
+    widget.arguments.model.question = frontController.text.trim();
+    widget.arguments.model.answer = backController.text.trim();
+    Navigator.pop(context, true);
+  }
+
   @override
   void initState() {
     super.initState();
-    frontController.text = widget.arguments.front;
-    backController.text = widget.arguments.back;
-    MyPrint.printOnConsole("Text: ${widget.arguments.front}");
+    frontController.text = widget.arguments.model.question;
+    backController.text = widget.arguments.model.answer;
+    MyPrint.printOnConsole("Text: ${widget.arguments.model.question}");
   }
 
   @override
@@ -692,7 +858,14 @@ class _EditFlashCardScreenState extends State<EditFlashCardScreen> with MySafeSt
       appBar: getAppBar(),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
-        child: CommonSaveExitButtonRow(),
+        child: CommonSaveExitButtonRow(
+          onSaveAndExitPressed: () {
+            onSaveTap();
+          },
+          onSaveAndViewPressed: () {
+            onSaveTap();
+          },
+        ),
       ),
       body: AppUIComponents.getBackGroundBordersRounded(
         context: context,
@@ -708,29 +881,27 @@ class _EditFlashCardScreenState extends State<EditFlashCardScreen> with MySafeSt
   }
 
   Widget getMainBody() {
-    return Container(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 60,
-                    ),
-                    getFrontTextField(),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    getBackTextField(),
-                  ],
-                ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 60,
+                  ),
+                  getFrontTextField(),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  getBackTextField(),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -738,18 +909,17 @@ class _EditFlashCardScreenState extends State<EditFlashCardScreen> with MySafeSt
   Widget getFrontTextField() {
     return Column(
       children: [
-        Text(
+        const Text(
           "Front",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         getTexFormField(
           isMandatory: false,
           controller: frontController,
           labelText: "Front",
-          keyBoardType: TextInputType.number,
           iconUrl: "",
           minLines: 6,
           maxLines: 6,
@@ -761,18 +931,17 @@ class _EditFlashCardScreenState extends State<EditFlashCardScreen> with MySafeSt
   Widget getBackTextField() {
     return Column(
       children: [
-        Text(
+        const Text(
           "Back",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         getTexFormField(
           isMandatory: false,
           controller: backController,
           labelText: "Back",
-          keyBoardType: TextInputType.number,
           iconUrl: "",
           minLines: 6,
           maxLines: 6,

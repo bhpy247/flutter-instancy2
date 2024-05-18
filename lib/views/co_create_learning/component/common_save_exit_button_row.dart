@@ -3,14 +3,18 @@ import 'package:flutter/material.dart';
 import '../../common/components/common_button.dart';
 
 class CommonSaveExitButtonRow extends StatelessWidget {
-  late ThemeData themeData;
-  final Function()? onSaveAndExitPressed, onSaveAndViewPressed;
+  final void Function()? onSaveAndExitPressed;
+  final void Function()? onSaveAndViewPressed;
 
-  CommonSaveExitButtonRow({super.key, this.onSaveAndExitPressed, this.onSaveAndViewPressed});
+  const CommonSaveExitButtonRow({
+    super.key,
+    this.onSaveAndExitPressed,
+    this.onSaveAndViewPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
-    themeData = Theme.of(context);
+    ThemeData themeData = Theme.of(context);
     return Row(
       children: [
         Expanded(

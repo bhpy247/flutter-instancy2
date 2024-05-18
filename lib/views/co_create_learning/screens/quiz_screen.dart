@@ -288,12 +288,14 @@ class QuizModel {
   List<bool> isEditModeEnable = <bool>[];
   String correctAnswer = "";
   String selectedAnswer = "";
-  bool isAnswerGiven = false, isCorrectAnswerGiven = false;
+  bool isAnswerGiven = false, isCorrectAnswerGiven = false, isQuestionEditable = false;
 
   QuizModel({
     this.question = "",
     this.correctAnswer = "",
     this.optionList = const [],
     this.isAnswerGiven = false,
-    this.isCorrectAnswerGiven = false, this.isEditModeEnable = const []});
+      this.isCorrectAnswerGiven = false,
+      this.isEditModeEnable = const [],
+      this.isQuestionEditable = false});
 }

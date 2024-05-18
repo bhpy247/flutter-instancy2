@@ -549,6 +549,9 @@ class InstancyIcons {
   static const IconData resumeDownload = FontAwesomeIcons.play;
   static const IconData extractDownload = FontAwesomeIcons.fileZipper;
 // endregion
+
+  static const IconData generateText = Icons.text_fields;
+  static const IconData regenerate = Icons.repeat;
 }
 
 class InstancySVGImages {

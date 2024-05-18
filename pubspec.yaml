@@ -49,6 +49,7 @@ dependencies:
   xml: ^6.5.0
   sensors_plus: ^5.0.1
   audioplayers: ^6.0.0
+  html_editor_enhanced: ^2.5.1
   #endregion
 
   #region State Management:

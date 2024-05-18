@@ -15,6 +15,8 @@ import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/
 import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/data_model/ask_the_expert_dto.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
 import 'package:flutter_instancy_2/models/membership/data_model/membership_plan_details_model.dart';
@@ -933,10 +935,26 @@ class AskTheExpertScreenNavigationArguments extends NavigationArguments {
 }
 
 class AddEditFlashcardScreenNavigationArguments extends NavigationArguments {
-  final CourseDTOModel? courseDTOModel;
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
   const AddEditFlashcardScreenNavigationArguments({
-    this.courseDTOModel,
+    required this.coCreateContentAuthoringModel,
+  });
+}
+
+class GenerateWithAiFlashCardScreenNavigationArguments extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
+  const GenerateWithAiFlashCardScreenNavigationArguments({
+    required this.coCreateContentAuthoringModel,
+  });
+}
+
+class FlashCardScreenNavigationArguments extends NavigationArguments {
+  final CourseDTOModel courseDTOModel;
+
+  const FlashCardScreenNavigationArguments({
+    required this.courseDTOModel,
   });
 }
 
@@ -1046,11 +1064,11 @@ class AddEditQuizScreenArgument extends NavigationArguments {
 class AddEditVideoScreenArgument extends NavigationArguments {
   final CourseDTOModel? courseDtoModel;
   final bool isUploadScreen;
+  final bool isNotGenerateWithAiScreen;
 
   const AddEditVideoScreenArgument({
     this.courseDtoModel,
-    this.isUploadScreen = false,
-  });
+    this.isUploadScreen = false, this.isNotGenerateWithAiScreen = false});
 }
 
 class AddEditEventScreenArgument extends NavigationArguments {
@@ -1106,9 +1124,41 @@ class GenerateWithAiVideoScreenNavigationArgument extends NavigationArguments {
 }
 
 class EditFlashcardScreenNavigationArgument extends NavigationArguments {
-  final CourseDTOModel? model;
-  final String front;
-  final String back;
+  final FlashcardModel model;
 
-  const EditFlashcardScreenNavigationArgument({this.model, this.front = "", this.back = ''});
+  const EditFlashcardScreenNavigationArgument({
+    required this.model,
+  });
+}
+
+class AddEditArticleScreenNavigationArgument extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
+  const AddEditArticleScreenNavigationArgument({
+    required this.coCreateContentAuthoringModel,
+  });
+}
+
+class ArticleEditorScreenNavigationArgument extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
+  const ArticleEditorScreenNavigationArgument({
+    required this.coCreateContentAuthoringModel,
+  });
+}
+
+class ArticlePreviewScreenNavigationArgument extends NavigationArguments {
+  final CourseDTOModel model;
+
+  const ArticlePreviewScreenNavigationArgument({
+    required this.model,
+  });
+}
+
+class PodcastPreviewScreenNavigationArgument extends NavigationArguments {
+  final CourseDTOModel model;
+
+  const PodcastPreviewScreenNavigationArgument({
+    required this.model,
+  });
 }

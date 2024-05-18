@@ -282,7 +282,12 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20),
       child: CommonSaveExitButtonRow(
+        onSaveAndExitPressed: () {
+          Navigator.pop(context);
+        },
         onSaveAndViewPressed: () {
+          Navigator.pop(context);
+
           NavigationController.navigateToVideoScreen(
             navigationOperationParameters: NavigationOperationParameters(
               context: context,

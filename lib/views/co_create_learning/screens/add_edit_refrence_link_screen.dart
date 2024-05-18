@@ -9,7 +9,11 @@ import 'package:flutter_instancy_2/views/co_create_learning/component/common_sav
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import '../../../backend/configurations/app_configuration_operations.dart';
+import '../../../backend/navigation/navigation_controller.dart';
+import '../../../backend/navigation/navigation_operation_parameters.dart';
+import '../../../backend/navigation/navigation_type.dart';
 import '../../../backend/wiki_component/wiki_controller.dart';
 import '../../../backend/wiki_component/wiki_provider.dart';
 import '../../../configs/app_configurations.dart';
@@ -18,6 +22,7 @@ import '../../../utils/my_print.dart';
 import '../../../utils/my_utils.dart';
 import '../../common/components/common_text_form_field.dart';
 import '../../common/components/modal_progress_hud.dart';
+import '../component/thumbnail_dialog.dart';
 
 class AddEditReferenceLink extends StatefulWidget {
   static const String routeName = "/AddEditReferenceLink";
@@ -55,6 +60,30 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
   late WikiProvider wikiProvider;
   late WikiController wikiController;
   CourseDTOModel model = CourseDTOModel();
+  bool isFromGenerativeAi = false;
+
+  Future<void> thumbnailDialog() async {
+    var val = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ThumbnailDialog();
+      },
+    );
+
+    MyPrint.printOnConsole("valval: $val");
+    if (val == null) return;
+
+    if (val == 1) {
+      thumbNailName = await openFileExplorer(
+        FileType.image,
+        false,
+      );
+      setState(() {});
+    } else if (val == 2) {
+      isFromGenerativeAi = true;
+      mySetState();
+    }
+  }
 
   Future<String> openFileExplorer(
     FileType pickingType,
@@ -79,7 +108,7 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
 
       MyPrint.printOnConsole("Got file Name:${file.name}");
       MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
-      fileBytes = file.bytes;
+      thumbNailBytes = file.bytes;
     } else {
       fileName = "";
       fileBytes = null;
@@ -179,6 +208,7 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
   // }
 
   void onSaveButtonClicked() {
+    CoCreateKnowledgeProvider provider = context.read();
     model = widget.argument.courseDtoModel ?? CourseDTOModel();
     model.Title = titleController.text.trim();
     model.TitleName = titleController.text.trim();
@@ -199,12 +229,13 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
     model.ThumbnailImagePath =
         "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FGenerative%20AI%20(1).jpg?alt=media&token=42d9004b-9dd8-4d30-a889-982996d6cd6d";
     model.thumbNailFileBytes = thumbNailBytes;
-    // if (widget.arguments.isEdit) {
-    //   provider.updateMyKnowledgeListModel(model, widget.arguments.index);
-    // } else {
-    //   provider.addToMyKnowledgeList(model);
-    // }
-    //
+    // provider.myKnowledgeList.insertAt(index: 0, element: model);
+
+    if (widget.argument.isEdit) {
+      provider.updateMyKnowledgeListModel(model, widget.argument.index);
+    } else {
+      provider.addToMyKnowledgeList(model);
+    }
   }
 
   @override
@@ -271,9 +302,17 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
               ),
               getCategoryExpansionTile(),
               const SizedBox(
-                height: 30,
+                height: 19,
               ),
-              getThumbNail(FileType.image),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset(
+                  "assets/cocreate/dummy_image.png",
+                  height: 80,
+                  width: 80,
+                  fit: BoxFit.cover,
+                ),
+              ),
               const SizedBox(
                 height: 30,
               ),
@@ -285,17 +324,54 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
   }
 
   Widget getThumbNail(FileType? fileType) {
+    if (isFromGenerativeAi) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 10.0),
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Image.asset(
+                "assets/cocreate/flashCard.png",
+                height: 80,
+                width: 80,
+                fit: BoxFit.cover,
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                isFromGenerativeAi = false;
+                mySetState();
+              },
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.clear,
+                  size: 20,
+                ),
+              ),
+            )
+          ],
+        ),
+      );
+    }
     if (fileType == null) return const SizedBox();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
           onTap: () async {
-            thumbNailName = await openFileExplorer(
-              fileType,
-              false,
-            );
-            setState(() {});
+            thumbnailDialog();
+            // thumbNailName = await openFileExplorer(
+            //   fileType,
+            //   false,
+            // );
+            // setState(() {});
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -396,7 +472,7 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
         return null;
       },
       isMandatory: true,
-      minLines: 1,
+      minLines: 5,
       maxLines: 5,
       controller: descriptionController,
       labelText: "Description",
@@ -457,15 +533,15 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
                   FocusScope.of(context).unfocus();
                 },
                 children: provider.wikiCategoriesList.map((e) {
+                  bool isChecked = selectedCategoriesList.map((e) => e.name).contains(e.name);
                   return Container(
                     color: Colors.white,
                     child: InkWell(
                       onTap: () {
-                        bool isChecked = !selectedCategoriesList.contains(e);
                         if (isChecked) {
-                          selectedCategoriesList.add(e);
-                        } else {
                           selectedCategoriesList.remove(e);
+                        } else {
+                          selectedCategoriesList.add(e);
                         }
 
                         selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
@@ -473,31 +549,23 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
                           separator: ", ",
                         );
                         setState(() {});
-
-                        // if (isChecked) {
-                        //   // selectedCategory = e.name;
-                        //   selectedCategoriesList.add(e);
-                        //   setState(() {});
-                        //
-                        // } else {
-                        //   // selectedCategory = "";
-                        //   selectedCategoriesList.remove(e);
-                        // }
-                        // print(isChecked);
                       },
                       child: Row(
                         children: [
                           Checkbox(
                             activeColor: themeData.primaryColor,
-                            value: selectedCategoriesList.contains(e),
+                            value: isChecked,
                             onChanged: (bool? value) {
-                              bool isChecked = value ?? false;
-                              if (isChecked) {
-                                selectedCategoriesList.add(e);
+                              bool isCheckedTemp = value ?? false;
+                              if (isCheckedTemp) {
+                                if (!isChecked) {
+                                  selectedCategoriesList.add(e);
+                                }
                               } else {
-                                selectedCategoriesList.remove(e);
+                                if (isChecked) {
+                                  selectedCategoriesList.remove(e);
+                                }
                               }
-
                               selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
                                 list: selectedCategoriesList.map((e) => e.name).toList(),
                                 separator: ",",
@@ -528,12 +596,22 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
       padding: const EdgeInsets.symmetric(horizontal: 19.0, vertical: 20),
       child: CommonSaveExitButtonRow(
         onSaveAndExitPressed: () {
+          onSaveButtonClicked();
           Navigator.pop(context);
           Navigator.pop(context);
         },
         onSaveAndViewPressed: () {
+          onSaveButtonClicked();
           Navigator.pop(context);
           Navigator.pop(context);
+          // onSaveButtonClicked();
+          NavigationController.navigateToWebViewScreen(
+            navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+            arguments: WebViewScreenNavigationArguments(
+              title: "Generative AI and its Transformative Potential",
+              url: "https://smartbridge.com/introduction-generative-ai-transformative-potential-enterprises/",
+            ),
+          );
         },
       ),
     );
@@ -542,8 +620,7 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
     //   minWidth: MediaQuery.of(context).size.width,
     //   padding: const EdgeInsets.symmetric(vertical: 15),
     //   onPressed: () {
-    //     // CoCreateKnowledgeProvider provider = context.read();
-    //     // provider.myKnowledgeList.insertAt(index: 0, element: CourseDTOModel(Title: titleController.text, AuthorDisplayName: "Happy", ContentType: "URL", ContentTypeId: 28, MediaTypeID: 13));
+
     //     // Navigator.pop(context);
     //     if (formKey.currentState!.validate()) {
     //       onSaveButtonClicked();

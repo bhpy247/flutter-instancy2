@@ -145,6 +145,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 
   Future<void> onViewTap({required CourseDTOModel model}) async {
     int objectType = model.ContentTypeId;
+    MyPrint.printOnConsole("objectType:$objectType");
 
     if (objectType == InstancyObjectTypes.flashCard) {
       NavigationController.navigateToFlashCardScreen(
@@ -152,6 +153,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
+        arguments: FlashCardScreenNavigationArguments(courseDTOModel: model),
       );
     } else if (objectType == InstancyObjectTypes.rolePlay) {
       dynamic value = await NavigationController.navigateToRolePlayLaunchScreen(
@@ -227,14 +229,15 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
   Future<void> onEditTap({required CourseDTOModel model, int index = 0}) async {
     int objectType = model.ContentTypeId;
 
-    if (objectType == InstancyObjectTypes.flashCard) {
+    /*if (objectType == InstancyObjectTypes.flashCard) {
       NavigationController.navigateToFlashCardScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.rolePlay) {
+    }
+    else if (objectType == InstancyObjectTypes.rolePlay) {
       dynamic value = await NavigationController.navigateToRolePlayLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -244,14 +247,16 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           courseDTOModel: model,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.podcastEpisode) {
+    }
+    else if (objectType == InstancyObjectTypes.podcastEpisode) {
       NavigationController.navigateToPodcastEpisodeScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.referenceUrl) {
+    }
+    else if (objectType == InstancyObjectTypes.referenceUrl) {
       NavigationController.navigateToWebViewScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         arguments: WebViewScreenNavigationArguments(
@@ -259,7 +264,8 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           url: "https://www.instancy.com/learn/",
         ),
       );
-    } else if (objectType == InstancyObjectTypes.document) {
+    }
+    else if (objectType == InstancyObjectTypes.document) {
       NavigationController.navigateToAddEditDocumentScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -267,33 +273,44 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         ),
         arguments: AddEditDocumentScreenArguments(componentId: 0, componentInsId: 0, courseDtoModel: model, index: index, isEdit: true),
       );
-    } else if (objectType == InstancyObjectTypes.videos) {
+    }
+    else if (objectType == InstancyObjectTypes.videos) {
       NavigationController.navigateToVideoScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.quiz) {
+    }
+    else if (objectType == InstancyObjectTypes.quiz) {
       NavigationController.navigateToQuizScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.article) {
-      NavigationController.navigateToArticleScreen(
-        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-        arguments: ArticleScreenNavigationArguments(courseDTOModel: model),
-      );
-      /*NavigationController.navigateToWebViewScreen(
-        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-        arguments: WebViewScreenNavigationArguments(
-          title: model.Title,
-          url: "https://enterprisedemo.instancy.com/content/publishfiles/1539fc5c-7bde-4d82-a0f6-9612f9e6c426/ins_content.html?fromNativeapp=true",
-        ),
-      );*/
     }
+    else if (objectType == InstancyObjectTypes.article) {
+      NavigationController.navigateCommonCreateAuthoringToolScreen(
+        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+        argument: CommonCreateAuthoringToolScreenArgument(
+          courseDtoModel: model,
+          objectTypeId: InstancyObjectTypes.article,
+          componentId: widget.componentId,
+          componentInsId: widget.componentInstanceId,
+        ),
+      );
+    }*/
+
+    NavigationController.navigateCommonCreateAuthoringToolScreen(
+      navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+      argument: CommonCreateAuthoringToolScreenArgument(
+        courseDtoModel: model,
+        objectTypeId: objectType,
+        componentId: widget.componentId,
+        componentInsId: widget.componentInstanceId,
+      ),
+    );
   }
 
   @override
@@ -510,16 +527,16 @@ class PopUpDialog extends StatefulWidget {
 
 class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
   final List<KnowledgeTypeModel> knowledgeTypeList = [
-    KnowledgeTypeModel(name: "Flashcards", iconUrl: "assets/cocreate/Card.png", objectTypeId: InstancyObjectTypes.flashCard),
-    KnowledgeTypeModel(name: "Quiz", iconUrl: "assets/cocreate/Chat Question.png", objectTypeId: InstancyObjectTypes.quiz),
-    KnowledgeTypeModel(name: "Podcast Episode", iconUrl: "assets/cocreate/Vector-4.png", objectTypeId: InstancyObjectTypes.podcastEpisode),
-    KnowledgeTypeModel(name: "Article", iconUrl: "assets/cocreate/Vector-2.png", objectTypeId: InstancyObjectTypes.article),
-    KnowledgeTypeModel(name: "Video", iconUrl: "assets/cocreate/video.png", objectTypeId: InstancyObjectTypes.videos),
-    KnowledgeTypeModel(name: "Reference Link", iconUrl: "assets/cocreate/Vector-1.png", objectTypeId: InstancyObjectTypes.referenceUrl),
-    KnowledgeTypeModel(name: "Documents", iconUrl: "assets/cocreate/Vector.png", objectTypeId: InstancyObjectTypes.document),
-    KnowledgeTypeModel(name: "Event", iconUrl: "assets/cocreate/Vector-3.png", objectTypeId: InstancyObjectTypes.events),
+    KnowledgeTypeModel(name: "Learning Path", iconUrl: "assets/cocreate/Business Hierarchy.png", objectTypeId: InstancyObjectTypes.learningMaps),
     KnowledgeTypeModel(name: "Roleplay", iconUrl: "assets/cocreate/video.png", objectTypeId: InstancyObjectTypes.rolePlay),
-    KnowledgeTypeModel(name: "Learning Maps", iconUrl: "assets/cocreate/Business Hierarchy.png", objectTypeId: InstancyObjectTypes.learningMaps),
+    KnowledgeTypeModel(name: "Event", iconUrl: "assets/cocreate/Vector-3.png", objectTypeId: InstancyObjectTypes.events),
+    KnowledgeTypeModel(name: "Documents", iconUrl: "assets/cocreate/Vector.png", objectTypeId: InstancyObjectTypes.document),
+    KnowledgeTypeModel(name: "Reference Link", iconUrl: "assets/cocreate/Vector-1.png", objectTypeId: InstancyObjectTypes.referenceUrl),
+    KnowledgeTypeModel(name: "Video", iconUrl: "assets/cocreate/video.png", objectTypeId: InstancyObjectTypes.videos),
+    KnowledgeTypeModel(name: "Article", iconUrl: "assets/cocreate/Vector-2.png", objectTypeId: InstancyObjectTypes.article),
+    KnowledgeTypeModel(name: "Podcast Episode", iconUrl: "assets/cocreate/Vector-4.png", objectTypeId: InstancyObjectTypes.podcastEpisode),
+    KnowledgeTypeModel(name: "Quiz", iconUrl: "assets/cocreate/Chat Question.png", objectTypeId: InstancyObjectTypes.quiz),
+    KnowledgeTypeModel(name: "Flashcards", iconUrl: "assets/cocreate/Card.png", objectTypeId: InstancyObjectTypes.flashCard),
     KnowledgeTypeModel(name: "AI Agents", iconUrl: "assets/cocreate/Ai.png", objectTypeId: InstancyObjectTypes.aiAgent),
   ];
   ValueNotifier<bool> isDialOpen = ValueNotifier<bool>(false);
@@ -716,7 +733,11 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: const CommonCreateAuthoringToolScreenArgument(componentInsId: 0, componentId: 0, objectTypeId: InstancyObjectTypes.flashCard),
+        argument: const CommonCreateAuthoringToolScreenArgument(
+          componentInsId: 0,
+          componentId: 0,
+          objectTypeId: InstancyObjectTypes.flashCard,
+        ),
       );
     } else if (objectType == InstancyObjectTypes.rolePlay) {
       // MyPrint.printOnConsole("in Role Play");
@@ -847,15 +868,31 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: const CommonCreateAuthoringToolScreenArgument(componentInsId: 0, componentId: 0, objectTypeId: InstancyObjectTypes.quiz),
+        argument: const CommonCreateAuthoringToolScreenArgument(
+          componentInsId: 0,
+          componentId: 0,
+          objectTypeId: InstancyObjectTypes.quiz,
+        ),
       );
     } else if (objectType == InstancyObjectTypes.article) {
-      courseDTOModel.TitleName = "Article Title";
-      courseDTOModel.Title = courseDTOModel.TitleName;
-      courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      courseDTOModel.ContentType = "Article";
-      courseDTOModel.ContentTypeId = InstancyObjectTypes.article;
-      courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
+      // courseDTOModel.TitleName = "Article Title";
+      // courseDTOModel.Title = courseDTOModel.TitleName;
+      // courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
+      // courseDTOModel.ContentType = "Article";
+      // courseDTOModel.ContentTypeId = InstancyObjectTypes.article;
+      // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
+
+      NavigationController.navigateCommonCreateAuthoringToolScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: const CommonCreateAuthoringToolScreenArgument(
+          componentInsId: 0,
+          componentId: 0,
+          objectTypeId: InstancyObjectTypes.article,
+        ),
+      );
     } else if (objectType == InstancyObjectTypes.events) {
       MyPrint.printOnConsole("in Role Play");
       // NavigationController.navigateToAddEditEventScreen(
@@ -1065,11 +1102,11 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       activeIcon: Icons.close,
       spacing: 3,
       overlayColor: Colors.black,
-      overlayOpacity: .6,
+      overlayOpacity: .7,
       mini: false,
       openCloseDial: isDialOpen,
       childPadding: const EdgeInsets.all(5),
-      spaceBetweenChildren: 2,
+      spaceBetweenChildren: 1,
       buttonSize: const Size(56.0, 56.0),
       // it's the SpeedDial size which defaults to 56 itself
       /// The below button size defaults to 56 itself, its the SpeedDial childrens size
@@ -1111,11 +1148,15 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
             onCardTapCallBack(objectType: knowledgeTypeList[index].objectTypeId);
           },
           label: knowledgeTypeList[index].name,
-          labelStyle: TextStyle(color: themeData.colorScheme.onPrimary),
-          labelBackgroundColor: themeData.primaryColor,
+          labelStyle: TextStyle(
+            color: themeData.colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+          labelBackgroundColor: Colors.transparent,
           backgroundColor: themeData.colorScheme.onPrimary,
           elevation: 0,
           labelShadow: [],
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
           child: Image.asset(
             knowledgeTypeList[index].iconUrl,
             height: 20,
