@@ -64,7 +64,7 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
       selectedColor = flashcardContentModel.backgroundColor.toColorMaybeNull;
     }
 
-    initializeDataForNewContent();
+    if (!coCreateContentAuthoringModel.isEdit) initializeDataForNewContent();
   }
 
   void initializeDataForNewContent() {

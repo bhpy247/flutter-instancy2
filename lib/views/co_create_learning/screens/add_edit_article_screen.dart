@@ -257,7 +257,7 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
 
     initialHtmlString = coCreateContentAuthoringModel.articleHtmlCode;
-    if (initialHtmlString.checkEmpty) initialHtmlString = defaultArticleScreen;
+    if (!coCreateContentAuthoringModel.isEdit) initialHtmlString = defaultArticleScreen;
   }
 
   Future<void> showMoreActions({CourseDTOModel? model, int index = 0}) async {
