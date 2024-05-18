@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter_instancy_2/models/co_create_knowledge/event/data_model/event_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_content_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
@@ -235,7 +236,9 @@ class CourseDTOModel {
   Uint8List? uploadedDocumentBytes;
   String? articleHtmlCode;
   String? selectedArticleSourceType;
+  String? uploadedFileName;
   FlashcardContentModel? flashcardContentModel;
+  EventModel? eventModel;
 
   CourseDTOModel({
     this.SiteName = "",
@@ -465,6 +468,8 @@ class CourseDTOModel {
     this.articleHtmlCode,
     this.selectedArticleSourceType,
     this.flashcardContentModel,
+    this.uploadedFileName,
+    this.eventModel,
     List<String>? Skills,
   }) {
     this.Skills = Skills ?? <String>[];

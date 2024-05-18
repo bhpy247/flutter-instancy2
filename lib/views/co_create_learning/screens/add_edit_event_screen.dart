@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/event/data_model/event_model.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
 import '../../../backend/app_theme/style.dart';
+import '../../../backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import '../../../backend/navigation/navigation_arguments.dart';
 import '../../../configs/app_configurations.dart';
+import '../../../models/co_create_knowledge/co_create_content_authoring_model.dart';
+import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_text_form_field.dart';
 
@@ -23,11 +28,14 @@ class AddEditEventScreen extends StatefulWidget {
 class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeState {
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-  TextEditingController guestController = TextEditingController();
+  TextEditingController locationController = TextEditingController();
   TextEditingController eventUrlController = TextEditingController();
   TextEditingController endTimeController = TextEditingController();
   TextEditingController startTimeController = TextEditingController();
   TextEditingController dateController = TextEditingController();
+
+  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+  String startTime = "", endTime = "";
 
   Future<String> _selectTime(BuildContext context) async {
     String? selectedDate;
@@ -36,7 +44,8 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
       initialTime: TimeOfDay.now(),
     );
     if (pickedTime != null) {
-      selectedDate = "${pickedTime.hour}:${pickedTime.minute}";
+      DateTime dateTime = DateTime(2023, 01, 01, pickedTime.hour, pickedTime.minute);
+      selectedDate = DatePresentation.getFormattedDate(dateFormat: "hh:mm:ss aa", dateTime: dateTime);
       print('Selected time: ${pickedTime.format(context)}');
     }
     return selectedDate ?? "";
@@ -57,6 +66,117 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
     return selectedDate ?? "";
   }
 
+  void initializeData() {
+    coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
+
+    EventModel? eventModel = coCreateContentAuthoringModel.eventModel;
+    if (eventModel != null) {
+      dateController.text = eventModel.date;
+      startTimeController.text = eventModel.startTime;
+      endTimeController.text = eventModel.endTime;
+      eventUrlController.text = eventModel.eventUrl;
+      locationController.text = eventModel.location;
+    } else {
+      dateController.text = "30 May 2024";
+      startTimeController.text = "5:30 PM";
+      endTimeController.text = "6:00 PM";
+      eventUrlController.text = "https://zoom.us/";
+      locationController.text = "NC";
+    }
+  }
+
+  Future<CourseDTOModel?> saveFlashcard() async {
+    EventModel eventModel = coCreateContentAuthoringModel.eventModel ?? EventModel();
+    eventModel.date = dateController.text.trim();
+    eventModel.endTime = endTimeController.text.trim();
+    eventModel.startTime = startTimeController.text.trim();
+    eventModel.eventUrl = eventUrlController.text.trim();
+    eventModel.location = locationController.text.trim();
+    coCreateContentAuthoringModel.eventModel = eventModel;
+
+    CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
+
+    if (courseDTOModel != null) {
+      courseDTOModel.ContentName = coCreateContentAuthoringModel.title;
+      courseDTOModel.Title = coCreateContentAuthoringModel.title;
+      courseDTOModel.TitleName = coCreateContentAuthoringModel.title;
+
+      courseDTOModel.ShortDescription = coCreateContentAuthoringModel.description;
+      courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
+
+      courseDTOModel.Skills = coCreateContentAuthoringModel.skills;
+
+      courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
+      courseDTOModel.EventStartDateTime = startTime;
+      courseDTOModel.EventEndDateTime = endTime;
+      courseDTOModel.EventStartDateTimeWithoutConvert = coCreateContentAuthoringModel.eventModel?.startTime ?? "";
+      courseDTOModel.EventEndDateTimeTimeWithoutConvert = coCreateContentAuthoringModel.eventModel?.endTime ?? "";
+      courseDTOModel.Duration = "30 Minutes";
+      courseDTOModel.AvailableSeats = "10";
+
+      //   UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
+      // ContentTypeId: InstancyObjectTypes.events,
+      // MediaTypeID: InstancyMediaTypes.none,
+      // ContentType: "Events",
+      // ThumbnailImagePath: "/Content/SiteFiles/Images/Event.jpg",
+      // ShortDescription: "Unleash the potential of nations through economic growth and development",
+      // EventStartDateTime: "30 May 2024",
+      // EventStartDateTimeWithoutConvert: "05/30/2024 05:30:00 PM",
+      // EventEndDateTime: "30 May 2024",
+      // EventEndDateTimeTimeWithoutConvert: "05/30/2024 06:00:00 PM",
+      // Duration: "30 Minutes",
+      // AvailableSeats: "10",
+
+      courseDTOModel.eventModel = eventModel;
+
+      if (!coCreateContentAuthoringModel.isEdit) {
+        context.read<CoCreateKnowledgeProvider>().myKnowledgeList.setList(list: [courseDTOModel], isClear: false, isNotify: true);
+      }
+    }
+
+    return courseDTOModel;
+  }
+
+  Future<void> onSaveAndExitTap() async {
+    CourseDTOModel? courseDTOModel = await saveFlashcard();
+
+    if (courseDTOModel == null) {
+      return;
+    }
+
+    Navigator.pop(context);
+    Navigator.pop(context);
+    Navigator.pop(context);
+  }
+
+  Future<void> onSaveAndViewTap() async {
+    CourseDTOModel? courseDTOModel = await saveFlashcard();
+
+    if (courseDTOModel == null) {
+      return;
+    }
+
+    Navigator.pop(context);
+    Navigator.pop(context);
+    Navigator.pop(context);
+
+    // NavigationController.navigateToFlashCardScreen(
+    //   navigationOperationParameters: NavigationOperationParameters(
+    //     context: context,
+    //     navigationType: NavigationType.pushNamed,
+    //   ),
+    //   arguments: FlashCardScreenNavigationArguments(
+    //     courseDTOModel: courseDTOModel,
+    //   ),
+    // );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initializeData();
+  }
+
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
@@ -68,7 +188,13 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
         child: CommonButton(
-          onPressed: () {
+          onPressed: () async {
+            CourseDTOModel? courseDTOModel = await saveFlashcard();
+
+            if (courseDTOModel == null) {
+              return;
+            }
+
             Navigator.pop(context);
             Navigator.pop(context);
           },
@@ -170,7 +296,7 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
     return getTexFormField(
       isMandatory: false,
       showPrefixIcon: false,
-      controller: guestController,
+      controller: locationController,
       labelText: "Location",
       keyBoardType: TextInputType.text,
       iconUrl: "assets/catalog/imageDescription.png",
@@ -181,6 +307,8 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
     return getTexFormField(
       onTap: () async {
         endTimeController.text = await _selectTime(context);
+        endTime = "05/30/2024 ${endTimeController.text}";
+
         mySetState();
       },
       isMandatory: false,
@@ -196,6 +324,7 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
     return getTexFormField(
       onTap: () async {
         startTimeController.text = await _selectTime(context);
+        startTime = "05/30/2024 ${startTimeController.text}";
         mySetState();
       },
       isMandatory: false,

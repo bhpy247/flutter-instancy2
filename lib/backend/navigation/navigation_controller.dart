@@ -538,7 +538,7 @@ class NavigationController {
           page = parseAddEditFlashcardScreen(settings: settings);
           break;
         }
-      case CreateDocumentContentScreen.routeName:
+      case CreateUrlScreen.routeName:
         {
           page = parseCreateDocumentContentScreen(settings: settings);
           break;
@@ -1294,7 +1294,7 @@ class NavigationController {
       return null;
     }
     return AddEditDocumentsScreen(
-      arguments: argument,
+      argument: argument,
     );
   }
 
@@ -1374,11 +1374,11 @@ class NavigationController {
 
   static Widget? parseCreateDocumentContentScreen({required RouteSettings settings}) {
     dynamic argument = settings.arguments;
-    if (argument is! AddEditDocumentScreenArguments) {
+    if (argument is! AddEditReferenceScreenArguments) {
       return null;
     }
-    return CreateDocumentContentScreen(
-      arguments: argument,
+    return CreateUrlScreen(
+      argument: argument,
     );
   }
 
@@ -2262,11 +2262,11 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToCreateDocumentScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditDocumentScreenArguments argument}) {
+  static Future<dynamic> navigateToCreateDocumentScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditReferenceScreenArguments argument}) {
     MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
-        routeName: CreateDocumentContentScreen.routeName,
+        routeName: CreateUrlScreen.routeName,
         arguments: argument,
       ),
     );

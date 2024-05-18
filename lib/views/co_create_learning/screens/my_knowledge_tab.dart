@@ -302,15 +302,37 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       );
     }*/
 
-    NavigationController.navigateCommonCreateAuthoringToolScreen(
-      navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-      argument: CommonCreateAuthoringToolScreenArgument(
-        courseDtoModel: model,
-        objectTypeId: objectType,
-        componentId: widget.componentId,
-        componentInsId: widget.componentInstanceId,
-      ),
-    );
+    if (objectType == InstancyObjectTypes.document) {
+      NavigationController.navigateToAddEditDocumentScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: AddEditDocumentScreenArguments(componentId: 0, componentInsId: 0, courseDtoModel: model),
+      );
+    } else if (objectType == InstancyObjectTypes.referenceUrl) {
+      NavigationController.navigateToCreateDocumentScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditReferenceScreenArguments(
+          courseDtoModel: model,
+          componentId: 0,
+          componentInsId: 0,
+        ),
+      );
+    } else {
+      NavigationController.navigateCommonCreateAuthoringToolScreen(
+        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+        argument: CommonCreateAuthoringToolScreenArgument(
+          courseDtoModel: model,
+          objectTypeId: objectType,
+          componentId: widget.componentId,
+          componentInsId: widget.componentInstanceId,
+        ),
+      );
+    }
   }
 
   @override
@@ -804,10 +826,9 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: AddEditDocumentScreenArguments(
+        argument: const AddEditReferenceScreenArguments(
           componentId: 0,
           componentInsId: 0,
-          isFromReference: true,
         ),
       );
     } else if (objectType == InstancyObjectTypes.document) {

@@ -1020,16 +1020,16 @@ class AddEditReferenceScreenArguments extends NavigationArguments {
   final int componentId;
   final int componentInsId;
   final CourseDTOModel? courseDtoModel;
+  final CoCreateContentAuthoringModel? coCreateContentAuthoringModel;
   final int index;
   final bool isEdit;
+  final String websiteUrl;
 
   const AddEditReferenceScreenArguments({
     required this.componentId,
-    required this.componentInsId,
-    this.courseDtoModel,
+    required this.componentInsId, this.coCreateContentAuthoringModel, this.courseDtoModel,
     this.index = 0,
-    this.isEdit = false,
-  });
+    this.isEdit = false, this.websiteUrl = ""});
 }
 
 class AddEditReferenceUrlScreenArguments extends NavigationArguments {
@@ -1072,11 +1072,9 @@ class AddEditVideoScreenArgument extends NavigationArguments {
 }
 
 class AddEditEventScreenArgument extends NavigationArguments {
-  final CourseDTOModel? courseDtoModel;
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
-  const AddEditEventScreenArgument({
-    this.courseDtoModel,
-  });
+  const AddEditEventScreenArgument({required this.coCreateContentAuthoringModel});
 }
 
 class RecordAndUploadPodcastScreenNavigationArgument extends NavigationArguments {

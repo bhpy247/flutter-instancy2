@@ -310,8 +310,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           title = "Certification in Economic Growth and Development";
           description =
               "This certification covers key concepts, theories, and practical strategies for fostering economic growth, addressing income inequality, and promoting sustainable practices. Ideal for professionals, policymakers, and students, the program offers valuable insights into the economic policies and development strategies that can transform societies and improve living standards. Participants will gain the analytical skills and knowledge necessary to contribute effectively to the field of economic development.";
-          thumbnailImageUrl =
-              "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fdemo_contents_thumbnail%2FCertification%20in%20Economic%20Growth%20and%20Development.jpg?alt=media&token=e23f5c99-815e-4e94-89e1-fd5a9df0047d";
+          thumbnailImageUrl = "/Content/SiteFiles/Images/Event.jpg";
           skills = ["Customer Service"];
 
           break;
@@ -503,8 +502,8 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: const AddEditEventScreenArgument(
-          courseDtoModel: null,
+        argument: AddEditEventScreenArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
         ),
       );
     } else if (objectTypeId == InstancyObjectTypes.rolePlay) {
