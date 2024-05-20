@@ -84,7 +84,7 @@ class _AddEditArticleScreenState extends State<AddEditArticleScreen> with MySafe
       onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
       child: Scaffold(
         appBar: AppConfigurations().commonAppBar(
-          title: "Generate Roleplay",
+          title: "Generate Article",
         ),
         body: AppUIComponents.getBackGroundBordersRounded(
           context: context,

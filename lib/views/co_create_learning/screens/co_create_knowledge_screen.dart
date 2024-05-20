@@ -43,6 +43,7 @@ import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/catalog/components/add_wiki_button_component.dart';
 import 'package:flutter_instancy_2/views/catalog/components/catalogContentListComponent.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/shared_knowledge_tab.dart';
 import 'package:flutter_instancy_2/views/common/components/app_ui_components.dart';
 import 'package:flutter_instancy_2/views/common/components/comment_dialog.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
@@ -760,7 +761,10 @@ class _CoCreateKnowledgeScreenState extends State<CoCreateKnowledgeScreen> with 
         ),
         body: TabBarView(
           children: [
-            getSharedKnowledge(),
+            SharedKnowledgeTab(
+              componentId: componentId,
+              componentInstanceId: componentInstanceId,
+            ),
             MyKnowledgeTab(
               componentId: componentId,
               componentInstanceId: componentInstanceId,

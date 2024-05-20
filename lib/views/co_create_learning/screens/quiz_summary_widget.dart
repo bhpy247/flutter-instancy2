@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_instancy_2/views/co_create_learning/screens/quiz_screen.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_question_model.dart';
 
 class QuizSummaryWidget extends StatefulWidget {
-  final List<QuizModel> quizModelList;
+  final List<QuizQuestionModel> quizModelList;
 
   const QuizSummaryWidget({super.key, required this.quizModelList});
 
@@ -146,7 +146,7 @@ class _QuizSummaryWidgetState extends State<QuizSummaryWidget> {
     );
   }
 
-  Widget getSingleQuestionItem(QuizModel model, int index) {
+  Widget getSingleQuestionItem(QuizQuestionModel model, int index) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: Row(
@@ -176,7 +176,11 @@ class _QuizSummaryWidgetState extends State<QuizSummaryWidget> {
                 ),
                 // Text(model.question),
                 Text(
-                  model.isCorrectAnswerGiven ? "Correct Answer" : "Incorrect Answer",
+                  model.isCorrectAnswerGiven
+                      ? (model.correctFeedback.isNotEmpty ? model.correctFeedback : "Correct Answer")
+                      : model.inCorrectFeedback.isNotEmpty
+                          ? model.inCorrectFeedback
+                          : "Incorrect Answer",
                   style: TextStyle(color: model.isCorrectAnswerGiven ? Colors.green : Colors.red, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
               ],

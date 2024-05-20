@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/configs/app_strings.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_question_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/theme_helper.dart';
-import 'package:flutter_instancy_2/views/co_create_learning/screens/quiz_screen.dart';
 import 'package:flutter_instancy_2/views/common/components/common_border_dropdown.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
 import '../../../backend/app_theme/style.dart';
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
@@ -22,6 +26,7 @@ import '../component/common_save_exit_button_row.dart';
 
 class AddEditQuizScreen extends StatefulWidget {
   static const String routeName = "/AddEditQuizScreen";
+
   final AddEditQuizScreenArgument arguments;
 
   const AddEditQuizScreen({super.key, required this.arguments});
@@ -32,10 +37,58 @@ class AddEditQuizScreen extends StatefulWidget {
 
 class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState {
   bool isLoading = false;
+
+  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
   String? selectedQuestionType, selectedDifficultyLevel;
 
   TextEditingController countController = TextEditingController();
-  TextEditingController promptController = TextEditingController();
+
+  void initialize() {
+    coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
+
+    QuizContentModel? quizContentModel = coCreateContentAuthoringModel.quizContentModel;
+    MyPrint.printOnConsole("quizContentModel:$quizContentModel");
+    if (quizContentModel != null) {
+      countController.text = quizContentModel.questionCount.toString();
+      selectedQuestionType = quizContentModel.questionType.isEmpty ? null : quizContentModel.questionType;
+      selectedDifficultyLevel = quizContentModel.difficultyLevel.isEmpty ? null : quizContentModel.difficultyLevel;
+    }
+
+    if (!coCreateContentAuthoringModel.isEdit) initializeDataForNewContent();
+  }
+
+  void initializeDataForNewContent() {
+    countController.text = "3";
+    selectedQuestionType = "Multiple Choice";
+    selectedDifficultyLevel = "Medium";
+  }
+
+  void onGenerateTap() {
+    QuizContentModel quizContentModel = coCreateContentAuthoringModel.quizContentModel ?? QuizContentModel();
+    quizContentModel.questionCount = int.tryParse(countController.text) ?? 0;
+    quizContentModel.questionType = selectedQuestionType ?? "";
+    quizContentModel.difficultyLevel = selectedDifficultyLevel ?? "";
+
+    coCreateContentAuthoringModel.quizContentModel = quizContentModel;
+
+    NavigationController.navigateToGeneratedQuizScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      argument: GeneratedQuizScreenNavigationArgument(
+        coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    initialize();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,19 +105,14 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
               child: CommonButton(
                 minWidth: double.infinity,
                 onPressed: () {
-                  NavigationController.navigateToGeneratedQuizScreen(
-                      navigationOperationParameters: NavigationOperationParameters(
-                        context: context,
-                        navigationType: NavigationType.pushNamed,
-                      ),
-                      argument: const GeneratedQuizScreenNavigationArgument());
+                  onGenerateTap();
                 },
                 text: AppStrings.generateWithAI,
                 fontColor: theme.colorScheme.onPrimary,
               ),
             ),
             appBar: AppConfigurations().commonAppBar(
-              title: widget.arguments.courseDtoModel != null ? "Edit Quiz" : "Generate Quiz",
+              title: widget.arguments.coCreateContentAuthoringModel.isEdit ? "Edit Quiz" : "Generate Quiz",
             ),
             body: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -117,18 +165,6 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
       keyBoardType: TextInputType.number,
       iconUrl: "assets/catalog/imageDescription.png",
     );
-  }
-
-  Widget getPromptTextFormField() {
-    return getTexFormField(
-        isMandatory: false,
-        showPrefixIcon: false,
-        controller: promptController,
-        labelText: "Write Prompt...",
-        keyBoardType: TextInputType.text,
-        iconUrl: "assets/catalog/imageDescription.png",
-        maxLines: 7,
-        minLines: 7);
   }
 
   Widget getQuestionTypeDropDown() {
@@ -229,16 +265,12 @@ class GeneratedQuizScreen extends StatefulWidget {
 }
 
 class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeState {
-  TextEditingController correctFeedbackController = TextEditingController();
-  TextEditingController incorrectFeedbackController = TextEditingController();
+  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
   late PageController pageController;
-  String selectedAnswer = "";
-  bool onSaveTap = false;
-  bool isSummaryWidget = false;
 
-  List<QuizModel> quizModelList = [
-    QuizModel(
+  List<QuizQuestionModel> quizModelList = [
+    QuizQuestionModel(
       question: "What is the primary goal of office ergonomics?",
       isEditModeEnable: [
         false,
@@ -253,8 +285,10 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
         "D. Focus on aesthetics over functionality",
       ],
       correctAnswer: "B. Increase workload for employees",
+      correctFeedback: "True",
+      inCorrectFeedback: "False",
     ),
-    QuizModel(
+    QuizQuestionModel(
       question: "What is one of the risks associated with poor ergonomic setup?",
       isEditModeEnable: [
         false,
@@ -269,8 +303,10 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
         "D. Reduced fatigue",
       ],
       correctAnswer: "A. Musculoskeletal disorders",
+      correctFeedback: "True",
+      inCorrectFeedback: "False",
     ),
-    QuizModel(
+    QuizQuestionModel(
       question: "Why is a good office chair important in office ergonomics?",
       isEditModeEnable: [
         false,
@@ -285,8 +321,25 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
         "D. To promote discomfort",
       ],
       correctAnswer: "C. To maintain proper posture and support the spine",
+      correctFeedback: "True",
+      inCorrectFeedback: "False",
     ),
   ];
+
+  void initializeData() {
+    coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
+
+    QuizContentModel? quizContentModel = coCreateContentAuthoringModel.quizContentModel;
+    if (quizContentModel != null) {
+      if (quizContentModel.questions.isNotEmpty) {
+        quizModelList = quizContentModel.questions.toList();
+      }
+
+      if (quizModelList.length > quizContentModel.questionCount) {
+        quizModelList = quizModelList.sublist(0, quizContentModel.questionCount);
+      }
+    }
+  }
 
   List<InstancyUIActionModel> getActionsList({required CourseDTOModel model, int index = 0}) {
     List<InstancyUIActionModel> actions = [
@@ -329,10 +382,75 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
     );
   }
 
+  Future<CourseDTOModel?> saveQuiz() async {
+    QuizContentModel quizContentModel = coCreateContentAuthoringModel.quizContentModel ?? QuizContentModel();
+    quizContentModel.questions = quizModelList.toList();
+    coCreateContentAuthoringModel.quizContentModel = quizContentModel;
+
+    CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
+
+    if (courseDTOModel != null) {
+      courseDTOModel.ContentName = coCreateContentAuthoringModel.title;
+      courseDTOModel.Title = coCreateContentAuthoringModel.title;
+      courseDTOModel.TitleName = coCreateContentAuthoringModel.title;
+
+      courseDTOModel.ShortDescription = coCreateContentAuthoringModel.description;
+      courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
+
+      courseDTOModel.Skills = coCreateContentAuthoringModel.skills;
+
+      courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
+
+      courseDTOModel.quizContentModel = quizContentModel;
+
+      if (!coCreateContentAuthoringModel.isEdit) {
+        context.read<CoCreateKnowledgeProvider>().myKnowledgeList.setList(list: [courseDTOModel], isClear: false, isNotify: true);
+      }
+    }
+
+    return courseDTOModel;
+  }
+
+  Future<void> onSaveAndExitTap() async {
+    CourseDTOModel? courseDTOModel = await saveQuiz();
+
+    if (courseDTOModel == null) {
+      return;
+    }
+
+    Navigator.pop(context);
+    Navigator.pop(context);
+    Navigator.pop(context);
+  }
+
+  Future<void> onSaveAndViewTap() async {
+    CourseDTOModel? courseDTOModel = await saveQuiz();
+
+    if (courseDTOModel == null) {
+      return;
+    }
+
+    Navigator.pop(context);
+    Navigator.pop(context);
+    Navigator.pop(context);
+
+    NavigationController.navigateToQuizScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      arguments: QuizScreenNavigationArguments(
+        courseDTOModel: courseDTOModel,
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     pageController = PageController();
+
+    initializeData();
   }
 
   @override
@@ -357,18 +475,103 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
       physics: const NeverScrollableScrollPhysics(),
       controller: pageController,
       onPageChanged: (int index) {
-        selectedAnswer = "";
         mySetState();
       },
       itemCount: quizModelList.length,
       itemBuilder: (BuildContext context, int index) {
-        QuizModel model = quizModelList[index];
-        return getSingleItemWidget(model, index);
+        QuizQuestionModel model = quizModelList[index];
+
+        return QuizQuestionEditingWidget(
+          questionModel: model,
+          index: index,
+          allQuestionsCount: quizModelList.length,
+          onPreviousClick: () {
+            if (index != 0) {
+              pageController.jumpToPage(index - 1);
+            }
+          },
+          onNextClick: () {
+            pageController.jumpToPage(index + 1);
+          },
+          onSaveAndExitPressed: onSaveAndExitTap,
+          onSaveAndViewPressed: onSaveAndViewTap,
+        );
       },
     );
   }
+}
 
-  Widget getSingleItemWidget(QuizModel model, int index) {
+class QuizQuestionEditingWidget extends StatefulWidget {
+  final QuizQuestionModel questionModel;
+  final int index;
+  final int allQuestionsCount;
+  final void Function()? onPreviousClick;
+  final void Function()? onNextClick;
+  final void Function()? onSaveAndExitPressed;
+  final void Function()? onSaveAndViewPressed;
+
+  const QuizQuestionEditingWidget({
+    super.key,
+    required this.questionModel,
+    required this.index,
+    required this.allQuestionsCount,
+    this.onPreviousClick,
+    this.onNextClick,
+    this.onSaveAndExitPressed,
+    this.onSaveAndViewPressed,
+  });
+
+  @override
+  State<QuizQuestionEditingWidget> createState() => _QuizQuestionEditingWidgetState();
+}
+
+class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> with MySafeState {
+  late QuizQuestionModel questionModel;
+  late int index;
+
+  TextEditingController correctFeedbackController = TextEditingController();
+  TextEditingController incorrectFeedbackController = TextEditingController();
+
+  void save() {
+    questionModel.correctFeedback = correctFeedbackController.text;
+    questionModel.inCorrectFeedback = incorrectFeedbackController.text;
+  }
+
+  void onNextPressed() {
+    save();
+    widget.onNextClick?.call();
+  }
+
+  void onPreviousPressed() {
+    save();
+    widget.onPreviousClick?.call();
+  }
+
+  void onSaveAndExitPressed() {
+    save();
+    widget.onSaveAndExitPressed?.call();
+  }
+
+  void onSaveAndViewPressed() {
+    save();
+    widget.onSaveAndViewPressed?.call();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    questionModel = widget.questionModel;
+    index = widget.index;
+
+    correctFeedbackController.text = questionModel.correctFeedback;
+    incorrectFeedbackController.text = questionModel.inCorrectFeedback;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.pageBuild();
+
     return Container(
       margin: const EdgeInsets.all(15),
       child: Column(
@@ -383,7 +586,7 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
                       Expanded(
                         child: Center(
                           child: Text(
-                            "${index + 1}/${quizModelList.length}",
+                            "${widget.index + 1}/${widget.allQuestionsCount}",
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -394,15 +597,15 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
                   const SizedBox(
                     height: 15,
                   ),
-                  getQuestionWidget(model: model, index: index),
+                  getQuestionWidget(questionModel: questionModel, index: index),
                   const SizedBox(
                     height: 10,
                   ),
-                  getAnswerList(model.optionList, model, index),
+                  getAnswerList(questionModel.optionList, questionModel, index),
                   const SizedBox(
                     height: 20,
                   ),
-                  getCorrectAnswerWidget(optionList: model.optionList, answer: model.correctAnswer, model: model),
+                  getCorrectAnswerWidget(optionList: questionModel.optionList, answer: questionModel.correctAnswer, questionModel: questionModel),
                   const SizedBox(
                     height: 10,
                   ),
@@ -424,34 +627,34 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
     );
   }
 
-  Widget getQuestionWidget({required QuizModel model, int index = 0}) {
+  Widget getQuestionWidget({required QuizQuestionModel questionModel, int index = 0}) {
     return InkWell(
       onLongPress: () {
-        model.isQuestionEditable = true;
+        questionModel.isQuestionEditable = true;
         mySetState();
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        child: model.isQuestionEditable
+        child: questionModel.isQuestionEditable
             ? getEditableTextField(
-                controller: TextEditingController(text: "${model.question}"),
+                controller: TextEditingController(text: "${questionModel.question}"),
                 onSubmitted: (String? val) {
                   if (val == null) return null;
-                  model.question = val;
-                  model.isQuestionEditable = false;
+                  questionModel.question = val;
+                  questionModel.isQuestionEditable = false;
                   mySetState();
                   return "";
                 },
               )
             : Text(
-                "${index + 1}. ${model.question}",
+                "${index + 1}. ${questionModel.question}",
                 style: const TextStyle(fontSize: 16),
               ),
       ),
     );
   }
 
-  Widget getCorrectAnswerWidget({required QuizModel model, required List<String> optionList, required String? answer}) {
+  Widget getCorrectAnswerWidget({required QuizQuestionModel questionModel, required List<String> optionList, required String? answer}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -468,7 +671,7 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
           hintText: "Correct Answer",
           onChanged: (val) {
             answer = val;
-            model.correctAnswer = val ?? "";
+            questionModel.correctAnswer = val ?? "";
             mySetState();
           },
           iconUrl: "assets/cocreate/commonText.png",
@@ -478,17 +681,18 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
   }
 
   Widget getBottomButton(int index) {
-    if ((index + 1) == quizModelList.length) {
-      return const CommonSaveExitButtonRow();
+    if ((index + 1) == widget.allQuestionsCount) {
+      return CommonSaveExitButtonRow(
+        onSaveAndExitPressed: onSaveAndExitPressed,
+        onSaveAndViewPressed: onSaveAndViewPressed,
+      );
     }
     return Row(
       children: [
         Expanded(
           child: CommonButton(
             onPressed: () {
-              if (index != 0) {
-                pageController.jumpToPage(index - 1);
-              }
+              onPreviousPressed();
             },
             text: "Previous",
             fontColor: themeData.primaryColor,
@@ -502,7 +706,7 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
         Expanded(
           child: CommonButton(
             onPressed: () {
-              pageController.jumpToPage(index + 1);
+              onNextPressed();
             },
             text: "Next",
             fontColor: Colors.white,
@@ -531,15 +735,13 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
     );
   }
 
-  Widget getCorrectAndIncorrectAnswerWidget(
-    QuizModel model,
+  Widget getCorrectAndIncorrectAnswerWidget(QuizQuestionModel questionModel,
   ) {
-    if (!model.isAnswerGiven) return const SizedBox();
-    if (!onSaveTap) return const SizedBox();
+    if (!questionModel.isAnswerGiven) return const SizedBox();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (model.selectedAnswer != model.correctAnswer)
+        if (questionModel.selectedAnswer != questionModel.correctAnswer)
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.0),
             child: Text(
@@ -553,18 +755,18 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: Text(
-            "Correct Answer${model.selectedAnswer != model.correctAnswer ? ":" : ""}",
+            "Correct Answer${questionModel.selectedAnswer != questionModel.correctAnswer ? ":" : ""}",
             style: const TextStyle(fontSize: 16, color: Colors.green, fontWeight: FontWeight.bold),
           ),
         ),
         const SizedBox(
           height: 6,
         ),
-        if (model.selectedAnswer != model.correctAnswer)
+        if (questionModel.selectedAnswer != questionModel.correctAnswer)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Text(
-              model.correctAnswer,
+              questionModel.correctAnswer,
               style: const TextStyle(fontSize: 14),
             ),
           ),
@@ -572,22 +774,21 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
     );
   }
 
-  Widget getAnswerList(List<String> answerList, QuizModel model, int quizListIndex) {
+  Widget getAnswerList(List<String> answerList, QuizQuestionModel questionModel, int quizListIndex) {
     return ListView.builder(
       padding: const EdgeInsets.all(10),
       shrinkWrap: true,
       itemCount: answerList.length,
       itemBuilder: (BuildContext context, int index) {
         return InkWell(
-          onTap: model.isAnswerGiven
+          onTap: questionModel.isAnswerGiven
               ? null
               : () {
-                  onSaveTap = false;
-                  model.selectedAnswer = answerList[index];
+                  questionModel.selectedAnswer = answerList[index];
                   mySetState();
                 },
           onLongPress: () {
-            model.isEditModeEnable[index] = true;
+            questionModel.isEditModeEnable[index] = true;
             mySetState();
           },
           child: Container(
@@ -599,17 +800,17 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
               //   color: isSelected ? themeData.primaryColor : const Color(0xffDCDCDC),
               // ),
             ),
-            child: model.isEditModeEnable[index]
+            child: questionModel.isEditModeEnable[index]
                 ? getEditableTextField(
                     controller: TextEditingController(text: answerList[index]),
                     onSubmitted: (String? val) {
-                      if (answerList[index] == model.correctAnswer) {
-                        quizModelList[quizListIndex].correctAnswer = val ?? "";
+                      if (answerList[index] == questionModel.correctAnswer) {
+                        questionModel.correctAnswer = val ?? "";
                       }
                       answerList[index] = val ?? "";
-                      quizModelList[quizListIndex].optionList[index] = val ?? "";
-                      MyPrint.printOnConsole("quizModelList[quizListIndex].optionList[index] : ${quizModelList[quizListIndex].optionList[index]}");
-                      model.isEditModeEnable[index] = false;
+                      questionModel.optionList[index] = val ?? "";
+                      MyPrint.printOnConsole("questionModel.optionList[index] : ${questionModel.optionList[index]}");
+                      questionModel.isEditModeEnable[index] = false;
                       mySetState();
                       return "";
                     },

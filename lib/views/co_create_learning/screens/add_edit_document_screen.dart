@@ -516,10 +516,10 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
   }
 
   Future<CourseDTOModel?> saveFlashcard() async {
-    if (fileName.checkEmpty) {
+    /*if (fileName.checkEmpty) {
       MyToast.showError(context: context, msg: "Please upload the file");
       return null;
-    }
+    }*/
 
     coCreateContentAuthoringModel.uploadedDocumentBytes = fileBytes;
     coCreateContentAuthoringModel.uploadedDocumentName = fileName;
@@ -570,7 +570,7 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
     }
 
     Navigator.pop(context);
-    NavigationController.navigateToDocumentPreviewScreen(
+    /* NavigationController.navigateToDocumentPreviewScreen(
       navigationOperationParameters: NavigationOperationParameters(
         context: context,
         navigationType: NavigationType.pushNamed,
@@ -581,6 +581,17 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
         // pdfUrl: "https://qalearning.instancy.com//content/publishfiles/d6caf328-6c9e-43b1-8ba0-eb8d4d065e66/en-us/41cea17c-728d-4c88-9cd8-1e0473fa6f21.pdf?fromNativeapp=true",
         // pdfUrl: widget.argument.courseDtoModel?.ViewLink ?? "",
         pdfFileBytes: coCreateContentAuthoringModel.uploadedDocumentBytes,
+      ),
+    );*/
+    NavigationController.navigateToPDFLaunchScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      arguments: PDFLaunchScreenNavigationArguments(
+        contntName: courseDTOModel.ContentName,
+        isNetworkPDF: true,
+        pdfUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fdocuments%2Fai%20for%20biotechnology.pdf?alt=media&token=ab06fadc-ba08-4114-88e1-529213d117bf",
       ),
     );
     // NavigationController.navigateToFlashCardScreen(

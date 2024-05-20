@@ -72,6 +72,9 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       coCreateContentAuthoringModel.uploadedDocumentBytes = courseDTOModel.uploadedDocumentBytes;
       coCreateContentAuthoringModel.articleHtmlCode = courseDTOModel.articleHtmlCode;
       coCreateContentAuthoringModel.selectedArticleSourceType = courseDTOModel.selectedArticleSourceType;
+      coCreateContentAuthoringModel.flashcardContentModel = courseDTOModel.flashcardContentModel;
+      coCreateContentAuthoringModel.quizContentModel = courseDTOModel.quizContentModel;
+      coCreateContentAuthoringModel.roleplayContentModel = courseDTOModel.roleplayContentModel;
 
       titleController.text = coCreateContentAuthoringModel.title;
       descriptionController.text = coCreateContentAuthoringModel.description;
@@ -484,7 +487,9 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: const AddEditQuizScreenArgument(),
+        argument: AddEditQuizScreenArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
       );
     } else if (objectTypeId == InstancyObjectTypes.article) {
       NavigationController.navigateToAddEditArticleScreen(
@@ -512,7 +517,9 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: const AddEditRolePlayScreenNavigationArgument(),
+        argument: AddEditRolePlayScreenNavigationArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
       );
     } else {}
   }

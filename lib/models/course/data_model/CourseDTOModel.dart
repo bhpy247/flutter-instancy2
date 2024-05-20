@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:flutter_instancy_2/models/co_create_knowledge/event/data_model/event_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/roleplay/data_models/roleplay_content_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
@@ -238,6 +240,8 @@ class CourseDTOModel {
   String? selectedArticleSourceType;
   String? uploadedFileName;
   FlashcardContentModel? flashcardContentModel;
+  QuizContentModel? quizContentModel;
+  RoleplayContentModel? roleplayContentModel;
   EventModel? eventModel;
 
   CourseDTOModel({
@@ -468,6 +472,8 @@ class CourseDTOModel {
     this.articleHtmlCode,
     this.selectedArticleSourceType,
     this.flashcardContentModel,
+    this.quizContentModel,
+    this.roleplayContentModel,
     this.uploadedFileName,
     this.eventModel,
     List<String>? Skills,

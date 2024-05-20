@@ -448,6 +448,14 @@ class RolePlayLaunchScreenNavigationArguments extends NavigationArguments {
   }
 }
 
+class RolePlayPreviewScreenNavigationArguments extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
+  const RolePlayPreviewScreenNavigationArguments({
+    required this.coCreateContentAuthoringModel,
+  });
+}
+
 class ArticleScreenNavigationArguments extends NavigationArguments {
   final CourseDTOModel? courseDTOModel;
 
@@ -958,6 +966,14 @@ class FlashCardScreenNavigationArguments extends NavigationArguments {
   });
 }
 
+class QuizScreenNavigationArguments extends NavigationArguments {
+  final CourseDTOModel courseDTOModel;
+
+  const QuizScreenNavigationArguments({
+    required this.courseDTOModel,
+  });
+}
+
 class CoCreateKnowledgeScreenNavigationArguments extends NavigationArguments {
   final int componentId, componentInstanceId;
   final int? HomeComponentId;
@@ -1054,10 +1070,10 @@ class CommonCreateAuthoringToolScreenArgument extends NavigationArguments {
 }
 
 class AddEditQuizScreenArgument extends NavigationArguments {
-  final CourseDTOModel? courseDtoModel;
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
   const AddEditQuizScreenArgument({
-    this.courseDtoModel,
+    required this.coCreateContentAuthoringModel,
   });
 }
 
@@ -1098,18 +1114,18 @@ class TextToAudioScreenNavigationArgument extends NavigationArguments {
 }
 
 class AddEditRolePlayScreenNavigationArgument extends NavigationArguments {
-  final CourseDTOModel? model;
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
   const AddEditRolePlayScreenNavigationArgument({
-    this.model,
+    required this.coCreateContentAuthoringModel,
   });
 }
 
 class GeneratedQuizScreenNavigationArgument extends NavigationArguments {
-  final CourseDTOModel? model;
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
   const GeneratedQuizScreenNavigationArgument({
-    this.model,
+    required this.coCreateContentAuthoringModel,
   });
 }
 

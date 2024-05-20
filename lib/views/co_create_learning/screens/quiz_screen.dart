@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_question_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
@@ -11,7 +14,12 @@ import '../../common/components/app_ui_components.dart';
 class QuizScreen extends StatefulWidget {
   static const String routeName = "/QuizScreen";
 
-  const QuizScreen({super.key});
+  final QuizScreenNavigationArguments arguments;
+
+  const QuizScreen({
+    super.key,
+    required this.arguments,
+  });
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -20,8 +28,9 @@ class QuizScreen extends StatefulWidget {
 class _QuizScreenState extends State<QuizScreen> with MySafeState {
   late PageController pageController;
 
-  List<QuizModel> quizModelList = [
-    QuizModel(
+  String title = "";
+  List<QuizQuestionModel> quizModelList = [
+    QuizQuestionModel(
       question: "What is the primary goal of office ergonomics?",
       optionList: [
         "A. Promote proper posture and reduce strain on the body",
@@ -31,7 +40,7 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
       ],
       correctAnswer: "B. Increase workload for employees",
     ),
-    QuizModel(
+    QuizQuestionModel(
       question: "What is one of the risks associated with poor ergonomic setup?",
       optionList: [
         "A. Musculoskeletal disorders",
@@ -41,7 +50,7 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
       ],
       correctAnswer: "A. Musculoskeletal disorders",
     ),
-    QuizModel(
+    QuizQuestionModel(
       question: "Why is a good office chair important in office ergonomics?",
       optionList: [
         "A. To increase back pain",
@@ -57,10 +66,22 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
   bool onSaveTap = false;
   bool isSummaryWidget = false;
 
+  void initializeData() {
+    title = widget.arguments.courseDTOModel.ContentName;
+    if (title.isEmpty) title = "Office Ergonomics";
+    QuizContentModel? quizContentModel = widget.arguments.courseDTOModel.quizContentModel;
+
+    if ((quizContentModel?.questions).checkNotEmpty) {
+      quizModelList = quizContentModel!.questions;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     pageController = PageController();
+
+    initializeData();
   }
 
   @override
@@ -77,7 +98,7 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
 
   PreferredSizeWidget getAppBar() {
     return AppConfigurations().commonAppBar(
-      title: "Office Ergonomics",
+      title: title,
     );
   }
 
@@ -92,13 +113,13 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
       },
       itemCount: quizModelList.length,
       itemBuilder: (BuildContext context, int index) {
-        QuizModel model = quizModelList[index];
+        QuizQuestionModel model = quizModelList[index];
         return getSingleItemWidget(model, index);
       },
     );
   }
 
-  Widget getSingleItemWidget(QuizModel model, int index) {
+  Widget getSingleItemWidget(QuizQuestionModel model, int index) {
     bool isForwardNavigationEnabled = model.isAnswerGiven;
 
     return Container(
@@ -198,8 +219,7 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
     );
   }
 
-  Widget getCorrectAndIncorrectAnswerWidget(
-    QuizModel model,
+  Widget getCorrectAndIncorrectAnswerWidget(QuizQuestionModel model,
   ) {
     if (!model.isAnswerGiven) return const SizedBox();
     if (!onSaveTap) return const SizedBox();
@@ -207,11 +227,11 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (model.selectedAnswer != model.correctAnswer)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.0),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Text(
-              "Incorrect Answer",
-              style: TextStyle(fontSize: 14, color: Colors.red),
+              model.inCorrectFeedback.isNotEmpty ? model.inCorrectFeedback : "Incorrect Answer",
+              style: const TextStyle(fontSize: 14, color: Colors.red),
             ),
           ),
         const SizedBox(
@@ -220,7 +240,7 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: Text(
-            "Correct Answer${model.selectedAnswer != model.correctAnswer ? ":" : ""}",
+            model.correctFeedback.isNotEmpty ? model.correctFeedback : "Correct Answer",
             style: const TextStyle(fontSize: 16, color: Colors.green, fontWeight: FontWeight.bold),
           ),
         ),
@@ -239,7 +259,7 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
     );
   }
 
-  Widget getAnswerList(List<String> answerList, QuizModel model) {
+  Widget getAnswerList(List<String> answerList, QuizQuestionModel model) {
     return ListView.builder(
       padding: const EdgeInsets.all(10),
       shrinkWrap: true,
@@ -280,22 +300,4 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
   Widget getSummaryWidget() {
     return QuizSummaryWidget(quizModelList: quizModelList);
   }
-}
-
-class QuizModel {
-  String question = "";
-  List<String> optionList = [];
-  List<bool> isEditModeEnable = <bool>[];
-  String correctAnswer = "";
-  String selectedAnswer = "";
-  bool isAnswerGiven = false, isCorrectAnswerGiven = false, isQuestionEditable = false;
-
-  QuizModel({
-    this.question = "",
-    this.correctAnswer = "",
-    this.optionList = const [],
-    this.isAnswerGiven = false,
-      this.isCorrectAnswerGiven = false,
-      this.isEditModeEnable = const [],
-      this.isQuestionEditable = false});
 }

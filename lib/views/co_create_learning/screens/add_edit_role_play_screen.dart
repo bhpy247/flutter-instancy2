@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/roleplay/data_models/roleplay_content_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
@@ -18,6 +20,7 @@ import '../../common/components/common_text_form_field.dart';
 
 class AddEditRolePlayScreen extends StatefulWidget {
   static const String routeName = "/AddEditRolePlayScreen";
+
   final AddEditRolePlayScreenNavigationArgument arguments;
 
   const AddEditRolePlayScreen({super.key, required this.arguments});
@@ -27,6 +30,8 @@ class AddEditRolePlayScreen extends StatefulWidget {
 }
 
 class _AddEditRolePlayScreenState extends State<AddEditRolePlayScreen> with MySafeState {
+  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
   TextEditingController learningObjective = TextEditingController();
   TextEditingController simulatedParticipantRoleDescriptionController = TextEditingController();
   TextEditingController learnerRoleDescriptionController = TextEditingController();
@@ -39,6 +44,51 @@ class _AddEditRolePlayScreenState extends State<AddEditRolePlayScreen> with MySa
   bool isSimulatedParticipantAvatar = false, isScore = false;
   String thumbNailName = "";
   Uint8List? thumbNailBytes;
+
+  void initialize() {
+    coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
+
+    RoleplayContentModel? roleplayContentModel = coCreateContentAuthoringModel.roleplayContentModel;
+    if (roleplayContentModel != null) {
+      learningObjective.text = roleplayContentModel.learningObjective;
+      simulatedParticipantRoleDescriptionController.text = roleplayContentModel.participantRoleDescription;
+      selectedSimulateTone = roleplayContentModel.participantTone.isNotEmpty ? roleplayContentModel.participantTone : null;
+      isSimulatedParticipantAvatar = false;
+      thumbNailBytes = null;
+      learnerRoleDescriptionController.text = roleplayContentModel.learnerRoleDescription;
+      scenarioDescriptionController.text = roleplayContentModel.scenarioDescription;
+      numberOfMessagesController.text = roleplayContentModel.messageCount.toString();
+      evaluatorDescriptionController.text = roleplayContentModel.evaluatorDescription;
+      evaluationCriteriaDescriptionController.text = roleplayContentModel.evaluationCriteriaDescription;
+      selectedEvaluationFeedback = roleplayContentModel.evaluationFeedbackMechanism.isNotEmpty ? roleplayContentModel.evaluationFeedbackMechanism : null;
+      eolePlayCompletionMessageController.text = roleplayContentModel.roleplayCompletionMessage;
+      isScore = roleplayContentModel.isScore;
+    }
+
+    if (!coCreateContentAuthoringModel.isEdit) initializeDataForNewContent();
+  }
+
+  void initializeDataForNewContent() {
+    learningObjective.text =
+        "The objective of this role play is to develop and enhance the learner's skills in effectively resolving customer queries. Learners will practice active listening, clear communication, problem-solving, empathy, and professionalism in handling various customer issues.";
+    simulatedParticipantRoleDescriptionController.text =
+        "The participant will observe the role play to assess the evaluator's performance. The participant should have experience in customer service and be familiar with the company's policies and procedures.";
+    selectedSimulateTone = "Neutral Tone";
+    isSimulatedParticipantAvatar = false;
+    thumbNailBytes = null;
+    learnerRoleDescriptionController.text =
+        "The participant will observe the role play to assess the evaluator's performance. The participant should have experience in customer service and be familiar with the company's policies and procedures.";
+    scenarioDescriptionController.text =
+        "Jamie Roberts, a loyal customer, contacts Alex Parker, the customer service representative, to resolve an issue with a damaged product. Jamie is frustrated as this is their second attempt to resolve the issue. Alex needs to handle the situation delicately, ensuring Jamie leaves the interaction satisfied and confident in the company's customer service.";
+    numberOfMessagesController.text = "";
+    evaluatorDescriptionController.text =
+        "The evaluator will observe the role play to assess the learner's performance. The evaluator should have experience in customer service and be familiar with the company's policies and procedures.";
+    evaluationCriteriaDescriptionController.text =
+        "The evaluator will assess the learner based on the following criteria:Greeting and Introduction, Active Listening, Empathy and Apology, Clarification and Information Gathering etc";
+    selectedEvaluationFeedback = "After each learner's response";
+    eolePlayCompletionMessageController.text = "Thank you for your assistance in resolving the issue with my order";
+    isScore = false;
+  }
 
   MaterialStateProperty<Color> getThumbColor() {
     return MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
@@ -78,6 +128,39 @@ class _AddEditRolePlayScreenState extends State<AddEditRolePlayScreen> with MySa
       thumbNailBytes = null;
     }
     return fileName;
+  }
+
+  void onGenerateTap() {
+    RoleplayContentModel roleplayContentModel = coCreateContentAuthoringModel.roleplayContentModel ?? RoleplayContentModel();
+
+    roleplayContentModel.learningObjective = learningObjective.text;
+    roleplayContentModel.participantRoleDescription = simulatedParticipantRoleDescriptionController.text;
+    roleplayContentModel.participantTone = selectedSimulateTone ?? "";
+    roleplayContentModel.learnerRoleDescription = learnerRoleDescriptionController.text;
+    roleplayContentModel.scenarioDescription = scenarioDescriptionController.text;
+    roleplayContentModel.messageCount = int.tryParse(numberOfMessagesController.text) ?? 0;
+    roleplayContentModel.evaluatorDescription = evaluatorDescriptionController.text;
+    roleplayContentModel.evaluationCriteriaDescription = evaluationCriteriaDescriptionController.text;
+    roleplayContentModel.evaluationFeedbackMechanism = selectedEvaluationFeedback ?? "";
+    roleplayContentModel.roleplayCompletionMessage = eolePlayCompletionMessageController.text;
+    roleplayContentModel.isScore = isScore;
+
+    coCreateContentAuthoringModel.roleplayContentModel = roleplayContentModel;
+
+    NavigationController.navigateToRolePlayPreviewScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      arguments: RolePlayPreviewScreenNavigationArguments(coCreateContentAuthoringModel: coCreateContentAuthoringModel),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    initialize();
   }
 
   @override
@@ -174,13 +257,7 @@ class _AddEditRolePlayScreenState extends State<AddEditRolePlayScreen> with MySa
             ),
             CommonButton(
               onPressed: () {
-                NavigationController.navigateToRolePlayLaunchScreen(
-                  navigationOperationParameters: NavigationOperationParameters(
-                    context: context,
-                    navigationType: NavigationType.pushNamed,
-                  ),
-                  arguments: RolePlayLaunchScreenNavigationArguments(),
-                );
+                onGenerateTap();
               },
               text: "Generate With AI",
               minWidth: double.infinity,

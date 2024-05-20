@@ -24,6 +24,7 @@ import 'package:flutter_instancy_2/views/co_create_learning/screens/generate_wit
 import 'package:flutter_instancy_2/views/co_create_learning/screens/podcast_episode_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/quiz_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/record_video_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/roleplay_preview_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/text_to_audio.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/video_screen.dart';
 import 'package:flutter_instancy_2/views/common/screen/common_view_image_screen.dart';
@@ -516,6 +517,11 @@ class NavigationController {
       case GenerateWithAiFlashCardScreen.routeName:
         {
           page = parseGenerateWithAiFlashCardScreen(settings: settings);
+          break;
+        }
+      case RolePlayPreviewScreen.routeName:
+        {
+          page = parseRolePlayPreviewScreen(settings: settings);
           break;
         }
       case RolePlayLaunchScreen.routeName:
@@ -1339,6 +1345,14 @@ class NavigationController {
     return GenerateWithAiFlashCardScreen(arguments: argument);
   }
 
+  static Widget? parseRolePlayPreviewScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! RolePlayPreviewScreenNavigationArguments) {
+      return null;
+    }
+    return RolePlayPreviewScreen(arguments: argument);
+  }
+
   static Widget? parseRolePlayLaunchScreen({required RouteSettings settings}) {
     dynamic argument = settings.arguments;
     if (argument is! RolePlayLaunchScreenNavigationArguments) {
@@ -1360,7 +1374,11 @@ class NavigationController {
   }
 
   static Widget? parseQuizScreen({required RouteSettings settings}) {
-    return const QuizScreen();
+    dynamic argument = settings.arguments;
+    if (argument is! QuizScreenNavigationArguments) {
+      return null;
+    }
+    return QuizScreen(arguments: argument);
   }
 
   static Widget? parseAddEditFlashcardScreen({required RouteSettings settings}) {
@@ -2220,6 +2238,19 @@ class NavigationController {
     );
   }
 
+  static Future<dynamic> navigateToRolePlayPreviewScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required RolePlayPreviewScreenNavigationArguments arguments,
+  }) {
+    MyPrint.printOnConsole("navigateToRolePlayPreviewScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: RolePlayPreviewScreen.routeName,
+        arguments: arguments,
+      ),
+    );
+  }
+
   static Future<dynamic> navigateToRolePlayLaunchScreen({required NavigationOperationParameters navigationOperationParameters, required RolePlayLaunchScreenNavigationArguments arguments}) {
     MyPrint.printOnConsole("navigateToRolePlayLaunchScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
@@ -2240,11 +2271,12 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToQuizScreen({required NavigationOperationParameters navigationOperationParameters}) {
+  static Future<dynamic> navigateToQuizScreen({required NavigationOperationParameters navigationOperationParameters, required QuizScreenNavigationArguments arguments}) {
     MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: QuizScreen.routeName,
+        arguments: arguments,
       ),
     );
   }

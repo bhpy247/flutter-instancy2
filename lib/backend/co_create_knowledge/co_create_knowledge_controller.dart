@@ -30,6 +30,18 @@ class CoCreateKnowledgeController {
     return true;
   }
 
+  Future<bool> getSharedKnowledgeList() async {
+    CoCreateKnowledgeProvider provider = coCreateKnowledgeProvider;
+    provider.isLoading.set(value: true, isNotify: false);
+
+    DataResponseModel<List<CourseDTOModel>> response = await coCreateKnowledgeRepository.getMyKnowledgeList(componentId: 3, componentInstanceId: 3);
+
+    if (response.data?.isEmpty ?? false) return false;
+    provider.shareKnowledgeList.setList(list: response.data ?? []);
+    provider.isLoading.set(value: false, isNotify: false);
+    return true;
+  }
+
 // Future<List<FileUploadControlsModel>> getFileUploadControlsFromApi({
 //   bool isRefresh = true,
 //   bool isGetFromCache = false,

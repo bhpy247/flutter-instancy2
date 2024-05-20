@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/event/data_model/event_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/roleplay/data_models/roleplay_content_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 
 class CoCreateContentAuthoringModel {
@@ -19,6 +21,8 @@ class CoCreateContentAuthoringModel {
   CourseDTOModel? newCurrentCourseDTOModel;
   bool isEdit = false;
   FlashcardContentModel? flashcardContentModel;
+  QuizContentModel? quizContentModel;
+  RoleplayContentModel? roleplayContentModel;
   EventModel? eventModel;
 
   CoCreateContentAuthoringModel({
@@ -35,9 +39,12 @@ class CoCreateContentAuthoringModel {
     this.newCurrentCourseDTOModel,
     this.isEdit = false,
     this.flashcardContentModel,
-      this.uploadedDocumentName,
-      this.referenceUrl,
-      this.eventModel}) {
+    this.quizContentModel,
+    this.roleplayContentModel,
+    this.uploadedDocumentName,
+    this.referenceUrl,
+    this.eventModel,
+  }) {
     this.skills = skills ?? <String>[];
   }
 }

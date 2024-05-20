@@ -20,21 +20,21 @@ import '../../../backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import '../component/add_content_dialog.dart';
 import '../component/size_utils.dart';
 
-class MyKnowledgeTab extends StatefulWidget {
+class SharedKnowledgeTab extends StatefulWidget {
   final int componentId;
   final int componentInstanceId;
 
-  const MyKnowledgeTab({
+  const SharedKnowledgeTab({
     super.key,
     required this.componentId,
     required this.componentInstanceId,
   });
 
   @override
-  State<MyKnowledgeTab> createState() => _MyKnowledgeTabState();
+  State<SharedKnowledgeTab> createState() => _SharedKnowledgeTabState();
 }
 
-class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
+class _SharedKnowledgeTabState extends State<SharedKnowledgeTab> with MySafeState {
   late AppProvider appProvider;
 
   late CoCreateKnowledgeController _controller;
@@ -43,11 +43,11 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
   late Future future;
 
   Future<void> getFutureData({bool isRefresh = true}) async {
-    if (!isRefresh && _provider.myKnowledgeList.length > 0) {
+    if (!isRefresh && _provider.shareKnowledgeList.length > 0) {
       return;
     }
 
-    await _controller.getMyKnowledgeList();
+    await _controller.getSharedKnowledgeList();
   }
 
   List<InstancyUIActionModel> getActionsList({required CourseDTOModel model, int index = 0}) {
@@ -64,16 +64,6 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           iconData: InstancyIcons.view,
         ),
       InstancyUIActionModel(
-        text: "Edit",
-        actionsEnum: InstancyContentActionsEnum.Edit,
-        onTap: () {
-          Navigator.pop(context);
-
-          onEditTap(model: model, index: index);
-        },
-        iconData: InstancyIcons.edit,
-      ),
-      InstancyUIActionModel(
         text: "Details",
         actionsEnum: InstancyContentActionsEnum.Details,
         onTap: () {
@@ -82,26 +72,6 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           onDetailsTap(model: model);
         },
         iconData: InstancyIcons.details,
-      ),
-      InstancyUIActionModel(
-        text: "Delete",
-        actionsEnum: InstancyContentActionsEnum.Delete,
-        onTap: () {
-          Navigator.pop(context);
-
-          _provider.myKnowledgeList.removeItems(items: [model], isNotify: true);
-        },
-        iconData: InstancyIcons.delete,
-      ),
-      InstancyUIActionModel(
-        text: "Share",
-        actionsEnum: InstancyContentActionsEnum.Share,
-        onTap: () {
-          Navigator.pop(context);
-
-          onShareTap(model: model);
-        },
-        iconData: InstancyIcons.share,
       ),
     ];
 
@@ -224,7 +194,6 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 
   Future<void> onShareTap({required CourseDTOModel model}) async {
     model.IsShared = true;
-    _provider.shareKnowledgeList.setList(list: [model], isClear: false, isNotify: true);
     mySetState();
   }
 
@@ -473,7 +442,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
     CoCreateKnowledgeProvider provider = _provider;
 
     if (provider.isLoading.get()) return const CommonLoader();
-    List<CourseDTOModel> list = provider.myKnowledgeList.getList();
+    List<CourseDTOModel> list = provider.shareKnowledgeList.getList();
 
     return ListView.builder(
       itemCount: list.length,

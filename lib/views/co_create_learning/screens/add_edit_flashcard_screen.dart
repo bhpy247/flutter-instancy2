@@ -436,7 +436,7 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
     FlashcardContentModel? flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel;
     if (flashcardContentModel != null) {
       if (flashcardContentModel.flashcards.isNotEmpty) {
-        questionList = flashcardContentModel!.flashcards.toList();
+        questionList = flashcardContentModel.flashcards.toList();
       }
 
       if (questionList.length > flashcardContentModel.cardCount) {

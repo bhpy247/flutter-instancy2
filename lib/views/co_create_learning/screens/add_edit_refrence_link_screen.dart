@@ -1278,7 +1278,10 @@ class _AddEditReferenceLinkState extends State<AddEditReferenceLink> with MySafe
   Widget getAddContentButton() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 19.0, vertical: 20),
-      child: CommonSaveExitButtonRow(onSaveAndExitPressed: onSaveAndExitTap, onSaveAndViewPressed: onSaveAndExitTap),
+      child: CommonSaveExitButtonRow(
+        onSaveAndExitPressed: onSaveAndExitTap,
+        onSaveAndViewPressed: onSaveAndViewTap,
+      ),
     );
     // return CommonButton(
     //   backGroundColor: themeData.primaryColor,
