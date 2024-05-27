@@ -50,8 +50,6 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
   late WikiController wikiController;
   bool isExpanded = false;
   final GlobalKey expansionTile = GlobalKey();
-  Uint8List? fileBytes;
-  bool isFromGenerativeAi = false;
 
   void initializeData() {
     coCreateContentAuthoringModel = CoCreateContentAuthoringModel();
@@ -525,14 +523,14 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
   }
 
   Future<void> thumbnailDialog() async {
-    var val = await showDialog(
+    dynamic val = await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return ThumbnailDialog();
+        return const ThumbnailDialog();
       },
     );
 
-    MyPrint.printOnConsole("valval: $val");
+    MyPrint.printOnConsole("val: $val");
     if (val == null) return;
 
     if (val == 1) {
@@ -541,8 +539,11 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         false,
       );
       setState(() {});
-    } else if (val == 2) {
-      isFromGenerativeAi = true;
+      return;
+    }
+
+    if (val is Uint8List) {
+      thumbNailBytes = val;
       mySetState();
     }
   }
@@ -587,11 +588,9 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
       MyPrint.printOnConsole("Got file Name:${file.name}");
       MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
-      fileBytes = file.bytes;
-      thumbNailBytes = fileBytes;
+      thumbNailBytes = file.bytes;
     } else {
       fileName = "";
-      fileBytes = null;
     }
     return fileName;
   }
@@ -642,7 +641,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
                     const SizedBox(
                       height: 17,
                     ),
-                    getThumbNail(FileType.image),
+                    getThumbNail(),
                     const SizedBox(
                       height: 30,
                     ),
@@ -656,44 +655,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     );
   }
 
-  Widget getThumbNail(FileType? fileType) {
-    if (isFromGenerativeAi) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 10.0),
-        child: Stack(
-          alignment: Alignment.topRight,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Image.asset(
-                "assets/cocreate/flashCard.png",
-                height: 80,
-                width: 80,
-                fit: BoxFit.cover,
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                isFromGenerativeAi = false;
-                mySetState();
-              },
-              child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.clear,
-                  size: 20,
-                ),
-              ),
-            )
-          ],
-        ),
-      );
-    }
-    if (fileType == null) return const SizedBox();
+  Widget getThumbNail() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

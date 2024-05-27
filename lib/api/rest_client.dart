@@ -344,12 +344,16 @@ class RestClient {
   static Map<String, String> _getRequiredHeadersFromApiCallModel({required ApiCallModel apiCallModel, String? contentType}) {
     Map<String, String> map = <String, String>{
       HttpHeaders.contentTypeHeader: contentType ?? ContentType.json.value,
-      "ClientURL": apiCallModel.siteUrl,
-      AppStrings.allowFromExternalHostKey: 'allow',
-      "SiteID": apiCallModel.siteId.toString(),
-      "Locale": apiCallModel.locale,
     };
 
+    if (apiCallModel.isInstancyCall) {
+      map.addAll(<String, String>{
+        "ClientURL": apiCallModel.siteUrl,
+        AppStrings.allowFromExternalHostKey: 'allow',
+        "SiteID": apiCallModel.siteId.toString(),
+        "Locale": apiCallModel.locale,
+      });
+    }
     if(apiCallModel.isAuthenticatedApiCall) {
       map.addAll(<String, String>{
         "Authorization": 'Bearer ${apiCallModel.token}',

@@ -1,8 +1,9 @@
 class ApiEndpoints {
-  final String siteUrl, authUrl, apiUrl;
+  final String siteUrl, adminSiteUrl, authUrl, apiUrl;
 
   const ApiEndpoints({
     required this.siteUrl,
+    required this.adminSiteUrl,
     required this.authUrl,
     required this.apiUrl,
   });
@@ -15,8 +16,16 @@ class ApiEndpoints {
     return siteUrl;
   }
 
+  String getAdminSiteUrl() {
+    return adminSiteUrl;
+  }
+
   String getBaseApiUrl() {
     return apiUrl;
+  }
+
+  String getLmeEditorApiUrl() {
+    return "${adminSiteUrl}LMEditorApi/api/";
   }
 
   //region Splashscreen Api
@@ -564,5 +573,9 @@ class ApiEndpoints {
   String RetakeAssessmentData() => '${getBaseApiUrl()}CourseTracking/RetakeAssessmentData';
 
   String GetCourseTrackingData() => '${getBaseApiUrl()}MobileLMS/MobileGetContentTrackedData';
+// endregion
+
+// region Content Authoring
+  String GenerateImages() => '${getLmeEditorApiUrl()}/ContentGenerator/GenerateImages';
 // endregion
 }

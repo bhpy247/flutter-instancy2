@@ -1,7 +1,9 @@
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/request_model/generate_images_request_model.dart';
 import 'package:flutter_instancy_2/models/common/Instancy_multipart_file_upload_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/wiki_component/response_model/wikiCategoriesModel.dart';
+import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
 import '../../api/api_call_model.dart';
@@ -252,6 +254,28 @@ class CoCreateKnowledgeRepository {
     );
 
     DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<List<String>>> generateImage({required GenerateImagesRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.StringList,
+      url: "https://qalearning-admin.instancy.com/LMEditorApi/api//ContentGenerator/GenerateImages",
+      // url: apiEndpoints.GenerateImages(),
+      requestBody: MyUtils.encodeJson(requestModel.toMap()),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+    );
+
+    DataResponseModel<List<String>> apiResponseModel = await apiController.callApi<List<String>>(
       apiCallModel: apiCallModel,
     );
 

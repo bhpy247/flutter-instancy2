@@ -1,6 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/view/common/components/common_loader.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/request_model/generate_images_request_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -17,17 +23,16 @@ class ThumbnailDialog extends StatefulWidget {
 
 class _ThumbnailDialogState extends State<ThumbnailDialog> with MySafeState {
   Future<void> showDialogForGenerateThumbnailImage() async {
-    var val = await showDialog(
+    dynamic val = await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return GenerateThumbnailImageDialog();
+        return const GenerateThumbnailImageDialog();
       },
     );
 
-    if (val == null) return;
-    if (val == 2) {
-      Navigator.pop(context, 2);
-    }
+    if (val is! Uint8List) return;
+
+    Navigator.pop(context, val);
   }
 
   @override
@@ -145,8 +150,44 @@ class GenerateThumbnailImageDialog extends StatefulWidget {
 class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDialog> with MySafeState {
   TextEditingController imageDescriptionController = TextEditingController();
   String? selectedResolution, selectedType;
+  Uint8List? generatedImageBytes;
   bool isShowThumbnailImage = false;
   bool isImageLoading = false;
+
+  Future<void> generateImagesFromAi() async {
+    if (selectedResolution.checkEmpty) {
+      return;
+    } else if (selectedType.checkEmpty) {
+      return;
+    } else if (imageDescriptionController.text.trim().isEmpty) {
+      return;
+    }
+
+    isImageLoading = true;
+    mySetState();
+
+    List<Uint8List> images = await CoCreateKnowledgeController(coCreateKnowledgeProvider: null).generateImagesFromAi(
+      requestModel: GenerateImagesRequestModel(
+        topic: imageDescriptionController.text.trim(),
+        count: 1,
+        size: selectedResolution!,
+      ),
+    );
+
+    MyPrint.printOnConsole("images length:${images.length}");
+
+    isImageLoading = false;
+    if (images.isEmpty) {
+      isShowThumbnailImage = false;
+      mySetState();
+      MyToast.showError(context: context, msg: "Couldn't find any images");
+      return;
+    }
+
+    generatedImageBytes = images.first;
+    isShowThumbnailImage = true;
+    mySetState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -178,30 +219,22 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
               "Generate Thumbnail Image",
               style: themeData.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w900, fontSize: 18),
             ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: getImageDescriptionTextFormField(),
             ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: getResolutionDropDown(),
             ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: getTypeDropDown(),
             ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Row(
@@ -210,13 +243,9 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
                 ],
               ),
             ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             getButtonWidget(),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -242,11 +271,7 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
               child: CommonButton(
                 minWidth: double.infinity,
                 onPressed: () async {
-                  isImageLoading = true;
-                  mySetState();
-                  await Future.delayed(Duration(seconds: 2));
-                  isImageLoading = false;
-                  mySetState();
+                  generateImagesFromAi();
                 },
                 text: "Regenerate",
                 fontColor: themeData.primaryColor,
@@ -254,14 +279,12 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
                 borderColor: themeData.primaryColor,
               ),
             ),
-            SizedBox(
-              width: 20,
-            ),
+            const SizedBox(width: 20),
             Expanded(
               child: CommonButton(
                 minWidth: double.infinity,
                 onPressed: () {
-                  Navigator.pop(context, 2);
+                  Navigator.pop(context, generatedImageBytes);
                 },
                 text: "Next",
                 fontColor: themeData.colorScheme.onPrimary,
@@ -276,8 +299,7 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
       child: CommonButton(
         minWidth: double.infinity,
         onPressed: () {
-          isShowThumbnailImage = true;
-          mySetState();
+          generateImagesFromAi();
         },
         text: "Generate with AI",
         fontColor: themeData.colorScheme.onPrimary,
@@ -286,9 +308,16 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
   }
 
   Widget getGeneratedThumbnailImage() {
-    if (isImageLoading) return CommonLoader();
+    if (isImageLoading) return const CommonLoader();
     if (!isShowThumbnailImage) return const SizedBox();
-    return getImageView(url: "assets/cocreate/flashCard.png", height: 100, width: 100, fit: BoxFit.cover);
+    if (generatedImageBytes.checkEmpty) return const SizedBox();
+
+    return Image.memory(
+      generatedImageBytes!,
+      height: 100,
+      width: 100,
+      fit: BoxFit.cover,
+    );
   }
 
   Widget getImageDescriptionTextFormField() {
@@ -306,7 +335,7 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
 
   Widget getResolutionDropDown() {
     return getCommonDropDown(
-      list: const ["150X150", "360X360", "480X480", "720X720", "1080X1080"],
+      list: const ["256x256", "512x512", "1024x1024"],
       value: selectedResolution,
       hintText: "Resolution",
       onChanged: (val) {
@@ -319,7 +348,7 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
 
   Widget getTypeDropDown() {
     return getCommonDropDown(
-      list: const ["150X150", "360X360", "480X480", "720X720", "1080X1080"],
+      list: const ["256x256", "512x512", "1024x1024"],
       value: selectedType,
       hintText: "Type",
       onChanged: (val) {

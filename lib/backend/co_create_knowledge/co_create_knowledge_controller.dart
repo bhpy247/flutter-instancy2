@@ -1,5 +1,10 @@
+import 'dart:typed_data';
+
+import 'package:flutter_chat_bot/utils/my_print.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/request_model/generate_images_request_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/utils/my_utils.dart';
 
 import '../../api/api_controller.dart';
 import 'co_create_knowledge_provider.dart';
@@ -40,6 +45,45 @@ class CoCreateKnowledgeController {
     provider.shareKnowledgeList.setList(list: response.data ?? []);
     provider.isLoading.set(value: false, isNotify: false);
     return true;
+  }
+
+  Future<List<Uint8List>> generateImagesFromAi({required GenerateImagesRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().generateImagesFromAi() called with requestModel:$requestModel", tag: tag);
+
+    List<Uint8List> images = <Uint8List>[];
+
+    DataResponseModel<List<String>> dataResponseModel = await CoCreateKnowledgeRepository(apiController: ApiController()).generateImage(requestModel: requestModel);
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateImagesFromAi() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return images;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateImagesFromAi() because data is null", tag: tag);
+      return images;
+    }
+
+    MyPrint.printOnConsole("Got Images Data", tag: tag);
+
+    List<String> base64EncodedImages = dataResponseModel.data!;
+
+    for (String base64ImageString in base64EncodedImages) {
+      try {
+        UriData? data = Uri.tryParse(base64ImageString)?.data;
+
+        if (data?.isBase64 == true) {
+          Uint8List bytes = data!.contentAsBytes();
+          if (bytes.isNotEmpty) images.add(bytes);
+        }
+      } catch (e, s) {
+        MyPrint.printOnConsole("Error in Decoding Base64:$e", tag: tag);
+        MyPrint.printOnConsole(s, tag: tag);
+      }
+    }
+
+    MyPrint.printOnConsole("Final images length:${images.length}", tag: tag);
+
+    return images;
   }
 
 // Future<List<FileUploadControlsModel>> getFileUploadControlsFromApi({

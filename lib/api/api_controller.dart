@@ -32,6 +32,7 @@ class ApiController {
 
   ApiEndpoints get apiEndpoints => ApiEndpoints(
         siteUrl: apiDataProvider.getCurrentSiteUrl(),
+        adminSiteUrl: apiDataProvider.getCurrentSiteLMSUrl(),
         authUrl: apiDataProvider.getCurrentAuthUrl(),
         apiUrl: apiDataProvider.getCurrentBaseApiUrl(),
       );
@@ -185,6 +186,7 @@ class ApiController {
     String? locale,
     String? token,
     bool isAuthenticatedApiCall = true,
+    bool isInstancyCall = true,
     bool isGetDataFromHive = false,
     bool isStoreDataInHive = false,
     bool isIsolateCall = true,
@@ -212,6 +214,7 @@ class ApiController {
       userId: userId ?? apiDataProvider.getCurrentUserId(),
       siteId: siteId ?? apiDataProvider.getCurrentSiteId(),
       isAuthenticatedApiCall: isAuthenticatedApiCall,
+      isInstancyCall: isInstancyCall,
       isGetDataFromHive: isGetDataFromHive,
       isStoreDataInHive: isStoreDataInHive,
       isIsolateCall: isIsolateCall,
