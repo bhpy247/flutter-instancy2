@@ -36,6 +36,7 @@ class InstancyUIActions {
                       ...actions.map((InstancyUIActionModel actionModel) {
                         return BottomSheetOptionTile(
                           text: actionModel.text,
+                          assetIconUrl: actionModel.assetIconUrl,
                           onTap: actionModel.onTap,
                           iconData: actionModel.iconData,
                           iconColor: actionModel.iconColor,
@@ -60,6 +61,7 @@ class InstancyUIActionModel {
   final IconData? iconData;
   final String text;
   final String? svgImageUrl;
+  final String? assetIconUrl;
   final Color? iconColor, textColor;
   final double? iconSize;
   final void Function()? onTap;
@@ -73,6 +75,7 @@ class InstancyUIActionModel {
     this.textColor,
     this.iconSize,
     this.onTap,
+    this.assetIconUrl,
     this.actionsEnum,
   });
 }

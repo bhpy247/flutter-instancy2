@@ -1043,12 +1043,12 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
             controller: tabController,
             children: <Widget>[
               getMyLearningContentsListView(),
-              if (myLearningProvider.archieveEnabled.get()) getMyLearningArchiveContentsListView(),
               if (AppController.isDemoApp)
                 Scaffold(
                   body: getExternalContentsListView(),
                   floatingActionButton: getAddExternalLearningButton(),
                 ),
+              if (myLearningProvider.archieveEnabled.get()) getMyLearningArchiveContentsListView(),
             ],
           ),
         ),
@@ -1100,15 +1100,15 @@ class _MyLearningScreenState extends State<MyLearningScreen> with TickerProvider
                     padding: EdgeInsets.all(8.0),
                     child: Text("My Learning"),
                   ),
-                  if (myLearningProvider.archieveEnabled.get())
-                    const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text("Archive"),
-                    ),
                   if (AppController.isDemoApp)
                     const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text("External"),
+                    ),
+                  if (myLearningProvider.archieveEnabled.get())
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text("Archive"),
                     ),
                 ],
               ),

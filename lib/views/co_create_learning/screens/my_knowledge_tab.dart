@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
+import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/local_str.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
@@ -16,7 +19,12 @@ import 'package:flutter_instancy_2/views/common/components/instancy_ui_actions/i
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:provider/provider.dart';
 
+import '../../../api/api_url_configuration_provider.dart';
+import '../../../backend/authentication/authentication_provider.dart';
 import '../../../backend/co_create_knowledge/co_create_knowledge_provider.dart';
+import '../../../backend/course_launch/course_launch_controller.dart';
+import '../../../backend/my_learning/my_learning_controller.dart';
+import '../../../models/course_launch/data_model/course_launch_model.dart';
 import '../component/add_content_dialog.dart';
 import '../component/size_utils.dart';
 
@@ -39,8 +47,10 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 
   late CoCreateKnowledgeController _controller;
   late CoCreateKnowledgeProvider _provider;
+  late MyLearningController myLearningController;
 
   late Future future;
+  bool isLoading = false;
 
   Future<void> getFutureData({bool isRefresh = true}) async {
     if (!isRefresh && _provider.myKnowledgeList.length > 0) {
@@ -56,10 +66,14 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         InstancyUIActionModel(
           text: "View",
           actionsEnum: InstancyContentActionsEnum.View,
-          onTap: () {
+          onTap: () async {
             Navigator.pop(context);
 
-            onViewTap(model: model);
+            if (model.ContentTypeId == InstancyObjectTypes.aiAgent) {
+              await onContentLaunchTap(model: model, isArchived: false);
+            } else {
+              onViewTap(model: model);
+            }
           },
           iconData: InstancyIcons.view,
         ),
@@ -143,9 +157,56 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
     }
   }
 
+  Future<void> onContentLaunchTap({
+    required CourseDTOModel model,
+    required bool isArchived,
+  }) async {
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = myLearningController.myLearningRepository.apiController.apiDataProvider;
+
+    isLoading = true;
+    mySetState();
+    await CourseLaunchController(
+      appProvider: appProvider,
+      authenticationProvider: context.read<AuthenticationProvider>(),
+      componentId: 0,
+      componentInstanceId: 0,
+    ).viewCourse(
+      context: context,
+      model: CourseLaunchModel(
+        ContentTypeId: model.ContentTypeId,
+        MediaTypeId: model.MediaTypeID,
+        ScoID: model.ScoID,
+        SiteUserID: model.SiteUserID,
+        SiteId: model.SiteId,
+        ContentID: model.ContentID,
+        locale: apiUrlConfigurationProvider.getLocale(),
+        ActivityId: model.ActivityId,
+        ActualStatus: model.ActualStatus,
+        ContentName: model.ContentName,
+        FolderPath: model.FolderPath,
+        JWVideoKey: model.JWVideoKey,
+        jwstartpage: model.jwstartpage,
+        startPage: model.startpage,
+        courseDTOModel: model,
+      ),
+    );
+
+    isLoading = false;
+    mySetState();
+
+    // if (isLaunched) {
+    //   getMyLearningContentsList(
+    //     isRefresh: true,
+    //     isNotify: true,
+    //     isGetFromCache: false,
+    //     isArchive: isArchived,
+    //   );
+    // }
+  }
+
   Future<void> onViewTap({required CourseDTOModel model}) async {
     int objectType = model.ContentTypeId;
-    MyPrint.printOnConsole("objectType:$objectType");
+    MyPrint.printOnConsole("objectType:$objectType ${objectType == InstancyObjectTypes.learningPath}");
 
     if (objectType == InstancyObjectTypes.flashCard) {
       NavigationController.navigateToFlashCardScreen(
@@ -219,6 +280,25 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           url: "https://enterprisedemo.instancy.com/content/publishfiles/1539fc5c-7bde-4d82-a0f6-9612f9e6c426/ins_content.html?fromNativeapp=true",
         ),
       );*/
+    } else if (objectType == InstancyObjectTypes.learningPath) {
+      MyPrint.printOnConsole("InstancyObjectTypes.learningPath : ${InstancyObjectTypes.learningPath} objectType == InstancyObjectTypes.learningPath ${objectType == InstancyObjectTypes.learningPath}");
+      NavigationController.navigateToLearningPathScreen(
+        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+        argument: LearningPathScreenNavigationArgument(
+          model: model,
+          componentId: widget.componentId,
+          componentInstanceId: widget.componentInstanceId,
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.microLearning) {
+      NavigationController.navigateToMicroLearningScreen(
+        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+        argument: MicroLearningScreenNavigationArgument(
+          model: model,
+          componentId: widget.componentId,
+          componentInstanceId: widget.componentInstanceId,
+        ),
+      );
     }
   }
 
@@ -341,6 +421,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
   void initState() {
     super.initState();
     appProvider = context.read<AppProvider>();
+    myLearningController = MyLearningController(provider: context.read<MyLearningProvider>());
 
     _provider = context.read<CoCreateKnowledgeProvider>();
     _controller = CoCreateKnowledgeController(coCreateKnowledgeProvider: _provider);
@@ -380,19 +461,23 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           ],
           child: Consumer<CoCreateKnowledgeProvider>(
             builder: (context, CoCreateKnowledgeProvider provider, _) {
-              return Column(
-                children: [
-                  /*Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0).copyWith(top: 15, bottom: 10),
-                    child: const CustomSearchView(),
-                  ),*/
-                  const SizedBox(height: 10),
-                  getSearchTextFormField(),
-                  const SizedBox(height: 5),
-                  Expanded(
-                    child: getCoursesListView(),
-                  ),
-                ],
+              return ModalProgressHUD(
+                inAsyncCall: isLoading,
+                progressIndicator: const CommonLoader(),
+                child: Column(
+                  children: [
+                    /*Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0).copyWith(top: 15, bottom: 10),
+                      child: const CustomSearchView(),
+                    ),*/
+                    const SizedBox(height: 10),
+                    getSearchTextFormField(),
+                    const SizedBox(height: 5),
+                    Expanded(
+                      child: getCoursesListView(),
+                    ),
+                  ],
+                ),
               );
             },
           ),
@@ -500,8 +585,13 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
     LocalStr localStr = appProvider.localStr;
 
     InstancyUIActionModel primaryAction = InstancyUIActionModel(
-      onTap: () {
-        onViewTap(model: model);
+      onTap: () async {
+        // onViewTap(model: model);
+        if (model.ContentTypeId == InstancyObjectTypes.courseBot) {
+          await onContentLaunchTap(model: model, isArchived: false);
+        } else {
+          onViewTap(model: model);
+        }
       },
       text: localStr.catalogActionsheetViewoption,
       actionsEnum: InstancyContentActionsEnum.View,
@@ -551,7 +641,7 @@ class PopUpDialog extends StatefulWidget {
 
 class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
   final List<KnowledgeTypeModel> knowledgeTypeList = [
-    KnowledgeTypeModel(name: "Learning Path", iconUrl: "assets/cocreate/Business Hierarchy.png", objectTypeId: InstancyObjectTypes.learningMaps),
+    KnowledgeTypeModel(name: "Learning Path", iconUrl: "assets/cocreate/Business Hierarchy.png", objectTypeId: InstancyObjectTypes.learningPath),
     KnowledgeTypeModel(name: "Roleplay", iconUrl: "assets/cocreate/video.png", objectTypeId: InstancyObjectTypes.rolePlay),
     KnowledgeTypeModel(name: "Event", iconUrl: "assets/cocreate/Vector-3.png", objectTypeId: InstancyObjectTypes.events),
     KnowledgeTypeModel(name: "Documents", iconUrl: "assets/cocreate/Vector.png", objectTypeId: InstancyObjectTypes.document),
@@ -562,7 +652,9 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
     KnowledgeTypeModel(name: "Quiz", iconUrl: "assets/cocreate/Chat Question.png", objectTypeId: InstancyObjectTypes.quiz),
     KnowledgeTypeModel(name: "Flashcards", iconUrl: "assets/cocreate/Card.png", objectTypeId: InstancyObjectTypes.flashCard),
     KnowledgeTypeModel(name: "AI Agents", iconUrl: "assets/cocreate/Ai.png", objectTypeId: InstancyObjectTypes.aiAgent),
+    KnowledgeTypeModel(name: "Microlearning", iconUrl: "assets/cocreate/Ai.png", objectTypeId: InstancyObjectTypes.microLearning),
   ];
+
   ValueNotifier<bool> isDialOpen = ValueNotifier<bool>(false);
 
   void onCardTapCallBack({required int objectType}) {
@@ -904,7 +996,6 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       // courseDTOModel.ContentType = "Article";
       // courseDTOModel.ContentTypeId = InstancyObjectTypes.article;
       // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
-
       NavigationController.navigateCommonCreateAuthoringToolScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -916,195 +1007,55 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
           objectTypeId: InstancyObjectTypes.article,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.events) {
-      MyPrint.printOnConsole("in Role Play");
-      // NavigationController.navigateToAddEditEventScreen(
-      //   navigationOperationParameters: NavigationOperationParameters(
-      //     context: context,
-      //     navigationType: NavigationType.pushNamed,
-      //   ),
-      //   argument: const AddEditEventScreenArgument(
-      //     courseDtoModel: null,
-      //   ),
-      // );
+    } else if (objectType == InstancyObjectTypes.learningPath) {
       NavigationController.navigateCommonCreateAuthoringToolScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: const CommonCreateAuthoringToolScreenArgument(componentInsId: 0, componentId: 0, objectTypeId: InstancyObjectTypes.events),
+        argument: const CommonCreateAuthoringToolScreenArgument(
+          componentInsId: 0,
+          componentId: 0,
+          objectTypeId: InstancyObjectTypes.learningPath,
+        ),
       );
-      // Map<String, dynamic> eventModelMap = <String, dynamic>{
-      //   "Titlewithlink": "",
-      //   "rcaction": "",
-      //   "Categories": "",
-      //   "IsSubSite": "False",
-      //   "MembershipName": "",
-      //   "EventAvailableSeats": "",
-      //   "EventCompletedProgress": "",
-      //   "EventContentProgress": "",
-      //   "Count": 0,
-      //   "PreviewLink": "",
-      //   "ApproveLink": "",
-      //   "RejectLink": "",
-      //   "ReadLink": "",
-      //   "AddLink": "",
-      //   "EnrollNowLink": "",
-      //   "CancelEventLink": "",
-      //   "WaitListLink": "",
-      //   "InapppurchageLink": "",
-      //   "AlredyinmylearnigLink": "",
-      //   "RecommendedLink": "",
-      //   "Sharelink": "",
-      //   "EditMetadataLink": "",
-      //   "ReplaceLink": "",
-      //   "EditLink": "",
-      //   "DeleteLink": "",
-      //   "SampleContentLink": "",
-      //   "TitleExpired": "<span class='eventExpiredLabel'>On Demand Recording</span>",
-      //   "PracticeAssessmentsAction": "",
-      //   "CreateAssessmentAction": "",
-      //   "OverallProgressReportAction": "",
-      //   "ContentName": "TechTalk on system upgradation ",
-      //   "ContentScoID": "26474",
-      //   "isContentEnrolled": "False",
-      //   "ContentViewType": "Subscription",
-      //   "WindowProperties": "status=no,toolbar=no,menubar=no,resizable=yes,location=no,scrollbars=yes,left=10,top=10,width=1000,height=680",
-      //   "isWishListContent": 0,
-      //   "AddtoWishList": "Y",
-      //   "RemoveFromWishList": null,
-      //   "Duration": "30Mins",
-      //   "Credits": "1.00",
-      //   "DetailspopupTags": "",
-      //   "ThumbnailIconPath": "",
-      //   "JWVideoKey": "",
-      //   "Modules": "",
-      //   "salepricestrikeoff": "",
-      //   "isBadCancellationEnabled": "true",
-      //   "EnrollmentLimit": "10",
-      //   "AvailableSeats": "7",
-      //   "NoofUsersEnrolled": "4",
-      //   "WaitListLimit": "",
-      //   "WaitListEnrolls": "0",
-      //   "isBookingOpened": false,
-      //   "EventStartDateforEnroll": "03/30/2024 04:00 PM",
-      //   "DownLoadLink": "",
-      //   "EventType": 1,
-      //   "EventScheduleType": 0,
-      //   "EventRecording": false,
-      //   "ShowParentPrerequisiteEventDate": false,
-      //   "ShowPrerequisiteEventDate": false,
-      //   "PrerequisiteDateConflictName": null,
-      //   "PrerequisiteDateConflictDateTime": null,
-      //   "SkinID": "",
-      //   "FilterId": 0,
-      //   "SiteId": 374,
-      //   "UserSiteId": 0,
-      //   "SiteName": "Instancy Social Learning Network",
-      //   "ContentTypeId": 70,
-      //   "ContentID": "be06f4c0-ebb7-4a4d-9e00-72461c06c422",
-      //   "Title": "TechTalk on system upgradation ",
-      //   "TotalRatings": "0",
-      //   "RatingID": "0",
-      //   "ShortDescription": "",
-      //   "ThumbnailImagePath": "/Content/SiteFiles/Images/Event.jpg",
-      //   "InstanceParentContentID": "",
-      //   "ImageWithLink": "",
-      //   "AuthorWithLink": "",
-      //   "EventStartDateTime": "",
-      //   "EventEndDateTime": "",
-      //   "EventStartDateTimeWithoutConvert": "",
-      //   "EventEndDateTimeTimeWithoutConvert": "",
-      //   "expandiconpath": "<img src='/Content/SiteFiles/Images/details_open.png' />",
-      //   "AuthorDisplayName": "Pradeep Rana 123",
-      //   "ContentType": "Classroom (in-person)",
-      //   "CreatedOn": "",
-      //   "TimeZone": "",
-      //   "Tags": "",
-      //   "SalePrice": "",
-      //   "Currency": "",
-      //   "ViewLink": "",
-      //   "DetailsLink": "https://qalearning.instancy.com/Catalog Details/Contentid/be06f4c0-ebb7-4a4d-9e00-72461c06c422/componentid/1/componentInstanceID/3131",
-      //   "RelatedContentLink": "https://qalearning.instancy.com/CatalogResources-Content/ContentID/be06f4c0-ebb7-4a4d-9e00-72461c06c422",
-      //   "ViewSessionsLink": null,
-      //   "SuggesttoConnLink": "be06f4c0-ebb7-4a4d-9e00-72461c06c422",
-      //   "SuggestwithFriendLink": "be06f4c0-ebb7-4a4d-9e00-72461c06c422",
-      //   "SharetoRecommendedLink": "",
-      //   "IsCoursePackage": "",
-      //   "IsRelatedcontent": "",
-      //   "isaddtomylearninglogo": "0",
-      //   "LocationName": "",
-      //   "BuildingName": null,
-      //   "JoinURL": "",
-      //   "Categorycolor": "#67BD4E",
-      //   "InvitationURL": "http://qalearning.instancy.com//InviteURLID/be06f4c0-ebb7-4a4d-9e00-72461c06c422",
-      //   "HeaderLocationName": "",
-      //   "SubSiteUserID": null,
-      //   "PresenterDisplayName": "",
-      //   "PresenterWithLink": "",
-      //   "ShowMembershipExpiryAlert": false,
-      //   "AuthorName": null,
-      //   "FreePrice": "",
-      //   "SiteUserID": 1962,
-      //   "ScoID": 26474,
-      //   "BuyNowLink": "",
-      //   "bit5": true,
-      //   "bit4": false,
-      //   "OpenNewBrowserWindow": false,
-      //   "CreditScoreWithCreditTypes": "",
-      //   "CreditScoreFirstPrefix": "",
-      //   "MediaTypeID": 46,
-      //   "isEnrollFutureInstance": "",
-      //   "InstanceEventReclass": "",
-      //   "InstanceEventReclassStatus": "",
-      //   "InstanceEventReSchedule": "",
-      //   "InstanceEventEnroll": "",
-      //   "ReEnrollmentHistory": "",
-      //   "BackGroundColor": "#2f2d3a",
-      //   "FontColor": "#fff",
-      //   "ExpiredContentExpiryDate": "",
-      //   "ExpiredContentAvailableUntill": "",
-      //   "Gradient1": "",
-      //   "Gradient2": "",
-      //   "GradientColor": "radial-gradient(circle,  0%,  100%)",
-      //   "ShareContentwithUser": "",
-      //   "bit1": false,
-      //   "ViewType": 2,
-      //   "startpage": "",
-      //   "CategoryID": 0,
-      //   "AddLinkTitle": "Add to My learning",
-      //   "ContentStatus": "",
-      //   "PercentCompletedClass": "",
-      //   "PercentCompleted": "",
-      //   "GoogleProductId": "",
-      //   "ItunesProductId": "",
-      //   "FolderPath": "BE06F4C0-EBB7-4A4D-9E00-72461C06C422",
-      //   "CloudMediaPlayerKey": "",
-      //   "ActivityId": "http://instancy.com/be06f4c0-ebb7-4a4d-9e00-72461c06c422",
-      //   "ActualStatus": null,
-      //   "CoreLessonStatus": null,
-      //   "jwstartpage": null,
-      //   "IsReattemptCourse": false,
-      //   "AttemptsLeft": 0,
-      //   "TotalAttempts": 0,
-      //   "ListPrice": "",
-      //   "ContentModifiedDateTime": null
-      // };
-      // CourseDTOModel model = CourseDTOModel.fromMap(eventModelMap);
-      //
-      // model.ContentID = courseDTOModel.ContentID;
-      // model.AuthorName = model.AuthorDisplayName;
-      // model.UserProfileImagePath = "Content/SiteFiles//374/ProfileImages/0.gif";
-      // model.MediaTypeID = InstancyMediaTypes.none;
-      // model.ContentType = "Events";
-      // model.EventStartDateTime = "30 May 2024";
-      // model.EventStartDateTimeWithoutConvert = "05/30/2024 05:30:00 PM";
-      // model.EventEndDateTime = "30 May 2024";
-      // model.EventEndDateTimeTimeWithoutConvert = "05/30/2024 06:00:00 PM";
-      // model.Duration = "30 Minutes";
-      // model.AvailableSeats = "10";
-      //
-      // courseDTOModel = model;
+    } else if (objectType == InstancyObjectTypes.events) {
+      MyPrint.printOnConsole("in Role Play");
+      NavigationController.navigateCommonCreateAuthoringToolScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: const CommonCreateAuthoringToolScreenArgument(
+          componentInsId: 0,
+          componentId: 0,
+          objectTypeId: InstancyObjectTypes.events,
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.aiAgent) {
+      MyPrint.printOnConsole("in Ai Agent");
+      NavigationController.navigateToAddEditAiAgentScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditAiAgentScreenNavigationArgument(
+          coCreateContentAuthoringModel: CoCreateContentAuthoringModel(),
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.microLearning) {
+      MyPrint.printOnConsole("in Ai Agent");
+      NavigationController.navigateCommonCreateAuthoringToolScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: const CommonCreateAuthoringToolScreenArgument(
+          componentInsId: 0,
+          componentId: 0,
+          objectTypeId: InstancyObjectTypes.microLearning,
+        ),
+      );
     } else {
       courseDTOModel = null;
     }

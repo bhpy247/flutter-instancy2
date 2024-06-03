@@ -352,6 +352,7 @@ class RestClient {
         AppStrings.allowFromExternalHostKey: 'allow',
         "SiteID": apiCallModel.siteId.toString(),
         "Locale": apiCallModel.locale,
+        "UserID": apiCallModel.userId.toString(),
       });
     }
     if(apiCallModel.isAuthenticatedApiCall) {

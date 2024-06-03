@@ -13,6 +13,7 @@ import '../../../backend/wiki_component/wiki_controller.dart';
 import '../../../backend/wiki_component/wiki_provider.dart';
 import '../../../configs/app_configurations.dart';
 import '../../../configs/app_constants.dart';
+import '../../../models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
 import '../../../models/wiki_component/response_model/wikiCategoriesModel.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_safe_state.dart';
@@ -73,6 +74,8 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       coCreateContentAuthoringModel.flashcardContentModel = courseDTOModel.flashcardContentModel;
       coCreateContentAuthoringModel.quizContentModel = courseDTOModel.quizContentModel;
       coCreateContentAuthoringModel.roleplayContentModel = courseDTOModel.roleplayContentModel;
+      coCreateContentAuthoringModel.learningPathModel = courseDTOModel.learningPathModel;
+      coCreateContentAuthoringModel.microLearningModel = courseDTOModel.microLearningModel;
 
       titleController.text = coCreateContentAuthoringModel.title;
       descriptionController.text = coCreateContentAuthoringModel.description;
@@ -260,6 +263,9 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         InstancyObjectTypes.podcastEpisode => "Podcast Episode",
         InstancyObjectTypes.quiz => "Quiz",
         InstancyObjectTypes.flashCard => "Flashcards",
+        InstancyObjectTypes.learningPath => "Learning Path",
+        InstancyObjectTypes.aiAgent => "AI Agent",
+        InstancyObjectTypes.microLearning => "Microlearning",
         _ => "Test",
       };
 
@@ -286,7 +292,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     switch (coCreateContentAuthoringModel.contentTypeId) {
       case InstancyObjectTypes.article:
         {
-          title = "Intelligent Systems And Applications In Engineering";
+          title = "Biotechnology and Genetic Engineering using AI: A Review";
           description =
               "This field encompasses the use of artificial intelligence (AI), machine learning, robotics, and data analytics to develop smart solutions that can adapt to changing conditions, optimize performance, and automate complex tasks. Applications include predictive maintenance, autonomous systems, smart infrastructure, and intelligent control systems, all aimed at improving decision-making processes, reducing costs, and increasing the overall effectiveness of engineering projects.";
           thumbnailImageUrl =
@@ -329,7 +335,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         }
       case InstancyObjectTypes.referenceUrl:
         {
-          title = "An introduction to Generative AI and its Transformative potential for Enterprises";
+          title = "An Introduction to Generative AI and its Transformative Potential for Enterprises";
           description =
               "This insightful guide explores the innovative field of generative AI, highlighting its capacity to revolutionize various business sectors. It delves into how enterprises can leverage generative AI to enhance creativity, optimize operations, and drive growth. By providing practical examples and industry-specific applications, this introduction offers a comprehensive overview of the transformative impact generative AI can have on modern businesses, making it an essential read for professionals seeking to harness the power of this cutting-edge technology.";
           thumbnailImageUrl =
@@ -344,7 +350,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         }
       case InstancyObjectTypes.podcastEpisode:
         {
-          title = "Refinig Communication";
+          title = "Refining Communication";
           description =
               "It is a comprehensive guide designed to enhance your interpersonal skills and communication techniques. This book delves into the core principles of effective communication, offering practical strategies for improving clarity, empathy, and understanding in both personal and professional interactions. Whether you're looking to strengthen your relationships, excel in your career, or simply become a more effective communicator, \"Refining Communication\" provides the tools and insights you need to succeed.";
           thumbnailImageUrl =
@@ -366,11 +372,34 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         }
       case InstancyObjectTypes.flashCard:
         {
-          title = "Unveiling the Neurons of Alsss";
+          title = "Unveiling the Neurons of AI";
           description =
-              "Unveiling the Neurons of Alsss delves into the intricate and captivating world of the fictional character Alsss, exploring the depths of their neural architecture. This groundbreaking narrative intertwines the realms of neuroscience and speculative fiction, presenting a vivid portrayal of Alsss' cognitive and emotional landscape. Through a blend of scientific insight and imaginative storytelling, readers are invited to journey through the complex neural networks that define Alsss' thoughts, behaviors, and unique perception of reality.";
+              "Unveiling the Neurons of AI explores the intricate mechanisms and inner workings of artificial intelligence systems, drawing parallels to the human brain's neural networks. This title delves into the foundational algorithms, the architecture of neural networks, and the latest advancements in AI technology, revealing how these artificial 'neurons' process information, learn, and make decisions. Through this exploration, readers gain insight into the complexity and potential of AI, demystifying the science behind the machines shaping our future.";
           thumbnailImageUrl =
               "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fdemo_contents_thumbnail%2FUnveiling%20the%20Neurons%20of%20Alsss.jpeg?alt=media&token=c1a1d2ba-8b71-4b2b-90cd-005db53eb984";
+          skills = ["Customer Service"];
+
+          break;
+        }
+
+      case InstancyObjectTypes.learningPath:
+        {
+          title = "Artificial Intelligence: Transforming the Modern World";
+          description =
+              "Artificial Intelligence (AI) is at the forefront of a technological revolution that is reshaping every aspect of our modern world. From healthcare to finance, education to entertainment, AI's impact is profound and far-reaching. This comprehensive exploration delves into how AI technologies are transforming industries, enhancing efficiencies, and driving innovation.";
+          thumbnailImageUrl =
+              "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fdemo_contents_thumbnail%2FlearningPathThumbnail.png?alt=media&token=6aa46e14-3a64-4b67-bb78-18868c1fa415";
+          skills = ["Customer Service"];
+
+          break;
+        }
+      case InstancyObjectTypes.microLearning:
+        {
+          title = "Technology in Sustainable Urban Planning";
+          description =
+              "Technology in Sustainable Urban Planning explores the integration of innovative technologies to create environmentally friendly, resilient, and efficient urban spaces. It focuses on smart solutions such as green infrastructure, renewable energy, IoT-enabled city management, and data-driven approaches to enhance the quality of life, reduce environmental impact, and promote sustainable development in urban areas.";
+          thumbnailImageUrl =
+              "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fdemo_contents_thumbnail%2FlearningPathThumbnail.png?alt=media&token=6aa46e14-3a64-4b67-bb78-18868c1fa415";
           skills = ["Customer Service"];
 
           break;
@@ -406,7 +435,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     if (objectTypeId == InstancyObjectTypes.flashCard) {
       return isEdit ? "Edit Flashcard" : "Create Flashcard";
     } else if (objectTypeId == InstancyObjectTypes.rolePlay) {
-      return isEdit ? "Edit RolePlay" : "Create RolePlay";
+      return isEdit ? "Edit Roleplay" : "Create Roleplay";
     } else if (objectTypeId == InstancyObjectTypes.podcastEpisode) {
       return isEdit ? "Edit PodCast Episode" : "Create Podcast Episode";
     } else if (objectTypeId == InstancyObjectTypes.referenceUrl) {
@@ -421,6 +450,12 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       return isEdit ? "Edit Article" : "Create Article";
     } else if (objectTypeId == InstancyObjectTypes.events) {
       return isEdit ? "Edit Event" : "Create Event";
+    } else if (objectTypeId == InstancyObjectTypes.learningPath) {
+      return isEdit ? "Edit Learning Path" : "Create Learning Path";
+    } else if (objectTypeId == InstancyObjectTypes.aiAgent) {
+      return isEdit ? "Edit AI Agent" : "Create AI Agent";
+    } else if (objectTypeId == InstancyObjectTypes.microLearning) {
+      return isEdit ? "Edit Microlearning" : "Create Microlearning";
     } else {
       return "";
     }
@@ -480,6 +515,13 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         argument: const AddEditVideoScreenArgument(),
       );
     } else if (objectTypeId == InstancyObjectTypes.quiz) {
+      QuizContentModel quizContentModel = QuizContentModel();
+      quizContentModel.questionCount = 3;
+      quizContentModel.difficultyLevel = "Hard";
+      quizContentModel.questions = AppConstants().quizModelList;
+      quizContentModel.questionType = "Multiple Choice";
+      coCreateContentAuthoringModel.quizContentModel = quizContentModel;
+
       NavigationController.navigateToAddEditQuizScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -519,6 +561,26 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           coCreateContentAuthoringModel: coCreateContentAuthoringModel,
         ),
       );
+    } else if (objectTypeId == InstancyObjectTypes.learningPath) {
+      NavigationController.navigateToAddEditLearningPathScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditLearningPathScreenNavigationArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+    } else if (objectTypeId == InstancyObjectTypes.microLearning) {
+      NavigationController.navigateToAddEditMicrolearningScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditMicrolearningScreenNavigationArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
     } else {}
   }
 
@@ -552,11 +614,12 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
   void initState() {
     super.initState();
     wikiProvider = context.read<WikiProvider>();
-    wikiController = WikiController(wikiProvider: wikiProvider);
-    wikiController.getWikiCategoriesFromApi(
-      componentId: InstancyComponents.Catalog,
-      componentInstanceId: InstancyComponents.CatalogComponentInsId,
-    );
+    // wikiController = WikiController(wikiProvider: wikiProvider);
+    // wikiController.getWikiCategoriesFromApi(
+    //   componentId: InstancyComponents.Catalog,
+    //   componentInstanceId: InstancyComponents.CatalogComponentInsId,
+    // );
+
     // isUrl = widget.addWikiContentScreenNavigationArguments.mediaTypeId == InstancyMediaTypes.url;
     // fileType = getFileTypeFromMediaTypeId(
     //   mediaTypeId: widget.addWikiContentScreenNavigationArguments.mediaTypeId,
@@ -885,6 +948,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       validator: validator,
       minLines: minLines,
       maxLines: maxLines,
+      floatingLabelColor: Colors.grey,
       isOutlineInputBorder: true,
       prefixWidget: iconUrl.isNotEmpty
           ? getImageView(url: iconUrl, height: iconHeight, width: iconWidth)
@@ -901,13 +965,12 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     return RichText(
       text: TextSpan(
         text: labelText,
-        style: style ?? const TextStyle(color: Colors.grey),
+        style: style ?? const TextStyle(color: Colors.grey, fontSize: 15),
         children: const [
           TextSpan(
-              text: ' *',
-              style: TextStyle(
-                color: Colors.red,
-              ))
+            text: ' *',
+            style: TextStyle(color: Colors.red, fontSize: 14),
+          )
         ],
       ),
     );

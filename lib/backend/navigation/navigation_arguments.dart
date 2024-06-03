@@ -1041,11 +1041,8 @@ class AddEditReferenceScreenArguments extends NavigationArguments {
   final bool isEdit;
   final String websiteUrl;
 
-  const AddEditReferenceScreenArguments({
-    required this.componentId,
-    required this.componentInsId, this.coCreateContentAuthoringModel, this.courseDtoModel,
-    this.index = 0,
-    this.isEdit = false, this.websiteUrl = ""});
+  const AddEditReferenceScreenArguments(
+      {required this.componentId, required this.componentInsId, this.coCreateContentAuthoringModel, this.courseDtoModel, this.index = 0, this.isEdit = false, this.websiteUrl = ""});
 }
 
 class AddEditReferenceUrlScreenArguments extends NavigationArguments {
@@ -1082,9 +1079,7 @@ class AddEditVideoScreenArgument extends NavigationArguments {
   final bool isUploadScreen;
   final bool isNotGenerateWithAiScreen;
 
-  const AddEditVideoScreenArgument({
-    this.courseDtoModel,
-    this.isUploadScreen = false, this.isNotGenerateWithAiScreen = false});
+  const AddEditVideoScreenArgument({this.courseDtoModel, this.isUploadScreen = false, this.isNotGenerateWithAiScreen = false});
 }
 
 class AddEditEventScreenArgument extends NavigationArguments {
@@ -1171,8 +1166,68 @@ class ArticlePreviewScreenNavigationArgument extends NavigationArguments {
 
 class PodcastPreviewScreenNavigationArgument extends NavigationArguments {
   final CourseDTOModel model;
+  final bool isRetakeRequired;
 
-  const PodcastPreviewScreenNavigationArgument({
-    required this.model,
+  const PodcastPreviewScreenNavigationArgument({required this.model, this.isRetakeRequired = true});
+}
+
+class LearningPathScreenNavigationArgument extends NavigationArguments {
+  final CourseDTOModel model;
+  final bool isRetakeRequired;
+  final int componentId, componentInstanceId;
+
+  const LearningPathScreenNavigationArgument({required this.model, this.isRetakeRequired = true, this.componentId = 0, this.componentInstanceId = 0});
+}
+
+class MicroLearningScreenNavigationArgument extends NavigationArguments {
+  final CourseDTOModel model;
+  final bool isRetakeRequired;
+  final int componentId, componentInstanceId;
+
+  const MicroLearningScreenNavigationArgument({required this.model, this.isRetakeRequired = true, this.componentId = 0, this.componentInstanceId = 0});
+}
+
+class AddEditLearningPathScreenNavigationArgument extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+  final CourseDTOModel? model;
+  final bool isRetakeRequired;
+  final int componentId, componentInstanceId;
+
+  const AddEditLearningPathScreenNavigationArgument({required this.coCreateContentAuthoringModel, this.model, this.isRetakeRequired = true, this.componentId = 0, this.componentInstanceId = 0});
+}
+
+class AddContentItemScreenNavigationArgument extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+  final int componentId, componentInstanceId;
+
+  const AddContentItemScreenNavigationArgument({required this.coCreateContentAuthoringModel, this.componentId = 0, this.componentInstanceId = 0});
+}
+
+class AiAgentScreenNavigationArgument extends NavigationArguments {
+  final CourseDTOModel model;
+  final int componentId, componentInstanceId;
+
+  const AiAgentScreenNavigationArgument({required this.model, this.componentId = 0, this.componentInstanceId = 0});
+}
+
+class AddEditAiAgentScreenNavigationArgument extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+  final CourseDTOModel? courseDtoModel;
+  final bool isRetakeRequired;
+  final int componentId, componentInstanceId;
+
+  const AddEditAiAgentScreenNavigationArgument({required this.coCreateContentAuthoringModel, this.courseDtoModel, this.isRetakeRequired = true, this.componentId = 0, this.componentInstanceId = 0});
+}
+
+class AddEditMicrolearningScreenNavigationArgument extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+  final CourseDTOModel? courseDtoModel;
+  final int componentId, componentInstanceId;
+
+  const AddEditMicrolearningScreenNavigationArgument({
+    required this.coCreateContentAuthoringModel,
+    this.courseDtoModel,
+    this.componentId = 0,
+    this.componentInstanceId = 0,
   });
 }

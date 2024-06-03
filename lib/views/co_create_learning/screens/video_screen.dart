@@ -20,7 +20,7 @@ class VideoScreen extends StatefulWidget {
 class _VideoScreenState extends State<VideoScreen> with MySafeState {
   VideoPlayerController? _videoPlayerController;
   Future<void>? futureInitializeVideo;
-
+  bool isTranscriptExpanded = true;
   Future<void> getData() async {
     await _videoPlayerController!.initialize();
 
@@ -72,7 +72,7 @@ class _VideoScreenState extends State<VideoScreen> with MySafeState {
 
   PreferredSizeWidget getAppBar() {
     return AppConfigurations().commonAppBar(
-      title: "AI agents memory and Personalize learning",
+      title: "AI Agents Memory and Personalize Learning",
     );
   }
 
@@ -128,11 +128,16 @@ class _VideoScreenState extends State<VideoScreen> with MySafeState {
                     ),
                   ),
                 ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.0),
                   child: Row(
                     children: [
-                      Icon(Icons.keyboard_arrow_up),
+                      InkWell(
+                          onTap: () {
+                            isTranscriptExpanded = !isTranscriptExpanded;
+                            setState(() {});
+                          },
+                          child: Icon(isTranscriptExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down_outlined)),
                       Text(
                         "Transcript",
                         style: TextStyle(
@@ -142,7 +147,8 @@ class _VideoScreenState extends State<VideoScreen> with MySafeState {
                     ],
                   ),
                 ),
-                const Padding(
+                if (isTranscriptExpanded)
+                  const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.0),
                   child: Text(
                     """

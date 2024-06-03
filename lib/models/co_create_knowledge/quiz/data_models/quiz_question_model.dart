@@ -9,6 +9,7 @@ class QuizQuestionModel {
   bool isAnswerGiven = false;
   bool isCorrectAnswerGiven = false;
   bool isQuestionEditable = false;
+  bool isAnswerSelectedForSubmit = false;
 
   QuizQuestionModel({
     this.question = "",
@@ -21,5 +22,6 @@ class QuizQuestionModel {
     this.isCorrectAnswerGiven = false,
     this.isEditModeEnable = const [],
     this.isQuestionEditable = false,
+    this.isAnswerSelectedForSubmit = false,
   });
 }

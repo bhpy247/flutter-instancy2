@@ -161,7 +161,7 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
       isMandatory: false,
       showPrefixIcon: false,
       controller: countController,
-      labelText: "Question Count",
+      labelText: "Questions Count",
       keyBoardType: TextInputType.number,
       iconUrl: "assets/catalog/imageDescription.png",
     );
@@ -269,62 +269,64 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
 
   late PageController pageController;
 
-  List<QuizQuestionModel> quizModelList = [
-    QuizQuestionModel(
-      question: "What is the primary goal of office ergonomics?",
-      isEditModeEnable: [
-        false,
-        false,
-        false,
-        false,
-      ],
-      optionList: [
-        "A. Promote proper posture and reduce strain on the body",
-        "B. Increase workload for employees",
-        "C. Encourage standing desks only",
-        "D. Focus on aesthetics over functionality",
-      ],
-      correctAnswer: "B. Increase workload for employees",
-      correctFeedback: "True",
-      inCorrectFeedback: "False",
-    ),
-    QuizQuestionModel(
-      question: "What is one of the risks associated with poor ergonomic setup?",
-      isEditModeEnable: [
-        false,
-        false,
-        false,
-        false,
-      ],
-      optionList: [
-        "A. Musculoskeletal disorders",
-        "B. Enhanced productivity",
-        "C. Improved posture",
-        "D. Reduced fatigue",
-      ],
-      correctAnswer: "A. Musculoskeletal disorders",
-      correctFeedback: "True",
-      inCorrectFeedback: "False",
-    ),
-    QuizQuestionModel(
-      question: "Why is a good office chair important in office ergonomics?",
-      isEditModeEnable: [
-        false,
-        false,
-        false,
-        false,
-      ],
-      optionList: [
-        "A. To increase back pain",
-        "B. To encourage slouching",
-        "C. To maintain proper posture and support the spine",
-        "D. To promote discomfort",
-      ],
-      correctAnswer: "C. To maintain proper posture and support the spine",
-      correctFeedback: "True",
-      inCorrectFeedback: "False",
-    ),
-  ];
+  // List<QuizQuestionModel> quizModelList = [
+  //   QuizQuestionModel(
+  //     question: "What is the primary goal of office ergonomics?",
+  //     isEditModeEnable: [
+  //       false,
+  //       false,
+  //       false,
+  //       false,
+  //     ],
+  //     optionList: [
+  //       "A. Promote proper posture and reduce strain on the body",
+  //       "B. Increase workload for employees",
+  //       "C. Encourage standing desks only",
+  //       "D. Focus on aesthetics over functionality",
+  //     ],
+  //     correctAnswer: "B. Increase workload for employees",
+  //     correctFeedback: "True",
+  //     inCorrectFeedback: "False",
+  //   ),
+  //   QuizQuestionModel(
+  //     question: "What is one of the risks associated with poor ergonomic setup?",
+  //     isEditModeEnable: [
+  //       false,
+  //       false,
+  //       false,
+  //       false,
+  //     ],
+  //     optionList: [
+  //       "A. Musculoskeletal disorders",
+  //       "B. Enhanced productivity",
+  //       "C. Improved posture",
+  //       "D. Reduced fatigue",
+  //     ],
+  //     correctAnswer: "A. Musculoskeletal disorders",
+  //     correctFeedback: "True",
+  //     inCorrectFeedback: "False",
+  //   ),
+  //   QuizQuestionModel(
+  //     question: "Why is a good office chair important in office ergonomics?",
+  //     isEditModeEnable: [
+  //       false,
+  //       false,
+  //       false,
+  //       false,
+  //     ],
+  //     optionList: [
+  //       "A. To increase back pain",
+  //       "B. To encourage slouching",
+  //       "C. To maintain proper posture and support the spine",
+  //       "D. To promote discomfort",
+  //     ],
+  //     correctAnswer: "C. To maintain proper posture and support the spine",
+  //     correctFeedback: "True",
+  //     inCorrectFeedback: "False",
+  //   ),
+  // ];
+
+  List<QuizQuestionModel> quizModelList = [];
 
   void initializeData() {
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
@@ -449,6 +451,7 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
   void initState() {
     super.initState();
     pageController = PageController();
+    quizModelList = AppConstants().quizModelList;
 
     initializeData();
   }
@@ -586,7 +589,7 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
                       Expanded(
                         child: Center(
                           child: Text(
-                            "${widget.index + 1}/${widget.allQuestionsCount}",
+                            "Question ${widget.index + 1} of ${widget.allQuestionsCount}",
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -788,6 +791,7 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
                   mySetState();
                 },
           onLongPress: () {
+            questionModel.isEditModeEnable = [false, false, false, false];
             questionModel.isEditModeEnable[index] = true;
             mySetState();
           },

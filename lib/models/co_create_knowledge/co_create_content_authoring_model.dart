@@ -4,6 +4,8 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashca
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/roleplay/data_models/roleplay_content_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/models/learning_path/response_model/learning_path_model.dart';
+import 'package:flutter_instancy_2/models/micro_learning_model/data_model/micro_learning_model.dart';
 
 class CoCreateContentAuthoringModel {
   int contentTypeId = 0;
@@ -24,6 +26,8 @@ class CoCreateContentAuthoringModel {
   QuizContentModel? quizContentModel;
   RoleplayContentModel? roleplayContentModel;
   EventModel? eventModel;
+  LearningPathModel? learningPathModel;
+  MicroLearningModel? microLearningModel;
 
   CoCreateContentAuthoringModel({
     this.contentTypeId = 0,
@@ -44,6 +48,8 @@ class CoCreateContentAuthoringModel {
     this.uploadedDocumentName,
     this.referenceUrl,
     this.eventModel,
+    this.learningPathModel,
+    this.microLearningModel,
   }) {
     this.skills = skills ?? <String>[];
   }

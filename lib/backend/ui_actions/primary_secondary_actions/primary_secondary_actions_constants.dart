@@ -81,6 +81,8 @@ enum InstancyContentActionsEnum {
   Save,
   GenerateText,
   Regenerate,
+  AddBlock,
+  AddContentItem
   //endregion
 }
 

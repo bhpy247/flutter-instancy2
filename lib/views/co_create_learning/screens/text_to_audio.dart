@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -351,12 +352,12 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
           CommonButton(
             minWidth: double.infinity,
             onPressed: () {
-              NavigationController.navigateToPodcastEpisodeScreen(
-                navigationOperationParameters: NavigationOperationParameters(
+              NavigationController.navigateToPodcastPreviewScreen(
+                  navigationOperationParameters: NavigationOperationParameters(
                   context: context,
                   navigationType: NavigationType.pushNamed,
                 ),
-              );
+                  argument: PodcastPreviewScreenNavigationArgument(model: CourseDTOModel(), isRetakeRequired: false));
             },
             text: "Generate with AI",
             fontColor: themeData.colorScheme.onPrimary,
@@ -418,15 +419,6 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
       ),
     );
   }
-}
-
-class AudioModel {
-  final String name;
-  final String language;
-  final String gender;
-  bool isPlay;
-
-  AudioModel({this.name = "", this.language = "", this.gender = "Male", this.isPlay = false});
 }
 
 class CommonBorderDropdown2<T> extends StatefulWidget {
@@ -493,4 +485,13 @@ class _CommonBorderDropdown2State<T> extends State<CommonBorderDropdown2<T>> {
       ),
     );
   }
+}
+
+class AudioModel {
+  final String name;
+  final String language;
+  final String gender;
+  bool isPlay;
+
+  AudioModel({this.name = "", this.language = "", this.gender = "Male", this.isPlay = false});
 }

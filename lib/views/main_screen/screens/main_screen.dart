@@ -53,6 +53,7 @@ import 'package:flutter_instancy_2/views/progress_report/screens/progress_report
 import 'package:flutter_instancy_2/views/transferToAgent/screens/transferToAgentScreen.dart';
 import 'package:provider/provider.dart';
 
+import '../../../backend/wiki_component/wiki_controller.dart';
 import '../../../models/app_configuration_models/data_models/native_menu_component_model.dart';
 import '../../catalog/screens/catalog_contents_list_screen.dart';
 import '../../common/components/app_ui_components.dart';
@@ -92,6 +93,8 @@ class _MainScreenState extends State<MainScreen> {
   late CourseDownloadProvider courseDownloadProvider;
   late LearningCommunitiesProvider learningCommunitiesProvider;
   late LearningCommunitiesController learningCommunitiesController;
+  late WikiController wikiController;
+  late WikiProvider wikiProvider;
   StreamSubscription<void>? networkConnectionStreamSubscription;
 
   @override
@@ -186,6 +189,12 @@ class _MainScreenState extends State<MainScreen> {
 
     // CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider).getAllMyCourseDownloadsAndSaveInProvider(isNotify: false);
     CourseDownloadController(appProvider: appProvider, courseDownloadProvider: courseDownloadProvider).syncAllTheDownloadDataInOffline();
+    wikiProvider = context.read<WikiProvider>();
+    wikiController = WikiController(wikiProvider: wikiProvider);
+    wikiController.getWikiCategoriesFromApi(
+      componentId: InstancyComponents.Catalog,
+      componentInstanceId: InstancyComponents.CatalogComponentInsId,
+    );
   }
 
   @override

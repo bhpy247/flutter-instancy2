@@ -31,12 +31,13 @@ class _QuizSummaryWidgetState extends State<QuizSummaryWidget> {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Row(
             children: [
               Expanded(
                 child: Text(
-                  "Summary",
+                  "Quiz Summary",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
@@ -44,11 +45,18 @@ class _QuizSummaryWidgetState extends State<QuizSummaryWidget> {
             ],
           ),
           const SizedBox(
-            height: 20,
+            height: 10,
           ),
           getQuestionCountAndSummary(),
           const SizedBox(
             height: 20,
+          ),
+          const Text(
+            "Details",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(
+            height: 10,
           ),
           getQuestionAnswerList()
         ],
@@ -67,7 +75,7 @@ class _QuizSummaryWidgetState extends State<QuizSummaryWidget> {
       child: IntrinsicHeight(
         child: Row(
           children: [
-            Expanded(child: getColumn(title: "${widget.quizModelList.length}", subTitle: 'Total Question')),
+            Expanded(child: getColumn(title: "${widget.quizModelList.length}", subTitle: 'Total Questions')),
             VerticalDivider(
               color: borderColor,
             ),
@@ -136,7 +144,7 @@ class _QuizSummaryWidgetState extends State<QuizSummaryWidget> {
         ),
       ),
       child: ListView.builder(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
         shrinkWrap: true,
         itemCount: widget.quizModelList.length,
         itemBuilder: (BuildContext context, int index) {
@@ -176,11 +184,12 @@ class _QuizSummaryWidgetState extends State<QuizSummaryWidget> {
                 ),
                 // Text(model.question),
                 Text(
-                  model.isCorrectAnswerGiven
-                      ? (model.correctFeedback.isNotEmpty ? model.correctFeedback : "Correct Answer")
-                      : model.inCorrectFeedback.isNotEmpty
-                          ? model.inCorrectFeedback
-                          : "Incorrect Answer",
+                  model.isCorrectAnswerGiven ? "Correct Answer" : "Incorrect Answer",
+                  // model.isCorrectAnswerGiven
+                  //     ? (model.correctFeedback.isNotEmpty ? model.correctFeedback : "Correct Answer")
+                  //     : model.inCorrectFeedback.isNotEmpty
+                  //         ? model.inCorrectFeedback
+                  //         : "Incorrect Answer",
                   style: TextStyle(color: model.isCorrectAnswerGiven ? Colors.green : Colors.red, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
               ],

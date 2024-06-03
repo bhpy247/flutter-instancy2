@@ -9,6 +9,8 @@ import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
 import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../classroom_events/data_model/EventRecordingDetailsModel.dart';
+import '../../learning_path/response_model/learning_path_model.dart';
+import '../../micro_learning_model/data_model/micro_learning_model.dart';
 
 class CourseDTOModel {
   String SiteName = "";
@@ -243,6 +245,8 @@ class CourseDTOModel {
   QuizContentModel? quizContentModel;
   RoleplayContentModel? roleplayContentModel;
   EventModel? eventModel;
+  LearningPathModel? learningPathModel;
+  MicroLearningModel? microLearningModel;
 
   CourseDTOModel({
     this.SiteName = "",
@@ -476,6 +480,8 @@ class CourseDTOModel {
     this.roleplayContentModel,
     this.uploadedFileName,
     this.eventModel,
+    this.learningPathModel,
+    this.microLearningModel,
     List<String>? Skills,
   }) {
     this.Skills = Skills ?? <String>[];

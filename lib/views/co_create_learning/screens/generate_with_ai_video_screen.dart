@@ -30,6 +30,7 @@ class GenerateWithAiVideoScreen extends StatefulWidget {
 class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> with MySafeState {
   VideoPlayerController? _videoPlayerController;
   Future<void>? futureInitializeVideo;
+  bool isTranscriptOpen = true;
 
   Future<void> getData() async {
     await _videoPlayerController!.initialize();
@@ -149,7 +150,7 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
                   padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
                   child: Row(
                     children: [
-                      const Expanded(child: Text("AI agents memory and Personalize learning")),
+                      const Expanded(child: Text("AI Agents Memory and Personalize Learning")),
                       InkWell(
                         onTap: () {
                           showMoreActions(model: CourseDTOModel());
@@ -193,11 +194,19 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
                     ),
                   ),
                 ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.0),
                   child: Row(
                     children: [
-                      Icon(Icons.keyboard_arrow_up),
+                      InkWell(
+                        onTap: () {
+                          isTranscriptOpen = !isTranscriptOpen;
+                          setState(() {});
+                        },
+                        child: Icon(
+                          isTranscriptOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down_outlined,
+                        ),
+                      ),
                       Text(
                         "Transcript",
                         style: TextStyle(
@@ -207,10 +216,11 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
                     ],
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15.0),
-                  child: Text(
-                    """
+                if (isTranscriptOpen)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15.0),
+                    child: Text(
+                      """
           0:00
           Enhancing corporate Learning with AI Agents and LLM featuring large memory, AI agents and large language model applications are revolutionizing learning and skill development by leveraging advanced AI capabilities.
           
@@ -264,9 +274,9 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
           
           2:50
           Connect with us to elevate your learning journey.""",
-                    textAlign: TextAlign.justify,
+                      textAlign: TextAlign.justify,
+                    ),
                   ),
-                ),
                 const SizedBox(
                   height: 10,
                 )

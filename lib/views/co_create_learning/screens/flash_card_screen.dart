@@ -9,6 +9,7 @@ import '../../../configs/app_configurations.dart';
 import '../../../packages/flipcard/flip_card.dart';
 import '../../../packages/flipcard/flip_card_controller.dart';
 import '../../common/components/app_ui_components.dart';
+import '../../common/components/common_button.dart';
 
 class FlashCardScreen extends StatefulWidget {
   static const String routeName = "/FlashCardScreen";
@@ -135,49 +136,10 @@ class _FlashCardScreenState extends State<FlashCardScreen> with MySafeState {
             controller: pageController,
             itemCount: length,
             itemBuilder: (BuildContext context, int index) {
-              return Column(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (index > 0)
-                        Container(
-                          margin: const EdgeInsets.only(top: 110),
-                          child: InkWell(
-                            onTap: () {
-                              pageController.animateToPage(index - 1, duration: const Duration(milliseconds: 500), curve: Curves.easeIn);
-                            },
-                            child: const Icon(
-                              Icons.keyboard_arrow_left_outlined,
-                            ),
-                          ),
-                        )
-                      else
-                        const SizedBox(width: 20),
-                      Expanded(
-                        child: getSingleWidget(
-                          model: flashcards[index],
-                          index: index,
-                          total: length,
-                        ),
-                      ),
-                      if (index < length - 1)
-                        Container(
-                          margin: const EdgeInsets.only(top: 110),
-                          child: InkWell(
-                            onTap: () {
-                              pageController.animateToPage(index + 1, duration: const Duration(milliseconds: 500), curve: Curves.easeIn);
-                            },
-                            child: const Icon(
-                              Icons.keyboard_arrow_right_outlined,
-                            ),
-                          ),
-                        )
-                      else
-                        const SizedBox(width: 20),
-                    ],
-                  ),
-                ],
+              return getSingleWidget(
+                model: flashcards[index],
+                index: index,
+                total: length,
               );
             },
           ),
@@ -194,7 +156,7 @@ class _FlashCardScreenState extends State<FlashCardScreen> with MySafeState {
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
-            "${index + 1}/$total",
+            "Flashcard ${index + 1} of $total",
             style: themeData.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -210,6 +172,8 @@ class _FlashCardScreenState extends State<FlashCardScreen> with MySafeState {
             back: getCommonFrontAndBackWidget(text: model.answer, onTap: () => model.controller.flip()),
           ),
         ),
+        Spacer(),
+        getBottomButton(index)
       ],
     );
   }
@@ -236,6 +200,53 @@ class _FlashCardScreenState extends State<FlashCardScreen> with MySafeState {
             )
           ],
         ),
+      ),
+    );
+  }
+
+  Widget getBottomButton(int index) {
+    // if ((index + 1) == flashcards.length) {
+    //   return Padding(
+    //     padding: const EdgeInsets.all(20.0),
+    //     child: CommonSaveExitButtonRow(
+    //       onSaveAndExitPressed: onSaveAndExitTap,
+    //       onSaveAndViewPressed: onSaveAndViewTap,
+    //     ),
+    //   );
+    // }
+
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: CommonButton(
+              onPressed: () {
+                if (index != 0) {
+                  pageController.jumpToPage(index - 1);
+                }
+              },
+              text: "Previous",
+              fontColor: themeData.primaryColor,
+              backGroundColor: themeData.colorScheme.onPrimary,
+              borderColor: themeData.primaryColor,
+            ),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: CommonButton(
+              onPressed: () {
+                if ((index + 1) == flashcards.length) {
+                  Navigator.pop(context);
+                  return;
+                }
+                pageController.jumpToPage(index + 1);
+              },
+              text: (index + 1) == flashcards.length ? "End" : "Next",
+              fontColor: Colors.white,
+            ),
+          ),
+        ],
       ),
     );
   }

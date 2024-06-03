@@ -203,9 +203,11 @@ class CommonTextFormFieldWithLabel extends StatelessWidget {
           alignLabelWithHint: true,
           filled: isFilled,
           fillColor: fillColor,
-          labelStyle: labelStyle ?? TextStyle(color: floatingLabelColor, fontSize: 14, letterSpacing: 0.4),
+
+          labelStyle: labelStyle ?? TextStyle(color: Colors.grey, fontSize: 15, letterSpacing: 0.4),
+          // floatingLabelStyle: labelStyle ?? TextStyle(color: floatingLabelColor, fontSize: 16, letterSpacing: 0.4),
           // floatingLabelBehavior: FloatingLabelBehavior.auto,
-          // floatingLabelStyle: TextStyle(color: floatingLabelColor, fontSize: 15),
+          // floatingLabelStyle: TextStyle(color: floatingLabelColor, fontSize: 14),
           floatingLabelAlignment: FloatingLabelAlignment.start,
           border: inputBorder(borderColor ?? Colors.grey),
           errorMaxLines: errorMaxLines,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
+import '../models/co_create_knowledge/quiz/data_models/quiz_question_model.dart';
+
 class AppConstants {
   static const String apiAllowFromExternalHostKey = "AllowWindowsandMobileApps";
   static const String saltKey = "gRBtUdz2KKLs7hFThDlxpQeKJeaSGouGP0epTeZEbrKsytseecDQxy3TItGpeGYuAegJATZALtvFNloYaAd2qopSVlzOAPatQKrCsKbACgb53cGam45bxafhLre1";
@@ -15,6 +17,53 @@ class AppConstants {
   static const String defaultAuthorImageUrl =
       "https://image.shutterstock.com/z/stock-photo-high-angle-view-of-video-conference-with-teacher-on-laptop-at-home-top-view-of-girl-in-video-call-1676998303.jpg";
   static const String defaultVideoUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+
+  List<QuizQuestionModel> get quizModelList => [
+        QuizQuestionModel(
+          question: "What is the primary goal of office ergonomics?",
+          optionList: [
+            "A. Promote proper posture and reduce strain on the body",
+            "B. Increase workload for employees",
+            "C. Encourage standing desks only",
+            "D. Focus on aesthetics over functionality",
+          ],
+          correctAnswer: "A. Promote proper posture and reduce strain on the body",
+          correctFeedback:
+              "That's right! The main goal is to create a workspace that supports good posture and reduces physical stress. By adjusting the workspace to fit the individual needs of workers, office ergonomics promotes better health and productivity.",
+          inCorrectFeedback:
+              "Incorrect. Office ergonomics is about optimizing the physical setup of the workspace to reduce strain and prevent injuries, thereby improving employee comfort and performance.",
+          isEditModeEnable: [false, false, false, false],
+        ),
+        QuizQuestionModel(
+          question: "What is one of the risks associated with poor ergonomic setup?",
+          optionList: [
+            "A. Musculoskeletal disorders",
+            "B. Enhanced productivity",
+            "C. Improved posture",
+            "D. Reduced fatigue",
+          ],
+          correctAnswer: "A. Musculoskeletal disorders",
+          correctFeedback: "Correct! Poor ergonomic setup can lead to various musculoskeletal disorders such as carpal tunnel syndrome, tendonitis, and lower back pain.",
+          inCorrectFeedback:
+              "Incorrect. Poor ergonomics can indeed increase the risk of injuries, but it's not just due to slips, trips, and falls. The primary risk is from strains and repetitive motion injuries.",
+          isEditModeEnable: [false, false, false, false],
+        ),
+        QuizQuestionModel(
+          question: "Why is a good office chair important in office ergonomics?",
+          optionList: [
+            "A. To increase back pain",
+            "B. To encourage slouching",
+            "C. To maintain proper posture and support the spine",
+            "D. To promote discomfort",
+          ],
+          correctAnswer: "C. To maintain proper posture and support the spine",
+          correctFeedback:
+              "Correct! A good office chair provides adequate lumbar support to maintain the natural curve of the spine. This helps prevent lower back pain and spinal issues that can arise from prolonged sitting.",
+          inCorrectFeedback:
+              "Incorrect. A good office chair provides adequate lumbar support to maintain the natural curve of the spine. This helps prevent lower back pain and spinal issues that can arise from prolonged sitting.",
+          isEditModeEnable: [false, false, false, false],
+        ),
+      ];
 }
 
 class ClientUrlTypes {
@@ -242,6 +291,8 @@ class InstancyObjectTypes {
   static const int quiz = 704;
   static const int learningMaps = 705;
   static const int aiAgent = 706;
+  static const int learningPath = 707;
+  static const int microLearning = 708;
 }
 
 class InstancyMediaTypes {
@@ -554,10 +605,15 @@ class InstancyIcons {
   static const IconData regenerate = Icons.repeat;
 }
 
+class InstancyAssetIcons {
+  static const String addBlockIcon = "assets/cocreate/addBlockIcon.png";
+}
+
 class InstancySVGImages {
   static const String report = "assets/Report.svg";
   static const String setComplete = "assets/SetComplete.svg";
   static const String certificate = "assets/Certificate.svg";
+  static const String addBlockIcon = "assets/cocreate/addBlockIcon.png";
 }
 
 enum ShareContentType {
@@ -927,4 +983,10 @@ class SocialLoginTypes {
         twitter,
         linkedin,
       ];
+}
+
+class MicrolearningTypes {
+  static const String text = "Text";
+  static const String question = "Question";
+  static const String image = "Image";
 }

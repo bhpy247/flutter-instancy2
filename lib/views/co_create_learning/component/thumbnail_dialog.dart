@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/view/common/components/common_loader.dart';
+import 'package:flutter_instancy_2/configs/app_strings.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/request_model/generate_images_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
@@ -81,7 +82,7 @@ class _ThumbnailDialogState extends State<ThumbnailDialog> with MySafeState {
           ),
           getCommonTextIconContainer(
             iconPath: "aiIcon.png",
-            text: "Generate With AI",
+            text: AppStrings.generateWithAI,
             onTap: () async {
               await showDialogForGenerateThumbnailImage();
             },
@@ -348,7 +349,7 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
 
   Widget getTypeDropDown() {
     return getCommonDropDown(
-      list: const ["256x256", "512x512", "1024x1024"],
+      list: const ["Pop Art", "Felt", "Rococo", "Baroque", "Expressionism"],
       value: selectedType,
       hintText: "Type",
       onChanged: (val) {

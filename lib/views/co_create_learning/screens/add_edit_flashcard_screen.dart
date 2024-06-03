@@ -69,7 +69,7 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
 
   void initializeDataForNewContent() {
     countController.text = "3";
-    urlController.text = "https://www.Unveiling the Neurons of Alsss.com";
+    urlController.text = "https://www.unvielingtheneuronsofAI.com";
     selectedColor = const Color(0xff2ba700);
   }
 
@@ -199,7 +199,7 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
               ),
             ),
             appBar: AppConfigurations().commonAppBar(
-              title: coCreateContentAuthoringModel.isEdit ? "Edit Flashcard" : "Create Flashcard",
+              title: coCreateContentAuthoringModel.isEdit ? "Edit Flashcard" : "Generate Flashcard",
             ),
             body: AppUIComponents.getBackGroundBordersRounded(
               context: context,
@@ -625,7 +625,7 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
 
   PreferredSizeWidget getAppBar() {
     return AppConfigurations().commonAppBar(
-      title: "Unveiling the Neurons of AIsss",
+      title: "Unveiling the Neurons of AI",
       actions: [
         InkWell(
           onTap: () {

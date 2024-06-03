@@ -7,20 +7,26 @@ import 'package:flutter_instancy_2/views/authentication/screens/forgot_password_
 import 'package:flutter_instancy_2/views/authentication/screens/login_screen.dart';
 import 'package:flutter_instancy_2/views/authentication/screens/sign_up_screen.dart';
 import 'package:flutter_instancy_2/views/catalog/screens/PrerequisiteScreen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_ai_agent_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_article_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_document_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_event_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_flashcard_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_learning_path_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_micro_learning_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_quiz_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_refrence_link_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_role_play_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_video_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/ai_ajents_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/article_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/common_create_authoring_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/create_manually_video_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/create_podcast_source_selection_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/flash_card_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/generate_with_ai_video_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/learning_path_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/micro_learning_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/podcast_episode_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/quiz_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/record_video_screen.dart';
@@ -61,6 +67,7 @@ import '../../views/ask_the_expert/screen/skills_filter_screen.dart';
 import '../../views/authentication/screens/login_signup_selection_screen.dart';
 import '../../views/catalog/screens/catalog_contents_list_screen.dart';
 import '../../views/catalog/screens/catalog_subcategories_list_screen.dart';
+import '../../views/co_create_learning/screens/add_learning_path_content_item_screen.dart';
 import '../../views/course_launch/screens/course_launch_webview_screen.dart';
 import '../../views/course_launch/screens/pdf_launch_screen.dart';
 import '../../views/course_launch/screens/video_launch_screen.dart';
@@ -633,6 +640,42 @@ class NavigationController {
       case PodcastViewScreen.routeName:
         {
           page = parsePodcastPreviewScreen(settings: settings);
+          break;
+        }
+      case LearningPathScreen.routeName:
+        {
+          page = parseLearningPathScreen(settings: settings);
+          break;
+        }
+      case AddEditLearningPathScreen.routeName:
+        {
+          page = parseAddEditLearningPathScreen(settings: settings);
+          break;
+        }
+      case AddContentItemScreen.routeName:
+        {
+          page = parseAddContentItemScreen(settings: settings);
+          break;
+        }
+      case AiAgentScreen.routeName:
+        {
+          page = parseAiAgentScreen(settings: settings);
+          break;
+        }
+      case MicroLearningScreen.routeName:
+        {
+          page = parseMicroLearningScreen(settings: settings);
+          break;
+        }
+      case AddEditAiAgentScreen.routeName:
+        {
+          page = parseAddEditAiAgentScreen(settings: settings);
+          break;
+        }
+
+      case AddEditMicroLearningScreen.routeName:
+        {
+          page = parseAddEditMicrolearningScreen(settings: settings);
           break;
         }
     }
@@ -1532,6 +1575,62 @@ class NavigationController {
     return PodcastViewScreen(arguments: argument);
   }
 
+  static Widget? parseLearningPathScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! LearningPathScreenNavigationArgument) {
+      return null;
+    }
+    return LearningPathScreen(arguments: argument);
+  }
+
+  static Widget? parseAddEditLearningPathScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditLearningPathScreenNavigationArgument) {
+      return null;
+    }
+    return AddEditLearningPathScreen(arguments: argument);
+  }
+
+  static Widget? parseAddContentItemScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddContentItemScreenNavigationArgument) {
+      return null;
+    }
+    return AddContentItemScreen(arguments: argument);
+  }
+
+  static Widget? parseAiAgentScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AiAgentScreenNavigationArgument) {
+      return null;
+    }
+    return AiAgentScreen(arguments: argument);
+  }
+
+  static Widget? parseMicroLearningScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! MicroLearningScreenNavigationArgument) {
+      return null;
+    }
+    return MicroLearningScreen(arguments: argument);
+  }
+
+  static Widget? parseAddEditAiAgentScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditAiAgentScreenNavigationArgument) {
+      return null;
+    }
+    return AddEditAiAgentScreen(arguments: argument);
+  }
+
+  static Widget? parseAddEditMicrolearningScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! AddEditMicrolearningScreenNavigationArgument) {
+      return null;
+    }
+    return AddEditMicroLearningScreen(arguments: argument);
+  }
+
   //endregion
 
   //region Navigation Methods
@@ -2002,6 +2101,7 @@ class NavigationController {
   }
 
 //endregion
+
 // region Discussion Forum Module
   static Future<dynamic> navigateToDiscussionDetailScreen({required NavigationOperationParameters navigationOperationParameters, required DiscussionDetailScreenNavigationArguments arguments}) {
     MyPrint.printOnConsole("navigateToDiscussionDetail called with navigationType:${navigationOperationParameters.navigationType}");
@@ -2463,6 +2563,69 @@ class NavigationController {
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: PodcastViewScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToLearningPathScreen({required NavigationOperationParameters navigationOperationParameters, required LearningPathScreenNavigationArgument argument}) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: LearningPathScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToAddEditLearningPathScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditLearningPathScreenNavigationArgument argument}) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: AddEditLearningPathScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToAddContentItemScreen({required NavigationOperationParameters navigationOperationParameters, required AddContentItemScreenNavigationArgument argument}) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: AddContentItemScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToAiAgentScreen({required NavigationOperationParameters navigationOperationParameters, required AiAgentScreenNavigationArgument argument}) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: AiAgentScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToMicroLearningScreen({required NavigationOperationParameters navigationOperationParameters, required MicroLearningScreenNavigationArgument argument}) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: MicroLearningScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToAddEditAiAgentScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditAiAgentScreenNavigationArgument argument}) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: AddEditAiAgentScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToAddEditMicrolearningScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditMicrolearningScreenNavigationArgument argument}) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: AddEditMicroLearningScreen.routeName,
         arguments: argument,
       ),
     );

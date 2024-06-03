@@ -20,7 +20,7 @@ class PodcastEpisodeScreen extends StatefulWidget {
 
 class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> {
   late AudioPlayer player = AudioPlayer();
-
+  bool isTranscriptExpanded = true;
   @override
   void initState() {
     super.initState();
@@ -58,9 +58,14 @@ class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> {
             child: Column(
               children: [
                 PlayerWidget(player: player),
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.keyboard_arrow_up),
+                    InkWell(
+                        onTap: () {
+                          isTranscriptExpanded = !isTranscriptExpanded;
+                          setState(() {});
+                        },
+                        child: Icon(isTranscriptExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down_outlined)),
                     Text(
                       "Transcript",
                       style: TextStyle(
@@ -69,7 +74,8 @@ class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> {
                     )
                   ],
                 ),
-                const Text(
+                if (isTranscriptExpanded)
+                  const Text(
                   """
 Nigel:
 

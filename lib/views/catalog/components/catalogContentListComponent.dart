@@ -130,9 +130,12 @@ class CatalogContentListComponent extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 0),
-        Text(
-          model.Title,
-          style: themeData.textTheme.titleSmall?.copyWith(color: const Color(0xff1D293F), fontSize: 14, fontWeight: FontWeight.w600),
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: Text(
+            model.Title,
+            style: themeData.textTheme.titleSmall?.copyWith(color: const Color(0xff1D293F), fontSize: 14, fontWeight: FontWeight.w600),
+          ),
         ),
         const SizedBox(height: 5),
         Column(

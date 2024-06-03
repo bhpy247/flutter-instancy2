@@ -8,10 +8,10 @@ import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/component/audio_players.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/common_save_exit_button_row.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/podcast_episode_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:record/record.dart';
 
 import '../../../backend/app_theme/style.dart';
 import '../../../configs/app_configurations.dart';
@@ -20,7 +20,7 @@ import '../../../utils/my_utils.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_button.dart';
 import '../../message/components/audio_player_widget.dart';
-import '../component/mixin/audio_record_mixin.dart';
+import '../component/audio_recorder.dart';
 
 class CreatePodcastSourceSelectionScreen extends StatefulWidget {
   static const String routeName = "/CreatePodcastSourceSelectionScreen";
@@ -241,6 +241,15 @@ class RecordAndUploadPodcastScreen extends StatefulWidget {
 }
 
 class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScreen> with MySafeState {
+  bool showPlayer = false;
+  String? audioPath;
+
+  @override
+  void initState() {
+    showPlayer = false;
+    super.initState();
+  }
+
   Uint8List? fileBytes;
 
   String thumbNailName = "";
@@ -331,24 +340,28 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Container(
+          //   padding: const EdgeInsets.all(5),
+          //   decoration: BoxDecoration(
+          //     color: themeData.primaryColor,
+          //     shape: BoxShape.circle,
+          //   ),
+          //   child: const Icon(
+          //     Icons.mic,
+          //     color: Colors.white,
+          //   ),
+          // ),
+          // const SizedBox(
+          //   height: 16,
+          // ),
+          // const Text(
+          //   "Click the button to start recording...",
+          //   style: TextStyle(fontSize: 16),
+          // ),
           Container(
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              color: themeData.primaryColor,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.mic,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(
-            height: 16,
-          ),
-          const Text(
-            "Click the Button to start recording...",
-            style: TextStyle(fontSize: 16),
-          ),
+            height: 100,
+            child: getRecorder(),
+          )
         ],
       ),
     );
@@ -412,7 +425,7 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
                   thumbNailName = await openFileExplorer(FileType.audio, false);
                   mySetState();
                 },
-                text: "ReTake",
+                text: "Retake",
                 backGroundColor: Colors.transparent,
               ),
             ],
@@ -459,259 +472,25 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
   }
 
   Widget getRecorder() {
-    return Recorder(
-      onStop: (path) {
-        if (kDebugMode) print('Recorded file path: $path');
-        setState(() {
-          // audioPath = path;
-          // showPlayer = true;
-        });
-      },
-    );
-  }
-}
-
-class Recorder extends StatefulWidget {
-  final void Function(String path) onStop;
-
-  const Recorder({super.key, required this.onStop});
-
-  @override
-  State<Recorder> createState() => _RecorderState();
-}
-
-class _RecorderState extends State<Recorder> with AudioRecorderMixin {
-  int _recordDuration = 0;
-  Timer? _timer;
-  late final AudioRecorder _audioRecorder;
-  StreamSubscription<RecordState>? _recordSub;
-  RecordState _recordState = RecordState.stop;
-  StreamSubscription<Amplitude>? _amplitudeSub;
-  Amplitude? _amplitude;
-
-  @override
-  void initState() {
-    _audioRecorder = AudioRecorder();
-
-    _recordSub = _audioRecorder.onStateChanged().listen((recordState) {
-      _updateRecordState(recordState);
-    });
-
-    _amplitudeSub = _audioRecorder.onAmplitudeChanged(const Duration(milliseconds: 300)).listen((amp) {
-      setState(() => _amplitude = amp);
-    });
-
-    super.initState();
-  }
-
-  Future<void> _start() async {
-    try {
-      if (await _audioRecorder.hasPermission()) {
-        const encoder = AudioEncoder.aacLc;
-
-        if (!await _isEncoderSupported(encoder)) {
-          return;
-        }
-
-        final devs = await _audioRecorder.listInputDevices();
-        debugPrint(devs.toString());
-
-        const config = RecordConfig(encoder: encoder, numChannels: 1);
-
-        // Record to file
-        // await recordFile(_audioRecorder, config);
-
-        // Record to stream
-        // await recordStream(_audioRecorder, config);
-
-        _recordDuration = 0;
-
-        _startTimer();
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-    }
-  }
-
-  Future<void> _stop() async {
-    final path = await _audioRecorder.stop();
-
-    if (path != null) {
-      widget.onStop(path);
-
-      // downloadWebData(path);
-    }
-  }
-
-  Future<void> _pause() => _audioRecorder.pause();
-
-  Future<void> _resume() => _audioRecorder.resume();
-
-  void _updateRecordState(RecordState recordState) {
-    setState(() => _recordState = recordState);
-
-    switch (recordState) {
-      case RecordState.pause:
-        _timer?.cancel();
-        break;
-      case RecordState.record:
-        _startTimer();
-        break;
-      case RecordState.stop:
-        _timer?.cancel();
-        _recordDuration = 0;
-        break;
-    }
-  }
-
-  Future<bool> _isEncoderSupported(AudioEncoder encoder) async {
-    final isSupported = await _audioRecorder.isEncoderSupported(
-      encoder,
-    );
-
-    if (!isSupported) {
-      debugPrint('${encoder.name} is not supported on this platform.');
-      debugPrint('Supported encoders are:');
-
-      for (final e in AudioEncoder.values) {
-        if (await _audioRecorder.isEncoderSupported(e)) {
-          debugPrint('- ${encoder.name}');
-        }
-      }
-    }
-
-    return isSupported;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    MyPrint.printOnConsole("_recordState: $_recordState");
-    return MaterialApp(
-      home: Scaffold(
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                _buildRecordStopControl(),
-                const SizedBox(width: 20),
-                _buildPauseResumeControl(),
-                const SizedBox(width: 20),
-                _buildText(),
-              ],
+    return showPlayer
+        ? Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25),
+            child: AppAudioPlayer(
+              source: audioPath!,
+              onDelete: () {
+                setState(() => showPlayer = false);
+              },
             ),
-            if (_amplitude != null) ...[
-              const SizedBox(height: 40),
-              Text('Current: ${_amplitude?.current ?? 0.0}'),
-              Text('Max: ${_amplitude?.max ?? 0.0}'),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _recordSub?.cancel();
-    _amplitudeSub?.cancel();
-    _audioRecorder.dispose();
-    super.dispose();
-  }
-
-  Widget _buildRecordStopControl() {
-    late Icon icon;
-    late Color color;
-
-    if (_recordState != RecordState.stop) {
-      icon = const Icon(Icons.stop, color: Colors.red, size: 30);
-      color = Colors.red.withOpacity(0.1);
-    } else {
-      final theme = Theme.of(context);
-      icon = Icon(Icons.mic, color: theme.primaryColor, size: 30);
-      color = theme.primaryColor.withOpacity(0.1);
-    }
-
-    return ClipOval(
-      child: Material(
-        color: color,
-        child: InkWell(
-          child: SizedBox(width: 56, height: 56, child: icon),
-          onTap: () {
-            (_recordState != RecordState.stop) ? _stop() : _start();
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPauseResumeControl() {
-    if (_recordState == RecordState.stop) {
-      return const SizedBox.shrink();
-    }
-
-    late Icon icon;
-    late Color color;
-
-    if (_recordState == RecordState.record) {
-      icon = const Icon(Icons.pause, color: Colors.red, size: 30);
-      color = Colors.red.withOpacity(0.1);
-    } else {
-      final theme = Theme.of(context);
-      icon = const Icon(Icons.play_arrow, color: Colors.red, size: 30);
-      color = theme.primaryColor.withOpacity(0.1);
-    }
-
-    return ClipOval(
-      child: Material(
-        color: color,
-        child: InkWell(
-          child: SizedBox(width: 56, height: 56, child: icon),
-          onTap: () {
-            (_recordState == RecordState.pause) ? _resume() : _pause();
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildText() {
-    if (_recordState != RecordState.stop) {
-      return _buildTimer();
-    }
-
-    return const Text("Waiting to record");
-  }
-
-  Widget _buildTimer() {
-    final String minutes = _formatNumber(_recordDuration ~/ 60);
-    final String seconds = _formatNumber(_recordDuration % 60);
-
-    return Text(
-      '$minutes : $seconds',
-      style: const TextStyle(color: Colors.red),
-    );
-  }
-
-  String _formatNumber(int number) {
-    String numberStr = number.toString();
-    if (number < 10) {
-      numberStr = '0$numberStr';
-    }
-
-    return numberStr;
-  }
-
-  void _startTimer() {
-    _timer?.cancel();
-
-    _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
-      setState(() => _recordDuration++);
-    });
+          )
+        : Recorder(
+            onStop: (path) {
+              if (kDebugMode) print('Recorded file path: $path');
+              setState(() {
+                audioPath = path;
+                showPlayer = true;
+              });
+            },
+          );
   }
 }
 
@@ -725,8 +504,9 @@ class PodcastViewScreen extends StatefulWidget {
   State<PodcastViewScreen> createState() => _PodcastViewScreenState();
 }
 
-class _PodcastViewScreenState extends State<PodcastViewScreen> {
+class _PodcastViewScreenState extends State<PodcastViewScreen> with MySafeState {
   late AudioPlayer player = AudioPlayer();
+  bool isTranscriptExpanded = true;
 
   @override
   void initState() {
@@ -755,6 +535,7 @@ class _PodcastViewScreenState extends State<PodcastViewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.pageBuild();
     return Scaffold(
       appBar: getAppBar(),
       bottomNavigationBar: Padding(
@@ -786,30 +567,39 @@ class _PodcastViewScreenState extends State<PodcastViewScreen> {
               children: [
                 PlayerWidget(
                   player: player,
-                  onRetakeTap: () {
-                    Navigator.pop(context);
+                  onRetakeTap: widget.arguments.isRetakeRequired
+                      ? () {
+                          Navigator.pop(context);
+                        }
+                      : null,
+                ),
+                InkWell(
+                  onTap: () {
+                    isTranscriptExpanded = !isTranscriptExpanded;
+                    mySetState();
                   },
+                  child: Row(
+                    children: [
+                      Icon(isTranscriptExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down_outlined),
+                      Text(
+                        "Transcript",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-                Row(
-                  children: [
-                    Icon(Icons.keyboard_arrow_up),
-                    Text(
-                      "Transcript",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  ],
-                ),
-                Text(
-                  """
+                if (isTranscriptExpanded)
+                  Text(
+                    """
 Nigel:
 
 Glad to see things are going well and business is starting to pick up. Andrea told me about your outstanding numbers on Tuesday. Keep up the good work. Now to other business, I am going to suggest a payment schedule for the outstanding monies that is due. One, can you pay the balance of the license agreement as soon as possible? Two, I suggest we setup or you suggest, what you can pay on the back royalties, would you feel comfortable with paying every two weeks? Every month, I will like to catch up and maintain current royalties. So, if we can start the current royalties and maintain them every two weeks as all stores are required to do, I would appreciate it. Let me know if this works for you.
 
 Thanks.
  """,
-                )
+                  )
               ],
             ),
           ),

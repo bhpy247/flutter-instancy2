@@ -119,7 +119,6 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
   }
 
   void onSaveButtonClicked() {
-    CoCreateKnowledgeProvider provider = context.read();
 
     model = widget.argument.courseDtoModel ?? CourseDTOModel();
     model.Title = titleController.text.trim();
@@ -443,7 +442,7 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
         }
       case InstancyObjectTypes.referenceUrl:
         {
-          title = "An introduction to Generative AI and its Transformative potential for Enterprises";
+          title = "An Introduction to Generative AI and its Transformative Potential for Enterprises";
           description =
               "This insightful guide explores the innovative field of generative AI, highlighting its capacity to revolutionize various business sectors. It delves into how enterprises can leverage generative AI to enhance creativity, optimize operations, and drive growth. By providing practical examples and industry-specific applications, this introduction offers a comprehensive overview of the transformative impact generative AI can have on modern businesses, making it an essential read for professionals seeking to harness the power of this cutting-edge technology.";
           thumbnailImageUrl =
