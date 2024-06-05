@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app/app_controller.dart';
+import 'package:flutter_instancy_2/backend/app/dependency_injection.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_controller.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
@@ -68,35 +69,35 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<AppProvider>(create: (_) => AppProvider()),
+        ChangeNotifierProvider<AppProvider>.value(value: DependencyInjection.appProvider),
         ChangeNotifierProvider<AppThemeProvider>(create: (_) => AppThemeProvider()),
         ChangeNotifierProvider<AuthenticationProvider>(create: (_) => AuthenticationProvider()),
         ChangeNotifierProvider<MainScreenProvider>(create: (_) => MainScreenProvider()),
         ChangeNotifierProvider<HomeProvider>(create: (_) => HomeProvider()),
-        ChangeNotifierProvider<ProfileProvider>(create: (_) => ProfileProvider()),
-        ChangeNotifierProvider<FilterProvider>(create: (_) => FilterProvider()),
-        ChangeNotifierProvider<CatalogProvider>(create: (_) => CatalogProvider()),
-        ChangeNotifierProvider<WikiProvider>(create: (_) => WikiProvider()),
-        ChangeNotifierProvider<MyLearningProvider>(create: (_) => MyLearningProvider()),
-        ChangeNotifierProvider<EventProvider>(create: (_) => EventProvider()),
-        ChangeNotifierProvider<ShareProvider>(create: (_) => ShareProvider()),
-        ChangeNotifierProvider<ProgressReportProvider>(create: (_) => ProgressReportProvider()),
-        ChangeNotifierProvider<ContentReviewRatingsProvider>(create: (_) => ContentReviewRatingsProvider()),
-        ChangeNotifierProvider<EventTrackProvider>(create: (_) => EventTrackProvider()),
-        ChangeNotifierProvider<InstaBotProvider>(create: (_) => InstaBotProvider()),
-        ChangeNotifierProvider<MessageProvider>(create: (_) => MessageProvider()),
-        ChangeNotifierProvider<MembershipProvider>(create: (_) => MembershipProvider()),
-        ChangeNotifierProvider<InAppPurchaseProvider>(create: (_) => InAppPurchaseProvider()),
-        ChangeNotifierProvider<DiscussionProvider>(create: (_) => DiscussionProvider()),
-        ChangeNotifierProvider<GamificationProvider>(create: (_) => GamificationProvider()),
-        ChangeNotifierProvider<CourseDownloadProvider>.value(value: CourseDownloadProvider()),
-        ChangeNotifierProvider<FeedbackProvider>(create: (_) => FeedbackProvider()),
-        ChangeNotifierProvider<AskTheExpertProvider>(create: (_) => AskTheExpertProvider()),
-        ChangeNotifierProvider<MyConnectionsProvider>(create: (_) => MyConnectionsProvider()),
+        ChangeNotifierProvider<ProfileProvider>.value(value: DependencyInjection.profileProvider),
+        ChangeNotifierProvider<FilterProvider>.value(value: DependencyInjection.filterProvider),
+        ChangeNotifierProvider<CatalogProvider>.value(value: DependencyInjection.catalogProvider),
+        ChangeNotifierProvider<WikiProvider>.value(value: DependencyInjection.wikiProvider),
+        ChangeNotifierProvider<MyLearningProvider>.value(value: DependencyInjection.myLearningProvider),
+        ChangeNotifierProvider<EventProvider>.value(value: DependencyInjection.eventProvider),
+        ChangeNotifierProvider<ShareProvider>.value(value: DependencyInjection.shareProvider),
+        ChangeNotifierProvider<ProgressReportProvider>.value(value: DependencyInjection.progressReportProvider),
+        ChangeNotifierProvider<ContentReviewRatingsProvider>.value(value: DependencyInjection.contentReviewRatingsProvider),
+        ChangeNotifierProvider<EventTrackProvider>.value(value: DependencyInjection.eventTrackProvider),
+        ChangeNotifierProvider<InstaBotProvider>.value(value: DependencyInjection.instaBotProvider),
+        ChangeNotifierProvider<MessageProvider>.value(value: DependencyInjection.messageProvider),
+        ChangeNotifierProvider<MembershipProvider>.value(value: DependencyInjection.membershipProvider),
+        ChangeNotifierProvider<InAppPurchaseProvider>.value(value: DependencyInjection.inAppPurchaseProvider),
+        ChangeNotifierProvider<DiscussionProvider>.value(value: DependencyInjection.discussionProvider),
+        ChangeNotifierProvider<GamificationProvider>.value(value: DependencyInjection.gamificationProvider),
+        ChangeNotifierProvider<FeedbackProvider>.value(value: DependencyInjection.feedbackProvider),
+        ChangeNotifierProvider<AskTheExpertProvider>.value(value: DependencyInjection.askTheExpertProvider),
+        ChangeNotifierProvider<MyConnectionsProvider>.value(value: DependencyInjection.myConnectionsProvider),
+        ChangeNotifierProvider<LearningCommunitiesProvider>.value(value: DependencyInjection.learningCommunitiesProvider),
+        ChangeNotifierProvider<GlobalSearchProvider>.value(value: DependencyInjection.globalSearchProvider),
+        ChangeNotifierProvider<CoCreateKnowledgeProvider>.value(value: DependencyInjection.coCreateKnowledgeProvider),
+        ChangeNotifierProvider<CourseDownloadProvider>.value(value: DependencyInjection.courseDownloadProvider),
         ChangeNotifierProvider<NetworkConnectionProvider>(create: (_) => NetworkConnectionController().networkConnectionProvider),
-        ChangeNotifierProvider<LearningCommunitiesProvider>(create: (_) => LearningCommunitiesProvider()),
-        ChangeNotifierProvider<GlobalSearchProvider>(create: (_) => GlobalSearchProvider()),
-        ChangeNotifierProvider<CoCreateKnowledgeProvider>(create: (_) => CoCreateKnowledgeProvider()),
       ],
       child: Builder(
         builder: (BuildContext context) {

@@ -14,7 +14,7 @@ class ApiCallModel<RequestBodyType> {
   final RequestBodyType? requestBody;
   final List<InstancyMultipartFileUploadModel>? files;
   final Map<String, String>? fields;
-  final bool isAuthenticatedApiCall, isGetDataFromHive, isStoreDataInHive, isInstancyCall;
+  final bool isAuthenticatedApiCall, isGetDataFromHive, isStoreDataInHive, isInstancyCall, isDecodeResponse;
   final Box? hiveBox;
   bool isIsolateCall;
 
@@ -33,6 +33,7 @@ class ApiCallModel<RequestBodyType> {
     this.fields,
     this.isAuthenticatedApiCall = true,
     this.isInstancyCall = true,
+    this.isDecodeResponse = true,
     this.isGetDataFromHive = false,
     this.isStoreDataInHive = false,
     this.isIsolateCall = true,

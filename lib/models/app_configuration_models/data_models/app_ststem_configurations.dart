@@ -395,6 +395,22 @@ class AppSystemConfigurationModel {
     _botGreetingContent = value;
   }
 
+  String _CoCreateKnowledgeDefaultCMSGroupID = "";
+
+  String get CoCreateKnowledgeDefaultCMSGroupID => _CoCreateKnowledgeDefaultCMSGroupID;
+
+  void setCoCreateKnowledgeDefaultCMSGroupID(String value) {
+    _CoCreateKnowledgeDefaultCMSGroupID = value;
+  }
+
+  String _CoCreateKnowledgeDefaultFolderID = "";
+
+  String get CoCreateKnowledgeDefaultFolderID => _CoCreateKnowledgeDefaultFolderID;
+
+  void setCoCreateKnowledgeDefaultFolderID(String value) {
+    _CoCreateKnowledgeDefaultFolderID = value;
+  }
+
   bool _isFromPush = false;
   bool get isFromPush => _isFromPush;
   void setIsFromPush(bool value) {
@@ -541,6 +557,8 @@ class AppSystemConfigurationModel {
     setAzureRootPath(ParsingHelper.parseStringMethod(map['AzureRootPath']));
     setMobileAppMenuPosition(ParsingHelper.parseStringMethod(map['MobileAppMenuPosition']));
     setInstancyBotEndPointURL(ParsingHelper.parseStringMethod(map['InstancyBotEndPointURL']));
+    setCoCreateKnowledgeDefaultCMSGroupID(ParsingHelper.parseStringMethod(map['CoCreateKnowledgeDefaultCMSGroupID']));
+    setCoCreateKnowledgeDefaultFolderID(ParsingHelper.parseStringMethod(map['CoCreateKnowledgeDefaultFolderID']));
 
     setNativeAppLoginLogo(ParsingHelper.parseStringMethod(map['NativeAppLoginLogo']));
     setNativeAppDarkThemeLogo(ParsingHelper.parseStringMethod(map['NativeAppDarkThemeLogo']));

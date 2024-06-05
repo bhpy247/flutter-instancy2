@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_formdata_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/event/data_model/event_model.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
+import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -26,6 +34,13 @@ class AddEditEventScreen extends StatefulWidget {
 }
 
 class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeState {
+  bool isLoading = false;
+
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+
+  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController locationController = TextEditingController();
@@ -34,8 +49,8 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
   TextEditingController startTimeController = TextEditingController();
   TextEditingController dateController = TextEditingController();
 
-  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
   String startTime = "", endTime = "";
+  bool isDateEnabled = true, isStartDateEnabled = true, isEndDateEnabled = true;
 
   Future<String> _selectTime(BuildContext context) async {
     String? selectedDate;
@@ -67,6 +82,9 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
   }
 
   void initializeData() {
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
 
     EventModel? eventModel = coCreateContentAuthoringModel.eventModel;
@@ -85,7 +103,13 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
     }
   }
 
-  Future<CourseDTOModel?> saveFlashcard() async {
+  Future<void> saveEvent() async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("AddEditEventScreen().saveEvent() called", tag: tag);
+
+    isLoading = true;
+    mySetState();
+
     EventModel eventModel = coCreateContentAuthoringModel.eventModel ?? EventModel();
     eventModel.date = dateController.text.trim();
     eventModel.endTime = endTimeController.text.trim();
@@ -94,9 +118,32 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
     eventModel.location = locationController.text.trim();
     coCreateContentAuthoringModel.eventModel = eventModel;
 
+    CreateNewContentItemRequestModel requestModel = CreateNewContentItemRequestModel(
+      formData: CreateNewContentItemFormDataModel(
+        EventStartDateTime: "${eventModel.date} ${eventModel.startTime}",
+        EventEndDateTime: "${eventModel.date} ${eventModel.endTime}",
+        RegistrationURL: eventModel.eventUrl,
+        Location: eventModel.location,
+        Name: coCreateContentAuthoringModel.title,
+        ShortDescription: coCreateContentAuthoringModel.description,
+      ),
+      ObjectTypeID: InstancyObjectTypes.events,
+    );
+    String? contentId = await coCreateKnowledgeController.CreateNewContentItem(requestModel: requestModel);
+    MyPrint.printOnConsole("contentId:'$contentId'", tag: tag);
+
+    isLoading = false;
+    mySetState();
+
+    if (contentId.checkEmpty) {
+      MyPrint.printOnConsole("Returning from AddEditEventScreen().saveEvent() because contentId is null or empty", tag: tag);
+      return;
+    }
+
     CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
 
     if (courseDTOModel != null) {
+      courseDTOModel.ContentID = contentId!;
       courseDTOModel.ContentName = coCreateContentAuthoringModel.title;
       courseDTOModel.Title = coCreateContentAuthoringModel.title;
       courseDTOModel.TitleName = coCreateContentAuthoringModel.title;
@@ -134,41 +181,8 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
       }
     }
 
-    return courseDTOModel;
-  }
-
-  Future<void> onSaveAndExitTap() async {
-    CourseDTOModel? courseDTOModel = await saveFlashcard();
-
-    if (courseDTOModel == null) {
-      return;
-    }
-
     Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.pop(context);
-  }
-
-  Future<void> onSaveAndViewTap() async {
-    CourseDTOModel? courseDTOModel = await saveFlashcard();
-
-    if (courseDTOModel == null) {
-      return;
-    }
-
-    Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.pop(context);
-
-    // NavigationController.navigateToFlashCardScreen(
-    //   navigationOperationParameters: NavigationOperationParameters(
-    //     context: context,
-    //     navigationType: NavigationType.pushNamed,
-    //   ),
-    //   arguments: FlashCardScreenNavigationArguments(
-    //     courseDTOModel: courseDTOModel,
-    //   ),
-    // );
+    Navigator.pop(context, true);
   }
 
   @override
@@ -180,31 +194,31 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppConfigurations().commonAppBar(
-        title: "Create Event",
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
-        child: CommonButton(
-          onPressed: () async {
-            CourseDTOModel? courseDTOModel = await saveFlashcard();
-
-            if (courseDTOModel == null) {
-              return;
-            }
-
-            Navigator.pop(context);
-            Navigator.pop(context);
-          },
-          text: "Create",
-          fontColor: themeData.colorScheme.onPrimary,
+    return ModalProgressHUD(
+      inAsyncCall: isLoading,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppConfigurations().commonAppBar(
+          title: "Create Event",
+        ),
+        bottomNavigationBar: getCreateButton(),
+        body: AppUIComponents.getBackGroundBordersRounded(
+          context: context,
+          child: getMainBody(),
         ),
       ),
-      body: AppUIComponents.getBackGroundBordersRounded(
-        context: context,
-        child: getMainBody(),
+    );
+  }
+
+  Widget getCreateButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+      child: CommonButton(
+        onPressed: () async {
+          await saveEvent();
+        },
+        text: coCreateContentAuthoringModel.isEdit ? "Edit" : "Create",
+        fontColor: themeData.colorScheme.onPrimary,
       ),
     );
   }
@@ -220,21 +234,15 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
             //   height: 15,
             // ),
             getDateFormField(),
-            const SizedBox(
-              height: 15,
-            ),
+            const SizedBox(height: 15),
             Row(
               children: [
                 Expanded(
                   child: getStartTimeTextFormField(),
                 ),
-                SizedBox(
-                  width: 10,
-                ),
+                const SizedBox(width: 10),
                 const Text("To"),
-                SizedBox(
-                  width: 10,
-                ),
+                const SizedBox(width: 10),
                 Expanded(
                   child: getEndTimeTextFormField(),
                 ),
@@ -244,13 +252,9 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
             //   height: 15,
             // ),
             // getDescriptionFormField(),
-            const SizedBox(
-              height: 15,
-            ),
+            const SizedBox(height: 15),
             getEventURLFormField(),
-            const SizedBox(
-              height: 15,
-            ),
+            const SizedBox(height: 15),
             getLocationFormField(),
           ],
         ),
@@ -271,14 +275,15 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
 
   Widget getDescriptionFormField() {
     return getTexFormField(
-        isMandatory: false,
-        showPrefixIcon: false,
-        controller: descriptionController,
-        labelText: "Description",
-        keyBoardType: TextInputType.text,
-        iconUrl: "assets/catalog/imageDescription.png",
-        minLines: 5,
-        maxLines: 5);
+      isMandatory: false,
+      showPrefixIcon: false,
+      controller: descriptionController,
+      labelText: "Description",
+      keyBoardType: TextInputType.text,
+      iconUrl: "assets/catalog/imageDescription.png",
+      minLines: 5,
+      maxLines: 5,
+    );
   }
 
   Widget getEventURLFormField() {
@@ -335,8 +340,6 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
       iconUrl: "assets/catalog/imageDescription.png",
     );
   }
-
-  bool isDateEnabled = true, isStartDateEnabled = true, isEndDateEnabled = true;
 
   Widget getDateFormField() {
     return getTexFormField(

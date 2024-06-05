@@ -189,7 +189,8 @@ class RestClient {
 
       MyPrint.printOnConsole("Response Time:${endTime.difference(startTime).inMilliseconds / 1000} Seconds", tag: newId);
       MyPrint.printOnConsole("Response Status:${response.statusCode}", tag: newId);
-      MyPrint.logOnConsole("Response Body:${response.body}", tag: newId);
+      MyPrint.logOnConsole("Response Body:'${response.body}'", tag: newId);
+      MyPrint.logOnConsole("reasonPhrase:'${response.reasonPhrase}'", tag: newId);
 
       return response;
     } catch (e, s) {

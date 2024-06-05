@@ -577,5 +577,7 @@ class ApiEndpoints {
 
 // region Content Authoring
   String GenerateImages() => '${getLmeEditorApiUrl()}/ContentGenerator/GenerateImages';
+
+  String CreateNewContentItem() => '${getLmeEditorApiUrl()}/NativeAuthoring/CreateNewContentItem';
 // endregion
 }

@@ -990,3 +990,15 @@ class MicrolearningTypes {
   static const String question = "Question";
   static const String image = "Image";
 }
+
+class QuizDifficultyTypes {
+  static const String beginner = "beginner";
+  static const String intermediate = "intermediate";
+  static const String advance = "advance";
+}
+
+class QuizQuestionType {
+  static const int mcq = 1;
+  static const int twoChoice = 2;
+  static const int both = 3;
+}

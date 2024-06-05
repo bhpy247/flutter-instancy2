@@ -32,7 +32,7 @@ class ApiController {
 
   ApiEndpoints get apiEndpoints => ApiEndpoints(
         siteUrl: apiDataProvider.getCurrentSiteUrl(),
-        adminSiteUrl: apiDataProvider.getCurrentSiteLMSUrl(),
+        adminSiteUrl: apiDataProvider.getCurrentSiteLMSUrl().replaceAll("http://", "https://"),
         authUrl: apiDataProvider.getCurrentAuthUrl(),
         apiUrl: apiDataProvider.getCurrentBaseApiUrl(),
       );
@@ -84,7 +84,7 @@ class ApiController {
 
       if (response?.statusCode == 200) {
         MyPrint.printOnConsole("Parsing Data For Type:${apiCallModel.parsingType}");
-        data = ModelDataParser.parseDataFromDecodedValue<T>(parsingType: apiCallModel.parsingType, decodedValue: MyUtils.decodeJson(response!.body));
+        data = ModelDataParser.parseDataFromDecodedValue<T>(parsingType: apiCallModel.parsingType, decodedValue: apiCallModel.isDecodeResponse ? MyUtils.decodeJson(response!.body) : response!.body);
 
         if (apiCallModel.isStoreDataInHive) {
           HiveOperationController().makeCall(
@@ -187,6 +187,7 @@ class ApiController {
     String? token,
     bool isAuthenticatedApiCall = true,
     bool isInstancyCall = true,
+    bool isDecodeResponse = true,
     bool isGetDataFromHive = false,
     bool isStoreDataInHive = false,
     bool isIsolateCall = true,
@@ -215,6 +216,7 @@ class ApiController {
       siteId: siteId ?? apiDataProvider.getCurrentSiteId(),
       isAuthenticatedApiCall: isAuthenticatedApiCall,
       isInstancyCall: isInstancyCall,
+      isDecodeResponse: isDecodeResponse,
       isGetDataFromHive: isGetDataFromHive,
       isStoreDataInHive: isStoreDataInHive,
       isIsolateCall: isIsolateCall,

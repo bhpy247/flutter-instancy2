@@ -657,7 +657,7 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
 
   ValueNotifier<bool> isDialOpen = ValueNotifier<bool>(false);
 
-  void onCardTapCallBack({required int objectType}) {
+  Future<void> onCardTapCallBack({required int objectType}) async {
     MyPrint.printOnConsole("onCardTapCallBack called");
 
     Map<String, dynamic> map = <String, dynamic>{
@@ -1021,7 +1021,7 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       );
     } else if (objectType == InstancyObjectTypes.events) {
       MyPrint.printOnConsole("in Role Play");
-      NavigationController.navigateCommonCreateAuthoringToolScreen(
+      dynamic value = await NavigationController.navigateCommonCreateAuthoringToolScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
@@ -1032,6 +1032,8 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
           objectTypeId: InstancyObjectTypes.events,
         ),
       );
+
+      MyPrint.printOnConsole("Value from CommonCreateAuthoringToolScreen:$value");
     } else if (objectType == InstancyObjectTypes.aiAgent) {
       MyPrint.printOnConsole("in Ai Agent");
       NavigationController.navigateToAddEditAiAgentScreen(

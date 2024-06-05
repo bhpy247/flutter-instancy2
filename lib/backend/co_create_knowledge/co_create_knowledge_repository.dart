@@ -1,5 +1,6 @@
 import 'package:flutter_instancy_2/configs/app_constants.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/request_model/generate_images_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/generate_images_request_model.dart';
 import 'package:flutter_instancy_2/models/common/Instancy_multipart_file_upload_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/wiki_component/response_model/wikiCategoriesModel.dart';
@@ -477,6 +478,33 @@ class CoCreateKnowledgeRepository {
     DataResponseModel<List<String>> apiResponseModel = await apiController.callApi<List<String>>(
       apiCallModel: apiCallModel,
     );
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<String>> CreateNewContentItem({required CreateNewContentItemRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    List<InstancyMultipartFileUploadModel> files = [];
+
+    if (requestModel.Files != null) {
+      files.addAll(requestModel.Files!);
+    }
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.multipartRequestCall,
+      parsingType: ModelDataParsingType.string,
+      url: apiEndpoints.CreateNewContentItem(),
+      fields: requestModel.toMap(),
+      files: files,
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+      isDecodeResponse: false,
+    );
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }

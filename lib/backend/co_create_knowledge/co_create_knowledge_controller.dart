@@ -1,9 +1,15 @@
 import 'dart:typed_data';
 
 import 'package:flutter_chat_bot/utils/my_print.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/request_model/generate_images_request_model.dart';
+import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
+import 'package:flutter_instancy_2/backend/app/dependency_injection.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/app_ststem_configurations.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/generate_images_request_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/models/profile/data_model/user_profile_details_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
 import '../../api/api_controller.dart';
@@ -84,6 +90,44 @@ class CoCreateKnowledgeController {
     MyPrint.printOnConsole("Final images length:${images.length}", tag: tag);
 
     return images;
+  }
+
+  Future<String?> CreateNewContentItem({required CreateNewContentItemRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().CreateNewContentItem() called with requestModel:$requestModel", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = repository.apiController.apiDataProvider;
+    String authorName = "";
+
+    UserProfileDetailsModel? userProfileDetailsModel = DependencyInjection.profileProvider.userProfileDetails.getList(isNewInstance: false).firstElement;
+    if (userProfileDetailsModel != null) {
+      authorName = "${userProfileDetailsModel.firstname} ${userProfileDetailsModel.lastname}";
+    }
+
+    AppSystemConfigurationModel appSystemConfigurationModel = DependencyInjection.appProvider.appSystemConfigurationModel;
+
+    requestModel.authorName = authorName;
+    requestModel.UserID = apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.SiteID = apiUrlConfigurationProvider.getCurrentSiteId();
+    requestModel.FolderID = appSystemConfigurationModel.CoCreateKnowledgeDefaultFolderID;
+    requestModel.CMSGroupID = appSystemConfigurationModel.CoCreateKnowledgeDefaultFolderID;
+
+    DataResponseModel<String> dataResponseModel = await repository.CreateNewContentItem(requestModel: requestModel);
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().CreateNewContentItem() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return null;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().CreateNewContentItem() because data is null", tag: tag);
+      return null;
+    }
+
+    String contentId = dataResponseModel.data!;
+    MyPrint.printOnConsole("Final contentId:'$contentId'", tag: tag);
+
+    return contentId;
   }
 
 // Future<List<FileUploadControlsModel>> getFileUploadControlsFromApi({
