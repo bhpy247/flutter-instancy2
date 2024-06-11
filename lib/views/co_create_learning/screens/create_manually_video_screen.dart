@@ -1,9 +1,19 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/configs/app_strings.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avatar_voice_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avtar_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
+import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
+import 'package:provider/provider.dart';
 
+import '../../../backend/app_theme/style.dart';
 import '../../../configs/app_configurations.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_border_dropdown.dart';
@@ -20,66 +30,10 @@ class CreateManuallyVideoScreen extends StatefulWidget {
 class _CreateManuallyVideoScreenState extends State<CreateManuallyVideoScreen> with MySafeState {
   ValueNotifier<bool> isDialOpen = ValueNotifier<bool>(false);
 
-  @override
-  Widget build(BuildContext context) {
-    super.pageBuild();
-    return Scaffold(
-      appBar: AppConfigurations().commonAppBar(
-        title: AppStrings.generateWithAI,
-      ),
-      body: AppUIComponents.getBackGroundBordersRounded(context: context, child: getMainBody()),
-    );
-  }
-
-  Widget getMainBody() {
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                getAvatarDropdown(),
-                SizedBox(
-                  height: 20,
-                ),
-                getVideoBackgroundDropdown(),
-                SizedBox(
-                  height: 20,
-                ),
-                getAvatarSpeechDropdown(),
-                SizedBox(
-                  height: 20,
-                ),
-                getAvatarTypeDropdown(),
-                SizedBox(
-                  height: 20,
-                ),
-                getAvatarPosition(),
-                SizedBox(
-                  height: 20,
-                ),
-              ],
-            ),
-          ),
-          CommonButton(
-            minWidth: double.infinity,
-            onPressed: () {
-              NavigationController.navigateToGenerateWithAiVideoScreen(
-                  navigationOperationParameters: NavigationOperationParameters(
-                  context: context,
-                  navigationType: NavigationType.pushNamed,
-                ),
-                  argument: AddEditVideoScreenArgument());
-            },
-            text: AppStrings.generateWithAI,
-            fontColor: themeData.colorScheme.onPrimary,
-          )
-        ],
-      ),
-    );
-  }
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
+  bool isLoading = false;
+  late Future future;
 
   List<String> avatarList = ["Select Avatar", "Alex", "Bridget", "Christina", "Jack"],
       videoBackground = ["off_white", "warm_white", "light_pink", "soft_pink", "light_blue"],
@@ -87,48 +41,325 @@ class _CreateManuallyVideoScreenState extends State<CreateManuallyVideoScreen> w
       avatarType = ["FullBody", "Circle"],
       avatarPosition = ["Left", "Center", "Right"];
 
+  List<Avatars> avatarsList = [];
+  List<BackgroundColorModel> backgroundColorModelList = [];
+  List<AvtarVoiceModel> avatarVoiceList = [];
+
   String? selectedAvatar, selectedVideoBackground, selectedAvatarSpeech, selectedAvatarType, selectedAvatarPosition;
 
-  Widget getAvatarDropdown() {
-    return getCommonDropDown(
-      list: avatarList,
-      value: selectedAvatar,
-      hintText: "Select Avatar",
-      onChanged: (val) {
-        if (val == "Select Avatar") {
-          selectedAvatar = null;
-        } else {
-          selectedAvatar = val;
-        }
-        mySetState();
-      },
-      iconUrl: "assets/cocreate/commonText.png",
+  Avatars? selectedAvatara;
+  BackgroundColorModel? selectedBackgroundColorModel;
+  AvtarVoiceModel? selectedAvtarVoiceModel;
+
+  TextEditingController avatarSearchController = TextEditingController();
+  TextEditingController backGroundSearchController = TextEditingController();
+  TextEditingController avatarVoiceSearchController = TextEditingController();
+
+  Future<void> getData() async {
+    List<Future> futures = [
+      coCreateKnowledgeController.getAllAvtarList(),
+      coCreateKnowledgeController.getBackgroundColorList(),
+      coCreateKnowledgeController.getAvatarVoiceList(),
+    ];
+    await Future.wait(futures);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+    future = getData();
+    MyPrint.printOnConsole("Hello 2222");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.pageBuild();
+    return Scaffold(
+      appBar: AppConfigurations().commonAppBar(
+        title: AppStrings.generateWithAI,
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: CommonButton(
+          minWidth: double.infinity,
+          onPressed: () {
+            NavigationController.navigateToGenerateWithAiVideoScreen(
+                navigationOperationParameters: NavigationOperationParameters(
+                  context: context,
+                  navigationType: NavigationType.pushNamed,
+                ),
+                argument: const AddEditVideoScreenArgument());
+          },
+          text: AppStrings.generateWithAI,
+          fontColor: themeData.colorScheme.onPrimary,
+        ),
+      ),
+      body: AppUIComponents.getBackGroundBordersRounded(
+        context: context,
+        child: FutureBuilder(
+          future: future,
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return getMainBody();
+            } else {
+              return const CommonLoader();
+            }
+          },
+        ),
+      ),
     );
   }
 
-  Widget getVideoBackgroundDropdown() {
-    return getCommonDropDown(
-      list: videoBackground,
-      value: selectedVideoBackground,
-      hintText: "Video Background",
-      onChanged: (val) {
-        selectedVideoBackground = val;
-        mySetState();
-      },
-      iconUrl: "assets/cocreate/commonText.png",
+  Widget getMainBody() {
+    return Consumer<CoCreateKnowledgeProvider>(builder: (context, CoCreateKnowledgeProvider provider, _) {
+      avatarsList = provider.avatarList.getList();
+      backgroundColorModelList = provider.backgroundColorList.getList();
+      avatarVoiceList = provider.avatarVoiceList.getList();
+      return Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  getAvtarDropDown(),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  getVideoBackgroundDropDown(),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  getAvatarSpeechDropdown(),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  getAvatarTypeDropdown(),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  getAvatarPosition(),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget getAvtarDropDown() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Styles.textFieldBorderColor),
+        borderRadius: BorderRadius.circular(4.0),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<Avatars>(
+          // padding: const EdgeInsets.symmetric(vertical: 12 , horizontal: 13),
+          value: selectedAvatara,
+          isExpanded: true,
+          // icon: const Icon(
+          //   Icons.keyboard_arrow_down_outlined,
+          // ),
+
+          onMenuStateChange: (isOpen) {
+            if (!isOpen) {
+              avatarSearchController.clear();
+            }
+          },
+
+          dropdownSearchData: DropdownSearchData(
+              searchController: avatarSearchController,
+              searchInnerWidget: Container(
+                height: 50,
+                margin: const EdgeInsets.fromLTRB(5, 5, 5, 0),
+                padding: const EdgeInsets.only(
+                  top: 8,
+                  bottom: 4,
+                  right: 8,
+                  left: 8,
+                ),
+                child: TextFormField(
+                  expands: true,
+                  maxLines: null,
+                  controller: avatarSearchController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    hintText: 'Search for an avatar...',
+                    hintStyle: const TextStyle(fontSize: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+              searchInnerWidgetHeight: 50,
+              searchMatchFn: (DropdownMenuItem<Avatars> avatar, String val) {
+                return avatar.value?.name.contains(val) ?? false;
+              }),
+          onChanged: (Avatars? avatar) {
+            if (avatar == null) return;
+            selectedAvatara = avatar;
+            mySetState();
+          },
+          style: const TextStyle(
+            fontSize: 14,
+          ),
+          hint: const Text(
+            "Select Avatar",
+          ),
+          items: avatarsList.map<DropdownMenuItem<Avatars>>(
+            (Avatars value) {
+              return DropdownMenuItem<Avatars>(
+                value: value,
+                child: Text(
+                  value.name,
+                  style: const TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+              );
+            },
+          ).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget getVideoBackgroundDropDown() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Styles.textFieldBorderColor),
+        borderRadius: BorderRadius.circular(4.0),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<BackgroundColorModel>(
+          // padding: const EdgeInsets.symmetric(vertical: 12 , horizontal: 13),
+          value: selectedBackgroundColorModel,
+          isExpanded: true,
+          // icon: const Icon(
+          //   Icons.keyboard_arrow_down_outlined,
+          // ),
+          onChanged: (BackgroundColorModel? avatar) {
+            if (avatar == null) return;
+            selectedBackgroundColorModel = avatar;
+            mySetState();
+          },
+          style: const TextStyle(
+            fontSize: 14,
+          ),
+          hint: const Text(
+            "Select Background",
+          ),
+          items: backgroundColorModelList.map<DropdownMenuItem<BackgroundColorModel>>(
+            (BackgroundColorModel value) {
+              return DropdownMenuItem<BackgroundColorModel>(
+                value: value,
+                child: Text(
+                  value.bgGroup,
+                  style: const TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+              );
+            },
+          ).toList(),
+        ),
+      ),
     );
   }
 
   Widget getAvatarSpeechDropdown() {
-    return getCommonDropDown(
-      list: avatarSpeech,
-      value: selectedAvatarSpeech,
-      hintText: "Avatar Speech",
-      onChanged: (val) {
-        selectedAvatarSpeech = val;
-        mySetState();
-      },
-      iconUrl: "assets/cocreate/commonText.png",
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Styles.textFieldBorderColor),
+        borderRadius: BorderRadius.circular(4.0),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<AvtarVoiceModel>(
+          // padding: const EdgeInsets.symmetric(vertical: 12 , horizontal: 13),
+          value: selectedAvtarVoiceModel,
+          isExpanded: true,
+          // icon: const Icon(
+          //   Icons.keyboard_arrow_down_outlined,
+          // ),
+
+          onMenuStateChange: (isOpen) {
+            if (!isOpen) {
+              avatarVoiceSearchController.clear();
+            }
+          },
+
+          dropdownSearchData: DropdownSearchData(
+              searchController: avatarVoiceSearchController,
+              searchInnerWidget: Container(
+                height: 50,
+                margin: const EdgeInsets.fromLTRB(5, 5, 5, 0),
+                padding: const EdgeInsets.only(
+                  top: 8,
+                  bottom: 4,
+                  right: 8,
+                  left: 8,
+                ),
+                child: TextFormField(
+                  expands: true,
+                  maxLines: null,
+                  controller: avatarVoiceSearchController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    hintText: 'Search for an avatar voice...',
+                    hintStyle: const TextStyle(fontSize: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+              searchInnerWidgetHeight: 50,
+              searchMatchFn: (DropdownMenuItem<AvtarVoiceModel> avatar, String val) {
+                return avatar.value?.language.contains(val) ?? false;
+              }),
+          onChanged: (AvtarVoiceModel? avatar) {
+            if (avatar == null) return;
+            selectedAvtarVoiceModel = avatar;
+            mySetState();
+          },
+          style: const TextStyle(
+            fontSize: 14,
+          ),
+          hint: const Text(
+            "Select Avatar Speech",
+          ),
+          items: avatarVoiceList.map<DropdownMenuItem<AvtarVoiceModel>>(
+            (AvtarVoiceModel value) {
+              return DropdownMenuItem<AvtarVoiceModel>(
+                value: value,
+                child: Text(
+                  value.language,
+                  style: const TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+              );
+            },
+          ).toList(),
+        ),
+      ),
     );
   }
 
@@ -169,7 +400,7 @@ class _CreateManuallyVideoScreenState extends State<CreateManuallyVideoScreen> w
   }) {
     return CommonBorderDropdown<String>(
       isExpanded: true,
-      isDense: true,
+      isDense: false,
       items: list,
       value: value,
       hintText: hintText,

@@ -24,8 +24,8 @@ class ApiEndpoints {
     return apiUrl;
   }
 
-  String getLmeEditorApiUrl() {
-    return "${adminSiteUrl}LMEditorApi/api/";
+  String getLmeEditorApiUrl({bool isLmeEditorApi = true}) {
+    return "$adminSiteUrl${isLmeEditorApi ? "LMEditorApi/api/" : "/"}";
   }
 
   //region Splashscreen Api
@@ -428,6 +428,7 @@ class ApiEndpoints {
   String getPeopleList() => '${getBaseApiUrl()}PeopleListing/GetPeopleList';
 
   String doPeopleListingActions() => '${getBaseApiUrl()}PeopleListing/doPeopleListingActions';
+
   //endregion
 
   //region Message
@@ -573,11 +574,26 @@ class ApiEndpoints {
   String RetakeAssessmentData() => '${getBaseApiUrl()}CourseTracking/RetakeAssessmentData';
 
   String GetCourseTrackingData() => '${getBaseApiUrl()}MobileLMS/MobileGetContentTrackedData';
+
 // endregion
 
 // region Content Authoring
   String GenerateImages() => '${getLmeEditorApiUrl()}/ContentGenerator/GenerateImages';
 
   String CreateNewContentItem() => '${getLmeEditorApiUrl()}/NativeAuthoring/CreateNewContentItem';
+
+  String GenerateFlashCard() => '${getLmeEditorApiUrl()}/NativeAuthoring/GenerateFlashCard';
+
+  String ChatCompletionCall() => '${getLmeEditorApiUrl()}/NativeAuthoring/ChatCompletion';
+
+  String AssessmentGenerateContent() => '${getLmeEditorApiUrl()}/NativeAuthoring/AssessmentGenerateContent';
+
+  String GenerateAssessment() => '${getLmeEditorApiUrl()}/NativeAuthoring/GenerateAssessment';
+
+  String GetAllAvtarList() => '${getLmeEditorApiUrl(isLmeEditorApi: false)}ContentManagement/assets/json/Avatars.json';
+
+  String GetAvtarVoiceList() => '${getLmeEditorApiUrl(isLmeEditorApi: false)}ContentManagement/assets/json/AvatarsVoice.json';
+
+  String GetBackgroundColorList() => '${getLmeEditorApiUrl(isLmeEditorApi: false)}ContentManagement/assets/json/backgrounds.json';
 // endregion
 }

@@ -16,6 +16,7 @@ class AddContentDialog extends StatelessWidget {
     KnowledgeTypeModel(name: "Roleplay", iconUrl: "assets/cocreate/video.png"),
     KnowledgeTypeModel(name: "Learning Maps", iconUrl: "assets/cocreate/Business Hierarchy.png"),
     KnowledgeTypeModel(name: "AI Agents", iconUrl: "assets/cocreate/Ai.png"),
+    KnowledgeTypeModel(name: "Microlearning", iconUrl: "assets/cocreate/microLearning.png"),
   ];
 
   @override

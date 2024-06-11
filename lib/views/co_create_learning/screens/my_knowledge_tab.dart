@@ -641,6 +641,7 @@ class PopUpDialog extends StatefulWidget {
 
 class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
   final List<KnowledgeTypeModel> knowledgeTypeList = [
+    KnowledgeTypeModel(name: "Microlearning", iconUrl: "assets/cocreate/microLearning.png", objectTypeId: InstancyObjectTypes.microLearning),
     KnowledgeTypeModel(name: "Learning Path", iconUrl: "assets/cocreate/Business Hierarchy.png", objectTypeId: InstancyObjectTypes.learningPath),
     KnowledgeTypeModel(name: "Roleplay", iconUrl: "assets/cocreate/video.png", objectTypeId: InstancyObjectTypes.rolePlay),
     KnowledgeTypeModel(name: "Event", iconUrl: "assets/cocreate/Vector-3.png", objectTypeId: InstancyObjectTypes.events),
@@ -652,7 +653,6 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
     KnowledgeTypeModel(name: "Quiz", iconUrl: "assets/cocreate/Chat Question.png", objectTypeId: InstancyObjectTypes.quiz),
     KnowledgeTypeModel(name: "Flashcards", iconUrl: "assets/cocreate/Card.png", objectTypeId: InstancyObjectTypes.flashCard),
     KnowledgeTypeModel(name: "AI Agents", iconUrl: "assets/cocreate/Ai.png", objectTypeId: InstancyObjectTypes.aiAgent),
-    KnowledgeTypeModel(name: "Microlearning", iconUrl: "assets/cocreate/Ai.png", objectTypeId: InstancyObjectTypes.microLearning),
   ];
 
   ValueNotifier<bool> isDialOpen = ValueNotifier<bool>(false);

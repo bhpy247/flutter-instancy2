@@ -1,6 +1,11 @@
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/generate_images_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avatar_voice_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avtar_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/assessment_generate_request_model.dart';
 import 'package:flutter_instancy_2/models/common/Instancy_multipart_file_upload_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/wiki_component/response_model/wikiCategoriesModel.dart';
@@ -12,6 +17,7 @@ import '../../api/api_controller.dart';
 import '../../api/api_endpoints.dart';
 import '../../api/api_url_configuration_provider.dart';
 import '../../api/rest_client.dart';
+import '../../models/co_create_knowledge/flashcards/flashcard_model.dart';
 import '../../models/common/data_response_model.dart';
 import '../../models/common/model_data_parser.dart';
 import '../../models/wiki_component/request_model/wiki_upload_request_model.dart';
@@ -399,12 +405,6 @@ class CoCreateKnowledgeRepository {
           ContentType: "Microlearning",
           ThumbnailImagePath: "/Content/SiteFiles/Images/Event.jpg",
           ShortDescription: "It explores the integration of advanced technologies in designing and managing urban environments to promote sustainability.",
-          // EventStartDateTime: "30 May 2024",
-          // EventStartDateTimeWithoutConvert: "05/30/2024 05:30:00 PM",
-          // EventEndDateTime: "30 May 2024",
-          // EventEndDateTimeTimeWithoutConvert: "05/30/2024 06:00:00 PM",
-          // Duration: "30 Minutes",
-          // AvailableSeats: "10",
         ),
       ],
     );
@@ -505,6 +505,144 @@ class CoCreateKnowledgeRepository {
     );
 
     DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<FlashcardResponseModel>> generateFlashcard({required FlashcardRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    List<InstancyMultipartFileUploadModel> files = [];
+
+    // if (requestModel.Files != null) {
+    //   files.addAll(requestModel.Files!);
+    // }
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.GenerateFlashCard,
+      url: apiEndpoints.GenerateFlashCard(),
+      requestBody: MyUtils.encodeJson(requestModel.toMap()),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+    );
+
+    DataResponseModel<FlashcardResponseModel> apiResponseModel = await apiController.callApi<FlashcardResponseModel>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<String>> chatCompletionCall({required String prompt}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    Map<String, dynamic> requestModel = {"Prompt": prompt};
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+        restCallType: RestCallType.simplePostCall,
+        parsingType: ModelDataParsingType.string,
+        url: apiEndpoints.ChatCompletionCall(),
+        requestBody: MyUtils.encodeJson(requestModel),
+        isAuthenticatedApiCall: false,
+        isInstancyCall: false,
+        isDecodeResponse: false);
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<String>> assessmentGenerateContent({required AssessmentGenerateRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+        restCallType: RestCallType.simplePostCall,
+        parsingType: ModelDataParsingType.string,
+        url: apiEndpoints.AssessmentGenerateContent(),
+        requestBody: MyUtils.encodeJson(requestModel.toMap()),
+        isAuthenticatedApiCall: false,
+        isInstancyCall: false,
+        isDecodeResponse: false);
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<String>> generateAssessment({required AssessmentGenerateRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+        restCallType: RestCallType.simplePostCall,
+        parsingType: ModelDataParsingType.string,
+        url: apiEndpoints.GenerateAssessment(),
+        requestBody: MyUtils.encodeJson(requestModel.toMap()),
+        isAuthenticatedApiCall: false,
+        isInstancyCall: false,
+        isDecodeResponse: false);
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<AvtarResponseModel>> getAllAvtarList() async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.AvtarResponseModel,
+      url: apiEndpoints.GetAllAvtarList(),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+    );
+
+    DataResponseModel<AvtarResponseModel> apiResponseModel = await apiController.callApi<AvtarResponseModel>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<List<AvtarVoiceModel>>> getAvtarVoiceList() async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.AvatarVoiceList,
+      url: apiEndpoints.GetAvtarVoiceList(),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+    );
+
+    DataResponseModel<List<AvtarVoiceModel>> apiResponseModel = await apiController.callApi<List<AvtarVoiceModel>>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<List<BackgroundColorModel>>> getBackgroundColorList() async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.BackgroundColorModelList,
+      url: apiEndpoints.GetBackgroundColorList(),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+    );
+
+    DataResponseModel<List<BackgroundColorModel>> apiResponseModel = await apiController.callApi<List<BackgroundColorModel>>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }

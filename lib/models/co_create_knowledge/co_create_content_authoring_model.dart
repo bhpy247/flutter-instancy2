@@ -27,7 +27,7 @@ class CoCreateContentAuthoringModel {
   RoleplayContentModel? roleplayContentModel;
   EventModel? eventModel;
   LearningPathModel? learningPathModel;
-  MicroLearningModel? microLearningModel;
+  MainMicroLearningModel? mainMicroLearningModel;
 
   CoCreateContentAuthoringModel({
     this.contentTypeId = 0,
@@ -49,7 +49,7 @@ class CoCreateContentAuthoringModel {
     this.referenceUrl,
     this.eventModel,
     this.learningPathModel,
-    this.microLearningModel,
+    this.mainMicroLearningModel,
   }) {
     this.skills = skills ?? <String>[];
   }

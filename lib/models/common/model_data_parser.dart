@@ -14,6 +14,7 @@ import 'package:flutter_instancy_2/models/authentication/response_model/signup_f
 import 'package:flutter_instancy_2/models/catalog/response_model/associated_content_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/user_coming_soon_response.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_model.dart';
 import 'package:flutter_instancy_2/models/common/response_model/common_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/get_course_tracking_data_response_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/category_model.dart';
@@ -59,6 +60,9 @@ import '../catalog/response_model/enroll_waiting_list_event_response_model.dart'
 import '../catalog/response_model/mobile_catalog_objects_data_response_model.dart';
 import '../catalog/response_model/prerequisiteDetailsResponseModel.dart';
 import '../catalog/response_model/removeFromWishlistModel.dart';
+import '../co_create_knowledge/common/response_model/avatar_voice_model.dart';
+import '../co_create_knowledge/common/response_model/avtar_response_model.dart';
+import '../co_create_knowledge/common/response_model/background_response_model.dart';
 import '../content_details/response_model/course_details_schedule_data_response_model.dart';
 import '../content_review_ratings/response_model/content_user_ratings_data_response_model.dart';
 import '../course/data_model/CourseDTOModel.dart';
@@ -316,6 +320,14 @@ enum ModelDataParsingType {
   //endregion
 
   GetCourseTrackingDataResponseModel,
+
+  //region co-createKnowledge
+  GenerateFlashCard,
+  AvtarResponseModel,
+  BackgroundColorModelList,
+  AvatarVoiceList
+
+  //enregion
 }
 
 class ModelDataParser {
@@ -536,6 +548,10 @@ class ModelDataParser {
     //endregion
 
     ModelDataParsingType.GetCourseTrackingDataResponseModel: parseGetCourseTrackingDataResponseModel,
+    ModelDataParsingType.GenerateFlashCard: parseGenerateFlashcardDataResponseModel,
+    ModelDataParsingType.AvtarResponseModel: parseAvatarResponseModel,
+    ModelDataParsingType.BackgroundColorModelList: parseBackgroundColorList,
+    ModelDataParsingType.AvatarVoiceList: parseAvatarVoiceList,
   };
 
   static T? parseDataFromDecodedValue<T>({required ModelDataParsingType parsingType, dynamic decodedValue}) {
@@ -1564,5 +1580,35 @@ class ModelDataParser {
     } else {
       return null;
     }
+  }
+
+  static FlashcardResponseModel? parseGenerateFlashcardDataResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return FlashcardResponseModel.fromMap(json);
+    } else {
+      return null;
+    }
+  }
+
+  static AvtarResponseModel? parseAvatarResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return AvtarResponseModel.fromMap(json);
+    } else {
+      return null;
+    }
+  }
+
+  static List<AvtarVoiceModel>? parseAvatarVoiceList({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+    return mapsList.map((e) => AvtarVoiceModel.fromJson(e)).toList();
+  }
+
+  static List<BackgroundColorModel>? parseBackgroundColorList({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+    return mapsList.map((e) => BackgroundColorModel.fromJson(e)).toList();
   }
 }

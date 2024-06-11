@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/view/common/components/common_loader.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/configs/app_strings.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_question_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/assessment_generate_request_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/theme_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_border_dropdown.dart';
@@ -37,6 +40,8 @@ class AddEditQuizScreen extends StatefulWidget {
 
 class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState {
   bool isLoading = false;
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
 
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
@@ -64,10 +69,15 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
     selectedDifficultyLevel = "Medium";
   }
 
-  void onGenerateTap() {
+  Future<void> onGenerateTap() async {
     QuizContentModel quizContentModel = coCreateContentAuthoringModel.quizContentModel ?? QuizContentModel();
     quizContentModel.questionCount = int.tryParse(countController.text) ?? 0;
-    quizContentModel.questionType = selectedQuestionType ?? "";
+    quizContentModel.questionType = (selectedQuestionType == QuizQuestionType.mcqString
+            ? QuizQuestionType.mcq
+            : selectedQuestionType == QuizQuestionType.twoChoiceString
+                ? QuizQuestionType.twoChoice
+                : QuizQuestionType.both)
+        .toString();
     quizContentModel.difficultyLevel = selectedDifficultyLevel ?? "";
 
     coCreateContentAuthoringModel.quizContentModel = quizContentModel;
@@ -86,7 +96,8 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
   @override
   void initState() {
     super.initState();
-
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
     initialize();
   }
 
@@ -170,7 +181,7 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
   Widget getQuestionTypeDropDown() {
     return CommonBorderDropdown(
       isExpanded: true,
-      items: const ["Multiple Choice", "True/False", "Both"],
+      items: const [QuizQuestionType.mcqString, QuizQuestionType.twoChoiceString, QuizQuestionType.bothString],
       value: selectedQuestionType,
       hintText: "Question Type",
       onChanged: (val) {
@@ -266,9 +277,10 @@ class GeneratedQuizScreen extends StatefulWidget {
 
 class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeState {
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
-
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
   late PageController pageController;
-
+  late Future future;
   // List<QuizQuestionModel> quizModelList = [
   //   QuizQuestionModel(
   //     question: "What is the primary goal of office ergonomics?",
@@ -340,6 +352,25 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
       if (quizModelList.length > quizContentModel.questionCount) {
         quizModelList = quizModelList.sublist(0, quizContentModel.questionCount);
       }
+    }
+
+    future = getData();
+  }
+
+  Future<void> getData() async {
+    if (coCreateContentAuthoringModel.quizContentModel == null) return;
+
+    QuizContentModel quizContentModel = coCreateContentAuthoringModel.quizContentModel!;
+    AssessmentGenerateRequestModel requestModel = AssessmentGenerateRequestModel(
+        prompt:
+            "Generate meta-data fields below in 'English' language \nTag line, \nShort description (less than 25 words), Long description (less than 120 words), keywords, Table of content and Learning objectives.\n for this eLearning Course Title: 'Heart Attack'.\n Provide them in JSON format with the following keys:\n  short_description,learning_objectives as string.",
+        difficultyLevel: quizContentModel.difficultyLevel,
+        numberOfQuestions: quizContentModel.questionCount.toString(),
+        type: quizContentModel.questionType);
+
+    QuizResponseModel? quizResponseModel = await coCreateKnowledgeController.generateQuiz(requestModel: requestModel);
+    if (quizResponseModel != null) {
+      quizModelList = quizResponseModel.assessment;
     }
   }
 
@@ -451,8 +482,9 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
   void initState() {
     super.initState();
     pageController = PageController();
-    quizModelList = AppConstants().quizModelList;
-
+    // quizModelList = AppConstants().quizModelList;
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
     initializeData();
   }
 
@@ -463,7 +495,14 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
       appBar: getAppBar(),
       body: AppUIComponents.getBackGroundBordersRounded(
         context: context,
-        child: getMainBody(),
+        child: FutureBuilder(
+            future: future,
+            builder: (BuildContext context, AsyncSnapshot snapShot) {
+              if (snapShot.connectionState == ConnectionState.done) {
+                return getMainBody();
+              }
+              return CommonLoader();
+            }),
       ),
     );
   }
@@ -560,6 +599,10 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
     widget.onSaveAndViewPressed?.call();
   }
 
+  String _getAlphabeticLabel(int index) {
+    return String.fromCharCode(65 + index); // 65 is the ASCII code for 'A'
+  }
+
   @override
   void initState() {
     super.initState();
@@ -604,11 +647,11 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
                   const SizedBox(
                     height: 10,
                   ),
-                  getAnswerList(questionModel.optionList, questionModel, index),
+                  getAnswerList(questionModel.choices, questionModel, index),
                   const SizedBox(
                     height: 20,
                   ),
-                  getCorrectAnswerWidget(optionList: questionModel.optionList, answer: questionModel.correctAnswer, questionModel: questionModel),
+                  getCorrectAnswerWidget(optionList: questionModel.choices, answer: questionModel.correctChoice, questionModel: questionModel),
                   const SizedBox(
                     height: 10,
                   ),
@@ -674,7 +717,7 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
           hintText: "Correct Answer",
           onChanged: (val) {
             answer = val;
-            questionModel.correctAnswer = val ?? "";
+            questionModel.correctChoice = val ?? "";
             mySetState();
           },
           iconUrl: "assets/cocreate/commonText.png",
@@ -738,13 +781,14 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
     );
   }
 
-  Widget getCorrectAndIncorrectAnswerWidget(QuizQuestionModel questionModel,
+  Widget getCorrectAndIncorrectAnswerWidget(
+    QuizQuestionModel questionModel,
   ) {
     if (!questionModel.isAnswerGiven) return const SizedBox();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (questionModel.selectedAnswer != questionModel.correctAnswer)
+        if (questionModel.selectedAnswer != questionModel.correctChoice)
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.0),
             child: Text(
@@ -758,18 +802,18 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: Text(
-            "Correct Answer${questionModel.selectedAnswer != questionModel.correctAnswer ? ":" : ""}",
+            "Correct Answer${questionModel.selectedAnswer != questionModel.correctChoice ? ":" : ""}",
             style: const TextStyle(fontSize: 16, color: Colors.green, fontWeight: FontWeight.bold),
           ),
         ),
         const SizedBox(
           height: 6,
         ),
-        if (questionModel.selectedAnswer != questionModel.correctAnswer)
+        if (questionModel.selectedAnswer != questionModel.correctChoice)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Text(
-              questionModel.correctAnswer,
+              questionModel.correctChoice,
               style: const TextStyle(fontSize: 14),
             ),
           ),
@@ -808,19 +852,19 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
                 ? getEditableTextField(
                     controller: TextEditingController(text: answerList[index]),
                     onSubmitted: (String? val) {
-                      if (answerList[index] == questionModel.correctAnswer) {
-                        questionModel.correctAnswer = val ?? "";
+                      if (answerList[index] == questionModel.correctChoice) {
+                        questionModel.correctChoice = val ?? "";
                       }
                       answerList[index] = val ?? "";
-                      questionModel.optionList[index] = val ?? "";
-                      MyPrint.printOnConsole("questionModel.optionList[index] : ${questionModel.optionList[index]}");
+                      questionModel.choices[index] = val ?? "";
+                      MyPrint.printOnConsole("questionModel.optionList[index] : ${questionModel.choices[index]}");
                       questionModel.isEditModeEnable[index] = false;
                       mySetState();
                       return "";
                     },
                   )
                 : Text(
-                    answerList[index],
+                    "${_getAlphabeticLabel(index)}. ${answerList[index]}",
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.black54,

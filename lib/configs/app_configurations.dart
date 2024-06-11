@@ -324,8 +324,9 @@ class AppConfigurations {
   //endregion
 
   //region commonAppBar Method
-  AppBar commonAppBar({String title = "", List<Widget>? actions}) {
+  AppBar commonAppBar({String title = "", List<Widget>? actions, bool isAutomaticImplyLeading = true}) {
     return AppBar(
+      automaticallyImplyLeading: isAutomaticImplyLeading,
       title: Text(title),
       actions: actions,
       // backgroundColor: themeData.primaryColor,

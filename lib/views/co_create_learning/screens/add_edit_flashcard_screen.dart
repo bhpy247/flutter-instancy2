@@ -1,5 +1,7 @@
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/view/common/components/common_loader.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
@@ -7,6 +9,7 @@ import 'package:flutter_instancy_2/configs/app_strings.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
@@ -20,7 +23,6 @@ import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_
 import '../../../configs/app_constants.dart';
 import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../packages/flipcard/flip_card.dart';
-import '../../../packages/flipcard/flip_card_controller.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_text_form_field.dart';
 import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
@@ -369,66 +371,125 @@ class GenerateWithAiFlashCardScreen extends StatefulWidget {
 
 class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardScreen> with MySafeState {
   late PageController pageController;
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
+  List<FlashcardModel> questionList = [
+    // FlashcardModel(
+    //   controller: FlipCardController(),
+    //   flashcardBack: "Artificial intelligence (AI) is made up of units similar to the human brain's neuron called perceptrons, which are the processing power behind AI. ",
+    //   flashcardFront: "What is artificial intelligence (AI) ?",
+    //   assetImagePath: "assets/cocreate/Card.png",
+    // ),
+    // FlashcardModel(
+    //   controller: FlipCardController(),
+    //   flashcardBack:
+    //       "Neural networks are a class of machine learning algorithms inspired by the structure and functioning of the human brain. They are composed of interconnected processing units, called neurons or nodes, organized in layers.",
+    //   flashcardFront: "What is Neural Networks ?",
+    //   assetImagePath: "assets/cocreate/Card.png",
+    // ),
+    // FlashcardModel(
+    //   controller: FlipCardController(),
+    //   flashcardBack: "What are the two main types of AI",
+    //   flashcardFront: "Narrow AI and General AI",
+    //   assetImagePath: "assets/cocreate/Card.png",
+    // ),
+    // FlashcardModel(
+    //   controller: FlipCardController(),
+    //   flashcardBack: "AI for specific tasks like facial recognition.",
+    //   flashcardFront: "What is Narrow AI ?",
+    //   assetImagePath: "assets/cocreate/Card.png",
+    // ),
+    // FlashcardModel(
+    //   controller: FlipCardController(),
+    //   flashcardBack: "AI with broad human-like abilities.",
+    //   flashcardFront: "What is General AI ?",
+    //   assetImagePath: "assets/cocreate/Card.png",
+    // ),
+    // FlashcardModel(
+    //   controller: FlipCardController(),
+    //   flashcardBack: "Virtual assistants, recommendation systems.",
+    //   flashcardFront: "What are some examples of Narrow AI ?",
+    //   assetImagePath: "assets/cocreate/Card.png",
+    // ),
+    // FlashcardModel(
+    //   controller: FlipCardController(),
+    //   flashcardBack: "Safety, job displacement, misuse concerns.",
+    //   flashcardFront: "What are some challenges of General AI ?",
+    //   assetImagePath: "assets/cocreate/Card.png",
+    // ),
+    // FlashcardModel(
+    //   controller: FlipCardController(),
+    //   flashcardBack: "Teaching computers to learn from data.",
+    //   flashcardFront: "What is machine learning ?",
+    //   assetImagePath: "assets/cocreate/Card.png",
+    // ),
+    // FlashcardModel(
+    //   controller: FlipCardController(),
+    //   flashcardBack: "Supervised, unsupervised, reinforcement.",
+    //   flashcardFront: "What are the three main types of machine learning ?",
+    //   assetImagePath: "assets/cocreate/Card.png",
+    // ),
+  ];
+  late Future future;
+  bool isLoading = false;
 
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
-  List<FlashcardModel> questionList = [
-    FlashcardModel(
-      controller: FlipCardController(),
-      answer: "Artificial intelligence (AI) is made up of units similar to the human brain's neuron called perceptrons, which are the processing power behind AI. ",
-      question: "What is artificial intelligence (AI) ?",
-      assetImagePath: "assets/cocreate/Card.png",
-    ),
-    FlashcardModel(
-      controller: FlipCardController(),
-      answer:
-          "Neural networks are a class of machine learning algorithms inspired by the structure and functioning of the human brain. They are composed of interconnected processing units, called neurons or nodes, organized in layers.",
-      question: "What is Neural Networks ?",
-      assetImagePath: "assets/cocreate/Card.png",
-    ),
-    FlashcardModel(
-      controller: FlipCardController(),
-      answer: "What are the two main types of AI",
-      question: "Narrow AI and General AI",
-      assetImagePath: "assets/cocreate/Card.png",
-    ),
-    FlashcardModel(
-      controller: FlipCardController(),
-      answer: "AI for specific tasks like facial recognition.",
-      question: "What is Narrow AI ?",
-      assetImagePath: "assets/cocreate/Card.png",
-    ),
-    FlashcardModel(
-      controller: FlipCardController(),
-      answer: "AI with broad human-like abilities.",
-      question: "What is General AI ?",
-      assetImagePath: "assets/cocreate/Card.png",
-    ),
-    FlashcardModel(
-      controller: FlipCardController(),
-      answer: "Virtual assistants, recommendation systems.",
-      question: "What are some examples of Narrow AI ?",
-      assetImagePath: "assets/cocreate/Card.png",
-    ),
-    FlashcardModel(
-      controller: FlipCardController(),
-      answer: "Safety, job displacement, misuse concerns.",
-      question: "What are some challenges of General AI ?",
-      assetImagePath: "assets/cocreate/Card.png",
-    ),
-    FlashcardModel(
-      controller: FlipCardController(),
-      answer: "Teaching computers to learn from data.",
-      question: "What is machine learning ?",
-      assetImagePath: "assets/cocreate/Card.png",
-    ),
-    FlashcardModel(
-      controller: FlipCardController(),
-      answer: "Supervised, unsupervised, reinforcement.",
-      question: "What are the three main types of machine learning ?",
-      assetImagePath: "assets/cocreate/Card.png",
-    ),
-  ];
+  Future<void> getData() async {
+    isLoading = true;
+    mySetState();
+    try {
+      FlashcardRequestModel requestModel = FlashcardRequestModel(
+        difficultyLevel: "Hard",
+        topicName: coCreateContentAuthoringModel.title,
+        // description: coCreateContentAuthoringModel.description,
+        flashcardCount: coCreateContentAuthoringModel.flashcardContentModel?.cardCount ?? 1,
+        flashcards: questionList,
+        // regenerateCards: singleFlashcardToRegenerate == null ? [] : [singleFlashcardToRegenerate],
+      );
+
+      FlashcardResponseModel? flashcardResponseModel = await coCreateKnowledgeController.generateFlashcard(requestModel: requestModel);
+
+      if (flashcardResponseModel == null) return;
+
+      questionList = flashcardResponseModel.flashcards;
+      MyPrint.printOnConsole("requestModel : ${questionList.length}");
+
+      isLoading = false;
+      mySetState();
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in getData : $e");
+      MyPrint.printOnConsole(s);
+    }
+  }
+
+  Future<void> regenerateData({FlashcardModel? singleFlashcardToRegenerate, int index = 0}) async {
+    isLoading = true;
+    mySetState();
+    try {
+      FlashcardRequestModel requestModel = FlashcardRequestModel(
+        difficultyLevel: "Hard",
+        topicName: coCreateContentAuthoringModel.title,
+        // description: coCreateContentAuthoringModel.description,
+        flashcardCount: coCreateContentAuthoringModel.flashcardContentModel?.cardCount ?? 1,
+        flashcards: questionList,
+        regenerateCards: singleFlashcardToRegenerate == null ? [] : [singleFlashcardToRegenerate],
+      );
+
+      FlashcardResponseModel? flashcardResponseModel = await coCreateKnowledgeController.generateFlashcard(requestModel: requestModel);
+
+      if (flashcardResponseModel == null) return;
+      questionList.removeAt(index);
+      questionList.insert(index, flashcardResponseModel.flashcards.first);
+      MyPrint.printOnConsole("requestModel : ${questionList.length}");
+
+      isLoading = false;
+      mySetState();
+    } catch (e, s) {
+      MyPrint.printOnConsole("Error in getData : $e");
+      MyPrint.printOnConsole(s);
+    }
+  }
 
   void initializeData() {
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
@@ -443,6 +504,7 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
         questionList = questionList.sublist(0, flashcardContentModel.cardCount);
       }
     }
+    mySetState();
   }
 
   List<InstancyUIActionModel> getActionsListOfMainWidget({required CourseDTOModel model}) {
@@ -453,6 +515,8 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
           actionsEnum: InstancyContentActionsEnum.View,
           onTap: () {
             Navigator.pop(context);
+            future = getData();
+            mySetState();
           },
           iconData: InstancyIcons.reEnroll,
         ),
@@ -461,6 +525,8 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
         actionsEnum: InstancyContentActionsEnum.Delete,
         onTap: () {
           Navigator.pop(context);
+          questionList.clear();
+          mySetState();
         },
         iconData: InstancyIcons.delete,
       ),
@@ -486,8 +552,8 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
     );
   }
 
-  Future<void> showMoreActionsForFlashcard({required FlashcardModel model}) async {
-    List<InstancyUIActionModel> actions = getActionsListOfIndividualFlashCard(model: model);
+  Future<void> showMoreActionsForFlashcard({required FlashcardModel model, required int index}) async {
+    List<InstancyUIActionModel> actions = getActionsListOfIndividualFlashCard(model: model, index: index);
 
     InstancyUIActions().showAction(
       context: context,
@@ -495,7 +561,7 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
     );
   }
 
-  List<InstancyUIActionModel> getActionsListOfIndividualFlashCard({required FlashcardModel model}) {
+  List<InstancyUIActionModel> getActionsListOfIndividualFlashCard({required FlashcardModel model, required int index}) {
     List<InstancyUIActionModel> actions = [
       InstancyUIActionModel(
         text: "Edit this Flashcard",
@@ -520,8 +586,10 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
       InstancyUIActionModel(
         text: "Regenerate this Flashcard",
         actionsEnum: InstancyContentActionsEnum.View,
-        onTap: () {
+        onTap: () async {
           Navigator.pop(context);
+          await regenerateData(singleFlashcardToRegenerate: model, index: index);
+          mySetState();
         },
         iconData: InstancyIcons.reEnroll,
       ),
@@ -530,6 +598,8 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
         actionsEnum: InstancyContentActionsEnum.Delete,
         onTap: () {
           Navigator.pop(context);
+          questionList.removeAt(index);
+          mySetState();
         },
         iconData: InstancyIcons.delete,
       ),
@@ -605,27 +675,41 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
   void initState() {
     super.initState();
     pageController = PageController();
-
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
     initializeData();
+    future = getData();
   }
 
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
-
     return Scaffold(
       backgroundColor: const Color(0xffF8F8F8),
       appBar: getAppBar(),
       body: AppUIComponents.getBackGroundBordersRounded(
         context: context,
-        child: getMainBody(),
+        child: FutureBuilder(
+          future: future,
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (questionList.checkEmpty) {
+                return const Center(
+                  child: Text("No Flashcard Available"),
+                );
+              }
+              return getMainBody();
+            }
+            return const CommonLoader();
+          },
+        ),
       ),
     );
   }
 
   PreferredSizeWidget getAppBar() {
     return AppConfigurations().commonAppBar(
-      title: "Unveiling the Neurons of AI",
+      title: coCreateContentAuthoringModel.title,
       actions: [
         InkWell(
           onTap: () {
@@ -709,44 +793,48 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
   }
 
   Widget getSingleWidget({required FlashcardModel model, required int index, required int total}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  "Flashcard ${index + 1} of $total",
-                  style: themeData.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
+    return ModalProgressHUD(
+      inAsyncCall: isLoading,
+      progressIndicator: const CommonLoader(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    "Flashcard ${index + 1} of $total",
+                    style: themeData.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
-            InkWell(
-                onTap: () {
-                  showMoreActionsForFlashcard(model: model);
-                },
-                child: const Icon(Icons.more_vert))
-          ],
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-          child: FlipCard(
-            alignment: Alignment.topCenter,
-            controller: model.controller,
-            flipOnTouch: true,
-            front: getCommonFrontAndBackWidget(text: model.question, onTap: () => model.controller.flip()),
-            back: getCommonFrontAndBackWidget(text: model.answer, onTap: () => model.controller.flip()),
+              InkWell(
+                  onTap: () {
+                    showMoreActionsForFlashcard(model: model, index: index);
+                  },
+                  child: const Icon(Icons.more_vert))
+            ],
           ),
-        ),
-      ],
+          const SizedBox(
+            height: 10,
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
+            child: FlipCard(
+              alignment: Alignment.topCenter,
+              controller: model.controller,
+              flipOnTouch: true,
+              front: getCommonFrontAndBackWidget(text: model.flashcardFront, onTap: () => model.controller.flip()),
+              back: getCommonFrontAndBackWidget(text: model.flashcardBack, onTap: () => model.controller.flip()),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -760,11 +848,11 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              "assets/cocreate/flashCard.png",
-              width: double.maxFinite,
-            ),
-            const SizedBox(height: 20),
+            // Image.asset(
+            //   "assets/cocreate/flashCard.png",
+            //   width: double.maxFinite,
+            // ),
+            // const SizedBox(height: 20),
             Text(
               text,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -836,17 +924,17 @@ class _EditFlashCardScreenState extends State<EditFlashCardScreen> with MySafeSt
   TextEditingController backController = TextEditingController();
 
   void onSaveTap() {
-    widget.arguments.model.question = frontController.text.trim();
-    widget.arguments.model.answer = backController.text.trim();
+    widget.arguments.model.flashcardFront = frontController.text.trim();
+    widget.arguments.model.flashcardBack = backController.text.trim();
     Navigator.pop(context, true);
   }
 
   @override
   void initState() {
     super.initState();
-    frontController.text = widget.arguments.model.question;
-    backController.text = widget.arguments.model.answer;
-    MyPrint.printOnConsole("Text: ${widget.arguments.model.question}");
+    frontController.text = widget.arguments.model.flashcardFront;
+    backController.text = widget.arguments.model.flashcardBack;
+    MyPrint.printOnConsole("Text: ${widget.arguments.model.flashcardFront}");
   }
 
   @override

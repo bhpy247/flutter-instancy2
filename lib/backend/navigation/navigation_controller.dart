@@ -678,6 +678,12 @@ class NavigationController {
           page = parseAddEditMicrolearningScreen(settings: settings);
           break;
         }
+
+      case MicrolearningPreviewScreen.routeName:
+        {
+          page = parseMicrolearningTitlesScreen(settings: settings);
+          break;
+        }
     }
 
     if (page == null) {
@@ -1629,6 +1635,14 @@ class NavigationController {
       return null;
     }
     return AddEditMicroLearningScreen(arguments: argument);
+  }
+
+  static Widget? parseMicrolearningTitlesScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! MicroLearningPreviewScreenNavigationArgument) {
+      return null;
+    }
+    return MicrolearningPreviewScreen(arguments: argument);
   }
 
   //endregion
@@ -2626,6 +2640,15 @@ class NavigationController {
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: AddEditMicroLearningScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToMicrolearningTitlesScreen({required NavigationOperationParameters navigationOperationParameters, required MicroLearningPreviewScreenNavigationArgument argument}) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: MicrolearningPreviewScreen.routeName,
         arguments: argument,
       ),
     );

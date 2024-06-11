@@ -1,3 +1,4 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
 import '../../../backend/app_theme/style.dart';
@@ -36,14 +37,10 @@ class _CommonBorderDropdownState<T> extends State<CommonBorderDropdown<T>> {
         borderRadius: BorderRadius.circular(4.0),
       ),
       child: DropdownButtonHideUnderline(
-        child: DropdownButton<T>(
-          padding: EdgeInsets.symmetric(vertical: widget.isDense ? 12 : 5, horizontal: 13),
+        child: DropdownButton2<T>(
           value: widget.value,
           isExpanded: widget.isExpanded,
           isDense: widget.isDense,
-          icon: Icon(
-            widget.trailingIcon,
-          ),
           onChanged: widget.onChanged,
           style: const TextStyle(
             fontSize: 14,

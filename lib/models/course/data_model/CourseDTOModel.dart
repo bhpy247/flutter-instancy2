@@ -246,7 +246,7 @@ class CourseDTOModel {
   RoleplayContentModel? roleplayContentModel;
   EventModel? eventModel;
   LearningPathModel? learningPathModel;
-  MicroLearningModel? microLearningModel;
+  MainMicroLearningModel? mainMicroLearningModel;
 
   CourseDTOModel({
     this.SiteName = "",
@@ -481,7 +481,7 @@ class CourseDTOModel {
     this.uploadedFileName,
     this.eventModel,
     this.learningPathModel,
-    this.microLearningModel,
+    this.mainMicroLearningModel,
     List<String>? Skills,
   }) {
     this.Skills = Skills ?? <String>[];

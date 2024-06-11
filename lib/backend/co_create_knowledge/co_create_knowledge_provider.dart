@@ -1,4 +1,7 @@
 import 'package:flutter_instancy_2/backend/common/common_provider.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avatar_voice_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avtar_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
 
 import '../../models/common/pagination/pagination_model.dart';
 import '../../models/course/data_model/CourseDTOModel.dart';
@@ -35,6 +38,18 @@ class CoCreateKnowledgeProvider extends CommonProvider {
       value: "CreatedDate Desc",
       notify: notify,
     );
+    avatarList = CommonProviderListParameter<Avatars>(
+      list: <Avatars>[],
+      notify: notify,
+    );
+    backgroundColorList = CommonProviderListParameter<BackgroundColorModel>(
+      list: <BackgroundColorModel>[],
+      notify: notify,
+    );
+    avatarVoiceList = CommonProviderListParameter<AvtarVoiceModel>(
+      list: <AvtarVoiceModel>[],
+      notify: notify,
+    );
 
     allLearningCommunitiesSearchString = CommonProviderPrimitiveParameter<String>(
       value: "",
@@ -66,6 +81,10 @@ class CoCreateKnowledgeProvider extends CommonProvider {
   late final CommonProviderPrimitiveParameter<String> allLearningCommunitiesSearchString;
   late final CommonProviderPrimitiveParameter<int> maxAllLearningCommunitiesListCount;
   late final CommonProviderPrimitiveParameter<PaginationModel> allLearningCommunitiesPaginationModel;
+  late final CommonProviderListParameter<Avatars> avatarList;
+  late final CommonProviderListParameter<BackgroundColorModel> backgroundColorList;
+  late final CommonProviderListParameter<AvtarVoiceModel> avatarVoiceList;
+
   final FilterProvider filterProvider = FilterProvider();
 
   void addToMyKnowledgeList(CourseDTOModel model) {
@@ -102,5 +121,9 @@ class CoCreateKnowledgeProvider extends CommonProvider {
       isNotify: false,
     );
     sortingData.set(value: "CreatedDate Desc", isNotify: false);
+
+    avatarVoiceList.setList(list: [], isNotify: false);
+    backgroundColorList.setList(list: [], isNotify: false);
+    avatarList.setList(list: [], isNotify: false);
   }
 }

@@ -21,13 +21,13 @@ class AppConstants {
   List<QuizQuestionModel> get quizModelList => [
         QuizQuestionModel(
           question: "What is the primary goal of office ergonomics?",
-          optionList: [
+          choices: [
             "A. Promote proper posture and reduce strain on the body",
             "B. Increase workload for employees",
             "C. Encourage standing desks only",
             "D. Focus on aesthetics over functionality",
           ],
-          correctAnswer: "A. Promote proper posture and reduce strain on the body",
+          correctChoice: "A. Promote proper posture and reduce strain on the body",
           correctFeedback:
               "That's right! The main goal is to create a workspace that supports good posture and reduces physical stress. By adjusting the workspace to fit the individual needs of workers, office ergonomics promotes better health and productivity.",
           inCorrectFeedback:
@@ -36,13 +36,13 @@ class AppConstants {
         ),
         QuizQuestionModel(
           question: "What is one of the risks associated with poor ergonomic setup?",
-          optionList: [
+          choices: [
             "A. Musculoskeletal disorders",
             "B. Enhanced productivity",
             "C. Improved posture",
             "D. Reduced fatigue",
           ],
-          correctAnswer: "A. Musculoskeletal disorders",
+          correctChoice: "A. Musculoskeletal disorders",
           correctFeedback: "Correct! Poor ergonomic setup can lead to various musculoskeletal disorders such as carpal tunnel syndrome, tendonitis, and lower back pain.",
           inCorrectFeedback:
               "Incorrect. Poor ergonomics can indeed increase the risk of injuries, but it's not just due to slips, trips, and falls. The primary risk is from strains and repetitive motion injuries.",
@@ -50,13 +50,13 @@ class AppConstants {
         ),
         QuizQuestionModel(
           question: "Why is a good office chair important in office ergonomics?",
-          optionList: [
+          choices: [
             "A. To increase back pain",
             "B. To encourage slouching",
             "C. To maintain proper posture and support the spine",
             "D. To promote discomfort",
           ],
-          correctAnswer: "C. To maintain proper posture and support the spine",
+          correctChoice: "C. To maintain proper posture and support the spine",
           correctFeedback:
               "Correct! A good office chair provides adequate lumbar support to maintain the natural curve of the spine. This helps prevent lower back pain and spinal issues that can arise from prolonged sitting.",
           inCorrectFeedback:
@@ -1001,4 +1001,7 @@ class QuizQuestionType {
   static const int mcq = 1;
   static const int twoChoice = 2;
   static const int both = 3;
+  static const String mcqString = "Multiple Choice";
+  static const String twoChoiceString = "True/False";
+  static const String bothString = "Both";
 }

@@ -82,7 +82,9 @@ enum InstancyContentActionsEnum {
   GenerateText,
   Regenerate,
   AddBlock,
-  AddContentItem
+  AddContentItem,
+  AddTitle,
+  RegenerateThisPage
   //endregion
 }
 

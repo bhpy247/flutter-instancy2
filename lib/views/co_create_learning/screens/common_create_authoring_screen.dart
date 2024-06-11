@@ -75,7 +75,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       coCreateContentAuthoringModel.quizContentModel = courseDTOModel.quizContentModel;
       coCreateContentAuthoringModel.roleplayContentModel = courseDTOModel.roleplayContentModel;
       coCreateContentAuthoringModel.learningPathModel = courseDTOModel.learningPathModel;
-      coCreateContentAuthoringModel.microLearningModel = courseDTOModel.microLearningModel;
+      coCreateContentAuthoringModel.mainMicroLearningModel = courseDTOModel.mainMicroLearningModel;
 
       titleController.text = coCreateContentAuthoringModel.title;
       descriptionController.text = coCreateContentAuthoringModel.description;

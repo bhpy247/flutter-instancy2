@@ -1231,3 +1231,16 @@ class AddEditMicrolearningScreenNavigationArgument extends NavigationArguments {
     this.componentInstanceId = 0,
   });
 }
+
+class MicroLearningPreviewScreenNavigationArgument extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+  final CourseDTOModel? courseDtoModel;
+  final int componentId, componentInstanceId;
+
+  const MicroLearningPreviewScreenNavigationArgument({
+    required this.coCreateContentAuthoringModel,
+    this.courseDtoModel,
+    this.componentId = 0,
+    this.componentInstanceId = 0,
+  });
+}
