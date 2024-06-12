@@ -42,7 +42,7 @@ class _ArticleScreenState extends State<ArticleScreen> with MySafeState {
   }
 
   Widget getMainBody() {
-    String htmlCode = widget.arguments.courseDTOModel?.articleHtmlCode ?? "";
+    String htmlCode = widget.arguments.courseDTOModel?.articleContentModel?.articleHtmlCode ?? "";
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),

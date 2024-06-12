@@ -21,7 +21,12 @@ import '../../common/components/common_border_dropdown.dart';
 class CreateManuallyVideoScreen extends StatefulWidget {
   static const String routeName = "/createManuallyVideoScreen";
 
-  const CreateManuallyVideoScreen({super.key});
+  final CreateManuallyVideoScreenNavigationArgument arguments;
+
+  const CreateManuallyVideoScreen({
+    super.key,
+    required this.arguments,
+  });
 
   @override
   State<CreateManuallyVideoScreen> createState() => _CreateManuallyVideoScreenState();
@@ -64,6 +69,21 @@ class _CreateManuallyVideoScreenState extends State<CreateManuallyVideoScreen> w
     await Future.wait(futures);
   }
 
+  Future<void> onGenerateTap() async {
+    dynamic value = await NavigationController.navigateToGenerateWithAiVideoScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      argument: GenerateWithAiVideoScreenNavigationArgument(coCreateContentAuthoringModel: widget.arguments.coCreateContentAuthoringModel),
+    );
+
+    if (value == true) {
+      Navigator.pop(context, true);
+      return;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -85,12 +105,7 @@ class _CreateManuallyVideoScreenState extends State<CreateManuallyVideoScreen> w
         child: CommonButton(
           minWidth: double.infinity,
           onPressed: () {
-            NavigationController.navigateToGenerateWithAiVideoScreen(
-                navigationOperationParameters: NavigationOperationParameters(
-                  context: context,
-                  navigationType: NavigationType.pushNamed,
-                ),
-                argument: const AddEditVideoScreenArgument());
+            onGenerateTap();
           },
           text: AppStrings.generateWithAI,
           fontColor: themeData.colorScheme.onPrimary,
@@ -113,45 +128,37 @@ class _CreateManuallyVideoScreenState extends State<CreateManuallyVideoScreen> w
   }
 
   Widget getMainBody() {
-    return Consumer<CoCreateKnowledgeProvider>(builder: (context, CoCreateKnowledgeProvider provider, _) {
-      avatarsList = provider.avatarList.getList();
-      backgroundColorModelList = provider.backgroundColorList.getList();
-      avatarVoiceList = provider.avatarVoiceList.getList();
-      return Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  getAvtarDropDown(),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  getVideoBackgroundDropDown(),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  getAvatarSpeechDropdown(),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  getAvatarTypeDropdown(),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  getAvatarPosition(),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                ],
-              ),
-            ],
+    return Consumer<CoCreateKnowledgeProvider>(
+      builder: (context, CoCreateKnowledgeProvider provider, _) {
+        avatarsList = provider.avatarList.getList();
+        backgroundColorModelList = provider.backgroundColorList.getList();
+        avatarVoiceList = provider.avatarVoiceList.getList();
+        return Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    getAvtarDropDown(),
+                    const SizedBox(height: 20),
+                    getVideoBackgroundDropDown(),
+                    const SizedBox(height: 20),
+                    getAvatarSpeechDropdown(),
+                    const SizedBox(height: 20),
+                    getAvatarTypeDropdown(),
+                    const SizedBox(height: 20),
+                    getAvatarPosition(),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   Widget getAvtarDropDown() {

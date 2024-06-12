@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_content_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/data_model/flashcard_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/data_model/flashcard_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 
@@ -32,57 +32,57 @@ class _FlashCardScreenState extends State<FlashCardScreen> with MySafeState {
   List<FlashcardModel> flashcards = [
     FlashcardModel(
       controller: FlipCardController(),
-      flashcardBack: "Artificial intelligence (AI) is made up of units similar to the human brain's neuron called perceptrons, which are the processing power behind AI. ",
-      flashcardFront: "What is artificial intelligence (AI) ?",
+      flashcard_front: "Artificial intelligence (AI) is made up of units similar to the human brain's neuron called perceptrons, which are the processing power behind AI. ",
+      flashcard_back: "What is artificial intelligence (AI) ?",
       assetImagePath: "assets/cocreate/Card.png",
     ),
     FlashcardModel(
       controller: FlipCardController(),
-      flashcardBack:
+      flashcard_front:
           "Neural networks are a class of machine learning algorithms inspired by the structure and functioning of the human brain. They are composed of interconnected processing units, called neurons or nodes, organized in layers.",
-      flashcardFront: "What is Neural Networks ?",
+      flashcard_back: "What is Neural Networks ?",
       assetImagePath: "assets/cocreate/Card.png",
     ),
     FlashcardModel(
       controller: FlipCardController(),
-      flashcardBack: "What are the two main types of AI",
-      flashcardFront: "Narrow AI and General AI",
+      flashcard_front: "What are the two main types of AI",
+      flashcard_back: "Narrow AI and General AI",
       assetImagePath: "assets/cocreate/Card.png",
     ),
     FlashcardModel(
       controller: FlipCardController(),
-      flashcardBack: "AI for specific tasks like facial recognition.",
-      flashcardFront: "What is Narrow AI ?",
+      flashcard_front: "AI for specific tasks like facial recognition.",
+      flashcard_back: "What is Narrow AI ?",
       assetImagePath: "assets/cocreate/Card.png",
     ),
     FlashcardModel(
       controller: FlipCardController(),
-      flashcardBack: "AI with broad human-like abilities.",
-      flashcardFront: "What is General AI ?",
+      flashcard_front: "AI with broad human-like abilities.",
+      flashcard_back: "What is General AI ?",
       assetImagePath: "assets/cocreate/Card.png",
     ),
     FlashcardModel(
       controller: FlipCardController(),
-      flashcardBack: "Virtual assistants, recommendation systems.",
-      flashcardFront: "What are some examples of Narrow AI ?",
+      flashcard_front: "Virtual assistants, recommendation systems.",
+      flashcard_back: "What are some examples of Narrow AI ?",
       assetImagePath: "assets/cocreate/Card.png",
     ),
     FlashcardModel(
       controller: FlipCardController(),
-      flashcardBack: "Safety, job displacement, misuse concerns.",
-      flashcardFront: "What are some challenges of General AI ?",
+      flashcard_front: "Safety, job displacement, misuse concerns.",
+      flashcard_back: "What are some challenges of General AI ?",
       assetImagePath: "assets/cocreate/Card.png",
     ),
     FlashcardModel(
       controller: FlipCardController(),
-      flashcardBack: "Teaching computers to learn from data.",
-      flashcardFront: "What is machine learning ?",
+      flashcard_front: "Teaching computers to learn from data.",
+      flashcard_back: "What is machine learning ?",
       assetImagePath: "assets/cocreate/Card.png",
     ),
     FlashcardModel(
       controller: FlipCardController(),
-      flashcardBack: "Supervised, unsupervised, reinforcement.",
-      flashcardFront: "What are the three main types of machine learning ?",
+      flashcard_front: "Supervised, unsupervised, reinforcement.",
+      flashcard_back: "What are the three main types of machine learning ?",
       assetImagePath: "assets/cocreate/Card.png",
     ),
   ];
@@ -168,8 +168,8 @@ class _FlashCardScreenState extends State<FlashCardScreen> with MySafeState {
             alignment: Alignment.topCenter,
             controller: model.controller,
             flipOnTouch: true,
-            front: getCommonFrontAndBackWidget(text: model.flashcardFront, onTap: () => model.controller.flip()),
-            back: getCommonFrontAndBackWidget(text: model.flashcardBack, onTap: () => model.controller.flip()),
+            front: getCommonFrontAndBackWidget(text: model.flashcard_back, onTap: () => model.controller.flip()),
+            back: getCommonFrontAndBackWidget(text: model.flashcard_front, onTap: () => model.controller.flip()),
           ),
         ),
         Spacer(),

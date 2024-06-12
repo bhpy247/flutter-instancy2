@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_instancy_2/models/micro_learning_model/data_model/micro_learning_model.dart';
+import 'package:flutter_instancy_2/configs/app_strings.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -29,9 +31,12 @@ import '../../common/components/modal_progress_hud.dart';
 class AddEditMicroLearningScreen extends StatefulWidget {
   static const String routeName = "/AddEditMicroLearningScreen";
 
-  final AddEditMicrolearningScreenNavigationArgument arguments;
+  final AddEditMicroLearningScreenNavigationArgument arguments;
 
-  const AddEditMicroLearningScreen({super.key, required this.arguments});
+  const AddEditMicroLearningScreen({
+    super.key,
+    required this.arguments,
+  });
 
   @override
   State<AddEditMicroLearningScreen> createState() => _AddEditMicroLearningScreenState();
@@ -112,10 +117,14 @@ class _AddEditMicroLearningScreenState extends State<AddEditMicroLearningScreen>
     return actions;
   }
 
+  Future<void> onGenerateTap() async {}
+
   @override
   void initState() {
     super.initState();
-    coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
+    coCreateContentAuthoringModel = CoCreateContentAuthoringModel(
+      coCreateAuthoringType: widget.arguments.coCreateContentAuthoringModel.coCreateAuthoringType,
+    );
   }
 
   @override
@@ -134,19 +143,22 @@ class _AddEditMicroLearningScreenState extends State<AddEditMicroLearningScreen>
           child: Scaffold(
             backgroundColor: Colors.white,
             resizeToAvoidBottomInset: true,
-            bottomNavigationBar: Padding(padding: const EdgeInsets.all(10.0), child: getBottomButton()),
-            appBar: AppConfigurations().commonAppBar(title: coCreateContentAuthoringModel.isEdit ? "Edit Microlearning" : "Create Microlearning", actions: [
-              if (selectedIndex + 1 == widgetList.length)
-                InkWell(
-                  onTap: () {
-                    showMoreActions(model: CourseDTOModel());
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15.0),
-                    child: Icon(Icons.more_vert),
-                  ),
-                )
-            ]),
+            bottomNavigationBar: getGenerateButton(),
+            appBar: AppConfigurations().commonAppBar(
+              title: coCreateContentAuthoringModel.isEdit ? "Edit Microlearning" : "Create Microlearning",
+              actions: [
+                if (selectedIndex + 1 == widgetList.length)
+                  InkWell(
+                    onTap: () {
+                      showMoreActions(model: CourseDTOModel());
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 15.0),
+                      child: Icon(Icons.more_vert),
+                    ),
+                  )
+              ],
+            ),
             body: AppUIComponents.getBackGroundBordersRounded(
               context: context,
               child: Padding(
@@ -227,6 +239,20 @@ class _AddEditMicroLearningScreenState extends State<AddEditMicroLearningScreen>
     );
   }
 
+  Widget getGenerateButton() {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: CommonButton(
+        onPressed: () {
+          onGenerateTap();
+        },
+        minWidth: double.infinity,
+        text: AppStrings.generateWithAI,
+        fontColor: themeData.colorScheme.onPrimary,
+      ),
+    );
+  }
+
   Widget getPageTextField() {
     return Row(
       children: [
@@ -272,7 +298,7 @@ class _AddEditMicroLearningScreenState extends State<AddEditMicroLearningScreen>
                 children: [
                   Text(text),
                   const SizedBox(
-                    width: 30,
+                    width: 30
                   ),
                   SizedBox(
                     height: 15,
@@ -413,7 +439,7 @@ class _AddEditMicroLearningScreenState extends State<AddEditMicroLearningScreen>
                 microlearningList.forEach((element) {
                   MyPrint.printOnConsole("microLearningLists : ${element.questionType}");
                 });
-                coCreateContentAuthoringModel.mainMicroLearningModel = MainMicroLearningModel(mainMicroLearningModelList: microlearningList);
+                coCreateContentAuthoringModel.microLearningContentModel = MicroLearningContentModel(microLearningModelList: microlearningList);
                 NavigationController.navigateToMicrolearningTitlesScreen(
                   navigationOperationParameters: NavigationOperationParameters(
                     context: context,
@@ -509,18 +535,19 @@ class _AddEditMicroLearningScreenState extends State<AddEditMicroLearningScreen>
   }
 
   //region textFieldView
-  Widget getTexFormField(
-      {TextEditingController? controller,
-      String iconUrl = "",
-      String? Function(String?)? validator,
-      String labelText = "Label",
-      Widget? suffixWidget,
-      required bool isMandatory,
-      int? minLines,
-      int? maxLines,
-      TextInputType? keyBoardType,
-      double iconHeight = 15,
-      double iconWidth = 15}) {
+  Widget getTexFormField({
+    TextEditingController? controller,
+    String iconUrl = "",
+    String? Function(String?)? validator,
+    String labelText = "Label",
+    Widget? suffixWidget,
+    required bool isMandatory,
+    int? minLines,
+    int? maxLines,
+    TextInputType? keyBoardType,
+    double iconHeight = 15,
+    double iconWidth = 15,
+  }) {
     return CommonTextFormFieldWithLabel(
       controller: controller,
       label: isMandatory ? labelWithStar(labelText) : null,
@@ -620,9 +647,9 @@ class _MicrolearningPreviewScreenState extends State<MicrolearningPreviewScreen>
       2,
       MicroLearningModel(title: "Challenges in Urban Sustainability", questionType: MicrolearningTypes.question, quizQuestionModel: quizModel),
     );
-    MainMicroLearningModel mainMicroLearningModel = MainMicroLearningModel(mainMicroLearningModelList: microLearningList);
-    coCreateContentAuthoringModel.mainMicroLearningModel = mainMicroLearningModel;
-    MyPrint.printOnConsole("mainMicroLearningModel:  ${coCreateContentAuthoringModel.mainMicroLearningModel?.mainMicroLearningModelList}");
+    MicroLearningContentModel microLearningContentModel = MicroLearningContentModel(microLearningModelList: microLearningList);
+    coCreateContentAuthoringModel.microLearningContentModel = microLearningContentModel;
+    MyPrint.printOnConsole("mainMicroLearningModel:  ${coCreateContentAuthoringModel.microLearningContentModel?.microLearningModelList}");
     CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
 
     if (courseDTOModel != null) {
@@ -637,7 +664,7 @@ class _MicrolearningPreviewScreenState extends State<MicrolearningPreviewScreen>
 
       courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
 
-      courseDTOModel.mainMicroLearningModel = mainMicroLearningModel;
+      courseDTOModel.microLearningContentModel = microLearningContentModel;
 
       if (!coCreateContentAuthoringModel.isEdit) {
         context.read<CoCreateKnowledgeProvider>().myKnowledgeList.setList(list: [courseDTOModel], isClear: false, isNotify: true);
@@ -696,7 +723,7 @@ class _MicrolearningPreviewScreenState extends State<MicrolearningPreviewScreen>
   }
 
   void initialize() {
-    // microLearningList = widget.arguments.coCreateContentAuthoringModel.mainMicroLearningModel?.mainMicroLearningModelList ?? [];
+    // microLearningList = widget.arguments.coCreateContentAuthoringModel.mainMicroLearningModel?.microLearningModelList ?? [];
     mySetState();
     microLearningList.forEach((element) {
       MyPrint.printOnConsole("microLearningLists : ${element.questionType}");
@@ -746,7 +773,7 @@ class _MicrolearningPreviewScreenState extends State<MicrolearningPreviewScreen>
                     onTap: () {
                       Navigator.pop(context);
                     },
-                    child: Icon(Icons.clear),
+                    child: const Icon(Icons.clear),
                   ),
                 )
               ],
@@ -793,7 +820,7 @@ class _MicrolearningPreviewScreenState extends State<MicrolearningPreviewScreen>
                 onTap: () {
                   showMoreActions(model: CourseDTOModel());
                 },
-                child: Icon(Icons.more_vert))
+                child: const Icon(Icons.more_vert))
           ],
         ),
         Expanded(child: getPageView())
@@ -858,7 +885,7 @@ class _MicrolearningPreviewScreenState extends State<MicrolearningPreviewScreen>
         }
         return Column(
           children: [
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Text(
@@ -866,7 +893,7 @@ class _MicrolearningPreviewScreenState extends State<MicrolearningPreviewScreen>
               style: TextStyle(fontSize: 22, color: themeData.primaryColor, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Expanded(

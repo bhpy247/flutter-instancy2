@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation_arguments.dart';
 import 'package:flutter_instancy_2/configs/app_strings.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/video_screen.dart';
+import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../backend/app_theme/style.dart';
@@ -21,16 +29,35 @@ import '../component/common_save_exit_button_row.dart';
 class GenerateWithAiVideoScreen extends StatefulWidget {
   static const String routeName = "/GenerateWithAiVideoScreen";
 
-  const GenerateWithAiVideoScreen({super.key});
+  final GenerateWithAiVideoScreenNavigationArgument arguments;
+
+  const GenerateWithAiVideoScreen({
+    super.key,
+    required this.arguments,
+  });
 
   @override
   State<GenerateWithAiVideoScreen> createState() => _GenerateWithAiVideoScreenState();
 }
 
 class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> with MySafeState {
+  bool isLoading = false;
+
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+
+  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
   VideoPlayerController? _videoPlayerController;
   Future<void>? futureInitializeVideo;
   bool isTranscriptOpen = true;
+
+  void initializeData() {
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+
+    coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
+  }
 
   Future<void> getData() async {
     await _videoPlayerController!.initialize();
@@ -73,9 +100,62 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
     );
   }
 
+  Future<CourseDTOModel?> saveContent() async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("GenerateWithAiFlashCardScreen().saveFlashcard() called", tag: tag);
+
+    isLoading = true;
+    mySetState();
+
+    String? contentId = await coCreateKnowledgeController.addEditContentItem(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
+    MyPrint.printOnConsole("contentId:'$contentId'", tag: tag);
+
+    isLoading = false;
+    mySetState();
+
+    if (contentId.checkEmpty) {
+      MyPrint.printOnConsole("Returning from AddEditEventScreen().saveEvent() because contentId is null or empty", tag: tag);
+      return null;
+    }
+
+    CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
+
+    return courseDTOModel;
+  }
+
+  Future<void> onSaveAndExitTap() async {
+    CourseDTOModel? courseDTOModel = await saveContent();
+
+    if (courseDTOModel == null) {
+      return;
+    }
+
+    Navigator.pop(context, true);
+  }
+
+  Future<void> onSaveAndViewTap() async {
+    CourseDTOModel? courseDTOModel = await saveContent();
+
+    if (courseDTOModel == null) {
+      return;
+    }
+
+    await NavigationController.navigateToVideoScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+    );
+
+    Navigator.pop(context, true);
+  }
+
   @override
   void initState() {
     super.initState();
+
+    initializeData();
+
     VideoPlayerOptions videoPlayerOptions = VideoPlayerOptions(
       allowBackgroundPlayback: false,
       mixWithOthers: false,
@@ -102,14 +182,20 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
-    return Scaffold(
-      appBar: getAppBar(),
-      bottomNavigationBar: getCommonButton(),
-      body: AppUIComponents.getBackGroundBordersRounded(
-        context: context,
-        child: getMainBody(
-          futureInitializeVideo: futureInitializeVideo,
-          videoPlayerController: _videoPlayerController,
+    return PopScope(
+      canPop: !isLoading,
+      child: ModalProgressHUD(
+        inAsyncCall: isLoading,
+        child: Scaffold(
+          appBar: getAppBar(),
+          bottomNavigationBar: getCommonButton(),
+          body: AppUIComponents.getBackGroundBordersRounded(
+            context: context,
+            child: getMainBody(
+              futureInitializeVideo: futureInitializeVideo,
+              videoPlayerController: _videoPlayerController,
+            ),
+          ),
         ),
       ),
     );
@@ -293,17 +379,10 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20),
       child: CommonSaveExitButtonRow(
         onSaveAndExitPressed: () {
-          Navigator.pop(context);
+          onSaveAndExitTap();
         },
         onSaveAndViewPressed: () {
-          Navigator.pop(context);
-
-          NavigationController.navigateToVideoScreen(
-            navigationOperationParameters: NavigationOperationParameters(
-              context: context,
-              navigationType: NavigationType.pushNamed,
-            ),
-          );
+          onSaveAndViewTap();
         },
       ),
     );

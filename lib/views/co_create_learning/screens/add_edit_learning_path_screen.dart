@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
+import 'package:flutter_instancy_2/configs/app_configurations.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/local_str.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/learning_path/data_model/learning_path_content_model.dart';
+import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/views/catalog/components/catalogContentListComponent.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/common_save_exit_button_row.dart';
+import 'package:flutter_instancy_2/views/common/components/app_ui_components.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:flutter_instancy_2/views/common/components/common_text_form_field.dart';
+import 'package:flutter_instancy_2/views/common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-
-import '../../../backend/app/app_provider.dart';
-import '../../../backend/co_create_knowledge/co_create_knowledge_controller.dart';
-import '../../../backend/co_create_knowledge/co_create_knowledge_provider.dart';
-import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
-import '../../../configs/app_configurations.dart';
-import '../../../configs/app_constants.dart';
-import '../../../models/app_configuration_models/data_models/local_str.dart';
-import '../../../models/co_create_knowledge/co_create_content_authoring_model.dart';
-import '../../../models/course/data_model/CourseDTOModel.dart';
-import '../../../models/learning_path/response_model/learning_path_model.dart';
-import '../../../utils/my_print.dart';
-import '../../catalog/components/catalogContentListComponent.dart';
-import '../../common/components/app_ui_components.dart';
-import '../../common/components/instancy_ui_actions/instancy_ui_actions.dart';
 
 class AddEditLearningPathScreen extends StatefulWidget {
   static const String routeName = "/AddEditLearningPathScreen";
@@ -38,11 +36,9 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
   String title = "";
   late AppProvider appProvider;
 
-  late CoCreateKnowledgeController _controller;
-  late CoCreateKnowledgeProvider _provider;
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
-  LearningPathModel learningPathList = LearningPathModel(blockListModel: [
+  LearningPathContentModel learningPathList = LearningPathContentModel(blockListModel: [
     BlockListModel(blockName: "Intelligent Agents: The Future of Autonomous Systems", blockContentList: [
       CourseDTOModel(
         Title: "Generative AI and its Transformative Potential",
@@ -237,7 +233,7 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
         arguments: FlashCardScreenNavigationArguments(courseDTOModel: model),
       );
     } else if (objectType == InstancyObjectTypes.rolePlay) {
-      dynamic value = await NavigationController.navigateToRolePlayLaunchScreen(
+      await NavigationController.navigateToRolePlayLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
@@ -435,9 +431,9 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
   }
 
   Future<CourseDTOModel?> saveFlashcard() async {
-    LearningPathModel learningPathModel = coCreateContentAuthoringModel.learningPathModel ?? LearningPathModel();
+    LearningPathContentModel learningPathModel = coCreateContentAuthoringModel.learningPathContentModel ?? LearningPathContentModel();
     learningPathModel.blockListModel = learningPathList.blockListModel;
-    coCreateContentAuthoringModel.learningPathModel = learningPathModel;
+    coCreateContentAuthoringModel.learningPathContentModel = learningPathModel;
 
     CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
 
@@ -453,7 +449,7 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
 
       courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
 
-      courseDTOModel.learningPathModel = learningPathModel;
+      courseDTOModel.learningPathContentModel = learningPathModel;
 
       if (!coCreateContentAuthoringModel.isEdit) {
         context.read<CoCreateKnowledgeProvider>().myKnowledgeList.setList(list: [courseDTOModel], isClear: false, isNotify: true);
@@ -499,7 +495,7 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
     title = widget.arguments.model?.ContentName ?? "";
     if (title.isEmpty) title = "Technology in sustainable urban planning";
-    LearningPathModel? learningPathModel = widget.arguments.model?.learningPathModel;
+    LearningPathContentModel? learningPathModel = widget.arguments.model?.learningPathContentModel;
     if (learningPathModel != null) {
       learningPathList = learningPathModel;
     }
@@ -509,8 +505,6 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
   void initState() {
     super.initState();
     appProvider = context.read<AppProvider>();
-    _provider = context.read<CoCreateKnowledgeProvider>();
-    _controller = CoCreateKnowledgeController(coCreateKnowledgeProvider: _provider);
     initializeData();
   }
 
@@ -549,10 +543,11 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
   }
 
   Widget getMainBody() {
-    if (learningPathList.blockListModel.checkEmpty)
-      return Center(
+    if (learningPathList.blockListModel.checkEmpty) {
+      return const Center(
         child: Text("No Block Available"),
       );
+    }
     return SingleChildScrollView(
       child: Column(
         children: List.generate(

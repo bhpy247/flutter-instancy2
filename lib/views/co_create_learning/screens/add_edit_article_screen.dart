@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart' as flutter_inappwebview;
 import 'package:flutter_instancy_2/backend/app_theme/style.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_arguments.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_controller.dart';
@@ -9,12 +10,14 @@ import 'package:flutter_instancy_2/backend/navigation/navigation_operation_param
 import 'package:flutter_instancy_2/backend/navigation/navigation_type.dart' as navigation_type;
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/article/data_model/article_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
+import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/common_save_exit_button_row.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:flutter_instancy_2/views/common/components/common_text_form_field.dart';
@@ -47,16 +50,21 @@ class _AddEditArticleScreenState extends State<AddEditArticleScreen> with MySafe
     "Skip",
   ];
 
-  void onNextTap() {
-    widget.arguments.coCreateContentAuthoringModel.selectedArticleSourceType = _selectedOption;
+  Future<void> onNextTap() async {
+    ArticleContentModel articleContentModel = widget.arguments.coCreateContentAuthoringModel.articleContentModel ??= ArticleContentModel();
+    articleContentModel.selectedArticleSourceType = _selectedOption;
 
-    Navigator.pushNamed(
+    dynamic value = await Navigator.pushNamed(
       context,
       ArticleEditorScreen.routeName,
       arguments: ArticleEditorScreenNavigationArgument(
         coCreateContentAuthoringModel: widget.arguments.coCreateContentAuthoringModel,
       ),
     );
+    if (value == true) {
+      Navigator.pop(context, true);
+      return;
+    }
 
     /*NavigationController.navigateToArticleEditorScreen(
       navigationOperationParameters: NavigationOperationParameters(
@@ -74,7 +82,7 @@ class _AddEditArticleScreenState extends State<AddEditArticleScreen> with MySafe
   void initState() {
     super.initState();
 
-    _selectedOption = widget.arguments.coCreateContentAuthoringModel.selectedArticleSourceType ?? "";
+    _selectedOption = widget.arguments.coCreateContentAuthoringModel.articleContentModel?.selectedArticleSourceType ?? "";
     if (!radioStringList.contains(_selectedOption)) _selectedOption = radioStringList.firstOrNull ?? "";
   }
 
@@ -180,11 +188,16 @@ class ArticleEditorScreen extends StatefulWidget {
 }
 
 class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeState {
+  bool isLoading = false;
+
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+
+  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
   final HtmlEditorController controller = HtmlEditorController();
 
   String? initialHtmlString;
-
-  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
   double? maxHeight;
 
@@ -385,9 +398,12 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
 """;
 
   void initializeData() {
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
 
-    initialHtmlString = coCreateContentAuthoringModel.articleHtmlCode;
+    initialHtmlString = coCreateContentAuthoringModel.articleContentModel?.articleHtmlCode;
     if (!coCreateContentAuthoringModel.isEdit) initialHtmlString = defaultArticleScreen;
   }
 
@@ -484,7 +500,10 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
     return htmlCode;
   }
 
-  Future<CourseDTOModel?> saveArticle() async {
+  Future<CourseDTOModel?> saveContent() async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("ArticleEditorScreen().saveContent() called", tag: tag);
+
     String htmlString = await exportHtmlString();
 
     if (htmlString.isEmpty) {
@@ -492,56 +511,45 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
       return null;
     }
 
-    coCreateContentAuthoringModel.articleHtmlCode = htmlString;
+    coCreateContentAuthoringModel.articleContentModel?.articleHtmlCode = htmlString;
+
+    isLoading = true;
+    mySetState();
+
+    String? contentId = await coCreateKnowledgeController.addEditContentItem(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
+    MyPrint.printOnConsole("contentId:'$contentId'", tag: tag);
+
+    isLoading = false;
+    mySetState();
+
+    if (contentId.checkEmpty) {
+      MyPrint.printOnConsole("Returning from AddEditEventScreen().saveEvent() because contentId is null or empty", tag: tag);
+      return null;
+    }
 
     CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
-
-    if (courseDTOModel != null) {
-      courseDTOModel.ContentName = coCreateContentAuthoringModel.title;
-      courseDTOModel.Title = coCreateContentAuthoringModel.title;
-      courseDTOModel.TitleName = coCreateContentAuthoringModel.title;
-
-      courseDTOModel.ShortDescription = coCreateContentAuthoringModel.description;
-      courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
-
-      courseDTOModel.Skills = coCreateContentAuthoringModel.skills;
-
-      courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
-
-      courseDTOModel.articleHtmlCode = htmlString;
-
-      if (!coCreateContentAuthoringModel.isEdit) {
-        context.read<CoCreateKnowledgeProvider>().myKnowledgeList.setList(list: [courseDTOModel], isClear: false, isNotify: true);
-      }
-    }
 
     return courseDTOModel;
   }
 
   Future<void> onSaveAndExitTap() async {
-    CourseDTOModel? courseDTOModel = await saveArticle();
+    CourseDTOModel? courseDTOModel = await saveContent();
 
     if (courseDTOModel == null) {
       return;
     }
 
-    Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.pop(context);
+    Navigator.pop(context, true);
   }
 
   Future<void> onSaveAndViewTap() async {
-    CourseDTOModel? courseDTOModel = await saveArticle();
+    CourseDTOModel? courseDTOModel = await saveContent();
 
     if (courseDTOModel == null) {
       return;
     }
 
-    Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.pop(context);
-
-    NavigationController.navigateToArticlePreviewScreen(
+    await NavigationController.navigateToArticlePreviewScreen(
       navigationOperationParameters: NavigationOperationParameters(
         context: context,
         navigationType: navigation_type.NavigationType.pushNamed,
@@ -550,6 +558,8 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
         model: courseDTOModel,
       ),
     );
+
+    Navigator.pop(context, true);
   }
 
   @override
@@ -563,15 +573,21 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
   Widget build(BuildContext context) {
     super.pageBuild();
 
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
-      child: Scaffold(
-        appBar: AppConfigurations().commonAppBar(
-          title: "Article",
-        ),
-        body: AppUIComponents.getBackGroundBordersRounded(
-          context: context,
-          child: getMainBody(),
+    return PopScope(
+      canPop: !isLoading,
+      child: ModalProgressHUD(
+        inAsyncCall: isLoading,
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+          child: Scaffold(
+            appBar: AppConfigurations().commonAppBar(
+              title: "Article",
+            ),
+            body: AppUIComponents.getBackGroundBordersRounded(
+              context: context,
+              child: getMainBody(),
+            ),
+          ),
         ),
       ),
     );
@@ -628,12 +644,14 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
       builder: (BuildContext context, BoxConstraints constraints) {
         maxHeight ??= constraints.maxHeight;
 
+        String? articleHtmlCode = widget.arguments.coCreateContentAuthoringModel.articleContentModel?.articleHtmlCode;
+
         return HtmlEditor(
           controller: controller,
           htmlEditorOptions: HtmlEditorOptions(
             hint: 'Your text here...',
             shouldEnsureVisible: true,
-            initialText: widget.arguments.coCreateContentAuthoringModel.articleHtmlCode.checkNotEmpty ? widget.arguments.coCreateContentAuthoringModel.articleHtmlCode : defaultArticleScreen,
+            initialText: articleHtmlCode.checkNotEmpty ? articleHtmlCode : initialHtmlString,
           ),
           htmlToolbarOptions: HtmlToolbarOptions(
               textStyle: themeData.textTheme.labelMedium,
@@ -1262,7 +1280,7 @@ class _ArticlePreviewScreenState extends State<ArticlePreviewScreen> with MySafe
         ),
         body: AppUIComponents.getBackGroundBordersRounded(
           context: context,
-          child: getMainBody(htmlCode: widget.arguments.model.articleHtmlCode ?? ""),
+          child: getMainBody(htmlCode: widget.arguments.model.articleContentModel?.articleHtmlCode ?? ""),
         ),
       ),
     );
@@ -1277,7 +1295,7 @@ class _ArticlePreviewScreenState extends State<ArticlePreviewScreen> with MySafe
           padding: const EdgeInsets.only(right: 18.0),
           child: flutter_inappwebview.InAppWebView(
             initialData: flutter_inappwebview.InAppWebViewInitialData(
-              data: widget.arguments.model.articleHtmlCode ?? "",
+              data: widget.arguments.model.articleContentModel?.articleHtmlCode ?? "",
             ),
             onWebViewCreated: (flutter_inappwebview.InAppWebViewController webViewController) {
               MyPrint.printOnConsole("onWebViewCreated called with webViewController:$webViewController");

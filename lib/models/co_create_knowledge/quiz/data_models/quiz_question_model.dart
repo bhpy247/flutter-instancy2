@@ -1,33 +1,10 @@
-import '../../../../utils/my_utils.dart';
-import '../../../../utils/parsing_helper.dart';
-
-class QuizResponseModel {
-  List<QuizQuestionModel> assessment = const [];
-
-  QuizResponseModel({this.assessment = const []});
-
-  QuizResponseModel.fromMap(Map<String, dynamic> json) {
-    if (json['Assessment'] != null) {
-      assessment = <QuizQuestionModel>[];
-      json['Assessment'].forEach((v) {
-        assessment.add(QuizQuestionModel.fromJson(v));
-      });
-    }
-  }
-
-  Map<String, dynamic> toMap() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['Assessment'] = assessment.map((v) => v.toJson()).toList();
-    return data;
-  }
-}
+import 'package:flutter_instancy_2/utils/my_utils.dart';
+import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
 class QuizQuestionModel {
   String question = "";
-  String type = "";
-  List<String> choices = [];
-  List<bool> isEditModeEnable = <bool>[];
   String correctChoice = "";
+  String type = "";
   String selectedAnswer = "";
   String correctFeedback = "";
   String inCorrectFeedback = "";
@@ -35,52 +12,61 @@ class QuizQuestionModel {
   bool isCorrectAnswerGiven = false;
   bool isQuestionEditable = false;
   bool isAnswerSelectedForSubmit = false;
+  List<String> choices = [];
+  List<bool> isEditModeEnable = <bool>[];
 
   QuizQuestionModel({
     this.question = "",
-    this.type = "",
     this.correctChoice = "",
+    this.type = "",
     this.selectedAnswer = "",
     this.correctFeedback = "",
     this.inCorrectFeedback = "",
-    this.choices = const [],
     this.isAnswerGiven = false,
     this.isCorrectAnswerGiven = false,
-    this.isEditModeEnable = const [],
     this.isQuestionEditable = false,
     this.isAnswerSelectedForSubmit = false,
-  });
-
-  QuizQuestionModel.fromJson(Map<String, dynamic> map) {
-    _initializeFromJson(map);
+    List<String>? choices,
+    List<bool>? isEditModeEnable,
+  }) {
+    this.choices = choices ?? <String>[];
+    this.isEditModeEnable = isEditModeEnable ?? <bool>[];
   }
 
-  void updateFromJson(Map<String, dynamic> map) {
-    _initializeFromJson(map);
+  QuizQuestionModel.fromMap(Map<String, dynamic> map) {
+    _initializeFromMap(map);
   }
 
-  void _initializeFromJson(Map<String, dynamic> map) {
-    choices = ParsingHelper.parseListMethod(map['choices']);
-    correctChoice = ParsingHelper.parseStringMethod(map['correct_choice']);
-    question = ParsingHelper.parseStringMethod(map['question']);
-    type = ParsingHelper.parseStringMethod(map['type']);
-
-    choices.forEach((element) {
-      isEditModeEnable.add(false);
-    });
+  void updateFromMap(Map<String, dynamic> map) {
+    _initializeFromMap(map);
   }
 
-  Map<String, dynamic> toJson({bool toJson = false}) {
-    return {
-      'choices': choices,
-      'correct_choice': correctChoice,
-      'question': question,
-      'type': type,
+  void _initializeFromMap(Map<String, dynamic> map) {
+    question = map["question"] != null ? ParsingHelper.parseStringMethod(map["question"]) : question;
+    correctChoice = map["correctChoice"] != null ? ParsingHelper.parseStringMethod(map["correctChoice"]) : correctChoice;
+    type = map["type"] != null ? ParsingHelper.parseStringMethod(map["type"]) : type;
+    correctFeedback = map["correctFeedback"] != null ? ParsingHelper.parseStringMethod(map["correctFeedback"]) : correctFeedback;
+    inCorrectFeedback = map["inCorrectFeedback"] != null ? ParsingHelper.parseStringMethod(map["inCorrectFeedback"]) : inCorrectFeedback;
+    choices = map["choices"] != null ? ParsingHelper.parseListMethod<dynamic, String>(map["choices"]) : choices;
+
+    isEditModeEnable
+      ..clear()
+      ..addAll(List.generate(choices.length, (index) => false));
+  }
+
+  Map<String, dynamic> toMap({bool toJson = true}) {
+    return <String, dynamic>{
+      "question": question,
+      "correctChoice": correctChoice,
+      "type": type,
+      "correctFeedback": correctFeedback,
+      "inCorrectFeedback": inCorrectFeedback,
+      "choices": choices,
     };
   }
 
   @override
   String toString() {
-    return MyUtils.encodeJson(toJson(toJson: true));
+    return MyUtils.encodeJson(toMap(toJson: true));
   }
 }

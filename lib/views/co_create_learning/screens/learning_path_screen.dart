@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_instancy_2/models/learning_path/response_model/learning_path_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/learning_path/data_model/learning_path_content_model.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:provider/provider.dart';
 
@@ -34,10 +35,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> with MySafeStat
   String title = "";
   late AppProvider appProvider;
 
-  late CoCreateKnowledgeController _controller;
   late CoCreateKnowledgeProvider _provider;
 
-  LearningPathModel learningPathList = LearningPathModel(blockListModel: [
+  LearningPathContentModel learningPathList = LearningPathContentModel(blockListModel: [
     BlockListModel(blockName: "Intelligent Agents: The Future of Autonomous Systems", blockContentList: [
       CourseDTOModel(
         Title: "Generative AI and its Transformative Potential",
@@ -154,7 +154,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> with MySafeStat
         arguments: FlashCardScreenNavigationArguments(courseDTOModel: model),
       );
     } else if (objectType == InstancyObjectTypes.rolePlay) {
-      dynamic value = await NavigationController.navigateToRolePlayLaunchScreen(
+      await NavigationController.navigateToRolePlayLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
@@ -313,26 +313,34 @@ class _LearningPathScreenState extends State<LearningPathScreen> with MySafeStat
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: AddEditDocumentScreenArguments(componentId: 0, componentInsId: 0, courseDtoModel: model),
+        arguments: const AddEditDocumentScreenArguments(coCreateContentAuthoringModel: null),
       );
     } else if (objectType == InstancyObjectTypes.referenceUrl) {
-      NavigationController.navigateToCreateDocumentScreen(
+      CoCreateContentAuthoringModel coCreateContentAuthoringModel = CoCreateContentAuthoringModel(coCreateAuthoringType: CoCreateAuthoringType.Edit);
+      CoCreateKnowledgeController(coCreateKnowledgeProvider: null).initializeCoCreateContentAuthoringModelFromCourseDTOModel(
+        courseDTOModel: model,
+        coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+      );
+
+      NavigationController.navigateToCreateUrlScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: AddEditReferenceScreenArguments(
-          courseDtoModel: model,
-          componentId: 0,
-          componentInsId: 0,
+        argument: CreateUrlScreenNavigationArguments(
+          componentId: widget.arguments.componentId,
+          componentInsId: widget.arguments.componentInstanceId,
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
         ),
       );
     } else {
       NavigationController.navigateCommonCreateAuthoringToolScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         argument: CommonCreateAuthoringToolScreenArgument(
+          coCreateAuthoringType: CoCreateAuthoringType.Edit,
           courseDtoModel: model,
           objectTypeId: objectType,
+          mediaTypeId: 0,
           componentId: widget.arguments.componentId,
           componentInsId: widget.arguments.componentInstanceId,
         ),
@@ -410,7 +418,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> with MySafeStat
   void initializeData() {
     title = widget.arguments.model.ContentName;
     if (title.isEmpty) title = "Technology in sustainable urban planning";
-    LearningPathModel? learningPathModel = widget.arguments.model.learningPathModel;
+    LearningPathContentModel? learningPathModel = widget.arguments.model.learningPathContentModel;
     //
     if (learningPathModel != null) {
       learningPathList = learningPathModel;
@@ -422,7 +430,6 @@ class _LearningPathScreenState extends State<LearningPathScreen> with MySafeStat
     super.initState();
     appProvider = context.read<AppProvider>();
     _provider = context.read<CoCreateKnowledgeProvider>();
-    _controller = CoCreateKnowledgeController(coCreateKnowledgeProvider: _provider);
     initializeData();
   }
 

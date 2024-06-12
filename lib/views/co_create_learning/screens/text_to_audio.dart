@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
-import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/data_model/podcast_content_model.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -24,7 +25,7 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
   TextEditingController textEditingController = TextEditingController();
   TextEditingController promptEditingController = TextEditingController();
 
-  bool isRegenerateTap = false, onNextTap = false;
+  bool isRegenerateTap = false;
 
   void showBottomSheetDialog() {
     showModalBottomSheet(
@@ -39,6 +40,9 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
               ListTile(
                 onTap: () {
                   Navigator.pop(context);
+
+                  textEditingController.clear();
+                  mySetState();
                 },
                 leading: const Icon(
                   Icons.delete,
@@ -65,9 +69,30 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
     );
   }
 
+  Future<void> onNextTap() async {
+    CoCreateContentAuthoringModel coCreateContentAuthoringModel = widget.argument.coCreateContentAuthoringModel;
+    PodcastContentModel podcastContentModel = coCreateContentAuthoringModel.podcastContentModel ??= PodcastContentModel();
+
+    podcastContentModel.audioTranscript = textEditingController.text.trim();
+
+    dynamic value = await NavigationController.navigateToTextToAudioGenerateWithAIScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      argument: TextToAudioGenerateWithAIScreenNavigationArgument(coCreateContentAuthoringModel: coCreateContentAuthoringModel),
+    );
+
+    if (value == true) {
+      Navigator.pop(context, true);
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppConfigurations().commonAppBar(
@@ -81,7 +106,7 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
           ),
         ],
       ),
-      body: onNextTap ? TextToAudioGenerateWithAIScreen() : mainWidget(),
+      body: mainWidget(),
     );
   }
 
@@ -94,17 +119,13 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
                   Column(
                     children: [
                       getTitleTextFormField(),
                     ],
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
 
                   isRegenerateTap ? getPromptTextFormField() : const SizedBox(),
                   // const SizedBox(height: 10,),
@@ -118,8 +139,7 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
           CommonButton(
             minWidth: double.infinity,
             onPressed: () {
-              onNextTap = true;
-              mySetState();
+              onNextTap();
             },
             text: "Next",
             fontColor: themeData.colorScheme.onPrimary,
@@ -268,14 +288,22 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
 }
 
 class TextToAudioGenerateWithAIScreen extends StatefulWidget {
-  const TextToAudioGenerateWithAIScreen({super.key});
+  static const String routeName = "/TextToAudioGenerateWithAIScreen";
+
+  final TextToAudioGenerateWithAIScreenNavigationArgument argument;
+
+  const TextToAudioGenerateWithAIScreen({
+    super.key,
+    required this.argument,
+  });
 
   @override
   State<TextToAudioGenerateWithAIScreen> createState() => _TextToAudioGenerateWithAIScreenState();
 }
 
 class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWithAIScreen> with MySafeState {
-  String? selectedVoiceSpeed, selectedTone, selectedVoice;
+  double? selectedVoiceSpeed;
+  String? selectedTone, selectedVoice;
 
   List<AudioModel> genderAudioList = [
     AudioModel(name: "Rose Marriot", gender: "Female", language: "British"),
@@ -289,30 +317,59 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
     AudioModel(name: "John", gender: "Male", language: "British"),
   ];
 
+  Future<void> onGenerateWithAITap() async {
+    CoCreateContentAuthoringModel coCreateContentAuthoringModel = widget.argument.coCreateContentAuthoringModel;
+    PodcastContentModel podcastContentModel = coCreateContentAuthoringModel.podcastContentModel ??= PodcastContentModel();
+
+    podcastContentModel.voiceSpeed = selectedVoiceSpeed ?? 1;
+    podcastContentModel.voiceTone = selectedTone ?? "";
+    podcastContentModel.voiceName = selectedVoice ?? "";
+
+    dynamic value = await NavigationController.navigateToPodcastPreviewScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      argument: PodcastPreviewScreenNavigationArgument(
+        coCreateContentAuthoringModel: widget.argument.coCreateContentAuthoringModel,
+        isRetakeRequired: false,
+      ),
+    );
+
+    if (value == true) {
+      Navigator.pop(context, true);
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
+
     return Scaffold(
+      appBar: AppConfigurations().commonAppBar(
+        title: "Text to Audio",
+      ),
       body: getMainBody(),
     );
   }
 
   Widget getMainBody() {
     return Container(
-      margin: EdgeInsets.all(20),
+      margin: const EdgeInsets.all(20),
       child: Column(
         children: [
-          CommonBorderDropdown2<String?>(
+          CommonBorderDropdown2<double?>(
             isExpanded: true,
-            items: const ["1x", "2x", "3x"],
-            onChanged: (String? val) {
+            items: const [1, 2, 3],
+            onChanged: (double? val) {
               selectedVoiceSpeed = val;
               mySetState();
             },
             value: selectedVoiceSpeed,
             hintText: "Voice Speed",
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           CommonBorderDropdown2<String?>(
@@ -333,7 +390,7 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
             value: selectedTone,
             hintText: "Tone",
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           CommonBorderDropdown2<String?>(
@@ -348,16 +405,11 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
           ),
           getGenderAudioList(),
           // SizedBox()
-          Spacer(),
+          const Spacer(),
           CommonButton(
             minWidth: double.infinity,
             onPressed: () {
-              NavigationController.navigateToPodcastPreviewScreen(
-                  navigationOperationParameters: NavigationOperationParameters(
-                  context: context,
-                  navigationType: NavigationType.pushNamed,
-                ),
-                  argument: PodcastPreviewScreenNavigationArgument(model: CourseDTOModel(), isRetakeRequired: false));
+              onGenerateWithAITap();
             },
             text: "Generate with AI",
             fontColor: themeData.colorScheme.onPrimary,
@@ -368,7 +420,7 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
   }
 
   Widget getGenderAudioList() {
-    if (selectedVoice == null) return SizedBox();
+    if (selectedVoice == null) return const SizedBox();
     List<AudioModel> list = [];
     if (selectedVoice == "Male") {
       list = genderAudioList.where((element) => element.gender == selectedVoice).toList();
@@ -394,14 +446,14 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
               child: Row(
                 children: [
                   Container(
-                    padding: EdgeInsets.all(5),
+                    padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(color: !audioModel.isPlay ? Colors.grey[300] : themeData.primaryColor, shape: BoxShape.circle),
                     child: Icon(
                       audioModel.isPlay ? Icons.pause : Icons.play_arrow,
                       color: audioModel.isPlay ? Colors.white : Colors.black,
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 20,
                   ),
                   Expanded(
@@ -410,7 +462,7 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
                     textAlign: TextAlign.start,
                   )),
                   Expanded(child: Text(audioModel.language, textAlign: TextAlign.center)),
-                  Expanded(child: Text("English", textAlign: TextAlign.center)),
+                  const Expanded(child: Text("English", textAlign: TextAlign.center)),
                 ],
               ),
             ),
@@ -459,7 +511,7 @@ class _CommonBorderDropdown2State<T> extends State<CommonBorderDropdown2<T>> {
           isDense: true,
           icon: Icon(widget.trailingIcon),
           onChanged: widget.onChanged,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 14,
           ),
           hint: widget.hintText == null
@@ -475,7 +527,7 @@ class _CommonBorderDropdown2State<T> extends State<CommonBorderDropdown2<T>> {
                 children: <Widget>[
                   Text(
                     '$value',
-                    style: TextStyle(color: Colors.black),
+                    style: const TextStyle(color: Colors.black),
                   ),
                 ],
               ),

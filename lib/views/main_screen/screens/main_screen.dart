@@ -679,6 +679,7 @@ class _MainScreenState extends State<MainScreen> {
             wikiProvider: context.read<WikiProvider>(),
             isShowAppbar: false,
           ),
+          isHandleChatBotSpaceMargin: true,
         );
       } else {
         return const Text("CoCreateKnowledgeScreen");

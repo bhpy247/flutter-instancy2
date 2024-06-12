@@ -4,14 +4,23 @@ import 'dart:typed_data';
 import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app/dependency_injection.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/app_ststem_configurations.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_formdata_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/generate_images_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avatar_voice_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avtar_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/event/data_model/event_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/data_model/flashcard_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/request_model/flashcard_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/assessment_generate_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/generated_quiz_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/roleplay/data_models/roleplay_content_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_profile_details_model.dart';
@@ -19,8 +28,6 @@ import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 
 import '../../api/api_controller.dart';
-import '../../models/co_create_knowledge/flashcards/flashcard_model.dart';
-import '../../models/co_create_knowledge/quiz/data_models/quiz_question_model.dart';
 import 'co_create_knowledge_provider.dart';
 import 'co_create_knowledge_repository.dart';
 
@@ -28,7 +35,11 @@ class CoCreateKnowledgeController {
   late CoCreateKnowledgeProvider _coCreateKnowledgeProvider;
   late CoCreateKnowledgeRepository _coCreateKnowledgeRepository;
 
-  CoCreateKnowledgeController({required CoCreateKnowledgeProvider? coCreateKnowledgeProvider, CoCreateKnowledgeRepository? repository, ApiController? apiController}) {
+  CoCreateKnowledgeController({
+    required CoCreateKnowledgeProvider? coCreateKnowledgeProvider,
+    CoCreateKnowledgeRepository? repository,
+    ApiController? apiController,
+  }) {
     _coCreateKnowledgeProvider = coCreateKnowledgeProvider ?? CoCreateKnowledgeProvider();
     _coCreateKnowledgeRepository = repository ?? CoCreateKnowledgeRepository(apiController: apiController ?? ApiController());
   }
@@ -100,6 +111,7 @@ class CoCreateKnowledgeController {
     return images;
   }
 
+  //region Add/Edit Content
   Future<String?> CreateNewContentItem({required CreateNewContentItemRequestModel requestModel}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().CreateNewContentItem() called with requestModel:$requestModel", tag: tag);
@@ -121,6 +133,7 @@ class CoCreateKnowledgeController {
     requestModel.SiteID = apiUrlConfigurationProvider.getCurrentSiteId();
     requestModel.FolderID = appSystemConfigurationModel.CoCreateKnowledgeDefaultFolderID;
     requestModel.CMSGroupID = appSystemConfigurationModel.CoCreateKnowledgeDefaultFolderID;
+    requestModel.Language = apiUrlConfigurationProvider.getLocale();
 
     DataResponseModel<String> dataResponseModel = await repository.CreateNewContentItem(requestModel: requestModel);
     if (dataResponseModel.appErrorModel != null) {
@@ -138,31 +151,180 @@ class CoCreateKnowledgeController {
     return contentId;
   }
 
-  Future<FlashcardResponseModel?> generateFlashcard({required FlashcardRequestModel requestModel}) async {
+  Future<String?> addEditContentItem({required CoCreateContentAuthoringModel coCreateContentAuthoringModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole(
+        "CoCreateKnowledgeController().addEditContentItem() called with ContentId:${coCreateContentAuthoringModel.contentId}, "
+        "ContentTypeId:${coCreateContentAuthoringModel.contentTypeId}",
+        tag: tag);
+
+    CreateNewContentItemRequestModel requestModel = getCreateNewContentItemRequestModelFromCoCreateContentAuthoringModel(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
+
+    String? contentId = await CreateNewContentItem(requestModel: requestModel);
+    MyPrint.printOnConsole("Final contentId:'$contentId'", tag: tag);
+
+    if (contentId.checkEmpty) {
+      return null;
+    }
+
+    coCreateContentAuthoringModel.contentId = contentId!;
+
+    initializeContentDataInCourseDTOModelFromCoCreateContentAuthoringModel(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
+
+    CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
+    if (courseDTOModel != null && !coCreateContentAuthoringModel.isEdit) {
+      coCreateKnowledgeProvider.myKnowledgeList.setList(list: [courseDTOModel], isClear: false, isNotify: true);
+    }
+
+    return contentId;
+  }
+
+  CreateNewContentItemRequestModel getCreateNewContentItemRequestModelFromCoCreateContentAuthoringModel({required CoCreateContentAuthoringModel coCreateContentAuthoringModel}) {
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    CreateNewContentItemFormDataModel createNewContentItemFormDataModel = CreateNewContentItemFormDataModel(
+      Name: coCreateContentAuthoringModel.title,
+      ShortDescription: coCreateContentAuthoringModel.description,
+      ThumbnailImagePath: coCreateContentAuthoringModel.ThumbnailImagePath,
+      MediaTypeID: coCreateContentAuthoringModel.mediaTypeId.toString(),
+      Language: repository.apiController.apiDataProvider.getLocale(),
+      Bit3: coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.referenceUrl,
+      StartPage: coCreateContentAuthoringModel.referenceUrl ?? "",
+    );
+
+    CreateNewContentItemRequestModel requestModel = CreateNewContentItemRequestModel(
+      formData: createNewContentItemFormDataModel,
+      ObjectTypeID: coCreateContentAuthoringModel.contentTypeId,
+    );
+
+    if (coCreateContentAuthoringModel.flashcardContentModel != null) {
+      FlashcardContentModel flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel!;
+      requestModel.additionalData = flashcardContentModel.toString();
+    }
+    if (coCreateContentAuthoringModel.quizContentModel != null) {
+      QuizContentModel quizContentModel = coCreateContentAuthoringModel.quizContentModel!;
+      requestModel.additionalData = quizContentModel.toString();
+    }
+    if (coCreateContentAuthoringModel.eventModel != null) {
+      EventModel eventModel = coCreateContentAuthoringModel.eventModel!;
+      createNewContentItemFormDataModel.EventStartDateTime = "${eventModel.date} ${eventModel.startTime}";
+      createNewContentItemFormDataModel.EventEndDateTime = "${eventModel.date} ${eventModel.endTime}";
+      createNewContentItemFormDataModel.RegistrationURL = eventModel.eventUrl;
+      createNewContentItemFormDataModel.Location = eventModel.location;
+      requestModel.additionalData = eventModel.toString();
+    }
+    if (coCreateContentAuthoringModel.roleplayContentModel != null) {
+      RoleplayContentModel roleplayContentModel = coCreateContentAuthoringModel.roleplayContentModel!;
+      requestModel.additionalData = roleplayContentModel.toString();
+    }
+
+    return requestModel;
+  }
+
+  void initializeContentDataInCourseDTOModelFromCoCreateContentAuthoringModel({required CoCreateContentAuthoringModel coCreateContentAuthoringModel}) {
+    CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
+    if (courseDTOModel == null) {
+      return;
+    }
+
+    courseDTOModel.ContentID = coCreateContentAuthoringModel.contentId;
+
+    courseDTOModel.ContentName = coCreateContentAuthoringModel.title;
+    courseDTOModel.Title = coCreateContentAuthoringModel.title;
+    courseDTOModel.TitleName = coCreateContentAuthoringModel.title;
+    courseDTOModel.ShortDescription = coCreateContentAuthoringModel.description;
+    courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
+    courseDTOModel.ContentType = coCreateContentAuthoringModel.contentType;
+    courseDTOModel.ThumbnailImagePath = coCreateContentAuthoringModel.ThumbnailImagePath;
+    courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
+    courseDTOModel.Skills = coCreateContentAuthoringModel.skills;
+
+    if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.referenceUrl) {
+      courseDTOModel.ViewLink = coCreateContentAuthoringModel.referenceUrl ?? "";
+    } else if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.document) {
+      courseDTOModel.uploadedDocumentBytes = coCreateContentAuthoringModel.uploadedDocumentBytes;
+      courseDTOModel.uploadedFileName = coCreateContentAuthoringModel.uploadedDocumentName;
+    }
+
+    EventModel? eventModel = coCreateContentAuthoringModel.eventModel;
+    if (eventModel != null) {
+      courseDTOModel.EventStartDateTime = "${eventModel.date} ${eventModel.startTime}";
+      courseDTOModel.EventEndDateTime = "${eventModel.date} ${eventModel.endTime}";
+      courseDTOModel.EventStartDateTimeWithoutConvert = coCreateContentAuthoringModel.eventModel?.startTime ?? "";
+      courseDTOModel.EventEndDateTimeTimeWithoutConvert = coCreateContentAuthoringModel.eventModel?.endTime ?? "";
+      courseDTOModel.Duration = "30 Minutes";
+      courseDTOModel.AvailableSeats = "10";
+
+      //   UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
+      // ContentTypeId: InstancyObjectTypes.events,
+      // MediaTypeID: InstancyMediaTypes.none,
+      // ContentType: "Events",
+      // ThumbnailImagePath: "/Content/SiteFiles/Images/Event.jpg",
+      // ShortDescription: "Unleash the potential of nations through economic growth and development",
+      // EventStartDateTime: "30 May 2024",
+      // EventStartDateTimeWithoutConvert: "05/30/2024 05:30:00 PM",
+      // EventEndDateTime: "30 May 2024",
+      // EventEndDateTimeTimeWithoutConvert: "05/30/2024 06:00:00 PM",
+      // Duration: "30 Minutes",
+      // AvailableSeats: "10",
+    }
+    courseDTOModel.eventModel = eventModel;
+    courseDTOModel.flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel;
+    courseDTOModel.quizContentModel = coCreateContentAuthoringModel.quizContentModel;
+    courseDTOModel.articleContentModel = coCreateContentAuthoringModel.articleContentModel;
+    courseDTOModel.podcastContentModel = coCreateContentAuthoringModel.podcastContentModel;
+    courseDTOModel.microLearningContentModel = coCreateContentAuthoringModel.microLearningContentModel;
+    courseDTOModel.roleplayContentModel = coCreateContentAuthoringModel.roleplayContentModel;
+    courseDTOModel.learningPathContentModel = coCreateContentAuthoringModel.learningPathContentModel;
+  }
+
+  // endregion
+
+  void initializeCoCreateContentAuthoringModelFromCourseDTOModel({
+    required CourseDTOModel courseDTOModel,
+    required CoCreateContentAuthoringModel coCreateContentAuthoringModel,
+  }) {
+    coCreateContentAuthoringModel.courseDTOModel = courseDTOModel;
+    coCreateContentAuthoringModel.isEdit = coCreateContentAuthoringModel.coCreateAuthoringType != CoCreateAuthoringType.Create;
+
+    coCreateContentAuthoringModel.contentId = courseDTOModel.ContentID;
+    coCreateContentAuthoringModel.title = courseDTOModel.ContentName;
+    coCreateContentAuthoringModel.description = courseDTOModel.ShortDescription;
+    coCreateContentAuthoringModel.contentType = courseDTOModel.ContentType;
+    coCreateContentAuthoringModel.ThumbnailImagePath = courseDTOModel.ThumbnailImagePath;
+    coCreateContentAuthoringModel.thumbNailImageBytes = courseDTOModel.thumbNailFileBytes;
+    coCreateContentAuthoringModel.skills = courseDTOModel.Skills;
+
+    if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.referenceUrl) {
+      coCreateContentAuthoringModel.referenceUrl = courseDTOModel.ViewLink;
+    } else if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.document) {
+      coCreateContentAuthoringModel.uploadedDocumentBytes = courseDTOModel.uploadedDocumentBytes;
+      coCreateContentAuthoringModel.uploadedDocumentName = courseDTOModel.uploadedFileName;
+    }
+
+    coCreateContentAuthoringModel.eventModel = courseDTOModel.eventModel;
+    coCreateContentAuthoringModel.flashcardContentModel = courseDTOModel.flashcardContentModel;
+    coCreateContentAuthoringModel.quizContentModel = courseDTOModel.quizContentModel;
+    coCreateContentAuthoringModel.articleContentModel = courseDTOModel.articleContentModel;
+    coCreateContentAuthoringModel.podcastContentModel = courseDTOModel.podcastContentModel;
+    coCreateContentAuthoringModel.microLearningContentModel = courseDTOModel.microLearningContentModel;
+    coCreateContentAuthoringModel.roleplayContentModel = courseDTOModel.roleplayContentModel;
+    coCreateContentAuthoringModel.learningPathContentModel = courseDTOModel.learningPathContentModel;
+  }
+
+  Future<GeneratedFlashcardResponseModel?> generateFlashcard({required FlashcardRequestModel requestModel}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().CreateNewContentItem() called with requestModel:$requestModel", tag: tag);
 
     CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = repository.apiController.apiDataProvider;
-    String authorName = "";
 
-    // UserProfileDetailsModel? userProfileDetailsModel = DependencyInjection.profileProvider.userProfileDetails.getList(isNewInstance: false).firstElement;
-    // if (userProfileDetailsModel != null) {
-    //   authorName = "${userProfileDetailsModel.firstname} ${userProfileDetailsModel.lastname}";
-    // }
-
-    AppSystemConfigurationModel appSystemConfigurationModel = DependencyInjection.appProvider.appSystemConfigurationModel;
-
-    // requestModel.authorName = authorName;
     requestModel.userID = apiUrlConfigurationProvider.getCurrentUserId();
     requestModel.siteID = apiUrlConfigurationProvider.getCurrentSiteId();
     requestModel.clientUrl = apiUrlConfigurationProvider.getCurrentSiteUrl();
 
-    // requestModel.FolderID = appSystemConfigurationModel.CoCreateKnowledgeDefaultFolderID;
-    // requestModel.CMSGroupID = appSystemConfigurationModel.CoCreateKnowledgeDefaultFolderID;
-
-    DataResponseModel<FlashcardResponseModel> dataResponseModel = await repository.generateFlashcard(requestModel: requestModel);
+    DataResponseModel<GeneratedFlashcardResponseModel> dataResponseModel = await repository.generateFlashcard(requestModel: requestModel);
     if (dataResponseModel.appErrorModel != null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateFlashcard() because appErrorModel is not null", tag: tag);
       MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
@@ -171,31 +333,21 @@ class CoCreateKnowledgeController {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateFlashcard() because data is null", tag: tag);
       return null;
     }
-    MyPrint.printOnConsole("FlashcardResponseModel : ${dataResponseModel.data}'", tag: tag);
+    MyPrint.printOnConsole("GeneratedFlashcardResponseModel : ${dataResponseModel.data}'", tag: tag);
 
-    FlashcardResponseModel responseModel = FlashcardResponseModel.fromMap(dataResponseModel.data!.toMap());
+    GeneratedFlashcardResponseModel responseModel = GeneratedFlashcardResponseModel.fromMap(dataResponseModel.data!.toMap());
     MyPrint.printOnConsole("Final contentId:'${responseModel.flashcards.length}'", tag: tag);
 
     return responseModel;
   }
 
-  Future<QuizResponseModel?> generateQuiz({required AssessmentGenerateRequestModel requestModel}) async {
+  Future<GeneratedQuizResponseModel?> generateQuiz({required AssessmentGenerateRequestModel requestModel}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().generateQuiz() called with requestModel:$requestModel", tag: tag);
 
     CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = repository.apiController.apiDataProvider;
-    String authorName = "";
-
-    // UserProfileDetailsModel? userProfileDetailsModel = DependencyInjection.profileProvider.userProfileDetails.getList(isNewInstance: false).firstElement;
-    // if (userProfileDetailsModel != null) {
-    //   authorName = "${userProfileDetailsModel.firstname} ${userProfileDetailsModel.lastname}";
-    // }
-
-    AppSystemConfigurationModel appSystemConfigurationModel = DependencyInjection.appProvider.appSystemConfigurationModel;
-
-    // requestModel.authorName = authorName;
     requestModel.adminUrl = coCreateKnowledgeRepository.apiController.apiEndpoints.getAdminSiteUrl();
     requestModel.requestedBy = apiUrlConfigurationProvider.getCurrentUserId().toString();
 
@@ -207,9 +359,7 @@ class CoCreateKnowledgeController {
     } else if (dataResponseModel.data == null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateQuiz() because data is null", tag: tag);
       return null;
-    }
-
-    if (dataResponseModel.data != null) {
+    } else {
       MyPrint.printOnConsole("dataResponseModel.data : ${dataResponseModel.data}");
       Map mapResponse = jsonDecode(dataResponseModel.data!);
       String? learningObjective = mapResponse["learning_objectives"];
@@ -234,7 +384,7 @@ class CoCreateKnowledgeController {
             Map mapResponse3 = jsonDecode(generateAssessmentDataResponseModel.data!);
             MyPrint.printOnConsole("mapResponse3 : ${mapResponse3}");
 
-            QuizResponseModel quizResponseModel = QuizResponseModel.fromMap(Map.from(mapResponse3));
+            GeneratedQuizResponseModel quizResponseModel = GeneratedQuizResponseModel.fromMap(Map.from(mapResponse3));
             MyPrint.printOnConsole("quizResponseModel.assessment.length : ${quizResponseModel.assessment.length}");
 
             return quizResponseModel;
@@ -323,95 +473,4 @@ class CoCreateKnowledgeController {
 
     return;
   }
-
-// Future<List<FileUploadControlsModel>> getFileUploadControlsFromApi({
-//   bool isRefresh = true,
-//   bool isGetFromCache = false,
-//   bool isNotify = true,
-//   required int componentId,
-//   required int componentInstanceId,
-// }) async {
-//   List<FileUploadControlsModel> fileUploadControlList = [];
-//
-//   CoCreateKnowledgeProvider provider = coCreateKnowledgeProvider;
-//
-//   DataResponseModel<List<FileUploadControlsModel>> response = await coCreateKnowledgeRepository.getFileUploadControlsModel(
-//     componentId: componentId,
-//     componentInstanceId: componentInstanceId,
-//     isStoreDataInHive: true,
-//   );
-//
-//   List<FileUploadControlsModel> fileUploadControlsModelList = response.data ?? <FileUploadControlsModel>[];
-//   MyPrint.printOnConsole("fileUploadControlsModelList Length got in Api:${fileUploadControlsModelList.length}");
-//
-//   //region Set Provider Data After Getting Data From Api
-//   // if (contentsList.length < provider.pageSize) provider.setHasMoreMyLearningData(value: false);
-//   // if(contentsList.isNotEmpty) provider.setMyLearningPageIndex(value: provider.myLearningPageIndex + 1);
-//   provider.setFileUploadControlsModelList(fileUploadControlsModelList);
-//   // provider.addMyLearningContentsInList(myLearningContentModels: contentsList, isClear: false, isNotify: false);
-//   // provider.setIsMyLearningContentsFirstTimeLoading(false, isNotify: false);
-//   // provider.setIsMyLearningContentsLoading(false, isNotify: true);
-//   // //endregion
-//
-//   return fileUploadControlList;
-// }
-//
-// Future<CoCreateKnowledgeCategoriesModel> getCoCreateKnowledgeCategoriesFromApi({bool isRefresh = true, bool isGetFromCache = false, bool isNotify = true, required int componentId, required int componentInstanceId}) async {
-//   CoCreateKnowledgeCategoriesModel wikiCategoriesModel = CoCreateKnowledgeCategoriesModel();
-//   CoCreateKnowledgeProvider provider = coCreateKnowledgeProvider;
-//   DataResponseModel<CoCreateKnowledgeCategoriesModel> response = await coCreateKnowledgeRepository.getCoCreateKnowledgeCategories(
-//     componentId: componentId,
-//     componentInstanceId: componentInstanceId,
-//     isStoreDataInHive: true,
-//   );
-//   wikiCategoriesModel = response.data ?? CoCreateKnowledgeCategoriesModel();
-//   MyPrint.printOnConsole("wikiCategoriesModel length:${wikiCategoriesModel.wikiCategoriesList.length}");
-//   if (wikiCategoriesModel.wikiCategoriesList.isNotEmpty) {
-//     provider.setCoCreateKnowledgeCategoriesList(wikiCategoriesModel.wikiCategoriesList);
-//   }
-//   return wikiCategoriesModel;
-// }
-//
-// Future<DataResponseModel<String>> addContent({required CoCreateKnowledgeUploadRequestModel wikiUploadRequestModel}) async {
-//   String tag = MyUtils.getNewId();
-//   MyPrint.printOnConsole("CoCreateKnowledgeController().addContent() called", tag: tag);
-//
-//   ApiUrlConfigurationProvider apiUrlConfigurationProvider = coCreateKnowledgeRepository.apiController.apiDataProvider;
-//   wikiUploadRequestModel.userID = apiUrlConfigurationProvider.getCurrentUserId();
-//   wikiUploadRequestModel.siteID = apiUrlConfigurationProvider.getCurrentSiteId();
-//   wikiUploadRequestModel.locale = apiUrlConfigurationProvider.getLocale();
-//
-//   DataResponseModel<String> response = await coCreateKnowledgeRepository.addCatalogContent(wikiUploadRequestModel: wikiUploadRequestModel);
-//   MyPrint.printOnConsole("Add Content Response:${response.data}", tag: tag);
-//   MyPrint.printOnConsole("Add Content Response Type:${response.data?.runtimeType}", tag: tag);
-//
-//   DataResponseModel<String> newResponse;
-//
-//   String data = response.data ?? "";
-//   if (data.startsWith("failed") || data.startsWith("A content item already exists with this name.")) {
-//     // MyPrint.printOnConsole("")
-//     newResponse = DataResponseModel<String>(
-//       data: response.data,
-//       appErrorModel: AppErrorModel(
-//         message: response.data!,
-//       ),
-//     );
-//   } else {
-//     newResponse = response;
-//
-//     BuildContext? context = NavigationController.mainNavigatorKey.currentContext;
-//     if (context != null && context.mounted) {
-//       GamificationController(provider: context!.read<GamificationProvider>()).UpdateContentGamification(
-//         requestModel: UpdateContentGamificationRequestModel(
-//           contentId: "",
-//           scoId: -1,
-//           objecttypeId: -1,
-//           GameAction: GamificationActionType.AddedContent,
-//         ),
-//       );
-//     }
-//   }
-//
-//   return newResponse;
-// }
 }

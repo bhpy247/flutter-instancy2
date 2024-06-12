@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
+import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
@@ -11,7 +12,6 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
-import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/catalog/components/catalogContentListComponent.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:flutter_instancy_2/views/common/components/common_text_form_field.dart';
@@ -31,11 +31,13 @@ import '../component/size_utils.dart';
 class MyKnowledgeTab extends StatefulWidget {
   final int componentId;
   final int componentInstanceId;
+  final bool isHandleChatBotSpaceMargin;
 
   const MyKnowledgeTab({
     super.key,
     required this.componentId,
     required this.componentInstanceId,
+    this.isHandleChatBotSpaceMargin = false,
   });
 
   @override
@@ -77,16 +79,29 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           },
           iconData: InstancyIcons.view,
         ),
-      InstancyUIActionModel(
-        text: "Edit",
-        actionsEnum: InstancyContentActionsEnum.Edit,
-        onTap: () {
-          Navigator.pop(context);
+      if (![InstancyObjectTypes.podcastEpisode, InstancyObjectTypes.videos].contains(model.ContentTypeId))
+        InstancyUIActionModel(
+          text: "Edit",
+          actionsEnum: InstancyContentActionsEnum.Edit,
+          onTap: () {
+            Navigator.pop(context);
 
-          onEditTap(model: model, index: index);
-        },
-        iconData: InstancyIcons.edit,
-      ),
+            onEditTap(model: model, index: index);
+          },
+          iconData: InstancyIcons.edit,
+        ),
+      if (![InstancyObjectTypes.document].contains(model.ContentTypeId))
+        InstancyUIActionModel(
+          text: "Edit Metadata",
+          actionsEnum: InstancyContentActionsEnum.EditMetadata,
+          onTap: () {
+            Navigator.pop(context);
+
+            onEditMetadataTap(model: model, index: index);
+          },
+          iconData: InstancyIcons.editMetadata,
+          iconSize: 26,
+        ),
       InstancyUIActionModel(
         text: "Details",
         actionsEnum: InstancyContentActionsEnum.Details,
@@ -217,7 +232,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         arguments: FlashCardScreenNavigationArguments(courseDTOModel: model),
       );
     } else if (objectType == InstancyObjectTypes.rolePlay) {
-      dynamic value = await NavigationController.navigateToRolePlayLaunchScreen(
+      NavigationController.navigateToRolePlayLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
@@ -309,112 +324,181 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
   }
 
   Future<void> onEditTap({required CourseDTOModel model, int index = 0}) async {
-    int objectType = model.ContentTypeId;
+    int objectTypeId = model.ContentTypeId;
 
-    /*if (objectType == InstancyObjectTypes.flashCard) {
-      NavigationController.navigateToFlashCardScreen(
+    CoCreateContentAuthoringModel coCreateContentAuthoringModel = CoCreateContentAuthoringModel(
+      coCreateAuthoringType: CoCreateAuthoringType.Edit,
+      contentTypeId: model.ContentTypeId,
+      isEdit: true,
+      courseDTOModel: model,
+    );
+
+    CoCreateKnowledgeController(coCreateKnowledgeProvider: null).initializeCoCreateContentAuthoringModelFromCourseDTOModel(
+      courseDTOModel: model,
+      coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+    );
+
+    bool? isEdited;
+
+    if (objectTypeId == InstancyObjectTypes.flashCard) {
+      dynamic value = await NavigationController.navigateToGenerateWithAiFlashCardScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
+        arguments: GenerateWithAiFlashCardScreenNavigationArguments(coCreateContentAuthoringModel: coCreateContentAuthoringModel),
       );
-    }
-    else if (objectType == InstancyObjectTypes.rolePlay) {
-      dynamic value = await NavigationController.navigateToRolePlayLaunchScreen(
+
+      if (value == true) {
+        isEdited = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.referenceUrl) {
+      dynamic value = await NavigationController.navigateToCreateUrlScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: RolePlayLaunchScreenNavigationArguments(
-          courseDTOModel: model,
-        ),
-      );
-    }
-    else if (objectType == InstancyObjectTypes.podcastEpisode) {
-      NavigationController.navigateToPodcastEpisodeScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-      );
-    }
-    else if (objectType == InstancyObjectTypes.referenceUrl) {
-      NavigationController.navigateToWebViewScreen(
-        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-        arguments: WebViewScreenNavigationArguments(
-          title: model.Title,
-          url: "https://www.instancy.com/learn/",
-        ),
-      );
-    }
-    else if (objectType == InstancyObjectTypes.document) {
-      NavigationController.navigateToAddEditDocumentScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        arguments: AddEditDocumentScreenArguments(componentId: 0, componentInsId: 0, courseDtoModel: model, index: index, isEdit: true),
-      );
-    }
-    else if (objectType == InstancyObjectTypes.videos) {
-      NavigationController.navigateToVideoScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-      );
-    }
-    else if (objectType == InstancyObjectTypes.quiz) {
-      NavigationController.navigateToQuizScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-      );
-    }
-    else if (objectType == InstancyObjectTypes.article) {
-      NavigationController.navigateCommonCreateAuthoringToolScreen(
-        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-        argument: CommonCreateAuthoringToolScreenArgument(
-          courseDtoModel: model,
-          objectTypeId: InstancyObjectTypes.article,
+        argument: CreateUrlScreenNavigationArguments(
           componentId: widget.componentId,
           componentInsId: widget.componentInstanceId,
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
         ),
       );
-    }*/
 
-    if (objectType == InstancyObjectTypes.document) {
-      NavigationController.navigateToAddEditDocumentScreen(
+      if (value == true) {
+        isEdited = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.document) {
+      dynamic value = await NavigationController.navigateToAddEditDocumentScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        arguments: AddEditDocumentScreenArguments(componentId: 0, componentInsId: 0, courseDtoModel: model),
+        arguments: AddEditDocumentScreenArguments(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
       );
-    } else if (objectType == InstancyObjectTypes.referenceUrl) {
-      NavigationController.navigateToCreateDocumentScreen(
+
+      if (value == true) {
+        isEdited = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.quiz) {
+      /*QuizContentModel quizContentModel = QuizContentModel();
+      quizContentModel.questionCount = 3;
+      quizContentModel.difficultyLevel = "Hard";
+      quizContentModel.questions = AppConstants().quizModelList;
+      quizContentModel.questionType = "Multiple Choice";*/
+      // coCreateContentAuthoringModel.quizContentModel = quizContentModel;
+
+      dynamic value = await NavigationController.navigateToGeneratedQuizScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: AddEditReferenceScreenArguments(
-          courseDtoModel: model,
-          componentId: 0,
-          componentInsId: 0,
+        argument: GeneratedQuizScreenNavigationArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
         ),
       );
-    } else {
-      NavigationController.navigateCommonCreateAuthoringToolScreen(
-        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-        argument: CommonCreateAuthoringToolScreenArgument(
-          courseDtoModel: model,
-          objectTypeId: objectType,
-          componentId: widget.componentId,
-          componentInsId: widget.componentInstanceId,
+
+      if (value == true) {
+        isEdited = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.article) {
+      dynamic value = await NavigationController.navigateToArticleEditorScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: ArticleEditorScreenNavigationArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
         ),
       );
+
+      if (value == true) {
+        isEdited = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.events) {
+      dynamic value = await NavigationController.navigateToAddEditEventScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditEventScreenArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+
+      if (value == true) {
+        Navigator.pop(context, true);
+        isEdited = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.rolePlay) {
+      dynamic value = await NavigationController.navigateToAddEditRoleplayScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditRolePlayScreenNavigationArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+
+      if (value == true) {
+        isEdited = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.learningPath) {
+      dynamic value = await NavigationController.navigateToAddEditLearningPathScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditLearningPathScreenNavigationArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+
+      if (value == true) {
+        isEdited = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.microLearning) {
+      dynamic value = await NavigationController.navigateToAddEditMicroLearningScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditMicroLearningScreenNavigationArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+
+      if (value == true) {
+        isEdited = true;
+      }
+    } else {}
+
+    if (isEdited == true) {
+      mySetState();
     }
+  }
+
+  Future<void> onEditMetadataTap({required CourseDTOModel model, int index = 0}) async {
+    dynamic value = await NavigationController.navigateCommonCreateAuthoringToolScreen(
+      navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+      argument: CommonCreateAuthoringToolScreenArgument(
+        coCreateAuthoringType: CoCreateAuthoringType.EditMetadata,
+        courseDtoModel: model,
+        objectTypeId: model.ContentTypeId,
+        mediaTypeId: model.MediaTypeID,
+        componentId: widget.componentId,
+        componentInsId: widget.componentInstanceId,
+      ),
+    );
+
+    if (value != true) {
+      return;
+    }
+
+    mySetState();
   }
 
   @override
@@ -431,6 +515,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
+
     return Sizer(
       builder: (context, orientation, deviceType) {
         return RefreshIndicator(
@@ -440,9 +525,24 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           },
           child: Scaffold(
             body: mainWidget(),
-            floatingActionButton: PopUpDialog(
-              provider: _provider,
-            ),
+            floatingActionButton: getAddContentButton(),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget getAddContentButton() {
+    return Consumer<MainScreenProvider>(
+      builder: (BuildContext context, MainScreenProvider mainScreenProvider, Widget? child) {
+        return Container(
+          margin: EdgeInsets.only(
+            bottom: mainScreenProvider.isChatBotButtonEnabled.get() && widget.isHandleChatBotSpaceMargin && !mainScreenProvider.isChatBotButtonCenterDocked.get() ? 70 : 0.0,
+          ),
+          child: PopUpDialog(
+            provider: _provider,
+            componentId: widget.componentId,
+            componentInsId: widget.componentInstanceId,
           ),
         );
       },
@@ -631,9 +731,16 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 }
 
 class PopUpDialog extends StatefulWidget {
+  final int componentId;
+  final int componentInsId;
   final CoCreateKnowledgeProvider provider;
 
-  const PopUpDialog({super.key, required this.provider});
+  const PopUpDialog({
+    super.key,
+    required this.provider,
+    required this.componentId,
+    required this.componentInsId,
+  });
 
   @override
   State<PopUpDialog> createState() => _PopUpDialogState();
@@ -658,415 +765,57 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
   ValueNotifier<bool> isDialOpen = ValueNotifier<bool>(false);
 
   Future<void> onCardTapCallBack({required int objectType}) async {
-    MyPrint.printOnConsole("onCardTapCallBack called");
+    MyPrint.printOnConsole("onCardTapCallBack called with objectType:$objectType");
 
-    Map<String, dynamic> map = <String, dynamic>{
-      "Titlewithlink": "",
-      "rcaction": "",
-      "Categories": "",
-      "IsSubSite": "False",
-      "MembershipName": "",
-      "EventAvailableSeats": "",
-      "EventCompletedProgress": "",
-      "EventContentProgress": "",
-      "Count": 0,
-      "PreviewLink": "",
-      "ApproveLink": "",
-      "RejectLink": "",
-      "ReadLink": "",
-      "AddLink": "javascript:fnAddItemtoMyLearning('7d659fde-70a4-4b30-a1f4-62f709ed3786');",
-      "EnrollNowLink": "",
-      "CancelEventLink": "",
-      "WaitListLink": "",
-      "InapppurchageLink": "",
-      "AlredyinmylearnigLink": "",
-      "RecommendedLink": "",
-      "Sharelink": "https://enterprisedemo.instancy.com/InviteURLID/contentId/7d659fde-70a4-4b30-a1f4-62f709ed3786/ComponentId/1",
-      "EditMetadataLink": "",
-      "ReplaceLink": "",
-      "EditLink": "",
-      "DeleteLink": "",
-      "SampleContentLink": "",
-      "TitleExpired": "",
-      "PracticeAssessmentsAction": "",
-      "CreateAssessmentAction": "",
-      "OverallProgressReportAction": "",
-      "ContentName": "Test 3",
-      "ContentScoID": "15342",
-      "isContentEnrolled": "False",
-      "ContentViewType": "Subscription",
-      "WindowProperties": "status=no,toolbar=no,menubar=no,resizable=yes,location=no,scrollbars=yes,left=10,top=10,width=1000,height=680",
-      "isWishListContent": 0,
-      "AddtoWishList": "Y",
-      "RemoveFromWishList": null,
-      "Duration": "",
-      "Credits": "",
-      "DetailspopupTags": "",
-      "ThumbnailIconPath": "",
-      "JWVideoKey": "",
-      "Modules": "",
-      "salepricestrikeoff": "",
-      "isBadCancellationEnabled": "true",
-      "EnrollmentLimit": "",
-      "AvailableSeats": "0",
-      "NoofUsersEnrolled": "1",
-      "WaitListLimit": "",
-      "WaitListEnrolls": "0",
-      "isBookingOpened": false,
-      "EventStartDateforEnroll": null,
-      "DownLoadLink": "",
-      "EventType": 0,
-      "EventScheduleType": 0,
-      "EventRecording": false,
-      "ShowParentPrerequisiteEventDate": false,
-      "ShowPrerequisiteEventDate": false,
-      "PrerequisiteDateConflictName": null,
-      "PrerequisiteDateConflictDateTime": null,
-      "SkinID": "6",
-      "FilterId": 0,
-      "SiteId": 374,
-      "UserSiteId": 0,
-      "SiteName": "",
-      "ContentTypeId": 9,
-      "ContentID": "7d659fde-70a4-4b30-a1f4-62f709ed3786",
-      "Title": "Test 3",
-      "TotalRatings": "",
-      "RatingID": "0",
-      "ShortDescription": "",
-      "ThumbnailImagePath": "/Content/SiteFiles/Images/Assessment.jpg",
-      "InstanceParentContentID": "",
-      "ImageWithLink": "",
-      "AuthorWithLink": "Richard Parker",
-      "EventStartDateTime": "",
-      "EventEndDateTime": "",
-      "EventStartDateTimeWithoutConvert": "",
-      "EventEndDateTimeTimeWithoutConvert": "",
-      "expandiconpath": "",
-      "AuthorDisplayName": "Richard Parker",
-      "ContentType": "Test",
-      "CreatedOn": "",
-      "TimeZone": "",
-      "Tags": "",
-      "SalePrice": "",
-      "Currency": "",
-      "ViewLink": "",
-      "DetailsLink": "https://enterprisedemo.instancy.com/Catalog Details/Contentid/7d659fde-70a4-4b30-a1f4-62f709ed3786/componentid/1/componentInstanceID/3131",
-      "RelatedContentLink": "",
-      "ViewSessionsLink": null,
-      "SuggesttoConnLink": "7d659fde-70a4-4b30-a1f4-62f709ed3786",
-      "SuggestwithFriendLink": "7d659fde-70a4-4b30-a1f4-62f709ed3786",
-      "SharetoRecommendedLink": "",
-      "IsCoursePackage": "",
-      "IsRelatedcontent": "",
-      "isaddtomylearninglogo": "0",
-      "LocationName": "",
-      "BuildingName": null,
-      "JoinURL": "",
-      "Categorycolor": "#ED1F62",
-      "InvitationURL": "",
-      "HeaderLocationName": "",
-      "SubSiteUserID": null,
-      "PresenterDisplayName": "",
-      "PresenterWithLink": "",
-      "ShowMembershipExpiryAlert": false,
-      "AuthorName": null,
-      "FreePrice": "",
-      "SiteUserID": 363,
-      "ScoID": 15342,
-      "BuyNowLink": "",
-      "bit5": false,
-      "bit4": false,
-      "OpenNewBrowserWindow": false,
-      "CreditScoreWithCreditTypes": "",
-      "CreditScoreFirstPrefix": "",
-      "MediaTypeID": 27,
-      "isEnrollFutureInstance": "",
-      "InstanceEventReclass": "",
-      "InstanceEventReclassStatus": "",
-      "InstanceEventReSchedule": "",
-      "InstanceEventEnroll": "",
-      "ReEnrollmentHistory": "",
-      "BackGroundColor": "#2f2d3a",
-      "FontColor": "#fff",
-      "ExpiredContentExpiryDate": "",
-      "ExpiredContentAvailableUntill": "",
-      "Gradient1": "",
-      "Gradient2": "",
-      "GradientColor": "radial-gradient(circle,  0%,  100%)",
-      "ShareContentwithUser": "",
-      "bit1": false,
-      "ViewType": 2,
-      "startpage": "start.html",
-      "CategoryID": 0,
-      "AddLinkTitle": "Add to My learning",
-      "ContentStatus": "",
-      "PercentCompletedClass": "",
-      "PercentCompleted": "",
-      "GoogleProductId": "",
-      "ItunesProductId": "",
-      "FolderPath": "17e97c34-af58-4a68-b729-988561f53808",
-      "CloudMediaPlayerKey": "",
-      "ActivityId": "http://instancy.com/assessment/7d659fde-70a4-4b30-a1f4-62f709ed3786",
-      "ActualStatus": null,
-      "CoreLessonStatus": null,
-      "jwstartpage": null,
-      "IsReattemptCourse": false,
-      "AttemptsLeft": 0,
-      "TotalAttempts": 0,
-      "ListPrice": "",
-      "ContentModifiedDateTime": null
-    };
+    List<int> commonAuthoringContentTypes = [
+      InstancyObjectTypes.flashCard,
+      InstancyObjectTypes.rolePlay,
+      InstancyObjectTypes.podcastEpisode,
+      InstancyObjectTypes.videos,
+      InstancyObjectTypes.quiz,
+      InstancyObjectTypes.article,
+      InstancyObjectTypes.learningPath,
+      InstancyObjectTypes.events,
+      InstancyObjectTypes.aiAgent,
+      InstancyObjectTypes.microLearning,
+    ];
 
-    CourseDTOModel? courseDTOModel = CourseDTOModel.fromMap(map);
-
-    courseDTOModel.ContentID = MyUtils.getNewId();
-    courseDTOModel.AuthorName = "Richard Parker";
-    courseDTOModel.AuthorDisplayName = "Richard Parker";
-    courseDTOModel.ThumbnailImagePath = "Content/SiteFiles/Images/assignment-thumbnail.png";
-    courseDTOModel.UserProfileImagePath = "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg";
-
-    if (objectType == InstancyObjectTypes.flashCard) {
-      // MyPrint.printOnConsole("in flsh Card");
-      //
-      // courseDTOModel.TitleName = "Flash Card Title";
-      // courseDTOModel.Title = courseDTOModel.TitleName;
-      // courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      // courseDTOModel.ContentType = "Flashcards";
-      // courseDTOModel.ContentTypeId = InstancyObjectTypes.flashCard;
-      // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
-
-      // NavigationController.navigateToAddEditFlashcardScreen(
-      //   navigationOperationParameters: NavigationOperationParameters(
-      //     context: context,
-      //     navigationType: NavigationType.pushNamed,
-      //   ),
-      //   arguments: const AddEditFlashcardScreenNavigationArguments(
-      //     courseDTOModel: null,
-      //   ),
-      // );
-      NavigationController.navigateCommonCreateAuthoringToolScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: const CommonCreateAuthoringToolScreenArgument(
-          componentInsId: 0,
-          componentId: 0,
-          objectTypeId: InstancyObjectTypes.flashCard,
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.rolePlay) {
-      // MyPrint.printOnConsole("in Role Play");
-      //
-      // courseDTOModel.TitleName = "Role Play Title";
-      // courseDTOModel.Title = courseDTOModel.TitleName;
-      // courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      // courseDTOModel.ContentType = "Roleplay";
-      // courseDTOModel.ContentTypeId = InstancyObjectTypes.flashCard;
-      // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
-      NavigationController.navigateCommonCreateAuthoringToolScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: const CommonCreateAuthoringToolScreenArgument(
-          componentInsId: 0,
-          componentId: 0,
-          objectTypeId: InstancyObjectTypes.rolePlay,
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.podcastEpisode) {
-      // courseDTOModel.TitleName = "Podcast";
-      // courseDTOModel.Title = courseDTOModel.TitleName;
-      // courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      // courseDTOModel.ContentType = "Podcast Episode";
-      // courseDTOModel.ContentTypeId = InstancyObjectTypes.podcastEpisode;
-      // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
-      courseDTOModel = null;
-
-      NavigationController.navigateCommonCreateAuthoringToolScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: CommonCreateAuthoringToolScreenArgument(
-          courseDtoModel: courseDTOModel,
-          objectTypeId: InstancyObjectTypes.podcastEpisode,
-          componentId: 0,
-          componentInsId: 0,
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.referenceUrl) {
-      // courseDTOModel.TitleName = "Instancy";
-      // courseDTOModel.Title = courseDTOModel.TitleName;
-      // courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      // courseDTOModel.ContentType = "Reference Url";
-      // courseDTOModel.ContentTypeId = InstancyObjectTypes.referenceUrl;
-      // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
-      // NavigationController.navigateToAddEditReferenceLinkScreen(
-      //   navigationOperationParameters: NavigationOperationParameters(
-      //     context: context,
-      //     navigationType: NavigationType.pushNamed,
-      //   ),
-      //   argument: AddEditReferenceScreenArguments(
-      //     courseDtoModel: courseDTOModel,
-      //     componentId: 0,
-      //     componentInsId: 0,
-      //   ),
-      // );
-
-      NavigationController.navigateToCreateDocumentScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: const AddEditReferenceScreenArguments(
-          componentId: 0,
-          componentInsId: 0,
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.document) {
-      courseDTOModel = null;
-      NavigationController.navigateToAddEditDocumentScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        arguments: AddEditDocumentScreenArguments(
-          courseDtoModel: courseDTOModel,
-          componentId: 0,
-          componentInsId: 0,
-        ),
-      );
-      /*courseDTOModel.TitleName = "Document Title";
-      courseDTOModel.Title = courseDTOModel.TitleName;
-      courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      courseDTOModel.ContentType = "Document";
-      courseDTOModel.ContentTypeId = InstancyObjectTypes.document;
-      courseDTOModel.MediaTypeID = InstancyMediaTypes.none;*/
-    } else if (objectType == InstancyObjectTypes.videos) {
-      NavigationController.navigateToAddEditVideoScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: const AddEditVideoScreenArgument(
-          courseDtoModel: null,
-        ),
-      );
-
-      // courseDTOModel.TitleName = "Video Title";
-      // courseDTOModel.Title = courseDTOModel.TitleName;
-      // courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      // courseDTOModel.ContentType = "Videos";
-      // courseDTOModel.ContentTypeId = InstancyObjectTypes.videos;
-      // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
-    } else if (objectType == InstancyObjectTypes.quiz) {
-      // courseDTOModel.TitleName = "Quiz Title";
-      // courseDTOModel.Title = courseDTOModel.TitleName;
-      // courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      // courseDTOModel.ContentType = "Quiz";
-      // courseDTOModel.ContentTypeId = InstancyObjectTypes.quiz;
-      // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
-      // NavigationController.navigateToAddEditQuizScreen(
-      //   navigationOperationParameters: NavigationOperationParameters(
-      //     context: context,
-      //     navigationType: NavigationType.pushNamed,
-      //   ),
-      //   argument: const AddEditQuizScreenArgument(
-      //     courseDtoModel: null,
-      //   ),
-      // );
-
-      NavigationController.navigateCommonCreateAuthoringToolScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: const CommonCreateAuthoringToolScreenArgument(
-          componentInsId: 0,
-          componentId: 0,
-          objectTypeId: InstancyObjectTypes.quiz,
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.article) {
-      // courseDTOModel.TitleName = "Article Title";
-      // courseDTOModel.Title = courseDTOModel.TitleName;
-      // courseDTOModel.AuthorDisplayName = "Pradeep Reddy";
-      // courseDTOModel.ContentType = "Article";
-      // courseDTOModel.ContentTypeId = InstancyObjectTypes.article;
-      // courseDTOModel.MediaTypeID = InstancyMediaTypes.none;
-      NavigationController.navigateCommonCreateAuthoringToolScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: const CommonCreateAuthoringToolScreenArgument(
-          componentInsId: 0,
-          componentId: 0,
-          objectTypeId: InstancyObjectTypes.article,
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.learningPath) {
-      NavigationController.navigateCommonCreateAuthoringToolScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: const CommonCreateAuthoringToolScreenArgument(
-          componentInsId: 0,
-          componentId: 0,
-          objectTypeId: InstancyObjectTypes.learningPath,
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.events) {
-      MyPrint.printOnConsole("in Role Play");
+    if (commonAuthoringContentTypes.contains(objectType)) {
       dynamic value = await NavigationController.navigateCommonCreateAuthoringToolScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: const CommonCreateAuthoringToolScreenArgument(
+        argument: CommonCreateAuthoringToolScreenArgument(
+          coCreateAuthoringType: CoCreateAuthoringType.Create,
           componentInsId: 0,
           componentId: 0,
-          objectTypeId: InstancyObjectTypes.events,
+          objectTypeId: objectType,
+          mediaTypeId: 0,
         ),
       );
 
       MyPrint.printOnConsole("Value from CommonCreateAuthoringToolScreen:$value");
-    } else if (objectType == InstancyObjectTypes.aiAgent) {
-      MyPrint.printOnConsole("in Ai Agent");
-      NavigationController.navigateToAddEditAiAgentScreen(
+    } else if (objectType == InstancyObjectTypes.document) {
+      NavigationController.navigateToAddEditDocumentScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: AddEditAiAgentScreenNavigationArgument(
-          coCreateContentAuthoringModel: CoCreateContentAuthoringModel(),
-        ),
+        arguments: const AddEditDocumentScreenArguments(coCreateContentAuthoringModel: null),
       );
-    } else if (objectType == InstancyObjectTypes.microLearning) {
-      MyPrint.printOnConsole("in Ai Agent");
-      NavigationController.navigateCommonCreateAuthoringToolScreen(
+    } else if (objectType == InstancyObjectTypes.referenceUrl) {
+      NavigationController.navigateToCreateUrlScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: const CommonCreateAuthoringToolScreenArgument(
-          componentInsId: 0,
-          componentId: 0,
-          objectTypeId: InstancyObjectTypes.microLearning,
+        argument: CreateUrlScreenNavigationArguments(
+          componentId: widget.componentId,
+          componentInsId: widget.componentInsId,
         ),
       );
-    } else {
-      courseDTOModel = null;
     }
-
-    if (courseDTOModel == null) {
-      return;
-    }
-
-    // widget.provider.addToMyKnowledgeList(courseDTOModel);
   }
 
   @override

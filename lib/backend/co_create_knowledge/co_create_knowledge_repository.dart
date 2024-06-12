@@ -1,27 +1,24 @@
+import 'package:flutter_instancy_2/api/api_call_model.dart';
+import 'package:flutter_instancy_2/api/api_controller.dart';
+import 'package:flutter_instancy_2/api/api_endpoints.dart';
+import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
+import 'package:flutter_instancy_2/api/rest_client.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/generate_images_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avatar_voice_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avtar_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/request_model/flashcard_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/assessment_generate_request_model.dart';
 import 'package:flutter_instancy_2/models/common/Instancy_multipart_file_upload_model.dart';
+import 'package:flutter_instancy_2/models/common/data_response_model.dart';
+import 'package:flutter_instancy_2/models/common/model_data_parser.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
-import 'package:flutter_instancy_2/models/wiki_component/response_model/wikiCategoriesModel.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
-
-import '../../api/api_call_model.dart';
-import '../../api/api_controller.dart';
-import '../../api/api_endpoints.dart';
-import '../../api/api_url_configuration_provider.dart';
-import '../../api/rest_client.dart';
-import '../../models/co_create_knowledge/flashcards/flashcard_model.dart';
-import '../../models/common/data_response_model.dart';
-import '../../models/common/model_data_parser.dart';
-import '../../models/wiki_component/request_model/wiki_upload_request_model.dart';
-import '../../utils/my_print.dart';
 
 class CoCreateKnowledgeRepository {
   final ApiController apiController;
@@ -412,55 +409,6 @@ class CoCreateKnowledgeRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<WikiCategoriesModel>> getWikiCategories({required int componentId, required int componentInstanceId, bool isFromOffline = false, bool isStoreDataInHive = false}) async {
-    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
-
-    MyPrint.printOnConsole(" getWikiCategories Site Url:${apiEndpoints.siteUrl}  ");
-    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
-    // {"intUserID":"363","intSiteID":"374","intComponentID":1,"Locale":"en-us","strType":"cat"}
-    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
-      restCallType: RestCallType.simplePostCall,
-      requestBody:
-          '''{"intUserID":"${apiUrlConfigurationProvider.getCurrentUserId()}","intSiteID":"${apiUrlConfigurationProvider.getCurrentSiteId()}","intComponentID":$componentId,"Locale":"${apiUrlConfigurationProvider.getLocale()}","strType":"cat"}''',
-      parsingType: ModelDataParsingType.wikiCategoriesModel,
-      url: apiEndpoints.apiGetWikiCategories(),
-      isGetDataFromHive: isFromOffline,
-      isStoreDataInHive: isStoreDataInHive,
-    );
-
-    DataResponseModel<WikiCategoriesModel> apiResponseModel = await apiController.callApi<WikiCategoriesModel>(
-      apiCallModel: apiCallModel,
-    );
-
-    return apiResponseModel;
-  }
-
-  Future<DataResponseModel<String>> addCatalogContent({required WikiUploadRequestModel wikiUploadRequestModel}) async {
-    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
-
-    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
-
-    List<InstancyMultipartFileUploadModel> files = [];
-
-    if (wikiUploadRequestModel.fileUploads != null) {
-      files.addAll(wikiUploadRequestModel.fileUploads!);
-    }
-
-    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData(
-      restCallType: RestCallType.multipartRequestCall,
-      parsingType: ModelDataParsingType.string,
-      url: apiEndpoints.apiUploadWikiData(),
-      fields: wikiUploadRequestModel.toMap(),
-      files: files,
-    );
-
-    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(
-      apiCallModel: apiCallModel,
-    );
-
-    return apiResponseModel;
-  }
-
   Future<DataResponseModel<List<String>>> generateImage({required GenerateImagesRequestModel requestModel}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
@@ -509,27 +457,21 @@ class CoCreateKnowledgeRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<FlashcardResponseModel>> generateFlashcard({required FlashcardRequestModel requestModel}) async {
+  Future<DataResponseModel<GeneratedFlashcardResponseModel>> generateFlashcard({required FlashcardRequestModel requestModel}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
 
-    List<InstancyMultipartFileUploadModel> files = [];
-
-    // if (requestModel.Files != null) {
-    //   files.addAll(requestModel.Files!);
-    // }
-
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
       restCallType: RestCallType.simplePostCall,
-      parsingType: ModelDataParsingType.GenerateFlashCard,
+      parsingType: ModelDataParsingType.GeneratedFlashcardResponseModel,
       url: apiEndpoints.GenerateFlashCard(),
       requestBody: MyUtils.encodeJson(requestModel.toMap()),
       isAuthenticatedApiCall: false,
       isInstancyCall: false,
     );
 
-    DataResponseModel<FlashcardResponseModel> apiResponseModel = await apiController.callApi<FlashcardResponseModel>(apiCallModel: apiCallModel);
+    DataResponseModel<GeneratedFlashcardResponseModel> apiResponseModel = await apiController.callApi<GeneratedFlashcardResponseModel>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }

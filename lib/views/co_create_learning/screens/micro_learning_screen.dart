@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app_theme/style.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
-import 'package:flutter_instancy_2/models/micro_learning_model/data_model/micro_learning_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -33,8 +33,8 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
   int selectedIndex = 0;
   PageController pageViewController = PageController();
 
-  late CoCreateKnowledgeController _controller;
-  late CoCreateKnowledgeProvider _provider;
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
   bool onSaveTap = false;
 
   List<String> contentList = [];
@@ -74,6 +74,15 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
     ),
   ];
 
+  void initializeData() {
+    appProvider = context.read<AppProvider>();
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+
+    title = widget.arguments.model.ContentName;
+    if (title.isEmpty) title = "Technology in sustainable urban planning";
+  }
+
   Color getTrueFalseColor({required List<String> answerList, required QuizQuestionModel model, int index = 0, bool isText = false}) {
     if (answerList[index] == model.correctChoice) {
       return Colors.green;
@@ -102,22 +111,9 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
     mySetState();
   }
 
-  void initializeData() {
-    title = widget.arguments.model.ContentName;
-    if (title.isEmpty) title = "Technology in sustainable urban planning";
-    // MicroLearningModel? microLearningModel = widget.arguments.model.mainMicroLearningModel;
-    //
-    // if ((microLearningModel?.contentList).checkNotEmpty) {
-    //   contentList = microLearningModel?.contentList ?? [];
-    // }
-  }
-
   @override
   void initState() {
     super.initState();
-    appProvider = context.read<AppProvider>();
-    _provider = context.read<CoCreateKnowledgeProvider>();
-    _controller = CoCreateKnowledgeController(coCreateKnowledgeProvider: _provider);
     initializeData();
   }
 
@@ -142,54 +138,50 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
   }
 
   Widget getMainBody() {
-    return Container(
-      child: Column(
-        children: [
-          const SizedBox(
-            height: 20,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 20.0, left: 10),
-            child: Row(
-              children: List.generate(
-                microLearningList.length,
-                (index) => Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 10),
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: index == selectedIndex ? themeData.primaryColor : Styles.textFieldBorderColor,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+    return Column(
+      children: [
+        const SizedBox(
+          height: 20,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 20.0, left: 10),
+          child: Row(
+            children: List.generate(
+              microLearningList.length,
+              (index) => Expanded(
+                child: Container(
+                  margin: const EdgeInsets.only(left: 10),
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: index == selectedIndex ? themeData.primaryColor : Styles.textFieldBorderColor,
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
             ),
           ),
-          Expanded(
-            child: getContentPageView(),
-          )
-        ],
-      ),
+        ),
+        Expanded(
+          child: getContentPageView(),
+        )
+      ],
     );
   }
 
   Widget getContentPageView() {
-    return Container(
-      child: PageView.builder(
-        controller: pageViewController,
-        onPageChanged: (int index) {
-          selectedIndex = index;
-          mySetState();
-        },
-        itemCount: microLearningList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: getContentWidget(model: microLearningList[index]),
-          );
-        },
-      ),
+    return PageView.builder(
+      controller: pageViewController,
+      onPageChanged: (int index) {
+        selectedIndex = index;
+        mySetState();
+      },
+      itemCount: microLearningList.length,
+      itemBuilder: (BuildContext context, int index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: getContentWidget(model: microLearningList[index]),
+        );
+      },
     );
   }
 
@@ -228,7 +220,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
           const SizedBox(
             height: 20,
           ),
-          getImageWidget(url: model.image ?? ""),
+          getImageWidget(url: model.image),
         ],
       ),
     );
@@ -253,7 +245,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
           const SizedBox(
             height: 10,
           ),
-          getImageWidget(url: model.image ?? ""),
+          getImageWidget(url: model.image),
           const SizedBox(
             height: 20,
           ),

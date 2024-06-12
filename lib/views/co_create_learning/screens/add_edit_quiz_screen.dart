@@ -8,7 +8,10 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_question_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/assessment_generate_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/generated_quiz_response_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
+import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/theme_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_border_dropdown.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -82,7 +85,7 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
 
     coCreateContentAuthoringModel.quizContentModel = quizContentModel;
 
-    NavigationController.navigateToGeneratedQuizScreen(
+    dynamic value = await NavigationController.navigateToGeneratedQuizScreen(
       navigationOperationParameters: NavigationOperationParameters(
         context: context,
         navigationType: NavigationType.pushNamed,
@@ -91,6 +94,11 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
         coCreateContentAuthoringModel: coCreateContentAuthoringModel,
       ),
     );
+
+    if (value == true) {
+      Navigator.pop(context, true);
+      return;
+    }
   }
 
   @override
@@ -276,11 +284,15 @@ class GeneratedQuizScreen extends StatefulWidget {
 }
 
 class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeState {
-  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
-  late CoCreateKnowledgeController coCreateKnowledgeController;
+  bool isLoading = false;
+
   late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+
+  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
   late PageController pageController;
   late Future future;
+
   // List<QuizQuestionModel> quizModelList = [
   //   QuizQuestionModel(
   //     question: "What is the primary goal of office ergonomics?",
@@ -341,6 +353,9 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
   List<QuizQuestionModel> quizModelList = [];
 
   void initializeData() {
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
 
     QuizContentModel? quizContentModel = coCreateContentAuthoringModel.quizContentModel;
@@ -368,7 +383,7 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
         numberOfQuestions: quizContentModel.questionCount.toString(),
         type: quizContentModel.questionType);
 
-    QuizResponseModel? quizResponseModel = await coCreateKnowledgeController.generateQuiz(requestModel: requestModel);
+    GeneratedQuizResponseModel? quizResponseModel = await coCreateKnowledgeController.generateQuiz(requestModel: requestModel);
     if (quizResponseModel != null) {
       quizModelList = quizResponseModel.assessment;
     }
@@ -415,59 +430,51 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
     );
   }
 
-  Future<CourseDTOModel?> saveQuiz() async {
+  Future<CourseDTOModel?> saveContent() async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("GeneratedQuizScreen().saveFlashcard() called", tag: tag);
+
+    isLoading = true;
+    mySetState();
+
     QuizContentModel quizContentModel = coCreateContentAuthoringModel.quizContentModel ?? QuizContentModel();
     quizContentModel.questions = quizModelList.toList();
     coCreateContentAuthoringModel.quizContentModel = quizContentModel;
 
-    CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
+    String? contentId = await coCreateKnowledgeController.addEditContentItem(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
+    MyPrint.printOnConsole("contentId:'$contentId'", tag: tag);
 
-    if (courseDTOModel != null) {
-      courseDTOModel.ContentName = coCreateContentAuthoringModel.title;
-      courseDTOModel.Title = coCreateContentAuthoringModel.title;
-      courseDTOModel.TitleName = coCreateContentAuthoringModel.title;
+    isLoading = false;
+    mySetState();
 
-      courseDTOModel.ShortDescription = coCreateContentAuthoringModel.description;
-      courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
-
-      courseDTOModel.Skills = coCreateContentAuthoringModel.skills;
-
-      courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
-
-      courseDTOModel.quizContentModel = quizContentModel;
-
-      if (!coCreateContentAuthoringModel.isEdit) {
-        context.read<CoCreateKnowledgeProvider>().myKnowledgeList.setList(list: [courseDTOModel], isClear: false, isNotify: true);
-      }
+    if (contentId.checkEmpty) {
+      MyPrint.printOnConsole("Returning from AddEditEventScreen().saveEvent() because contentId is null or empty", tag: tag);
+      return null;
     }
+
+    CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
 
     return courseDTOModel;
   }
 
   Future<void> onSaveAndExitTap() async {
-    CourseDTOModel? courseDTOModel = await saveQuiz();
+    CourseDTOModel? courseDTOModel = await saveContent();
 
     if (courseDTOModel == null) {
       return;
     }
 
-    Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.pop(context);
+    Navigator.pop(context, true);
   }
 
   Future<void> onSaveAndViewTap() async {
-    CourseDTOModel? courseDTOModel = await saveQuiz();
+    CourseDTOModel? courseDTOModel = await saveContent();
 
     if (courseDTOModel == null) {
       return;
     }
 
-    Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.pop(context);
-
-    NavigationController.navigateToQuizScreen(
+    await NavigationController.navigateToQuizScreen(
       navigationOperationParameters: NavigationOperationParameters(
         context: context,
         navigationType: NavigationType.pushNamed,
@@ -476,39 +483,54 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
         courseDTOModel: courseDTOModel,
       ),
     );
+
+    Navigator.pop(context, true);
   }
 
   @override
   void initState() {
     super.initState();
     pageController = PageController();
-    // quizModelList = AppConstants().quizModelList;
-    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
-    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
     initializeData();
   }
 
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
-    return Scaffold(
-      appBar: getAppBar(),
-      body: AppUIComponents.getBackGroundBordersRounded(
-        context: context,
-        child: FutureBuilder(
-            future: future,
-            builder: (BuildContext context, AsyncSnapshot snapShot) {
-              if (snapShot.connectionState == ConnectionState.done) {
-                return getMainBody();
-              }
-              return CommonLoader();
-            }),
+
+    return PopScope(
+      canPop: !isLoading,
+      child: ModalProgressHUD(
+        inAsyncCall: isLoading,
+        child: Scaffold(
+          appBar: getAppBar(),
+          body: AppUIComponents.getBackGroundBordersRounded(
+            context: context,
+            child: FutureBuilder(
+              future: future,
+              builder: (BuildContext context, AsyncSnapshot snapShot) {
+                if (snapShot.connectionState == ConnectionState.done) {
+                  return getMainBody();
+                }
+                return const CommonLoader();
+              },
+            ),
+          ),
+        ),
       ),
     );
   }
 
   PreferredSizeWidget getAppBar() {
-    return AppConfigurations().commonAppBar(title: "Office Ergonomics", actions: [InkWell(onTap: () {}, child: const Icon(Icons.more_vert))]);
+    return AppConfigurations().commonAppBar(
+      title: coCreateContentAuthoringModel.title,
+      actions: [
+        InkWell(
+          onTap: () {},
+          child: const Icon(Icons.more_vert),
+        ),
+      ],
+    );
   }
 
   Widget getMainBody() {
@@ -683,7 +705,7 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: questionModel.isQuestionEditable
             ? getEditableTextField(
-                controller: TextEditingController(text: "${questionModel.question}"),
+                controller: TextEditingController(text: questionModel.question),
                 onSubmitted: (String? val) {
                   if (val == null) return null;
                   questionModel.question = val;

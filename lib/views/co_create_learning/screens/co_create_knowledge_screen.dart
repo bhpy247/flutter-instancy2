@@ -61,10 +61,12 @@ class CoCreateKnowledgeScreen extends StatefulWidget {
   static const String routeName = "/CoCreateKnowledgeScreen";
 
   final CoCreateKnowledgeScreenNavigationArguments arguments;
+  final bool isHandleChatBotSpaceMargin;
 
   const CoCreateKnowledgeScreen({
     super.key,
     required this.arguments,
+    this.isHandleChatBotSpaceMargin = false,
   });
 
   @override
@@ -768,6 +770,7 @@ class _CoCreateKnowledgeScreenState extends State<CoCreateKnowledgeScreen> with 
             MyKnowledgeTab(
               componentId: componentId,
               componentInstanceId: componentInstanceId,
+              isHandleChatBotSpaceMargin: widget.isHandleChatBotSpaceMargin,
             ),
           ],
         ),

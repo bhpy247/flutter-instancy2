@@ -1,16 +1,17 @@
 import 'dart:typed_data';
 
+import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/article/data_model/article_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/event/data_model/event_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/data_model/flashcard_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/learning_path/data_model/learning_path_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/data_model/podcast_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/roleplay/data_models/roleplay_content_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
-
-import '../../../backend/configurations/app_configuration_operations.dart';
-import '../../classroom_events/data_model/EventRecordingDetailsModel.dart';
-import '../../learning_path/response_model/learning_path_model.dart';
-import '../../micro_learning_model/data_model/micro_learning_model.dart';
 
 class CourseDTOModel {
   String SiteName = "";
@@ -238,15 +239,15 @@ class CourseDTOModel {
   dynamic bit4;
   Uint8List? thumbNailFileBytes;
   Uint8List? uploadedDocumentBytes;
-  String? articleHtmlCode;
-  String? selectedArticleSourceType;
   String? uploadedFileName;
   FlashcardContentModel? flashcardContentModel;
   QuizContentModel? quizContentModel;
-  RoleplayContentModel? roleplayContentModel;
+  ArticleContentModel? articleContentModel;
+  PodcastContentModel? podcastContentModel;
   EventModel? eventModel;
-  LearningPathModel? learningPathModel;
-  MainMicroLearningModel? mainMicroLearningModel;
+  MicroLearningContentModel? microLearningContentModel;
+  RoleplayContentModel? roleplayContentModel;
+  LearningPathContentModel? learningPathContentModel;
 
   CourseDTOModel({
     this.SiteName = "",
@@ -473,15 +474,15 @@ class CourseDTOModel {
     this.bit4,
     this.thumbNailFileBytes,
     this.uploadedDocumentBytes,
-    this.articleHtmlCode,
-    this.selectedArticleSourceType,
+    this.uploadedFileName,
     this.flashcardContentModel,
     this.quizContentModel,
-    this.roleplayContentModel,
-    this.uploadedFileName,
+    this.articleContentModel,
+    this.podcastContentModel,
     this.eventModel,
-    this.learningPathModel,
-    this.mainMicroLearningModel,
+    this.microLearningContentModel,
+    this.roleplayContentModel,
+    this.learningPathContentModel,
     List<String>? Skills,
   }) {
     this.Skills = Skills ?? <String>[];

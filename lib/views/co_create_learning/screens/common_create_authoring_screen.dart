@@ -1,10 +1,17 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/app/dependency_injection.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:flutter_instancy_2/utils/my_toast.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/component/common_save_exit_button_row.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/thumbnail_dialog.dart';
+import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -13,7 +20,6 @@ import '../../../backend/wiki_component/wiki_controller.dart';
 import '../../../backend/wiki_component/wiki_provider.dart';
 import '../../../configs/app_configurations.dart';
 import '../../../configs/app_constants.dart';
-import '../../../models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
 import '../../../models/wiki_component/response_model/wikiCategoriesModel.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_safe_state.dart';
@@ -37,49 +43,50 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
   String appBarTitle = "";
 
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController websiteUrlController = TextEditingController();
   TextEditingController imageFileText = TextEditingController();
   String selectedCategoriesString = "";
   List<WikiCategoryTable> selectedCategoriesList = [];
+
   String thumbNailName = "";
   Uint8List? thumbNailBytes;
+  String thumbnailImagePath = "";
+
   late WikiProvider wikiProvider;
   late WikiController wikiController;
   bool isExpanded = false;
   final GlobalKey expansionTile = GlobalKey();
 
   void initializeData() {
-    coCreateContentAuthoringModel = CoCreateContentAuthoringModel();
-    coCreateContentAuthoringModel.contentTypeId = widget.argument.objectTypeId;
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
 
-    if (widget.argument.courseDtoModel != null) {
-      CourseDTOModel courseDTOModel = widget.argument.courseDtoModel!;
+    CommonCreateAuthoringToolScreenArgument argument = widget.argument;
 
-      coCreateContentAuthoringModel.courseDTOModel = widget.argument.courseDtoModel;
-      coCreateContentAuthoringModel.isEdit = true;
+    coCreateContentAuthoringModel = argument.coCreateContentAuthoringModel ??
+        CoCreateContentAuthoringModel(
+          coCreateAuthoringType: argument.coCreateAuthoringType,
+          contentTypeId: argument.objectTypeId,
+          isEdit: argument.coCreateAuthoringType != CoCreateAuthoringType.Create,
+        );
 
-      coCreateContentAuthoringModel.contentType = courseDTOModel.ContentType;
-      coCreateContentAuthoringModel.title = courseDTOModel.ContentName;
-      coCreateContentAuthoringModel.description = courseDTOModel.ShortDescription;
-      coCreateContentAuthoringModel.thumbNailImageBytes = courseDTOModel.thumbNailFileBytes;
-      coCreateContentAuthoringModel.skills = courseDTOModel.Skills;
+    if (argument.courseDtoModel != null) {
+      CourseDTOModel courseDTOModel = argument.courseDtoModel!;
 
-      coCreateContentAuthoringModel.uploadedDocumentBytes = courseDTOModel.uploadedDocumentBytes;
-      coCreateContentAuthoringModel.articleHtmlCode = courseDTOModel.articleHtmlCode;
-      coCreateContentAuthoringModel.selectedArticleSourceType = courseDTOModel.selectedArticleSourceType;
-      coCreateContentAuthoringModel.flashcardContentModel = courseDTOModel.flashcardContentModel;
-      coCreateContentAuthoringModel.quizContentModel = courseDTOModel.quizContentModel;
-      coCreateContentAuthoringModel.roleplayContentModel = courseDTOModel.roleplayContentModel;
-      coCreateContentAuthoringModel.learningPathModel = courseDTOModel.learningPathModel;
-      coCreateContentAuthoringModel.mainMicroLearningModel = courseDTOModel.mainMicroLearningModel;
+      coCreateKnowledgeController.initializeCoCreateContentAuthoringModelFromCourseDTOModel(courseDTOModel: courseDTOModel, coCreateContentAuthoringModel: coCreateContentAuthoringModel);
 
       titleController.text = coCreateContentAuthoringModel.title;
       descriptionController.text = coCreateContentAuthoringModel.description;
       thumbNailBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
+      thumbnailImagePath = coCreateContentAuthoringModel.ThumbnailImagePath;
 
       List<WikiCategoryTable> list = wikiProvider.wikiCategoriesList;
       for (String skill in coCreateContentAuthoringModel.skills) {
@@ -412,7 +419,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
     if (title != null) titleController.text = title;
     if (description != null) descriptionController.text = description;
-    if (thumbnailImageUrl != null) coCreateContentAuthoringModel.newCurrentCourseDTOModel?.ThumbnailImagePath = thumbnailImageUrl;
+    if (thumbnailImageUrl != null) thumbnailImagePath = thumbnailImageUrl;
 
     if (skills != null) {
       selectedCategoriesList.clear();
@@ -461,129 +468,6 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     }
   }
 
-  void onNextTap(int objectTypeId) {
-    coCreateContentAuthoringModel.title = titleController.text.trim();
-    coCreateContentAuthoringModel.description = descriptionController.text.trim();
-    coCreateContentAuthoringModel.skills = selectedCategoriesList.map((e) => e.name).toList();
-    coCreateContentAuthoringModel.thumbNailImageBytes = thumbNailBytes;
-
-    if (objectTypeId == InstancyObjectTypes.flashCard) {
-      NavigationController.navigateToAddEditFlashcardScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        arguments: AddEditFlashcardScreenNavigationArguments(
-          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
-        ),
-      );
-    } else if (objectTypeId == InstancyObjectTypes.podcastEpisode) {
-      NavigationController.navigateToCreatePodcastSourceSelectionScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        arguments: const CreatePodcastSourceSelectionScreenNavigationArguments(
-          courseDtoModel: null,
-          componentId: 0,
-          componentInsId: 0,
-          isEdit: false,
-        ),
-      );
-    } else if (objectTypeId == InstancyObjectTypes.referenceUrl) {
-      NavigationController.navigateToReferenceLinkScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        // argument: const AddEditReferenceScreenArguments(componentId: 0, componentInsId: 0),
-      );
-    } else if (objectTypeId == InstancyObjectTypes.document) {
-      NavigationController.navigateToAddEditDocumentScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        arguments: const AddEditDocumentScreenArguments(componentId: 0, componentInsId: 0),
-      );
-    } else if (objectTypeId == InstancyObjectTypes.videos) {
-      NavigationController.navigateToAddEditVideoScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: const AddEditVideoScreenArgument(),
-      );
-    } else if (objectTypeId == InstancyObjectTypes.quiz) {
-      QuizContentModel quizContentModel = QuizContentModel();
-      quizContentModel.questionCount = 3;
-      quizContentModel.difficultyLevel = "Hard";
-      quizContentModel.questions = AppConstants().quizModelList;
-      quizContentModel.questionType = "Multiple Choice";
-      coCreateContentAuthoringModel.quizContentModel = quizContentModel;
-
-      NavigationController.navigateToAddEditQuizScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: AddEditQuizScreenArgument(
-          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
-        ),
-      );
-    } else if (objectTypeId == InstancyObjectTypes.article) {
-      NavigationController.navigateToAddEditArticleScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: AddEditArticleScreenNavigationArgument(
-          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
-        ),
-      );
-    } else if (objectTypeId == InstancyObjectTypes.events) {
-      NavigationController.navigateToAddEditEventScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: AddEditEventScreenArgument(
-          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
-        ),
-      );
-    } else if (objectTypeId == InstancyObjectTypes.rolePlay) {
-      NavigationController.navigateToAddEditRoleplayScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: AddEditRolePlayScreenNavigationArgument(
-          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
-        ),
-      );
-    } else if (objectTypeId == InstancyObjectTypes.learningPath) {
-      NavigationController.navigateToAddEditLearningPathScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: AddEditLearningPathScreenNavigationArgument(
-          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
-        ),
-      );
-    } else if (objectTypeId == InstancyObjectTypes.microLearning) {
-      NavigationController.navigateToAddEditMicrolearningScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        argument: AddEditMicrolearningScreenNavigationArgument(
-          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
-        ),
-      );
-    } else {}
-  }
-
   Future<void> thumbnailDialog() async {
     dynamic val = await showDialog(
       context: context,
@@ -608,6 +492,271 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       thumbNailBytes = val;
       mySetState();
     }
+  }
+
+  bool validateFormData() {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return false;
+    } else if (wikiProvider.wikiCategoriesList.checkNotEmpty && selectedCategoriesList.isEmpty) {
+      MyToast.showError(context: context, msg: "Please select a Skill");
+      return false;
+    } else if (thumbNailBytes.checkEmpty && thumbnailImagePath.isEmpty) {
+      MyToast.showError(context: context, msg: "Please choose Thumbnail Image");
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> onNextTap(int objectTypeId) async {
+    if (!validateFormData()) {
+      return;
+    }
+
+    coCreateContentAuthoringModel.title = titleController.text.trim();
+    coCreateContentAuthoringModel.description = descriptionController.text.trim();
+    coCreateContentAuthoringModel.skills = selectedCategoriesList.map((e) => e.name).toList();
+    coCreateContentAuthoringModel.thumbNailImageBytes = thumbNailBytes;
+    coCreateContentAuthoringModel.ThumbnailImagePath = thumbnailImagePath;
+
+    bool? isCreated;
+
+    if (objectTypeId == InstancyObjectTypes.flashCard) {
+      dynamic value = await NavigationController.navigateToAddEditFlashcardScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: AddEditFlashcardScreenNavigationArguments(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+
+      if (value == true) {
+        isCreated = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.podcastEpisode) {
+      dynamic value = await NavigationController.navigateToCreatePodcastSourceSelectionScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: CreatePodcastSourceSelectionScreenNavigationArguments(coCreateContentAuthoringModel: coCreateContentAuthoringModel),
+      );
+
+      if (value == true) {
+        isCreated = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.document) {
+      dynamic value = await NavigationController.navigateToAddEditDocumentScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: AddEditDocumentScreenArguments(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+
+      if (value == true) {
+        isCreated = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.videos) {
+      dynamic value = await NavigationController.navigateToAddEditVideoScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditVideoScreenNavigationArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+
+      if (value == true) {
+        isCreated = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.quiz) {
+      /*QuizContentModel quizContentModel = QuizContentModel();
+      quizContentModel.questionCount = 3;
+      quizContentModel.difficultyLevel = "Hard";
+      quizContentModel.questions = AppConstants().quizModelList;
+      quizContentModel.questionType = "Multiple Choice";*/
+      // coCreateContentAuthoringModel.quizContentModel = quizContentModel;
+
+      dynamic value = await NavigationController.navigateToAddEditQuizScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditQuizScreenArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+
+      if (value == true) {
+        isCreated = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.article) {
+      dynamic value = await NavigationController.navigateToAddEditArticleScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditArticleScreenNavigationArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+
+      if (value == true) {
+        isCreated = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.events) {
+      dynamic value = await NavigationController.navigateToAddEditEventScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditEventScreenArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+
+      if (value == true) {
+        Navigator.pop(context, true);
+        isCreated = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.rolePlay) {
+      dynamic value = await NavigationController.navigateToAddEditRoleplayScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditRolePlayScreenNavigationArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+
+      if (value == true) {
+        isCreated = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.learningPath) {
+      dynamic value = await NavigationController.navigateToAddEditLearningPathScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditLearningPathScreenNavigationArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+
+      if (value == true) {
+        isCreated = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.microLearning) {
+      dynamic value = await NavigationController.navigateToAddEditMicroLearningScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditMicroLearningScreenNavigationArgument(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+
+      if (value == true) {
+        isCreated = true;
+      }
+    } else {}
+
+    if (isCreated == true) {
+      Navigator.pop(context, true);
+    }
+  }
+
+  Future<CourseDTOModel?> saveContent() async {
+    if (!validateFormData()) {
+      return null;
+    }
+
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CommonCreateAuthoringToolScreen().saveContent() called", tag: tag);
+
+    isLoading = true;
+    mySetState();
+
+    String previousTitle = coCreateContentAuthoringModel.title;
+    String previousDescription = coCreateContentAuthoringModel.description;
+    List<String> previousSkills = coCreateContentAuthoringModel.skills;
+    Uint8List? previousThumbnailBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
+    String previousThumbnailImagePath = coCreateContentAuthoringModel.ThumbnailImagePath;
+
+    coCreateContentAuthoringModel.title = titleController.text.trim();
+    coCreateContentAuthoringModel.description = descriptionController.text.trim();
+    coCreateContentAuthoringModel.skills = selectedCategoriesList.map((e) => e.name).toList();
+    coCreateContentAuthoringModel.thumbNailImageBytes = thumbNailBytes;
+    coCreateContentAuthoringModel.ThumbnailImagePath = thumbnailImagePath;
+
+    String? contentId = await coCreateKnowledgeController.addEditContentItem(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
+
+    isLoading = false;
+    mySetState();
+
+    if (contentId.checkEmpty) {
+      MyPrint.printOnConsole("Returning from CommonCreateAuthoringToolScreen().onEditMetadataTap() because contentId is null or empty");
+
+      coCreateContentAuthoringModel.title = previousTitle;
+      coCreateContentAuthoringModel.description = previousDescription;
+      coCreateContentAuthoringModel.skills = previousSkills;
+      coCreateContentAuthoringModel.thumbNailImageBytes = previousThumbnailBytes;
+      coCreateContentAuthoringModel.ThumbnailImagePath = previousThumbnailImagePath;
+
+      return null;
+    }
+
+    CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
+
+    return courseDTOModel;
+  }
+
+  Future<void> onEditMetadataTap() async {
+    CourseDTOModel? courseDTOModel = await saveContent();
+
+    if (courseDTOModel == null) {
+      return;
+    }
+
+    Navigator.pop(context, true);
+  }
+
+  Future<void> onSaveAndExitTap() async {
+    CourseDTOModel? courseDTOModel = await saveContent();
+
+    if (courseDTOModel == null) {
+      return;
+    }
+
+    Navigator.pop(context, true);
+  }
+
+  Future<void> onSaveAndViewTap() async {
+    CourseDTOModel? courseDTOModel = await saveContent();
+
+    if (courseDTOModel == null) {
+      return;
+    }
+
+    if (courseDTOModel.ContentTypeId == InstancyObjectTypes.referenceUrl) {
+      await NavigationController.navigateToWebViewScreen(
+        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+        arguments: WebViewScreenNavigationArguments(
+          title: coCreateContentAuthoringModel.title,
+          url: coCreateContentAuthoringModel.referenceUrl ?? "",
+        ),
+      );
+    }
+
+    Navigator.pop(context, true);
   }
 
   @override
@@ -663,52 +812,51 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     super.pageBuild();
     return GestureDetector(
       onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
-      child: ModalProgressHUD(
-        inAsyncCall: isLoading,
-        child: RefreshIndicator(
-          onRefresh: () async {},
-          child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            appBar: AppConfigurations().commonAppBar(
-              title: setAppBarTitle(widget.argument.objectTypeId),
-            ),
-            bottomNavigationBar: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: CommonButton(
-                minWidth: double.infinity,
-                onPressed: () {
-                  onNextTap(widget.argument.objectTypeId);
-                },
-                text: "Next",
-                fontColor: themeData.colorScheme.onPrimary,
+      child: PopScope(
+        canPop: !isLoading,
+        child: ModalProgressHUD(
+          inAsyncCall: isLoading,
+          child: RefreshIndicator(
+            onRefresh: () async {},
+            child: Scaffold(
+              resizeToAvoidBottomInset: true,
+              appBar: AppConfigurations().commonAppBar(
+                title: setAppBarTitle(widget.argument.objectTypeId),
               ),
-            ),
-            body: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(
-                      height: 17,
+              bottomNavigationBar: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: getBottomButtonWidget(),
+              ),
+              body: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(
+                          height: 17,
+                        ),
+                        getTitleTextFormField(),
+                        const SizedBox(
+                          height: 17,
+                        ),
+                        getDescriptionTextFormField(),
+                        const SizedBox(
+                          height: 17,
+                        ),
+                        getCategoryExpansionTile(),
+                        const SizedBox(
+                          height: 17,
+                        ),
+                        getThumbNail(),
+                        const SizedBox(
+                          height: 30,
+                        ),
+                      ],
                     ),
-                    getTitleTextFormField(),
-                    const SizedBox(
-                      height: 17,
-                    ),
-                    getDescriptionTextFormField(),
-                    const SizedBox(
-                      height: 17,
-                    ),
-                    getCategoryExpansionTile(),
-                    const SizedBox(
-                      height: 17,
-                    ),
-                    getThumbNail(),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -718,75 +866,142 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     );
   }
 
+  Widget getBottomButtonWidget() {
+    if (coCreateContentAuthoringModel.coCreateAuthoringType == CoCreateAuthoringType.EditMetadata) {
+      return CommonButton(
+        minWidth: double.infinity,
+        onPressed: () {
+          onEditMetadataTap();
+        },
+        text: "Edit",
+        fontColor: themeData.colorScheme.onPrimary,
+      );
+    } else if (coCreateContentAuthoringModel.coCreateAuthoringType == CoCreateAuthoringType.Create) {
+      if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.referenceUrl) {
+        return Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: CommonSaveExitButtonRow(
+            onSaveAndExitPressed: onSaveAndExitTap,
+            onSaveAndViewPressed: onSaveAndViewTap,
+          ),
+        );
+      }
+      return CommonButton(
+        minWidth: double.infinity,
+        onPressed: () {
+          onNextTap(widget.argument.objectTypeId);
+        },
+        text: "Next",
+        fontColor: themeData.colorScheme.onPrimary,
+      );
+    } else {
+      return const SizedBox();
+    }
+  }
+
   Widget getThumbNail() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InkWell(
-          onTap: () async {
-            thumbnailDialog();
-            // thumbNailName = await openFileExplorer(
-            //   fileType,
-            //   false,
-            // );
-            // setState(() {});
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(color: themeData.primaryColor, width: .6),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 2,
-                ),
-              ],
-            ),
-            child: Text(
-              "Add Thumbnail Image",
-              style: TextStyle(color: themeData.primaryColor),
-            ),
+    if (thumbNailBytes.checkEmpty && thumbnailImagePath.isEmpty) {
+      return InkWell(
+        onTap: () async {
+          thumbnailDialog();
+          // thumbNailName = await openFileExplorer(
+          //   fileType,
+          //   false,
+          // );
+          // setState(() {});
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(5),
+            border: Border.all(color: themeData.primaryColor, width: .6),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 2,
+              ),
+            ],
+          ),
+          child: Text(
+            "Add Thumbnail Image",
+            style: TextStyle(color: themeData.primaryColor),
           ),
         ),
-        if (thumbNailBytes != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 10.0),
-            child: Stack(
-              alignment: Alignment.topRight,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Image.memory(
-                    thumbNailBytes!,
-                    height: 80,
-                    width: 80,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    thumbNailBytes = null;
-                    mySetState();
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.clear,
-                      size: 20,
-                    ),
-                  ),
-                )
-              ],
+      );
+    } else if (thumbNailBytes != null) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 10.0),
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Image.memory(
+                thumbNailBytes!,
+                height: 80,
+                width: 80,
+                fit: BoxFit.cover,
+              ),
             ),
-          )
-      ],
-    );
+            InkWell(
+              onTap: () {
+                thumbNailBytes = null;
+                mySetState();
+              },
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.clear,
+                  size: 20,
+                ),
+              ),
+            )
+          ],
+        ),
+      );
+    } else {
+      String imageUrl = AppConfigurationOperations(appProvider: DependencyInjection.appProvider).getInstancyImageUrlFromImagePath(imagePath: thumbnailImagePath);
+
+      return Padding(
+        padding: const EdgeInsets.only(top: 10.0),
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CommonCachedNetworkImage(
+                imageUrl: imageUrl,
+                height: 80,
+                width: 80,
+                fit: BoxFit.cover,
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                thumbnailImagePath = "";
+                mySetState();
+              },
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.clear,
+                  size: 20,
+                ),
+              ),
+            )
+          ],
+        ),
+      );
+    }
   }
 
   //region imageView

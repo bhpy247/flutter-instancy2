@@ -587,6 +587,7 @@ class InstancyIcons {
   static const IconData viewResources = Icons.content_copy;
   static const IconData addComment = Icons.message_outlined;
   static const IconData addReply = Icons.reply;
+  static const IconData editMetadata = Icons.edit_note;
   static const IconData edit = Icons.edit;
   static const IconData pin = FontAwesomeIcons.thumbtack;
   static const IconData unpin = FontAwesomeIcons.linkSlash;
@@ -985,6 +986,8 @@ class SocialLoginTypes {
       ];
 }
 
+enum CoCreateAuthoringType { Create, Edit, EditMetadata }
+
 class MicrolearningTypes {
   static const String text = "Text";
   static const String question = "Question";
@@ -1004,4 +1007,12 @@ class QuizQuestionType {
   static const String mcqString = "Multiple Choice";
   static const String twoChoiceString = "True/False";
   static const String bothString = "Both";
+}
+
+class MicroLearningElementType {
+  static const String Text = "Text";
+  static const String Image = "Image";
+  static const String Video = "Video";
+  static const String Audio = "Audio";
+  static const String Quiz = "Quiz";
 }

@@ -5,7 +5,7 @@ import '../../../configs/app_configurations.dart';
 
 class AddEditVideoScreen extends StatefulWidget {
   static const String routeName = "/AddEditVideoScreen";
-  final AddEditVideoScreenArgument arguments;
+  final AddEditVideoScreenNavigationArgument arguments;
 
   const AddEditVideoScreen({super.key, required this.arguments});
 
@@ -14,6 +14,56 @@ class AddEditVideoScreen extends StatefulWidget {
 }
 
 class _AddEditVideoScreenState extends State<AddEditVideoScreen> {
+  Future<void> onRecordVideoTap() async {
+    dynamic value = await NavigationController.navigateToRecordVideoScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      argument: AddEditVideoScreenNavigationArgument(
+        isUploadScreen: false,
+        coCreateContentAuthoringModel: widget.arguments.coCreateContentAuthoringModel,
+      ),
+    );
+
+    if (value == true) {
+      Navigator.pop(context, true);
+    }
+  }
+
+  Future<void> onUploadVideoTap() async {
+    dynamic value = await NavigationController.navigateToRecordVideoScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      argument: AddEditVideoScreenNavigationArgument(
+        isUploadScreen: true,
+        coCreateContentAuthoringModel: widget.arguments.coCreateContentAuthoringModel,
+      ),
+    );
+
+    if (value == true) {
+      Navigator.pop(context, true);
+      return;
+    }
+  }
+
+  Future<void> onGenerateWithAITap() async {
+    dynamic value = await NavigationController.navigateToCreateManuallyVideoScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+      argument: CreateManuallyVideoScreenNavigationArgument(coCreateContentAuthoringModel: widget.arguments.coCreateContentAuthoringModel),
+    );
+
+    if (value == true) {
+      Navigator.pop(context, true);
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -30,46 +80,24 @@ class _AddEditVideoScreenState extends State<AddEditVideoScreen> {
                 getCommonTextContainer(
                   text: "Record Video",
                   onTap: () {
-                    NavigationController.navigateToRecordVideoScreen(
-                      navigationOperationParameters: NavigationOperationParameters(
-                        context: context,
-                        navigationType: NavigationType.pushNamed,
-                      ),
-                      argument: const AddEditVideoScreenArgument(isUploadScreen: false),
-                    );
+                    onRecordVideoTap();
                   },
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
+                const SizedBox(height: 20),
                 getCommonTextContainer(
-                    text: "Upload Video",
-                    onTap: () {
-                      NavigationController.navigateToRecordVideoScreen(
-                        navigationOperationParameters: NavigationOperationParameters(
-                          context: context,
-                          navigationType: NavigationType.pushNamed,
-                        ),
-                        argument: const AddEditVideoScreenArgument(isUploadScreen: true),
-                      );
-                    }),
-                const SizedBox(
-                  height: 20,
+                  text: "Upload Video",
+                  onTap: () {
+                    onUploadVideoTap();
+                  },
                 ),
+                const SizedBox(height: 20),
                 getCommonTextContainer(
-                    text: "Generate with AI",
-                    onTap: () {
-                      NavigationController.navigateToCreateManuallyVideoScreen(
-                        navigationOperationParameters: NavigationOperationParameters(
-                          context: context,
-                          navigationType: NavigationType.pushNamed,
-                        ),
-                        argument: const AddEditVideoScreenArgument(isUploadScreen: true),
-                      );
-                    }),
-                const SizedBox(
-                  height: 20,
+                  text: "Generate with AI",
+                  onTap: () {
+                    onGenerateWithAITap();
+                  },
                 ),
+                const SizedBox(height: 20),
               ],
             ),
           ),

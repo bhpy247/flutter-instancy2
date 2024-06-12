@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 
 class AddContentDialog extends StatelessWidget {
   AddContentDialog({super.key});
@@ -37,12 +36,12 @@ class AddContentDialog extends StatelessWidget {
                     onTap: () {
                       Navigator.pop(context);
                       if (index == 5) {
-                        NavigationController.navigateToReferenceLinkScreen(
+                        /*NavigationController.navigateToReferenceLinkScreen(
                           navigationOperationParameters: NavigationOperationParameters(
                             context: context,
                             navigationType: NavigationType.pushNamed,
                           ),
-                        );
+                        );*/
                       }
                     },
                     leading: Image.asset(

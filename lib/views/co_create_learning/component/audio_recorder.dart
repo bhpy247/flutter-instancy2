@@ -1,14 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/app/app_controller.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:record/record.dart';
 
 import 'mixin/audio_record_mixin.dart';
 
 class Recorder extends StatefulWidget {
-  final void Function(String path) onStop;
+  final void Function(String path, String? fileName, Uint8List? bytes) onStop;
 
   const Recorder({super.key, required this.onStop});
 
@@ -73,7 +75,15 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin, MySafeStat
     final path = await _audioRecorder.stop();
 
     if (path != null) {
-      widget.onStop(path);
+      int index = path.lastIndexOf(AppController.getPathSeparator() ?? "/");
+      String? fileName;
+      if (index != -1) {
+        fileName = (index + 1) < path.length ? path.substring(index + 1) : null;
+      }
+
+      Uint8List? bytes = await File(path).readAsBytes();
+
+      widget.onStop(path, fileName, bytes);
 
       downloadWebData(path);
     }

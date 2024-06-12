@@ -7,12 +7,14 @@ import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_strings.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_content_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/data_model/flashcard_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/data_model/flashcard_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/request_model/flashcard_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/common_save_exit_button_row.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
@@ -44,6 +46,9 @@ class AddEditFlashcardScreen extends StatefulWidget {
 class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with MySafeState {
   bool isLoading = false;
 
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
   Color? selectedColor;
@@ -57,6 +62,9 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
   };
 
   void initialize() {
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
 
     FlashcardContentModel? flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel;
@@ -152,7 +160,7 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
     );
   }
 
-  void onGenerateTap() {
+  Future<void> onGenerateTap() async {
     FlashcardContentModel flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel ?? FlashcardContentModel();
     flashcardContentModel.cardCount = int.tryParse(countController.text) ?? 0;
     flashcardContentModel.queryUrl = urlController.text;
@@ -160,13 +168,17 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
 
     coCreateContentAuthoringModel.flashcardContentModel = flashcardContentModel;
 
-    NavigationController.navigateToGenerateWithAiFlashCardScreen(
+    dynamic value = await NavigationController.navigateToGenerateWithAiFlashCardScreen(
       navigationOperationParameters: NavigationOperationParameters(
         context: context,
         navigationType: NavigationType.pushNamed,
       ),
       arguments: GenerateWithAiFlashCardScreenNavigationArguments(coCreateContentAuthoringModel: coCreateContentAuthoringModel),
     );
+
+    if (value == true) {
+      Navigator.pop(context, true);
+    }
   }
 
   @override
@@ -370,9 +382,15 @@ class GenerateWithAiFlashCardScreen extends StatefulWidget {
 }
 
 class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardScreen> with MySafeState {
+  bool isLoading = false;
+
   late PageController pageController;
-  late CoCreateKnowledgeController coCreateKnowledgeController;
+
   late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+
+  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
   List<FlashcardModel> questionList = [
     // FlashcardModel(
     //   controller: FlipCardController(),
@@ -431,13 +449,27 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
     // ),
   ];
   late Future future;
-  bool isLoading = false;
 
-  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+  void initializeData() {
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+
+    coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
+
+    FlashcardContentModel? flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel;
+    if (flashcardContentModel != null) {
+      if (flashcardContentModel.flashcards.isNotEmpty) {
+        questionList = flashcardContentModel.flashcards.toList();
+      }
+
+      if (questionList.length > flashcardContentModel.cardCount) {
+        questionList = questionList.sublist(0, flashcardContentModel.cardCount);
+      }
+    }
+    mySetState();
+  }
 
   Future<void> getData() async {
-    isLoading = true;
-    mySetState();
     try {
       FlashcardRequestModel requestModel = FlashcardRequestModel(
         difficultyLevel: "Hard",
@@ -448,15 +480,12 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
         // regenerateCards: singleFlashcardToRegenerate == null ? [] : [singleFlashcardToRegenerate],
       );
 
-      FlashcardResponseModel? flashcardResponseModel = await coCreateKnowledgeController.generateFlashcard(requestModel: requestModel);
+      GeneratedFlashcardResponseModel? flashcardResponseModel = await coCreateKnowledgeController.generateFlashcard(requestModel: requestModel);
 
       if (flashcardResponseModel == null) return;
 
       questionList = flashcardResponseModel.flashcards;
       MyPrint.printOnConsole("requestModel : ${questionList.length}");
-
-      isLoading = false;
-      mySetState();
     } catch (e, s) {
       MyPrint.printOnConsole("Error in getData : $e");
       MyPrint.printOnConsole(s);
@@ -476,7 +505,7 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
         regenerateCards: singleFlashcardToRegenerate == null ? [] : [singleFlashcardToRegenerate],
       );
 
-      FlashcardResponseModel? flashcardResponseModel = await coCreateKnowledgeController.generateFlashcard(requestModel: requestModel);
+      GeneratedFlashcardResponseModel? flashcardResponseModel = await coCreateKnowledgeController.generateFlashcard(requestModel: requestModel);
 
       if (flashcardResponseModel == null) return;
       questionList.removeAt(index);
@@ -489,22 +518,6 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
       MyPrint.printOnConsole("Error in getData : $e");
       MyPrint.printOnConsole(s);
     }
-  }
-
-  void initializeData() {
-    coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
-
-    FlashcardContentModel? flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel;
-    if (flashcardContentModel != null) {
-      if (flashcardContentModel.flashcards.isNotEmpty) {
-        questionList = flashcardContentModel.flashcards.toList();
-      }
-
-      if (questionList.length > flashcardContentModel.cardCount) {
-        questionList = questionList.sublist(0, flashcardContentModel.cardCount);
-      }
-    }
-    mySetState();
   }
 
   List<InstancyUIActionModel> getActionsListOfMainWidget({required CourseDTOModel model}) {
@@ -609,30 +622,28 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
   }
 
   Future<CourseDTOModel?> saveFlashcard() async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("GenerateWithAiFlashCardScreen().saveFlashcard() called", tag: tag);
+
+    isLoading = true;
+    mySetState();
+
     FlashcardContentModel flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel ?? FlashcardContentModel();
     flashcardContentModel.flashcards = questionList.toList();
     coCreateContentAuthoringModel.flashcardContentModel = flashcardContentModel;
 
-    CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
+    String? contentId = await coCreateKnowledgeController.addEditContentItem(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
+    MyPrint.printOnConsole("contentId:'$contentId'", tag: tag);
 
-    if (courseDTOModel != null) {
-      courseDTOModel.ContentName = coCreateContentAuthoringModel.title;
-      courseDTOModel.Title = coCreateContentAuthoringModel.title;
-      courseDTOModel.TitleName = coCreateContentAuthoringModel.title;
+    isLoading = false;
+    mySetState();
 
-      courseDTOModel.ShortDescription = coCreateContentAuthoringModel.description;
-      courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
-
-      courseDTOModel.Skills = coCreateContentAuthoringModel.skills;
-
-      courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
-
-      courseDTOModel.flashcardContentModel = flashcardContentModel;
-
-      if (!coCreateContentAuthoringModel.isEdit) {
-        context.read<CoCreateKnowledgeProvider>().myKnowledgeList.setList(list: [courseDTOModel], isClear: false, isNotify: true);
-      }
+    if (contentId.checkEmpty) {
+      MyPrint.printOnConsole("Returning from AddEditEventScreen().saveEvent() because contentId is null or empty", tag: tag);
+      return null;
     }
+
+    CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
 
     return courseDTOModel;
   }
@@ -644,9 +655,7 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
       return;
     }
 
-    Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.pop(context);
+    Navigator.pop(context, true);
   }
 
   Future<void> onSaveAndViewTap() async {
@@ -656,11 +665,7 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
       return;
     }
 
-    Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.pop(context);
-
-    NavigationController.navigateToFlashCardScreen(
+    await NavigationController.navigateToFlashCardScreen(
       navigationOperationParameters: NavigationOperationParameters(
         context: context,
         navigationType: NavigationType.pushNamed,
@@ -669,14 +674,14 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
         courseDTOModel: courseDTOModel,
       ),
     );
+
+    Navigator.pop(context, true);
   }
 
   @override
   void initState() {
     super.initState();
     pageController = PageController();
-    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
-    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
     initializeData();
     future = getData();
   }
@@ -684,24 +689,26 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
-    return Scaffold(
-      backgroundColor: const Color(0xffF8F8F8),
-      appBar: getAppBar(),
-      body: AppUIComponents.getBackGroundBordersRounded(
-        context: context,
-        child: FutureBuilder(
-          future: future,
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (questionList.checkEmpty) {
-                return const Center(
-                  child: Text("No Flashcard Available"),
-                );
-              }
-              return getMainBody();
-            }
-            return const CommonLoader();
-          },
+
+    return PopScope(
+      canPop: !isLoading,
+      child: ModalProgressHUD(
+        inAsyncCall: isLoading,
+        child: Scaffold(
+          backgroundColor: const Color(0xffF8F8F8),
+          appBar: getAppBar(),
+          body: AppUIComponents.getBackGroundBordersRounded(
+            context: context,
+            child: FutureBuilder(
+              future: future,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return getMainBody();
+                }
+                return const CommonLoader();
+              },
+            ),
+          ),
         ),
       ),
     );
@@ -726,6 +733,12 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
 
   Widget getMainBody() {
     int length = questionList.length;
+
+    if (length == 0) {
+      return const Center(
+        child: Text("No Flashcard Available"),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -829,8 +842,8 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
               alignment: Alignment.topCenter,
               controller: model.controller,
               flipOnTouch: true,
-              front: getCommonFrontAndBackWidget(text: model.flashcardFront, onTap: () => model.controller.flip()),
-              back: getCommonFrontAndBackWidget(text: model.flashcardBack, onTap: () => model.controller.flip()),
+              front: getCommonFrontAndBackWidget(text: model.flashcard_back, onTap: () => model.controller.flip()),
+              back: getCommonFrontAndBackWidget(text: model.flashcard_front, onTap: () => model.controller.flip()),
             ),
           ),
         ],
@@ -924,17 +937,17 @@ class _EditFlashCardScreenState extends State<EditFlashCardScreen> with MySafeSt
   TextEditingController backController = TextEditingController();
 
   void onSaveTap() {
-    widget.arguments.model.flashcardFront = frontController.text.trim();
-    widget.arguments.model.flashcardBack = backController.text.trim();
+    widget.arguments.model.flashcard_back = frontController.text.trim();
+    widget.arguments.model.flashcard_front = backController.text.trim();
     Navigator.pop(context, true);
   }
 
   @override
   void initState() {
     super.initState();
-    frontController.text = widget.arguments.model.flashcardFront;
-    backController.text = widget.arguments.model.flashcardBack;
-    MyPrint.printOnConsole("Text: ${widget.arguments.model.flashcardFront}");
+    frontController.text = widget.arguments.model.flashcard_back;
+    backController.text = widget.arguments.model.flashcard_front;
+    MyPrint.printOnConsole("Text: ${widget.arguments.model.flashcard_back}");
   }
 
   @override

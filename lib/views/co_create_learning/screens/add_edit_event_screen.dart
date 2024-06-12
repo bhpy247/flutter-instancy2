@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
-import 'package:flutter_instancy_2/configs/app_constants.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_formdata_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/event/data_model/event_model.dart';
 import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
@@ -19,7 +16,6 @@ import '../../../backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import '../../../backend/navigation/navigation_arguments.dart';
 import '../../../configs/app_configurations.dart';
 import '../../../models/co_create_knowledge/co_create_content_authoring_model.dart';
-import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_text_form_field.dart';
 
@@ -118,18 +114,7 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
     eventModel.location = locationController.text.trim();
     coCreateContentAuthoringModel.eventModel = eventModel;
 
-    CreateNewContentItemRequestModel requestModel = CreateNewContentItemRequestModel(
-      formData: CreateNewContentItemFormDataModel(
-        EventStartDateTime: "${eventModel.date} ${eventModel.startTime}",
-        EventEndDateTime: "${eventModel.date} ${eventModel.endTime}",
-        RegistrationURL: eventModel.eventUrl,
-        Location: eventModel.location,
-        Name: coCreateContentAuthoringModel.title,
-        ShortDescription: coCreateContentAuthoringModel.description,
-      ),
-      ObjectTypeID: InstancyObjectTypes.events,
-    );
-    String? contentId = await coCreateKnowledgeController.CreateNewContentItem(requestModel: requestModel);
+    String? contentId = await coCreateKnowledgeController.addEditContentItem(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
     MyPrint.printOnConsole("contentId:'$contentId'", tag: tag);
 
     isLoading = false;
@@ -140,48 +125,6 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
       return;
     }
 
-    CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
-
-    if (courseDTOModel != null) {
-      courseDTOModel.ContentID = contentId!;
-      courseDTOModel.ContentName = coCreateContentAuthoringModel.title;
-      courseDTOModel.Title = coCreateContentAuthoringModel.title;
-      courseDTOModel.TitleName = coCreateContentAuthoringModel.title;
-
-      courseDTOModel.ShortDescription = coCreateContentAuthoringModel.description;
-      courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
-
-      courseDTOModel.Skills = coCreateContentAuthoringModel.skills;
-
-      courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
-      courseDTOModel.EventStartDateTime = startTime;
-      courseDTOModel.EventEndDateTime = endTime;
-      courseDTOModel.EventStartDateTimeWithoutConvert = coCreateContentAuthoringModel.eventModel?.startTime ?? "";
-      courseDTOModel.EventEndDateTimeTimeWithoutConvert = coCreateContentAuthoringModel.eventModel?.endTime ?? "";
-      courseDTOModel.Duration = "30 Minutes";
-      courseDTOModel.AvailableSeats = "10";
-
-      //   UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
-      // ContentTypeId: InstancyObjectTypes.events,
-      // MediaTypeID: InstancyMediaTypes.none,
-      // ContentType: "Events",
-      // ThumbnailImagePath: "/Content/SiteFiles/Images/Event.jpg",
-      // ShortDescription: "Unleash the potential of nations through economic growth and development",
-      // EventStartDateTime: "30 May 2024",
-      // EventStartDateTimeWithoutConvert: "05/30/2024 05:30:00 PM",
-      // EventEndDateTime: "30 May 2024",
-      // EventEndDateTimeTimeWithoutConvert: "05/30/2024 06:00:00 PM",
-      // Duration: "30 Minutes",
-      // AvailableSeats: "10",
-
-      courseDTOModel.eventModel = eventModel;
-
-      if (!coCreateContentAuthoringModel.isEdit) {
-        context.read<CoCreateKnowledgeProvider>().myKnowledgeList.setList(list: [courseDTOModel], isClear: false, isNotify: true);
-      }
-    }
-
-    Navigator.pop(context);
     Navigator.pop(context, true);
   }
 
@@ -194,17 +137,20 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
-    return ModalProgressHUD(
-      inAsyncCall: isLoading,
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppConfigurations().commonAppBar(
-          title: "Create Event",
-        ),
-        bottomNavigationBar: getCreateButton(),
-        body: AppUIComponents.getBackGroundBordersRounded(
-          context: context,
-          child: getMainBody(),
+    return PopScope(
+      canPop: !isLoading,
+      child: ModalProgressHUD(
+        inAsyncCall: isLoading,
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: AppConfigurations().commonAppBar(
+            title: "Create Event",
+          ),
+          bottomNavigationBar: getCreateButton(),
+          body: AppUIComponents.getBackGroundBordersRounded(
+            context: context,
+            child: getMainBody(),
+          ),
         ),
       ),
     );

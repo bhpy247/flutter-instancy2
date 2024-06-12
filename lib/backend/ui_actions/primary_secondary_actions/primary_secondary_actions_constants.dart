@@ -55,6 +55,7 @@ enum InstancyContentActionsEnum {
   Pin,
   UnPin,
   Edit,
+  EditMetadata,
   //endregion
 
   //region Comment Actions

@@ -1,55 +1,66 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/article/data_model/article_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/event/data_model/event_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/data_model/flashcard_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/learning_path/data_model/learning_path_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/data_model/podcast_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/roleplay/data_models/roleplay_content_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
-import 'package:flutter_instancy_2/models/learning_path/response_model/learning_path_model.dart';
-import 'package:flutter_instancy_2/models/micro_learning_model/data_model/micro_learning_model.dart';
 
 class CoCreateContentAuthoringModel {
+  CoCreateAuthoringType coCreateAuthoringType;
   int contentTypeId = 0;
+  int mediaTypeId = 0;
+  String contentId = "";
   String contentType = "Test";
   String title = "";
   String description = "";
   List<String> skills = <String>[];
+  String ThumbnailImagePath = "";
   Uint8List? thumbNailImageBytes;
   Uint8List? uploadedDocumentBytes;
   String? uploadedDocumentName;
   String? referenceUrl;
-  String? articleHtmlCode;
-  String? selectedArticleSourceType;
   CourseDTOModel? courseDTOModel;
   CourseDTOModel? newCurrentCourseDTOModel;
   bool isEdit = false;
   FlashcardContentModel? flashcardContentModel;
   QuizContentModel? quizContentModel;
-  RoleplayContentModel? roleplayContentModel;
+  ArticleContentModel? articleContentModel;
+  PodcastContentModel? podcastContentModel;
   EventModel? eventModel;
-  LearningPathModel? learningPathModel;
-  MainMicroLearningModel? mainMicroLearningModel;
+  MicroLearningContentModel? microLearningContentModel;
+  RoleplayContentModel? roleplayContentModel;
+  LearningPathContentModel? learningPathContentModel;
 
   CoCreateContentAuthoringModel({
+    required this.coCreateAuthoringType,
     this.contentTypeId = 0,
+    this.mediaTypeId = 0,
+    this.contentId = "",
     this.contentType = "Test",
     this.title = "",
     this.description = "",
     List<String>? skills,
+    this.ThumbnailImagePath = "",
     this.thumbNailImageBytes,
     this.uploadedDocumentBytes,
-    this.articleHtmlCode,
-    this.selectedArticleSourceType,
     this.courseDTOModel,
     this.newCurrentCourseDTOModel,
     this.isEdit = false,
-    this.flashcardContentModel,
-    this.quizContentModel,
-    this.roleplayContentModel,
     this.uploadedDocumentName,
     this.referenceUrl,
+    this.flashcardContentModel,
+    this.quizContentModel,
+    this.articleContentModel,
+    this.podcastContentModel,
     this.eventModel,
-    this.learningPathModel,
-    this.mainMicroLearningModel,
+    this.microLearningContentModel,
+    this.roleplayContentModel,
+    this.learningPathContentModel,
   }) {
     this.skills = skills ?? <String>[];
   }

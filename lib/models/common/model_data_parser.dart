@@ -14,7 +14,7 @@ import 'package:flutter_instancy_2/models/authentication/response_model/signup_f
 import 'package:flutter_instancy_2/models/catalog/response_model/associated_content_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/user_coming_soon_response.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
 import 'package:flutter_instancy_2/models/common/response_model/common_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/get_course_tracking_data_response_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/category_model.dart';
@@ -322,7 +322,7 @@ enum ModelDataParsingType {
   GetCourseTrackingDataResponseModel,
 
   //region co-createKnowledge
-  GenerateFlashCard,
+  GeneratedFlashcardResponseModel,
   AvtarResponseModel,
   BackgroundColorModelList,
   AvatarVoiceList
@@ -548,7 +548,7 @@ class ModelDataParser {
     //endregion
 
     ModelDataParsingType.GetCourseTrackingDataResponseModel: parseGetCourseTrackingDataResponseModel,
-    ModelDataParsingType.GenerateFlashCard: parseGenerateFlashcardDataResponseModel,
+    ModelDataParsingType.GeneratedFlashcardResponseModel: parseGeneratedFlashcardResponseModel,
     ModelDataParsingType.AvtarResponseModel: parseAvatarResponseModel,
     ModelDataParsingType.BackgroundColorModelList: parseBackgroundColorList,
     ModelDataParsingType.AvatarVoiceList: parseAvatarVoiceList,
@@ -1582,11 +1582,11 @@ class ModelDataParser {
     }
   }
 
-  static FlashcardResponseModel? parseGenerateFlashcardDataResponseModel({required dynamic decodedValue}) {
+  static GeneratedFlashcardResponseModel? parseGeneratedFlashcardResponseModel({required dynamic decodedValue}) {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
     if (json.isNotEmpty) {
-      return FlashcardResponseModel.fromMap(json);
+      return GeneratedFlashcardResponseModel.fromMap(json);
     } else {
       return null;
     }

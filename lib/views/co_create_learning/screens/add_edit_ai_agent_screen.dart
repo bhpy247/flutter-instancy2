@@ -216,7 +216,9 @@ class _AddEditAiAgentScreenState extends State<AddEditAiAgentScreen> with MySafe
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
   void initializeData() {
-    coCreateContentAuthoringModel = CoCreateContentAuthoringModel();
+    coCreateContentAuthoringModel = CoCreateContentAuthoringModel(
+      coCreateAuthoringType: CoCreateAuthoringType.Create,
+    );
     coCreateContentAuthoringModel.contentTypeId = InstancyObjectTypes.aiAgent;
 
     if (widget.arguments.courseDtoModel != null) {
@@ -232,12 +234,10 @@ class _AddEditAiAgentScreenState extends State<AddEditAiAgentScreen> with MySafe
       coCreateContentAuthoringModel.skills = courseDTOModel.Skills;
 
       coCreateContentAuthoringModel.uploadedDocumentBytes = courseDTOModel.uploadedDocumentBytes;
-      coCreateContentAuthoringModel.articleHtmlCode = courseDTOModel.articleHtmlCode;
-      coCreateContentAuthoringModel.selectedArticleSourceType = courseDTOModel.selectedArticleSourceType;
       coCreateContentAuthoringModel.flashcardContentModel = courseDTOModel.flashcardContentModel;
       coCreateContentAuthoringModel.quizContentModel = courseDTOModel.quizContentModel;
       coCreateContentAuthoringModel.roleplayContentModel = courseDTOModel.roleplayContentModel;
-      coCreateContentAuthoringModel.learningPathModel = courseDTOModel.learningPathModel;
+      coCreateContentAuthoringModel.learningPathContentModel = courseDTOModel.learningPathContentModel;
 
       titleController.text = coCreateContentAuthoringModel.title;
       descriptionController.text = coCreateContentAuthoringModel.description;

@@ -2,9 +2,15 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/extensions.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
+import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/common_save_exit_button_row.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
+import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
 import '../../../backend/app_theme/style.dart';
 import '../../../backend/navigation/navigation_arguments.dart';
@@ -19,19 +25,36 @@ import '../../common/components/app_ui_components.dart';
 
 class RecordVideoScreen extends StatefulWidget {
   static const String routeName = "/recordVideoScreen";
-  final AddEditVideoScreenArgument argument;
+  final AddEditVideoScreenNavigationArgument arguments;
 
-  const RecordVideoScreen({super.key, required this.argument});
+  const RecordVideoScreen({
+    super.key,
+    required this.arguments,
+  });
 
   @override
   State<RecordVideoScreen> createState() => _RecordVideoScreenState();
 }
 
 class _RecordVideoScreenState extends State<RecordVideoScreen> with MySafeState {
+  bool isLoading = false;
+
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+
+  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
   Uint8List? fileBytes;
 
   String thumbNailName = "";
   Uint8List? thumbNailBytes;
+
+  void initializeData() {
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+
+    coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
+  }
 
   Future<String> openFileExplorer(
     FileType pickingType,
@@ -65,52 +88,94 @@ class _RecordVideoScreenState extends State<RecordVideoScreen> with MySafeState 
     return fileName;
   }
 
+  Future<CourseDTOModel?> saveContent() async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("GenerateWithAiFlashCardScreen().saveFlashcard() called", tag: tag);
+
+    isLoading = true;
+    mySetState();
+
+    String? contentId = await coCreateKnowledgeController.addEditContentItem(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
+    MyPrint.printOnConsole("contentId:'$contentId'", tag: tag);
+
+    isLoading = false;
+    mySetState();
+
+    if (contentId.checkEmpty) {
+      MyPrint.printOnConsole("Returning from AddEditEventScreen().saveEvent() because contentId is null or empty", tag: tag);
+      return null;
+    }
+
+    CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
+
+    return courseDTOModel;
+  }
+
+  Future<void> onSaveAndExitTap() async {
+    CourseDTOModel? courseDTOModel = await saveContent();
+
+    if (courseDTOModel == null) {
+      return;
+    }
+
+    Navigator.pop(context, true);
+  }
+
+  Future<void> onSaveAndViewTap() async {
+    CourseDTOModel? courseDTOModel = await saveContent();
+
+    if (courseDTOModel == null) {
+      return;
+    }
+
+    await NavigationController.navigateToVideoScreen(
+      navigationOperationParameters: NavigationOperationParameters(
+        context: context,
+        navigationType: NavigationType.pushNamed,
+      ),
+    );
+
+    Navigator.pop(context, true);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    initializeData();
+  }
+
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
-    return Scaffold(
-      appBar: AppConfigurations().commonAppBar(
-        title: widget.argument.isUploadScreen ? "Upload Video" : "Record Video",
-      ),
-      body: AppUIComponents.getBackGroundBordersRounded(
-        context: context,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              widget.argument.isUploadScreen ? getUploadVideoScreen() : getRecordVideoWidget(),
-              const Spacer(),
-              CommonSaveExitButtonRow(
-                onSaveAndExitPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                },
-                onSaveAndViewPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                  NavigationController.navigateToGenerateWithAiVideoScreen(
-                    argument: AddEditVideoScreenArgument(isNotGenerateWithAiScreen: true),
-                    navigationOperationParameters: NavigationOperationParameters(
-                      context: context,
-                      navigationType: NavigationType.pushNamed,
-                    ),
-                  );
-                },
+
+    return PopScope(
+      canPop: !isLoading,
+      child: ModalProgressHUD(
+        inAsyncCall: isLoading,
+        child: Scaffold(
+          appBar: AppConfigurations().commonAppBar(
+            title: widget.arguments.isUploadScreen ? "Upload Video" : "Record Video",
+          ),
+          body: AppUIComponents.getBackGroundBordersRounded(
+            context: context,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  widget.arguments.isUploadScreen ? getUploadVideoScreen() : getRecordVideoWidget(),
+                  const Spacer(),
+                  CommonSaveExitButtonRow(
+                    onSaveAndExitPressed: () {
+                      onSaveAndExitTap();
+                    },
+                    onSaveAndViewPressed: () {
+                      onSaveAndViewTap();
+                    },
+                  ),
+                ],
               ),
-              // CommonButton(
-              //   minWidth: double.infinity,
-              //   onPressed: () {
-              //     NavigationController.navigateToVideoScreen(
-              //       navigationOperationParameters: NavigationOperationParameters(
-              //         context: context,
-              //         navigationType: NavigationType.pushNamed,
-              //       ),
-              //     );
-              //   },
-              //   text: "Save",
-              //   fontColor: theme.colorScheme.onPrimary,
-              // )
-            ],
+            ),
           ),
         ),
       ),

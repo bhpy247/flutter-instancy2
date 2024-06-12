@@ -1,10 +1,13 @@
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 
-class LearningPathModel {
+class LearningPathContentModel {
   List<BlockListModel>? blockListModel;
   Map<String, List<CourseDTOModel>>? learningPathList;
 
-  LearningPathModel({this.learningPathList, this.blockListModel = const []});
+  LearningPathContentModel({
+    this.learningPathList,
+    this.blockListModel = const [],
+  });
 }
 
 class BlockListModel {

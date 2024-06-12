@@ -16,7 +16,7 @@ import 'package:flutter_instancy_2/backend/wiki_component/wiki_provider.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/native_menu_component_model.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/data_model/ask_the_expert_dto.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/flashcard_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/data_model/flashcard_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
 import 'package:flutter_instancy_2/models/membership/data_model/membership_plan_details_model.dart';
@@ -1006,43 +1006,31 @@ class CoCreateKnowledgeScreenNavigationArguments extends NavigationArguments {
 }
 
 class AddEditDocumentScreenArguments extends NavigationArguments {
-  final int componentId;
-  final int componentInsId;
-  final CourseDTOModel? courseDtoModel;
-  final int index;
-  final bool isEdit;
-  final bool isFromReference;
+  final CoCreateContentAuthoringModel? coCreateContentAuthoringModel;
 
-  const AddEditDocumentScreenArguments({required this.componentId, required this.componentInsId, this.courseDtoModel, this.index = 0, this.isEdit = false, this.isFromReference = false});
-}
-
-class CreatePodcastSourceSelectionScreenNavigationArguments extends NavigationArguments {
-  final int componentId;
-  final int componentInsId;
-  final CourseDTOModel? courseDtoModel;
-  final int index;
-  final bool isEdit;
-
-  const CreatePodcastSourceSelectionScreenNavigationArguments({
-    required this.componentId,
-    required this.componentInsId,
-    this.courseDtoModel,
-    this.index = 0,
-    this.isEdit = false,
+  const AddEditDocumentScreenArguments({
+    required this.coCreateContentAuthoringModel,
   });
 }
 
-class AddEditReferenceScreenArguments extends NavigationArguments {
+class CreatePodcastSourceSelectionScreenNavigationArguments extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
+  const CreatePodcastSourceSelectionScreenNavigationArguments({
+    required this.coCreateContentAuthoringModel,
+  });
+}
+
+class CreateUrlScreenNavigationArguments extends NavigationArguments {
   final int componentId;
   final int componentInsId;
-  final CourseDTOModel? courseDtoModel;
   final CoCreateContentAuthoringModel? coCreateContentAuthoringModel;
-  final int index;
-  final bool isEdit;
-  final String websiteUrl;
 
-  const AddEditReferenceScreenArguments(
-      {required this.componentId, required this.componentInsId, this.coCreateContentAuthoringModel, this.courseDtoModel, this.index = 0, this.isEdit = false, this.websiteUrl = ""});
+  const CreateUrlScreenNavigationArguments({
+    required this.componentId,
+    required this.componentInsId,
+    this.coCreateContentAuthoringModel,
+  });
 }
 
 class AddEditReferenceUrlScreenArguments extends NavigationArguments {
@@ -1058,12 +1046,23 @@ class AddEditReferenceUrlScreenArguments extends NavigationArguments {
 }
 
 class CommonCreateAuthoringToolScreenArgument extends NavigationArguments {
+  final CoCreateContentAuthoringModel? coCreateContentAuthoringModel;
+  final CoCreateAuthoringType coCreateAuthoringType;
   final int componentId;
   final int componentInsId;
   final CourseDTOModel? courseDtoModel;
   final int objectTypeId;
+  final int mediaTypeId;
 
-  const CommonCreateAuthoringToolScreenArgument({required this.componentId, required this.componentInsId, this.courseDtoModel, required this.objectTypeId});
+  const CommonCreateAuthoringToolScreenArgument({
+    this.coCreateContentAuthoringModel,
+    required this.coCreateAuthoringType,
+    required this.componentId,
+    required this.componentInsId,
+    this.courseDtoModel,
+    required this.objectTypeId,
+    required this.mediaTypeId,
+  });
 }
 
 class AddEditQuizScreenArgument extends NavigationArguments {
@@ -1074,12 +1073,32 @@ class AddEditQuizScreenArgument extends NavigationArguments {
   });
 }
 
-class AddEditVideoScreenArgument extends NavigationArguments {
-  final CourseDTOModel? courseDtoModel;
+class AddEditVideoScreenNavigationArgument extends NavigationArguments {
   final bool isUploadScreen;
   final bool isNotGenerateWithAiScreen;
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
-  const AddEditVideoScreenArgument({this.courseDtoModel, this.isUploadScreen = false, this.isNotGenerateWithAiScreen = false});
+  const AddEditVideoScreenNavigationArgument({
+    this.isUploadScreen = false,
+    this.isNotGenerateWithAiScreen = false,
+    required this.coCreateContentAuthoringModel,
+  });
+}
+
+class CreateManuallyVideoScreenNavigationArgument extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
+  const CreateManuallyVideoScreenNavigationArgument({
+    required this.coCreateContentAuthoringModel,
+  });
+}
+
+class GenerateWithAiVideoScreenNavigationArgument extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
+  const GenerateWithAiVideoScreenNavigationArgument({
+    required this.coCreateContentAuthoringModel,
+  });
 }
 
 class AddEditEventScreenArgument extends NavigationArguments {
@@ -1089,23 +1108,29 @@ class AddEditEventScreenArgument extends NavigationArguments {
 }
 
 class RecordAndUploadPodcastScreenNavigationArgument extends NavigationArguments {
-  final int componentId;
-  final int componentInsId;
-  final CourseDTOModel? courseDtoModel;
-  final int objectTypeId;
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
   final bool isFromRecordAudio;
 
   const RecordAndUploadPodcastScreenNavigationArgument({
-    required this.componentId,
-    required this.componentInsId,
-    this.courseDtoModel,
-    required this.objectTypeId,
+    required this.coCreateContentAuthoringModel,
     this.isFromRecordAudio = false,
   });
 }
 
 class TextToAudioScreenNavigationArgument extends NavigationArguments {
-  const TextToAudioScreenNavigationArgument();
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
+  const TextToAudioScreenNavigationArgument({
+    required this.coCreateContentAuthoringModel,
+  });
+}
+
+class TextToAudioGenerateWithAIScreenNavigationArgument extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
+  const TextToAudioGenerateWithAIScreenNavigationArgument({
+    required this.coCreateContentAuthoringModel,
+  });
 }
 
 class AddEditRolePlayScreenNavigationArgument extends NavigationArguments {
@@ -1121,14 +1146,6 @@ class GeneratedQuizScreenNavigationArgument extends NavigationArguments {
 
   const GeneratedQuizScreenNavigationArgument({
     required this.coCreateContentAuthoringModel,
-  });
-}
-
-class GenerateWithAiVideoScreenNavigationArgument extends NavigationArguments {
-  final CourseDTOModel? model;
-
-  const GenerateWithAiVideoScreenNavigationArgument({
-    this.model,
   });
 }
 
@@ -1165,10 +1182,13 @@ class ArticlePreviewScreenNavigationArgument extends NavigationArguments {
 }
 
 class PodcastPreviewScreenNavigationArgument extends NavigationArguments {
-  final CourseDTOModel model;
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
   final bool isRetakeRequired;
 
-  const PodcastPreviewScreenNavigationArgument({required this.model, this.isRetakeRequired = true});
+  const PodcastPreviewScreenNavigationArgument({
+    required this.coCreateContentAuthoringModel,
+    this.isRetakeRequired = false,
+  });
 }
 
 class LearningPathScreenNavigationArgument extends NavigationArguments {
@@ -1219,16 +1239,11 @@ class AddEditAiAgentScreenNavigationArgument extends NavigationArguments {
   const AddEditAiAgentScreenNavigationArgument({required this.coCreateContentAuthoringModel, this.courseDtoModel, this.isRetakeRequired = true, this.componentId = 0, this.componentInstanceId = 0});
 }
 
-class AddEditMicrolearningScreenNavigationArgument extends NavigationArguments {
+class AddEditMicroLearningScreenNavigationArgument extends NavigationArguments {
   final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
-  final CourseDTOModel? courseDtoModel;
-  final int componentId, componentInstanceId;
 
-  const AddEditMicrolearningScreenNavigationArgument({
+  const AddEditMicroLearningScreenNavigationArgument({
     required this.coCreateContentAuthoringModel,
-    this.courseDtoModel,
-    this.componentId = 0,
-    this.componentInstanceId = 0,
   });
 }
 

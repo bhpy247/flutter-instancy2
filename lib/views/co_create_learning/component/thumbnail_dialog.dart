@@ -149,6 +149,7 @@ class GenerateThumbnailImageDialog extends StatefulWidget {
 }
 
 class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDialog> with MySafeState {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController imageDescriptionController = TextEditingController();
   String? selectedResolution, selectedType;
   Uint8List? generatedImageBytes;
@@ -156,11 +157,13 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
   bool isImageLoading = false;
 
   Future<void> generateImagesFromAi() async {
-    if (selectedResolution.checkEmpty) {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    } else if (selectedResolution.checkEmpty) {
+      MyToast.showError(context: context, msg: "Please select a Resolution");
       return;
     } else if (selectedType.checkEmpty) {
-      return;
-    } else if (imageDescriptionController.text.trim().isEmpty) {
+      MyToast.showError(context: context, msg: "Please select a Type");
       return;
     }
 
@@ -198,56 +201,59 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
       backgroundColor: themeData.colorScheme.onPrimary,
       surfaceTintColor: themeData.colorScheme.onPrimary,
       child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  onTap: () => Navigator.pop(context),
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(
-                      Icons.clear,
-                      size: 20,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  InkWell(
+                    onTap: () => Navigator.pop(context),
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.clear,
+                        size: 20,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            Text(
-              "Generate Thumbnail Image",
-              style: themeData.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w900, fontSize: 18),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: getImageDescriptionTextFormField(),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: getResolutionDropDown(),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: getTypeDropDown(),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(
-                children: [
-                  getGeneratedThumbnailImage(),
                 ],
               ),
-            ),
-            const SizedBox(height: 20),
-            getButtonWidget(),
-            const SizedBox(height: 20),
-          ],
+              Text(
+                "Generate Thumbnail Image",
+                style: themeData.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w900, fontSize: 18),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: getImageDescriptionTextFormField(),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: getResolutionDropDown(),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: getTypeDropDown(),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Row(
+                  children: [
+                    getGeneratedThumbnailImage(),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              getButtonWidget(),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
@@ -331,6 +337,13 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
       iconUrl: "assets/cocreate/commonText.png",
       minLines: 5,
       maxLines: 5,
+      validator: (String? text) {
+        if (text.checkEmpty) {
+          return "Please enter Image Description";
+        }
+
+        return null;
+      },
     );
   }
 

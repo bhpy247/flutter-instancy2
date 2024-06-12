@@ -15,7 +15,6 @@ import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_fla
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_learning_path_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_micro_learning_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_quiz_screen.dart';
-import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_refrence_link_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_role_play_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_video_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/ai_ajents_screen.dart';
@@ -23,6 +22,7 @@ import 'package:flutter_instancy_2/views/co_create_learning/screens/article_scre
 import 'package:flutter_instancy_2/views/co_create_learning/screens/common_create_authoring_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/create_manually_video_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/create_podcast_source_selection_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/create_url_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/flash_card_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/generate_with_ai_video_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/learning_path_screen.dart';
@@ -483,12 +483,6 @@ class NavigationController {
           page = parseEventCatalogScreen(settings: settings);
           break;
         }
-
-      case AddEditReferenceLink.routeName:
-        {
-          page = parseReferenceLinkScreen(settings: settings);
-          break;
-        }
       case AddEditDocumentsScreen.routeName:
         {
           page = parseAddEditDocumentScreen(settings: settings);
@@ -553,7 +547,7 @@ class NavigationController {
         }
       case CreateUrlScreen.routeName:
         {
-          page = parseCreateDocumentContentScreen(settings: settings);
+          page = parseCreateUrlScreen(settings: settings);
           break;
         }
       case DocumentPreviewScreen.routeName:
@@ -604,6 +598,11 @@ class NavigationController {
       case TextToAudioScreen.routeName:
         {
           page = parseTextToAudioScreen(settings: settings);
+          break;
+        }
+      case TextToAudioGenerateWithAIScreen.routeName:
+        {
+          page = parseTextToAudioGenerateWithAIScreen(settings: settings);
           break;
         }
       case AddEditRolePlayScreen.routeName:
@@ -1332,17 +1331,6 @@ class NavigationController {
   //endregion
 
   //region Co-Create Knowledge
-
-  static Widget? parseReferenceLinkScreen({required RouteSettings settings}) {
-    dynamic argument = settings.arguments;
-    if (argument is! AddEditReferenceScreenArguments) {
-      return null;
-    }
-    return AddEditReferenceLink(
-      argument: argument,
-    );
-  }
-
   static Widget? parseAddEditDocumentScreen({required RouteSettings settings}) {
     dynamic argument = settings.arguments;
     if (argument is! AddEditDocumentScreenArguments) {
@@ -1439,9 +1427,9 @@ class NavigationController {
     return AddEditFlashcardScreen(arguments: argument);
   }
 
-  static Widget? parseCreateDocumentContentScreen({required RouteSettings settings}) {
+  static Widget? parseCreateUrlScreen({required RouteSettings settings}) {
     dynamic argument = settings.arguments;
-    if (argument is! AddEditReferenceScreenArguments) {
+    if (argument is! CreateUrlScreenNavigationArguments) {
       return null;
     }
     return CreateUrlScreen(
@@ -1467,7 +1455,7 @@ class NavigationController {
 
   static Widget? parseAddEditVideoScreen({required RouteSettings settings}) {
     dynamic argument = settings.arguments;
-    if (argument is! AddEditVideoScreenArgument) {
+    if (argument is! AddEditVideoScreenNavigationArgument) {
       return null;
     }
     return AddEditVideoScreen(arguments: argument);
@@ -1475,28 +1463,28 @@ class NavigationController {
 
   static Widget? parseRecordVideoScreen({required RouteSettings settings}) {
     dynamic argument = settings.arguments;
-    if (argument is! AddEditVideoScreenArgument) {
+    if (argument is! AddEditVideoScreenNavigationArgument) {
       return null;
     }
     return RecordVideoScreen(
-      argument: argument,
+      arguments: argument,
     );
   }
 
   static Widget? parseCreateManuallyVideoScreen({required RouteSettings settings}) {
     dynamic argument = settings.arguments;
-    if (argument is! AddEditVideoScreenArgument) {
+    if (argument is! CreateManuallyVideoScreenNavigationArgument) {
       return null;
     }
-    return CreateManuallyVideoScreen();
+    return CreateManuallyVideoScreen(arguments: argument);
   }
 
   static Widget? parseGenerateWithAiVideoScreen({required RouteSettings settings}) {
-    dynamic argument = settings.arguments;
-    if (argument is! AddEditVideoScreenArgument) {
+    dynamic arguments = settings.arguments;
+    if (arguments is! GenerateWithAiVideoScreenNavigationArgument) {
       return null;
     }
-    return GenerateWithAiVideoScreen();
+    return GenerateWithAiVideoScreen(arguments: arguments);
   }
 
   static Widget? parseAddEditEventScreen({required RouteSettings settings}) {
@@ -1504,9 +1492,7 @@ class NavigationController {
     if (argument is! AddEditEventScreenArgument) {
       return null;
     }
-    return AddEditEventScreen(
-      arguments: argument,
-    );
+    return AddEditEventScreen(arguments: argument);
   }
 
   static Widget? parseCommonCreateAuthoringToolScreen({required RouteSettings settings}) {
@@ -1523,6 +1509,14 @@ class NavigationController {
       return null;
     }
     return TextToAudioScreen(argument: argument);
+  }
+
+  static Widget? parseTextToAudioGenerateWithAIScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! TextToAudioGenerateWithAIScreenNavigationArgument) {
+      return null;
+    }
+    return TextToAudioGenerateWithAIScreen(argument: argument);
   }
 
   static Widget? parseAddEditRoleplayScreen({required RouteSettings settings}) {
@@ -1631,7 +1625,7 @@ class NavigationController {
 
   static Widget? parseAddEditMicrolearningScreen({required RouteSettings settings}) {
     dynamic argument = settings.arguments;
-    if (argument is! AddEditMicrolearningScreenNavigationArgument) {
+    if (argument is! AddEditMicroLearningScreenNavigationArgument) {
       return null;
     }
     return AddEditMicroLearningScreen(arguments: argument);
@@ -2305,13 +2299,6 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToReferenceLinkScreen({required NavigationOperationParameters navigationOperationParameters}) {
-    MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
-    return NavigationOperation.navigate(
-      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: AddEditReferenceLink.routeName),
-    );
-  }
-
   static Future<dynamic> navigateToVideoScreen({required NavigationOperationParameters navigationOperationParameters}) {
     MyPrint.printOnConsole("navigateToEventCatalogMainScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
@@ -2408,8 +2395,8 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToCreateDocumentScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditReferenceScreenArguments argument}) {
-    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
+  static Future<dynamic> navigateToCreateUrlScreen({required NavigationOperationParameters navigationOperationParameters, required CreateUrlScreenNavigationArguments argument}) {
+    MyPrint.printOnConsole("navigateToCreateUrlScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: CreateUrlScreen.routeName,
@@ -2428,16 +2415,6 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToAddEditReferenceLinkScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditReferenceScreenArguments argument}) {
-    MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
-    return NavigationOperation.navigate(
-      navigationOperationParameters: navigationOperationParameters.copyWith(
-        routeName: AddEditReferenceLink.routeName,
-        arguments: argument,
-      ),
-    );
-  }
-
   static Future<dynamic> navigateToAddEditQuizScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditQuizScreenArgument argument}) {
     MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
@@ -2448,7 +2425,7 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToAddEditVideoScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditVideoScreenArgument argument}) {
+  static Future<dynamic> navigateToAddEditVideoScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditVideoScreenNavigationArgument argument}) {
     MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
@@ -2458,7 +2435,7 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToRecordVideoScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditVideoScreenArgument argument}) {
+  static Future<dynamic> navigateToRecordVideoScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditVideoScreenNavigationArgument argument}) {
     MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
@@ -2468,7 +2445,7 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToCreateManuallyVideoScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditVideoScreenArgument argument}) {
+  static Future<dynamic> navigateToCreateManuallyVideoScreen({required NavigationOperationParameters navigationOperationParameters, required CreateManuallyVideoScreenNavigationArgument argument}) {
     MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
@@ -2478,7 +2455,7 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToGenerateWithAiVideoScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditVideoScreenArgument argument}) {
+  static Future<dynamic> navigateToGenerateWithAiVideoScreen({required NavigationOperationParameters navigationOperationParameters, required GenerateWithAiVideoScreenNavigationArgument argument}) {
     MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
@@ -2513,6 +2490,17 @@ class NavigationController {
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: TextToAudioScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToTextToAudioGenerateWithAIScreen(
+      {required NavigationOperationParameters navigationOperationParameters, required TextToAudioGenerateWithAIScreenNavigationArgument argument}) {
+    MyPrint.printOnConsole("navigateToTextToAudioGenerateWithAIScreen called with navigationType:${navigationOperationParameters.navigationType}");
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: TextToAudioGenerateWithAIScreen.routeName,
         arguments: argument,
       ),
     );
@@ -2636,7 +2624,7 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToAddEditMicrolearningScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditMicrolearningScreenNavigationArgument argument}) {
+  static Future<dynamic> navigateToAddEditMicroLearningScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditMicroLearningScreenNavigationArgument argument}) {
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: AddEditMicroLearningScreen.routeName,
