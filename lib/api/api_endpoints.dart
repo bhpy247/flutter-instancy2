@@ -595,5 +595,19 @@ class ApiEndpoints {
   String GetAvtarVoiceList() => '${getLmeEditorApiUrl(isLmeEditorApi: false)}ContentManagement/assets/json/AvatarsVoice.json';
 
   String GetBackgroundColorList() => '${getLmeEditorApiUrl(isLmeEditorApi: false)}ContentManagement/assets/json/backgrounds.json';
+
+  String GenerateVideo() => '${getLmeEditorApiUrl()}NativeAuthoring/GenerateVideo';
+
+  String GetVideoDetails(String contentId) => '${getLmeEditorApiUrl()}NativeAuthoring/GetVideoDetails/$contentId/$contentId';
+
+  String GetAiVideoGeneratorApi(String videoId) => '${getLmeEditorApiUrl()}NativeAuthoring/$videoId';
+
+  String GetSupportedLanguages() => '${getLmeEditorApiUrl()}ContentGenerator/GetSupportedLanguages';
+
+  String GetLanguageVoice(String languageCode) => '${getLmeEditorApiUrl()}ContentGenerator/GetLanguageVoice/$languageCode';
+
+  String GetSpeakingStyle(String voiceName) => '${getLmeEditorApiUrl()}ContentGenerator/GetSpeakingStyle/$voiceName';
+
+  String PlayAudioForTextSource(String voiceName) => '${getLmeEditorApiUrl()}NativeAuthoring/PlayAudioForTextSource';
 // endregion
 }

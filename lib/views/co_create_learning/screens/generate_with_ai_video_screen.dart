@@ -4,11 +4,11 @@ import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowled
 import 'package:flutter_instancy_2/backend/navigation/navigation_arguments.dart';
 import 'package:flutter_instancy_2/configs/app_strings.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/video/request_model/generate_video_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/video_screen.dart';
-import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
@@ -51,6 +51,7 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
   VideoPlayerController? _videoPlayerController;
   Future<void>? futureInitializeVideo;
   bool isTranscriptOpen = true;
+  late Future future;
 
   void initializeData() {
     coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
@@ -60,11 +61,54 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
   }
 
   Future<void> getData() async {
-    await _videoPlayerController!.initialize();
+    VideoPlayerOptions videoPlayerOptions = VideoPlayerOptions(
+      allowBackgroundPlayback: false,
+      mixWithOthers: false,
+    );
 
-    MyPrint.printOnConsole("IsInitialized:${_videoPlayerController!.value.isInitialized}");
+    String url = coCreateKnowledgeProvider.generatedVideoUrl.get();
+    MyPrint.printOnConsole("url : $url");
+    Uri? uri = Uri.tryParse(url);
+    // "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fvideos%2FAI%20agents%20memory%20and%20Personalize%20learning.mp4?alt=media&token=84ba039a-fc26-4868-9e3e-070197764d68");
+    if (uri != null) {
+      _videoPlayerController = VideoPlayerController.networkUrl(
+        uri,
+        videoPlayerOptions: videoPlayerOptions,
+      );
+    }
+    if (_videoPlayerController != null) {
+      await _videoPlayerController!.initialize();
 
-    _videoPlayerController!.play();
+      MyPrint.printOnConsole("IsInitialized:${_videoPlayerController!.value.isInitialized}");
+
+      _videoPlayerController!.play();
+    }
+  }
+
+  Future<void> getFutureData() async {
+    GenerateVideoRequestModel generateVideoRequestModel = GenerateVideoRequestModel(
+      videoInput: VideoInput(
+        title: "Heart Attack",
+        input: [
+          Input(
+            avatar: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.avatarId ?? "",
+            background: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.background ?? "",
+            scriptText: "Heart Attack is a major disises",
+            avatarSettings: AvatarSettings(
+              horizontalAlign: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.background.toLowerCase() ?? "",
+              voice: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.voice ?? "",
+              scale: 1,
+              style: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.style ?? "",
+            ),
+          )
+        ],
+      ),
+    );
+    bool isSuccess = await coCreateKnowledgeController.generateVideo(requestModel: generateVideoRequestModel);
+    MyPrint.printOnConsole("IsSuccess ${isSuccess}");
+    if (isSuccess) {
+      futureInitializeVideo = getData();
+    }
   }
 
   List<InstancyUIActionModel> getActionsList({required CourseDTOModel model, int index = 0}) {
@@ -153,24 +197,8 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
   @override
   void initState() {
     super.initState();
-
     initializeData();
-
-    VideoPlayerOptions videoPlayerOptions = VideoPlayerOptions(
-      allowBackgroundPlayback: false,
-      mixWithOthers: false,
-    );
-    Uri? uri = Uri.tryParse(
-        "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fvideos%2FAI%20agents%20memory%20and%20Personalize%20learning.mp4?alt=media&token=84ba039a-fc26-4868-9e3e-070197764d68");
-    if (uri != null) {
-      _videoPlayerController = VideoPlayerController.networkUrl(
-        uri,
-        videoPlayerOptions: videoPlayerOptions,
-      );
-    }
-    if (_videoPlayerController != null) {
-      futureInitializeVideo = getData();
-    }
+    future = getFutureData();
   }
 
   @override
@@ -182,21 +210,24 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
-    return PopScope(
-      canPop: !isLoading,
-      child: ModalProgressHUD(
-        inAsyncCall: isLoading,
-        child: Scaffold(
-          appBar: getAppBar(),
-          bottomNavigationBar: getCommonButton(),
-          body: AppUIComponents.getBackGroundBordersRounded(
-            context: context,
-            child: getMainBody(
-              futureInitializeVideo: futureInitializeVideo,
-              videoPlayerController: _videoPlayerController,
-            ),
-          ),
-        ),
+    return Scaffold(
+      appBar: getAppBar(),
+      bottomNavigationBar: getCommonButton(),
+      body: AppUIComponents.getBackGroundBordersRounded(
+        context: context,
+        // child: Container(),
+        child: FutureBuilder(
+            future: future,
+            builder: (context, snapShot) {
+              if (snapShot.connectionState == ConnectionState.done) {
+                return getMainBody(
+                  futureInitializeVideo: futureInitializeVideo,
+                  videoPlayerController: _videoPlayerController,
+                );
+              } else {
+                return CommonLoader();
+              }
+            }),
       ),
     );
   }

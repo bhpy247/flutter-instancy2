@@ -8,6 +8,7 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_mod
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/data_model/podcast_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/roleplay/data_models/roleplay_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/video/data_model/video_content_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 
 class CoCreateContentAuthoringModel {
@@ -35,6 +36,7 @@ class CoCreateContentAuthoringModel {
   MicroLearningContentModel? microLearningContentModel;
   RoleplayContentModel? roleplayContentModel;
   LearningPathContentModel? learningPathContentModel;
+  VideoContentModel? videoContentModel;
 
   CoCreateContentAuthoringModel({
     required this.coCreateAuthoringType,
@@ -61,7 +63,7 @@ class CoCreateContentAuthoringModel {
     this.microLearningContentModel,
     this.roleplayContentModel,
     this.learningPathContentModel,
-  }) {
+      this.videoContentModel}) {
     this.skills = skills ?? <String>[];
   }
 }

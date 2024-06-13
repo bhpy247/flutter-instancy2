@@ -67,6 +67,11 @@ class CoCreateKnowledgeProvider extends CommonProvider {
       ),
       notify: notify,
     );
+
+    generatedVideoUrl = CommonProviderPrimitiveParameter<String>(
+      value: "",
+      notify: notify,
+    );
   }
 
   late CommonProviderPrimitiveParameter<int> pageSize;
@@ -75,6 +80,7 @@ class CoCreateKnowledgeProvider extends CommonProvider {
   late CommonProviderPrimitiveParameter<bool> isLoading;
 
   late final CommonProviderPrimitiveParameter<String> sortingData;
+  late final CommonProviderPrimitiveParameter<String> generatedVideoUrl;
 
   late CommonProviderListParameter<CourseDTOModel> myKnowledgeList;
   late CommonProviderListParameter<CourseDTOModel> shareKnowledgeList;
@@ -125,5 +131,6 @@ class CoCreateKnowledgeProvider extends CommonProvider {
     avatarVoiceList.setList(list: [], isNotify: false);
     backgroundColorList.setList(list: [], isNotify: false);
     avatarList.setList(list: [], isNotify: false);
+    generatedVideoUrl.set(value: "", isNotify: false);
   }
 }

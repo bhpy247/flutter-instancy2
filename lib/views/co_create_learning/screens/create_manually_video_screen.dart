@@ -7,6 +7,7 @@ import 'package:flutter_instancy_2/configs/app_strings.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avatar_voice_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avtar_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/video/data_model/video_content_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
@@ -70,12 +71,22 @@ class _CreateManuallyVideoScreenState extends State<CreateManuallyVideoScreen> w
   }
 
   Future<void> onGenerateTap() async {
+    VideoContentModel videoContentModel = VideoContentModel(
+        avatarId: selectedAvatara?.actorID ?? "",
+        voice: selectedAvtarVoiceModel?.voiceID ?? "",
+        background: selectedBackgroundColorModel?.backgrounds.first ?? "",
+        horizontalAlign: selectedAvatarType ?? "",
+        style: selectedAvatarPosition ?? "");
+    widget.arguments.coCreateContentAuthoringModel.videoContentModel = videoContentModel;
+
     dynamic value = await NavigationController.navigateToGenerateWithAiVideoScreen(
       navigationOperationParameters: NavigationOperationParameters(
         context: context,
         navigationType: NavigationType.pushNamed,
       ),
-      argument: GenerateWithAiVideoScreenNavigationArgument(coCreateContentAuthoringModel: widget.arguments.coCreateContentAuthoringModel),
+      argument: GenerateWithAiVideoScreenNavigationArgument(
+        coCreateContentAuthoringModel: widget.arguments.coCreateContentAuthoringModel,
+      ),
     );
 
     if (value == true) {

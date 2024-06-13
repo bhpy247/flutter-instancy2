@@ -25,6 +25,9 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/assessment_generate_content_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/generate_assessment_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/roleplay/data_models/roleplay_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/video/data_model/video_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/video/request_model/generate_video_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/video/response_model/video_detail_response_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_profile_details_model.dart';
@@ -222,6 +225,10 @@ class CoCreateKnowledgeController {
       RoleplayContentModel roleplayContentModel = coCreateContentAuthoringModel.roleplayContentModel!;
       requestModel.additionalData = roleplayContentModel.toString();
     }
+    if (coCreateContentAuthoringModel.videoContentModel != null) {
+      VideoContentModel videoContentModel = coCreateContentAuthoringModel.videoContentModel!;
+      requestModel.additionalData = videoContentModel.toString();
+    }
 
     return requestModel;
   }
@@ -281,6 +288,7 @@ class CoCreateKnowledgeController {
     courseDTOModel.microLearningContentModel = coCreateContentAuthoringModel.microLearningContentModel;
     courseDTOModel.roleplayContentModel = coCreateContentAuthoringModel.roleplayContentModel;
     courseDTOModel.learningPathContentModel = coCreateContentAuthoringModel.learningPathContentModel;
+    courseDTOModel.videoContentModel = coCreateContentAuthoringModel.videoContentModel;
   }
 
   // endregion
@@ -315,6 +323,7 @@ class CoCreateKnowledgeController {
     coCreateContentAuthoringModel.microLearningContentModel = courseDTOModel.microLearningContentModel;
     coCreateContentAuthoringModel.roleplayContentModel = courseDTOModel.roleplayContentModel;
     coCreateContentAuthoringModel.learningPathContentModel = courseDTOModel.learningPathContentModel;
+    coCreateContentAuthoringModel.videoContentModel = courseDTOModel.videoContentModel;
   }
 
   Future<GeneratedFlashcardResponseModel?> generateFlashcard({required FlashcardRequestModel requestModel}) async {
@@ -517,5 +526,109 @@ class CoCreateKnowledgeController {
     coCreateKnowledgeProvider.avatarVoiceList.setList(list: avatarVoiceList);
 
     return;
+  }
+
+  Future<bool> generateVideo({required GenerateVideoRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().generateVideo() called with requestModel:$requestModel", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+    String contentId = MyUtils.getNewId();
+
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = repository.apiController.apiDataProvider;
+
+    requestModel.content = Content(
+      contentID: contentId,
+      pageID: contentId,
+      sectionID: contentId,
+      userID: apiUrlConfigurationProvider.getCurrentUserId(),
+    );
+
+    DataResponseModel<String> dataResponseModel = await repository.generateVideo(requestModel: requestModel);
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateVideo() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return false;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateVideo() because data is null", tag: tag);
+      return false;
+    }
+
+    if (dataResponseModel.data == "1") {
+      String videoId = await getVideoIdFromVideoDetails(videoContentId: contentId);
+      if (videoId.checkNotEmpty) {
+        String value = await getAiVideoGenerator(videoContentId: videoId);
+        MyPrint.printOnConsole("getAiVideoGenerator value : $value");
+        if (value == "1") {
+          coCreateKnowledgeProvider.generatedVideoUrl.set(value: "${repository.apiController.apiEndpoints.adminSiteUrl}content/aigeneratedvideos/$videoId.mp4");
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  Future<String> getVideoIdFromVideoDetails({required String videoContentId}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getVideoIdFromVideoDetails() called with videoContentId:$videoContentId", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+    String videoIdFromVideoDetail = "";
+
+    DataResponseModel<List<VideoDetails>> dataResponseModelOfVideoDetails = await repository.getVideoDetails(videoContentId: videoContentId);
+    if (dataResponseModelOfVideoDetails.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateVideo() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModelOfVideoDetails.appErrorModel}", tag: tag);
+      return videoIdFromVideoDetail;
+    } else if (dataResponseModelOfVideoDetails.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateVideo() because data is null", tag: tag);
+      return videoIdFromVideoDetail;
+    }
+
+    if (dataResponseModelOfVideoDetails.data.checkNotEmpty) {
+      VideoDetails? videoDetails = dataResponseModelOfVideoDetails.data?.first;
+      if (videoDetails != null) {
+        videoIdFromVideoDetail = videoDetails.videoID;
+      }
+    }
+
+    return videoIdFromVideoDetail;
+  }
+
+  Future<String> getAiVideoGenerator({required String videoContentId}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getAiVideoGenerator() called with videoContentId:$videoContentId", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    DataResponseModel<String> dataResponseModelOfAiVideoGenerator = await repository.aiVideoGeneratorApi(videoId: videoContentId);
+    if (dataResponseModelOfAiVideoGenerator.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getAiVideoGenerator() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModelOfAiVideoGenerator.appErrorModel}", tag: tag);
+      return "";
+    } else if (dataResponseModelOfAiVideoGenerator.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getAiVideoGenerator() because data is null", tag: tag);
+      return "";
+    }
+    MyPrint.printOnConsole("dataResponseModelOfAiVideoGenerator.data ${dataResponseModelOfAiVideoGenerator.data}", tag: tag);
+
+    if (dataResponseModelOfAiVideoGenerator.data == "0") {
+      await Future.delayed(
+        const Duration(seconds: 10),
+        () async {
+          await getAiVideoGenerator(videoContentId: videoContentId);
+        },
+      );
+    } else {
+      MyPrint.printOnConsole("dataResponseModelOfAiVideoGenerator.data 2 ${dataResponseModelOfAiVideoGenerator.data}", tag: tag);
+      return dataResponseModelOfAiVideoGenerator.data ?? "";
+    }
+    // MyPrint.printOnConsole("dataResponseModelOfAiVideoGenerator.data 3 ${dataResponseModelOfAiVideoGenerator.data}", tag: tag);
+    return "1";
   }
 }

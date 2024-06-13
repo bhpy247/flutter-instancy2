@@ -1095,6 +1095,12 @@ class CreateManuallyVideoScreenNavigationArgument extends NavigationArguments {
 
 class GenerateWithAiVideoScreenNavigationArgument extends NavigationArguments {
   final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+  // final String avatarId;
+  // final String background;
+  // final String scriptText;
+  // final String voice;
+  // final String horizontalAlign;
+  // final String style;
 
   const GenerateWithAiVideoScreenNavigationArgument({
     required this.coCreateContentAuthoringModel,

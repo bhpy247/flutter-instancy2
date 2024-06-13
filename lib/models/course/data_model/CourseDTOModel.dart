@@ -13,6 +13,8 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/roleplay/data_mode
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
+import '../../co_create_knowledge/video/data_model/video_content_model.dart';
+
 class CourseDTOModel {
   String SiteName = "";
   String ContentID = "";
@@ -248,6 +250,7 @@ class CourseDTOModel {
   MicroLearningContentModel? microLearningContentModel;
   RoleplayContentModel? roleplayContentModel;
   LearningPathContentModel? learningPathContentModel;
+  VideoContentModel? videoContentModel;
 
   CourseDTOModel({
     this.SiteName = "",
@@ -483,6 +486,7 @@ class CourseDTOModel {
     this.microLearningContentModel,
     this.roleplayContentModel,
     this.learningPathContentModel,
+    this.videoContentModel,
     List<String>? Skills,
   }) {
     this.Skills = Skills ?? <String>[];

@@ -15,6 +15,8 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/generate_assessment_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/assessment_generate_content_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/generate_assessment_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/video/request_model/generate_video_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/video/response_model/video_detail_response_model.dart';
 import 'package:flutter_instancy_2/models/common/Instancy_multipart_file_upload_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/common/model_data_parser.dart';
@@ -591,6 +593,62 @@ class CoCreateKnowledgeRepository {
     );
 
     DataResponseModel<List<BackgroundColorModel>> apiResponseModel = await apiController.callApi<List<BackgroundColorModel>>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<String>> generateVideo({required GenerateVideoRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+        restCallType: RestCallType.simplePostCall,
+        parsingType: ModelDataParsingType.string,
+        url: apiEndpoints.GenerateVideo(),
+        requestBody: MyUtils.encodeJson(requestModel.toMap()),
+        isAuthenticatedApiCall: false,
+        isInstancyCall: false,
+        isDecodeResponse: true);
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<List<VideoDetails>>> getVideoDetails({required String videoContentId}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.GetVideoDetailList,
+      url: apiEndpoints.GetVideoDetails(videoContentId),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+    );
+
+    DataResponseModel<List<VideoDetails>> apiResponseModel = await apiController.callApi<List<VideoDetails>>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<String>> aiVideoGeneratorApi({required String videoId}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.string,
+      url: apiEndpoints.GetAiVideoGeneratorApi(videoId),
+      // queryParameters: {},
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+    );
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }

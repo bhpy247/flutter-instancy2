@@ -17,6 +17,7 @@ import 'package:flutter_instancy_2/models/catalog/response_model/user_coming_soo
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/assessment_generate_content_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/generate_assessment_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/video/response_model/video_detail_response_model.dart';
 import 'package:flutter_instancy_2/models/common/response_model/common_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/get_course_tracking_data_response_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/category_model.dart';
@@ -331,6 +332,7 @@ enum ModelDataParsingType {
   AssessmentGenerateContentResponseModel,
   GenerateAssessmentResponseModel,
   GenerateAssessmentResponseModelList,
+  GetVideoDetailList
 
   //enregion
 }
@@ -560,6 +562,7 @@ class ModelDataParser {
     ModelDataParsingType.AssessmentGenerateContentResponseModel: parseAssessmentGenerateContentResponseModel,
     ModelDataParsingType.GenerateAssessmentResponseModel: parseGenerateAssessmentResponseModel,
     ModelDataParsingType.GenerateAssessmentResponseModelList: parseGenerateAssessmentResponseModelList,
+    ModelDataParsingType.GetVideoDetailList: parseVideoDetailList,
   };
 
   static T? parseDataFromDecodedValue<T>({required ModelDataParsingType parsingType, dynamic decodedValue}) {
@@ -1644,5 +1647,10 @@ class ModelDataParser {
   static List<BackgroundColorModel>? parseBackgroundColorList({required dynamic decodedValue}) {
     List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
     return mapsList.map((e) => BackgroundColorModel.fromJson(e)).toList();
+  }
+
+  static List<VideoDetails>? parseVideoDetailList({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+    return mapsList.map((e) => VideoDetails.fromJson(e)).toList();
   }
 }

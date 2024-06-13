@@ -1,3 +1,5 @@
+import 'package:flutter_instancy_2/utils/parsing_helper.dart';
+
 class GenerateVideoRequestModel {
   String videoID = "";
   Content? content;
@@ -5,22 +7,12 @@ class GenerateVideoRequestModel {
 
   GenerateVideoRequestModel({this.videoID = "", this.content, this.videoInput});
 
-  // GenerateVideoRequestModel.fromJson(Map<String, dynamic> json) {
-  //   videoID = json['videoID'];
-  //   content = json['content'] != null ? Content.fromJson(json['content']) : null;
-  //   videoInput = json['videoInput'] != null ? VideoInput.fromJson(json['videoInput']) : null;
-  // }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['videoID'] = videoID;
-    if (content != null) {
-      data['content'] = content!.toJson();
-    }
-    if (videoInput != null) {
-      data['videoInput'] = videoInput!.toJson();
-    }
-    return data;
+  Map<String, dynamic> toMap() {
+    return {
+      'videoID': videoID,
+      'content': content?.toMap(),
+      'videoInput': videoInput?.toMap(),
+    };
   }
 }
 
@@ -37,14 +29,7 @@ class Content {
     this.userID = 0,
   });
 
-  // Content.fromJson(Map<String, dynamic> json) {
-  //   contentID = ParsingHelper.parseStringMethod(json['contentID']);
-  //   pageID = ParsingHelper.parseStringMethod(json['pageID']);
-  //   sectionID = ParsingHelper.parseStringMethod(json['sectionID']);
-  //   userID = ParsingHelper.parseIntMethod(json['userID']);
-  // }
-
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'contentID': contentID,
       'pageID': pageID,
@@ -60,20 +45,10 @@ class VideoInput {
 
   VideoInput({this.title = "", this.input = const []});
 
-  // VideoInput.fromJson(Map<String, dynamic> json) {
-  //   title = json['title'];
-  //   if (json['input'] != null) {
-  //     input = <Input>[];
-  //     json['input'].forEach((v) {
-  //       input.add(Input.fromJson(v));
-  //     });
-  //   }
-  // }
-
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       "title": title,
-      "input": input.map((e) => e.toJson()).toList(),
+      "input": input.map((e) => e.toMap()).toList(),
     };
   }
 }
@@ -91,46 +66,43 @@ class Input {
     this.avatarSettings,
   });
 
-  // Input.fromJson(Map<String, dynamic> json) {
-  //   scriptText = json['scriptText'];
-  //   avatar = json['avatar'];
-  //   background = json['background'];
-  //   avatarSettings = json['avatarSettings'] != null ? AvatarSettings.fromJson(json['avatarSettings']) : null;
-  // }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['scriptText'] = scriptText;
-    data['avatar'] = avatar;
-    data['background'] = background;
-    if (avatarSettings != null) {
-      data['avatarSettings'] = avatarSettings!.toJson();
-    }
-    return data;
+  Map<String, dynamic> toMap() {
+    return {
+      'scriptText': scriptText,
+      'avatar': avatar,
+      'background': background,
+      'avatarSettings': avatarSettings?.toMap(),
+    };
   }
 }
 
 class AvatarSettings {
-  String? voice;
-  String? horizontalAlign;
-  int? scale;
-  String? style;
+  String voice = "";
+  String horizontalAlign = "";
+  String style = "";
 
-  AvatarSettings({this.voice, this.horizontalAlign, this.scale, this.style});
+  int scale = 0;
+
+  AvatarSettings({
+    this.voice = "",
+    this.horizontalAlign = "",
+    this.scale = 0,
+    this.style = "",
+  });
 
   AvatarSettings.fromJson(Map<String, dynamic> json) {
-    voice = json['voice'];
-    horizontalAlign = json['horizontalAlign'];
-    scale = json['scale'];
-    style = json['style'];
+    voice = ParsingHelper.parseStringMethod(json['voice']);
+    horizontalAlign = ParsingHelper.parseStringMethod(json['horizontalAlign']);
+    style = ParsingHelper.parseStringMethod(json['style']);
+    scale = ParsingHelper.parseIntMethod(json['scale']);
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['voice'] = voice;
-    data['horizontalAlign'] = horizontalAlign;
-    data['scale'] = scale;
-    data['style'] = style;
-    return data;
+  Map<String, dynamic> toMap() {
+    return {
+      'voice': voice,
+      'horizontalAlign': horizontalAlign,
+      'style': style,
+      'scale': scale,
+    };
   }
 }
