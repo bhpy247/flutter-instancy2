@@ -613,7 +613,7 @@ class _MicrolearningPreviewScreenState extends State<MicrolearningPreviewScreen>
       "C. Encourage standing desks only",
       "D. Focus on aesthetics over functionality",
     ],
-    correctChoice: "A. Promote proper posture and reduce strain on the body",
+    correct_choice: "A. Promote proper posture and reduce strain on the body",
     correctFeedback:
         "That's right! The main goal is to create a workspace that supports good posture and reduces physical stress. By adjusting the workspace to fit the individual needs of workers, office ergonomics promotes better health and productivity.",
     inCorrectFeedback:
@@ -1143,7 +1143,7 @@ class _MicroLearningQuizQuestionEditingWidgetState extends State<MicroLearningQu
                   const SizedBox(
                     height: 20,
                   ),
-                  getCorrectAnswerWidget(optionList: questionModel.choices, answer: questionModel.correctChoice, questionModel: questionModel),
+                  getCorrectAnswerWidget(optionList: questionModel.choices, answer: questionModel.correct_choice, questionModel: questionModel),
                   const SizedBox(
                     height: 10,
                   ),
@@ -1209,7 +1209,7 @@ class _MicroLearningQuizQuestionEditingWidgetState extends State<MicroLearningQu
           hintText: "Correct Answer",
           onChanged: (val) {
             answer = val;
-            questionModel.correctChoice = val ?? "";
+            questionModel.correct_choice = val ?? "";
             mySetState();
           },
           iconUrl: "assets/cocreate/commonText.png",
@@ -1244,7 +1244,7 @@ class _MicroLearningQuizQuestionEditingWidgetState extends State<MicroLearningQu
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (questionModel.selectedAnswer != questionModel.correctChoice)
+        if (questionModel.selectedAnswer != questionModel.correct_choice)
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.0),
             child: Text(
@@ -1258,18 +1258,18 @@ class _MicroLearningQuizQuestionEditingWidgetState extends State<MicroLearningQu
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: Text(
-            "Correct Answer${questionModel.selectedAnswer != questionModel.correctChoice ? ":" : ""}",
+            "Correct Answer${questionModel.selectedAnswer != questionModel.correct_choice ? ":" : ""}",
             style: const TextStyle(fontSize: 16, color: Colors.green, fontWeight: FontWeight.bold),
           ),
         ),
         const SizedBox(
           height: 6,
         ),
-        if (questionModel.selectedAnswer != questionModel.correctChoice)
+        if (questionModel.selectedAnswer != questionModel.correct_choice)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Text(
-              questionModel.correctChoice,
+              questionModel.correct_choice,
               style: const TextStyle(fontSize: 14),
             ),
           ),
@@ -1308,8 +1308,8 @@ class _MicroLearningQuizQuestionEditingWidgetState extends State<MicroLearningQu
                 ? getEditableTextField(
                     controller: TextEditingController(text: answerList[index]),
                     onSubmitted: (String? val) {
-                      if (answerList[index] == questionModel.correctChoice) {
-                        questionModel.correctChoice = val ?? "";
+                      if (answerList[index] == questionModel.correct_choice) {
+                        questionModel.correct_choice = val ?? "";
                       }
                       answerList[index] = val ?? "";
                       questionModel.choices[index] = val ?? "";

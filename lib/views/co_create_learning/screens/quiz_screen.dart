@@ -40,7 +40,7 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
         "C. Encourage standing desks only",
         "D. Focus on aesthetics over functionality",
       ],
-      correctChoice: "A. Promote proper posture and reduce strain on the body",
+      correct_choice: "A. Promote proper posture and reduce strain on the body",
       correctFeedback:
           "That's right! The main goal is to create a workspace that supports good posture and reduces physical stress. By adjusting the workspace to fit the individual needs of workers, office ergonomics promotes better health and productivity.",
       inCorrectFeedback:
@@ -55,7 +55,7 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
         "C. Improved posture",
         "D. Reduced fatigue",
       ],
-      correctChoice: "A. Musculoskeletal disorders",
+      correct_choice: "A. Musculoskeletal disorders",
       correctFeedback: "Correct! Poor ergonomic setup can lead to various musculoskeletal disorders such as carpal tunnel syndrome, tendonitis, and lower back pain.",
       inCorrectFeedback:
           "Incorrect. Poor ergonomics can indeed increase the risk of injuries, but it's not just due to slips, trips, and falls. The primary risk is from strains and repetitive motion injuries.",
@@ -69,7 +69,7 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
         "C. To maintain proper posture and support the spine",
         "D. To promote discomfort",
       ],
-      correctChoice: "C. To maintain proper posture and support the spine",
+      correct_choice: "C. To maintain proper posture and support the spine",
       correctFeedback:
           "Correct! A good office chair provides adequate lumbar support to maintain the natural curve of the spine. This helps prevent lower back pain and spinal issues that can arise from prolonged sitting.",
       inCorrectFeedback:
@@ -85,23 +85,34 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
   void initializeData() {
     title = widget.arguments.courseDTOModel.ContentName;
     if (title.isEmpty) title = "Office Ergonomics";
-    QuizContentModel? quizContentModel = widget.arguments.courseDTOModel.quizContentModel;
 
+    quizModelList = AppConstants().quizModelList;
+
+    QuizContentModel? quizContentModel = widget.arguments.courseDTOModel.quizContentModel;
     if ((quizContentModel?.questions).checkNotEmpty) {
       quizModelList = quizContentModel!.questions;
+    }
+
+    for (var value in quizModelList) {
+      value.isAnswerGiven = false;
+      value.isAnswerSelectedForSubmit = false;
+      value.isEditModeEnable = List.generate(value.choices.length, (index) => false);
+      value.isQuestionEditable = false;
+      value.isCorrectAnswerGiven = false;
+      value.selectedAnswer = "";
     }
   }
 
   void onSubmitTap({required QuizQuestionModel model}) {
     model.isAnswerGiven = true;
     onSaveTap = true;
-    model.isCorrectAnswerGiven = model.selectedAnswer == model.correctChoice;
+    model.isCorrectAnswerGiven = model.selectedAnswer == model.correct_choice;
     model.isAnswerSelectedForSubmit = false;
     mySetState();
   }
 
   Color getTrueFalseColor({required List<String> answerList, required QuizQuestionModel model, int index = 0, bool isText = false}) {
-    if (answerList[index] == model.correctChoice) {
+    if (answerList[index] == model.correct_choice) {
       return Colors.green;
     } else if (answerList[index] == model.selectedAnswer) {
       return Colors.red;
@@ -111,7 +122,7 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
   }
 
   int getIntForTheText({required List<String> answerList, required QuizQuestionModel model, int index = 0, bool isText = false}) {
-    if (answerList[index] == model.correctChoice) {
+    if (answerList[index] == model.correct_choice) {
       return 1;
     } else if (answerList[index] == model.selectedAnswer) {
       return 2;
@@ -139,7 +150,6 @@ class _QuizScreenState extends State<QuizScreen> with MySafeState {
   void initState() {
     super.initState();
     pageController = PageController();
-    quizModelList = AppConstants().quizModelList;
     initializeData();
   }
 

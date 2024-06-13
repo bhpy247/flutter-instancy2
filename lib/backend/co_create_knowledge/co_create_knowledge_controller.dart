@@ -18,14 +18,19 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/data_mo
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/request_model/flashcard_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/assessment_generate_request_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/generated_quiz_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_question_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/assessment_generate_content_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/generate_assessment_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/quiz_generate_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/assessment_generate_content_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/generate_assessment_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/roleplay/data_models/roleplay_content_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_profile_details_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
+import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
 import '../../api/api_controller.dart';
 import 'co_create_knowledge_provider.dart';
@@ -341,59 +346,99 @@ class CoCreateKnowledgeController {
     return responseModel;
   }
 
-  Future<GeneratedQuizResponseModel?> generateQuiz({required AssessmentGenerateRequestModel requestModel}) async {
+  Future<List<QuizQuestionModel>?> generateQuiz({required QuizGenerateRequestModel requestModel}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().generateQuiz() called with requestModel:$requestModel", tag: tag);
 
     CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
-
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = repository.apiController.apiDataProvider;
-    requestModel.adminUrl = coCreateKnowledgeRepository.apiController.apiEndpoints.getAdminSiteUrl();
-    requestModel.requestedBy = apiUrlConfigurationProvider.getCurrentUserId().toString();
 
-    DataResponseModel<String> dataResponseModel = await repository.chatCompletionCall(prompt: requestModel.prompt);
+    // region Chat Completion
+    String prompt = "Generate meta-data fields below in 'English' language \nTag line, \nShort description (less than 25 words),"
+        " Long description (less than 120 words), keywords, Table of content and Learning objectives.\n "
+        "for this eLearning Course Title: '${requestModel.prompt}'.\n Provide them in JSON format with the following keys:\n  "
+        "short_description,learning_objectives as string.";
+
+    DataResponseModel<String> dataResponseModel = await repository.chatCompletionCall(prompt: prompt);
     if (dataResponseModel.appErrorModel != null) {
-      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateQuiz() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateQuiz() because appErrorModel is not null for chatCompletionCall", tag: tag);
       MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
       return null;
     } else if (dataResponseModel.data == null) {
-      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateQuiz() because data is null", tag: tag);
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateQuiz() because data is null for chatCompletionCall", tag: tag);
       return null;
-    } else {
-      MyPrint.printOnConsole("dataResponseModel.data : ${dataResponseModel.data}");
-      Map mapResponse = jsonDecode(dataResponseModel.data!);
-      String? learningObjective = mapResponse["learning_objectives"];
-      MyPrint.printOnConsole("learningObjective : $learningObjective");
-      if (learningObjective != null || learningObjective.checkNotEmpty) {
-        requestModel.learningObjectives = learningObjective ?? "";
-        requestModel.isContentAvailable = true;
-        DataResponseModel<String> assessmentDataResponseModel = await repository.assessmentGenerateContent(requestModel: requestModel);
-
-        if (assessmentDataResponseModel.data != null) {
-          MyPrint.printOnConsole("assessmentDataResponseModel.data : ${assessmentDataResponseModel.data}");
-          Map mapResponse2 = jsonDecode(assessmentDataResponseModel.data!);
-          MyPrint.printOnConsole("mapResponse[generated_content] : ${mapResponse2["generated_content"]}");
-          String generatedContent = mapResponse2["generated_content"];
-          MyPrint.printOnConsole("generatedContent : $generatedContent");
-          requestModel.content = generatedContent;
-          requestModel.learningObjectives = "";
-
-          DataResponseModel<String> generateAssessmentDataResponseModel = await repository.generateAssessment(requestModel: requestModel);
-
-          if (generateAssessmentDataResponseModel.data != null) {
-            Map mapResponse3 = jsonDecode(generateAssessmentDataResponseModel.data!);
-            MyPrint.printOnConsole("mapResponse3 : ${mapResponse3}");
-
-            GeneratedQuizResponseModel quizResponseModel = GeneratedQuizResponseModel.fromMap(Map.from(mapResponse3));
-            MyPrint.printOnConsole("quizResponseModel.assessment.length : ${quizResponseModel.assessment.length}");
-
-            return quizResponseModel;
-          }
-        }
-      }
     }
 
-    return null;
+    MyPrint.printOnConsole("chatCompletionCall data : ${dataResponseModel.data}", tag: tag);
+    Map mapResponse = jsonDecode(dataResponseModel.data!);
+    String learningObjective = ParsingHelper.parseStringMethod(mapResponse["learning_objectives"]);
+    if (learningObjective.isEmpty) learningObjective = ParsingHelper.parseStringMethod(mapResponse["Learning_objectives"]);
+    if (learningObjective.isEmpty) learningObjective = ParsingHelper.parseStringMethod(mapResponse["Learning_Objectives"]);
+    if (learningObjective.isEmpty) learningObjective = ParsingHelper.parseStringMethod(mapResponse["Learning Objectives"]);
+    MyPrint.printOnConsole("learningObjective : $learningObjective", tag: tag);
+    if (learningObjective.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateQuiz() learningObjective is empty", tag: tag);
+      return null;
+    }
+    // endregion
+
+    // region AssessmentGenerateContent
+    String adminUrl = coCreateKnowledgeRepository.apiController.apiEndpoints.getAdminSiteUrl();
+    AssessmentGenerateContentRequestModel requestModel1 = AssessmentGenerateContentRequestModel(
+      learningObjectives: learningObjective,
+      llmContent: true,
+      word_count: 300,
+      adminUrl: adminUrl,
+    );
+    DataResponseModel<AssessmentGenerateContentResponseModel> assessmentDataResponseModel = await repository.assessmentGenerateContent(requestModel: requestModel1);
+
+    if (assessmentDataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateQuiz() because appErrorModel is not null for assessmentGenerateContent", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return null;
+    } else if (assessmentDataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateQuiz() because data is null for assessmentGenerateContent", tag: tag);
+      return null;
+    }
+
+    AssessmentGenerateContentResponseModel assessmentGenerateContentResponseModel = assessmentDataResponseModel.data!;
+    MyPrint.printOnConsole("assessmentGenerateContentResponseModel:$assessmentGenerateContentResponseModel", tag: tag);
+
+    if (assessmentGenerateContentResponseModel.generated_content.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateQuiz() because assessmentGenerateContentResponseModel is empty", tag: tag);
+      return null;
+    }
+    // endregion
+
+    // region GenerateAssessment
+    int requestedBy = apiUrlConfigurationProvider.getCurrentUserId();
+    GenerateAssessmentRequestModel requestModel2 = GenerateAssessmentRequestModel(
+      content: assessmentGenerateContentResponseModel.generated_content,
+      type: requestModel.questionType.toString(),
+      difficultyLevel: requestModel.difficultyLevel,
+      numberofQuestions: requestModel.numberOfQuestions,
+      requestedBy: requestedBy,
+      adminUrl: adminUrl,
+    );
+    DataResponseModel<GenerateAssessmentResponseModel> generateAssessmentDataResponseModel = await repository.generateAssessment(requestModel: requestModel2);
+
+    if (generateAssessmentDataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateQuiz() because appErrorModel is not null for generateAssessment", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return null;
+    } else if (generateAssessmentDataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateQuiz() because data is null for generateAssessment", tag: tag);
+      return null;
+    }
+
+    GenerateAssessmentResponseModel generateAssessmentResponseModel = generateAssessmentDataResponseModel.data!;
+    MyPrint.printOnConsole("generateAssessmentResponseModel.Assessment.length : ${generateAssessmentResponseModel.Assessment.length}");
+    // endregion
+
+    List<QuizQuestionModel> questionsList = generateAssessmentResponseModel.Assessment;
+    MyPrint.printOnConsole("Final questionsList length : ${questionsList.length}");
+
+    return questionsList;
   }
 
   Future<void> getAllAvtarList() async {

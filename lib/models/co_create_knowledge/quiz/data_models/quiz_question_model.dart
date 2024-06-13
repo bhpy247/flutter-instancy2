@@ -3,7 +3,7 @@ import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
 class QuizQuestionModel {
   String question = "";
-  String correctChoice = "";
+  String correct_choice = "";
   String type = "";
   String selectedAnswer = "";
   String correctFeedback = "";
@@ -17,7 +17,7 @@ class QuizQuestionModel {
 
   QuizQuestionModel({
     this.question = "",
-    this.correctChoice = "",
+    this.correct_choice = "",
     this.type = "",
     this.selectedAnswer = "",
     this.correctFeedback = "",
@@ -43,11 +43,12 @@ class QuizQuestionModel {
 
   void _initializeFromMap(Map<String, dynamic> map) {
     question = map["question"] != null ? ParsingHelper.parseStringMethod(map["question"]) : question;
-    correctChoice = map["correctChoice"] != null ? ParsingHelper.parseStringMethod(map["correctChoice"]) : correctChoice;
+    correct_choice = map["correct_choice"] != null ? ParsingHelper.parseStringMethod(map["correct_choice"]) : correct_choice;
     type = map["type"] != null ? ParsingHelper.parseStringMethod(map["type"]) : type;
     correctFeedback = map["correctFeedback"] != null ? ParsingHelper.parseStringMethod(map["correctFeedback"]) : correctFeedback;
     inCorrectFeedback = map["inCorrectFeedback"] != null ? ParsingHelper.parseStringMethod(map["inCorrectFeedback"]) : inCorrectFeedback;
     choices = map["choices"] != null ? ParsingHelper.parseListMethod<dynamic, String>(map["choices"]) : choices;
+    if (choices.isNotEmpty && !choices.contains(correct_choice)) correct_choice = choices.first;
 
     isEditModeEnable
       ..clear()
@@ -57,7 +58,7 @@ class QuizQuestionModel {
   Map<String, dynamic> toMap({bool toJson = true}) {
     return <String, dynamic>{
       "question": question,
-      "correctChoice": correctChoice,
+      "correct_choice": correct_choice,
       "type": type,
       "correctFeedback": correctFeedback,
       "inCorrectFeedback": inCorrectFeedback,

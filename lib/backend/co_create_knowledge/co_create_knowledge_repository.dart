@@ -11,7 +11,10 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_mo
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/request_model/flashcard_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/assessment_generate_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/assessment_generate_content_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/generate_assessment_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/assessment_generate_content_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/generate_assessment_response_model.dart';
 import 'package:flutter_instancy_2/models/common/Instancy_multipart_file_upload_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/common/model_data_parser.dart';
@@ -484,53 +487,56 @@ class CoCreateKnowledgeRepository {
     Map<String, dynamic> requestModel = {"Prompt": prompt};
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
-        restCallType: RestCallType.simplePostCall,
-        parsingType: ModelDataParsingType.string,
-        url: apiEndpoints.ChatCompletionCall(),
-        requestBody: MyUtils.encodeJson(requestModel),
-        isAuthenticatedApiCall: false,
-        isInstancyCall: false,
-        isDecodeResponse: false);
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.string,
+      url: apiEndpoints.ChatCompletionCall(),
+      requestBody: MyUtils.encodeJson(requestModel),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+      isDecodeResponse: false,
+    );
 
     DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<String>> assessmentGenerateContent({required AssessmentGenerateRequestModel requestModel}) async {
+  Future<DataResponseModel<AssessmentGenerateContentResponseModel>> assessmentGenerateContent({required AssessmentGenerateContentRequestModel requestModel}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
-        restCallType: RestCallType.simplePostCall,
-        parsingType: ModelDataParsingType.string,
-        url: apiEndpoints.AssessmentGenerateContent(),
-        requestBody: MyUtils.encodeJson(requestModel.toMap()),
-        isAuthenticatedApiCall: false,
-        isInstancyCall: false,
-        isDecodeResponse: false);
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.AssessmentGenerateContentResponseModel,
+      url: apiEndpoints.AssessmentGenerateContent(),
+      requestBody: MyUtils.encodeJson(requestModel.toMap()),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+      isDecodeResponse: true,
+    );
 
-    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
+    DataResponseModel<AssessmentGenerateContentResponseModel> apiResponseModel = await apiController.callApi<AssessmentGenerateContentResponseModel>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<String>> generateAssessment({required AssessmentGenerateRequestModel requestModel}) async {
+  Future<DataResponseModel<GenerateAssessmentResponseModel>> generateAssessment({required GenerateAssessmentRequestModel requestModel}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
-        restCallType: RestCallType.simplePostCall,
-        parsingType: ModelDataParsingType.string,
-        url: apiEndpoints.GenerateAssessment(),
-        requestBody: MyUtils.encodeJson(requestModel.toMap()),
-        isAuthenticatedApiCall: false,
-        isInstancyCall: false,
-        isDecodeResponse: false);
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.GenerateAssessmentResponseModel,
+      url: apiEndpoints.GenerateAssessment(),
+      requestBody: MyUtils.encodeJson(requestModel.toMap()),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+      isDecodeResponse: true,
+    );
 
-    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
+    DataResponseModel<GenerateAssessmentResponseModel> apiResponseModel = await apiController.callApi<GenerateAssessmentResponseModel>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }

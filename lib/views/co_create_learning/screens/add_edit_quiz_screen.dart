@@ -7,8 +7,7 @@ import 'package:flutter_instancy_2/configs/app_strings.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_question_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/assessment_generate_request_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/generated_quiz_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/quiz_generate_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
@@ -50,17 +49,33 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
 
   String? selectedQuestionType, selectedDifficultyLevel;
 
+  Map<String, int> QuizQuestionTypeMap = <String, int>{};
+  Map<String, String> QuizDifficultyTypeMap = <String, String>{};
+
   TextEditingController countController = TextEditingController();
 
   void initialize() {
+    QuizQuestionTypeMap = {
+      "Multiple Choice": QuizQuestionType.mcq,
+      "True/False": QuizQuestionType.twoChoice,
+      "Both": QuizQuestionType.both,
+    };
+
+    QuizDifficultyTypeMap = {
+      "Hard": QuizDifficultyTypes.advance,
+      "Medium": QuizDifficultyTypes.intermediate,
+      "East": QuizDifficultyTypes.beginner,
+    };
+
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
 
     QuizContentModel? quizContentModel = coCreateContentAuthoringModel.quizContentModel;
     MyPrint.printOnConsole("quizContentModel:$quizContentModel");
     if (quizContentModel != null) {
       countController.text = quizContentModel.questionCount.toString();
-      selectedQuestionType = quizContentModel.questionType.isEmpty ? null : quizContentModel.questionType;
-      selectedDifficultyLevel = quizContentModel.difficultyLevel.isEmpty ? null : quizContentModel.difficultyLevel;
+      selectedQuestionType = QuizQuestionTypeMap.entries.where((element) => element.value == quizContentModel.questionType).firstElement?.key;
+      selectedDifficultyLevel =
+          quizContentModel.difficultyLevel.isEmpty ? null : QuizDifficultyTypeMap.entries.where((element) => element.value.toString() == quizContentModel.difficultyLevel).firstElement?.key;
     }
 
     if (!coCreateContentAuthoringModel.isEdit) initializeDataForNewContent();
@@ -75,13 +90,13 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
   Future<void> onGenerateTap() async {
     QuizContentModel quizContentModel = coCreateContentAuthoringModel.quizContentModel ?? QuizContentModel();
     quizContentModel.questionCount = int.tryParse(countController.text) ?? 0;
-    quizContentModel.questionType = (selectedQuestionType == QuizQuestionType.mcqString
-            ? QuizQuestionType.mcq
-            : selectedQuestionType == QuizQuestionType.twoChoiceString
-                ? QuizQuestionType.twoChoice
-                : QuizQuestionType.both)
-        .toString();
-    quizContentModel.difficultyLevel = selectedDifficultyLevel ?? "";
+
+    MyPrint.printOnConsole("selectedQuestionType:$selectedQuestionType");
+    quizContentModel.questionType = selectedQuestionType == null || QuizQuestionTypeMap[selectedQuestionType] == null ? QuizQuestionType.mcq : QuizQuestionTypeMap[selectedQuestionType]!;
+    MyPrint.printOnConsole("quizContentModel.questionType:${quizContentModel.questionType}");
+
+    quizContentModel.difficultyLevel =
+        selectedDifficultyLevel == null || QuizDifficultyTypeMap[selectedDifficultyLevel] == null ? QuizDifficultyTypes.beginner : QuizDifficultyTypeMap[selectedDifficultyLevel]!.toString();
 
     coCreateContentAuthoringModel.quizContentModel = quizContentModel;
 
@@ -189,7 +204,7 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
   Widget getQuestionTypeDropDown() {
     return CommonBorderDropdown(
       isExpanded: true,
-      items: const [QuizQuestionType.mcqString, QuizQuestionType.twoChoiceString, QuizQuestionType.bothString],
+      items: QuizQuestionTypeMap.keys.toList(),
       value: selectedQuestionType,
       hintText: "Question Type",
       onChanged: (val) {
@@ -202,7 +217,7 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
   Widget getDifficultyLevelDropDown() {
     return CommonBorderDropdown(
       isExpanded: true,
-      items: const ["Hard", "Medium", "Easy"],
+      items: QuizDifficultyTypeMap.keys.toList(),
       value: selectedDifficultyLevel,
       hintText: "Difficulty Level",
       onChanged: (val) {
@@ -373,20 +388,27 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
   }
 
   Future<void> getData() async {
-    if (coCreateContentAuthoringModel.quizContentModel == null) return;
+    QuizContentModel quizContentModel = coCreateContentAuthoringModel.quizContentModel ??
+        QuizContentModel(
+          questionCount: 3,
+          difficultyLevel: QuizDifficultyTypes.beginner,
+          questionType: QuizQuestionType.mcq,
+        );
 
-    QuizContentModel quizContentModel = coCreateContentAuthoringModel.quizContentModel!;
-    AssessmentGenerateRequestModel requestModel = AssessmentGenerateRequestModel(
-        prompt:
-            "Generate meta-data fields below in 'English' language \nTag line, \nShort description (less than 25 words), Long description (less than 120 words), keywords, Table of content and Learning objectives.\n for this eLearning Course Title: 'Heart Attack'.\n Provide them in JSON format with the following keys:\n  short_description,learning_objectives as string.",
+    List<QuizQuestionModel>? questionsList = await coCreateKnowledgeController.generateQuiz(
+      requestModel: QuizGenerateRequestModel(
+        prompt: coCreateContentAuthoringModel.title,
+        questionType: quizContentModel.questionType,
         difficultyLevel: quizContentModel.difficultyLevel,
-        numberOfQuestions: quizContentModel.questionCount.toString(),
-        type: quizContentModel.questionType);
+        numberOfQuestions: quizContentModel.questionCount,
+      ),
+    );
 
-    GeneratedQuizResponseModel? quizResponseModel = await coCreateKnowledgeController.generateQuiz(requestModel: requestModel);
-    if (quizResponseModel != null) {
-      quizModelList = quizResponseModel.assessment;
+    if (questionsList == null) {
+      return;
     }
+
+    quizModelList = questionsList;
   }
 
   List<InstancyUIActionModel> getActionsList({required CourseDTOModel model, int index = 0}) {
@@ -673,7 +695,9 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
                   const SizedBox(
                     height: 20,
                   ),
-                  getCorrectAnswerWidget(optionList: questionModel.choices, answer: questionModel.correctChoice, questionModel: questionModel),
+                  getCorrectAnswerWidget(
+                    questionModel: questionModel,
+                  ),
                   const SizedBox(
                     height: 10,
                   ),
@@ -722,7 +746,10 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
     );
   }
 
-  Widget getCorrectAnswerWidget({required QuizQuestionModel questionModel, required List<String> optionList, required String? answer}) {
+  Widget getCorrectAnswerWidget({required QuizQuestionModel questionModel}) {
+    List<String> optionList = questionModel.choices;
+    String answer = questionModel.correct_choice;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -738,8 +765,8 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
           value: answer,
           hintText: "Correct Answer",
           onChanged: (val) {
-            answer = val;
-            questionModel.correctChoice = val ?? "";
+            answer = optionList.firstOrNull ?? "";
+            questionModel.correct_choice = val ?? "";
             mySetState();
           },
           iconUrl: "assets/cocreate/commonText.png",
@@ -810,7 +837,7 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (questionModel.selectedAnswer != questionModel.correctChoice)
+        if (questionModel.selectedAnswer != questionModel.correct_choice)
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.0),
             child: Text(
@@ -824,18 +851,18 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: Text(
-            "Correct Answer${questionModel.selectedAnswer != questionModel.correctChoice ? ":" : ""}",
+            "Correct Answer${questionModel.selectedAnswer != questionModel.correct_choice ? ":" : ""}",
             style: const TextStyle(fontSize: 16, color: Colors.green, fontWeight: FontWeight.bold),
           ),
         ),
         const SizedBox(
           height: 6,
         ),
-        if (questionModel.selectedAnswer != questionModel.correctChoice)
+        if (questionModel.selectedAnswer != questionModel.correct_choice)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Text(
-              questionModel.correctChoice,
+              questionModel.correct_choice,
               style: const TextStyle(fontSize: 14),
             ),
           ),
@@ -874,8 +901,8 @@ class _QuizQuestionEditingWidgetState extends State<QuizQuestionEditingWidget> w
                 ? getEditableTextField(
                     controller: TextEditingController(text: answerList[index]),
                     onSubmitted: (String? val) {
-                      if (answerList[index] == questionModel.correctChoice) {
-                        questionModel.correctChoice = val ?? "";
+                      if (answerList[index] == questionModel.correct_choice) {
+                        questionModel.correct_choice = val ?? "";
                       }
                       answerList[index] = val ?? "";
                       questionModel.choices[index] = val ?? "";

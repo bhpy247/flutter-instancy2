@@ -15,6 +15,8 @@ import 'package:flutter_instancy_2/models/catalog/response_model/associated_cont
 import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/user_coming_soon_response.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/assessment_generate_content_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/generate_assessment_response_model.dart';
 import 'package:flutter_instancy_2/models/common/response_model/common_response_model.dart';
 import 'package:flutter_instancy_2/models/course_offline/response_model/get_course_tracking_data_response_model.dart';
 import 'package:flutter_instancy_2/models/discussion/data_model/category_model.dart';
@@ -325,7 +327,10 @@ enum ModelDataParsingType {
   GeneratedFlashcardResponseModel,
   AvtarResponseModel,
   BackgroundColorModelList,
-  AvatarVoiceList
+  AvatarVoiceList,
+  AssessmentGenerateContentResponseModel,
+  GenerateAssessmentResponseModel,
+  GenerateAssessmentResponseModelList,
 
   //enregion
 }
@@ -552,6 +557,9 @@ class ModelDataParser {
     ModelDataParsingType.AvtarResponseModel: parseAvatarResponseModel,
     ModelDataParsingType.BackgroundColorModelList: parseBackgroundColorList,
     ModelDataParsingType.AvatarVoiceList: parseAvatarVoiceList,
+    ModelDataParsingType.AssessmentGenerateContentResponseModel: parseAssessmentGenerateContentResponseModel,
+    ModelDataParsingType.GenerateAssessmentResponseModel: parseGenerateAssessmentResponseModel,
+    ModelDataParsingType.GenerateAssessmentResponseModelList: parseGenerateAssessmentResponseModelList,
   };
 
   static T? parseDataFromDecodedValue<T>({required ModelDataParsingType parsingType, dynamic decodedValue}) {
@@ -1605,6 +1613,32 @@ class ModelDataParser {
   static List<AvtarVoiceModel>? parseAvatarVoiceList({required dynamic decodedValue}) {
     List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
     return mapsList.map((e) => AvtarVoiceModel.fromJson(e)).toList();
+  }
+
+  static AssessmentGenerateContentResponseModel? parseAssessmentGenerateContentResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return AssessmentGenerateContentResponseModel.fromMap(json);
+    } else {
+      return null;
+    }
+  }
+
+  static GenerateAssessmentResponseModel parseGenerateAssessmentResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    return GenerateAssessmentResponseModel.fromMap(json);
+  }
+
+  static List<GenerateAssessmentResponseModel>? parseGenerateAssessmentResponseModelList({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+
+    if (mapsList.isNotEmpty) {
+      return mapsList.map((e) => GenerateAssessmentResponseModel.fromMap(e)).toList();
+    } else {
+      return null;
+    }
   }
 
   static List<BackgroundColorModel>? parseBackgroundColorList({required dynamic decodedValue}) {

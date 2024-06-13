@@ -55,7 +55,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
           "C. Encourage standing desks only",
           "D. Focus on aesthetics over functionality",
         ],
-        correctChoice: "A. Promote proper posture and reduce strain on the body",
+        correct_choice: "A. Promote proper posture and reduce strain on the body",
         correctFeedback:
             "That's right! The main goal is to create a workspace that supports good posture and reduces physical stress. By adjusting the workspace to fit the individual needs of workers, office ergonomics promotes better health and productivity.",
         inCorrectFeedback:
@@ -84,7 +84,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
   }
 
   Color getTrueFalseColor({required List<String> answerList, required QuizQuestionModel model, int index = 0, bool isText = false}) {
-    if (answerList[index] == model.correctChoice) {
+    if (answerList[index] == model.correct_choice) {
       return Colors.green;
     } else if (answerList[index] == model.selectedAnswer) {
       return Colors.red;
@@ -94,7 +94,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
   }
 
   int getIntForTheText({required List<String> answerList, required QuizQuestionModel model, int index = 0, bool isText = false}) {
-    if (answerList[index] == model.correctChoice) {
+    if (answerList[index] == model.correct_choice) {
       return 1;
     } else if (answerList[index] == model.selectedAnswer) {
       return 2;
@@ -106,7 +106,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
   void onSubmitTap({required QuizQuestionModel model}) {
     model.isAnswerGiven = true;
     onSaveTap = true;
-    model.isCorrectAnswerGiven = model.selectedAnswer == model.correctChoice;
+    model.isCorrectAnswerGiven = model.selectedAnswer == model.correct_choice;
     model.isAnswerSelectedForSubmit = false;
     mySetState();
   }
