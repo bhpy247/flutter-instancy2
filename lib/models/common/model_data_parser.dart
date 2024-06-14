@@ -332,7 +332,8 @@ enum ModelDataParsingType {
   AssessmentGenerateContentResponseModel,
   GenerateAssessmentResponseModel,
   GenerateAssessmentResponseModelList,
-  GetVideoDetailList
+  GetVideoDetailList,
+  CourseDtoModelList,
 
   //enregion
 }
@@ -563,6 +564,7 @@ class ModelDataParser {
     ModelDataParsingType.GenerateAssessmentResponseModel: parseGenerateAssessmentResponseModel,
     ModelDataParsingType.GenerateAssessmentResponseModelList: parseGenerateAssessmentResponseModelList,
     ModelDataParsingType.GetVideoDetailList: parseVideoDetailList,
+    ModelDataParsingType.CourseDtoModelList: parseCourseDtoModelList,
   };
 
   static T? parseDataFromDecodedValue<T>({required ModelDataParsingType parsingType, dynamic decodedValue}) {
@@ -1652,5 +1654,10 @@ class ModelDataParser {
   static List<VideoDetails>? parseVideoDetailList({required dynamic decodedValue}) {
     List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
     return mapsList.map((e) => VideoDetails.fromJson(e)).toList();
+  }
+
+  static List<CourseDTOModel> parseCourseDtoModelList({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+    return mapsList.map((e) => CourseDTOModel.fromMap(e)).toList();
   }
 }

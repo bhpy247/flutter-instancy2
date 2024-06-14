@@ -8,6 +8,7 @@ import 'package:flutter_instancy_2/utils/my_utils.dart';
 
 class CreateNewContentItemRequestModel {
   String ContentID = "";
+  String FolderPath = "";
   String topic = "";
   String size = "";
   String Language = AppConstants.defaultLocale;
@@ -33,6 +34,7 @@ class CreateNewContentItemRequestModel {
 
   CreateNewContentItemRequestModel({
     this.ContentID = "",
+    this.FolderPath = "",
     this.topic = "",
     this.size = "",
     this.Language = AppConstants.defaultLocale,

@@ -1,11 +1,12 @@
 import 'package:flutter_instancy_2/api/api_call_model.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/api/api_endpoints.dart';
-import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/api/rest_client.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/generate_images_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/get_co_create_knowledgebase_list_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/save_content_json_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avatar_voice_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avtar_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
@@ -23,28 +24,30 @@ import 'package:flutter_instancy_2/models/common/model_data_parser.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
-import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
 class CoCreateKnowledgeRepository {
   final ApiController apiController;
 
   const CoCreateKnowledgeRepository({required this.apiController});
 
-  Future<DataResponseModel<List<CourseDTOModel>>> getMyKnowledgeList({required int componentId, required int componentInstanceId}) async {
+  Future<DataResponseModel<List<CourseDTOModel>>> getMyKnowledgeList({required GetCoCreateKnowledgebaseListRequestModel requestModel}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
-    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
       restCallType: RestCallType.simpleGetCall,
-      parsingType: ModelDataParsingType.fileUploadControlModel,
-      url: apiEndpoints.apiGetFileUploadControl(
-        componentInstanceId: ParsingHelper.parseStringMethod(componentInstanceId),
-        siteId: apiUrlConfigurationProvider.getCurrentSiteId(),
-        locale: apiUrlConfigurationProvider.getLocale(),
-      ),
+      parsingType: ModelDataParsingType.CourseDtoModelList,
+      url: apiEndpoints.GetCoCreateKnowledgebaseList(),
+      queryParameters: requestModel.toMap(),
     );
+
+    DataResponseModel<List<CourseDTOModel>> apiResponseModel = await apiController.callApi<List<CourseDTOModel>>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<List<CourseDTOModel>>> getMyKnowledgeListTemp({required GetCoCreateKnowledgebaseListRequestModel requestModel}) async {
     await Future.delayed(const Duration(seconds: 1));
 
     Map<String, dynamic> aiAgentModel = {
@@ -452,6 +455,26 @@ class CoCreateKnowledgeRepository {
       url: apiEndpoints.CreateNewContentItem(),
       fields: requestModel.toMap(),
       files: files,
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+      isDecodeResponse: false,
+    );
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<String>> SaveContentJSON({required SaveContentJsonRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.string,
+      url: apiEndpoints.SaveContentJSON(),
+      requestBody: MyUtils.encodeJson(requestModel.toMap()),
       isAuthenticatedApiCall: false,
       isInstancyCall: false,
       isDecodeResponse: false,

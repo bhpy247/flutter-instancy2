@@ -9,6 +9,8 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_formdata_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/generate_images_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/get_co_create_knowledgebase_list_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/save_content_json_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avatar_voice_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avtar_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
@@ -56,27 +58,103 @@ class CoCreateKnowledgeController {
 
   CoCreateKnowledgeRepository get coCreateKnowledgeRepository => _coCreateKnowledgeRepository;
 
-  Future<bool> getMyKnowledgeList() async {
+  Future<bool> getMyKnowledgeList({GetCoCreateKnowledgebaseListRequestModel? requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getMyKnowledgeList() called with requestModel:$requestModel", tag: tag);
+
     CoCreateKnowledgeProvider provider = coCreateKnowledgeProvider;
     provider.isLoading.set(value: true, isNotify: false);
 
-    DataResponseModel<List<CourseDTOModel>> response = await coCreateKnowledgeRepository.getMyKnowledgeList(componentId: 3, componentInstanceId: 3);
+    if (requestModel == null) {
+      MyPrint.printOnConsole("Initializing requestModel", tag: tag);
 
-    if (response.data?.isEmpty ?? false) return false;
-    provider.myKnowledgeList.setList(list: response.data ?? []);
+      ApiUrlConfigurationProvider apiUrlConfigurationProvider = coCreateKnowledgeRepository.apiController.apiDataProvider;
+      AppSystemConfigurationModel appSystemConfigurationModel = DependencyInjection.appProvider.appSystemConfigurationModel;
+
+      requestModel = GetCoCreateKnowledgebaseListRequestModel(
+        userId: apiUrlConfigurationProvider.getCurrentUserId(),
+        cmsGroupId: appSystemConfigurationModel.CoCreateKnowledgeDefaultCMSGroupID,
+        folderId: appSystemConfigurationModel.CoCreateKnowledgeDefaultFolderID,
+      );
+
+      MyPrint.printOnConsole("Final requestModel", tag: tag);
+    }
+
+    // DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeList(requestModel: requestModel);
+    DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeListTemp(requestModel: requestModel);
+
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getMyKnowledgeList() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+
+      provider.isLoading.set(value: false, isNotify: false);
+      provider.myKnowledgeList.setList(list: <CourseDTOModel>[]);
+
+      return false;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getMyKnowledgeList() because data is null", tag: tag);
+
+      provider.isLoading.set(value: false, isNotify: false);
+      provider.myKnowledgeList.setList(list: <CourseDTOModel>[]);
+
+      return false;
+    }
+
     provider.isLoading.set(value: false, isNotify: false);
+    provider.myKnowledgeList.setList(list: dataResponseModel.data!);
+
+    MyPrint.printOnConsole("Final myKnowledgeList length:${provider.myKnowledgeList.length}", tag: tag);
+
     return true;
   }
 
-  Future<bool> getSharedKnowledgeList() async {
+  Future<bool> getSharedKnowledgeList({GetCoCreateKnowledgebaseListRequestModel? requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getSharedKnowledgeList() called with requestModel:$requestModel", tag: tag);
+
     CoCreateKnowledgeProvider provider = coCreateKnowledgeProvider;
     provider.isLoading.set(value: true, isNotify: false);
 
-    DataResponseModel<List<CourseDTOModel>> response = await coCreateKnowledgeRepository.getMyKnowledgeList(componentId: 3, componentInstanceId: 3);
+    if (requestModel == null) {
+      MyPrint.printOnConsole("Initializing requestModel", tag: tag);
 
-    if (response.data?.isEmpty ?? false) return false;
-    provider.shareKnowledgeList.setList(list: response.data ?? []);
+      ApiUrlConfigurationProvider apiUrlConfigurationProvider = coCreateKnowledgeRepository.apiController.apiDataProvider;
+      AppSystemConfigurationModel appSystemConfigurationModel = DependencyInjection.appProvider.appSystemConfigurationModel;
+
+      requestModel = GetCoCreateKnowledgebaseListRequestModel(
+        userId: apiUrlConfigurationProvider.getCurrentUserId(),
+        cmsGroupId: appSystemConfigurationModel.CoCreateKnowledgeDefaultCMSGroupID,
+        folderId: appSystemConfigurationModel.CoCreateKnowledgeDefaultFolderID,
+      );
+
+      MyPrint.printOnConsole("Final requestModel", tag: tag);
+    }
+
+    // DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeList(requestModel: requestModel);
+    DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeListTemp(requestModel: requestModel);
+
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getSharedKnowledgeList() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+
+      provider.isLoading.set(value: false, isNotify: false);
+      provider.shareKnowledgeList.setList(list: <CourseDTOModel>[]);
+
+      return false;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getSharedKnowledgeList() because data is null", tag: tag);
+
+      provider.isLoading.set(value: false, isNotify: false);
+      provider.shareKnowledgeList.setList(list: <CourseDTOModel>[]);
+
+      return false;
+    }
+
     provider.isLoading.set(value: false, isNotify: false);
+    provider.shareKnowledgeList.setList(list: dataResponseModel.data!);
+
+    MyPrint.printOnConsole("Final shareKnowledgeList length:${provider.shareKnowledgeList.length}", tag: tag);
+
     return true;
   }
 
@@ -136,18 +214,84 @@ class CoCreateKnowledgeController {
 
     DataResponseModel<String> dataResponseModel = await repository.CreateNewContentItem(requestModel: requestModel);
     if (dataResponseModel.appErrorModel != null) {
-      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().CreateNewContentItem() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().CreateNewContentItem() because appErrorModel is not null for CreateNewContentItem", tag: tag);
       MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
       return null;
     } else if (dataResponseModel.data == null) {
-      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().CreateNewContentItem() because data is null", tag: tag);
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().CreateNewContentItem() because data is null for CreateNewContentItem", tag: tag);
       return null;
     }
 
     String contentId = dataResponseModel.data!;
     MyPrint.printOnConsole("Final contentId:'$contentId'", tag: tag);
 
+    if (requestModel.ActionType == CreateNewContentItemActionType.update) {
+      SaveContentJsonRequestModel saveContentJsonRequestModel = SaveContentJsonRequestModel(
+        contentId: requestModel.ContentID,
+        folderPath: requestModel.FolderPath,
+        objectTypeId: requestModel.ObjectTypeID,
+        mediaTypeId: requestModel.MediaTypeID,
+        contentData: requestModel.additionalData,
+      );
+
+      bool isSaved = await SaveContentJSON(requestModel: saveContentJsonRequestModel);
+
+      if (!isSaved) {
+        MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().CreateNewContentItem() because SaveContentJSON failed", tag: tag);
+        return null;
+      }
+    }
+
     return contentId;
+  }
+
+  Future<bool> SaveContentJSON({required SaveContentJsonRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().SaveContentJSON() called with requestModel:$requestModel", tag: tag);
+
+    List<String> typesToCallSaveContentJSONForUpdate = [
+      "${InstancyObjectTypes.flashCard}_${InstancyMediaTypes.none}",
+      "${InstancyObjectTypes.assessment}_${InstancyMediaTypes.test}",
+      "${InstancyObjectTypes.events}_${InstancyMediaTypes.none}",
+      "${InstancyObjectTypes.webPage}_${InstancyMediaTypes.none}",
+      "${InstancyObjectTypes.contentObject}_${InstancyMediaTypes.microLearning}",
+    ];
+    if (!typesToCallSaveContentJSONForUpdate.contains("${requestModel.objectTypeId}_${requestModel.mediaTypeId}")) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().SaveContentJSON() with true because content type is not valid for update", tag: tag);
+      return true;
+    }
+
+    if (requestModel.contentId.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().SaveContentJSON() because contentId is empty", tag: tag);
+      return false;
+    } else if (requestModel.folderPath.isNotEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().SaveContentJSON() because folderPath is empty", tag: tag);
+      return false;
+    }
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    DataResponseModel<String> dataResponseModel = await repository.SaveContentJSON(requestModel: requestModel);
+
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().SaveContentJSON() because appErrorModel is not null for SaveContentJSON", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return false;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().SaveContentJSON() because data is null for SaveContentJSON", tag: tag);
+      return false;
+    }
+
+    String response = dataResponseModel.data!;
+    MyPrint.printOnConsole("Final SaveContentJSON response:'$response'", tag: tag);
+
+    if (response != "1") {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().SaveContentJSON() because response is not 1 for SaveContentJSON", tag: tag);
+      return false;
+    }
+
+    MyPrint.printOnConsole("ContentJSON Saved Successfully", tag: tag);
+    return true;
   }
 
   Future<String?> addEditContentItem({required CoCreateContentAuthoringModel coCreateContentAuthoringModel}) async {
@@ -201,6 +345,7 @@ class CoCreateKnowledgeController {
       Categories: coCreateContentAuthoringModel.skills,
       CategoryType: CreateNewContentItemCategoryType.skl,
       ContentID: coCreateContentAuthoringModel.contentId,
+      FolderPath: coCreateContentAuthoringModel.isEdit ? (coCreateContentAuthoringModel.courseDTOModel?.FolderPath ?? "") : "",
     );
 
     if (coCreateContentAuthoringModel.flashcardContentModel != null) {

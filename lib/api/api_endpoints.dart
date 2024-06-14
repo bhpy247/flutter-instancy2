@@ -578,9 +578,13 @@ class ApiEndpoints {
 // endregion
 
 // region Content Authoring
+  String GetCoCreateKnowledgebaseList() => '${getLmeEditorApiUrl()}/NativeAuthoring/GetCoCreateKnowledgebaseList';
+
   String GenerateImages() => '${getLmeEditorApiUrl()}/ContentGenerator/GenerateImages';
 
   String CreateNewContentItem() => '${getLmeEditorApiUrl()}/NativeAuthoring/CreateNewContentItem';
+
+  String SaveContentJSON() => '${getLmeEditorApiUrl()}/NativeAuthoring/SaveContentJSON';
 
   String GenerateFlashCard() => '${getLmeEditorApiUrl()}/NativeAuthoring/GenerateFlashCard';
 
