@@ -15,25 +15,37 @@ class MyKnowledgeItemWidget extends StatelessWidget {
   final Function()? onCardTap;
   final CourseDTOModel model;
 
-  MyKnowledgeItemWidget({super.key, this.onMoreTap, required this.model, this.onCardTap});
+  MyKnowledgeItemWidget({
+    super.key,
+    this.onMoreTap,
+    required this.model,
+    this.onCardTap,
+  });
 
-  final Map<int, dynamic> imageList = {
-    InstancyObjectTypes.flashCard: "assets/cocreate/Card.png",
-    InstancyObjectTypes.quiz: "assets/cocreate/Chat Question.png",
-    InstancyObjectTypes.podcastEpisode: "assets/cocreate/Vector-4.png",
-    InstancyObjectTypes.article: "assets/cocreate/Vector-2.png",
-    InstancyObjectTypes.videos: "assets/cocreate/video.png",
-    InstancyObjectTypes.referenceUrl: "assets/cocreate/Vector-1.png",
-    InstancyObjectTypes.document: "assets/cocreate/Vector.png",
-    InstancyObjectTypes.events: "assets/cocreate/Vector-3.png",
-    InstancyObjectTypes.rolePlay: "assets/cocreate/video.png",
-    InstancyObjectTypes.learningMaps: "assets/cocreate/Business Hierarchy.png",
-    InstancyObjectTypes.aiAgent: "assets/cocreate/Ai.png",
+  final Map<String, String> imageList = {
+    "${InstancyObjectTypes.flashCard}_${InstancyMediaTypes.none}": "assets/cocreate/Card.png",
+    "${InstancyObjectTypes.assessment}_${InstancyMediaTypes.test}": "assets/cocreate/Chat Question.png",
+    "${InstancyObjectTypes.mediaResource}_${InstancyMediaTypes.audio}": "assets/cocreate/Vector-4.png",
+    "${InstancyObjectTypes.webPage}_${InstancyMediaTypes.none}": "assets/cocreate/Vector-2.png",
+    "${InstancyObjectTypes.mediaResource}_${InstancyMediaTypes.video}": "assets/cocreate/video.png",
+    "${InstancyObjectTypes.reference}_${InstancyMediaTypes.url}": "assets/cocreate/Vector-1.png",
+    "${InstancyObjectTypes.document}_${InstancyMediaTypes.word}": "assets/cocreate/Vector.png",
+    "${InstancyObjectTypes.document}_${InstancyMediaTypes.pDF}": "assets/cocreate/Vector.png",
+    "${InstancyObjectTypes.document}_${InstancyMediaTypes.excel}": "assets/cocreate/Vector.png",
+    "${InstancyObjectTypes.document}_${InstancyMediaTypes.ppt}": "assets/cocreate/Vector.png",
+    "${InstancyObjectTypes.document}_${InstancyMediaTypes.mpp}": "assets/cocreate/Vector.png",
+    "${InstancyObjectTypes.document}_${InstancyMediaTypes.visioTypes}": "assets/cocreate/Vector.png",
+    "${InstancyObjectTypes.document}_${InstancyMediaTypes.csv}": "assets/cocreate/Vector.png",
+    "${InstancyObjectTypes.events}_${InstancyMediaTypes.none}": "assets/cocreate/Vector-3.png",
+    "${InstancyObjectTypes.rolePlay}_${InstancyMediaTypes.none}": "assets/cocreate/video.png",
+    "${InstancyObjectTypes.learningMaps}_${InstancyMediaTypes.none}": "assets/cocreate/Business Hierarchy.png",
+    "${InstancyObjectTypes.courseBot}_${InstancyMediaTypes.none}": "assets/cocreate/Ai.png",
   };
 
   @override
   Widget build(BuildContext context) {
-    MyPrint.printOnConsole("model.ContentType ${model.ContentType} : ${imageList[model.ContentTypeId]}");
+    String imagePath = imageList["${model.ContentTypeId}_${model.MediaTypeID}"] ?? "";
+    MyPrint.printOnConsole("model.ContentType ${model.ContentType} : $imagePath");
     return InkWell(
       onTap: onCardTap,
       child: Container(
@@ -62,9 +74,7 @@ class MyKnowledgeItemWidget extends StatelessWidget {
                 alignment: Alignment.bottomCenter,
               ),
             ),
-            SizedBox(
-              width: 10,
-            ),
+            const SizedBox(width: 10),
             Expanded(
               child: Container(
                 margin: EdgeInsets.only(
@@ -85,7 +95,7 @@ class MyKnowledgeItemWidget extends StatelessWidget {
                             Row(
                               children: [
                                 // coursesIcon(assetName: AppConfigurations.getContentIconFromObjectAndMediaType(mediaTypeId: model.MediaTypeID, objectTypeId: model.ContentTypeId)),
-                                coursesIcon(assetName: imageList[model.ContentTypeId]),
+                                coursesIcon(assetName: imagePath),
                                 const SizedBox(width: 10),
                                 Text(
                                   model.ContentType,

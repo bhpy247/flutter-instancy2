@@ -22,6 +22,7 @@ class CourseDTOModel {
   String ContentName = "";
   String ShortDescription = "";
   String ThumbnailImagePath = "";
+  String ThumbnailImageName = "";
   String InstanceParentContentID = "";
   String ImageWithLink = "";
   String AuthorWithLink = "";
@@ -259,6 +260,7 @@ class CourseDTOModel {
     this.ContentName = "",
     this.ShortDescription = "",
     this.ThumbnailImagePath = "",
+    this.ThumbnailImageName = "",
     this.InstanceParentContentID = "",
     this.ImageWithLink = "",
     this.AuthorWithLink = "",
@@ -508,6 +510,7 @@ class CourseDTOModel {
     TotalRatings = ParsingHelper.parseIntMethod(["TotalRatings"]);
     ShortDescription = ParsingHelper.parseStringMethod(map["ShortDescription"]);
     ThumbnailImagePath = ParsingHelper.parseStringMethod(map["ThumbnailImagePath"]);
+    ThumbnailImageName = ParsingHelper.parseStringMethod(map["ThumbnailImageName"]);
     InstanceParentContentID = ParsingHelper.parseStringMethod(map["InstanceParentContentID"]);
     ImageWithLink = ParsingHelper.parseStringMethod(map["ImageWithLink"]);
     AuthorWithLink = ParsingHelper.parseStringMethod(map["AuthorWithLink"]);
@@ -751,6 +754,7 @@ class CourseDTOModel {
       "TotalRatings": TotalRatings,
       "ShortDescription": ShortDescription,
       "ThumbnailImagePath": ThumbnailImagePath,
+      "ThumbnailImageName": ThumbnailImageName,
       "InstanceParentContentID": InstanceParentContentID,
       "ImageWithLink": ImageWithLink,
       "AuthorWithLink": AuthorWithLink,

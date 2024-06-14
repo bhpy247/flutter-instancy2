@@ -7,7 +7,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:html/parser.dart' as html_parser;
+import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -33,6 +35,24 @@ class MyUtils {
     } else {
       return FirebaseFirestore.instance.collection("sdf").doc().id;
     }
+  }
+
+  static String convertBytesToBase64({required Uint8List bytes, String? fileName, String? defaultMimeType}) {
+    String mimeType = defaultMimeType ?? "application/octet-stream";
+    if (fileName.checkNotEmpty) mimeType = lookupMimeType(fileName!) ?? mimeType;
+
+    String base64String = base64Encode(bytes);
+
+    return 'data:$mimeType;base64,$base64String';
+  }
+
+  static Uint8List? convertBase64ToBytes(String base64String) {
+    Uri? uri = Uri.tryParse(base64String);
+    if (uri == null || uri.data == null || uri.data?.isBase64 != true) {
+      return null;
+    }
+
+    return uri.data!.contentAsBytes();
   }
 
   static String encodeJson(Object? object) {

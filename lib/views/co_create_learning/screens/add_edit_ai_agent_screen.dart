@@ -219,7 +219,8 @@ class _AddEditAiAgentScreenState extends State<AddEditAiAgentScreen> with MySafe
     coCreateContentAuthoringModel = CoCreateContentAuthoringModel(
       coCreateAuthoringType: CoCreateAuthoringType.Create,
     );
-    coCreateContentAuthoringModel.contentTypeId = InstancyObjectTypes.aiAgent;
+    coCreateContentAuthoringModel.contentTypeId = InstancyObjectTypes.courseBot;
+    coCreateContentAuthoringModel.mediaTypeId = InstancyMediaTypes.none;
 
     if (widget.arguments.courseDtoModel != null) {
       CourseDTOModel courseDTOModel = widget.arguments.courseDtoModel!;
@@ -247,7 +248,7 @@ class _AddEditAiAgentScreenState extends State<AddEditAiAgentScreen> with MySafe
       // courseDTOModel.ContentID = MyUtils.getNewId();
       courseDTOModel.ContentTypeId = coCreateContentAuthoringModel.contentTypeId;
       courseDTOModel.ContentType = switch (coCreateContentAuthoringModel.contentTypeId) {
-        InstancyObjectTypes.aiAgent => "AI Agent",
+        InstancyObjectTypes.courseBot => "AI Agent",
         _ => "Test",
       };
 

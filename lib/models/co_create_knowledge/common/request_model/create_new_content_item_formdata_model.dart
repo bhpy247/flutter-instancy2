@@ -7,7 +7,6 @@ class CreateNewContentItemFormDataModel {
   String Name = "";
   String TagName = "";
   String VideoIntroduction = "";
-  String ThumbnailImagePath = "";
   String ShortDescription = "";
   String LongDescription = "";
   String LearningObjectives = "";
@@ -31,7 +30,6 @@ class CreateNewContentItemFormDataModel {
     this.Name = "",
     this.TagName = "",
     this.VideoIntroduction = "",
-    this.ThumbnailImagePath = "",
     this.ShortDescription = "",
     this.LongDescription = "",
     this.LearningObjectives = "",
@@ -57,7 +55,6 @@ class CreateNewContentItemFormDataModel {
       "Name": Name,
       "TagName": TagName,
       "VideoIntroduction": VideoIntroduction,
-      "ThumbnailImagePath": ThumbnailImagePath,
       "ShortDescription": ShortDescription,
       "LongDescription": LongDescription,
       "LearningObjectives": LearningObjectives,

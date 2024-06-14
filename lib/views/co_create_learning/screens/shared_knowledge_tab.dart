@@ -112,6 +112,7 @@ class _SharedKnowledgeTabState extends State<SharedKnowledgeTab> with MySafeStat
 
   Future<void> onViewTap({required CourseDTOModel model}) async {
     int objectType = model.ContentTypeId;
+    int mediaType = model.MediaTypeID;
     MyPrint.printOnConsole("objectType:$objectType");
 
     if (objectType == InstancyObjectTypes.flashCard) {
@@ -123,7 +124,7 @@ class _SharedKnowledgeTabState extends State<SharedKnowledgeTab> with MySafeStat
         arguments: FlashCardScreenNavigationArguments(courseDTOModel: model),
       );
     } else if (objectType == InstancyObjectTypes.rolePlay) {
-      dynamic value = await NavigationController.navigateToRolePlayLaunchScreen(
+      await NavigationController.navigateToRolePlayLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
@@ -132,14 +133,14 @@ class _SharedKnowledgeTabState extends State<SharedKnowledgeTab> with MySafeStat
           courseDTOModel: model,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.podcastEpisode) {
+    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.audio) {
       NavigationController.navigateToPodcastEpisodeScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.referenceUrl) {
+    } else if (objectType == InstancyObjectTypes.reference && mediaType == InstancyMediaTypes.url) {
       NavigationController.navigateToWebViewScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         arguments: WebViewScreenNavigationArguments(
@@ -147,7 +148,7 @@ class _SharedKnowledgeTabState extends State<SharedKnowledgeTab> with MySafeStat
           url: "https://smartbridge.com/introduction-generative-ai-transformative-potential-enterprises/",
         ),
       );
-    } else if (objectType == InstancyObjectTypes.document) {
+    } else if (objectType == InstancyObjectTypes.document && mediaType == InstancyMediaTypes.pDF) {
       NavigationController.navigateToPDFLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -159,14 +160,14 @@ class _SharedKnowledgeTabState extends State<SharedKnowledgeTab> with MySafeStat
           pdfUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fdocuments%2Fai%20for%20biotechnology.pdf?alt=media&token=ab06fadc-ba08-4114-88e1-529213d117bf",
         ),
       );
-    } else if (objectType == InstancyObjectTypes.videos) {
+    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.video) {
       NavigationController.navigateToVideoScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.quiz) {
+    } else if (objectType == InstancyObjectTypes.assessment && mediaType == InstancyMediaTypes.test) {
       NavigationController.navigateToQuizScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -174,7 +175,7 @@ class _SharedKnowledgeTabState extends State<SharedKnowledgeTab> with MySafeStat
         ),
         arguments: QuizScreenNavigationArguments(courseDTOModel: model),
       );
-    } else if (objectType == InstancyObjectTypes.article) {
+    } else if (objectType == InstancyObjectTypes.webPage) {
       NavigationController.navigateToArticleScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         arguments: ArticleScreenNavigationArguments(courseDTOModel: model),

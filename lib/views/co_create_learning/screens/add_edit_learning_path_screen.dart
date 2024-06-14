@@ -47,8 +47,8 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
         AuthorName: "Richard Parker",
         AuthorDisplayName: "Richard Parker",
         UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
-        ContentTypeId: InstancyObjectTypes.referenceUrl,
-        MediaTypeID: InstancyMediaTypes.none,
+        ContentTypeId: InstancyObjectTypes.reference,
+        MediaTypeID: InstancyMediaTypes.url,
         ContentType: "Reference Link",
         ThumbnailImagePath: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FGenerative%20AI%20(1).jpg?alt=media&token=42d9004b-9dd8-4d30-a889-982996d6cd6d",
         ShortDescription: "Uncover the revolutionary capabilities of Generative AI, poised to reshape industries and creative expression with its innovative potential.",
@@ -60,8 +60,8 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
         AuthorName: "Richard Parker",
         AuthorDisplayName: "Richard Parker",
         UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
-        ContentTypeId: InstancyObjectTypes.videos,
-        MediaTypeID: InstancyMediaTypes.none,
+        ContentTypeId: InstancyObjectTypes.mediaResource,
+        MediaTypeID: InstancyMediaTypes.video,
         ContentType: "Video",
         ThumbnailImagePath:
             "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FMastering%20Communication%20(1).jpg?alt=media&token=a5031b2e-2f73-4270-b710-6373ede36b4e",
@@ -76,7 +76,7 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
         AuthorDisplayName: "Richard Parker",
         UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
         ContentTypeId: InstancyObjectTypes.document,
-        MediaTypeID: InstancyMediaTypes.none,
+        MediaTypeID: InstancyMediaTypes.pDF,
         ViewLink: "https://qalearning.instancy.com//content/publishfiles/d6caf328-6c9e-43b1-8ba0-eb8d4d065e66/en-us/41cea17c-728d-4c88-9cd8-1e0473fa6f21.pdf?fromNativeapp=true",
         ContentType: "Documents",
         ThumbnailImagePath:
@@ -106,8 +106,8 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
         AuthorName: "Richard Parker",
         AuthorDisplayName: "Richard Parker",
         UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
-        ContentTypeId: InstancyObjectTypes.quiz,
-        MediaTypeID: InstancyMediaTypes.none,
+        ContentTypeId: InstancyObjectTypes.assessment,
+        MediaTypeID: InstancyMediaTypes.test,
         ContentType: "Quiz",
         ThumbnailImagePath:
             "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FOffice%20Ergonomics%20(1).jpg?alt=media&token=e8b61e56-79d8-4257-bd6e-fdad51d0b9f9",
@@ -222,7 +222,9 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
 
   Future<void> onViewTap({required CourseDTOModel model}) async {
     int objectType = model.ContentTypeId;
+    int mediaType = model.MediaTypeID;
     MyPrint.printOnConsole("objectType:$objectType");
+    MyPrint.printOnConsole("mediaType:$mediaType");
 
     if (objectType == InstancyObjectTypes.flashCard) {
       NavigationController.navigateToFlashCardScreen(
@@ -242,14 +244,14 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
           courseDTOModel: model,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.podcastEpisode) {
+    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.audio) {
       NavigationController.navigateToPodcastEpisodeScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.referenceUrl) {
+    } else if (objectType == InstancyObjectTypes.reference && mediaType == InstancyMediaTypes.url) {
       NavigationController.navigateToWebViewScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         arguments: WebViewScreenNavigationArguments(
@@ -257,7 +259,7 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
           url: "https://smartbridge.com/introduction-generative-ai-transformative-potential-enterprises/",
         ),
       );
-    } else if (objectType == InstancyObjectTypes.document) {
+    } else if (objectType == InstancyObjectTypes.document && mediaType == InstancyMediaTypes.pDF) {
       NavigationController.navigateToPDFLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -269,14 +271,14 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
           pdfUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fdocuments%2Fai%20for%20biotechnology.pdf?alt=media&token=ab06fadc-ba08-4114-88e1-529213d117bf",
         ),
       );
-    } else if (objectType == InstancyObjectTypes.videos) {
+    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.video) {
       NavigationController.navigateToVideoScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.quiz) {
+    } else if (objectType == InstancyObjectTypes.assessment && mediaType == InstancyMediaTypes.test) {
       NavigationController.navigateToQuizScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -284,7 +286,7 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
         ),
         arguments: QuizScreenNavigationArguments(courseDTOModel: model),
       );
-    } else if (objectType == InstancyObjectTypes.article) {
+    } else if (objectType == InstancyObjectTypes.webPage) {
       // NavigationController.navigateToArticleScreen(
       //   navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
       //   arguments: ArticleScreenNavigationArguments(courseDTOModel: model),
@@ -296,7 +298,7 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
           url: "https://enterprisedemo.instancy.com/content/publishfiles/1539fc5c-7bde-4d82-a0f6-9612f9e6c426/ins_content.html?fromNativeapp=true",
         ),
       );*/
-    } else if (objectType == InstancyObjectTypes.learningPath) {
+    } else if (objectType == InstancyObjectTypes.track) {
       NavigationController.navigateToLearningPathScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         argument: LearningPathScreenNavigationArgument(model: model),

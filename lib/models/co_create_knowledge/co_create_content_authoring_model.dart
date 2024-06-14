@@ -21,6 +21,7 @@ class CoCreateContentAuthoringModel {
   String description = "";
   List<String> skills = <String>[];
   String ThumbnailImagePath = "";
+  String ThumbnailImageName = "";
   Uint8List? thumbNailImageBytes;
   Uint8List? uploadedDocumentBytes;
   String? uploadedDocumentName;
@@ -48,6 +49,7 @@ class CoCreateContentAuthoringModel {
     this.description = "",
     List<String>? skills,
     this.ThumbnailImagePath = "",
+    this.ThumbnailImageName = "",
     this.thumbNailImageBytes,
     this.uploadedDocumentBytes,
     this.courseDTOModel,

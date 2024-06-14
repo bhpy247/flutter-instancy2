@@ -7,7 +7,6 @@ import 'package:flutter_instancy_2/views/common/components/common_text_form_fiel
 import 'package:provider/provider.dart';
 
 import '../../../backend/app/app_provider.dart';
-import '../../../backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import '../../../backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import '../../../configs/app_configurations.dart';
@@ -31,8 +30,6 @@ class _AddContentItemScreenState extends State<AddContentItemScreen> with MySafe
   late AppProvider appProvider;
 
   List<CourseDTOModel> selectedContentList = [];
-  late CoCreateKnowledgeController _controller;
-  late CoCreateKnowledgeProvider _provider;
 
   Future<void> onDetailsTap({required CourseDTOModel model}) async {
     dynamic value = await NavigationController.navigateToCourseDetailScreen(
@@ -62,7 +59,9 @@ class _AddContentItemScreenState extends State<AddContentItemScreen> with MySafe
 
   Future<void> onViewTap({required CourseDTOModel model}) async {
     int objectType = model.ContentTypeId;
-    MyPrint.printOnConsole("objectType:$objectType ${objectType == InstancyObjectTypes.learningPath}");
+    int mediaType = model.MediaTypeID;
+    MyPrint.printOnConsole("objectType:$objectType");
+    MyPrint.printOnConsole("mediaType:$mediaType");
 
     if (objectType == InstancyObjectTypes.flashCard) {
       NavigationController.navigateToFlashCardScreen(
@@ -73,7 +72,7 @@ class _AddContentItemScreenState extends State<AddContentItemScreen> with MySafe
         arguments: FlashCardScreenNavigationArguments(courseDTOModel: model),
       );
     } else if (objectType == InstancyObjectTypes.rolePlay) {
-      dynamic value = await NavigationController.navigateToRolePlayLaunchScreen(
+      await NavigationController.navigateToRolePlayLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
@@ -82,14 +81,14 @@ class _AddContentItemScreenState extends State<AddContentItemScreen> with MySafe
           courseDTOModel: model,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.podcastEpisode) {
+    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.audio) {
       NavigationController.navigateToPodcastEpisodeScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.referenceUrl) {
+    } else if (objectType == InstancyObjectTypes.reference && mediaType == InstancyMediaTypes.url) {
       NavigationController.navigateToWebViewScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         arguments: WebViewScreenNavigationArguments(
@@ -109,14 +108,14 @@ class _AddContentItemScreenState extends State<AddContentItemScreen> with MySafe
           pdfUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fdocuments%2Fai%20for%20biotechnology.pdf?alt=media&token=ab06fadc-ba08-4114-88e1-529213d117bf",
         ),
       );
-    } else if (objectType == InstancyObjectTypes.videos) {
+    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.video) {
       NavigationController.navigateToVideoScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.quiz) {
+    } else if (objectType == InstancyObjectTypes.assessment && mediaType == InstancyMediaTypes.test) {
       NavigationController.navigateToQuizScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -124,7 +123,7 @@ class _AddContentItemScreenState extends State<AddContentItemScreen> with MySafe
         ),
         arguments: QuizScreenNavigationArguments(courseDTOModel: model),
       );
-    } else if (objectType == InstancyObjectTypes.article) {
+    } else if (objectType == InstancyObjectTypes.webPage) {
       NavigationController.navigateToArticleScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         arguments: ArticleScreenNavigationArguments(courseDTOModel: model),
@@ -136,8 +135,8 @@ class _AddContentItemScreenState extends State<AddContentItemScreen> with MySafe
           url: "https://enterprisedemo.instancy.com/content/publishfiles/1539fc5c-7bde-4d82-a0f6-9612f9e6c426/ins_content.html?fromNativeapp=true",
         ),
       );*/
-    } else if (objectType == InstancyObjectTypes.learningPath) {
-      MyPrint.printOnConsole("InstancyObjectTypes.learningPath : ${InstancyObjectTypes.learningPath} objectType == InstancyObjectTypes.learningPath ${objectType == InstancyObjectTypes.learningPath}");
+    } else if (objectType == InstancyObjectTypes.track) {
+      MyPrint.printOnConsole("InstancyObjectTypes.learningPath : ${InstancyObjectTypes.track} objectType == InstancyObjectTypes.learningPath ${objectType == InstancyObjectTypes.track}");
       NavigationController.navigateToLearningPathScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         argument: LearningPathScreenNavigationArgument(

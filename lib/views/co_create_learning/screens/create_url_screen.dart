@@ -50,7 +50,8 @@ class _CreateUrlScreenState extends State<CreateUrlScreen> with MySafeState {
     coCreateContentAuthoringModel = widget.argument.coCreateContentAuthoringModel ??
         CoCreateContentAuthoringModel(
           coCreateAuthoringType: CoCreateAuthoringType.Create,
-          contentTypeId: InstancyObjectTypes.referenceUrl,
+          contentTypeId: InstancyObjectTypes.reference,
+          mediaTypeId: InstancyMediaTypes.url,
         );
 
     if (coCreateContentAuthoringModel.courseDTOModel != null) {

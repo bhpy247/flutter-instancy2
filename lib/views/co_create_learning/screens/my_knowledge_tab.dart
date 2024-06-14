@@ -71,7 +71,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           onTap: () async {
             Navigator.pop(context);
 
-            if (model.ContentTypeId == InstancyObjectTypes.aiAgent) {
+            if (model.ContentTypeId == InstancyObjectTypes.courseBot) {
               await onContentLaunchTap(model: model, isArchived: false);
             } else {
               onViewTap(model: model);
@@ -79,7 +79,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           },
           iconData: InstancyIcons.view,
         ),
-      if (![InstancyObjectTypes.podcastEpisode, InstancyObjectTypes.videos].contains(model.ContentTypeId))
+      if (!(model.ContentTypeId == InstancyObjectTypes.mediaResource && [InstancyMediaTypes.audio, InstancyMediaTypes.video].contains(model.MediaTypeID)))
         InstancyUIActionModel(
           text: "Edit",
           actionsEnum: InstancyContentActionsEnum.Edit,
@@ -221,7 +221,8 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 
   Future<void> onViewTap({required CourseDTOModel model}) async {
     int objectType = model.ContentTypeId;
-    MyPrint.printOnConsole("objectType:$objectType ${objectType == InstancyObjectTypes.learningPath}");
+    int mediaType = model.MediaTypeID;
+    MyPrint.printOnConsole("objectType:$objectType, mediaType:$mediaType");
 
     if (objectType == InstancyObjectTypes.flashCard) {
       NavigationController.navigateToFlashCardScreen(
@@ -241,14 +242,14 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           courseDTOModel: model,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.podcastEpisode) {
+    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.audio) {
       NavigationController.navigateToPodcastEpisodeScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.referenceUrl) {
+    } else if (objectType == InstancyObjectTypes.reference && mediaType == InstancyMediaTypes.url) {
       NavigationController.navigateToWebViewScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         arguments: WebViewScreenNavigationArguments(
@@ -256,7 +257,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           url: "https://smartbridge.com/introduction-generative-ai-transformative-potential-enterprises/",
         ),
       );
-    } else if (objectType == InstancyObjectTypes.document) {
+    } else if (objectType == InstancyObjectTypes.document && mediaType == InstancyMediaTypes.pDF) {
       NavigationController.navigateToPDFLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -268,14 +269,14 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           pdfUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fdocuments%2Fai%20for%20biotechnology.pdf?alt=media&token=ab06fadc-ba08-4114-88e1-529213d117bf",
         ),
       );
-    } else if (objectType == InstancyObjectTypes.videos) {
+    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.video) {
       NavigationController.navigateToVideoScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.quiz) {
+    } else if (objectType == InstancyObjectTypes.assessment && mediaType == InstancyMediaTypes.test) {
       NavigationController.navigateToQuizScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -283,7 +284,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         ),
         arguments: QuizScreenNavigationArguments(courseDTOModel: model),
       );
-    } else if (objectType == InstancyObjectTypes.article) {
+    } else if (objectType == InstancyObjectTypes.webPage) {
       NavigationController.navigateToArticleScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         arguments: ArticleScreenNavigationArguments(courseDTOModel: model),
@@ -295,8 +296,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           url: "https://enterprisedemo.instancy.com/content/publishfiles/1539fc5c-7bde-4d82-a0f6-9612f9e6c426/ins_content.html?fromNativeapp=true",
         ),
       );*/
-    } else if (objectType == InstancyObjectTypes.learningPath) {
-      MyPrint.printOnConsole("InstancyObjectTypes.learningPath : ${InstancyObjectTypes.learningPath} objectType == InstancyObjectTypes.learningPath ${objectType == InstancyObjectTypes.learningPath}");
+    } else if (objectType == InstancyObjectTypes.track) {
       NavigationController.navigateToLearningPathScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         argument: LearningPathScreenNavigationArgument(
@@ -305,7 +305,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           componentInstanceId: widget.componentInstanceId,
         ),
       );
-    } else if (objectType == InstancyObjectTypes.microLearning) {
+    } else if (objectType == InstancyObjectTypes.contentObject && mediaType == InstancyMediaTypes.microLearning) {
       NavigationController.navigateToMicroLearningScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         argument: MicroLearningScreenNavigationArgument(
@@ -325,10 +325,12 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 
   Future<void> onEditTap({required CourseDTOModel model, int index = 0}) async {
     int objectTypeId = model.ContentTypeId;
+    int mediaTypeId = model.MediaTypeID;
 
     CoCreateContentAuthoringModel coCreateContentAuthoringModel = CoCreateContentAuthoringModel(
       coCreateAuthoringType: CoCreateAuthoringType.Edit,
       contentTypeId: model.ContentTypeId,
+      mediaTypeId: model.MediaTypeID,
       isEdit: true,
       courseDTOModel: model,
     );
@@ -352,7 +354,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       if (value == true) {
         isEdited = true;
       }
-    } else if (objectTypeId == InstancyObjectTypes.referenceUrl) {
+    } else if (objectTypeId == InstancyObjectTypes.reference && mediaTypeId == InstancyMediaTypes.url) {
       dynamic value = await NavigationController.navigateToCreateUrlScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -382,7 +384,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       if (value == true) {
         isEdited = true;
       }
-    } else if (objectTypeId == InstancyObjectTypes.quiz) {
+    } else if (objectTypeId == InstancyObjectTypes.assessment && mediaTypeId == InstancyMediaTypes.test) {
       /*QuizContentModel quizContentModel = QuizContentModel();
       quizContentModel.questionCount = 3;
       quizContentModel.difficultyLevel = "Hard";
@@ -403,7 +405,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       if (value == true) {
         isEdited = true;
       }
-    } else if (objectTypeId == InstancyObjectTypes.article) {
+    } else if (objectTypeId == InstancyObjectTypes.webPage) {
       dynamic value = await NavigationController.navigateToArticleEditorScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -446,7 +448,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       if (value == true) {
         isEdited = true;
       }
-    } else if (objectTypeId == InstancyObjectTypes.learningPath) {
+    } else if (objectTypeId == InstancyObjectTypes.track) {
       dynamic value = await NavigationController.navigateToAddEditLearningPathScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -460,7 +462,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       if (value == true) {
         isEdited = true;
       }
-    } else if (objectTypeId == InstancyObjectTypes.microLearning) {
+    } else if (objectTypeId == InstancyObjectTypes.contentObject && mediaTypeId == InstancyMediaTypes.microLearning) {
       dynamic value = await NavigationController.navigateToAddEditMicroLearningScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -748,39 +750,99 @@ class PopUpDialog extends StatefulWidget {
 
 class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
   final List<KnowledgeTypeModel> knowledgeTypeList = [
-    KnowledgeTypeModel(name: "Microlearning", iconUrl: "assets/cocreate/microLearning.png", objectTypeId: InstancyObjectTypes.microLearning),
-    KnowledgeTypeModel(name: "Learning Path", iconUrl: "assets/cocreate/Business Hierarchy.png", objectTypeId: InstancyObjectTypes.learningPath),
-    KnowledgeTypeModel(name: "Roleplay", iconUrl: "assets/cocreate/video.png", objectTypeId: InstancyObjectTypes.rolePlay),
-    KnowledgeTypeModel(name: "Event", iconUrl: "assets/cocreate/Vector-3.png", objectTypeId: InstancyObjectTypes.events),
-    KnowledgeTypeModel(name: "Documents", iconUrl: "assets/cocreate/Vector.png", objectTypeId: InstancyObjectTypes.document),
-    KnowledgeTypeModel(name: "Reference Link", iconUrl: "assets/cocreate/Vector-1.png", objectTypeId: InstancyObjectTypes.referenceUrl),
-    KnowledgeTypeModel(name: "Video", iconUrl: "assets/cocreate/video.png", objectTypeId: InstancyObjectTypes.videos),
-    KnowledgeTypeModel(name: "Article", iconUrl: "assets/cocreate/Vector-2.png", objectTypeId: InstancyObjectTypes.article),
-    KnowledgeTypeModel(name: "Podcast Episode", iconUrl: "assets/cocreate/Vector-4.png", objectTypeId: InstancyObjectTypes.podcastEpisode),
-    KnowledgeTypeModel(name: "Quiz", iconUrl: "assets/cocreate/Chat Question.png", objectTypeId: InstancyObjectTypes.quiz),
-    KnowledgeTypeModel(name: "Flashcards", iconUrl: "assets/cocreate/Card.png", objectTypeId: InstancyObjectTypes.flashCard),
-    KnowledgeTypeModel(name: "AI Agents", iconUrl: "assets/cocreate/Ai.png", objectTypeId: InstancyObjectTypes.aiAgent),
+    KnowledgeTypeModel(
+      name: "Microlearning",
+      iconUrl: "assets/cocreate/microLearning.png",
+      objectTypeId: InstancyObjectTypes.contentObject,
+      mediaTypeId: InstancyMediaTypes.microLearning,
+    ),
+    KnowledgeTypeModel(
+      name: "Learning Path",
+      iconUrl: "assets/cocreate/Business Hierarchy.png",
+      objectTypeId: InstancyObjectTypes.track,
+      mediaTypeId: InstancyMediaTypes.none,
+    ),
+    KnowledgeTypeModel(
+      name: "Roleplay",
+      iconUrl: "assets/cocreate/video.png",
+      objectTypeId: InstancyObjectTypes.rolePlay,
+      mediaTypeId: InstancyMediaTypes.none,
+    ),
+    KnowledgeTypeModel(
+      name: "Event",
+      iconUrl: "assets/cocreate/Vector-3.png",
+      objectTypeId: InstancyObjectTypes.events,
+      mediaTypeId: InstancyMediaTypes.none,
+    ),
+    KnowledgeTypeModel(
+      name: "Documents",
+      iconUrl: "assets/cocreate/Vector.png",
+      objectTypeId: InstancyObjectTypes.document,
+      mediaTypeId: InstancyMediaTypes.none,
+    ),
+    KnowledgeTypeModel(
+      name: "Reference Link",
+      iconUrl: "assets/cocreate/Vector-1.png",
+      objectTypeId: InstancyObjectTypes.reference,
+      mediaTypeId: InstancyMediaTypes.url,
+    ),
+    KnowledgeTypeModel(
+      name: "Video",
+      iconUrl: "assets/cocreate/video.png",
+      objectTypeId: InstancyObjectTypes.mediaResource,
+      mediaTypeId: InstancyMediaTypes.video,
+    ),
+    KnowledgeTypeModel(
+      name: "Article",
+      iconUrl: "assets/cocreate/Vector-2.png",
+      objectTypeId: InstancyObjectTypes.webPage,
+      mediaTypeId: InstancyMediaTypes.none,
+    ),
+    KnowledgeTypeModel(
+      name: "Podcast Episode",
+      iconUrl: "assets/cocreate/Vector-4.png",
+      objectTypeId: InstancyObjectTypes.mediaResource,
+      mediaTypeId: InstancyMediaTypes.audio,
+    ),
+    KnowledgeTypeModel(
+      name: "Quiz",
+      iconUrl: "assets/cocreate/Chat Question.png",
+      objectTypeId: InstancyObjectTypes.assessment,
+      mediaTypeId: InstancyMediaTypes.test,
+    ),
+    KnowledgeTypeModel(
+      name: "Flashcards",
+      iconUrl: "assets/cocreate/Card.png",
+      objectTypeId: InstancyObjectTypes.flashCard,
+      mediaTypeId: InstancyMediaTypes.none,
+    ),
+    KnowledgeTypeModel(
+      name: "AI Agents",
+      iconUrl: "assets/cocreate/Ai.png",
+      objectTypeId: InstancyObjectTypes.courseBot,
+      mediaTypeId: InstancyMediaTypes.none,
+    ),
   ];
 
   ValueNotifier<bool> isDialOpen = ValueNotifier<bool>(false);
 
-  Future<void> onCardTapCallBack({required int objectType}) async {
+  Future<void> onCardTapCallBack({required int objectType, required int mediaType}) async {
     MyPrint.printOnConsole("onCardTapCallBack called with objectType:$objectType");
 
-    List<int> commonAuthoringContentTypes = [
-      InstancyObjectTypes.flashCard,
-      InstancyObjectTypes.rolePlay,
-      InstancyObjectTypes.podcastEpisode,
-      InstancyObjectTypes.videos,
-      InstancyObjectTypes.quiz,
-      InstancyObjectTypes.article,
-      InstancyObjectTypes.learningPath,
-      InstancyObjectTypes.events,
-      InstancyObjectTypes.aiAgent,
-      InstancyObjectTypes.microLearning,
+    List<String> commonAuthoringContentTypes = [
+      "${InstancyObjectTypes.flashCard}_${InstancyMediaTypes.none}",
+      "${InstancyObjectTypes.rolePlay}_${InstancyMediaTypes.none}",
+      "${InstancyObjectTypes.mediaResource}_${InstancyMediaTypes.audio}",
+      "${InstancyObjectTypes.mediaResource}_${InstancyMediaTypes.video}",
+      "${InstancyObjectTypes.assessment}_${InstancyMediaTypes.test}",
+      "${InstancyObjectTypes.webPage}_${InstancyMediaTypes.none}",
+      "${InstancyObjectTypes.track}_${InstancyMediaTypes.none}",
+      "${InstancyObjectTypes.events}_${InstancyMediaTypes.none}",
+      "${InstancyObjectTypes.courseBot}_${InstancyMediaTypes.none}",
+      "${InstancyObjectTypes.contentObject}_${InstancyMediaTypes.microLearning}",
     ];
 
-    if (commonAuthoringContentTypes.contains(objectType)) {
+    if (commonAuthoringContentTypes.contains("${objectType}_$mediaType")) {
       dynamic value = await NavigationController.navigateCommonCreateAuthoringToolScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -791,7 +853,7 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
           componentInsId: 0,
           componentId: 0,
           objectTypeId: objectType,
-          mediaTypeId: 0,
+          mediaTypeId: mediaType,
         ),
       );
 
@@ -804,7 +866,7 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
         ),
         arguments: const AddEditDocumentScreenArguments(coCreateContentAuthoringModel: null),
       );
-    } else if (objectType == InstancyObjectTypes.referenceUrl) {
+    } else if (objectType == InstancyObjectTypes.reference && mediaType == InstancyMediaTypes.url) {
       NavigationController.navigateToCreateUrlScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -870,7 +932,10 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
 
             await Future.delayed(const Duration(milliseconds: 200));
 
-            onCardTapCallBack(objectType: knowledgeTypeList[index].objectTypeId);
+            onCardTapCallBack(
+              objectType: knowledgeTypeList[index].objectTypeId,
+              mediaType: knowledgeTypeList[index].mediaTypeId,
+            );
           },
           label: knowledgeTypeList[index].name,
           labelStyle: TextStyle(

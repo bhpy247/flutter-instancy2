@@ -41,13 +41,12 @@ class CommonCreateAuthoringToolScreen extends StatefulWidget {
 class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringToolScreen> with MySafeState {
   bool isLoading = false;
 
-  String appBarTitle = "";
-
   late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
   late CoCreateKnowledgeController coCreateKnowledgeController;
 
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
+  String AppBarTitle = "";
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
@@ -75,8 +74,11 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         CoCreateContentAuthoringModel(
           coCreateAuthoringType: argument.coCreateAuthoringType,
           contentTypeId: argument.objectTypeId,
+          mediaTypeId: argument.mediaTypeId,
           isEdit: argument.coCreateAuthoringType != CoCreateAuthoringType.Create,
         );
+
+    setAppBarTitle(objectTypeId: argument.objectTypeId, mediaTypeId: argument.mediaTypeId);
 
     if (argument.courseDtoModel != null) {
       CourseDTOModel courseDTOModel = argument.courseDtoModel!;
@@ -85,6 +87,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
       titleController.text = coCreateContentAuthoringModel.title;
       descriptionController.text = coCreateContentAuthoringModel.description;
+      thumbNailName = coCreateContentAuthoringModel.ThumbnailImageName;
       thumbNailBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
       thumbnailImagePath = coCreateContentAuthoringModel.ThumbnailImagePath;
 
@@ -167,7 +170,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         "SiteId": 374,
         "UserSiteId": 0,
         "SiteName": "",
-        "ContentTypeId": 9,
+        "ContentTypeId": 0,
         "ContentID": "7d659fde-70a4-4b30-a1f4-62f709ed3786",
         "Title": "Test 3",
         "TotalRatings": "",
@@ -219,7 +222,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         "OpenNewBrowserWindow": false,
         "CreditScoreWithCreditTypes": "",
         "CreditScoreFirstPrefix": "",
-        "MediaTypeID": 27,
+        "MediaTypeID": 0,
         "isEnrollFutureInstance": "",
         "InstanceEventReclass": "",
         "InstanceEventReclassStatus": "",
@@ -260,20 +263,26 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       CourseDTOModel courseDTOModel = CourseDTOModel.fromMap(map);
       courseDTOModel.ContentID = MyUtils.getNewId();
       courseDTOModel.ContentTypeId = coCreateContentAuthoringModel.contentTypeId;
-      courseDTOModel.ContentType = switch (coCreateContentAuthoringModel.contentTypeId) {
-        InstancyObjectTypes.article => "Article",
-        InstancyObjectTypes.rolePlay => "Roleplay",
-        InstancyObjectTypes.events => "Event",
-        InstancyObjectTypes.document => "Documents",
-        InstancyObjectTypes.referenceUrl => "Reference Link",
-        InstancyObjectTypes.videos => "Video",
-        InstancyObjectTypes.podcastEpisode => "Podcast Episode",
-        InstancyObjectTypes.quiz => "Quiz",
-        InstancyObjectTypes.flashCard => "Flashcards",
-        InstancyObjectTypes.learningPath => "Learning Path",
-        InstancyObjectTypes.aiAgent => "AI Agent",
-        InstancyObjectTypes.microLearning => "Microlearning",
-        _ => "Test",
+      courseDTOModel.ContentType = switch ("${coCreateContentAuthoringModel.contentTypeId}_${coCreateContentAuthoringModel.mediaTypeId}") {
+        "${InstancyObjectTypes.webPage}_${InstancyMediaTypes.none}" => "Article",
+        "${InstancyObjectTypes.rolePlay}_${InstancyMediaTypes.none}" => "Roleplay",
+        "${InstancyObjectTypes.events}_${InstancyMediaTypes.none}" => "Event",
+        "${InstancyObjectTypes.document}_${InstancyMediaTypes.word}" => "Documents",
+        "${InstancyObjectTypes.document}_${InstancyMediaTypes.pDF}" => "Documents",
+        "${InstancyObjectTypes.document}_${InstancyMediaTypes.excel}" => "Documents",
+        "${InstancyObjectTypes.document}_${InstancyMediaTypes.ppt}" => "Documents",
+        "${InstancyObjectTypes.document}_${InstancyMediaTypes.mpp}" => "Documents",
+        "${InstancyObjectTypes.document}_${InstancyMediaTypes.visioTypes}" => "Documents",
+        "${InstancyObjectTypes.document}_${InstancyMediaTypes.csv}" => "Documents",
+        "${InstancyObjectTypes.reference}_${InstancyMediaTypes.url}" => "Reference Link",
+        "${InstancyObjectTypes.mediaResource}_${InstancyMediaTypes.video}" => "Video",
+        "${InstancyObjectTypes.mediaResource}_${InstancyMediaTypes.audio}" => "Podcast Episode",
+        "${InstancyObjectTypes.assessment}_${InstancyMediaTypes.test}" => "Quiz",
+        "${InstancyObjectTypes.flashCard}_${InstancyMediaTypes.none}" => "Flashcards",
+        "${InstancyObjectTypes.track}_${InstancyMediaTypes.none}" => "Learning Path",
+        "${InstancyObjectTypes.courseBot}_${InstancyMediaTypes.none}" => "AI Agent",
+        "${InstancyObjectTypes.contentObject}_${InstancyMediaTypes.microLearning}" => "Microlearning",
+        _ => "",
       };
 
       courseDTOModel.AuthorName = "Richard Parker";
@@ -296,8 +305,8 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     String? thumbnailImageUrl;
     List<String>? skills;
 
-    switch (coCreateContentAuthoringModel.contentTypeId) {
-      case InstancyObjectTypes.article:
+    switch ("${coCreateContentAuthoringModel.contentTypeId}_${coCreateContentAuthoringModel.mediaTypeId}") {
+      case "${InstancyObjectTypes.webPage}_${InstancyMediaTypes.none}":
         {
           title = "Biotechnology and Genetic Engineering using AI: A Review";
           description =
@@ -308,7 +317,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
           break;
         }
-      case InstancyObjectTypes.rolePlay:
+      case "${InstancyObjectTypes.rolePlay}_${InstancyMediaTypes.none}":
         {
           title = "Customer Query Resolution";
           description =
@@ -319,7 +328,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
           break;
         }
-      case InstancyObjectTypes.events:
+      case "${InstancyObjectTypes.events}_${InstancyMediaTypes.none}":
         {
           title = "Certification in Economic Growth and Development";
           description =
@@ -329,7 +338,13 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
           break;
         }
-      case InstancyObjectTypes.document:
+      case "${InstancyObjectTypes.document}_${InstancyMediaTypes.word}":
+      case "${InstancyObjectTypes.document}_${InstancyMediaTypes.pDF}":
+      case "${InstancyObjectTypes.document}_${InstancyMediaTypes.excel}":
+      case "${InstancyObjectTypes.document}_${InstancyMediaTypes.ppt}":
+      case "${InstancyObjectTypes.document}_${InstancyMediaTypes.mpp}":
+      case "${InstancyObjectTypes.document}_${InstancyMediaTypes.visioTypes}":
+      case "${InstancyObjectTypes.document}_${InstancyMediaTypes.csv}":
         {
           title = "Identifying and Addressing Ergonomic Hazards Workbook";
           description =
@@ -340,7 +355,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
           break;
         }
-      case InstancyObjectTypes.referenceUrl:
+      case "${InstancyObjectTypes.reference}_${InstancyMediaTypes.url}":
         {
           title = "An Introduction to Generative AI and its Transformative Potential for Enterprises";
           description =
@@ -351,11 +366,11 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
           break;
         }
-      case InstancyObjectTypes.videos:
+      case "${InstancyObjectTypes.mediaResource}_${InstancyMediaTypes.video}":
         {
           break;
         }
-      case InstancyObjectTypes.podcastEpisode:
+      case "${InstancyObjectTypes.mediaResource}_${InstancyMediaTypes.audio}":
         {
           title = "Refining Communication";
           description =
@@ -366,7 +381,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
           break;
         }
-      case InstancyObjectTypes.quiz:
+      case "${InstancyObjectTypes.assessment}_${InstancyMediaTypes.test}":
         {
           title = "Office Ergonomics";
           description =
@@ -377,7 +392,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
           break;
         }
-      case InstancyObjectTypes.flashCard:
+      case "${InstancyObjectTypes.flashCard}_${InstancyMediaTypes.none}":
         {
           title = "Unveiling the Neurons of AI";
           description =
@@ -389,7 +404,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           break;
         }
 
-      case InstancyObjectTypes.learningPath:
+      case "${InstancyObjectTypes.track}_${InstancyMediaTypes.none}":
         {
           title = "Artificial Intelligence: Transforming the Modern World";
           description =
@@ -400,7 +415,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
           break;
         }
-      case InstancyObjectTypes.microLearning:
+      case "${InstancyObjectTypes.contentObject}_${InstancyMediaTypes.microLearning}":
         {
           title = "Technology in Sustainable Urban Planning";
           description =
@@ -437,35 +452,87 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     }
   }
 
-  String setAppBarTitle(int objectTypeId) {
-    bool isEdit = widget.argument.courseDtoModel != null ? true : false;
-    if (objectTypeId == InstancyObjectTypes.flashCard) {
-      return isEdit ? "Edit Flashcard" : "Create Flashcard";
-    } else if (objectTypeId == InstancyObjectTypes.rolePlay) {
-      return isEdit ? "Edit Roleplay" : "Create Roleplay";
-    } else if (objectTypeId == InstancyObjectTypes.podcastEpisode) {
-      return isEdit ? "Edit PodCast Episode" : "Create Podcast Episode";
-    } else if (objectTypeId == InstancyObjectTypes.referenceUrl) {
-      return isEdit ? "Edit Reference Url" : "Create Reference Url";
-    } else if (objectTypeId == InstancyObjectTypes.document) {
-      return isEdit ? "Edit Document" : "Create Document";
-    } else if (objectTypeId == InstancyObjectTypes.videos) {
-      return isEdit ? "Edit Video" : "Create Video";
-    } else if (objectTypeId == InstancyObjectTypes.quiz) {
-      return isEdit ? "Edit Quiz" : "Create Quiz";
-    } else if (objectTypeId == InstancyObjectTypes.article) {
-      return isEdit ? "Edit Article" : "Create Article";
-    } else if (objectTypeId == InstancyObjectTypes.events) {
-      return isEdit ? "Edit Event" : "Create Event";
-    } else if (objectTypeId == InstancyObjectTypes.learningPath) {
-      return isEdit ? "Edit Learning Path" : "Create Learning Path";
-    } else if (objectTypeId == InstancyObjectTypes.aiAgent) {
-      return isEdit ? "Edit AI Agent" : "Create AI Agent";
-    } else if (objectTypeId == InstancyObjectTypes.microLearning) {
-      return isEdit ? "Edit Microlearning" : "Create Microlearning";
-    } else {
-      return "";
+  void setAppBarTitle({required int objectTypeId, required int mediaTypeId}) {
+    bool isEdit = [CoCreateAuthoringType.Edit, CoCreateAuthoringType.EditMetadata].contains(coCreateContentAuthoringModel.coCreateAuthoringType);
+
+    String value = "${coCreateContentAuthoringModel.contentTypeId}_${coCreateContentAuthoringModel.mediaTypeId}";
+    MyPrint.printOnConsole("value:$value");
+
+    switch (value) {
+      case "${InstancyObjectTypes.webPage}_${InstancyMediaTypes.none}":
+        {
+          AppBarTitle = isEdit ? "Edit Article" : "Create Article";
+          break;
+        }
+      case "${InstancyObjectTypes.rolePlay}_${InstancyMediaTypes.none}":
+        {
+          AppBarTitle = isEdit ? "Edit Roleplay" : "Create Roleplay";
+          break;
+        }
+      case "${InstancyObjectTypes.events}_${InstancyMediaTypes.none}":
+        {
+          AppBarTitle = isEdit ? "Edit Event" : "Create Event";
+          break;
+        }
+      case "${InstancyObjectTypes.document}_${InstancyMediaTypes.word}":
+      case "${InstancyObjectTypes.document}_${InstancyMediaTypes.pDF}":
+      case "${InstancyObjectTypes.document}_${InstancyMediaTypes.excel}":
+      case "${InstancyObjectTypes.document}_${InstancyMediaTypes.ppt}":
+      case "${InstancyObjectTypes.document}_${InstancyMediaTypes.mpp}":
+      case "${InstancyObjectTypes.document}_${InstancyMediaTypes.visioTypes}":
+      case "${InstancyObjectTypes.document}_${InstancyMediaTypes.csv}":
+        {
+          AppBarTitle = isEdit ? "Edit Document" : "Create Document";
+          break;
+        }
+      case "${InstancyObjectTypes.reference}_${InstancyMediaTypes.url}":
+        {
+          AppBarTitle = isEdit ? "Edit Reference Url" : "Create Reference Url";
+          break;
+        }
+      case "${InstancyObjectTypes.mediaResource}_${InstancyMediaTypes.video}":
+        {
+          AppBarTitle = isEdit ? "Edit Video" : "Create Video";
+          break;
+        }
+      case "${InstancyObjectTypes.mediaResource}_${InstancyMediaTypes.audio}":
+        {
+          AppBarTitle = isEdit ? "Edit PodCast Episode" : "Create Podcast Episode";
+          break;
+        }
+      case "${InstancyObjectTypes.assessment}_${InstancyMediaTypes.test}":
+        {
+          AppBarTitle = isEdit ? "Edit Quiz" : "Create Quiz";
+          break;
+        }
+      case "${InstancyObjectTypes.flashCard}_${InstancyMediaTypes.none}":
+        {
+          AppBarTitle = isEdit ? "Edit Flashcard" : "Create Flashcard";
+          break;
+        }
+
+      case "${InstancyObjectTypes.track}_${InstancyMediaTypes.none}":
+        {
+          AppBarTitle = isEdit ? "Edit Learning Path" : "Create Learning Path";
+          break;
+        }
+      case "${InstancyObjectTypes.courseBot}_${InstancyMediaTypes.none}":
+        {
+          AppBarTitle = isEdit ? "Edit AI Agent" : "Create AI Agent";
+          break;
+        }
+      case "${InstancyObjectTypes.contentObject}_${InstancyMediaTypes.microLearning}":
+        {
+          AppBarTitle = isEdit ? "Edit Microlearning" : "Create Microlearning";
+          break;
+        }
+      default:
+        {
+          break;
+        }
     }
+
+    MyPrint.printOnConsole("AppBarTitle:$AppBarTitle");
   }
 
   Future<void> thumbnailDialog() async {
@@ -484,14 +551,14 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         FileType.image,
         false,
       );
-      setState(() {});
-      return;
-    }
-
-    if (val is Uint8List) {
+      mySetState();
+    } else if (val is Uint8List) {
       thumbNailBytes = val;
+      thumbNailName = "${DateTime.now().millisecondsSinceEpoch}.jpeg";
       mySetState();
     }
+
+    MyPrint.printOnConsole("Final thumbNailName:'$thumbNailName'");
   }
 
   bool validateFormData() {
@@ -508,7 +575,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     return true;
   }
 
-  Future<void> onNextTap(int objectTypeId) async {
+  Future<void> onNextTap({required int objectTypeId, required int mediaTypeId}) async {
     if (!validateFormData()) {
       return;
     }
@@ -535,7 +602,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       if (value == true) {
         isCreated = true;
       }
-    } else if (objectTypeId == InstancyObjectTypes.podcastEpisode) {
+    } else if (objectTypeId == InstancyObjectTypes.mediaResource && mediaTypeId == InstancyMediaTypes.audio) {
       dynamic value = await NavigationController.navigateToCreatePodcastSourceSelectionScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -561,7 +628,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       if (value == true) {
         isCreated = true;
       }
-    } else if (objectTypeId == InstancyObjectTypes.videos) {
+    } else if (objectTypeId == InstancyObjectTypes.mediaResource && mediaTypeId == InstancyMediaTypes.video) {
       dynamic value = await NavigationController.navigateToAddEditVideoScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -575,7 +642,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       if (value == true) {
         isCreated = true;
       }
-    } else if (objectTypeId == InstancyObjectTypes.quiz) {
+    } else if (objectTypeId == InstancyObjectTypes.assessment && mediaTypeId == InstancyMediaTypes.test) {
       /*QuizContentModel quizContentModel = QuizContentModel();
       quizContentModel.questionCount = 3;
       quizContentModel.difficultyLevel = "Hard";
@@ -596,7 +663,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       if (value == true) {
         isCreated = true;
       }
-    } else if (objectTypeId == InstancyObjectTypes.article) {
+    } else if (objectTypeId == InstancyObjectTypes.webPage) {
       dynamic value = await NavigationController.navigateToAddEditArticleScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -639,7 +706,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       if (value == true) {
         isCreated = true;
       }
-    } else if (objectTypeId == InstancyObjectTypes.learningPath) {
+    } else if (objectTypeId == InstancyObjectTypes.track) {
       dynamic value = await NavigationController.navigateToAddEditLearningPathScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -653,7 +720,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       if (value == true) {
         isCreated = true;
       }
-    } else if (objectTypeId == InstancyObjectTypes.microLearning) {
+    } else if (objectTypeId == InstancyObjectTypes.contentObject && mediaTypeId == InstancyMediaTypes.microLearning) {
       dynamic value = await NavigationController.navigateToAddEditMicroLearningScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
@@ -694,6 +761,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     coCreateContentAuthoringModel.title = titleController.text.trim();
     coCreateContentAuthoringModel.description = descriptionController.text.trim();
     coCreateContentAuthoringModel.skills = selectedCategoriesList.map((e) => e.name).toList();
+    coCreateContentAuthoringModel.ThumbnailImageName = thumbNailName;
     coCreateContentAuthoringModel.thumbNailImageBytes = thumbNailBytes;
     coCreateContentAuthoringModel.ThumbnailImagePath = thumbnailImagePath;
 
@@ -746,7 +814,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       return;
     }
 
-    if (courseDTOModel.ContentTypeId == InstancyObjectTypes.referenceUrl) {
+    if (courseDTOModel.ContentTypeId == InstancyObjectTypes.reference && courseDTOModel.MediaTypeID == InstancyMediaTypes.url) {
       await NavigationController.navigateToWebViewScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         arguments: WebViewScreenNavigationArguments(
@@ -810,6 +878,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
       child: PopScope(
@@ -821,7 +890,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
             child: Scaffold(
               resizeToAvoidBottomInset: true,
               appBar: AppConfigurations().commonAppBar(
-                title: setAppBarTitle(widget.argument.objectTypeId),
+                title: AppBarTitle,
               ),
               bottomNavigationBar: Padding(
                 padding: const EdgeInsets.all(10.0),
@@ -877,7 +946,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         fontColor: themeData.colorScheme.onPrimary,
       );
     } else if (coCreateContentAuthoringModel.coCreateAuthoringType == CoCreateAuthoringType.Create) {
-      if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.referenceUrl) {
+      if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.reference && coCreateContentAuthoringModel.mediaTypeId == InstancyMediaTypes.url) {
         return Padding(
           padding: const EdgeInsets.all(20.0),
           child: CommonSaveExitButtonRow(
@@ -889,7 +958,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       return CommonButton(
         minWidth: double.infinity,
         onPressed: () {
-          onNextTap(widget.argument.objectTypeId);
+          onNextTap(objectTypeId: widget.argument.objectTypeId, mediaTypeId: widget.argument.mediaTypeId);
         },
         text: "Next",
         fontColor: themeData.colorScheme.onPrimary,

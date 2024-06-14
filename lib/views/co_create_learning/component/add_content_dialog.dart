@@ -102,6 +102,12 @@ class KnowledgeTypeModel {
   final String name;
   final String iconUrl;
   final int objectTypeId;
+  final int mediaTypeId;
 
-  KnowledgeTypeModel({this.name = "", this.iconUrl = "", this.objectTypeId = 0});
+  KnowledgeTypeModel({
+    this.name = "",
+    this.iconUrl = "",
+    this.objectTypeId = 0,
+    this.mediaTypeId = 0,
+  });
 }

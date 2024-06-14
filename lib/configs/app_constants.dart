@@ -282,17 +282,9 @@ class InstancyObjectTypes {
   static const int arModule = 695;
   static const int vrModule = 696;
   static const int courseBot = 697;
-  static const int flashCard = 698;
   static const int rolePlay = 699;
-  static const int podcastEpisode = 700;
-  static const int referenceUrl = 701;
-  static const int article = 702;
-  static const int videos = 703;
-  static const int quiz = 704;
+  static const int flashCard = 700;
   static const int learningMaps = 705;
-  static const int aiAgent = 706;
-  static const int learningPath = 707;
-  static const int microLearning = 708;
 }
 
 class InstancyMediaTypes {
@@ -1031,4 +1023,14 @@ class MicroLearningElementType {
   static const String Video = "Video";
   static const String Audio = "Audio";
   static const String Quiz = "Quiz";
+}
+
+class CreateNewContentItemActionType {
+  static const String create = "create";
+  static const String update = "update";
+}
+
+class CreateNewContentItemCategoryType {
+  static const String cat = "cat";
+  static const String skl = "skl";
 }

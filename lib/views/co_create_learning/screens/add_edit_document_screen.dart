@@ -368,6 +368,7 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
     coCreateContentAuthoringModel.title = titleController.text.trim();
     coCreateContentAuthoringModel.description = descriptionController.text.trim();
     coCreateContentAuthoringModel.skills = selectedCategoriesList.map((e) => e.name).toList();
+    coCreateContentAuthoringModel.ThumbnailImageName = thumbNailName;
     coCreateContentAuthoringModel.thumbNailImageBytes = thumbNailBytes;
 
     String? contentId = await coCreateKnowledgeController.addEditContentItem(coCreateContentAuthoringModel: coCreateContentAuthoringModel);

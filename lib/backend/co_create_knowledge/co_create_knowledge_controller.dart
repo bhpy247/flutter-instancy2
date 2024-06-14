@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter_chat_bot/utils/my_print.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app/dependency_injection.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
@@ -32,6 +31,7 @@ import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_profile_details_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
@@ -101,17 +101,8 @@ class CoCreateKnowledgeController {
     List<String> base64EncodedImages = dataResponseModel.data!;
 
     for (String base64ImageString in base64EncodedImages) {
-      try {
-        UriData? data = Uri.tryParse(base64ImageString)?.data;
-
-        if (data?.isBase64 == true) {
-          Uint8List bytes = data!.contentAsBytes();
-          if (bytes.isNotEmpty) images.add(bytes);
-        }
-      } catch (e, s) {
-        MyPrint.printOnConsole("Error in Decoding Base64:$e", tag: tag);
-        MyPrint.printOnConsole(s, tag: tag);
-      }
+      Uint8List? bytes = MyUtils.convertBase64ToBytes(base64ImageString);
+      if (bytes.checkNotEmpty) images.add(bytes!);
     }
 
     MyPrint.printOnConsole("Final images length:${images.length}", tag: tag);
@@ -140,7 +131,7 @@ class CoCreateKnowledgeController {
     requestModel.UserID = apiUrlConfigurationProvider.getCurrentUserId();
     requestModel.SiteID = apiUrlConfigurationProvider.getCurrentSiteId();
     requestModel.FolderID = appSystemConfigurationModel.CoCreateKnowledgeDefaultFolderID;
-    requestModel.CMSGroupID = appSystemConfigurationModel.CoCreateKnowledgeDefaultFolderID;
+    requestModel.CMSGroupID = appSystemConfigurationModel.CoCreateKnowledgeDefaultCMSGroupID;
     requestModel.Language = apiUrlConfigurationProvider.getLocale();
 
     DataResponseModel<String> dataResponseModel = await repository.CreateNewContentItem(requestModel: requestModel);
@@ -193,16 +184,23 @@ class CoCreateKnowledgeController {
     CreateNewContentItemFormDataModel createNewContentItemFormDataModel = CreateNewContentItemFormDataModel(
       Name: coCreateContentAuthoringModel.title,
       ShortDescription: coCreateContentAuthoringModel.description,
-      ThumbnailImagePath: coCreateContentAuthoringModel.ThumbnailImagePath,
+      // ThumbnailImagePath: coCreateContentAuthoringModel.ThumbnailImagePath,
       MediaTypeID: coCreateContentAuthoringModel.mediaTypeId.toString(),
       Language: repository.apiController.apiDataProvider.getLocale(),
-      Bit3: coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.referenceUrl,
+      Bit3: coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.reference && coCreateContentAuthoringModel.mediaTypeId == InstancyMediaTypes.url,
       StartPage: coCreateContentAuthoringModel.referenceUrl ?? "",
     );
 
     CreateNewContentItemRequestModel requestModel = CreateNewContentItemRequestModel(
       formData: createNewContentItemFormDataModel,
       ObjectTypeID: coCreateContentAuthoringModel.contentTypeId,
+      MediaTypeID: coCreateContentAuthoringModel.mediaTypeId,
+      ThumbnailImage: coCreateContentAuthoringModel.thumbNailImageBytes,
+      ThumbnailImageName: coCreateContentAuthoringModel.ThumbnailImageName,
+      ActionType: coCreateContentAuthoringModel.isEdit ? CreateNewContentItemActionType.update : CreateNewContentItemActionType.create,
+      Categories: coCreateContentAuthoringModel.skills,
+      CategoryType: CreateNewContentItemCategoryType.skl,
+      ContentID: coCreateContentAuthoringModel.contentId,
     );
 
     if (coCreateContentAuthoringModel.flashcardContentModel != null) {
@@ -230,6 +228,8 @@ class CoCreateKnowledgeController {
       requestModel.additionalData = videoContentModel.toString();
     }
 
+    // if(requestModel.additionalData.isNotEmpty) requestModel.additionalData = MyUtils.encodeJson(requestModel.additionalData);
+
     return requestModel;
   }
 
@@ -248,10 +248,13 @@ class CoCreateKnowledgeController {
     courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
     courseDTOModel.ContentType = coCreateContentAuthoringModel.contentType;
     courseDTOModel.ThumbnailImagePath = coCreateContentAuthoringModel.ThumbnailImagePath;
+    courseDTOModel.ThumbnailImageName = coCreateContentAuthoringModel.ThumbnailImageName;
     courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
     courseDTOModel.Skills = coCreateContentAuthoringModel.skills;
+    courseDTOModel.ContentTypeId = coCreateContentAuthoringModel.contentTypeId;
+    courseDTOModel.MediaTypeID = coCreateContentAuthoringModel.mediaTypeId;
 
-    if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.referenceUrl) {
+    if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.reference && coCreateContentAuthoringModel.mediaTypeId == InstancyMediaTypes.url) {
       courseDTOModel.ViewLink = coCreateContentAuthoringModel.referenceUrl ?? "";
     } else if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.document) {
       courseDTOModel.uploadedDocumentBytes = coCreateContentAuthoringModel.uploadedDocumentBytes;
@@ -305,10 +308,11 @@ class CoCreateKnowledgeController {
     coCreateContentAuthoringModel.description = courseDTOModel.ShortDescription;
     coCreateContentAuthoringModel.contentType = courseDTOModel.ContentType;
     coCreateContentAuthoringModel.ThumbnailImagePath = courseDTOModel.ThumbnailImagePath;
+    coCreateContentAuthoringModel.ThumbnailImageName = courseDTOModel.ThumbnailImageName;
     coCreateContentAuthoringModel.thumbNailImageBytes = courseDTOModel.thumbNailFileBytes;
     coCreateContentAuthoringModel.skills = courseDTOModel.Skills;
 
-    if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.referenceUrl) {
+    if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.reference && coCreateContentAuthoringModel.mediaTypeId == InstancyMediaTypes.url) {
       coCreateContentAuthoringModel.referenceUrl = courseDTOModel.ViewLink;
     } else if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.document) {
       coCreateContentAuthoringModel.uploadedDocumentBytes = courseDTOModel.uploadedDocumentBytes;
