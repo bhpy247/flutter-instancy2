@@ -448,7 +448,7 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
     //   assetImagePath: "assets/cocreate/Card.png",
     // ),
   ];
-  late Future future;
+  Future? future;
 
   void initializeData() {
     coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
@@ -457,15 +457,16 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
 
     FlashcardContentModel? flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel;
-    if (flashcardContentModel != null) {
-      if (flashcardContentModel.flashcards.isNotEmpty) {
-        questionList = flashcardContentModel.flashcards.toList();
-      }
+    if (flashcardContentModel == null || flashcardContentModel.flashcards.isEmpty) {
+      future = getData();
+    } else {
+      questionList = flashcardContentModel.flashcards.toList();
 
       if (questionList.length > flashcardContentModel.cardCount) {
         questionList = questionList.sublist(0, flashcardContentModel.cardCount);
       }
     }
+
     mySetState();
   }
 
@@ -683,7 +684,6 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
     super.initState();
     pageController = PageController();
     initializeData();
-    future = getData();
   }
 
   @override
@@ -699,15 +699,17 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
           appBar: getAppBar(),
           body: AppUIComponents.getBackGroundBordersRounded(
             context: context,
-            child: FutureBuilder(
-              future: future,
+            child: future != null
+                ? FutureBuilder(
+                    future: future,
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   return getMainBody();
                 }
                 return const CommonLoader();
               },
-            ),
+                  )
+                : getMainBody(),
           ),
         ),
       ),
@@ -842,8 +844,8 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
               alignment: Alignment.topCenter,
               controller: model.controller,
               flipOnTouch: true,
-              front: getCommonFrontAndBackWidget(text: model.flashcard_back, onTap: () => model.controller.flip()),
-              back: getCommonFrontAndBackWidget(text: model.flashcard_front, onTap: () => model.controller.flip()),
+              front: getCommonFrontAndBackWidget(text: model.flashcard_front, onTap: () => model.controller.flip()),
+              back: getCommonFrontAndBackWidget(text: model.flashcard_back, onTap: () => model.controller.flip()),
             ),
           ),
         ],
@@ -958,14 +960,14 @@ class _EditFlashCardScreenState extends State<EditFlashCardScreen> with MySafeSt
       backgroundColor: themeData.colorScheme.onPrimary,
       appBar: getAppBar(),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
-        child: CommonSaveExitButtonRow(
-          onSaveAndExitPressed: () {
+        padding: const EdgeInsets.all(10.0),
+        child: CommonButton(
+          minWidth: double.infinity,
+          onPressed: () {
             onSaveTap();
           },
-          onSaveAndViewPressed: () {
-            onSaveTap();
-          },
+          text: "Edit",
+          fontColor: themeData.colorScheme.onPrimary,
         ),
       ),
       body: AppUIComponents.getBackGroundBordersRounded(

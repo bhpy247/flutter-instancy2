@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/classroom_events/data_model/EventRecordingDetailsModel.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/article/data_model/article_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/event/data_model/event_model.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_mod
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/data_model/podcast_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/roleplay/data_models/roleplay_content_model.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
@@ -193,6 +195,7 @@ class CourseDTOModel {
   String SourceType = "";
   String Institution = "";
   String TrainingTime = "";
+  String contentJSONData = "";
   int WaitListLimit = 0;
   int WaitListEnrolls = 0;
   int FilterId = 0;
@@ -214,6 +217,7 @@ class CourseDTOModel {
   int AttemptsLeft = 0;
   int Required = 0;
   int TypeofEvent = 0;
+  int FolderId = 0;
   double PercentCompleted = 0;
   double percentagecompleted = 0;
   double RatingID = 0;
@@ -431,6 +435,7 @@ class CourseDTOModel {
     this.SourceType = "",
     this.Institution = "",
     this.TrainingTime = "",
+    this.contentJSONData = "",
     this.WaitListLimit = 0,
     this.WaitListEnrolls = 0,
     this.FilterId = 0,
@@ -455,6 +460,7 @@ class CourseDTOModel {
     this.AttemptsLeft = 0,
     this.Required = 0,
     this.TypeofEvent = 0,
+    this.FolderId = 0,
     this.ShowMembershipExpiryAlert = false,
     this.bit5 = false,
     this.OpenNewBrowserWindow = false,
@@ -492,6 +498,75 @@ class CourseDTOModel {
     List<String>? Skills,
   }) {
     this.Skills = Skills ?? <String>[];
+  }
+
+  CourseDTOModel.fromCoCreateModelMap(Map<String, dynamic> map) {
+    ContentID = ParsingHelper.parseStringMethod(map["contentID"]);
+    FolderPath = ParsingHelper.parseStringMethod(map["folderPath"]);
+    ThumbnailImagePath = ParsingHelper.parseStringMethod(map["thumbnailImagePath"]);
+    ContentType = ParsingHelper.parseStringMethod(map["ContentType"]);
+    Title = ParsingHelper.parseStringMethod(map["name"]);
+    ContentName = Title;
+    TitleName = Title;
+    ShortDescription = ParsingHelper.parseStringMethod(map["shortDescription"]);
+    LongDescription = ParsingHelper.parseStringMethod(map["longDescription"]);
+    LearningObjectives = ParsingHelper.parseStringMethod(map["learningObjectives"]);
+    TableofContent = ParsingHelper.parseStringMethod(map["tableofContent"]);
+    AuthorDisplayName = ParsingHelper.parseStringMethod(map["displayName"]);
+    startpage = ParsingHelper.parseStringMethod(map["startPage"]);
+    contentJSONData = ParsingHelper.parseStringMethod(map["contentJSONData"]);
+    ContentTypeId = ParsingHelper.parseIntMethod(map["objectTypeID"]);
+    MediaTypeID = ParsingHelper.parseIntMethod(map["mediaTypeID"]);
+    TotalRatings = ParsingHelper.parseIntMethod(map["TotalRatings"]);
+    FolderId = ParsingHelper.parseIntMethod(map["folderID"]);
+    SiteUserID = ParsingHelper.parseIntMethod(map["createdUserID"]);
+
+    MyPrint.printOnConsole("FolderPath:'$FolderPath'");
+
+    dynamic decodedValue;
+
+    MyPrint.printOnConsole("contentJSONData:'$contentJSONData'");
+    if (contentJSONData.isNotEmpty) {
+      int count = 1;
+      dynamic decodedValue1 = contentJSONData;
+
+      while (decodedValue1 is! Map) {
+        decodedValue1 = MyUtils.decodeJson(decodedValue1);
+        MyPrint.printOnConsole("decodedValue $count:$decodedValue1");
+        MyPrint.printOnConsole("decodedValue $count type:${decodedValue1.runtimeType}");
+        count++;
+      }
+
+      decodedValue = decodedValue1;
+    }
+    MyPrint.printOnConsole("Final decodedValue:$decodedValue");
+    MyPrint.printOnConsole("decodedValue1 type:${decodedValue.runtimeType}");
+
+    Map<String, dynamic> contentJSONDataMap = ParsingHelper.parseMapMethod(decodedValue);
+    MyPrint.printOnConsole("contentJSONDataMap length:${contentJSONDataMap.length}");
+    if (contentJSONDataMap.isNotEmpty) {
+      if (ContentTypeId == InstancyObjectTypes.flashCard) {
+        MyPrint.printOnConsole("Initializing flashcardContentModel");
+        flashcardContentModel = FlashcardContentModel.fromMap(contentJSONDataMap);
+        MyPrint.printOnConsole("flashcardContentModel:$flashcardContentModel");
+      } else if (ContentTypeId == InstancyObjectTypes.assessment && MediaTypeID == InstancyMediaTypes.test) {
+        quizContentModel = QuizContentModel.fromMap(contentJSONDataMap);
+      } else if (ContentTypeId == InstancyObjectTypes.webPage) {
+        articleContentModel = ArticleContentModel.fromMap(contentJSONDataMap);
+      } else if (ContentTypeId == InstancyObjectTypes.mediaResource && MediaTypeID == InstancyMediaTypes.audio) {
+        podcastContentModel = PodcastContentModel.fromMap(contentJSONDataMap);
+      } else if (ContentTypeId == InstancyObjectTypes.events && MediaTypeID == InstancyMediaTypes.none) {
+        eventModel = EventModel.fromMap(contentJSONDataMap);
+      } else if (ContentTypeId == InstancyObjectTypes.contentObject && MediaTypeID == InstancyMediaTypes.microLearning) {
+        microLearningContentModel = MicroLearningContentModel.fromMap(contentJSONDataMap);
+      } else if (ContentTypeId == InstancyObjectTypes.rolePlay) {
+        roleplayContentModel = RoleplayContentModel.fromMap(contentJSONDataMap);
+      } else if (ContentTypeId == InstancyObjectTypes.track) {
+        // learningPathContentModel = LearningPathContentModel.fromMap(contentJSONDataMap);
+      } else if (ContentTypeId == InstancyObjectTypes.mediaResource && MediaTypeID == InstancyMediaTypes.video) {
+        videoContentModel = VideoContentModel.fromMap(contentJSONDataMap);
+      }
+    }
   }
 
   CourseDTOModel.fromMap(Map<String, dynamic> map) {
@@ -714,6 +789,7 @@ class CourseDTOModel {
     AttemptsLeft = ParsingHelper.parseIntMethod(map["AttemptsLeft"]);
     Required = ParsingHelper.parseIntMethod(map["Required"]);
     TypeofEvent = ParsingHelper.parseIntMethod(map["TypeofEvent"]);
+    FolderId = ParsingHelper.parseIntMethod(map["FolderId"]);
     RatingID = ParsingHelper.parseDoubleMethod(map["RatingID"]);
     ShowMembershipExpiryAlert = ParsingHelper.parseBoolMethod(map["ShowMembershipExpiryAlert"]);
     bit5 = ParsingHelper.parseBoolMethod(map["bit5"]);
@@ -925,6 +1001,7 @@ class CourseDTOModel {
       "SourceType": SourceType,
       "Institution": Institution,
       "TrainingTime": TrainingTime,
+      "contentJSONData": contentJSONData,
       "PercentCompleted": PercentCompleted,
       "percentagecompleted": percentagecompleted,
       "WaitListLimit": WaitListLimit,
@@ -947,6 +1024,7 @@ class CourseDTOModel {
       "AttemptsLeft": AttemptsLeft,
       "Required": Required,
       "TypeofEvent": TypeofEvent,
+      "FolderId": FolderId,
       "RatingID": RatingID,
       "ShowMembershipExpiryAlert": ShowMembershipExpiryAlert,
       "bit5": bit5,

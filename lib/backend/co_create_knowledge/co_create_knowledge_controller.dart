@@ -5,19 +5,26 @@ import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app/dependency_injection.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/app_ststem_configurations.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/article/data_model/article_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_formdata_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/generate_images_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/get_co_create_knowledgebase_list_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/native_authoring_get_module_names_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/native_authoring_get_resources_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/save_content_json_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avatar_voice_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avtar_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/native_authoring_get_module_names_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/native_authoring_get_resources_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/event/data_model/event_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/data_model/flashcard_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/request_model/flashcard_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/data_model/podcast_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_question_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/assessment_generate_content_request_model.dart';
@@ -80,8 +87,8 @@ class CoCreateKnowledgeController {
       MyPrint.printOnConsole("Final requestModel", tag: tag);
     }
 
-    // DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeList(requestModel: requestModel);
-    DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeListTemp(requestModel: requestModel);
+    DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeList(requestModel: requestModel);
+    // DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeListTemp(requestModel: requestModel);
 
     if (dataResponseModel.appErrorModel != null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getMyKnowledgeList() because appErrorModel is not null", tag: tag);
@@ -130,8 +137,8 @@ class CoCreateKnowledgeController {
       MyPrint.printOnConsole("Final requestModel", tag: tag);
     }
 
-    // DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeList(requestModel: requestModel);
-    DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeListTemp(requestModel: requestModel);
+    DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeList(requestModel: requestModel);
+    // DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeListTemp(requestModel: requestModel);
 
     if (dataResponseModel.appErrorModel != null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getSharedKnowledgeList() because appErrorModel is not null", tag: tag);
@@ -264,7 +271,7 @@ class CoCreateKnowledgeController {
     if (requestModel.contentId.isEmpty) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().SaveContentJSON() because contentId is empty", tag: tag);
       return false;
-    } else if (requestModel.folderPath.isNotEmpty) {
+    } else if (requestModel.folderPath.isEmpty) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().SaveContentJSON() because folderPath is empty", tag: tag);
       return false;
     }
@@ -345,7 +352,7 @@ class CoCreateKnowledgeController {
       Categories: coCreateContentAuthoringModel.skills,
       CategoryType: CreateNewContentItemCategoryType.skl,
       ContentID: coCreateContentAuthoringModel.contentId,
-      FolderPath: coCreateContentAuthoringModel.isEdit ? (coCreateContentAuthoringModel.courseDTOModel?.FolderPath ?? "") : "",
+      FolderPath: coCreateContentAuthoringModel.courseDTOModel?.FolderPath ?? "",
     );
 
     if (coCreateContentAuthoringModel.flashcardContentModel != null) {
@@ -356,6 +363,14 @@ class CoCreateKnowledgeController {
       QuizContentModel quizContentModel = coCreateContentAuthoringModel.quizContentModel!;
       requestModel.additionalData = quizContentModel.toString();
     }
+    if (coCreateContentAuthoringModel.articleContentModel != null) {
+      ArticleContentModel articleContentModel = coCreateContentAuthoringModel.articleContentModel!;
+      requestModel.additionalData = articleContentModel.toString();
+    }
+    if (coCreateContentAuthoringModel.podcastContentModel != null) {
+      PodcastContentModel podcastContentModel = coCreateContentAuthoringModel.podcastContentModel!;
+      requestModel.additionalData = podcastContentModel.toString();
+    }
     if (coCreateContentAuthoringModel.eventModel != null) {
       EventModel eventModel = coCreateContentAuthoringModel.eventModel!;
       createNewContentItemFormDataModel.EventStartDateTime = "${eventModel.date} ${eventModel.startTime}";
@@ -364,16 +379,24 @@ class CoCreateKnowledgeController {
       createNewContentItemFormDataModel.Location = eventModel.location;
       requestModel.additionalData = eventModel.toString();
     }
+    if (coCreateContentAuthoringModel.microLearningContentModel != null) {
+      MicroLearningContentModel microLearningContentModel = coCreateContentAuthoringModel.microLearningContentModel!;
+      requestModel.additionalData = microLearningContentModel.toString();
+    }
     if (coCreateContentAuthoringModel.roleplayContentModel != null) {
       RoleplayContentModel roleplayContentModel = coCreateContentAuthoringModel.roleplayContentModel!;
       requestModel.additionalData = roleplayContentModel.toString();
+    }
+    if (coCreateContentAuthoringModel.learningPathContentModel != null) {
+      // LearningPathContentModel learningPathContentModel = coCreateContentAuthoringModel.learningPathContentModel!;
+      // requestModel.additionalData = learningPathContentModel.toString();
     }
     if (coCreateContentAuthoringModel.videoContentModel != null) {
       VideoContentModel videoContentModel = coCreateContentAuthoringModel.videoContentModel!;
       requestModel.additionalData = videoContentModel.toString();
     }
 
-    // if(requestModel.additionalData.isNotEmpty) requestModel.additionalData = MyUtils.encodeJson(requestModel.additionalData);
+    if (requestModel.additionalData.isNotEmpty) requestModel.additionalData = MyUtils.encodeJson(requestModel.additionalData);
 
     return requestModel;
   }
@@ -385,6 +408,7 @@ class CoCreateKnowledgeController {
     }
 
     courseDTOModel.ContentID = coCreateContentAuthoringModel.contentId;
+    courseDTOModel.FolderPath = coCreateContentAuthoringModel.contentId;
 
     courseDTOModel.ContentName = coCreateContentAuthoringModel.title;
     courseDTOModel.Title = coCreateContentAuthoringModel.title;
@@ -779,5 +803,64 @@ class CoCreateKnowledgeController {
     }
     // MyPrint.printOnConsole("dataResponseModelOfAiVideoGenerator.data 3 ${dataResponseModelOfAiVideoGenerator.data}", tag: tag);
     return "1";
+  }
+
+  Future<List<String>> getInternetYoutubeSearchUrls({required NativeAuthoringGetResourcesRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getInternetYoutubeSearchUrls() called with requestModel:$requestModel", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = repository.apiController.apiDataProvider;
+
+    requestModel.client_url = apiUrlConfigurationProvider.getCurrentSiteLMSUrl();
+
+    List<String> urls = <String>[];
+
+    DataResponseModel<NativeAuthoringGetResourcesResponseModel> dataResponseModel = await repository.NativeAuthoringGetResources(requestModel: requestModel);
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getInternetYoutubeSearchUrls() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return urls;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getInternetYoutubeSearchUrls() because data is null", tag: tag);
+      return urls;
+    }
+
+    MyPrint.printOnConsole("dataResponseModel.data ${dataResponseModel.data}", tag: tag);
+
+    NativeAuthoringGetResourcesResponseModel responseModel = dataResponseModel.data!;
+
+    urls = responseModel.sources_from_web.map((e) => e.link).toList();
+
+    MyPrint.printOnConsole("Final urls:$urls", tag: tag);
+    return urls;
+  }
+
+  Future<List<String>> getMicroLearningTopicsListing({required NativeAuthoringGetModuleNamesRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getMicroLearningTopicsListing() called with requestModel:$requestModel", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    List<String> topics = <String>[];
+
+    DataResponseModel<NativeAuthoringGetModuleNamesResponseModel> dataResponseModel = await repository.NativeAuthoringGetModuleNames(requestModel: requestModel);
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getMicroLearningTopicsListing() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return topics;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getMicroLearningTopicsListing() because data is null", tag: tag);
+      return topics;
+    }
+
+    MyPrint.printOnConsole("dataResponseModel.data ${dataResponseModel.data}", tag: tag);
+
+    NativeAuthoringGetModuleNamesResponseModel responseModel = dataResponseModel.data!;
+
+    topics = responseModel.learning_modules;
+
+    MyPrint.printOnConsole("Final topics:$topics", tag: tag);
+    return topics;
   }
 }

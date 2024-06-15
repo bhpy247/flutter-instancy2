@@ -6,10 +6,14 @@ import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/generate_images_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/get_co_create_knowledgebase_list_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/native_authoring_get_module_names_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/native_authoring_get_resources_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/save_content_json_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avatar_voice_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avtar_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/native_authoring_get_module_names_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/native_authoring_get_resources_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/request_model/flashcard_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/assessment_generate_content_request_model.dart';
@@ -37,7 +41,8 @@ class CoCreateKnowledgeRepository {
 
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
       restCallType: RestCallType.simpleGetCall,
-      parsingType: ModelDataParsingType.CourseDtoModelList,
+      // parsingType: ModelDataParsingType.CourseDtoModelList,
+      parsingType: ModelDataParsingType.CoCreateToCourseDtoModelList,
       url: apiEndpoints.GetCoCreateKnowledgebaseList(),
       queryParameters: requestModel.toMap(),
     );
@@ -672,6 +677,44 @@ class CoCreateKnowledgeRepository {
     );
 
     DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<NativeAuthoringGetResourcesResponseModel>> NativeAuthoringGetResources({required NativeAuthoringGetResourcesRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.NativeAuthoringGetResourcesResponseModel,
+      url: apiEndpoints.NativeAuthoringGetResources(),
+      requestBody: MyUtils.encodeJson(requestModel.toMap()),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+    );
+
+    DataResponseModel<NativeAuthoringGetResourcesResponseModel> apiResponseModel = await apiController.callApi<NativeAuthoringGetResourcesResponseModel>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<NativeAuthoringGetModuleNamesResponseModel>> NativeAuthoringGetModuleNames({required NativeAuthoringGetModuleNamesRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.NativeAuthoringGetModuleNamesResponseModel,
+      url: apiEndpoints.NativeAuthoringGetModuleNames(),
+      requestBody: MyUtils.encodeJson(requestModel.toMap()),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+    );
+
+    DataResponseModel<NativeAuthoringGetModuleNamesResponseModel> apiResponseModel = await apiController.callApi<NativeAuthoringGetModuleNamesResponseModel>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }

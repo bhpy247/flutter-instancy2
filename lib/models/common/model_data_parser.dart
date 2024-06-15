@@ -14,6 +14,8 @@ import 'package:flutter_instancy_2/models/authentication/response_model/signup_f
 import 'package:flutter_instancy_2/models/catalog/response_model/associated_content_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/user_coming_soon_response.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/native_authoring_get_module_names_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/native_authoring_get_resources_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/assessment_generate_content_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/generate_assessment_response_model.dart';
@@ -334,7 +336,9 @@ enum ModelDataParsingType {
   GenerateAssessmentResponseModelList,
   GetVideoDetailList,
   CourseDtoModelList,
-
+  CoCreateToCourseDtoModelList,
+  NativeAuthoringGetResourcesResponseModel,
+  NativeAuthoringGetModuleNamesResponseModel,
   //enregion
 }
 
@@ -565,6 +569,9 @@ class ModelDataParser {
     ModelDataParsingType.GenerateAssessmentResponseModelList: parseGenerateAssessmentResponseModelList,
     ModelDataParsingType.GetVideoDetailList: parseVideoDetailList,
     ModelDataParsingType.CourseDtoModelList: parseCourseDtoModelList,
+    ModelDataParsingType.CoCreateToCourseDtoModelList: parseCoCreateToCourseDtoModelList,
+    ModelDataParsingType.NativeAuthoringGetResourcesResponseModel: parseNativeAuthoringGetResourcesResponseModel,
+    ModelDataParsingType.NativeAuthoringGetModuleNamesResponseModel: parseNativeAuthoringGetModuleNamesResponseModel,
   };
 
   static T? parseDataFromDecodedValue<T>({required ModelDataParsingType parsingType, dynamic decodedValue}) {
@@ -1659,5 +1666,22 @@ class ModelDataParser {
   static List<CourseDTOModel> parseCourseDtoModelList({required dynamic decodedValue}) {
     List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
     return mapsList.map((e) => CourseDTOModel.fromMap(e)).toList();
+  }
+
+  static List<CourseDTOModel> parseCoCreateToCourseDtoModelList({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+    return mapsList.map((e) => CourseDTOModel.fromCoCreateModelMap(e)).toList();
+  }
+
+  static NativeAuthoringGetResourcesResponseModel parseNativeAuthoringGetResourcesResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    return NativeAuthoringGetResourcesResponseModel.fromMap(json);
+  }
+
+  static NativeAuthoringGetModuleNamesResponseModel parseNativeAuthoringGetModuleNamesResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    return NativeAuthoringGetModuleNamesResponseModel.fromMap(json);
   }
 }

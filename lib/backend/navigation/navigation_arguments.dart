@@ -1253,15 +1253,36 @@ class AddEditMicroLearningScreenNavigationArgument extends NavigationArguments {
   });
 }
 
-class MicroLearningPreviewScreenNavigationArgument extends NavigationArguments {
+class MicroLearningSourceSelectionScreenNavigationArgument extends NavigationArguments {
   final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
-  final CourseDTOModel? courseDtoModel;
-  final int componentId, componentInstanceId;
 
-  const MicroLearningPreviewScreenNavigationArgument({
+  const MicroLearningSourceSelectionScreenNavigationArgument({
     required this.coCreateContentAuthoringModel,
-    this.courseDtoModel,
-    this.componentId = 0,
-    this.componentInstanceId = 0,
+  });
+}
+
+class MicroLearningTopicSelectionScreenNavigationArgument extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
+  const MicroLearningTopicSelectionScreenNavigationArgument({
+    required this.coCreateContentAuthoringModel,
+  });
+}
+
+class MicroLearningEditorScreenNavigationArgument extends NavigationArguments {
+  final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
+  const MicroLearningEditorScreenNavigationArgument({
+    required this.coCreateContentAuthoringModel,
+  });
+}
+
+class MicroLearningViewScreenNavigationArgument extends NavigationArguments {
+  final String contentId;
+  final CourseDTOModel? courseDTOModel;
+
+  const MicroLearningViewScreenNavigationArgument({
+    required this.contentId,
+    required this.courseDTOModel,
   });
 }

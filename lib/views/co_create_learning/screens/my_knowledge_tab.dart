@@ -463,12 +463,12 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         isEdited = true;
       }
     } else if (objectTypeId == InstancyObjectTypes.contentObject && mediaTypeId == InstancyMediaTypes.microLearning) {
-      dynamic value = await NavigationController.navigateToAddEditMicroLearningScreen(
+      dynamic value = await NavigationController.navigateToMicroLearningEditorScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: AddEditMicroLearningScreenNavigationArgument(
+        argument: MicroLearningEditorScreenNavigationArgument(
           coCreateContentAuthoringModel: coCreateContentAuthoringModel,
         ),
       );
@@ -545,6 +545,10 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
             provider: _provider,
             componentId: widget.componentId,
             componentInsId: widget.componentInstanceId,
+            onContentCreated: () {
+              future = getFutureData(isRefresh: true);
+              mySetState();
+            },
           ),
         );
       },
@@ -736,12 +740,14 @@ class PopUpDialog extends StatefulWidget {
   final int componentId;
   final int componentInsId;
   final CoCreateKnowledgeProvider provider;
+  final void Function()? onContentCreated;
 
   const PopUpDialog({
     super.key,
     required this.provider,
     required this.componentId,
     required this.componentInsId,
+    this.onContentCreated,
   });
 
   @override
@@ -858,6 +864,10 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       );
 
       MyPrint.printOnConsole("Value from CommonCreateAuthoringToolScreen:$value");
+
+      if (value == true) {
+        widget.onContentCreated?.call();
+      }
     } else if (objectType == InstancyObjectTypes.document) {
       NavigationController.navigateToAddEditDocumentScreen(
         navigationOperationParameters: NavigationOperationParameters(

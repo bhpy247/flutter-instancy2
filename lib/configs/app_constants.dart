@@ -1034,3 +1034,18 @@ class CreateNewContentItemCategoryType {
   static const String cat = "cat";
   static const String skl = "skl";
 }
+
+class MicroLearningGenerationSourceType {
+  static const String llm = "llm";
+  static const String youtube = "youtube";
+  static const String web = "web";
+  static const String internet = "internet";
+}
+
+class MicroLearningSourceSelectionTypes {
+  static const String LLM = "LLM";
+  static const String Youtube = "Youtube";
+  static const String Website = "Website";
+  static const String InternetSearch = "InternetSearch";
+  static const String YoutubeSearch = "YoutubeSearch";
+}

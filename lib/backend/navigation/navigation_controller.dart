@@ -674,13 +674,27 @@ class NavigationController {
 
       case AddEditMicroLearningScreen.routeName:
         {
-          page = parseAddEditMicrolearningScreen(settings: settings);
+          page = parseAddEditMicroLearningScreen(settings: settings);
           break;
         }
-
-      case MicrolearningPreviewScreen.routeName:
+      case MicroLearningSourceSelectionScreen.routeName:
         {
-          page = parseMicrolearningTitlesScreen(settings: settings);
+          page = parseMicroLearningSourceSelectionScreen(settings: settings);
+          break;
+        }
+      case MicroLearningEditorScreen.routeName:
+        {
+          page = parseMicroLearningEditorScreen(settings: settings);
+          break;
+        }
+      case MicroLearningTopicSelectionScreen.routeName:
+        {
+          page = parseMicroLearningTopicSelectionScreen(settings: settings);
+          break;
+        }
+      case MicroLearningViewScreen.routeName:
+        {
+          page = parseMicroLearningViewScreen(settings: settings);
           break;
         }
     }
@@ -1623,7 +1637,7 @@ class NavigationController {
     return AddEditAiAgentScreen(arguments: argument);
   }
 
-  static Widget? parseAddEditMicrolearningScreen({required RouteSettings settings}) {
+  static Widget? parseAddEditMicroLearningScreen({required RouteSettings settings}) {
     dynamic argument = settings.arguments;
     if (argument is! AddEditMicroLearningScreenNavigationArgument) {
       return null;
@@ -1631,12 +1645,36 @@ class NavigationController {
     return AddEditMicroLearningScreen(arguments: argument);
   }
 
-  static Widget? parseMicrolearningTitlesScreen({required RouteSettings settings}) {
+  static Widget? parseMicroLearningSourceSelectionScreen({required RouteSettings settings}) {
     dynamic argument = settings.arguments;
-    if (argument is! MicroLearningPreviewScreenNavigationArgument) {
+    if (argument is! MicroLearningSourceSelectionScreenNavigationArgument) {
       return null;
     }
-    return MicrolearningPreviewScreen(arguments: argument);
+    return MicroLearningSourceSelectionScreen(arguments: argument);
+  }
+
+  static Widget? parseMicroLearningTopicSelectionScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! MicroLearningTopicSelectionScreenNavigationArgument) {
+      return null;
+    }
+    return MicroLearningTopicSelectionScreen(arguments: argument);
+  }
+
+  static Widget? parseMicroLearningEditorScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! MicroLearningEditorScreenNavigationArgument) {
+      return null;
+    }
+    return MicroLearningEditorScreen(arguments: argument);
+  }
+
+  static Widget? parseMicroLearningViewScreen({required RouteSettings settings}) {
+    dynamic argument = settings.arguments;
+    if (argument is! MicroLearningViewScreenNavigationArgument) {
+      return null;
+    }
+    return MicroLearningViewScreen(arguments: argument);
   }
 
   //endregion
@@ -2624,7 +2662,10 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToAddEditMicroLearningScreen({required NavigationOperationParameters navigationOperationParameters, required AddEditMicroLearningScreenNavigationArgument argument}) {
+  static Future<dynamic> navigateToAddEditMicroLearningScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required AddEditMicroLearningScreenNavigationArgument argument,
+  }) {
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
         routeName: AddEditMicroLearningScreen.routeName,
@@ -2633,10 +2674,49 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToMicrolearningTitlesScreen({required NavigationOperationParameters navigationOperationParameters, required MicroLearningPreviewScreenNavigationArgument argument}) {
+  static Future<dynamic> navigateToMicroLearningSourceSelectionScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required MicroLearningSourceSelectionScreenNavigationArgument argument,
+  }) {
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
-        routeName: MicrolearningPreviewScreen.routeName,
+        routeName: MicroLearningSourceSelectionScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToMicroLearningTopicSelectionScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required MicroLearningTopicSelectionScreenNavigationArgument argument,
+  }) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: MicroLearningTopicSelectionScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToMicroLearningEditorScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required MicroLearningEditorScreenNavigationArgument argument,
+  }) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: MicroLearningEditorScreen.routeName,
+        arguments: argument,
+      ),
+    );
+  }
+
+  static Future<dynamic> navigateToMicroLearningViewScreen({
+    required NavigationOperationParameters navigationOperationParameters,
+    required MicroLearningViewScreenNavigationArgument argument,
+  }) {
+    return NavigationOperation.navigate(
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: MicroLearningViewScreen.routeName,
         arguments: argument,
       ),
     );

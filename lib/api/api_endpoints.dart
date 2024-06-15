@@ -613,5 +613,9 @@ class ApiEndpoints {
   String GetSpeakingStyle(String voiceName) => '${getLmeEditorApiUrl()}ContentGenerator/GetSpeakingStyle/$voiceName';
 
   String PlayAudioForTextSource(String voiceName) => '${getLmeEditorApiUrl()}NativeAuthoring/PlayAudioForTextSource';
+
+  String NativeAuthoringGetResources() => '${getLmeEditorApiUrl()}NativeAuthoring/GetResources';
+
+  String NativeAuthoringGetModuleNames() => '${getLmeEditorApiUrl()}NativeAuthoring/GetModuleNames';
 // endregion
 }
