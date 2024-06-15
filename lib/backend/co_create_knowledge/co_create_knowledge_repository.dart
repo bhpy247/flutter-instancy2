@@ -3,6 +3,7 @@ import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/api/api_endpoints.dart';
 import 'package:flutter_instancy_2/api/rest_client.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/article/response_model/article_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/generate_images_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/get_co_create_knowledgebase_list_request_model.dart';
@@ -16,6 +17,8 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_mo
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/native_authoring_get_resources_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/request_model/flashcard_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/request_model/play_audio_for_text_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/speaking_style_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/assessment_generate_content_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/generate_assessment_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/assessment_generate_content_response_model.dart';
@@ -28,6 +31,10 @@ import 'package:flutter_instancy_2/models/common/model_data_parser.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
+
+import '../../models/co_create_knowledge/article/request_model/generate_whole_article_content_request_model.dart';
+import '../../models/co_create_knowledge/podcast/response_model/language_response_model.dart';
+import '../../models/co_create_knowledge/podcast/response_model/language_voice_model.dart';
 
 class CoCreateKnowledgeRepository {
   final ApiController apiController;
@@ -677,6 +684,98 @@ class CoCreateKnowledgeRepository {
     );
 
     DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<List<LanguageModel>>> getLanguageList() async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.GetLanguageList,
+      url: apiEndpoints.GetSupportedLanguages(),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+    );
+
+    DataResponseModel<List<LanguageModel>> apiResponseModel = await apiController.callApi<List<LanguageModel>>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<List<LanguageVoiceModel>>> getLanguageVoiceList({required String languageCode}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.GetLanguageVoiceList,
+      url: apiEndpoints.GetLanguageVoice(languageCode),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+    );
+
+    DataResponseModel<List<LanguageVoiceModel>> apiResponseModel = await apiController.callApi<List<LanguageVoiceModel>>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<SpeakingStyleModel>> getSpeakingStyleList({required String voiceName}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.SpeakingStyleModel,
+      url: apiEndpoints.GetSpeakingStyle(voiceName),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+    );
+
+    DataResponseModel<SpeakingStyleModel> apiResponseModel = await apiController.callApi<SpeakingStyleModel>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<String>> getAudioGenerator({required PlayAudioForTextRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+        restCallType: RestCallType.simplePostCall,
+        parsingType: ModelDataParsingType.string,
+        url: apiEndpoints.PlayAudioForTextSource(),
+        requestBody: MyUtils.encodeJson(requestModel.toMap()),
+        isAuthenticatedApiCall: false,
+        isInstancyCall: false,
+        isDecodeResponse: false);
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<ArticleResponseModel>> generateWholeArticleContent({required GenerateWholeArticleContentRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.ArticleResponseModel,
+      url: apiEndpoints.GenerateArticleWholeArticleContent(),
+      requestBody: MyUtils.encodeJson(requestModel.toMap()),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+    );
+
+    DataResponseModel<ArticleResponseModel> apiResponseModel = await apiController.callApi<ArticleResponseModel>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }

@@ -23,6 +23,8 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/event/data_model/e
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/data_model/flashcard_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/request_model/flashcard_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/language_voice_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/speaking_style_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/data_model/podcast_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
@@ -45,6 +47,10 @@ import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
 import '../../api/api_controller.dart';
+import '../../models/co_create_knowledge/article/request_model/generate_whole_article_content_request_model.dart';
+import '../../models/co_create_knowledge/article/response_model/article_response_model.dart';
+import '../../models/co_create_knowledge/podcast/request_model/play_audio_for_text_request_model.dart';
+import '../../models/co_create_knowledge/podcast/response_model/language_response_model.dart';
 import 'co_create_knowledge_provider.dart';
 import 'co_create_knowledge_repository.dart';
 
@@ -862,5 +868,173 @@ class CoCreateKnowledgeController {
 
     MyPrint.printOnConsole("Final topics:$topics", tag: tag);
     return topics;
+  }
+
+  Future<bool> getLanguageList() async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getLanguageList() called ", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    DataResponseModel<List<LanguageModel>> dataResponseModel = await repository.getLanguageList();
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getLanguageList() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return false;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getLanguageList() because data is null", tag: tag);
+      return false;
+    }
+
+    if (dataResponseModel.data.checkNotEmpty) {
+      List<LanguageModel> languageList = dataResponseModel.data ?? [];
+      coCreateKnowledgeProvider.languageList.setList(list: languageList);
+      return true;
+    }
+    return true;
+  }
+
+  Future<bool> getLanguageVoiceList(String languageCode) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getLanguageVoiceList() called ", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    DataResponseModel<List<LanguageVoiceModel>> dataResponseModel = await repository.getLanguageVoiceList(languageCode: languageCode);
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getLanguageVoiceList() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return false;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getLanguageVoiceList() because data is null", tag: tag);
+      return false;
+    }
+
+    if (dataResponseModel.data.checkNotEmpty) {
+      List<LanguageVoiceModel> languageList = dataResponseModel.data ?? [];
+      coCreateKnowledgeProvider.languageVoiceList.setList(list: languageList);
+    }
+    return true;
+  }
+
+  Future<bool> getSpeakingStyle(String voiceName) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getSpeakingStyle() called ", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    DataResponseModel<SpeakingStyleModel> dataResponseModel = await repository.getSpeakingStyleList(voiceName: voiceName);
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getSpeakingStyle() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return false;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getSpeakingStyle() because data is null", tag: tag);
+      return false;
+    }
+
+    if (dataResponseModel.data != null) {
+      SpeakingStyleModel? speakingStyleModel = dataResponseModel.data;
+      if (speakingStyleModel != null) {
+        coCreateKnowledgeProvider.speakingStyleModel.set(value: speakingStyleModel);
+      }
+    }
+    return true;
+  }
+
+  Future<bool> getAudioGenerator({required PlayAudioForTextRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getAudioGenerator() called ", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = repository.apiController.apiDataProvider;
+    AppSystemConfigurationModel appSystemConfigurationModel = DependencyInjection.appProvider.appSystemConfigurationModel;
+
+    requestModel.uID = apiUrlConfigurationProvider.getCurrentUserId();
+    requestModel.folderID = appSystemConfigurationModel.CoCreateKnowledgeDefaultFolderID;
+    requestModel.cmsGroupID = appSystemConfigurationModel.CoCreateKnowledgeDefaultCMSGroupID;
+
+    DataResponseModel<String> dataResponseModel = await repository.getAudioGenerator(requestModel: requestModel);
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getAudioGenerator() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return false;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getAudioGenerator() because data is null", tag: tag);
+      return false;
+    }
+
+    MyPrint.printOnConsole("dataResponseModel.data : ${dataResponseModel.data}");
+
+    if (dataResponseModel.data != null) {
+      String? audioUrl = dataResponseModel.data;
+      if (audioUrl != null) {
+        coCreateKnowledgeProvider.audioUrlFromApi.set(value: audioUrl);
+      }
+    }
+    return true;
+  }
+
+  Future<String> generateWholeArticleContent({required GenerateWholeArticleContentRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().generateWholeArticleContent() called ", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    requestModel.clientUrl = repository.apiController.apiEndpoints.adminSiteUrl;
+    try {
+      DataResponseModel<ArticleResponseModel> dataResponseModel = await repository.generateWholeArticleContent(requestModel: requestModel);
+      if (dataResponseModel.appErrorModel != null) {
+        MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateWholeArticleContent() because appErrorModel is not null", tag: tag);
+        MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+        return "";
+      } else if (dataResponseModel.data == null) {
+        MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateWholeArticleContent() because data is null", tag: tag);
+        return "";
+      }
+
+      String articleString = "";
+      if (dataResponseModel.data != null) {
+        List<Article> articleList = dataResponseModel.data?.article ?? [];
+
+        if (articleList.checkNotEmpty) {
+          for (var element in (dataResponseModel.data?.article ?? [])) {
+            articleString += "<h4>${element.title}</h4><p>${element.content}</p><br>";
+          }
+        }
+      }
+      return articleString;
+    } catch (e, s) {
+      MyPrint.printOnConsole("error in this generateWholeArticleContent $e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+      return "";
+    }
+  }
+
+  Future<String> internetSearch({required AssessmentGenerateContentRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().internetSearch() called ", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    try {
+      DataResponseModel<AssessmentGenerateContentResponseModel> dataResponseModel = await repository.assessmentGenerateContent(requestModel: requestModel);
+      if (dataResponseModel.appErrorModel != null) {
+        MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().internetSearch() because appErrorModel is not null", tag: tag);
+        MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+        return "";
+      } else if (dataResponseModel.data == null) {
+        MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().internetSearch() because data is null", tag: tag);
+        return "";
+      }
+
+      String internetSearchString = "";
+      if (dataResponseModel.data != null) {}
+      return internetSearchString;
+    } catch (e, s) {
+      MyPrint.printOnConsole("error in this generateWholeArticleContent $e", tag: tag);
+      MyPrint.printOnConsole(s, tag: tag);
+      return "";
+    }
   }
 }

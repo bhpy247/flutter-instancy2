@@ -1,10 +1,20 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/view/common/components/common_loader.dart';
+import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/data_model/podcast_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/language_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/language_voice_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/speaking_style_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
 import '../../../backend/app_theme/style.dart';
 import '../../../configs/app_configurations.dart';
@@ -74,6 +84,7 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
     PodcastContentModel podcastContentModel = coCreateContentAuthoringModel.podcastContentModel ??= PodcastContentModel();
 
     podcastContentModel.audioTranscript = textEditingController.text.trim();
+    podcastContentModel.promptText = promptEditingController.text.trim();
 
     dynamic value = await NavigationController.navigateToTextToAudioGenerateWithAIScreen(
       navigationOperationParameters: NavigationOperationParameters(
@@ -302,8 +313,20 @@ class TextToAudioGenerateWithAIScreen extends StatefulWidget {
 }
 
 class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWithAIScreen> with MySafeState {
-  double? selectedVoiceSpeed;
-  String? selectedTone, selectedVoice;
+  double selectedVoiceSpeed = 0;
+  String? selectedTone, selectedGender;
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
+  LanguageModel? selectedLanguage;
+  LanguageVoiceModel? selectedVoiceModel;
+  SpeakingStyleModel? speakingStyleModel;
+  bool isLoading = false;
+  TextEditingController languageSearchController = TextEditingController();
+
+  List<LanguageModel> languageList = [];
+  List<LanguageVoiceModel> languageVoiceList = [], filteredVoiceList = [];
+  List<String> toneList = [];
+  late Future? future;
 
   List<AudioModel> genderAudioList = [
     AudioModel(name: "Rose Marriot", gender: "Female", language: "British"),
@@ -317,13 +340,48 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
     AudioModel(name: "John", gender: "Male", language: "British"),
   ];
 
+  Future<void> getData() async {
+    bool isSuccess = await coCreateKnowledgeController.getLanguageList();
+    if (isSuccess) {
+      languageList = coCreateKnowledgeProvider.languageList.getList();
+    }
+  }
+
+  Future<void> getLanguageVoiceList() async {
+    if (selectedLanguage == null) return;
+    isLoading = true;
+    mySetState();
+    bool isSuccess = await coCreateKnowledgeController.getLanguageVoiceList(selectedLanguage!.languageCode);
+    if (isSuccess) {
+      languageVoiceList = coCreateKnowledgeProvider.languageVoiceList.getList();
+    }
+
+    isLoading = false;
+    mySetState();
+  }
+
+  Future<void> getSpeakingStyleList() async {
+    if (selectedVoiceModel == null) return;
+    isLoading = true;
+    mySetState();
+    bool isSuccess = await coCreateKnowledgeController.getSpeakingStyle(selectedVoiceModel!.voiceName);
+    if (isSuccess) {
+      speakingStyleModel = coCreateKnowledgeProvider.speakingStyleModel.get();
+      toneList = speakingStyleModel?.voiceStyle ?? [];
+      mySetState();
+    }
+    isLoading = false;
+    mySetState();
+  }
+
   Future<void> onGenerateWithAITap() async {
     CoCreateContentAuthoringModel coCreateContentAuthoringModel = widget.argument.coCreateContentAuthoringModel;
     PodcastContentModel podcastContentModel = coCreateContentAuthoringModel.podcastContentModel ??= PodcastContentModel();
 
-    podcastContentModel.voiceSpeed = selectedVoiceSpeed ?? 1;
+    podcastContentModel.voiceSpeed = selectedVoiceSpeed;
     podcastContentModel.voiceTone = selectedTone ?? "";
-    podcastContentModel.voiceName = selectedVoice ?? "";
+    podcastContentModel.voiceName = selectedVoiceModel?.voiceName ?? "";
+    podcastContentModel.voiceLanguage = selectedLanguage?.languageCode ?? "";
 
     dynamic value = await NavigationController.navigateToPodcastPreviewScreen(
       navigationOperationParameters: NavigationOperationParameters(
@@ -343,6 +401,14 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
   }
 
   @override
+  void initState() {
+    super.initState();
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+    future = getData();
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.pageBuild();
 
@@ -350,127 +416,345 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
       appBar: AppConfigurations().commonAppBar(
         title: "Text to Audio",
       ),
-      body: getMainBody(),
+      body: FutureBuilder(
+          future: future,
+          builder: (context, asyncSnapshot) {
+            if (asyncSnapshot.connectionState == ConnectionState.done) {
+              return getMainBody();
+            } else {
+              return CommonLoader();
+            }
+          }),
     );
   }
 
   Widget getMainBody() {
-    return Container(
-      margin: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          CommonBorderDropdown2<double?>(
-            isExpanded: true,
-            items: const [1, 2, 3],
-            onChanged: (double? val) {
-              selectedVoiceSpeed = val;
-              mySetState();
-            },
-            value: selectedVoiceSpeed,
-            hintText: "Voice Speed",
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          CommonBorderDropdown2<String?>(
-            isExpanded: true,
-            items: const [
-              "Neutral Tone",
-              "Confident Tone",
-              "Friendly Tone",
-              "Mysterious Tone",
-              "Dramatic Tone",
-              "Energetic Tone",
-              "Relaxing Tone",
-            ],
-            onChanged: (String? val) {
-              selectedTone = val;
-              mySetState();
-            },
-            value: selectedTone,
-            hintText: "Tone",
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          CommonBorderDropdown2<String?>(
-            isExpanded: true,
-            items: const ["Male", "Female"],
-            onChanged: (String? val) {
-              selectedVoice = val;
-              mySetState();
-            },
-            value: selectedVoice,
-            hintText: "Voice",
-          ),
-          getGenderAudioList(),
-          // SizedBox()
-          const Spacer(),
-          CommonButton(
-            minWidth: double.infinity,
-            onPressed: () {
-              onGenerateWithAITap();
-            },
-            text: "Generate with AI",
-            fontColor: themeData.colorScheme.onPrimary,
-          )
-        ],
+    return ModalProgressHUD(
+      inAsyncCall: isLoading,
+      child: Container(
+        margin: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            getVoiceSpeedSlider(),
+            const SizedBox(
+              height: 20,
+            ),
+            getLanguageListDropDown(),
+            const SizedBox(
+              height: 20,
+            ),
+            CommonBorderDropdown2<String?>(
+              isExpanded: true,
+              items: const ["Male", "Female"],
+              onChanged: (String? val) {
+                selectedGender = val;
+                filteredVoiceList = languageVoiceList.where((element) => element.gender == selectedGender).toList();
+                mySetState();
+              },
+              value: selectedGender,
+              hintText: "Select gender",
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            getLanguageVoiceListDropDown(),
+            const SizedBox(
+              height: 20,
+            ),
+            if (toneList.checkNotEmpty)
+              CommonBorderDropdown2<String?>(
+                isExpanded: true,
+                items: toneList,
+                onChanged: (String? val) {
+                  selectedTone = val;
+                  mySetState();
+                },
+                value: selectedTone,
+                hintText: "Tone",
+              ),
+            const SizedBox(
+              height: 20,
+            ),
+            // getGenderAudioList(),
+            // SizedBox()
+            const Spacer(),
+            CommonButton(
+              minWidth: double.infinity,
+              onPressed: () {
+                onGenerateWithAITap();
+              },
+              text: "Generate with AI",
+              fontColor: themeData.colorScheme.onPrimary,
+            )
+          ],
+        ),
       ),
     );
   }
 
-  Widget getGenderAudioList() {
-    if (selectedVoice == null) return const SizedBox();
-    List<AudioModel> list = [];
-    if (selectedVoice == "Male") {
-      list = genderAudioList.where((element) => element.gender == selectedVoice).toList();
-    } else {
-      list = genderAudioList.where((element) => element.gender == selectedVoice).toList();
-    }
-
-    return Container(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), border: Border.all(color: Styles.borderColor)),
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: list.length,
-        itemBuilder: (BuildContext context, int index) {
-          AudioModel audioModel = list[index];
-
-          return InkWell(
-            onTap: () {
-              audioModel.isPlay = !audioModel.isPlay;
+  Widget getVoiceSpeedSlider() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Voice speed",
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Container(
+          height: 20,
+          child: Slider(
+            min: 0,
+            max: 3,
+            value: selectedVoiceSpeed,
+            divisions: 3,
+            inactiveColor: Colors.grey,
+            label: "",
+            onChanged: (double? value) {
+              selectedVoiceSpeed = value ?? 0;
               mySetState();
             },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(color: !audioModel.isPlay ? Colors.grey[300] : themeData.primaryColor, shape: BoxShape.circle),
-                    child: Icon(
-                      audioModel.isPlay ? Icons.pause : Icons.play_arrow,
-                      color: audioModel.isPlay ? Colors.white : Colors.black,
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 22.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "0x",
+                style: TextStyle(fontWeight: FontWeight.w800),
+              ),
+              Text(
+                "1x",
+                style: TextStyle(fontWeight: FontWeight.w800),
+              ),
+              Text(
+                "2x",
+                style: TextStyle(fontWeight: FontWeight.w800),
+              ),
+              Text(
+                "3x",
+                style: TextStyle(fontWeight: FontWeight.w800),
+              ),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget getLanguageListDropDown() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Styles.textFieldBorderColor),
+        borderRadius: BorderRadius.circular(4.0),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<LanguageModel>(
+          value: selectedLanguage,
+          isExpanded: true,
+          onMenuStateChange: (isOpen) {
+            if (!isOpen) {
+              languageSearchController.clear();
+            }
+          },
+          dropdownSearchData: DropdownSearchData(
+              searchController: languageSearchController,
+              searchInnerWidget: Container(
+                height: 50,
+                margin: const EdgeInsets.fromLTRB(5, 5, 5, 0),
+                padding: const EdgeInsets.only(
+                  top: 8,
+                  bottom: 4,
+                  right: 8,
+                  left: 8,
+                ),
+                child: TextFormField(
+                  expands: true,
+                  maxLines: null,
+                  controller: languageSearchController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    hintText: 'Search for an language...',
+                    hintStyle: const TextStyle(fontSize: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  Expanded(
-                      child: Text(
-                    audioModel.name,
-                    textAlign: TextAlign.start,
-                  )),
-                  Expanded(child: Text(audioModel.language, textAlign: TextAlign.center)),
-                  const Expanded(child: Text("English", textAlign: TextAlign.center)),
-                ],
+                ),
               ),
-            ),
-          );
-        },
+              searchInnerWidgetHeight: 50,
+              searchMatchFn: (DropdownMenuItem<LanguageModel> avatar, String val) {
+                return avatar.value?.language.toLowerCase().contains(val.toLowerCase()) ?? false;
+              }),
+          onChanged: (LanguageModel? language) async {
+            if (language == null) return;
+            selectedLanguage = language;
+            await getLanguageVoiceList();
+            mySetState();
+          },
+          style: const TextStyle(
+            fontSize: 14,
+          ),
+          hint: const Text(
+            "Select Language",
+          ),
+          items: languageList.map<DropdownMenuItem<LanguageModel>>(
+            (LanguageModel value) {
+              return DropdownMenuItem<LanguageModel>(
+                value: value,
+                child: Text(
+                  value.language,
+                  style: const TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+              );
+            },
+          ).toList(),
+        ),
       ),
     );
   }
+
+  Widget getLanguageVoiceListDropDown() {
+    if (filteredVoiceList.checkEmpty) return SizedBox();
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Styles.textFieldBorderColor),
+        borderRadius: BorderRadius.circular(4.0),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<LanguageVoiceModel>(
+          value: selectedVoiceModel,
+          isExpanded: true,
+          onMenuStateChange: (isOpen) {
+            if (!isOpen) {
+              languageSearchController.clear();
+            }
+          },
+          dropdownSearchData: DropdownSearchData(
+              searchController: languageSearchController,
+              searchInnerWidget: Container(
+                height: 50,
+                margin: const EdgeInsets.fromLTRB(5, 5, 5, 0),
+                padding: const EdgeInsets.only(
+                  top: 8,
+                  bottom: 4,
+                  right: 8,
+                  left: 8,
+                ),
+                child: TextFormField(
+                  expands: true,
+                  maxLines: null,
+                  controller: languageSearchController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    hintText: 'Search for an voiceName...',
+                    hintStyle: const TextStyle(fontSize: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+              searchInnerWidgetHeight: 50,
+              searchMatchFn: (DropdownMenuItem<LanguageVoiceModel> avatar, String val) {
+                return avatar.value?.voiceName.toLowerCase().contains(val.toLowerCase()) ?? false;
+              }),
+          onChanged: (LanguageVoiceModel? avatar) async {
+            if (avatar == null) return;
+            selectedVoiceModel = avatar;
+            await getSpeakingStyleList();
+            mySetState();
+          },
+          style: const TextStyle(
+            fontSize: 14,
+          ),
+          hint: const Text(
+            "Select Voice",
+          ),
+          items: filteredVoiceList.map<DropdownMenuItem<LanguageVoiceModel>>(
+            (LanguageVoiceModel value) {
+              return DropdownMenuItem<LanguageVoiceModel>(
+                value: value,
+                child: Text(
+                  value.displayName,
+                  style: const TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+              );
+            },
+          ).toList(),
+        ),
+      ),
+    );
+  }
+
+// Widget getGenderAudioList() {
+//   if (selectedVoice == null) return const SizedBox();
+//   List<AudioModel> list = [];
+//   if (selectedVoice == "Male") {
+//     list = genderAudioList.where((element) => element.gender == selectedVoice).toList();
+//   } else {
+//     list = genderAudioList.where((element) => element.gender == selectedVoice).toList();
+//   }
+//
+//   return Container(
+//     decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), border: Border.all(color: Styles.borderColor)),
+//     child: ListView.builder(
+//       shrinkWrap: true,
+//       itemCount: list.length,
+//       itemBuilder: (BuildContext context, int index) {
+//         AudioModel audioModel = list[index];
+//
+//         return InkWell(
+//           onTap: () {
+//             audioModel.isPlay = !audioModel.isPlay;
+//             mySetState();
+//           },
+//           child: Padding(
+//             padding: const EdgeInsets.all(8.0),
+//             child: Row(
+//               children: [
+//                 Container(
+//                   padding: const EdgeInsets.all(5),
+//                   decoration: BoxDecoration(color: !audioModel.isPlay ? Colors.grey[300] : themeData.primaryColor, shape: BoxShape.circle),
+//                   child: Icon(
+//                     audioModel.isPlay ? Icons.pause : Icons.play_arrow,
+//                     color: audioModel.isPlay ? Colors.white : Colors.black,
+//                   ),
+//                 ),
+//                 const SizedBox(
+//                   width: 20,
+//                 ),
+//                 Expanded(
+//                     child: Text(
+//                   audioModel.name,
+//                   textAlign: TextAlign.start,
+//                 )),
+//                 Expanded(child: Text(audioModel.language, textAlign: TextAlign.center)),
+//                 const Expanded(child: Text("English", textAlign: TextAlign.center)),
+//               ],
+//             ),
+//           ),
+//         );
+//       },
+//     ),
+//   );
+// }
 }
 
 class CommonBorderDropdown2<T> extends StatefulWidget {
@@ -488,7 +772,7 @@ class CommonBorderDropdown2<T> extends StatefulWidget {
     required this.onChanged,
     this.hintText,
     this.isExpanded = false,
-    this.trailingIcon = Icons.keyboard_arrow_down_outlined,
+    this.trailingIcon = Icons.arrow_drop_down,
   });
 
   @override
@@ -505,7 +789,7 @@ class _CommonBorderDropdown2State<T> extends State<CommonBorderDropdown2<T>> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 13),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0).copyWith(left: 17),
           value: widget.value,
           isExpanded: widget.isExpanded,
           isDense: true,

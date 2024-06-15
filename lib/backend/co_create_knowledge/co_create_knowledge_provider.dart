@@ -2,7 +2,10 @@ import 'package:flutter_instancy_2/backend/common/common_provider.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avatar_voice_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avtar_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/language_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/speaking_style_model.dart';
 
+import '../../models/co_create_knowledge/podcast/response_model/language_voice_model.dart';
 import '../../models/common/pagination/pagination_model.dart';
 import '../../models/course/data_model/CourseDTOModel.dart';
 import '../filter/filter_provider.dart';
@@ -72,6 +75,23 @@ class CoCreateKnowledgeProvider extends CommonProvider {
       value: "",
       notify: notify,
     );
+
+    languageList = CommonProviderListParameter<LanguageModel>(
+      list: [],
+      notify: notify,
+    );
+    languageVoiceList = CommonProviderListParameter<LanguageVoiceModel>(
+      list: [],
+      notify: notify,
+    );
+    speakingStyleModel = CommonProviderPrimitiveParameter(
+      value: SpeakingStyleModel(),
+      notify: notify,
+    );
+    audioUrlFromApi = CommonProviderPrimitiveParameter(
+      value: "",
+      notify: notify,
+    );
   }
 
   late CommonProviderPrimitiveParameter<int> pageSize;
@@ -90,6 +110,10 @@ class CoCreateKnowledgeProvider extends CommonProvider {
   late final CommonProviderListParameter<Avatars> avatarList;
   late final CommonProviderListParameter<BackgroundColorModel> backgroundColorList;
   late final CommonProviderListParameter<AvtarVoiceModel> avatarVoiceList;
+  late final CommonProviderListParameter<LanguageModel> languageList;
+  late final CommonProviderListParameter<LanguageVoiceModel> languageVoiceList;
+  late final CommonProviderPrimitiveParameter<SpeakingStyleModel> speakingStyleModel;
+  late final CommonProviderPrimitiveParameter<String> audioUrlFromApi;
 
   final FilterProvider filterProvider = FilterProvider();
 
@@ -131,6 +155,10 @@ class CoCreateKnowledgeProvider extends CommonProvider {
     avatarVoiceList.setList(list: [], isNotify: false);
     backgroundColorList.setList(list: [], isNotify: false);
     avatarList.setList(list: [], isNotify: false);
+    languageList.setList(list: [], isNotify: false);
+    languageVoiceList.setList(list: [], isNotify: false);
     generatedVideoUrl.set(value: "", isNotify: false);
+    speakingStyleModel.set(value: SpeakingStyleModel(), isNotify: false);
+    audioUrlFromApi.set(value: "", isNotify: false);
   }
 }

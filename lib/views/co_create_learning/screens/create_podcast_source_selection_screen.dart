@@ -9,6 +9,7 @@ import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowled
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/data_model/podcast_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/request_model/play_audio_for_text_request_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
@@ -26,6 +27,7 @@ import '../../../utils/my_print.dart';
 import '../../../utils/my_utils.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_button.dart';
+import '../../common/components/common_loader.dart';
 import '../component/audio_recorder.dart';
 
 class CreatePodcastSourceSelectionScreen extends StatefulWidget {
@@ -512,8 +514,46 @@ class _PodcastViewScreenState extends State<PodcastViewScreen> with MySafeState 
 
   late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
   late CoCreateKnowledgeController coCreateKnowledgeController;
-
+  String dummyText =
+      "You can replace this text with any text you wish. You can either write in this text box or paste your own text here. Try different languages and voices. Change the speed and the pitch of the voice. You can even tweak the SSML (Speech Synthesis Markup Language)to control how the different sections of the text sound. Click on SSML above to give it a try! Enjoy using Text to Speech! ";
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+  late Future future;
+
+  Future<void> getGeneratedData() async {
+    // isLoading = true;
+    // mySetState();
+    PlayAudioForTextRequestModel playerRequestModel = PlayAudioForTextRequestModel(
+      voice: widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.voiceName ?? "",
+      voiceStyle: widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.voiceTone ?? "",
+      language: widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.voiceLanguage ?? "",
+      text: (widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.promptText.checkEmpty ?? false)
+          ? dummyText
+          : widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.promptText ?? "",
+      isOptionsChanged: true,
+      speekingPitch: 1,
+      speekingSpeed: widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.voiceSpeed.toInt() ?? 0,
+      isPlay: true,
+    );
+    await coCreateKnowledgeController.getAudioGenerator(requestModel: playerRequestModel);
+    MyPrint.printOnConsole("Audio url : ${coCreateKnowledgeProvider.audioUrlFromApi.get()}");
+    String audioUrl = coCreateKnowledgeProvider.audioUrlFromApi.get();
+    if (audioUrl.checkNotEmpty) {
+      // Create the audio player.
+      player = AudioPlayer();
+
+      // Set the release mode to keep the source after playback has completed.
+      player.setReleaseMode(ReleaseMode.stop);
+
+      // Start the player as soon as the app is displayed.
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        // await player.setSourceAsset("audio/audio.mp3");
+        await player.setSourceUrl(audioUrl);
+        await player.resume();
+      });
+    }
+    // isLoading = false;
+    // mySetState();
+  }
 
   Future<void> initializeData() async {
     coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
@@ -587,18 +627,8 @@ class _PodcastViewScreenState extends State<PodcastViewScreen> with MySafeState 
   @override
   void initState() {
     super.initState();
-
-    // Create the audio player.
-    player = AudioPlayer();
-
-    // Set the release mode to keep the source after playback has completed.
-    player.setReleaseMode(ReleaseMode.stop);
-
-    // Start the player as soon as the app is displayed.
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await player.setSourceAsset("audio/audio.mp3");
-      await player.resume();
-    });
+    initializeData();
+    future = getGeneratedData();
   }
 
   @override
@@ -622,50 +652,59 @@ class _PodcastViewScreenState extends State<PodcastViewScreen> with MySafeState 
           bottomNavigationBar: getBottomButtonWidget(),
           body: AppUIComponents.getBackGroundBordersRounded(
             context: context,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    PlayerWidget(
-                      player: player,
-                      onRetakeTap: widget.arguments.isRetakeRequired
-                          ? () {
-                              Navigator.pop(context);
-                            }
-                          : null,
-                    ),
-                    InkWell(
-                      onTap: () {
-                        isTranscriptExpanded = !isTranscriptExpanded;
-                        mySetState();
-                      },
-                      child: Row(
-                        children: [
-                          Icon(isTranscriptExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down_outlined),
-                          const Text(
-                            "Transcript",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
+            child: FutureBuilder(
+                future: future,
+                builder: (context, asyncSnapshot) {
+                  if (asyncSnapshot.connectionState == ConnectionState.done) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            PlayerWidget(
+                              player: player,
+                              onRetakeTap: widget.arguments.isRetakeRequired
+                                  ? () {
+                                      Navigator.pop(context);
+                                    }
+                                  : null,
                             ),
-                          )
-                        ],
+                            InkWell(
+                              onTap: () {
+                                isTranscriptExpanded = !isTranscriptExpanded;
+                                mySetState();
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(isTranscriptExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down_outlined),
+                                  const Text(
+                                    "Transcript",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            if (isTranscriptExpanded)
+                              const Text(
+                                """
+                                  Nigel:
+                                  
+                                  Glad to see things are going well and business is starting to pick up. Andrea told me about your outstanding numbers on Tuesday. Keep up the good work. Now to other business, I am going to suggest a payment schedule for the outstanding monies that is due. One, can you pay the balance of the license agreement as soon as possible? Two, I suggest we setup or you suggest, what you can pay on the back royalties, would you feel comfortable with paying every two weeks? Every month, I will like to catch up and maintain current royalties. So, if we can start the current royalties and maintain them every two weeks as all stores are required to do, I would appreciate it. Let me know if this works for you.
+                                  
+                                  Thanks.
+                                   """,
+                              )
+                          ],
+                        ),
                       ),
-                    ),
-                    if (isTranscriptExpanded)
-                      const Text(
-                        """
-        Nigel:
-        
-        Glad to see things are going well and business is starting to pick up. Andrea told me about your outstanding numbers on Tuesday. Keep up the good work. Now to other business, I am going to suggest a payment schedule for the outstanding monies that is due. One, can you pay the balance of the license agreement as soon as possible? Two, I suggest we setup or you suggest, what you can pay on the back royalties, would you feel comfortable with paying every two weeks? Every month, I will like to catch up and maintain current royalties. So, if we can start the current royalties and maintain them every two weeks as all stores are required to do, I would appreciate it. Let me know if this works for you.
-        
-        Thanks.
-         """,
-                      )
-                  ],
-                ),
-              ),
-            ),
+                    );
+                  } else {
+                    return CommonLoader();
+                  }
+                }),
           ),
         ),
       ),

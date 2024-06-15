@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/view/common/components/common_loader.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart' as flutter_inappwebview;
 import 'package:flutter_instancy_2/backend/app_theme/style.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_instancy_2/backend/navigation/navigation_type.dart' as n
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/article/data_model/article_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/article/request_model/generate_whole_article_content_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
@@ -43,11 +45,11 @@ class AddEditArticleScreen extends StatefulWidget {
 class _AddEditArticleScreenState extends State<AddEditArticleScreen> with MySafeState {
   String _selectedOption = 'Large Language Model (LLM)';
   List<String> radioStringList = <String>[
-    "Large Language Model (LLM)",
-    "Internet Search",
-    "Website",
-    "Content Library",
-    "Skip",
+    ArticleDataSourceTypes.llm,
+    ArticleDataSourceTypes.internetSearch,
+    ArticleDataSourceTypes.website,
+    ArticleDataSourceTypes.contentLibrary,
+    ArticleDataSourceTypes.skip,
   ];
 
   Future<void> onNextTap() async {
@@ -397,14 +399,45 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
 </html>
 """;
 
+  late Future future;
+
+  String getSourceToApiSourceConversion(String selectedSource) {
+    if (selectedSource == ArticleDataSourceTypes.llm) {
+      return "llm";
+    } else if (selectedSource == ArticleDataSourceTypes.internetSearch) {
+      return "internet";
+    } else if (selectedSource == ArticleDataSourceTypes.website) {
+      return "website";
+    } else if (selectedSource == ArticleDataSourceTypes.contentLibrary) {
+      return "contentLibrary";
+    } else if (selectedSource == ArticleDataSourceTypes.skip) {
+      return "skip";
+    } else {
+      return "";
+    }
+  }
+
+  Future<void> getGeneratedData() async {
+    GenerateWholeArticleContentRequestModel requestModel = GenerateWholeArticleContentRequestModel(
+        title: coCreateContentAuthoringModel.title,
+        numberOfTopics: 3,
+        source: getSourceToApiSourceConversion(coCreateContentAuthoringModel.articleContentModel?.selectedArticleSourceType ?? ""),
+        wordsCount: 200);
+    initialHtmlString = await coCreateKnowledgeController.generateWholeArticleContent(requestModel: requestModel);
+    MyPrint.printOnConsole("initialHtmlString: ${initialHtmlString}");
+  }
+
   void initializeData() {
     coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
     coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
 
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
 
-    initialHtmlString = coCreateContentAuthoringModel.articleContentModel?.articleHtmlCode;
-    if (!coCreateContentAuthoringModel.isEdit) initialHtmlString = defaultArticleScreen;
+    // initialHtmlString = coCreateContentAuthoringModel.articleContentModel?.articleHtmlCode;
+    // if (!coCreateContentAuthoringModel.isEdit) initialHtmlString = defaultArticleScreen;
+    if (!coCreateContentAuthoringModel.isEdit) {
+      future = getGeneratedData();
+    }
   }
 
   Future<void> showMoreActions({CourseDTOModel? model, int index = 0}) async {
@@ -434,6 +467,8 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
         actionsEnum: InstancyContentActionsEnum.Regenerate,
         onTap: () {
           Navigator.pop(context);
+          future = getGeneratedData();
+          mySetState();
         },
         iconData: InstancyIcons.regenerate,
       ),
@@ -585,7 +620,15 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
             ),
             body: AppUIComponents.getBackGroundBordersRounded(
               context: context,
-              child: getMainBody(),
+              child: FutureBuilder(
+                  future: future,
+                  builder: (context, asyncSnapshot) {
+                    if (asyncSnapshot.connectionState == ConnectionState.done) {
+                      return getMainBody();
+                    } else {
+                      return CommonLoader();
+                    }
+                  }),
             ),
           ),
         ),

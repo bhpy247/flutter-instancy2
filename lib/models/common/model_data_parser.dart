@@ -14,9 +14,11 @@ import 'package:flutter_instancy_2/models/authentication/response_model/signup_f
 import 'package:flutter_instancy_2/models/catalog/response_model/associated_content_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/user_coming_soon_response.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/article/response_model/article_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/native_authoring_get_module_names_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/native_authoring_get_resources_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/speaking_style_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/assessment_generate_content_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/response_model/generate_assessment_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/video/response_model/video_detail_response_model.dart';
@@ -68,6 +70,8 @@ import '../catalog/response_model/removeFromWishlistModel.dart';
 import '../co_create_knowledge/common/response_model/avatar_voice_model.dart';
 import '../co_create_knowledge/common/response_model/avtar_response_model.dart';
 import '../co_create_knowledge/common/response_model/background_response_model.dart';
+import '../co_create_knowledge/podcast/response_model/language_response_model.dart';
+import '../co_create_knowledge/podcast/response_model/language_voice_model.dart';
 import '../content_details/response_model/course_details_schedule_data_response_model.dart';
 import '../content_review_ratings/response_model/content_user_ratings_data_response_model.dart';
 import '../course/data_model/CourseDTOModel.dart';
@@ -335,7 +339,12 @@ enum ModelDataParsingType {
   GenerateAssessmentResponseModel,
   GenerateAssessmentResponseModelList,
   GetVideoDetailList,
+  GetLanguageList,
+  GetLanguageVoiceList,
+  SpeakingStyleModel,
   CourseDtoModelList,
+  ArticleResponseModel,
+
   CoCreateToCourseDtoModelList,
   NativeAuthoringGetResourcesResponseModel,
   NativeAuthoringGetModuleNamesResponseModel,
@@ -569,6 +578,10 @@ class ModelDataParser {
     ModelDataParsingType.GenerateAssessmentResponseModelList: parseGenerateAssessmentResponseModelList,
     ModelDataParsingType.GetVideoDetailList: parseVideoDetailList,
     ModelDataParsingType.CourseDtoModelList: parseCourseDtoModelList,
+    ModelDataParsingType.GetLanguageList: parseLanguageList,
+    ModelDataParsingType.GetLanguageVoiceList: parseLanguageVoiceList,
+    ModelDataParsingType.SpeakingStyleModel: parseSpeakingStyle,
+    ModelDataParsingType.ArticleResponseModel: parseArticleResponseModel,
     ModelDataParsingType.CoCreateToCourseDtoModelList: parseCoCreateToCourseDtoModelList,
     ModelDataParsingType.NativeAuthoringGetResourcesResponseModel: parseNativeAuthoringGetResourcesResponseModel,
     ModelDataParsingType.NativeAuthoringGetModuleNamesResponseModel: parseNativeAuthoringGetModuleNamesResponseModel,
@@ -1663,6 +1676,22 @@ class ModelDataParser {
     return mapsList.map((e) => VideoDetails.fromJson(e)).toList();
   }
 
+  static List<LanguageModel>? parseLanguageList({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+    return mapsList.map((e) => LanguageModel.fromJson(e)).toList();
+  }
+
+  static List<LanguageVoiceModel>? parseLanguageVoiceList({required dynamic decodedValue}) {
+    List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
+    return mapsList.map((e) => LanguageVoiceModel.fromJson(e)).toList();
+  }
+
+  static SpeakingStyleModel parseSpeakingStyle({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    return SpeakingStyleModel.fromMap(json);
+  }
+
   static List<CourseDTOModel> parseCourseDtoModelList({required dynamic decodedValue}) {
     List<Map<String, dynamic>> mapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(decodedValue);
     return mapsList.map((e) => CourseDTOModel.fromMap(e)).toList();
@@ -1683,5 +1712,11 @@ class ModelDataParser {
     Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
 
     return NativeAuthoringGetModuleNamesResponseModel.fromMap(json);
+  }
+
+  static ArticleResponseModel parseArticleResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    return ArticleResponseModel.fromMap(json);
   }
 }

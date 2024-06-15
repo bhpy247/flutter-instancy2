@@ -1035,6 +1035,14 @@ class CreateNewContentItemCategoryType {
   static const String skl = "skl";
 }
 
+class ArticleDataSourceTypes {
+  static const String llm = "Large Language Model (LLM)";
+  static const String internetSearch = "Internet Search";
+  static const String website = "Website";
+  static const String contentLibrary = "Content Library";
+  static const String skip = "Skip";
+}
+
 class MicroLearningGenerationSourceType {
   static const String llm = "llm";
   static const String youtube = "youtube";
