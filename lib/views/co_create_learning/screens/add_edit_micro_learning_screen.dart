@@ -435,6 +435,7 @@ class _MicroLearningSourceSelectionScreenState extends State<MicroLearningSource
   String? selectedInternetSearchUrl;
 
   bool isSearchingYoutubeUrls = false;
+  String nextPageToken = "";
   List<String> youtubeSearchUrlsList = <String>[];
   String? selectedYoutubeSearchUrl;
 
@@ -474,7 +475,7 @@ class _MicroLearningSourceSelectionScreenState extends State<MicroLearningSource
     isSearchingInternetUrls = true;
     mySetState();
 
-    List<String> urls = await coCreateKnowledgeController.getInternetYoutubeSearchUrls(
+    List<String> urls = await coCreateKnowledgeController.getInternetSearchUrls(
       requestModel: NativeAuthoringGetResourcesRequestModel(
         learning_objective: coCreateContentAuthoringModel.title,
         from_internet: true,
@@ -498,14 +499,16 @@ class _MicroLearningSourceSelectionScreenState extends State<MicroLearningSource
     isSearchingYoutubeUrls = true;
     mySetState();
 
-    List<String> urls = await coCreateKnowledgeController.getInternetYoutubeSearchUrls(
+    ({String nextPageToken, List<String> urls}) response = await coCreateKnowledgeController.getYoutubeSearchUrls(
       requestModel: NativeAuthoringGetResourcesRequestModel(
         learning_objective: coCreateContentAuthoringModel.title,
         from_youtube: true,
+        next_page_token: nextPageToken,
       ),
     );
 
-    youtubeSearchUrlsList = urls;
+    nextPageToken = response.nextPageToken;
+    youtubeSearchUrlsList = response.urls;
 
     MyPrint.printOnConsole("Final youtubeSearchUrlsList:$youtubeSearchUrlsList");
     if (youtubeSearchUrlsList.isEmpty || !youtubeSearchUrlsList.contains(selectedYoutubeSearchUrl)) {

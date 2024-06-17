@@ -850,9 +850,9 @@ class CoCreateKnowledgeController {
     return "1";
   }
 
-  Future<List<String>> getInternetYoutubeSearchUrls({required NativeAuthoringGetResourcesRequestModel requestModel}) async {
+  Future<List<String>> getInternetSearchUrls({required NativeAuthoringGetResourcesRequestModel requestModel}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CoCreateKnowledgeController().getInternetYoutubeSearchUrls() called with requestModel:$requestModel", tag: tag);
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getInternetSearchUrls() called with requestModel:$requestModel", tag: tag);
 
     CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = repository.apiController.apiDataProvider;
@@ -863,11 +863,11 @@ class CoCreateKnowledgeController {
 
     DataResponseModel<NativeAuthoringGetResourcesResponseModel> dataResponseModel = await repository.NativeAuthoringGetResources(requestModel: requestModel);
     if (dataResponseModel.appErrorModel != null) {
-      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getInternetYoutubeSearchUrls() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getInternetSearchUrls() because appErrorModel is not null", tag: tag);
       MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
       return urls;
     } else if (dataResponseModel.data == null) {
-      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getInternetYoutubeSearchUrls() because data is null", tag: tag);
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getInternetSearchUrls() because data is null", tag: tag);
       return urls;
     }
 
@@ -879,6 +879,39 @@ class CoCreateKnowledgeController {
 
     MyPrint.printOnConsole("Final urls:$urls", tag: tag);
     return urls;
+  }
+
+  Future<({String nextPageToken, List<String> urls})> getYoutubeSearchUrls({required NativeAuthoringGetResourcesRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getYoutubeSearchUrls() called with requestModel:$requestModel", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = repository.apiController.apiDataProvider;
+
+    requestModel.client_url = apiUrlConfigurationProvider.getCurrentSiteLMSUrl();
+
+    ({String nextPageToken, List<String> urls}) response = (nextPageToken: "", urls: <String>[]);
+
+    DataResponseModel<NativeAuthoringGetResourcesResponseModel> dataResponseModel = await repository.NativeAuthoringGetResources(requestModel: requestModel);
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getYoutubeSearchUrls() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return response;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getYoutubeSearchUrls() because data is null", tag: tag);
+      return response;
+    }
+
+    MyPrint.printOnConsole("dataResponseModel.data ${dataResponseModel.data}", tag: tag);
+
+    NativeAuthoringGetResourcesResponseModel responseModel = dataResponseModel.data!;
+
+    List<String> urls = responseModel.sources_from_youtube.map((e) => e.url).toList();
+
+    response = (nextPageToken: responseModel.next_page_token, urls: urls);
+
+    MyPrint.printOnConsole("Final response:$response", tag: tag);
+    return response;
   }
 
   Future<List<String>> getMicroLearningTopicsListing({required NativeAuthoringGetModuleNamesRequestModel requestModel}) async {

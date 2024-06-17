@@ -2,10 +2,10 @@ import 'package:flutter_instancy_2/utils/my_utils.dart';
 
 class NativeAuthoringGetResourcesRequestModel {
   String learning_objective = "";
-  String BotId = "";
   String metadata = "1";
   String pinecone_index = "";
   String client_url = "";
+  String next_page_token = "";
   bool from_sql_data = false;
   bool from_internet = false;
   bool from_youtube = false;
@@ -14,10 +14,10 @@ class NativeAuthoringGetResourcesRequestModel {
 
   NativeAuthoringGetResourcesRequestModel({
     this.learning_objective = "",
-    this.BotId = "",
     this.metadata = "1",
     this.pinecone_index = "",
     this.client_url = "",
+    this.next_page_token = "",
     this.from_sql_data = false,
     this.from_internet = false,
     this.from_youtube = false,
@@ -28,10 +28,10 @@ class NativeAuthoringGetResourcesRequestModel {
   Map<String, dynamic> toMap() {
     return {
       "learning_objective": learning_objective,
-      "BotId": BotId,
       "metadata": metadata,
       "pinecone_index": pinecone_index,
       "client_url": client_url,
+      "next_page_token": next_page_token,
       "from_sql_data": from_sql_data ? "1" : "0",
       "from_internet": from_internet ? "1" : "0",
       "from_youtube": from_youtube ? "1" : "0",
