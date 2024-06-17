@@ -571,7 +571,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       getBytes: true,
     );
 
-    if (paths.isNotEmpty) {
+    if (paths.isEmpty) {
       return;
     }
 
@@ -579,7 +579,9 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     if (!kIsWeb) {
       MyPrint.printOnConsole("File Path:${file.path}");
     }
+    MyPrint.printOnConsole("FileName:${file.name}");
     fileName = MyUtils.regenerateFileName(fileName: file.name) ?? "";
+    MyPrint.printOnConsole("regenerated FileName:$fileName");
 
     if (fileName.isEmpty) {
       return;

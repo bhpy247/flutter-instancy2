@@ -126,11 +126,13 @@ class MyUtils {
 
   static String? getExtensionFromFileName({required String fileName}) {
     if (fileName.isEmpty) {
+      MyPrint.printOnConsole("Returning from MyUtils.getExtensionFromFileName() because fileName is empty");
       return null;
     }
 
     int lastIndex = fileName.lastIndexOf(".");
-    if (lastIndex == -1 || (lastIndex + 1) < fileName.length) {
+    if (lastIndex == -1 || (lastIndex + 1) >= fileName.length) {
+      MyPrint.printOnConsole("Returning from MyUtils.getExtensionFromFileName() because lastIndex is -1 or out of range:$lastIndex, fileName Length:${fileName.length}");
       return null;
     }
 

@@ -263,12 +263,17 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
     if (!kIsWeb) {
       MyPrint.printOnConsole("File Path:${file.path}");
     }
-    fileName = MyUtils.regenerateFileName(fileName: file.name) ?? "";
-
-    if (fileName.isEmpty) {
+    if (file.bytes.checkEmpty) {
       return;
     }
 
+    String name = MyUtils.regenerateFileName(fileName: file.name) ?? "";
+
+    if (name.isEmpty) {
+      return;
+    }
+
+    fileName = name;
     filePath = file.path;
     fileBytes = file.bytes;
 

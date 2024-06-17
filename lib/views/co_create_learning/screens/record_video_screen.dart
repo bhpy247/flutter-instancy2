@@ -78,14 +78,14 @@ class _RecordVideoScreenState extends State<RecordVideoScreen> with MySafeState 
       return;
     }
 
-    fileBytes = file.bytes!;
+    String name = MyUtils.regenerateFileName(fileName: file.name) ?? "";
 
-    fileName = MyUtils.regenerateFileName(fileName: file.name) ?? "";
-
-    if (fileName.isEmpty) {
+    if (name.isEmpty) {
       return;
     }
 
+    fileName = name;
+    fileBytes = file.bytes!;
     MyPrint.printOnConsole("Got file Name:$fileName");
     MyPrint.printOnConsole("Got file bytes:${fileBytes!.length}");
 
