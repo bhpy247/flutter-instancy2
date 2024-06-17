@@ -245,7 +245,7 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
   Uint8List? fileBytes;
   String? filePath;
 
-  Future<String> openFileExplorer(
+  Future<void> openFileExplorer(
     FileType pickingType,
     bool multiPick,
   ) async {
@@ -256,21 +256,26 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
     );
 
     if (paths.isEmpty) {
-      return fileName;
+      return;
     }
 
     PlatformFile file = paths.first;
     if (!kIsWeb) {
       MyPrint.printOnConsole("File Path:${file.path}");
     }
+    fileName = MyUtils.regenerateFileName(fileName: file.name) ?? "";
+
+    if (fileName.isEmpty) {
+      return;
+    }
+
     filePath = file.path;
-    fileName = file.name;
     fileBytes = file.bytes;
 
-    MyPrint.printOnConsole("Got file Name:${file.name}");
-    MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
+    MyPrint.printOnConsole("Got file Name:$fileName");
+    MyPrint.printOnConsole("Got file bytes:${fileBytes?.length}");
 
-    return fileName;
+    return;
   }
 
   Future<void> onAudioRecorded(String path, String? fileName, Uint8List? bytes) async {
@@ -428,8 +433,7 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
               const SizedBox(width: 20),
               CommonButton(
                 onPressed: () async {
-                  fileName = await openFileExplorer(FileType.audio, false);
-                  mySetState();
+                  await openFileExplorer(FileType.audio, false);
                 },
                 text: "Retake",
                 backGroundColor: Colors.transparent,
@@ -441,8 +445,7 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
     }
     return InkWell(
       onTap: () async {
-        fileName = await openFileExplorer(FileType.audio, false);
-        mySetState();
+        await openFileExplorer(FileType.audio, false);
       },
       child: Container(
         width: double.infinity,

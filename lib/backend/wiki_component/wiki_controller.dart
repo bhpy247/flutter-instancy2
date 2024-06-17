@@ -79,6 +79,22 @@ class WikiController {
     return wikiCategoriesModel;
   }
 
+  Future<WikiCategoriesModel> getWikiSkillsFromApi({bool isRefresh = true, bool isGetFromCache = false, bool isNotify = true, required int componentId, required int componentInstanceId}) async {
+    WikiCategoriesModel wikiCategoriesModel = WikiCategoriesModel();
+    WikiProvider provider = wikiProvider;
+    DataResponseModel<WikiCategoriesModel> response = await wikiRepository.getWikiSkills(
+      componentId: componentId,
+      componentInstanceId: componentInstanceId,
+      isStoreDataInHive: true,
+    );
+    wikiCategoriesModel = response.data ?? WikiCategoriesModel();
+    MyPrint.printOnConsole("wikiSkills length:${wikiCategoriesModel.wikiCategoriesList.length}");
+    if (wikiCategoriesModel.wikiCategoriesList.isNotEmpty) {
+      provider.setWikiSkillsList(wikiCategoriesModel.wikiCategoriesList);
+    }
+    return wikiCategoriesModel;
+  }
+
   Future<DataResponseModel<String>> addContent({required WikiUploadRequestModel wikiUploadRequestModel}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("WikiController().addContent() called", tag: tag);

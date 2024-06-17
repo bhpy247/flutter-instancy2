@@ -124,6 +124,33 @@ class MyUtils {
     return "";
   }
 
+  static String? getExtensionFromFileName({required String fileName}) {
+    if (fileName.isEmpty) {
+      return null;
+    }
+
+    int lastIndex = fileName.lastIndexOf(".");
+    if (lastIndex == -1 || (lastIndex + 1) < fileName.length) {
+      return null;
+    }
+
+    String extension = fileName.substring(lastIndex + 1);
+    MyPrint.printOnConsole("Final extension for File $fileName:$extension");
+
+    return extension;
+  }
+
+  static String? regenerateFileName({required String fileName}) {
+    String? extension = MyUtils.getExtensionFromFileName(fileName: fileName);
+    if (extension.checkEmpty) {
+      return null;
+    }
+
+    fileName = "${MyUtils.getNewId()}.$extension";
+
+    return fileName;
+  }
+
   static Future<List<PlatformFile>> pickFiles({required FileType pickingType, bool multiPick = false, String extensions = "", bool getBytes = false}) async {
     String extension = "";
     if (extensions.isNotEmpty) {

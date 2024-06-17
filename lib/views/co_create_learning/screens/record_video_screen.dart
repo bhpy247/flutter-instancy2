@@ -5,6 +5,7 @@ import 'package:flutter_chat_bot/utils/extensions.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/video/data_model/video_content_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/common_save_exit_button_row.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
@@ -44,10 +45,8 @@ class _RecordVideoScreenState extends State<RecordVideoScreen> with MySafeState 
 
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
+  String fileName = "";
   Uint8List? fileBytes;
-
-  String thumbNailName = "";
-  Uint8List? thumbNailBytes;
 
   void initializeData() {
     coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
@@ -56,44 +55,55 @@ class _RecordVideoScreenState extends State<RecordVideoScreen> with MySafeState 
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
   }
 
-  Future<String> openFileExplorer(
+  Future<void> openFileExplorer(
     FileType pickingType,
     bool multiPick,
   ) async {
-    String fileName = "";
     List<PlatformFile> paths = await MyUtils.pickFiles(
       pickingType: pickingType,
       multiPick: multiPick,
       getBytes: true,
     );
 
-    if (paths.isNotEmpty) {
-      PlatformFile file = paths.first;
-      if (!kIsWeb) {
-        MyPrint.printOnConsole("File Path:${file.path}");
-      }
-      fileName = file.name;
-      // fileName = file.name.replaceAll('(', ' ').replaceAll(')', '');
-      // fileName = fileName.trim();
-      // fileName = Uuid().v1() + fileName.substring(fileName.indexOf("."));
-
-      MyPrint.printOnConsole("Got file Name:${file.name}");
-      MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
-      fileBytes = file.bytes;
-      thumbNailBytes = fileBytes;
-    } else {
-      fileName = "";
-      fileBytes = null;
+    if (paths.isEmpty) {
+      return;
     }
-    return fileName;
+
+    PlatformFile file = paths.first;
+    if (!kIsWeb) {
+      MyPrint.printOnConsole("File Path:${file.path}");
+    }
+
+    if (file.bytes.checkEmpty) {
+      return;
+    }
+
+    fileBytes = file.bytes!;
+
+    fileName = MyUtils.regenerateFileName(fileName: file.name) ?? "";
+
+    if (fileName.isEmpty) {
+      return;
+    }
+
+    MyPrint.printOnConsole("Got file Name:$fileName");
+    MyPrint.printOnConsole("Got file bytes:${fileBytes!.length}");
+
+    mySetState();
   }
 
   Future<CourseDTOModel?> saveContent() async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("GenerateWithAiFlashCardScreen().saveFlashcard() called", tag: tag);
+    MyPrint.printOnConsole("RecordVideoScreen().saveFlashcard() called", tag: tag);
 
     isLoading = true;
     mySetState();
+
+    coCreateContentAuthoringModel.uploadedDocumentBytes = fileBytes;
+    coCreateContentAuthoringModel.uploadedDocumentName = fileName;
+
+    VideoContentModel videoContentModel = coCreateContentAuthoringModel.videoContentModel ??= VideoContentModel();
+    videoContentModel.scriptText = "";
 
     String? contentId = await coCreateKnowledgeController.addEditContentItem(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
     MyPrint.printOnConsole("contentId:'$contentId'", tag: tag);
@@ -128,10 +138,17 @@ class _RecordVideoScreenState extends State<RecordVideoScreen> with MySafeState 
       return;
     }
 
-    await NavigationController.navigateToVideoScreen(
+    VideoContentModel? videoContentModel = courseDTOModel.videoContentModel;
+
+    await NavigationController.navigateToVideoWithTranscriptLaunchScreen(
       navigationOperationParameters: NavigationOperationParameters(
         context: context,
         navigationType: NavigationType.pushNamed,
+      ),
+      argument: VideoWithTranscriptLaunchScreenNavigationArgument(
+        title: courseDTOModel.ContentName,
+        transcript: videoContentModel?.scriptText ?? "",
+        videoBytes: courseDTOModel.uploadedDocumentBytes,
       ),
     );
 
@@ -217,7 +234,7 @@ class _RecordVideoScreenState extends State<RecordVideoScreen> with MySafeState 
   }
 
   Widget getUploadVideoScreen() {
-    if (thumbNailName.checkNotEmpty) {
+    if (fileName.checkNotEmpty) {
       return Column(
         children: [
           Container(
@@ -244,35 +261,30 @@ class _RecordVideoScreenState extends State<RecordVideoScreen> with MySafeState 
                   height: 16,
                 ),
                 Text(
-                  thumbNailName,
+                  fileName,
                   style: const TextStyle(fontSize: 16),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
           ),
-          SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CommonButton(
                 onPressed: () {
-                  thumbNailName = "";
+                  fileName = "";
                   fileBytes = null;
-                  thumbNailBytes = null;
                   mySetState();
                 },
                 text: "Clear",
                 backGroundColor: Colors.transparent,
               ),
-              SizedBox(
-                width: 20,
-              ),
+              const SizedBox(width: 20),
               CommonButton(
                 onPressed: () async {
-                  thumbNailName = await openFileExplorer(FileType.audio, false);
-                  mySetState();
+                  await openFileExplorer(FileType.video, false);
                 },
                 text: "ReTake",
                 backGroundColor: Colors.transparent,
@@ -284,8 +296,7 @@ class _RecordVideoScreenState extends State<RecordVideoScreen> with MySafeState 
     }
     return InkWell(
       onTap: () async {
-        thumbNailName = await openFileExplorer(FileType.video, false);
-        mySetState();
+        await openFileExplorer(FileType.video, false);
       },
       child: Container(
         width: double.infinity,

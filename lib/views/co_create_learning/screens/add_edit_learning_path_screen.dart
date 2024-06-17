@@ -272,11 +272,12 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
         ),
       );
     } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.video) {
-      NavigationController.navigateToVideoScreen(
+      NavigationController.navigateToVideoWithTranscriptLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
+        argument: VideoWithTranscriptLaunchScreenNavigationArgument(title: model.ContentName),
       );
     } else if (objectType == InstancyObjectTypes.assessment && mediaType == InstancyMediaTypes.test) {
       NavigationController.navigateToQuizScreen(
@@ -447,7 +448,7 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
       courseDTOModel.ShortDescription = coCreateContentAuthoringModel.description;
       courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
 
-      courseDTOModel.Skills = coCreateContentAuthoringModel.skills;
+      courseDTOModel.ContentSkills = coCreateContentAuthoringModel.skills;
 
       courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
 

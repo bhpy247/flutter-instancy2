@@ -4,11 +4,13 @@ class GetCoCreateKnowledgebaseListRequestModel {
   int userId = 0;
   String folderId = "";
   String cmsGroupId = "";
+  int componentId = 0;
 
   GetCoCreateKnowledgebaseListRequestModel({
     required this.userId,
     required this.folderId,
     required this.cmsGroupId,
+    this.componentId = 0,
   });
 
   Map<String, String> toMap() {
@@ -16,6 +18,7 @@ class GetCoCreateKnowledgebaseListRequestModel {
       "userId": userId.toString(),
       "folderId": folderId,
       "cmsGroupId": cmsGroupId,
+      "componentId": componentId.toString(),
     };
   }
 

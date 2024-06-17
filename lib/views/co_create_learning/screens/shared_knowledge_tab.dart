@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
+import 'package:flutter_instancy_2/backend/course_launch/course_launch_controller.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
@@ -36,11 +37,12 @@ class _SharedKnowledgeTabState extends State<SharedKnowledgeTab> with MySafeStat
 
   late CoCreateKnowledgeController _controller;
   late CoCreateKnowledgeProvider _provider;
+  late CourseLaunchController courseLaunchController;
 
   late Future future;
 
   Future<void> getFutureData({bool isRefresh = true}) async {
-    if (!isRefresh && _provider.shareKnowledgeList.length > 0) {
+    if (!isRefresh && _provider.sharedKnowledgeList.length > 0) {
       return;
     }
 
@@ -111,83 +113,7 @@ class _SharedKnowledgeTabState extends State<SharedKnowledgeTab> with MySafeStat
   }
 
   Future<void> onViewTap({required CourseDTOModel model}) async {
-    int objectType = model.ContentTypeId;
-    int mediaType = model.MediaTypeID;
-    MyPrint.printOnConsole("objectType:$objectType");
-
-    if (objectType == InstancyObjectTypes.flashCard) {
-      NavigationController.navigateToFlashCardScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        arguments: FlashCardScreenNavigationArguments(courseDTOModel: model),
-      );
-    } else if (objectType == InstancyObjectTypes.rolePlay) {
-      await NavigationController.navigateToRolePlayLaunchScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        arguments: RolePlayLaunchScreenNavigationArguments(
-          courseDTOModel: model,
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.audio) {
-      NavigationController.navigateToPodcastEpisodeScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.reference && mediaType == InstancyMediaTypes.url) {
-      NavigationController.navigateToWebViewScreen(
-        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-        arguments: WebViewScreenNavigationArguments(
-          title: model.Title,
-          url: "https://smartbridge.com/introduction-generative-ai-transformative-potential-enterprises/",
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.document && mediaType == InstancyMediaTypes.pDF) {
-      NavigationController.navigateToPDFLaunchScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        arguments: PDFLaunchScreenNavigationArguments(
-          contntName: model.ContentName,
-          isNetworkPDF: true,
-          pdfUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fdocuments%2Fai%20for%20biotechnology.pdf?alt=media&token=ab06fadc-ba08-4114-88e1-529213d117bf",
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.video) {
-      NavigationController.navigateToVideoScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.assessment && mediaType == InstancyMediaTypes.test) {
-      NavigationController.navigateToQuizScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        arguments: QuizScreenNavigationArguments(courseDTOModel: model),
-      );
-    } else if (objectType == InstancyObjectTypes.webPage) {
-      NavigationController.navigateToArticleScreen(
-        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-        arguments: ArticleScreenNavigationArguments(courseDTOModel: model),
-      );
-      /*NavigationController.navigateToWebViewScreen(
-        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-        arguments: WebViewScreenNavigationArguments(
-          title: model.Title,
-          url: "https://enterprisedemo.instancy.com/content/publishfiles/1539fc5c-7bde-4d82-a0f6-9612f9e6c426/ins_content.html?fromNativeapp=true",
-        ),
-      );*/
-    }
+    await courseLaunchController.viewCoCreateKnowledgeContent(context: context, model: model);
   }
 
   Future<void> onShareTap({required CourseDTOModel model}) async {
@@ -202,6 +128,13 @@ class _SharedKnowledgeTabState extends State<SharedKnowledgeTab> with MySafeStat
 
     _provider = context.read<CoCreateKnowledgeProvider>();
     _controller = CoCreateKnowledgeController(coCreateKnowledgeProvider: _provider);
+
+    courseLaunchController = CourseLaunchController(
+      appProvider: appProvider,
+      componentId: widget.componentId,
+      componentInstanceId: widget.componentInstanceId,
+    );
+
     future = getFutureData(isRefresh: false);
   }
 
@@ -327,8 +260,8 @@ class _SharedKnowledgeTabState extends State<SharedKnowledgeTab> with MySafeStat
   Widget getCoursesListView() {
     CoCreateKnowledgeProvider provider = _provider;
 
-    if (provider.isLoading.get()) return const CommonLoader();
-    List<CourseDTOModel> list = provider.shareKnowledgeList.getList();
+    if (provider.isLoadingSharedKnowledge.get()) return const CommonLoader();
+    List<CourseDTOModel> list = provider.sharedKnowledgeList.getList();
 
     return ListView.builder(
       itemCount: list.length,

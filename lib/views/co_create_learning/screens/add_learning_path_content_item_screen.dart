@@ -109,11 +109,12 @@ class _AddContentItemScreenState extends State<AddContentItemScreen> with MySafe
         ),
       );
     } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.video) {
-      NavigationController.navigateToVideoScreen(
+      NavigationController.navigateToVideoWithTranscriptLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
+        argument: VideoWithTranscriptLaunchScreenNavigationArgument(title: model.ContentName),
       );
     } else if (objectType == InstancyObjectTypes.assessment && mediaType == InstancyMediaTypes.test) {
       NavigationController.navigateToQuizScreen(

@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,6 +11,8 @@ import '../component/custom_search_view.dart';
 import '../component/item_widget.dart';
 
 class ShareKnowledgeTab extends StatefulWidget {
+  const ShareKnowledgeTab({super.key});
+
   @override
   State<ShareKnowledgeTab> createState() => _ShareKnowledgeTabState();
 }
@@ -95,3 +98,4 @@ class _ShareKnowledgeTabState extends State<ShareKnowledgeTab> {
         });
   }
 }
+*/

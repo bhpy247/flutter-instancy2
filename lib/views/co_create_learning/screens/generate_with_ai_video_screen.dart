@@ -4,11 +4,12 @@ import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowled
 import 'package:flutter_instancy_2/backend/navigation/navigation_arguments.dart';
 import 'package:flutter_instancy_2/configs/app_strings.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/video/data_model/video_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/video/request_model/generate_video_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
-import 'package:flutter_instancy_2/views/co_create_learning/screens/video_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/video_with_transcript_launch_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
@@ -146,10 +147,16 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
 
   Future<CourseDTOModel?> saveContent() async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("GenerateWithAiFlashCardScreen().saveFlashcard() called", tag: tag);
+    MyPrint.printOnConsole("GenerateWithAiVideoScreen().saveFlashcard() called", tag: tag);
 
     isLoading = true;
     mySetState();
+
+    coCreateContentAuthoringModel.uploadedDocumentBytes = null;
+    coCreateContentAuthoringModel.uploadedDocumentName = "";
+
+    VideoContentModel videoContentModel = coCreateContentAuthoringModel.videoContentModel ??= VideoContentModel();
+    videoContentModel.scriptText = "";
 
     String? contentId = await coCreateKnowledgeController.addEditContentItem(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
     MyPrint.printOnConsole("contentId:'$contentId'", tag: tag);
@@ -158,7 +165,7 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
     mySetState();
 
     if (contentId.checkEmpty) {
-      MyPrint.printOnConsole("Returning from AddEditEventScreen().saveEvent() because contentId is null or empty", tag: tag);
+      MyPrint.printOnConsole("Returning from GenerateWithAiVideoScreen().saveEvent() because contentId is null or empty", tag: tag);
       return null;
     }
 
@@ -184,10 +191,17 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
       return;
     }
 
-    await NavigationController.navigateToVideoScreen(
+    VideoContentModel? videoContentModel = courseDTOModel.videoContentModel;
+
+    await NavigationController.navigateToVideoWithTranscriptLaunchScreen(
       navigationOperationParameters: NavigationOperationParameters(
         context: context,
         navigationType: NavigationType.pushNamed,
+      ),
+      argument: VideoWithTranscriptLaunchScreenNavigationArgument(
+        title: courseDTOModel.ContentName,
+        transcript: videoContentModel?.scriptText ?? "",
+        videoBytes: courseDTOModel.uploadedDocumentBytes,
       ),
     );
 

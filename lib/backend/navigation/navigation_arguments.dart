@@ -1286,3 +1286,17 @@ class MicroLearningViewScreenNavigationArgument extends NavigationArguments {
     required this.courseDTOModel,
   });
 }
+
+class VideoWithTranscriptLaunchScreenNavigationArgument extends NavigationArguments {
+  final String title;
+  final String transcript;
+  final String videoUrl;
+  final Uint8List? videoBytes;
+
+  const VideoWithTranscriptLaunchScreenNavigationArgument({
+    required this.title,
+    this.transcript = "",
+    this.videoUrl = "",
+    this.videoBytes,
+  });
+}

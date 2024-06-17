@@ -24,16 +24,21 @@ class CoCreateKnowledgeProvider extends CommonProvider {
       value: false,
       notify: notify,
     );
-    isLoading = CommonProviderPrimitiveParameter<bool>(
+
+    isLoadingMyKnowledge = CommonProviderPrimitiveParameter<bool>(
       value: false,
       notify: notify,
     );
-
     myKnowledgeList = CommonProviderListParameter<CourseDTOModel>(
       list: <CourseDTOModel>[],
       notify: notify,
     );
-    shareKnowledgeList = CommonProviderListParameter<CourseDTOModel>(
+
+    isLoadingSharedKnowledge = CommonProviderPrimitiveParameter<bool>(
+      value: false,
+      notify: notify,
+    );
+    sharedKnowledgeList = CommonProviderListParameter<CourseDTOModel>(
       list: <CourseDTOModel>[],
       notify: notify,
     );
@@ -97,13 +102,16 @@ class CoCreateKnowledgeProvider extends CommonProvider {
   late CommonProviderPrimitiveParameter<int> pageSize;
   late CommonProviderPrimitiveParameter<bool> filterEnabled;
   late CommonProviderPrimitiveParameter<bool> sortEnabled;
-  late CommonProviderPrimitiveParameter<bool> isLoading;
 
   late final CommonProviderPrimitiveParameter<String> sortingData;
   late final CommonProviderPrimitiveParameter<String> generatedVideoUrl;
 
+  late CommonProviderPrimitiveParameter<bool> isLoadingMyKnowledge;
   late CommonProviderListParameter<CourseDTOModel> myKnowledgeList;
-  late CommonProviderListParameter<CourseDTOModel> shareKnowledgeList;
+
+  late CommonProviderPrimitiveParameter<bool> isLoadingSharedKnowledge;
+  late CommonProviderListParameter<CourseDTOModel> sharedKnowledgeList;
+
   late final CommonProviderPrimitiveParameter<String> allLearningCommunitiesSearchString;
   late final CommonProviderPrimitiveParameter<int> maxAllLearningCommunitiesListCount;
   late final CommonProviderPrimitiveParameter<PaginationModel> allLearningCommunitiesPaginationModel;
@@ -136,10 +144,12 @@ class CoCreateKnowledgeProvider extends CommonProvider {
     pageSize.set(value: 10, isNotify: false);
     filterEnabled.set(value: false, isNotify: false);
     sortEnabled.set(value: false, isNotify: false);
-    isLoading.set(value: false, isNotify: false);
 
+    isLoadingMyKnowledge.set(value: false, isNotify: false);
     myKnowledgeList.setList(list: [], isNotify: false);
-    shareKnowledgeList.setList(list: [], isNotify: false);
+
+    isLoadingSharedKnowledge.set(value: false, isNotify: false);
+    sharedKnowledgeList.setList(list: [], isNotify: false);
     allLearningCommunitiesSearchString.set(value: "", isNotify: false);
     maxAllLearningCommunitiesListCount.set(value: 0, isNotify: false);
     allLearningCommunitiesPaginationModel.set(

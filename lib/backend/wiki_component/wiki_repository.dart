@@ -63,6 +63,28 @@ class WikiRepository {
     return apiResponseModel;
   }
 
+  Future<DataResponseModel<WikiCategoriesModel>> getWikiSkills({required int componentId, required int componentInstanceId, bool isFromOffline = false, bool isStoreDataInHive = false}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole(" getWikiCategories Site Url:${apiEndpoints.siteUrl}  ");
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      requestBody:
+          '''{"intUserID":"${apiUrlConfigurationProvider.getCurrentUserId()}","intSiteID":"${apiUrlConfigurationProvider.getCurrentSiteId()}","intComponentID":$componentId,"Locale":"${apiUrlConfigurationProvider.getLocale()}","strType":"skills"}''',
+      parsingType: ModelDataParsingType.wikiCategoriesModel,
+      url: apiEndpoints.apiGetWikiCategories(),
+      isGetDataFromHive: isFromOffline,
+      isStoreDataInHive: isStoreDataInHive,
+    );
+
+    DataResponseModel<WikiCategoriesModel> apiResponseModel = await apiController.callApi<WikiCategoriesModel>(
+      apiCallModel: apiCallModel,
+    );
+
+    return apiResponseModel;
+  }
+
   Future<DataResponseModel<String>> addCatalogContent({required WikiUploadRequestModel wikiUploadRequestModel}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 

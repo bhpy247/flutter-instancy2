@@ -59,18 +59,19 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
   bool isUrl = true;
-  FileType? fileType;
   late WikiProvider wikiProvider;
   late WikiController wikiController;
 
   bool isExpanded = false;
-  String fileName = "";
-  Uint8List? fileBytes;
+  String documentName = "";
+  Uint8List? documentBytes;
   String selectedCategoriesString = "";
   List<WikiCategoryTable> selectedCategoriesList = [];
+
   String? thumbnailImageUrl;
   String thumbNailName = "";
   Uint8List? thumbNailBytes;
+
   CourseDTOModel model = CourseDTOModel();
 
   void initializeData() {
@@ -92,10 +93,10 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
       descriptionController.text = coCreateContentAuthoringModel.description;
       thumbnailImageUrl = coCreateContentAuthoringModel.ThumbnailImagePath;
       thumbNailBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
-      fileBytes = coCreateContentAuthoringModel.uploadedDocumentBytes;
-      fileName = coCreateContentAuthoringModel.uploadedDocumentName ?? "";
+      documentBytes = coCreateContentAuthoringModel.uploadedDocumentBytes;
+      documentName = coCreateContentAuthoringModel.uploadedDocumentName ?? "";
 
-      List<WikiCategoryTable> list = wikiProvider.wikiCategoriesList;
+      List<WikiCategoryTable> list = wikiProvider.wikiSkillsList;
       for (String skill in coCreateContentAuthoringModel.skills) {
         WikiCategoryTable? model = list.where((element) => element.name == skill).firstOrNull;
         if (model != null) {
@@ -294,7 +295,7 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
 
     List<String> skills = ["Customer Service"];
     selectedCategoriesList.clear();
-    List<WikiCategoryTable> list = wikiProvider.wikiCategoriesList;
+    List<WikiCategoryTable> list = wikiProvider.wikiSkillsList;
     for (String skill in skills) {
       WikiCategoryTable? model = list.where((element) => element.name == skill).firstOrNull;
       if (model != null) {
@@ -307,53 +308,44 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
     );
   }
 
-  Future<String> openFileExplorer(FileType pickingType, bool multiPick, bool isThumbNail) async {
+  Future<void> openFileExplorer(bool multiPick, bool isThumbNail) async {
     String fileName = "";
     List<PlatformFile> paths = await MyUtils.pickFiles(
-      pickingType: pickingType,
+      pickingType: isThumbNail ? FileType.image : FileType.custom,
       multiPick: multiPick,
       getBytes: true,
+      extensions: !isThumbNail ? "doc,docx,pdf,xlsx,xls,xlsm,xlsb,xltx,ppt,pptx,mpp,vsdx,csv" : "",
     );
 
-    if (paths.isNotEmpty) {
-      PlatformFile file = paths.first;
-      if (!kIsWeb) {
-        MyPrint.printOnConsole("File Path:${file.path}");
-      }
-      MyPrint.printOnConsole("Got file Name:${file.name}");
-      MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
-      fileName = file.name;
-
-      // fileName = file.name.replaceAll('(', ' ').replaceAll(')', '');
-      // fileName = fileName.trim();
-      // fileName = Uuid().v1() + fileName.substring(fileName.indexOf("."));
-
-      if (isThumbNail) {
-        thumbNailBytes = file.bytes;
-      } else {
-        fileBytes = file.bytes;
-      }
-    } else {
-      fileName = "";
-      fileBytes = null;
-      thumbNailBytes = null;
+    if (paths.isEmpty) {
+      return;
     }
-    return fileName;
-  }
 
-  FileType? getFileTypeFromMediaTypeId({required int mediaTypeId}) {
-    if (mediaTypeId == InstancyMediaTypes.image) {
-      return FileType.image;
-    } else if (mediaTypeId == InstancyMediaTypes.audio) {
-      return FileType.audio;
-    } else if (mediaTypeId == InstancyMediaTypes.video) {
-      return FileType.video;
-    } else if (mediaTypeId == InstancyMediaTypes.pDF) {
-      return FileType.custom;
-    } else {
-      // return FileType.custom;
-      return null;
+    PlatformFile file = paths.first;
+    if (!kIsWeb) {
+      MyPrint.printOnConsole("File Path:${file.path}");
     }
+    MyPrint.printOnConsole("Got file Name:${file.name}");
+    MyPrint.printOnConsole("Got file bytes:${file.bytes?.length}");
+    fileName = MyUtils.regenerateFileName(fileName: file.name) ?? "";
+
+    if (fileName.isEmpty) {
+      return;
+    }
+
+    // fileName = file.name.replaceAll('(', ' ').replaceAll(')', '');
+    // fileName = fileName.trim();
+    // fileName = Uuid().v1() + fileName.substring(fileName.indexOf("."));
+
+    if (isThumbNail) {
+      thumbNailName = fileName;
+      thumbNailBytes = file.bytes;
+    } else {
+      documentName = fileName;
+      documentBytes = file.bytes;
+    }
+
+    mySetState();
   }
 
   Future<CourseDTOModel?> saveDocument() async {
@@ -363,11 +355,31 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
     isLoading = true;
     mySetState();
 
-    coCreateContentAuthoringModel.uploadedDocumentBytes = fileBytes;
-    coCreateContentAuthoringModel.uploadedDocumentName = fileName;
+    coCreateContentAuthoringModel.contentTypeId = InstancyObjectTypes.document;
+    String extension = documentName.contains(".") && (documentName.lastIndexOf(".") + 1) < documentName.length ? documentName.substring(documentName.lastIndexOf(".") + 1) : "";
+    coCreateContentAuthoringModel.mediaTypeId = switch (extension) {
+      "doc" => InstancyMediaTypes.word,
+      "docx" => InstancyMediaTypes.word,
+      "pdf" => InstancyMediaTypes.pDF,
+      "xlsx" => InstancyMediaTypes.excel,
+      "xls" => InstancyMediaTypes.excel,
+      "xlsm" => InstancyMediaTypes.excel,
+      "xlsb" => InstancyMediaTypes.excel,
+      "xltx" => InstancyMediaTypes.excel,
+      "ppt" => InstancyMediaTypes.ppt,
+      "pptx" => InstancyMediaTypes.ppt,
+      "mpp" => InstancyMediaTypes.mpp,
+      "vsdx" => InstancyMediaTypes.visioTypes,
+      "csv" => InstancyMediaTypes.csv,
+      _ => InstancyMediaTypes.none,
+    };
+
+    coCreateContentAuthoringModel.uploadedDocumentBytes = documentBytes;
+    coCreateContentAuthoringModel.uploadedDocumentName = documentName;
     coCreateContentAuthoringModel.title = titleController.text.trim();
     coCreateContentAuthoringModel.description = descriptionController.text.trim();
     coCreateContentAuthoringModel.skills = selectedCategoriesList.map((e) => e.name).toList();
+    coCreateContentAuthoringModel.skillsMap = Map<int, String>.fromEntries(selectedCategoriesList.map((e) => MapEntry<int, String>(e.categoryID, e.name)));
     coCreateContentAuthoringModel.ThumbnailImageName = thumbNailName;
     coCreateContentAuthoringModel.thumbNailImageBytes = thumbNailBytes;
 
@@ -423,16 +435,6 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
   void initState() {
     super.initState();
     wikiProvider = context.read<WikiProvider>();
-    wikiController = WikiController(wikiProvider: wikiProvider);
-    wikiController.getWikiCategoriesFromApi(
-      componentId: InstancyComponents.Catalog,
-      componentInstanceId: InstancyComponents.CatalogComponentInsId,
-    );
-    // editData();
-    // isUrl = widget.addWikiContentScreenNavigationArguments.mediaTypeId == InstancyMediaTypes.url;
-    fileType = getFileTypeFromMediaTypeId(
-      mediaTypeId: InstancyMediaTypes.pDF,
-    );
 
     initializeData();
   }
@@ -494,7 +496,7 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
               const SizedBox(
                 height: 19,
               ),
-              getWidgetFromFileType(fileType),
+              getWidgetFromFileType(),
               const SizedBox(
                 height: 19,
               ),
@@ -590,7 +592,7 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
                 onExpansionChanged: (bool? newVal) {
                   FocusScope.of(context).unfocus();
                 },
-                children: provider.wikiCategoriesList.map((e) {
+                children: provider.wikiSkillsList.map((e) {
                   return Container(
                     color: Colors.white,
                     child: InkWell(
@@ -674,46 +676,41 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
   //endregion
 
   //region getWidgetAccordingToFileType
-  Widget getWidgetFromFileType(FileType? fileType) {
-    if (fileType != null) {
-      return InkWell(
-        onTap: () async {
-          fileName = await openFileExplorer(fileType, false, false);
-          setState(() {});
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-          decoration: BoxDecoration(border: Border.all(color: Colors.grey, width: .5), borderRadius: BorderRadius.circular(5)),
-          child: Row(
-            children: [
-              getImageView(url: "assets/imageUpload.png", height: 15, width: 15),
-              const SizedBox(
-                width: 12,
+  Widget getWidgetFromFileType() {
+    return InkWell(
+      onTap: () async {
+        await openFileExplorer(false, false);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+        decoration: BoxDecoration(border: Border.all(color: Colors.grey, width: .5), borderRadius: BorderRadius.circular(5)),
+        child: Row(
+          children: [
+            getImageView(url: "assets/imageUpload.png", height: 15, width: 15),
+            const SizedBox(
+              width: 12,
+            ),
+            Expanded(
+              child: labelWithStar(
+                documentName.isEmpty ? "Upload" : documentName,
+                style: documentName.isNotEmpty ? themeData.textTheme.titleSmall : themeData.inputDecorationTheme.hintStyle,
               ),
-              Expanded(
-                child: labelWithStar(
-                  fileName.isEmpty ? "Upload" : fileName,
-                  style: fileName.isNotEmpty ? themeData.textTheme.titleSmall : themeData.inputDecorationTheme.hintStyle,
-                ),
-              ),
-              const Icon(Icons.add)
-            ],
-          ),
+            ),
+            const Icon(Icons.add)
+          ],
         ),
-      );
-    } else {
-      return const SizedBox();
-    }
+      ),
+    );
   }
 
   Widget getThumbNail(FileType? fileType) {
     if (fileType == null) return const SizedBox();
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
           onTap: () async {
-            thumbNailName = await openFileExplorer(fileType, false, true);
-            setState(() {});
+            await openFileExplorer(false, true);
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -735,8 +732,8 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
           ),
         ),
         if (thumbNailBytes != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 10.0),
+          Container(
+            margin: const EdgeInsets.only(top: 10.0),
             child: Stack(
               alignment: Alignment.topRight,
               children: [

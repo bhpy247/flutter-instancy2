@@ -34,6 +34,22 @@ class WikiProvider extends ChangeNotifier {
   List<WikiCategoryTable> get wikiCategoriesList => _wikiCategoriesList;
   //endregion
 
+  //region Wiki Skills
+  List<WikiCategoryTable> _wikiSkillsList = [];
+
+  void setWikiSkillsList(List<WikiCategoryTable> wikiSkillsList, {bool isNotify = true}) {
+    if (wikiSkillsList.isNotEmpty) {
+      _wikiSkillsList = wikiSkillsList;
+    }
+    if (isNotify) {
+      notifyListeners();
+    }
+  }
+
+  List<WikiCategoryTable> get wikiSkillsList => _wikiSkillsList;
+
+  //endregion
+
   void resetData() {
     setFileUploadControlsModelList([], isNotify: false);
     setWikiCategoriesList([], isNotify: true);

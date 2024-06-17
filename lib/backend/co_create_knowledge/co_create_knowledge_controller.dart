@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
 import 'package:flutter_instancy_2/backend/app/dependency_injection.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/app_ststem_configurations.dart';
+import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/article/data_model/article_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_formdata_model.dart';
@@ -23,10 +25,11 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/event/data_model/e
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/data_model/flashcard_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/request_model/flashcard_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_content_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/data_model/podcast_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/language_voice_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/speaking_style_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_content_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/data_model/podcast_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_question_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/assessment_generate_content_request_model.dart';
@@ -38,6 +41,7 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/roleplay/data_mode
 import 'package:flutter_instancy_2/models/co_create_knowledge/video/data_model/video_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/video/request_model/generate_video_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/video/response_model/video_detail_response_model.dart';
+import 'package:flutter_instancy_2/models/common/Instancy_multipart_file_upload_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_profile_details_model.dart';
@@ -76,7 +80,7 @@ class CoCreateKnowledgeController {
     MyPrint.printOnConsole("CoCreateKnowledgeController().getMyKnowledgeList() called with requestModel:$requestModel", tag: tag);
 
     CoCreateKnowledgeProvider provider = coCreateKnowledgeProvider;
-    provider.isLoading.set(value: true, isNotify: false);
+    provider.isLoadingMyKnowledge.set(value: true, isNotify: false);
 
     if (requestModel == null) {
       MyPrint.printOnConsole("Initializing requestModel", tag: tag);
@@ -93,28 +97,32 @@ class CoCreateKnowledgeController {
       MyPrint.printOnConsole("Final requestModel", tag: tag);
     }
 
-    DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeList(requestModel: requestModel);
+    DataResponseModel<CatalogResponseDTOModel> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeList2(requestModel: requestModel);
+    // DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeList(requestModel: requestModel);
     // DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeListTemp(requestModel: requestModel);
 
     if (dataResponseModel.appErrorModel != null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getMyKnowledgeList() because appErrorModel is not null", tag: tag);
       MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
 
-      provider.isLoading.set(value: false, isNotify: false);
+      provider.isLoadingMyKnowledge.set(value: false, isNotify: false);
       provider.myKnowledgeList.setList(list: <CourseDTOModel>[]);
 
       return false;
     } else if (dataResponseModel.data == null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getMyKnowledgeList() because data is null", tag: tag);
 
-      provider.isLoading.set(value: false, isNotify: false);
+      provider.isLoadingMyKnowledge.set(value: false, isNotify: false);
       provider.myKnowledgeList.setList(list: <CourseDTOModel>[]);
 
       return false;
     }
 
-    provider.isLoading.set(value: false, isNotify: false);
-    provider.myKnowledgeList.setList(list: dataResponseModel.data!);
+    List<CourseDTOModel> contentsList = dataResponseModel.data?.CourseList ?? <CourseDTOModel>[];
+    MyPrint.printOnConsole("MyKnowledge Contents Length got in Api:${contentsList.length}", tag: tag);
+
+    provider.isLoadingMyKnowledge.set(value: false, isNotify: false);
+    provider.myKnowledgeList.setList(list: contentsList);
 
     MyPrint.printOnConsole("Final myKnowledgeList length:${provider.myKnowledgeList.length}", tag: tag);
 
@@ -126,7 +134,7 @@ class CoCreateKnowledgeController {
     MyPrint.printOnConsole("CoCreateKnowledgeController().getSharedKnowledgeList() called with requestModel:$requestModel", tag: tag);
 
     CoCreateKnowledgeProvider provider = coCreateKnowledgeProvider;
-    provider.isLoading.set(value: true, isNotify: false);
+    provider.isLoadingSharedKnowledge.set(value: true, isNotify: false);
 
     if (requestModel == null) {
       MyPrint.printOnConsole("Initializing requestModel", tag: tag);
@@ -143,30 +151,36 @@ class CoCreateKnowledgeController {
       MyPrint.printOnConsole("Final requestModel", tag: tag);
     }
 
-    DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeList(requestModel: requestModel);
+    requestModel.componentId = InstancyComponents.CoCreateKnowledgeComponent;
+
+    DataResponseModel<CatalogResponseDTOModel> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeList2(requestModel: requestModel);
+    // DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeList(requestModel: requestModel);
     // DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeListTemp(requestModel: requestModel);
 
     if (dataResponseModel.appErrorModel != null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getSharedKnowledgeList() because appErrorModel is not null", tag: tag);
       MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
 
-      provider.isLoading.set(value: false, isNotify: false);
-      provider.shareKnowledgeList.setList(list: <CourseDTOModel>[]);
+      provider.isLoadingSharedKnowledge.set(value: false, isNotify: false);
+      provider.sharedKnowledgeList.setList(list: <CourseDTOModel>[]);
 
       return false;
     } else if (dataResponseModel.data == null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getSharedKnowledgeList() because data is null", tag: tag);
 
-      provider.isLoading.set(value: false, isNotify: false);
-      provider.shareKnowledgeList.setList(list: <CourseDTOModel>[]);
+      provider.isLoadingSharedKnowledge.set(value: false, isNotify: false);
+      provider.sharedKnowledgeList.setList(list: <CourseDTOModel>[]);
 
       return false;
     }
 
-    provider.isLoading.set(value: false, isNotify: false);
-    provider.shareKnowledgeList.setList(list: dataResponseModel.data!);
+    List<CourseDTOModel> contentsList = dataResponseModel.data?.CourseList ?? <CourseDTOModel>[];
+    MyPrint.printOnConsole("ShareKnowledge Contents Length got in Api:${contentsList.length}", tag: tag);
 
-    MyPrint.printOnConsole("Final shareKnowledgeList length:${provider.shareKnowledgeList.length}", tag: tag);
+    provider.isLoadingSharedKnowledge.set(value: false, isNotify: false);
+    provider.sharedKnowledgeList.setList(list: contentsList);
+
+    MyPrint.printOnConsole("Final shareKnowledgeList length:${provider.sharedKnowledgeList.length}", tag: tag);
 
     return true;
   }
@@ -348,6 +362,13 @@ class CoCreateKnowledgeController {
       StartPage: coCreateContentAuthoringModel.referenceUrl ?? "",
     );
 
+    if (coCreateContentAuthoringModel.skillsMap.isEmpty && coCreateContentAuthoringModel.skills.isNotEmpty) {
+      Map<int, String> allSkillsMap = Map<int, String>.fromEntries(DependencyInjection.wikiProvider.wikiSkillsList.map((e) => MapEntry(e.categoryID, e.name)));
+
+      coCreateContentAuthoringModel.skillsMap = Map<int, String>.fromEntries(allSkillsMap.entries.where((element) => coCreateContentAuthoringModel.skills.contains(element.value)));
+      coCreateContentAuthoringModel.skills = coCreateContentAuthoringModel.skillsMap.values.toList();
+    }
+
     CreateNewContentItemRequestModel requestModel = CreateNewContentItemRequestModel(
       formData: createNewContentItemFormDataModel,
       ObjectTypeID: coCreateContentAuthoringModel.contentTypeId,
@@ -355,11 +376,24 @@ class CoCreateKnowledgeController {
       ThumbnailImage: coCreateContentAuthoringModel.thumbNailImageBytes,
       ThumbnailImageName: coCreateContentAuthoringModel.ThumbnailImageName,
       ActionType: coCreateContentAuthoringModel.isEdit ? CreateNewContentItemActionType.update : CreateNewContentItemActionType.create,
-      Categories: coCreateContentAuthoringModel.skills,
+      Categories: coCreateContentAuthoringModel.skillsMap.keys.map((e) => e.toString()).toList(),
       CategoryType: CreateNewContentItemCategoryType.skl,
       ContentID: coCreateContentAuthoringModel.contentId,
       FolderPath: coCreateContentAuthoringModel.courseDTOModel?.FolderPath ?? "",
     );
+
+    if (coCreateContentAuthoringModel.uploadedDocumentName.checkNotEmpty) {
+      requestModel.fileName = coCreateContentAuthoringModel.uploadedDocumentName!;
+    }
+    if (coCreateContentAuthoringModel.uploadedDocumentBytes.checkNotEmpty) {
+      requestModel.Files = [
+        InstancyMultipartFileUploadModel(
+          fieldName: "Files",
+          fileName: coCreateContentAuthoringModel.uploadedDocumentName,
+          bytes: coCreateContentAuthoringModel.uploadedDocumentBytes,
+        ),
+      ];
+    }
 
     if (coCreateContentAuthoringModel.flashcardContentModel != null) {
       FlashcardContentModel flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel!;
@@ -425,13 +459,18 @@ class CoCreateKnowledgeController {
     courseDTOModel.ThumbnailImagePath = coCreateContentAuthoringModel.ThumbnailImagePath;
     courseDTOModel.ThumbnailImageName = coCreateContentAuthoringModel.ThumbnailImageName;
     courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
-    courseDTOModel.Skills = coCreateContentAuthoringModel.skills;
+    courseDTOModel.ContentSkills = coCreateContentAuthoringModel.skills;
     courseDTOModel.ContentTypeId = coCreateContentAuthoringModel.contentTypeId;
     courseDTOModel.MediaTypeID = coCreateContentAuthoringModel.mediaTypeId;
 
     if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.reference && coCreateContentAuthoringModel.mediaTypeId == InstancyMediaTypes.url) {
       courseDTOModel.ViewLink = coCreateContentAuthoringModel.referenceUrl ?? "";
-    } else if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.document) {
+    } else if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.document ||
+        (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.mediaResource &&
+            [
+              InstancyMediaTypes.audio,
+              InstancyMediaTypes.video,
+            ].contains(coCreateContentAuthoringModel.mediaTypeId))) {
       courseDTOModel.uploadedDocumentBytes = coCreateContentAuthoringModel.uploadedDocumentBytes;
       courseDTOModel.uploadedFileName = coCreateContentAuthoringModel.uploadedDocumentName;
     }
@@ -485,7 +524,7 @@ class CoCreateKnowledgeController {
     coCreateContentAuthoringModel.ThumbnailImagePath = courseDTOModel.ThumbnailImagePath;
     coCreateContentAuthoringModel.ThumbnailImageName = courseDTOModel.ThumbnailImageName;
     coCreateContentAuthoringModel.thumbNailImageBytes = courseDTOModel.thumbNailFileBytes;
-    coCreateContentAuthoringModel.skills = courseDTOModel.Skills;
+    coCreateContentAuthoringModel.skills = courseDTOModel.ContentSkills;
 
     if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.reference && coCreateContentAuthoringModel.mediaTypeId == InstancyMediaTypes.url) {
       coCreateContentAuthoringModel.referenceUrl = courseDTOModel.ViewLink;
@@ -1037,4 +1076,191 @@ class CoCreateKnowledgeController {
       return "";
     }
   }
+
+  //region Generate MicroLearning Content
+  Future<List<MicroLearningModel>> generateMicroLearningContentPages({required MicroLearningContentModel microLearningContentModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningContentPages() called with microLearningContentModel:$microLearningContentModel", tag: tag);
+
+    List<MicroLearningModel> pages = <MicroLearningModel>[];
+
+    if (microLearningContentModel.pageCount < 1) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningContentPages() because pageCount is less than 1", tag: tag);
+      return pages;
+    } else if (microLearningContentModel.wordsPerPageCount < 1) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningContentPages() because wordsPerPageCount is less than 1", tag: tag);
+      return pages;
+    } else if (microLearningContentModel.selectedTopics.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningContentPages() because selectedTopics is empty", tag: tag);
+      return pages;
+    }
+
+    List<String> totalElementsEnabled = [
+      if (microLearningContentModel.isGenerateTextEnabled) MicroLearningElementType.Text,
+      if (microLearningContentModel.isGenerateImageEnabled) MicroLearningElementType.Image,
+      if (microLearningContentModel.isGenerateAudioEnabled) MicroLearningElementType.Audio,
+      if (microLearningContentModel.isGenerateVideoEnabled) MicroLearningElementType.Video,
+      if (microLearningContentModel.isGenerateQuizEnabled) MicroLearningElementType.Quiz,
+    ];
+    MyPrint.printOnConsole("totalElementsEnabled:$totalElementsEnabled", tag: tag);
+
+    if (totalElementsEnabled.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningContentPages() because totalElementsEnabled is empty", tag: tag);
+      return pages;
+    }
+
+    List<String> elementsEnabled = totalElementsEnabled.toList()..remove(MicroLearningElementType.Quiz);
+
+    int pagesCountToGenerate = microLearningContentModel.pageCount;
+
+    List<List<String>> pagesElementWise = <List<String>>[];
+
+    for (int i = 0; i < pagesCountToGenerate; i++) {
+      int elementCount = Random().nextInt(elementsEnabled.length) + 1;
+
+      List<String> elements = <String>[];
+      for (int j = 0; j < elementCount; j++) {
+        String element = elementsEnabled[Random().nextInt(elementsEnabled.length)];
+        elements.add(element);
+      }
+
+      pagesElementWise.add(elements);
+    }
+
+    MyPrint.printOnConsole("Final pages:$pages", tag: tag);
+
+    return pages;
+  }
+
+  Future<String> generateMicroLearningText({required String topic}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningText() called", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    String text = "";
+
+    if (topic.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningText() because topic is empty", tag: tag);
+      return text;
+    }
+
+    MyPrint.printOnConsole("Final text:$text", tag: tag);
+
+    return text;
+  }
+
+  Future<Uint8List?> generateMicroLearningImage({required String topic}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningImage() called", tag: tag);
+
+    Uint8List? imageBytes;
+
+    if (topic.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningImage() because topic is empty", tag: tag);
+      return imageBytes;
+    }
+
+    List<Uint8List> images = await generateImagesFromAi(
+      requestModel: GenerateImagesRequestModel(
+        count: 1,
+        size: "1024x1024",
+        topic: topic,
+      ),
+    );
+
+    imageBytes = images.firstElement;
+
+    MyPrint.printOnConsole("Final imageBytes:${imageBytes?.length}", tag: tag);
+
+    return imageBytes;
+  }
+
+  Future<String> generateMicroLearningAudio({required String topic}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningAudio() called", tag: tag);
+
+    String audioUrl = "";
+
+    if (topic.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningAudio() because topic is empty", tag: tag);
+      return audioUrl;
+    }
+
+    MyPrint.printOnConsole("Final audioUrl:$audioUrl", tag: tag);
+
+    return audioUrl;
+  }
+
+  Future<String> generateMicroLearningVideo({required String topic}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningVideo() called", tag: tag);
+
+    String videoUrl = "";
+
+    if (topic.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because topic is empty", tag: tag);
+      return videoUrl;
+    }
+
+    bool isGenerated = await generateVideo(
+      requestModel: GenerateVideoRequestModel(
+        videoInput: VideoInput(
+          title: "Heart Attack",
+          input: [
+            /*Input(
+              avatar: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.avatarId ?? "",
+              background: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.background ?? "",
+              scriptText: "Heart Attack is a major disises",
+              avatarSettings: AvatarSettings(
+                horizontalAlign: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.background.toLowerCase() ?? "",
+                voice: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.voice ?? "",
+                scale: 1,
+                style: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.style ?? "",
+              ),
+            ),*/
+          ],
+        ),
+      ),
+    );
+    MyPrint.printOnConsole("isGenerated:$isGenerated", tag: tag);
+
+    if (!isGenerated) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because Video Couldn't Generate", tag: tag);
+      return videoUrl;
+    }
+
+    videoUrl = coCreateKnowledgeProvider.generatedVideoUrl.get();
+
+    MyPrint.printOnConsole("Final videoUrl:$videoUrl", tag: tag);
+
+    return videoUrl;
+  }
+
+  Future<List<QuizQuestionModel>> generateMicroLearningQuiz({required List<String> topics}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningQuiz() called with topics:$topics", tag: tag);
+
+    List<QuizQuestionModel> quizQuestionModelsList = <QuizQuestionModel>[];
+
+    if (topics.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningQuiz() because topics are empty", tag: tag);
+      return quizQuestionModelsList;
+    }
+
+    quizQuestionModelsList = (await generateQuiz(
+          requestModel: QuizGenerateRequestModel(
+            prompt: "Questions for Topics:${topics.join(",")}",
+            questionType: QuizQuestionType.mcq,
+            difficultyLevel: QuizDifficultyTypes.intermediate,
+            numberOfQuestions: 1,
+          ),
+        )) ??
+        <QuizQuestionModel>[];
+
+    MyPrint.printOnConsole("Final quizQuestionModelsList:$quizQuestionModelsList", tag: tag);
+
+    return quizQuestionModelsList;
+  }
+// endregion
 }

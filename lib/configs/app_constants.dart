@@ -1023,6 +1023,14 @@ class MicroLearningElementType {
   static const String Video = "Video";
   static const String Audio = "Audio";
   static const String Quiz = "Quiz";
+
+  static List<String> get values => [
+        Text,
+        Image,
+        Video,
+        Audio,
+        Quiz,
+      ];
 }
 
 class CreateNewContentItemActionType {

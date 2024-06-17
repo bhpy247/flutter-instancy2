@@ -50,9 +50,7 @@ class _WebViewScreenState extends State<WebViewScreen> with MySafeState {
                     fontColor: themeData.colorScheme.onPrimary,
                     fontSize: 15,
                     onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.pop(context);
-                      Navigator.pop(context);
+                      Navigator.pop(context, true);
                     },
                     text: "Done",
                   ),

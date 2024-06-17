@@ -79,6 +79,118 @@ class CourseLaunchController {
 
   ApiUrlConfigurationProvider get apiDataProvider => _apiDataProvider;
 
+  Future<void> viewCoCreateKnowledgeContent({required BuildContext context, required CourseDTOModel model}) async {
+    MyPrint.printOnConsole("CourseLaunchController().viewCoCreateKnowledgeContent() called");
+
+    int objectType = model.ContentTypeId;
+    int mediaType = model.MediaTypeID;
+    MyPrint.printOnConsole("objectType:$objectType, mediaType:$mediaType");
+
+    if (objectType == InstancyObjectTypes.flashCard) {
+      NavigationController.navigateToFlashCardScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: FlashCardScreenNavigationArguments(courseDTOModel: model),
+      );
+    } else if (objectType == InstancyObjectTypes.rolePlay) {
+      NavigationController.navigateToRolePlayLaunchScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: RolePlayLaunchScreenNavigationArguments(
+          courseDTOModel: model,
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.audio) {
+      NavigationController.navigateToPodcastEpisodeScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.reference && mediaType == InstancyMediaTypes.url) {
+      NavigationController.navigateToWebViewScreen(
+        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+        arguments: WebViewScreenNavigationArguments(
+          title: model.Title,
+          url: "https://smartbridge.com/introduction-generative-ai-transformative-potential-enterprises/",
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.document && mediaType == InstancyMediaTypes.pDF) {
+      String documentUrl = AppConfigurationOperations(appProvider: appProvider).getInstancyImageUrlFromImagePath(imagePath: model.startpage);
+      MyPrint.printOnConsole("Final documentUrl:$documentUrl");
+
+      NavigationController.navigateToPDFLaunchScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: PDFLaunchScreenNavigationArguments(
+          contntName: model.ContentName,
+          isNetworkPDF: true,
+          pdfUrl: documentUrl,
+          // pdfUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fdocuments%2Fai%20for%20biotechnology.pdf?alt=media&token=ab06fadc-ba08-4114-88e1-529213d117bf",
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.video) {
+      String videoUrl = AppConfigurationOperations(appProvider: appProvider).getInstancyImageUrlFromImagePath(imagePath: model.startpage);
+      MyPrint.printOnConsole("Final videoUrl:$videoUrl");
+
+      NavigationController.navigateToVideoWithTranscriptLaunchScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: VideoWithTranscriptLaunchScreenNavigationArgument(
+          title: model.ContentName,
+          videoUrl: videoUrl,
+          transcript: model.videoContentModel?.scriptText ?? "",
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.assessment && mediaType == InstancyMediaTypes.test) {
+      NavigationController.navigateToQuizScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: QuizScreenNavigationArguments(courseDTOModel: model),
+      );
+    } else if (objectType == InstancyObjectTypes.webPage) {
+      NavigationController.navigateToArticleScreen(
+        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+        arguments: ArticleScreenNavigationArguments(courseDTOModel: model),
+      );
+      /*NavigationController.navigateToWebViewScreen(
+        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+        arguments: WebViewScreenNavigationArguments(
+          title: model.Title,
+          url: "https://enterprisedemo.instancy.com/content/publishfiles/1539fc5c-7bde-4d82-a0f6-9612f9e6c426/ins_content.html?fromNativeapp=true",
+        ),
+      );*/
+    } else if (objectType == InstancyObjectTypes.track) {
+      NavigationController.navigateToLearningPathScreen(
+        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+        argument: LearningPathScreenNavigationArgument(
+          model: model,
+          componentId: _componentId,
+          componentInstanceId: _componentInstanceId,
+        ),
+      );
+    } else if (objectType == InstancyObjectTypes.contentObject && mediaType == InstancyMediaTypes.microLearning) {
+      NavigationController.navigateToMicroLearningScreen(
+        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+        argument: MicroLearningScreenNavigationArgument(
+          model: model,
+          componentId: _componentId,
+          componentInstanceId: _componentInstanceId,
+        ),
+      );
+    }
+  }
+
   Future<bool> viewCourse({
     required BuildContext context,
     required CourseLaunchModel model,

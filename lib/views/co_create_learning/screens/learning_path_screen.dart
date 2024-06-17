@@ -193,10 +193,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> with MySafeStat
         ),
       );
     } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.video) {
-      NavigationController.navigateToVideoScreen(
+      NavigationController.navigateToVideoWithTranscriptLaunchScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
+        ),
+        argument: VideoWithTranscriptLaunchScreenNavigationArgument(
+          title: model.ContentName,
+          videoBytes: model.uploadedDocumentBytes,
         ),
       );
     } else if (objectType == InstancyObjectTypes.assessment && mediaType == InstancyMediaTypes.test) {
@@ -229,7 +233,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> with MySafeStat
 
   Future<void> onShareTap({required CourseDTOModel model}) async {
     model.IsShared = true;
-    _provider.shareKnowledgeList.setList(list: [model], isClear: false, isNotify: true);
+    _provider.sharedKnowledgeList.setList(list: [model], isClear: false, isNotify: true);
     mySetState();
   }
 

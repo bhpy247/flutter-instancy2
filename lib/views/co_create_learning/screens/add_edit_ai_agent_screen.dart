@@ -232,7 +232,7 @@ class _AddEditAiAgentScreenState extends State<AddEditAiAgentScreen> with MySafe
       coCreateContentAuthoringModel.title = courseDTOModel.ContentName;
       coCreateContentAuthoringModel.description = courseDTOModel.ShortDescription;
       coCreateContentAuthoringModel.thumbNailImageBytes = courseDTOModel.thumbNailFileBytes;
-      coCreateContentAuthoringModel.skills = courseDTOModel.Skills;
+      coCreateContentAuthoringModel.skills = courseDTOModel.ContentSkills;
 
       coCreateContentAuthoringModel.uploadedDocumentBytes = courseDTOModel.uploadedDocumentBytes;
       coCreateContentAuthoringModel.flashcardContentModel = courseDTOModel.flashcardContentModel;
@@ -364,7 +364,7 @@ class _AddEditAiAgentScreenState extends State<AddEditAiAgentScreen> with MySafe
       courseDTOModel.ShortDescription = coCreateContentAuthoringModel.description;
       courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
 
-      courseDTOModel.Skills = coCreateContentAuthoringModel.skills;
+      courseDTOModel.ContentSkills = coCreateContentAuthoringModel.skills;
 
       courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
 

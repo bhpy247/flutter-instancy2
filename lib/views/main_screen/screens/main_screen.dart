@@ -195,6 +195,10 @@ class _MainScreenState extends State<MainScreen> {
       componentId: InstancyComponents.Catalog,
       componentInstanceId: InstancyComponents.CatalogComponentInsId,
     );
+    wikiController.getWikiSkillsFromApi(
+      componentId: InstancyComponents.Catalog,
+      componentInstanceId: InstancyComponents.CatalogComponentInsId,
+    );
   }
 
   @override

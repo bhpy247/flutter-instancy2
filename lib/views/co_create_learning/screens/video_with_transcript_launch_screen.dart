@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/backend/navigation/navigation_arguments.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/theme_helper.dart';
 import 'package:video_player/video_player.dart';
 
@@ -8,45 +10,66 @@ import '../../../utils/my_print.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_loader.dart';
 
-class VideoScreen extends StatefulWidget {
-  static const String routeName = "/videoScreen";
+class VideoWithTranscriptLaunchScreen extends StatefulWidget {
+  static const String routeName = "/VideoWithTranscriptLaunchScreen";
 
-  const VideoScreen({super.key});
+  final VideoWithTranscriptLaunchScreenNavigationArgument argument;
+
+  const VideoWithTranscriptLaunchScreen({
+    super.key,
+    required this.argument,
+  });
 
   @override
-  State<VideoScreen> createState() => _VideoScreenState();
+  State<VideoWithTranscriptLaunchScreen> createState() => _VideoWithTranscriptLaunchScreenState();
 }
 
-class _VideoScreenState extends State<VideoScreen> with MySafeState {
+class _VideoWithTranscriptLaunchScreenState extends State<VideoWithTranscriptLaunchScreen> with MySafeState {
   VideoPlayerController? _videoPlayerController;
-  Future<void>? futureInitializeVideo;
+  late Future<void> futureInitializeVideo;
   bool isTranscriptExpanded = true;
+
   Future<void> getData() async {
+    VideoPlayerOptions videoPlayerOptions = VideoPlayerOptions(
+      allowBackgroundPlayback: false,
+      mixWithOthers: false,
+    );
+
+    MyPrint.printOnConsole("widget.argument.videoBytes:${widget.argument.videoBytes?.length}");
+    MyPrint.printOnConsole("widget.argument.videoUrl:${widget.argument.videoUrl}");
+
+    if (widget.argument.videoBytes.checkNotEmpty) {
+      Uri uri = Uri.dataFromBytes(widget.argument.videoBytes!);
+      _videoPlayerController = VideoPlayerController.contentUri(
+        uri,
+        videoPlayerOptions: videoPlayerOptions,
+      );
+    } else if (widget.argument.videoUrl.checkNotEmpty) {
+      // Uri? uri = Uri.tryParse("https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fvideos%2FAI%20agents%20memory%20and%20Personalize%20learning.mp4?alt=media&token=84ba039a-fc26-4868-9e3e-070197764d68");
+      Uri? uri = Uri.tryParse(widget.argument.videoUrl);
+      if (uri == null) {
+        return;
+      }
+      _videoPlayerController = VideoPlayerController.networkUrl(
+        uri,
+        videoPlayerOptions: videoPlayerOptions,
+      );
+    } else {
+      return;
+    }
+
     await _videoPlayerController!.initialize();
 
     MyPrint.printOnConsole("IsInitialized:${_videoPlayerController!.value.isInitialized}");
 
-    _videoPlayerController!.play();
+    await _videoPlayerController!.play();
   }
 
   @override
   void initState() {
     super.initState();
-    VideoPlayerOptions videoPlayerOptions = VideoPlayerOptions(
-      allowBackgroundPlayback: false,
-      mixWithOthers: false,
-    );
-    Uri? uri = Uri.tryParse(
-        "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fvideos%2FAI%20agents%20memory%20and%20Personalize%20learning.mp4?alt=media&token=84ba039a-fc26-4868-9e3e-070197764d68");
-    if (uri != null) {
-      _videoPlayerController = VideoPlayerController.networkUrl(
-        uri,
-        videoPlayerOptions: videoPlayerOptions,
-      );
-    }
-    if (_videoPlayerController != null) {
-      futureInitializeVideo = getData();
-    }
+
+    futureInitializeVideo = getData();
   }
 
   @override
@@ -62,9 +85,17 @@ class _VideoScreenState extends State<VideoScreen> with MySafeState {
       appBar: getAppBar(),
       body: AppUIComponents.getBackGroundBordersRounded(
         context: context,
-        child: getMainBody(
-          futureInitializeVideo: futureInitializeVideo,
-          videoPlayerController: _videoPlayerController,
+        child: FutureBuilder(
+          future: futureInitializeVideo,
+          builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const CommonLoader();
+            }
+
+            return getMainBody(
+              videoPlayerController: _videoPlayerController,
+            );
+          },
         ),
       ),
     );
@@ -72,15 +103,14 @@ class _VideoScreenState extends State<VideoScreen> with MySafeState {
 
   PreferredSizeWidget getAppBar() {
     return AppConfigurations().commonAppBar(
-      title: "AI Agents Memory and Personalize Learning",
+      title: widget.argument.title.isNotEmpty ? widget.argument.title : "Video",
     );
   }
 
   Widget getMainBody({
-    required Future<void>? futureInitializeVideo,
     required VideoPlayerController? videoPlayerController,
   }) {
-    if (futureInitializeVideo == null || videoPlayerController == null) {
+    if (videoPlayerController == null) {
       return const Center(
         child: Text("Video Couldn't loaded"),
       );
@@ -129,7 +159,7 @@ class _VideoScreenState extends State<VideoScreen> with MySafeState {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
                   child: Row(
                     children: [
                       InkWell(
@@ -138,7 +168,7 @@ class _VideoScreenState extends State<VideoScreen> with MySafeState {
                             setState(() {});
                           },
                           child: Icon(isTranscriptExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down_outlined)),
-                      Text(
+                      const Text(
                         "Transcript",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -149,9 +179,9 @@ class _VideoScreenState extends State<VideoScreen> with MySafeState {
                 ),
                 if (isTranscriptExpanded)
                   const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15.0),
-                  child: Text(
-                    """
+                    padding: EdgeInsets.symmetric(horizontal: 15.0),
+                    child: Text(
+                      """
 0:00
 Enhancing corporate Learning with AI Agents and LLM featuring large memory, AI agents and large language model applications are revolutionizing learning and skill development by leveraging advanced AI capabilities.
 
@@ -205,9 +235,9 @@ Instancy offers a comprehensive learning ecosystem featuring a generative AI and
 
 2:50
 Connect with us to elevate your learning journey.""",
-                    textAlign: TextAlign.justify,
-                  ),
-                )
+                      textAlign: TextAlign.justify,
+                    ),
+                  )
               ],
             ),
           ),

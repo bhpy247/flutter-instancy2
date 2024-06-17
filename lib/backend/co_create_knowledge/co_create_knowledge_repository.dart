@@ -3,6 +3,7 @@ import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/api/api_endpoints.dart';
 import 'package:flutter_instancy_2/api/rest_client.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/article/response_model/article_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/generate_images_request_model.dart';
@@ -55,6 +56,23 @@ class CoCreateKnowledgeRepository {
     );
 
     DataResponseModel<List<CourseDTOModel>> apiResponseModel = await apiController.callApi<List<CourseDTOModel>>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<CatalogResponseDTOModel>> getMyKnowledgeList2({required GetCoCreateKnowledgebaseListRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    MyPrint.printOnConsole("Site Url:${apiEndpoints.siteUrl}");
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.catalogResponseDTOModel,
+      url: apiEndpoints.GetCoCreateKnowledgebaseList2(),
+      queryParameters: requestModel.toMap(),
+    );
+
+    DataResponseModel<CatalogResponseDTOModel> apiResponseModel = await apiController.callApi<CatalogResponseDTOModel>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }

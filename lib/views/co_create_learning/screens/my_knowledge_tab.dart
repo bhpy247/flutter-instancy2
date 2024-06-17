@@ -6,6 +6,7 @@ import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
+import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/local_str.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
@@ -50,16 +51,45 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
   late CoCreateKnowledgeController _controller;
   late CoCreateKnowledgeProvider _provider;
   late MyLearningController myLearningController;
+  late CourseLaunchController courseLaunchController;
 
   late Future future;
   bool isLoading = false;
 
-  Future<void> getFutureData({bool isRefresh = true}) async {
+  ScrollController scrollController = ScrollController();
+
+  Future<void> getFutureData({bool isRefresh = true, bool isScrollToLast = false}) async {
     if (!isRefresh && _provider.myKnowledgeList.length > 0) {
       return;
     }
 
     await _controller.getMyKnowledgeList();
+
+    /*MyPrint.printOnConsole("isScrollToLast:$isScrollToLast");
+    if (isScrollToLast) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+        MyPrint.printOnConsole("addPostFrameCallback called");
+
+        Stream<bool> hasClientsStream = Stream.periodic(const Duration(milliseconds: 10), (int count) {
+          bool hasClients = scrollController.hasClients;
+          MyPrint.printOnConsole("hasClients check count:$count, hasClients:$hasClients");
+          return hasClients;
+        });
+
+        await hasClientsStream.where((event) => event).first;
+
+        MyPrint.printOnConsole("scrollController.hasClients:${scrollController.hasClients}");
+        if (scrollController.hasClients) {
+          MyPrint.printOnConsole("scrollController.position.maxScrollExtent:${scrollController.position.maxScrollExtent}");
+          // scrollController.jumpTo(scrollController.position.maxScrollExtent);
+          scrollController.animateTo(
+            scrollController.position.maxScrollExtent,
+            duration: const Duration(seconds: 2),
+            curve: Curves.fastOutSlowIn,
+          );
+        }
+      });
+    }*/
   }
 
   List<InstancyUIActionModel> getActionsList({required CourseDTOModel model, int index = 0}) {
@@ -220,106 +250,12 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
   }
 
   Future<void> onViewTap({required CourseDTOModel model}) async {
-    int objectType = model.ContentTypeId;
-    int mediaType = model.MediaTypeID;
-    MyPrint.printOnConsole("objectType:$objectType, mediaType:$mediaType");
-
-    if (objectType == InstancyObjectTypes.flashCard) {
-      NavigationController.navigateToFlashCardScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        arguments: FlashCardScreenNavigationArguments(courseDTOModel: model),
-      );
-    } else if (objectType == InstancyObjectTypes.rolePlay) {
-      NavigationController.navigateToRolePlayLaunchScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        arguments: RolePlayLaunchScreenNavigationArguments(
-          courseDTOModel: model,
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.audio) {
-      NavigationController.navigateToPodcastEpisodeScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.reference && mediaType == InstancyMediaTypes.url) {
-      NavigationController.navigateToWebViewScreen(
-        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-        arguments: WebViewScreenNavigationArguments(
-          title: model.Title,
-          url: "https://smartbridge.com/introduction-generative-ai-transformative-potential-enterprises/",
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.document && mediaType == InstancyMediaTypes.pDF) {
-      NavigationController.navigateToPDFLaunchScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        arguments: PDFLaunchScreenNavigationArguments(
-          contntName: model.ContentName,
-          isNetworkPDF: true,
-          pdfUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fdocuments%2Fai%20for%20biotechnology.pdf?alt=media&token=ab06fadc-ba08-4114-88e1-529213d117bf",
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.video) {
-      NavigationController.navigateToVideoScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.assessment && mediaType == InstancyMediaTypes.test) {
-      NavigationController.navigateToQuizScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
-        arguments: QuizScreenNavigationArguments(courseDTOModel: model),
-      );
-    } else if (objectType == InstancyObjectTypes.webPage) {
-      NavigationController.navigateToArticleScreen(
-        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-        arguments: ArticleScreenNavigationArguments(courseDTOModel: model),
-      );
-      /*NavigationController.navigateToWebViewScreen(
-        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-        arguments: WebViewScreenNavigationArguments(
-          title: model.Title,
-          url: "https://enterprisedemo.instancy.com/content/publishfiles/1539fc5c-7bde-4d82-a0f6-9612f9e6c426/ins_content.html?fromNativeapp=true",
-        ),
-      );*/
-    } else if (objectType == InstancyObjectTypes.track) {
-      NavigationController.navigateToLearningPathScreen(
-        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-        argument: LearningPathScreenNavigationArgument(
-          model: model,
-          componentId: widget.componentId,
-          componentInstanceId: widget.componentInstanceId,
-        ),
-      );
-    } else if (objectType == InstancyObjectTypes.contentObject && mediaType == InstancyMediaTypes.microLearning) {
-      NavigationController.navigateToMicroLearningScreen(
-        navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-        argument: MicroLearningScreenNavigationArgument(
-          model: model,
-          componentId: widget.componentId,
-          componentInstanceId: widget.componentInstanceId,
-        ),
-      );
-    }
+    await courseLaunchController.viewCoCreateKnowledgeContent(context: context, model: model);
   }
 
   Future<void> onShareTap({required CourseDTOModel model}) async {
     model.IsShared = true;
-    _provider.shareKnowledgeList.setList(list: [model], isClear: false, isNotify: true);
+    _provider.sharedKnowledgeList.setList(list: [model], isClear: false, isNotify: true);
     mySetState();
   }
 
@@ -479,6 +415,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
     } else {}
 
     if (isEdited == true) {
+      future = getFutureData(isRefresh: true);
       mySetState();
     }
   }
@@ -500,6 +437,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       return;
     }
 
+    future = getFutureData(isRefresh: true);
     mySetState();
   }
 
@@ -508,6 +446,12 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
     super.initState();
     appProvider = context.read<AppProvider>();
     myLearningController = MyLearningController(provider: context.read<MyLearningProvider>());
+
+    courseLaunchController = CourseLaunchController(
+      appProvider: appProvider,
+      componentId: widget.componentId,
+      componentInstanceId: widget.componentInstanceId,
+    );
 
     _provider = context.read<CoCreateKnowledgeProvider>();
     _controller = CoCreateKnowledgeController(coCreateKnowledgeProvider: _provider);
@@ -520,15 +464,9 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 
     return Sizer(
       builder: (context, orientation, deviceType) {
-        return RefreshIndicator(
-          onRefresh: () async {
-            future = getFutureData();
-            mySetState();
-          },
-          child: Scaffold(
-            body: mainWidget(),
-            floatingActionButton: getAddContentButton(),
-          ),
+        return Scaffold(
+          body: mainWidget(),
+          floatingActionButton: getAddContentButton(),
         );
       },
     );
@@ -546,7 +484,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
             componentId: widget.componentId,
             componentInsId: widget.componentInstanceId,
             onContentCreated: () {
-              future = getFutureData(isRefresh: true);
+              future = getFutureData(isRefresh: true, isScrollToLast: true);
               mySetState();
             },
           ),
@@ -663,27 +601,53 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
   Widget getCoursesListView() {
     CoCreateKnowledgeProvider provider = _provider;
 
-    if (provider.isLoading.get()) return const CommonLoader();
+    if (provider.isLoadingMyKnowledge.get()) return const CommonLoader();
     List<CourseDTOModel> list = provider.myKnowledgeList.getList();
 
-    return ListView.builder(
-      itemCount: list.length,
-      padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(bottom: 10),
-      itemBuilder: (BuildContext listContext, int index) {
-        CourseDTOModel model = list[index];
+    if (list.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: () async {
+          future = getFutureData(isRefresh: true);
+          mySetState();
+        },
+        child: ListView(
+          controller: scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+            Center(
+              child: AppConfigurations.commonNoDataView(),
+            ),
+          ],
+        ),
+      );
+    }
 
-        return getCatalogContentWidget(model: model, index: index);
-
-        /*return MyKnowledgeItemWidget(
-          model: model,
-          onMoreTap: () {
-            showMoreActions(model: model);
-          },
-          onCardTap: () {
-            onViewTap(model: model);
-          },
-        );*/
+    return RefreshIndicator(
+      onRefresh: () async {
+        future = getFutureData(isRefresh: true);
+        mySetState();
       },
+      child: ListView.builder(
+        controller: scrollController,
+        itemCount: list.length,
+        padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(bottom: 10),
+        itemBuilder: (BuildContext listContext, int index) {
+          CourseDTOModel model = list[index];
+
+          return getCatalogContentWidget(model: model, index: index);
+
+          /*return MyKnowledgeItemWidget(
+            model: model,
+            onMoreTap: () {
+              showMoreActions(model: model);
+            },
+            onCardTap: () {
+              onViewTap(model: model);
+            },
+          );*/
+        },
+      ),
     );
   }
 
@@ -778,7 +742,7 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       name: "Event",
       iconUrl: "assets/cocreate/Vector-3.png",
       objectTypeId: InstancyObjectTypes.events,
-      mediaTypeId: InstancyMediaTypes.none,
+      mediaTypeId: InstancyMediaTypes.virtualClassroomEvent,
     ),
     KnowledgeTypeModel(
       name: "Documents",
@@ -843,7 +807,7 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
       "${InstancyObjectTypes.assessment}_${InstancyMediaTypes.test}",
       "${InstancyObjectTypes.webPage}_${InstancyMediaTypes.none}",
       "${InstancyObjectTypes.track}_${InstancyMediaTypes.none}",
-      "${InstancyObjectTypes.events}_${InstancyMediaTypes.none}",
+      "${InstancyObjectTypes.events}_${InstancyMediaTypes.virtualClassroomEvent}",
       "${InstancyObjectTypes.courseBot}_${InstancyMediaTypes.none}",
       "${InstancyObjectTypes.contentObject}_${InstancyMediaTypes.microLearning}",
     ];
@@ -869,15 +833,21 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
         widget.onContentCreated?.call();
       }
     } else if (objectType == InstancyObjectTypes.document) {
-      NavigationController.navigateToAddEditDocumentScreen(
+      dynamic value = await NavigationController.navigateToAddEditDocumentScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
         arguments: const AddEditDocumentScreenArguments(coCreateContentAuthoringModel: null),
       );
+
+      MyPrint.printOnConsole("Value from AddEditDocumentScreen:$value");
+
+      if (value == true) {
+        widget.onContentCreated?.call();
+      }
     } else if (objectType == InstancyObjectTypes.reference && mediaType == InstancyMediaTypes.url) {
-      NavigationController.navigateToCreateUrlScreen(
+      dynamic value = await NavigationController.navigateToCreateUrlScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
@@ -887,6 +857,12 @@ class _PopUpDialogState extends State<PopUpDialog> with MySafeState {
           componentInsId: widget.componentInsId,
         ),
       );
+
+      MyPrint.printOnConsole("Value from CreateUrlScreen:$value");
+
+      if (value == true) {
+        widget.onContentCreated?.call();
+      }
     }
   }
 

@@ -19,7 +19,6 @@ class CoCreateContentAuthoringModel {
   String contentType = "Test";
   String title = "";
   String description = "";
-  List<String> skills = <String>[];
   String ThumbnailImagePath = "";
   String ThumbnailImageName = "";
   Uint8List? thumbNailImageBytes;
@@ -38,6 +37,8 @@ class CoCreateContentAuthoringModel {
   RoleplayContentModel? roleplayContentModel;
   LearningPathContentModel? learningPathContentModel;
   VideoContentModel? videoContentModel;
+  List<String> skills = <String>[];
+  Map<int, String> skillsMap = <int, String>{};
 
   CoCreateContentAuthoringModel({
     required this.coCreateAuthoringType,
@@ -47,7 +48,6 @@ class CoCreateContentAuthoringModel {
     this.contentType = "Test",
     this.title = "",
     this.description = "",
-    List<String>? skills,
     this.ThumbnailImagePath = "",
     this.ThumbnailImageName = "",
     this.thumbNailImageBytes,
@@ -65,7 +65,11 @@ class CoCreateContentAuthoringModel {
     this.microLearningContentModel,
     this.roleplayContentModel,
     this.learningPathContentModel,
-      this.videoContentModel}) {
+    this.videoContentModel,
+    List<String>? skills,
+    Map<int, String>? skillsMap,
+  }) {
     this.skills = skills ?? <String>[];
+    this.skillsMap = skillsMap ?? <int, String>{};
   }
 }

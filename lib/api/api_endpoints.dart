@@ -578,6 +578,8 @@ class ApiEndpoints {
 // endregion
 
 // region Content Authoring
+  String GetCoCreateKnowledgebaseList2() => '${getBaseApiUrl()}/MobileLMS/GetCoCreateKnowledgebaseList';
+
   String GetCoCreateKnowledgebaseList() => '${getLmeEditorApiUrl()}/NativeAuthoring/GetCoCreateKnowledgebaseList';
 
   String GenerateImages() => '${getLmeEditorApiUrl()}/ContentGenerator/GenerateImages';

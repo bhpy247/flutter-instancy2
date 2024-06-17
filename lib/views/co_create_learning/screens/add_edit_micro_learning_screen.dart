@@ -2,12 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/native_authoring_get_module_names_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/native_authoring_get_resources_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
@@ -47,6 +49,7 @@ class AddEditMicroLearningScreen extends StatefulWidget {
 
 class _AddEditMicroLearningScreenState extends State<AddEditMicroLearningScreen> with MySafeState {
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController pagesController = TextEditingController();
   TextEditingController wordsPerPageController = TextEditingController();
 
@@ -75,7 +78,24 @@ class _AddEditMicroLearningScreenState extends State<AddEditMicroLearningScreen>
     Navigator.pop(context);
   }
 
+  bool validateData() {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return false;
+    }
+
+    if (!isTextEnabled && !isImageEnabled && !isAudioEnabled && !isVideoEnabled && !isQuestionEnabled) {
+      MyToast.showError(context: context, msg: "Enable at least one element");
+      return false;
+    }
+
+    return true;
+  }
+
   Future<void> onNextButtonTap() async {
+    if (!validateData()) {
+      return;
+    }
+
     MicroLearningContentModel microLearningContentModel = coCreateContentAuthoringModel.microLearningContentModel ??= MicroLearningContentModel();
 
     microLearningContentModel.pageCount = ParsingHelper.parseIntMethod(pagesController.text);
@@ -162,76 +182,77 @@ class _AddEditMicroLearningScreenState extends State<AddEditMicroLearningScreen>
 
   Widget getMainBody() {
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-        child: Column(
-          children: [
-            const SizedBox(
-              height: 17,
-            ),
-            getPageTextField(),
-
-            // getCardCountTextFormField(),
-            const SizedBox(
-              height: 17,
-            ),
-            getWordsPerPageTextField(),
-            const SizedBox(
-              height: 17,
-            ),
-            getCommonSwitchWithTextWidget(
-              text: "Text",
-              isTrue: isTextEnabled,
-              onChanged: (bool? val) {
-                isTextEnabled = val ?? false;
-                mySetState();
-              },
-            ),
-            const SizedBox(
-              height: 17,
-            ),
-            getCommonSwitchWithTextWidget(
-              text: "Image",
-              isTrue: isImageEnabled,
-              onChanged: (bool? val) {
-                isImageEnabled = val ?? false;
-                mySetState();
-              },
-            ),
-            const SizedBox(
-              height: 17,
-            ),
-            getCommonSwitchWithTextWidget(
-              text: "Audio",
-              isTrue: isAudioEnabled,
-              onChanged: (bool? val) {
-                isAudioEnabled = val ?? false;
-                mySetState();
-              },
-            ),
-            const SizedBox(
-              height: 17,
-            ),
-            getCommonSwitchWithTextWidget(
-              text: "Video",
-              isTrue: isVideoEnabled,
-              onChanged: (bool? val) {
-                isVideoEnabled = val ?? false;
-                mySetState();
-              },
-            ),
-            const SizedBox(
-              height: 17,
-            ),
-            getCommonSwitchWithTextWidget(
-              text: "Question",
-              isTrue: isQuestionEnabled,
-              onChanged: (bool? val) {
-                isQuestionEnabled = val ?? false;
-                mySetState();
-              },
-            ),
-          ],
+      child: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 17,
+              ),
+              getPageTextField(),
+              const SizedBox(
+                height: 17,
+              ),
+              getWordsPerPageTextField(),
+              const SizedBox(
+                height: 17,
+              ),
+              getCommonSwitchWithTextWidget(
+                text: "Text",
+                isTrue: isTextEnabled,
+                onChanged: (bool? val) {
+                  isTextEnabled = val ?? false;
+                  mySetState();
+                },
+              ),
+              const SizedBox(
+                height: 17,
+              ),
+              getCommonSwitchWithTextWidget(
+                text: "Image",
+                isTrue: isImageEnabled,
+                onChanged: (bool? val) {
+                  isImageEnabled = val ?? false;
+                  mySetState();
+                },
+              ),
+              const SizedBox(
+                height: 17,
+              ),
+              getCommonSwitchWithTextWidget(
+                text: "Audio",
+                isTrue: isAudioEnabled,
+                onChanged: (bool? val) {
+                  isAudioEnabled = val ?? false;
+                  mySetState();
+                },
+              ),
+              const SizedBox(
+                height: 17,
+              ),
+              getCommonSwitchWithTextWidget(
+                text: "Video",
+                isTrue: isVideoEnabled,
+                onChanged: (bool? val) {
+                  isVideoEnabled = val ?? false;
+                  mySetState();
+                },
+              ),
+              const SizedBox(
+                height: 17,
+              ),
+              getCommonSwitchWithTextWidget(
+                text: "Question",
+                isTrue: isQuestionEnabled,
+                onChanged: (bool? val) {
+                  isQuestionEnabled = val ?? false;
+                  mySetState();
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -246,6 +267,18 @@ class _AddEditMicroLearningScreenState extends State<AddEditMicroLearningScreen>
             keyBoardType: TextInputType.number,
             isMandatory: false,
             labelText: "#Pages",
+            validator: (String? text) {
+              if (text == null || text.isEmpty) {
+                return "Please Enter a count";
+              }
+
+              int? number = int.tryParse(text);
+              if (number == null || number < 0) {
+                return "Please Enter a valid number";
+              }
+
+              return null;
+            },
           ),
         ),
         Expanded(
@@ -264,6 +297,18 @@ class _AddEditMicroLearningScreenState extends State<AddEditMicroLearningScreen>
             keyBoardType: TextInputType.number,
             isMandatory: false,
             labelText: "#Words Per Page",
+            validator: (String? text) {
+              if (text == null || text.isEmpty) {
+                return "Please Enter a count";
+              }
+
+              int? number = int.tryParse(text);
+              if (number == null || number < 0) {
+                return "Please Enter a valid number";
+              }
+
+              return null;
+            },
           ),
         ),
         Expanded(child: Container())
@@ -772,22 +817,63 @@ class MicroLearningTopicSelectionScreen extends StatefulWidget {
 }
 
 class _MicroLearningTopicSelectionScreenState extends State<MicroLearningTopicSelectionScreen> with MySafeState {
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
-  List<String> microLearningList = [
+  bool isGeneratingTopics = false;
+  List<String> topicsList = <String>[];
+
+  /*List<String> microLearningList = [
     "Technology in Sustainable Urban Planning",
     "Components of Eco-Conscious Cities",
     "Challenges in Urban Sustainability",
     "Harmonious : Sustainable Environments",
     "Inspiring Action for Resilient Cities",
-  ];
+  ];*/
 
   void initialize() {
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
+
+    // MicroLearningContentModel microLearningContentModel = coCreateContentAuthoringModel.microLearningContentModel ??= MicroLearningContentModel();
+
+    generateTopicsList();
+  }
+
+  Future<void> generateTopicsList() async {
+    if (isGeneratingTopics) return;
+
+    isGeneratingTopics = true;
+    mySetState();
 
     MicroLearningContentModel microLearningContentModel = coCreateContentAuthoringModel.microLearningContentModel ??= MicroLearningContentModel();
 
-    microLearningList = microLearningContentModel.selectedTopics;
+    topicsList = await coCreateKnowledgeController.getMicroLearningTopicsListing(
+      requestModel: NativeAuthoringGetModuleNamesRequestModel(
+        learning_objective: coCreateContentAuthoringModel.title,
+        llmContent: microLearningContentModel.selectedSourceType == MicroLearningSourceSelectionTypes.LLM,
+        sourceType: switch (microLearningContentModel.selectedSourceType) {
+          MicroLearningSourceSelectionTypes.YoutubeSearch => MicroLearningGenerationSourceType.youtube,
+          MicroLearningSourceSelectionTypes.Youtube => MicroLearningGenerationSourceType.youtube,
+          MicroLearningSourceSelectionTypes.Website => MicroLearningGenerationSourceType.web,
+          MicroLearningSourceSelectionTypes.InternetSearch => MicroLearningGenerationSourceType.web,
+          _ => "",
+        },
+        pages_in_content: microLearningContentModel.pageCount,
+        sources: [
+          if (microLearningContentModel.contentUrl.isNotEmpty) microLearningContentModel.contentUrl,
+        ],
+      ),
+    );
+
+    MyPrint.printOnConsole("Final topicsList:$topicsList");
+
+    isGeneratingTopics = false;
+    mySetState();
   }
 
   Future<void> showMoreActions({required CourseDTOModel model, int index = 0, List<InstancyUIActionModel>? actions}) async {
@@ -829,7 +915,8 @@ class _MicroLearningTopicSelectionScreenState extends State<MicroLearningTopicSe
         onTap: () {
           Navigator.pop(context);
 
-          microLearningList.remove(topic);
+          topicsList.remove(topic);
+          mySetState();
         },
         iconData: InstancyIcons.delete,
       ),
@@ -843,10 +930,10 @@ class _MicroLearningTopicSelectionScreenState extends State<MicroLearningTopicSe
   }
 
   Future<void> onGenerateWithAIButtonTap() async {
-    MyPrint.printOnConsole("microLearningList : $microLearningList");
+    MyPrint.printOnConsole("topicsList : $topicsList");
 
     MicroLearningContentModel microLearningContentModel = coCreateContentAuthoringModel.microLearningContentModel ??= MicroLearningContentModel();
-    microLearningContentModel.selectedTopics = microLearningList;
+    microLearningContentModel.selectedTopics = topicsList;
 
     dynamic value = await NavigationController.navigateToMicroLearningEditorScreen(
       navigationOperationParameters: NavigationOperationParameters(
@@ -893,10 +980,7 @@ class _MicroLearningTopicSelectionScreenState extends State<MicroLearningTopicSe
             )
           ],
         ),
-        body: AppUIComponents.getBackGroundBordersRounded(
-          context: context,
-          child: getMainBody(),
-        ),
+        body: getMainBody(),
       ),
     );
   }
@@ -935,7 +1019,10 @@ class _MicroLearningTopicSelectionScreenState extends State<MicroLearningTopicSe
   }
 
   Widget getMainBody() {
-    if (microLearningList.isEmpty) {
+    if (isGeneratingTopics) {
+      return const CommonLoader();
+    }
+    if (topicsList.isEmpty) {
       return const Center(
         child: Text(
           "No Topics",
@@ -944,31 +1031,41 @@ class _MicroLearningTopicSelectionScreenState extends State<MicroLearningTopicSe
     }
 
     return ReorderableListView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 0),
       shrinkWrap: true,
       key: GlobalKey(),
       children: List.generate(
-        microLearningList.length,
+        topicsList.length,
         (index) {
-          String topic = microLearningList[index];
+          String topic = topicsList[index];
 
-          return ListTile(
-            tileColor: Colors.grey[200],
-            selectedTileColor: Colors.grey[100],
+          return Container(
             key: Key("$index"),
-            title: Row(
+            margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  "${index + 1}.",
+                  style: const TextStyle(
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    "${index + 1}. $topic",
+                    topic,
                     style: const TextStyle(
                       fontSize: 14,
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                const Icon(FontAwesomeIcons.arrowsUpDownLeftRight, size: 15),
-                const SizedBox(width: 10),
+                const SizedBox(width: 5),
                 InkWell(
                   onTap: () {
                     showMoreActions(
@@ -994,8 +1091,8 @@ class _MicroLearningTopicSelectionScreenState extends State<MicroLearningTopicSe
           if (oldIndex < newIndex) {
             newIndex -= 1;
           }
-          final item = microLearningList.removeAt(oldIndex);
-          microLearningList.insert(newIndex, item);
+          final item = topicsList.removeAt(oldIndex);
+          topicsList.insert(newIndex, item);
         });
       },
     );
@@ -1089,7 +1186,7 @@ class _MicroLearningEditorScreenState extends State<MicroLearningEditorScreen> w
       courseDTOModel.ShortDescription = coCreateContentAuthoringModel.description;
       courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
 
-      courseDTOModel.Skills = coCreateContentAuthoringModel.skills;
+      courseDTOModel.ContentSkills = coCreateContentAuthoringModel.skills;
 
       courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
 
