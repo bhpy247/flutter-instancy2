@@ -27,6 +27,7 @@ import 'package:flutter_instancy_2/views/co_create_learning/screens/flash_card_s
 import 'package:flutter_instancy_2/views/co_create_learning/screens/generate_with_ai_video_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/learning_path_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/micro_learning_screen.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/screens/microlearning_editor.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/podcast_episode_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/quiz_screen.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/record_video_screen.dart';

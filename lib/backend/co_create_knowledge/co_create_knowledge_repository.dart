@@ -6,11 +6,13 @@ import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/article/response_model/article_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/delete_co_create_content_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/generate_images_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/get_co_create_knowledgebase_list_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/native_authoring_get_module_names_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/native_authoring_get_resources_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/save_content_json_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/share_co_create_knowledge_base_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avatar_voice_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avtar_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
@@ -832,6 +834,45 @@ class CoCreateKnowledgeRepository {
     );
 
     DataResponseModel<NativeAuthoringGetModuleNamesResponseModel> apiResponseModel = await apiController.callApi<NativeAuthoringGetModuleNamesResponseModel>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<String>> DeleteCoCreateContent({required DeleteCoCreateContentRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simpleGetCall,
+      parsingType: ModelDataParsingType.string,
+      url: apiEndpoints.DeleteCoCreateContent(),
+      queryParameters: requestModel.toMap(),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+      isDecodeResponse: false,
+    );
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
+
+    return apiResponseModel;
+  }
+
+  Future<DataResponseModel<String>> ShareCoCreateKnowledgeBase({required ShareCoCreateKnowledgeBaseRequestModel requestModel}) async {
+    ApiEndpoints apiEndpoints = apiController.apiEndpoints;
+
+    ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
+      restCallType: RestCallType.simplePostCall,
+      parsingType: ModelDataParsingType.string,
+      url: apiEndpoints.ShareCoCreateKnowledgeBase(),
+      requestBody: MyUtils.encodeJson(requestModel.toMap()),
+      isAuthenticatedApiCall: false,
+      isInstancyCall: false,
+      isDecodeResponse: false,
+      headers: <String, String>{
+        "SiteID": apiController.apiDataProvider.getCurrentSiteId().toString(),
+      },
+    );
+
+    DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
   }

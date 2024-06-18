@@ -3,13 +3,14 @@ import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart'
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/main_screen/main_screen_provider.dart';
-import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/local_str.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/delete_co_create_content_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/share_co_create_knowledge_base_request_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
@@ -20,12 +21,8 @@ import 'package:flutter_instancy_2/views/common/components/instancy_ui_actions/i
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:provider/provider.dart';
 
-import '../../../api/api_url_configuration_provider.dart';
-import '../../../backend/authentication/authentication_provider.dart';
 import '../../../backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import '../../../backend/course_launch/course_launch_controller.dart';
-import '../../../backend/my_learning/my_learning_controller.dart';
-import '../../../models/course_launch/data_model/course_launch_model.dart';
 import '../component/add_content_dialog.dart';
 import '../component/size_utils.dart';
 
@@ -50,7 +47,6 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 
   late CoCreateKnowledgeController _controller;
   late CoCreateKnowledgeProvider _provider;
-  late MyLearningController myLearningController;
   late CourseLaunchController courseLaunchController;
 
   late Future future;
@@ -101,11 +97,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           onTap: () async {
             Navigator.pop(context);
 
-            if (model.ContentTypeId == InstancyObjectTypes.courseBot) {
-              await onContentLaunchTap(model: model, isArchived: false);
-            } else {
-              onViewTap(model: model);
-            }
+            onViewTap(model: model);
           },
           iconData: InstancyIcons.view,
         ),
@@ -148,7 +140,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         onTap: () {
           Navigator.pop(context);
 
-          _provider.myKnowledgeList.removeItems(items: [model], isNotify: true);
+          onDeleteTap(model: model);
         },
         iconData: InstancyIcons.delete,
       ),
@@ -202,61 +194,44 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
     }
   }
 
-  Future<void> onContentLaunchTap({
-    required CourseDTOModel model,
-    required bool isArchived,
-  }) async {
-    ApiUrlConfigurationProvider apiUrlConfigurationProvider = myLearningController.myLearningRepository.apiController.apiDataProvider;
+  Future<void> onViewTap({required CourseDTOModel model}) async {
+    await courseLaunchController.viewCoCreateKnowledgeContent(context: context, model: model);
+  }
 
+  Future<void> onDeleteTap({required CourseDTOModel model}) async {
     isLoading = true;
     mySetState();
-    await CourseLaunchController(
-      appProvider: appProvider,
-      authenticationProvider: context.read<AuthenticationProvider>(),
-      componentId: 0,
-      componentInstanceId: 0,
-    ).viewCourse(
+
+    bool isDeleted = await _controller.DeleteCoCreateContent(
       context: context,
-      model: CourseLaunchModel(
-        ContentTypeId: model.ContentTypeId,
-        MediaTypeId: model.MediaTypeID,
-        ScoID: model.ScoID,
-        SiteUserID: model.SiteUserID,
-        SiteId: model.SiteId,
+      requestModel: DeleteCoCreateContentRequestModel(
+        UserID: model.SiteUserID,
         ContentID: model.ContentID,
-        locale: apiUrlConfigurationProvider.getLocale(),
-        ActivityId: model.ActivityId,
-        ActualStatus: model.ActualStatus,
-        ContentName: model.ContentName,
-        FolderPath: model.FolderPath,
-        JWVideoKey: model.JWVideoKey,
-        jwstartpage: model.jwstartpage,
-        startPage: model.startpage,
-        courseDTOModel: model,
       ),
     );
 
     isLoading = false;
     mySetState();
 
-    // if (isLaunched) {
-    //   getMyLearningContentsList(
-    //     isRefresh: true,
-    //     isNotify: true,
-    //     isGetFromCache: false,
-    //     isArchive: isArchived,
-    //   );
-    // }
-  }
-
-  Future<void> onViewTap({required CourseDTOModel model}) async {
-    await courseLaunchController.viewCoCreateKnowledgeContent(context: context, model: model);
+    MyPrint.printOnConsole("isDeleted:$isDeleted");
   }
 
   Future<void> onShareTap({required CourseDTOModel model}) async {
-    model.IsShared = true;
-    _provider.sharedKnowledgeList.setList(list: [model], isClear: false, isNotify: true);
+    isLoading = true;
     mySetState();
+
+    bool isDeleted = await _controller.ShareCoCreateContent(
+      context: context,
+      requestModel: ShareCoCreateKnowledgeBaseRequestModel(
+        contentId: model.ContentID,
+        folderPath: model.FolderPath,
+      ),
+    );
+
+    isLoading = false;
+    mySetState();
+
+    MyPrint.printOnConsole("isDeleted:$isDeleted");
   }
 
   Future<void> onEditTap({required CourseDTOModel model, int index = 0}) async {
@@ -367,7 +342,6 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       );
 
       if (value == true) {
-        Navigator.pop(context, true);
         isEdited = true;
       }
     } else if (objectTypeId == InstancyObjectTypes.rolePlay) {
@@ -445,7 +419,6 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
   void initState() {
     super.initState();
     appProvider = context.read<AppProvider>();
-    myLearningController = MyLearningController(provider: context.read<MyLearningProvider>());
 
     courseLaunchController = CourseLaunchController(
       appProvider: appProvider,
@@ -630,6 +603,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       },
       child: ListView.builder(
         controller: scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
         itemCount: list.length,
         padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(bottom: 10),
         itemBuilder: (BuildContext listContext, int index) {
@@ -656,12 +630,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 
     InstancyUIActionModel primaryAction = InstancyUIActionModel(
       onTap: () async {
-        // onViewTap(model: model);
-        if (model.ContentTypeId == InstancyObjectTypes.courseBot) {
-          await onContentLaunchTap(model: model, isArchived: false);
-        } else {
-          onViewTap(model: model);
-        }
+        onViewTap(model: model);
       },
       text: localStr.catalogActionsheetViewoption,
       actionsEnum: InstancyContentActionsEnum.View,
@@ -694,6 +663,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         },
         onMoreButtonTap: () {
           showMoreActions(model: model, index: index);
+          // _controller.DeleteAllContentsTemp();
         },
       ),
     );

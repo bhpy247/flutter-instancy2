@@ -4,14 +4,17 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/models/filter/data_model/content_filter_category_tree_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/common_save_exit_button_row.dart';
+import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart';
@@ -20,11 +23,8 @@ import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/configurations/app_configuration_operations.dart';
-import '../../../backend/wiki_component/wiki_controller.dart';
-import '../../../backend/wiki_component/wiki_provider.dart';
 import '../../../configs/app_configurations.dart';
 import '../../../models/co_create_knowledge/co_create_content_authoring_model.dart';
-import '../../../models/wiki_component/response_model/wikiCategoriesModel.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_utils.dart';
 import '../../common/components/common_button.dart';
@@ -59,14 +59,12 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
   bool isUrl = true;
-  late WikiProvider wikiProvider;
-  late WikiController wikiController;
 
   bool isExpanded = false;
   String documentName = "";
   Uint8List? documentBytes;
   String selectedCategoriesString = "";
-  List<WikiCategoryTable> selectedCategoriesList = [];
+  List<ContentFilterCategoryTreeModel> selectedCategoriesList = [];
 
   String? thumbnailImageUrl;
   String thumbNailName = "";
@@ -96,15 +94,15 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
       documentBytes = coCreateContentAuthoringModel.uploadedDocumentBytes;
       documentName = coCreateContentAuthoringModel.uploadedDocumentName ?? "";
 
-      List<WikiCategoryTable> list = wikiProvider.wikiSkillsList;
+      List<ContentFilterCategoryTreeModel> list = coCreateKnowledgeProvider.skills.getList();
       for (String skill in coCreateContentAuthoringModel.skills) {
-        WikiCategoryTable? model = list.where((element) => element.name == skill).firstOrNull;
+        ContentFilterCategoryTreeModel? model = list.where((element) => element.categoryName == skill).firstOrNull;
         if (model != null) {
           selectedCategoriesList.add(model);
         }
       }
       selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-        list: selectedCategoriesList.map((e) => e.name).toList(),
+        list: selectedCategoriesList.map((e) => e.categoryName).toList(),
         separator: ", ",
       );
     } else {
@@ -295,15 +293,15 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
 
     List<String> skills = ["Customer Service"];
     selectedCategoriesList.clear();
-    List<WikiCategoryTable> list = wikiProvider.wikiSkillsList;
+    List<ContentFilterCategoryTreeModel> list = coCreateKnowledgeProvider.skills.getList();
     for (String skill in skills) {
-      WikiCategoryTable? model = list.where((element) => element.name == skill).firstOrNull;
+      ContentFilterCategoryTreeModel? model = list.where((element) => element.categoryName == skill).firstOrNull;
       if (model != null) {
         selectedCategoriesList.add(model);
       }
     }
     selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-      list: selectedCategoriesList.map((e) => e.name).toList(),
+      list: selectedCategoriesList.map((e) => e.categoryName).toList(),
       separator: ", ",
     );
   }
@@ -378,8 +376,8 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
     coCreateContentAuthoringModel.uploadedDocumentName = documentName;
     coCreateContentAuthoringModel.title = titleController.text.trim();
     coCreateContentAuthoringModel.description = descriptionController.text.trim();
-    coCreateContentAuthoringModel.skills = selectedCategoriesList.map((e) => e.name).toList();
-    coCreateContentAuthoringModel.skillsMap = Map<int, String>.fromEntries(selectedCategoriesList.map((e) => MapEntry<int, String>(e.categoryID, e.name)));
+    coCreateContentAuthoringModel.skills = selectedCategoriesList.map((e) => e.categoryName).toList();
+    coCreateContentAuthoringModel.skillsMap = Map<String, String>.fromEntries(selectedCategoriesList.map((e) => MapEntry<String, String>(e.categoryId, e.categoryName)));
     coCreateContentAuthoringModel.ThumbnailImageName = thumbNailName;
     coCreateContentAuthoringModel.thumbNailImageBytes = thumbNailBytes;
 
@@ -416,17 +414,22 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
       return;
     }
 
-    await NavigationController.navigateToPDFLaunchScreen(
-      navigationOperationParameters: NavigationOperationParameters(
-        context: context,
-        navigationType: NavigationType.pushNamed,
-      ),
-      arguments: PDFLaunchScreenNavigationArguments(
-        contntName: courseDTOModel.ContentName,
-        isNetworkPDF: true,
-        pdfUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fdocuments%2Fai%20for%20biotechnology.pdf?alt=media&token=ab06fadc-ba08-4114-88e1-529213d117bf",
-      ),
-    );
+    if (documentBytes != null) {
+      if (courseDTOModel.MediaTypeID == InstancyMediaTypes.pDF) {
+        await NavigationController.navigateToPDFLaunchScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          arguments: PDFLaunchScreenNavigationArguments(
+            contntName: courseDTOModel.ContentName,
+            isNetworkPDF: false,
+            pdfFileBytes: courseDTOModel.uploadedDocumentBytes,
+            // pdfUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fdocuments%2Fai%20for%20biotechnology.pdf?alt=media&token=ab06fadc-ba08-4114-88e1-529213d117bf",
+          ),
+        );
+      }
+    }
 
     Navigator.pop(context, true);
   }
@@ -434,7 +437,6 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
   @override
   void initState() {
     super.initState();
-    wikiProvider = context.read<WikiProvider>();
 
     initializeData();
   }
@@ -564,95 +566,91 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
 
   //region categoryExpansionTile
   Widget getCategoryExpansionTile() {
-    return Consumer<WikiProvider>(
-      builder: (BuildContext context, WikiProvider provider, _) {
-        return Container(
-          decoration: BoxDecoration(border: Border.all(width: 0.5, color: Colors.black45), borderRadius: BorderRadius.circular(5)),
-          child: Theme(
-            data: themeData.copyWith(dividerColor: Colors.transparent),
-            child: ExpansionTile(
-                key: expansionTile,
-                backgroundColor: const Color(0xffF8F8F8),
-                initiallyExpanded: isExpanded,
-                tilePadding: const EdgeInsets.symmetric(horizontal: 14),
-                title: Row(
-                  children: [
-                    getImageView(url: "assets/catalog/categories.png", height: 15, width: 15),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: Text(
-                        selectedCategoriesString.isEmpty ? "Skills" : selectedCategoriesString,
-                        style: themeData.textTheme.titleSmall?.copyWith(color: Colors.black45),
-                      ),
-                    ),
-                  ],
+    return Container(
+      decoration: BoxDecoration(border: Border.all(width: 0.5, color: Colors.black45), borderRadius: BorderRadius.circular(5)),
+      child: Theme(
+        data: themeData.copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+            key: expansionTile,
+            backgroundColor: const Color(0xffF8F8F8),
+            initiallyExpanded: isExpanded,
+            tilePadding: const EdgeInsets.symmetric(horizontal: 14),
+            title: Row(
+              children: [
+                getImageView(url: "assets/catalog/categories.png", height: 15, width: 15),
+                const SizedBox(
+                  width: 10,
                 ),
-                onExpansionChanged: (bool? newVal) {
-                  FocusScope.of(context).unfocus();
-                },
-                children: provider.wikiSkillsList.map((e) {
-                  return Container(
-                    color: Colors.white,
-                    child: InkWell(
-                      onTap: () {
-                        bool isChecked = !selectedCategoriesList.contains(e);
-                        if (isChecked) {
-                          selectedCategoriesList.add(e);
-                        } else {
-                          selectedCategoriesList.remove(e);
-                        }
+                Expanded(
+                  child: Text(
+                    selectedCategoriesString.isEmpty ? "Skills" : selectedCategoriesString,
+                    style: themeData.textTheme.titleSmall?.copyWith(color: Colors.black45),
+                  ),
+                ),
+              ],
+            ),
+            onExpansionChanged: (bool? newVal) {
+              FocusScope.of(context).unfocus();
+            },
+            children: coCreateKnowledgeProvider.skills.getList(isNewInstance: false).map((e) {
+              return Container(
+                color: Colors.white,
+                child: InkWell(
+                  onTap: () {
+                    bool isChecked = !selectedCategoriesList.contains(e);
+                    if (isChecked) {
+                      selectedCategoriesList.add(e);
+                    } else {
+                      selectedCategoriesList.remove(e);
+                    }
 
-                        selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-                          list: selectedCategoriesList.map((e) => e.name).toList(),
-                          separator: ",",
-                        );
-                        setState(() {});
+                    selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+                      list: selectedCategoriesList.map((e) => e.categoryName).toList(),
+                      separator: ",",
+                    );
+                    setState(() {});
 
-                        // if (isChecked) {
-                        //   // selectedCategory = e.name;
-                        //   selectedCategoriesList.add(e);
-                        //   setState(() {});
-                        //
-                        // } else {
-                        //   // selectedCategory = "";
-                        //   selectedCategoriesList.remove(e);
-                        // }
-                        // print(isChecked);
-                      },
-                      child: Row(
-                        children: [
-                          Checkbox(
-                            activeColor: themeData.primaryColor,
-                            value: selectedCategoriesList.where((element) => element.name == e.name).checkNotEmpty,
-                            onChanged: (bool? value) {
-                              bool isChecked = value ?? false;
-                              if (isChecked) {
-                                selectedCategoriesList.add(e);
-                              } else {
-                                selectedCategoriesList.remove(e);
-                              }
+                    // if (isChecked) {
+                    //   // selectedCategory = e.name;
+                    //   selectedCategoriesList.add(e);
+                    //   setState(() {});
+                    //
+                    // } else {
+                    //   // selectedCategory = "";
+                    //   selectedCategoriesList.remove(e);
+                    // }
+                    // print(isChecked);
+                  },
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        activeColor: themeData.primaryColor,
+                        value: selectedCategoriesList.where((element) => element.categoryName == e.categoryName).checkNotEmpty,
+                        onChanged: (bool? value) {
+                          bool isChecked = value ?? false;
+                          if (isChecked) {
+                            selectedCategoriesList.add(e);
+                          } else {
+                            selectedCategoriesList.remove(e);
+                          }
 
-                              selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-                                list: selectedCategoriesList.map((e) => e.name).toList(),
-                                separator: ",",
-                              );
-                              setState(() {});
-                            },
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(e.name),
-                          ),
-                        ],
+                          selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+                            list: selectedCategoriesList.map((e) => e.categoryName).toList(),
+                            separator: ",",
+                          );
+                          setState(() {});
+                        },
                       ),
-                    ),
-                  );
-                }).toList()),
-          ),
-        );
-      },
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(e.categoryName),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList()),
+      ),
     );
   }
 
@@ -673,6 +671,7 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
       },
     );
   }
+
   //endregion
 
   //region getWidgetAccordingToFileType
@@ -708,30 +707,31 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InkWell(
-          onTap: () async {
-            await openFileExplorer(false, true);
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(color: themeData.primaryColor, width: .6),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 2,
-                ),
-              ],
+        if (thumbNailBytes == null && thumbnailImageUrl.checkEmpty)
+          InkWell(
+            onTap: () async {
+              await openFileExplorer(false, true);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: themeData.primaryColor, width: .6),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 2,
+                  ),
+                ],
+              ),
+              child: Text(
+                "Add Thumbnail Image",
+                style: TextStyle(color: themeData.primaryColor),
+              ),
             ),
-            child: Text(
-              "Add Thumbnail Image",
-              style: TextStyle(color: themeData.primaryColor),
-            ),
-          ),
-        ),
-        if (thumbNailBytes != null)
+          )
+        else if (thumbNailBytes != null)
           Container(
             margin: const EdgeInsets.only(top: 10.0),
             child: Stack(
@@ -749,6 +749,45 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
                 InkWell(
                   onTap: () {
                     thumbNailBytes = null;
+                    thumbNailName = "";
+                    thumbnailImageUrl = null;
+                    mySetState();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.clear,
+                      size: 20,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          )
+        else if (thumbnailImageUrl.checkNotEmpty)
+          Container(
+            margin: const EdgeInsets.only(top: 10.0),
+            child: Stack(
+              alignment: Alignment.topRight,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: CommonCachedNetworkImage(
+                    imageUrl: AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: thumbnailImageUrl!),
+                    height: 80,
+                    width: 80,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    thumbNailBytes = null;
+                    thumbNailName = "";
+                    thumbnailImageUrl = null;
                     mySetState();
                   },
                   child: Container(

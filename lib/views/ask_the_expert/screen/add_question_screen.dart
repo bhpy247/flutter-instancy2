@@ -7,8 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_controller.dart';
 import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_provider.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/data_model/ask_the_expert_dto.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/data_model/user_question_skill_model.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_question_request_model.dart';
-import 'package:flutter_instancy_2/models/ask_the_expert/response_model/filter_user_skills_dto.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -46,8 +46,8 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
   TextEditingController uploadFileTextEditingController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   String selectedCategoriesString = "";
-  List<UserFilterSkills> skillsList = [];
-  List<UserFilterSkills> selectedSkillsList = [];
+  List<UserQuestionSkillModel> skillsList = [];
+  List<UserQuestionSkillModel> selectedSkillsList = [];
   final GlobalKey expansionTile = GlobalKey();
 
   bool isUrl = true, isLoading = false;
@@ -96,7 +96,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
 
   Future<void> createQuestion() async {
     List<int> skillIds = selectedSkillsList.map((model) => model.PreferrenceID).toList();
-    List<String> skillName = selectedSkillsList.map((model) => model.preferrenceTitle).toList();
+    List<String> skillName = selectedSkillsList.map((model) => model.PreferrenceTitle).toList();
     if (skillIds.isEmpty) {
       MyToast.showError(context: context, msg: "Please Select at least one skill");
       return;
@@ -161,9 +161,9 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
     uploadFileTextEditingController.text = model.userQuestionImage;
     fileName = model.userQuestionImage;
     List<String> categoriesidsFromString = model.questionCategories.toLowerCase().trim().split(", ").toList();
-    selectedSkillsList = skillsList.where((element) => categoriesidsFromString.contains(element.preferrenceTitle.toLowerCase())).toList();
+    selectedSkillsList = skillsList.where((element) => categoriesidsFromString.contains(element.PreferrenceTitle.toLowerCase())).toList();
     selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-      list: selectedSkillsList.map((e) => e.preferrenceTitle).toList(),
+      list: selectedSkillsList.map((e) => e.PreferrenceTitle).toList(),
       separator: ", ",
     );
     if (selectedCategoriesString.checkNotEmpty) {
@@ -179,7 +179,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
     askTheExpertProvider = context.read<AskTheExpertProvider>();
     askTheExpertController = AskTheExpertController(discussionProvider: askTheExpertProvider);
     askTheExpertController.getFilterSkills(componentId: widget.arguments.componentId, componentInstanceId: widget.arguments.componentInsId);
-    askTheExpertController.getUserFilterSkills(componentId: widget.arguments.componentId, componentInstanceId: widget.arguments.componentInsId);
+    askTheExpertController.getUserFilterSkills();
     skillsList = askTheExpertProvider.userFilterSkillsList.getList();
     setEditData();
   }
@@ -413,7 +413,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
                       }
 
                       selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-                        list: selectedSkillsList.map((e) => e.preferrenceTitle).toList(),
+                        list: selectedSkillsList.map((e) => e.PreferrenceTitle).toList(),
                         separator: ", ",
                       );
                       setState(() {});
@@ -445,7 +445,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
                             }
 
                             selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-                              list: selectedSkillsList.map((e) => e.preferrenceTitle).toList(),
+                              list: selectedSkillsList.map((e) => e.PreferrenceTitle).toList(),
                               separator: ",",
                             );
                             setState(() {});
@@ -453,7 +453,7 @@ class _CreateEditQuestionScreenState extends State<CreateEditQuestionScreen> wit
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: Text(skillsList[index].preferrenceTitle),
+                          child: Text(skillsList[index].PreferrenceTitle),
                         ),
                       ],
                     ),

@@ -120,7 +120,7 @@ class CourseLaunchController {
         ),
       );
     } else if (objectType == InstancyObjectTypes.document && mediaType == InstancyMediaTypes.pDF) {
-      String documentUrl = AppConfigurationOperations(appProvider: appProvider).getInstancyImageUrlFromImagePath(imagePath: model.startpage);
+      String documentUrl = AppConfigurationOperations(appProvider: appProvider).getInstancyImageUrlFromImagePath(imagePath: model.ViewLink);
       MyPrint.printOnConsole("Final documentUrl:$documentUrl");
 
       NavigationController.navigateToPDFLaunchScreen(

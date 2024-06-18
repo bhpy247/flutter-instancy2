@@ -32,7 +32,7 @@ class _AskTheExpertMainScreenState extends State<AskTheExpertMainScreen> with My
     askTheExpertProvider = widget.arguments.askTheExpertProvider ?? AskTheExpertProvider();
     askTheExpertController = AskTheExpertController(discussionProvider: askTheExpertProvider);
     askTheExpertController.getFilterSkills(componentId: widget.arguments.componentId, componentInstanceId: widget.arguments.componentInsId);
-    askTheExpertController.getUserFilterSkills(componentId: widget.arguments.componentId, componentInstanceId: widget.arguments.componentInsId);
+    askTheExpertController.getUserFilterSkills();
   }
 
   @override

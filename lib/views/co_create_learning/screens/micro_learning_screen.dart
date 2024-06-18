@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app_theme/style.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_page_element_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -38,15 +38,15 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
   bool onSaveTap = false;
 
   List<String> contentList = [];
-  List<MicroLearningModel> microLearningList = <MicroLearningModel>[
-    MicroLearningModel(
+  List<MicroLearningPageElementModel> microLearningList = <MicroLearningPageElementModel>[
+    MicroLearningPageElementModel(
       title: "Technology in Sustainable Urban Planning",
       htmlContentCode:
           "Sustainable urban planning focuses on creating cities and communities that are environmentally friendly, economically viable, and socially equitable. Technology plays a crucial role in this effort by providing tools and solutions that enhance the efficiency and effectiveness of urban development. Key technological advancements include smart grids, green buildings, intelligent transportation systems, and data analytics for urban management.",
-      questionType: MicrolearningTypes.text,
-      image: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FtemoImageForMicrolearning.png?alt=media&token=02104ae0-a27b-4b99-9a28-cfff84ddffd9",
+      elementType: MicroLearningElementType.Text,
+      imageUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FtemoImageForMicrolearning.png?alt=media&token=02104ae0-a27b-4b99-9a28-cfff84ddffd9",
     ),
-    MicroLearningModel(
+    MicroLearningPageElementModel(
       quizQuestionModel: QuizQuestionModel(
         question: "What is the primary goal of office ergonomics?",
         choices: [
@@ -63,14 +63,14 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
         isEditModeEnable: [false, false, false, false],
       ),
       title: "",
-      questionType: MicrolearningTypes.question,
+      elementType: MicroLearningElementType.Quiz,
     ),
-    MicroLearningModel(
+    MicroLearningPageElementModel(
       title: "Conclusion",
       htmlContentCode:
           "Technology is integral to achieving sustainable urban planning goals. By leveraging advancements such as smart grids, green buildings, intelligent transportation systems, and data analytics, cities can create more sustainable, livable, and resilient environments for their inhabitants.",
-      questionType: MicrolearningTypes.image,
-      image: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fconclusionimg.png?alt=media&token=0398ab8e-390e-4f38-a65b-d861cae4d701",
+      elementType: MicroLearningElementType.Image,
+      imageUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fconclusionimg.png?alt=media&token=0398ab8e-390e-4f38-a65b-d861cae4d701",
     ),
   ];
 
@@ -185,19 +185,19 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
     );
   }
 
-  Widget getContentWidget({required MicroLearningModel model}) {
+  Widget getContentWidget({required MicroLearningPageElementModel model}) {
     Widget? child;
-    if (model.questionType == MicrolearningTypes.text) {
+    if (model.elementType == MicroLearningElementType.Text) {
       child = getTypeTextWidget(model: model);
-    } else if (model.questionType == MicrolearningTypes.question) {
+    } else if (model.elementType == MicroLearningElementType.Quiz) {
       child = getQuestionWidget(model: model.quizQuestionModel ?? QuizQuestionModel(), index: 0);
-    } else if (model.questionType == MicrolearningTypes.image) {
+    } else if (model.elementType == MicroLearningElementType.Image) {
       child = getTypeImageWidget(model: model);
     }
     return child ?? const SizedBox();
   }
 
-  Widget getTypeTextWidget({required MicroLearningModel model}) {
+  Widget getTypeTextWidget({required MicroLearningPageElementModel model}) {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -220,13 +220,13 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
           const SizedBox(
             height: 20,
           ),
-          getImageWidget(url: model.image),
+          getImageWidget(url: model.imageUrl),
         ],
       ),
     );
   }
 
-  Widget getTypeImageWidget({required MicroLearningModel model}) {
+  Widget getTypeImageWidget({required MicroLearningPageElementModel model}) {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -245,7 +245,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
           const SizedBox(
             height: 10,
           ),
-          getImageWidget(url: model.image),
+          getImageWidget(url: model.imageUrl),
           const SizedBox(
             height: 20,
           ),

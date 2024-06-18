@@ -3,26 +3,24 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/my_learning/my_learning_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/configs/app_strings.dart';
+import 'package:flutter_instancy_2/models/filter/data_model/content_filter_category_tree_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/common_border_dropdown.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '../../../api/api_url_configuration_provider.dart';
 import '../../../backend/app/app_provider.dart';
-import '../../../backend/authentication/authentication_provider.dart';
 import '../../../backend/co_create_knowledge/co_create_knowledge_provider.dart';
-import '../../../backend/course_launch/course_launch_controller.dart';
 import '../../../backend/my_learning/my_learning_controller.dart';
 import '../../../configs/app_configurations.dart';
 import '../../../models/co_create_knowledge/co_create_content_authoring_model.dart';
 import '../../../models/course/data_model/CourseDTOModel.dart';
-import '../../../models/course_launch/data_model/course_launch_model.dart';
 import '../../common/components/common_button.dart';
 import '../../common/components/common_loader.dart';
 import '../../common/components/common_text_form_field.dart';
@@ -38,6 +36,13 @@ class AddEditAiAgentScreen extends StatefulWidget {
 }
 
 class _AddEditAiAgentScreenState extends State<AddEditAiAgentScreen> with MySafeState {
+  bool isLoading = false;
+
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+
+  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+
   TextEditingController titleController = TextEditingController();
   TextEditingController iconController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
@@ -213,9 +218,10 @@ class _AddEditAiAgentScreenState extends State<AddEditAiAgentScreen> with MySafe
     agentDtoModel = CourseDTOModel.fromMap(map);
   }
 
-  late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
-
   void initializeData() {
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+
     coCreateContentAuthoringModel = CoCreateContentAuthoringModel(
       coCreateAuthoringType: CoCreateAuthoringType.Create,
     );
@@ -225,20 +231,7 @@ class _AddEditAiAgentScreenState extends State<AddEditAiAgentScreen> with MySafe
     if (widget.arguments.courseDtoModel != null) {
       CourseDTOModel courseDTOModel = widget.arguments.courseDtoModel!;
 
-      coCreateContentAuthoringModel.courseDTOModel = widget.arguments.courseDtoModel;
-      coCreateContentAuthoringModel.isEdit = true;
-
-      coCreateContentAuthoringModel.contentType = courseDTOModel.ContentType;
-      coCreateContentAuthoringModel.title = courseDTOModel.ContentName;
-      coCreateContentAuthoringModel.description = courseDTOModel.ShortDescription;
-      coCreateContentAuthoringModel.thumbNailImageBytes = courseDTOModel.thumbNailFileBytes;
-      coCreateContentAuthoringModel.skills = courseDTOModel.ContentSkills;
-
-      coCreateContentAuthoringModel.uploadedDocumentBytes = courseDTOModel.uploadedDocumentBytes;
-      coCreateContentAuthoringModel.flashcardContentModel = courseDTOModel.flashcardContentModel;
-      coCreateContentAuthoringModel.quizContentModel = courseDTOModel.quizContentModel;
-      coCreateContentAuthoringModel.roleplayContentModel = courseDTOModel.roleplayContentModel;
-      coCreateContentAuthoringModel.learningPathContentModel = courseDTOModel.learningPathContentModel;
+      coCreateKnowledgeController.initializeCoCreateContentAuthoringModelFromCourseDTOModel(courseDTOModel: courseDTOModel, coCreateContentAuthoringModel: coCreateContentAuthoringModel);
 
       titleController.text = coCreateContentAuthoringModel.title;
       descriptionController.text = coCreateContentAuthoringModel.description;
@@ -271,60 +264,11 @@ class _AddEditAiAgentScreenState extends State<AddEditAiAgentScreen> with MySafe
     }
   }
 
-  bool isLoading = false;
-
-  Future<void> onContentLaunchTap({
-    required CourseDTOModel model,
-    required bool isArchived,
-  }) async {
-    ApiUrlConfigurationProvider apiUrlConfigurationProvider = myLearningController.myLearningRepository.apiController.apiDataProvider;
-
-    isLoading = true;
-    mySetState();
-    await CourseLaunchController(
-      appProvider: appProvider,
-      authenticationProvider: context.read<AuthenticationProvider>(),
-      componentId: 0,
-      componentInstanceId: 0,
-    ).viewCourse(
-      context: context,
-      model: CourseLaunchModel(
-        ContentTypeId: model.ContentTypeId,
-        MediaTypeId: model.MediaTypeID,
-        ScoID: model.ScoID,
-        SiteUserID: model.SiteUserID,
-        SiteId: model.SiteId,
-        ContentID: model.ContentID,
-        locale: apiUrlConfigurationProvider.getLocale(),
-        ActivityId: model.ActivityId,
-        ActualStatus: model.ActualStatus,
-        ContentName: model.ContentName,
-        FolderPath: model.FolderPath,
-        JWVideoKey: model.JWVideoKey,
-        jwstartpage: model.jwstartpage,
-        startPage: model.startpage,
-        courseDTOModel: model,
-      ),
-    );
-
-    isLoading = false;
-    mySetState();
-
-    // if (isLaunched) {
-    //   getMyLearningContentsList(
-    //     isRefresh: true,
-    //     isNotify: true,
-    //     isGetFromCache: false,
-    //     isArchive: isArchived,
-    //   );
-    // }
-  }
-
   Future<void> onNextTap() async {
     agentDtoModel.ContentName = titleController.text.trim();
     agentDtoModel.Title = titleController.text.trim();
     agentDtoModel.TitleName = titleController.text.trim();
-    await onContentLaunchTap(model: agentDtoModel, isArchived: false);
+    // await onContentLaunchTap(model: agentDtoModel, isArchived: false);
     // widget.arguments.coCreateContentAuthoringModel.selectedArticleSourceType = _selectedOption;
     //
     // Navigator.pushNamed(
@@ -364,7 +308,12 @@ class _AddEditAiAgentScreenState extends State<AddEditAiAgentScreen> with MySafe
       courseDTOModel.ShortDescription = coCreateContentAuthoringModel.description;
       courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
 
-      courseDTOModel.ContentSkills = coCreateContentAuthoringModel.skills;
+      courseDTOModel.ContentSkills = coCreateContentAuthoringModel.skills
+          .map((e) => ContentFilterCategoryTreeModel(
+                categoryId: "0",
+                categoryName: e,
+              ))
+          .toList();
 
       courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
 

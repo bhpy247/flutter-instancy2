@@ -981,12 +981,6 @@ class SocialLoginTypes {
 
 enum CoCreateAuthoringType { Create, Edit, EditMetadata }
 
-class MicrolearningTypes {
-  static const String text = "Text";
-  static const String question = "Question";
-  static const String image = "Image";
-}
-
 class QuizDifficultyTypes {
   static const String beginner = "beginner";
   static const String intermediate = "intermediate";

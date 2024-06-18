@@ -621,5 +621,9 @@ class ApiEndpoints {
   String NativeAuthoringGetResources() => '${getLmeEditorApiUrl()}NativeAuthoring/GetResources';
 
   String NativeAuthoringGetModuleNames() => '${getLmeEditorApiUrl()}NativeAuthoring/GetModuleNames';
+
+  String DeleteCoCreateContent() => '${getLmeEditorApiUrl()}NativeAuthoring/DeleteCoCreateContent';
+
+  String ShareCoCreateKnowledgeBase() => '${getLmeEditorApiUrl()}NativeAuthoring/ShareCoCreateKnowledgeBase';
 // endregion
 }

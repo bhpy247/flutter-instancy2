@@ -314,7 +314,6 @@ class _RolePlayPreviewScreenState extends State<RolePlayPreviewScreen> with MySa
       courseDTOModel.ShortDescription = coCreateContentAuthoringModel.description;
       courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
 
-      courseDTOModel.ContentSkills = coCreateContentAuthoringModel.skills;
 
       courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
 

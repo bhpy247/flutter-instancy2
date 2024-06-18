@@ -287,7 +287,7 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
         trainingTime != null ? (DatePresentation.getFormattedDate(dateFormat: "hh:mm aa", dateTime: DateTime(2000, 1, 1, trainingTime!.hour, trainingTime!.minute)) ?? "") : "";
     courseDTOModel.Credits = creditsController.text;
     courseDTOModel.SalePrice = costController.text;
-    courseDTOModel.ContentSkills = selectedSkillsList;
+    // courseDTOModel.ContentSkills = selectedSkillsList;
     courseDTOModel.UserProfileImagePath = "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg";
 
     String dateFormat = appProvider.appSystemConfigurationModel.eventDateTimeFormat;
@@ -314,7 +314,7 @@ class _AddExternalLearningContentDialogState extends State<AddExternalLearningCo
         institutionController.text = existingCourseDTOModel.Institution;
         creditsController.text = existingCourseDTOModel.Credits;
         costController.text = existingCourseDTOModel.SalePrice;
-        selectedSkillsList = existingCourseDTOModel.ContentSkills;
+        // selectedSkillsList = existingCourseDTOModel.ContentSkills;
 
         String dateFormat = appProvider.appSystemConfigurationModel.eventDateTimeFormat;
         startDateTime = ParsingHelper.parseDateTimeMethod(existingCourseDTOModel.EventStartDateTime, dateFormat: dateFormat);

@@ -44,6 +44,7 @@ class RestClient {
 
   static Future<Response?> getCall({required ApiCallModel apiCallModel}) async {
     Map<String, String> headers = _getRequiredHeadersFromApiCallModel(apiCallModel: apiCallModel);
+    headers.addAll(apiCallModel.headers ?? <String, String>{});
 
     String newId = MyUtils.getNewId(isFromUUuid: true);
 
@@ -86,6 +87,7 @@ class RestClient {
 
   static Future<Response?> postCall({required ApiCallModel apiCallModel}) async {
     Map<String, String> headers = _getRequiredHeadersFromApiCallModel(apiCallModel: apiCallModel);
+    headers.addAll(apiCallModel.headers ?? <String, String>{});
 
     String newId = MyUtils.getNewId(isFromUUuid: true);
 
@@ -132,6 +134,7 @@ class RestClient {
     String newId = MyUtils.getNewId(isFromUUuid: true);
 
     Map<String, String> headers = _getRequiredHeadersFromApiCallModel(apiCallModel: apiCallModel);
+    headers.addAll(apiCallModel.headers ?? <String, String>{});
     headers.remove(HttpHeaders.contentTypeHeader);
 
     try {
@@ -204,6 +207,7 @@ class RestClient {
     String newId = MyUtils.getNewId(isFromUUuid: true);
 
     Map<String, String> headers = _getRequiredHeadersFromApiCallModel(apiCallModel: apiCallModel);
+    headers.addAll(apiCallModel.headers ?? <String, String>{});
     headers.remove(HttpHeaders.contentTypeHeader);
 
     try {
@@ -274,6 +278,7 @@ class RestClient {
 
   static Future<Response?> xxxUrlEncodedFormDataRequestCall({required ApiCallModel apiCallModel}) async {
     Map<String, String> headers = _getRequiredHeadersFromApiCallModel(apiCallModel: apiCallModel);
+    headers.addAll(apiCallModel.headers ?? <String, String>{});
     headers[HttpHeaders.contentTypeHeader] = "application/x-www-form-urlencoded";
 
     String newId = MyUtils.getNewId(isFromUUuid: true);

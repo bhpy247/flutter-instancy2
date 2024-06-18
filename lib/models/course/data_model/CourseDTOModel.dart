@@ -11,6 +11,7 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_mod
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/data_model/podcast_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/roleplay/data_models/roleplay_content_model.dart';
+import 'package:flutter_instancy_2/models/filter/data_model/content_filter_category_tree_model.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
@@ -242,7 +243,7 @@ class CourseDTOModel {
   bool showSchedule = false;
   bool IsShared = false;
   EventRecordingDetailsModel? RecordingDetails;
-  List<String> ContentSkills = <String>[];
+  List<ContentFilterCategoryTreeModel> ContentSkills = <ContentFilterCategoryTreeModel>[];
   dynamic bit4;
   Uint8List? thumbNailFileBytes;
   Uint8List? uploadedDocumentBytes;
@@ -495,9 +496,9 @@ class CourseDTOModel {
     this.roleplayContentModel,
     this.learningPathContentModel,
     this.videoContentModel,
-    List<String>? ContentSkills,
+    List<ContentFilterCategoryTreeModel>? ContentSkills,
   }) {
-    this.ContentSkills = ContentSkills ?? <String>[];
+    this.ContentSkills = ContentSkills ?? <ContentFilterCategoryTreeModel>[];
   }
 
   CourseDTOModel.fromCoCreateModelMap(Map<String, dynamic> map) {
@@ -774,7 +775,10 @@ class CourseDTOModel {
     Map<String, dynamic> recordingDetailsMap = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(map['RecordingDetails']);
     if (recordingDetailsMap.isNotEmpty) RecordingDetails = EventRecordingDetailsModel.fromMap(recordingDetailsMap);
 
-    ContentSkills = AppConfigurationOperations.getListFromSeparatorJoinedString(parameterString: ParsingHelper.parseStringMethod(map['ContentSkills']), separator: ",");
+    if (map["ContentSkills"] != null) {
+      List<Map<String, dynamic>> skillsMapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(map["ContentSkills"]);
+      ContentSkills = skillsMapsList.map((e) => ContentFilterCategoryTreeModel.fromJson(e)).toList();
+    }
 
     bit4 = map["bit4"];
 
@@ -789,7 +793,7 @@ class CourseDTOModel {
       int count = 1;
       dynamic decodedValue1 = ContentJSONData;
 
-      while (decodedValue1 is! Map) {
+      while (decodedValue1 is! Map && count < 5) {
         decodedValue1 = MyUtils.decodeJson(decodedValue1);
         MyPrint.printOnConsole("decodedValue $count:$decodedValue1");
         MyPrint.printOnConsole("decodedValue $count type:${decodedValue1.runtimeType}");
@@ -803,28 +807,31 @@ class CourseDTOModel {
 
     Map<String, dynamic> contentJSONDataMap = ParsingHelper.parseMapMethod(decodedValue);
     MyPrint.printOnConsole("contentJSONDataMap length:${contentJSONDataMap.length}");
-    if (contentJSONDataMap.isNotEmpty) {
-      if (ContentTypeId == InstancyObjectTypes.flashCard) {
-        MyPrint.printOnConsole("Initializing flashcardContentModel");
-        flashcardContentModel = FlashcardContentModel.fromMap(contentJSONDataMap);
-        MyPrint.printOnConsole("flashcardContentModel:$flashcardContentModel");
-      } else if (ContentTypeId == InstancyObjectTypes.assessment && MediaTypeID == InstancyMediaTypes.test) {
-        quizContentModel = QuizContentModel.fromMap(contentJSONDataMap);
-      } else if (ContentTypeId == InstancyObjectTypes.webPage) {
-        articleContentModel = ArticleContentModel.fromMap(contentJSONDataMap);
-      } else if (ContentTypeId == InstancyObjectTypes.mediaResource && MediaTypeID == InstancyMediaTypes.audio) {
-        podcastContentModel = PodcastContentModel.fromMap(contentJSONDataMap);
-      } else if (ContentTypeId == InstancyObjectTypes.events && MediaTypeID == InstancyMediaTypes.none) {
-        eventModel = EventModel.fromMap(contentJSONDataMap);
-      } else if (ContentTypeId == InstancyObjectTypes.contentObject && MediaTypeID == InstancyMediaTypes.microLearning) {
-        microLearningContentModel = MicroLearningContentModel.fromMap(contentJSONDataMap);
-      } else if (ContentTypeId == InstancyObjectTypes.rolePlay) {
-        roleplayContentModel = RoleplayContentModel.fromMap(contentJSONDataMap);
-      } else if (ContentTypeId == InstancyObjectTypes.track) {
-        // learningPathContentModel = LearningPathContentModel.fromMap(contentJSONDataMap);
-      } else if (ContentTypeId == InstancyObjectTypes.mediaResource && MediaTypeID == InstancyMediaTypes.video) {
-        videoContentModel = VideoContentModel.fromMap(contentJSONDataMap);
-      }
+    if (contentJSONDataMap.isEmpty) {
+      MyPrint.printOnConsole("Returning from CourseDTOModel().initializeContentModelFromContentJSONData() because contentJSONDataMap is empty");
+      return;
+    }
+
+    if (ContentTypeId == InstancyObjectTypes.flashCard) {
+      MyPrint.printOnConsole("Initializing flashcardContentModel");
+      flashcardContentModel = FlashcardContentModel.fromMap(contentJSONDataMap);
+      MyPrint.printOnConsole("flashcardContentModel:$flashcardContentModel");
+    } else if (ContentTypeId == InstancyObjectTypes.assessment && MediaTypeID == InstancyMediaTypes.test) {
+      quizContentModel = QuizContentModel.fromMap(contentJSONDataMap);
+    } else if (ContentTypeId == InstancyObjectTypes.webPage) {
+      articleContentModel = ArticleContentModel.fromMap(contentJSONDataMap);
+    } else if (ContentTypeId == InstancyObjectTypes.mediaResource && MediaTypeID == InstancyMediaTypes.audio) {
+      podcastContentModel = PodcastContentModel.fromMap(contentJSONDataMap);
+    } else if (ContentTypeId == InstancyObjectTypes.events && MediaTypeID == InstancyMediaTypes.virtualClassroomEvent) {
+      eventModel = EventModel.fromMap(contentJSONDataMap);
+    } else if (ContentTypeId == InstancyObjectTypes.contentObject && MediaTypeID == InstancyMediaTypes.microLearning) {
+      microLearningContentModel = MicroLearningContentModel.fromMap(contentJSONDataMap);
+    } else if (ContentTypeId == InstancyObjectTypes.rolePlay) {
+      roleplayContentModel = RoleplayContentModel.fromMap(contentJSONDataMap);
+    } else if (ContentTypeId == InstancyObjectTypes.track) {
+      // learningPathContentModel = LearningPathContentModel.fromMap(contentJSONDataMap);
+    } else if (ContentTypeId == InstancyObjectTypes.mediaResource && MediaTypeID == InstancyMediaTypes.video) {
+      videoContentModel = VideoContentModel.fromMap(contentJSONDataMap);
     }
   }
 
@@ -1054,7 +1061,7 @@ class CourseDTOModel {
       "showSchedule": showSchedule,
       "IsShared": IsShared,
       "RecordingDetails": RecordingDetails?.toMap(),
-      "ContentSkills": AppConfigurationOperations.getSeparatorJoinedStringFromStringList(list: ContentSkills, separator: ","),
+      "ContentSkills": ContentSkills.map((e) => e.toJson()).toList(),
       "bit4": bit4,
     };
   }

@@ -9,6 +9,7 @@ import 'package:flutter_instancy_2/models/app_configuration_models/data_models/l
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/learning_path/data_model/learning_path_content_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/models/filter/data_model/content_filter_category_tree_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
@@ -448,7 +449,12 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
       courseDTOModel.ShortDescription = coCreateContentAuthoringModel.description;
       courseDTOModel.LongDescription = coCreateContentAuthoringModel.description;
 
-      courseDTOModel.ContentSkills = coCreateContentAuthoringModel.skills;
+      courseDTOModel.ContentSkills = coCreateContentAuthoringModel.skills
+          .map((e) => ContentFilterCategoryTreeModel(
+                categoryId: "0",
+                categoryName: e,
+              ))
+          .toList();
 
       courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
 

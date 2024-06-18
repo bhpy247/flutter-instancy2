@@ -71,133 +71,116 @@ class FilterController {
     );
 
     if (enabledContentFilterByTypeModel.categories && (isRefresh || provider.categories.getList(isNewInstance: false).isEmpty)) {
-      futures.add(
-        getContentFilterCategoryTree(
-          contentFilterParams: ContentFilterParamsModel(
-            ComponentID: componentId,
-            Type: "cat",
-            ShowAllItems: true.toString(),
-            IsCompetencypath: "false",
-          ),
-        ).then((List<ContentFilterCategoryTreeModel> list) {
-          provider.categories.setList(list: list, isClear: true, isNotify: false);
-        })
-      );
+      futures.add(getContentFilterCategoryTree(
+        contentFilterParams: ContentFilterParamsModel(
+          ComponentID: componentId,
+          Type: "cat",
+          ShowAllItems: true.toString(),
+          IsCompetencypath: "false",
+        ),
+      ).then((List<ContentFilterCategoryTreeModel> list) {
+        provider.categories.setList(list: list, isClear: true, isNotify: false);
+      }));
     }
 
     if (enabledContentFilterByTypeModel.skills && (isRefresh || provider.skills.getList(isNewInstance: false).isEmpty)) {
-      futures.add(
-        getContentFilterCategoryTree(
-          contentFilterParams: ContentFilterParamsModel(
-            ComponentID: componentId,
-            Type: "skills",
-            ShowAllItems: true.toString(),
-            IsCompetencypath: "false",
-          ),
-        ).then((List<ContentFilterCategoryTreeModel> list) {
-          provider.skills.setList(list: list, isClear: true, isNotify: false);
-        })
-      );
+      futures.add(getContentFilterCategoryTree(
+        contentFilterParams: ContentFilterParamsModel(
+          ComponentID: componentId,
+          Type: "skills",
+          ShowAllItems: true.toString(),
+          IsCompetencypath: "false",
+        ),
+      ).then((List<ContentFilterCategoryTreeModel> list) {
+        provider.skills.setList(list: list, isClear: true, isNotify: false);
+      }));
     }
 
     if (enabledContentFilterByTypeModel.objecttypeid && (isRefresh || provider.contentTypes.getList(isNewInstance: false).isEmpty)) {
-      futures.add(
-        getContentFilterCategoryTree(
-          contentFilterParams: ContentFilterParamsModel(
-            ComponentID: componentId,
-            Type: "bytype",
-            ShowAllItems: true.toString(),
-            IsCompetencypath: "false",
-          ),
-        ).then((List<ContentFilterCategoryTreeModel> list) {
-          provider.contentTypes.setList(list: list, isClear: true, isNotify: false);
-        })
-      );
+      futures.add(getContentFilterCategoryTree(
+        contentFilterParams: ContentFilterParamsModel(
+          ComponentID: componentId,
+          Type: "bytype",
+          ShowAllItems: true.toString(),
+          IsCompetencypath: "false",
+        ),
+      ).then((List<ContentFilterCategoryTreeModel> list) {
+        provider.contentTypes.setList(list: list, isClear: true, isNotify: false);
+      }));
     }
 
     if (enabledContentFilterByTypeModel.jobroles && (isRefresh || provider.jobRoles.getList(isNewInstance: false).isEmpty)) {
-      futures.add(
-        getContentFilterCategoryTree(
-          contentFilterParams: ContentFilterParamsModel(
-            ComponentID: componentId,
-            Type: "jobroles",
-            ShowAllItems: true.toString(),
-            IsCompetencypath: "false",
-          ),
-        ).then((List<ContentFilterCategoryTreeModel> list) {
-          provider.jobRoles.setList(list: list, isClear: true, isNotify: false);
-        })
-      );
+      futures.add(getContentFilterCategoryTree(
+        contentFilterParams: ContentFilterParamsModel(
+          ComponentID: componentId,
+          Type: "jobroles",
+          ShowAllItems: true.toString(),
+          IsCompetencypath: "false",
+        ),
+      ).then((List<ContentFilterCategoryTreeModel> list) {
+        provider.jobRoles.setList(list: list, isClear: true, isNotify: false);
+      }));
     }
 
     if (enabledContentFilterByTypeModel.solutions && (isRefresh || provider.solutions.getList(isNewInstance: false).isEmpty)) {
-      futures.add(
-        getContentFilterCategoryTree(
-          contentFilterParams: ContentFilterParamsModel(
-            ComponentID: componentId,
-            Type: "tag",
-            ShowAllItems: true.toString(),
-            IsCompetencypath: "false",
-          ),
-        ).then((List<ContentFilterCategoryTreeModel> list) {
-          provider.solutions.setList(list: list, isClear: true, isNotify: false);
-        })
-      );
+      futures.add(getContentFilterCategoryTree(
+        contentFilterParams: ContentFilterParamsModel(
+          ComponentID: componentId,
+          Type: "tag",
+          ShowAllItems: true.toString(),
+          IsCompetencypath: "false",
+        ),
+      ).then((List<ContentFilterCategoryTreeModel> list) {
+        provider.solutions.setList(list: list, isClear: true, isNotify: false);
+      }));
     }
 
     if (enabledContentFilterByTypeModel.learningprovider && (isRefresh || provider.learningProviders.getList(isNewInstance: false).isEmpty)) {
-      futures.add(
-        repository.getLearningProviders(privacyType: 'public').then((DataResponseModel<LearningProviderFilterResponseModel> responseModel) {
-          if(responseModel.data != null) {
-            provider.learningProviders.setList(list: responseModel.data!.Table, isClear: true, isNotify: false);
-          }
-        })
-      );
+      futures.add(repository.getLearningProviders(privacyType: 'public').then((DataResponseModel<LearningProviderFilterResponseModel> responseModel) {
+        if (responseModel.data != null) {
+          provider.learningProviders.setList(list: responseModel.data!.Table, isClear: true, isNotify: false);
+        }
+      }));
     }
 
     if (enabledContentFilterByTypeModel.instructor && (isRefresh || provider.instructors.getList(isNewInstance: false).isEmpty)) {
-      futures.add(
-        repository.getInstructorsListForFilter().then((DataResponseModel<InstructorListFilterResponseModel> responseModel) {
-          if(responseModel.data != null) {
-            provider.instructors.setList(list: responseModel.data!.Table, isClear: true, isNotify: false);
-          }
-        })
-      );
+      futures.add(repository.getInstructorsListForFilter().then((DataResponseModel<InstructorListFilterResponseModel> responseModel) {
+        if (responseModel.data != null) {
+          provider.instructors.setList(list: responseModel.data!.Table, isClear: true, isNotify: false);
+        }
+      }));
     }
 
     if (enabledContentFilterByTypeModel.creditpoints && (isRefresh || provider.filterDurationValues.getList(isNewInstance: false).isEmpty)) {
-      futures.add(
-        repository.getFilterDurationValues().then((DataResponseModel<FilterDurationValuesResponseModel> responseModel) {
-          if(responseModel.data != null) {
-            List<FilterDurationValueModel> list = responseModel.data!.Table1;
+      futures.add(repository.getFilterDurationValues().then((DataResponseModel<FilterDurationValuesResponseModel> responseModel) {
+        if (responseModel.data != null) {
+          List<FilterDurationValueModel> list = responseModel.data!.Table1;
 
-            FilterDurationValueModel? defaultCreditValue;
-            List<FilterDurationValueModel> defaultValues = list.where((element) => element.defaultvalue.isNotEmpty).toList();
-            if(defaultValues.isNotEmpty) {
-              FilterDurationValueModel filterDurationValueModel = defaultValues.first;
-              defaultCreditValue = filterDurationValueModel;
-              // defaultCreditValue = "${filterDurationValueModel.Minvalue},${filterDurationValueModel.Maxvalue}";
-            }
-            MyPrint.printOnConsole("defaultCreditValue:$defaultCreditValue");
-            provider.defaultFilterCredit.set(value: defaultCreditValue, isNotify: false);
+          FilterDurationValueModel? defaultCreditValue;
+          List<FilterDurationValueModel> defaultValues = list.where((element) => element.defaultvalue.isNotEmpty).toList();
+          if (defaultValues.isNotEmpty) {
+            FilterDurationValueModel filterDurationValueModel = defaultValues.first;
+            defaultCreditValue = filterDurationValueModel;
+            // defaultCreditValue = "${filterDurationValueModel.Minvalue},${filterDurationValueModel.Maxvalue}";
+          }
+          MyPrint.printOnConsole("defaultCreditValue:$defaultCreditValue");
+          provider.defaultFilterCredit.set(value: defaultCreditValue, isNotify: false);
 
-            FilterDurationValueModel? selectedCredit = provider.selectedFilterCredit.get();
-            if(selectedCredit == null) {
+          FilterDurationValueModel? selectedCredit = provider.selectedFilterCredit.get();
+          if (selectedCredit == null) {
+            provider.selectedFilterCredit.set(value: defaultCreditValue, isNotify: false);
+          } else {
+            // List<String> creditsList = list.map((e) => "${e.Minvalue},${e.Maxvalue}").toList();
+            List<FilterDurationValueModel> creditsList = list.where((element) => element.Displayvalue == selectedCredit.Displayvalue).toList();
+            if (creditsList.isEmpty) {
               provider.selectedFilterCredit.set(value: defaultCreditValue, isNotify: false);
             }
-            else {
-              // List<String> creditsList = list.map((e) => "${e.Minvalue},${e.Maxvalue}").toList();
-              List<FilterDurationValueModel> creditsList = list.where((element) => element.Displayvalue == selectedCredit.Displayvalue).toList();
-              if(creditsList.isEmpty) {
-                provider.selectedFilterCredit.set(value: defaultCreditValue, isNotify: false);
-              }
-            }
-            MyPrint.printOnConsole("Final Selected Filter Credit:${provider.selectedFilterCredit.get()}");
-
-            provider.filterDurationValues.setList(list: list, isClear: true, isNotify: false);
           }
-        })
-      );
+          MyPrint.printOnConsole("Final Selected Filter Credit:${provider.selectedFilterCredit.get()}");
+
+          provider.filterDurationValues.setList(list: list, isClear: true, isNotify: false);
+        }
+      }));
     }
 
     MyPrint.printOnConsole("futures length:${futures.length}");
@@ -213,30 +196,42 @@ class FilterController {
   }
 
   Future<List<ContentFilterCategoryTreeModel>> getContentFilterCategoryTree({required ContentFilterParamsModel contentFilterParams}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("FilterController().getContentFilterCategoryTree() called with type:${contentFilterParams.Type}", tag: tag);
+
     DataResponseModel<List<ContentFilterCategoryTreeModel>> dataResponseModel = await filterRepository.getContentFilterCategoryTree(
       contentFilterParams: contentFilterParams,
     );
 
-    if(dataResponseModel.data != null) {
-      List<ContentFilterCategoryTreeModel> list = dataResponseModel.data!;
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from FilterController().getContentFilterCategoryTree() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
 
-      Map<String, ContentFilterCategoryTreeModel> map = <String, ContentFilterCategoryTreeModel>{};
-      for (ContentFilterCategoryTreeModel element in list) {
-        map[element.categoryId] = element;
-      }
+      return <ContentFilterCategoryTreeModel>[];
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from FilterController().getContentFilterCategoryTree() because data is null", tag: tag);
 
-      map.forEach((String categoryId, ContentFilterCategoryTreeModel categoryTreeModel) {
-        if(categoryTreeModel.parentId != "0") {
-          map[categoryTreeModel.parentId]?.children.add(categoryTreeModel);
-          list.remove(categoryTreeModel);
-        }
-      });
-
-      return list;
-    }
-    else {
       return <ContentFilterCategoryTreeModel>[];
     }
+
+    List<ContentFilterCategoryTreeModel> list = dataResponseModel.data!;
+    MyPrint.printOnConsole("list length:${list.length}", tag: tag);
+
+    Map<String, ContentFilterCategoryTreeModel> map = <String, ContentFilterCategoryTreeModel>{};
+    for (ContentFilterCategoryTreeModel element in list) {
+      map[element.categoryId] = element;
+    }
+
+    map.forEach((String categoryId, ContentFilterCategoryTreeModel categoryTreeModel) {
+      if (categoryTreeModel.parentId != "0") {
+        map[categoryTreeModel.parentId]?.children.add(categoryTreeModel);
+        list.remove(categoryTreeModel);
+      }
+    });
+
+    MyPrint.printOnConsole("Final list length:${list.length}", tag: tag);
+
+    return list;
   }
 
   Future<List<ComponentSortModel>> getSortOptionsList({bool isRefresh = true, required int componentId}) async {
@@ -244,7 +239,7 @@ class FilterController {
 
     List<ComponentSortModel> list = <ComponentSortModel>[];
 
-    if(isRefresh || provider.sortOptions.getList(isNewInstance: false).isEmpty) {
+    if (isRefresh || provider.sortOptions.getList(isNewInstance: false).isEmpty) {
       provider.isLoadingSortData.set(value: true, isNotify: true);
 
       DataResponseModel<ComponentSortResponseModel> dataResponseModel = await filterRepository.getComponentSortValues(
@@ -253,18 +248,17 @@ class FilterController {
         ),
       );
 
-      if(dataResponseModel.data != null) {
+      if (dataResponseModel.data != null) {
         list = dataResponseModel.data!.Table;
       }
 
       MyPrint.printOnConsole("Final SortOptions length:${list.length}");
       provider.sortOptions.setList(list: list, isClear: true, isNotify: false);
-      if(provider.selectedSort.get().isEmpty && list.isNotEmpty) {
+      if (provider.selectedSort.get().isEmpty && list.isNotEmpty) {
         provider.selectedSort.set(value: list.first.OptionValue, isNotify: false);
       }
       provider.isLoadingSortData.set(value: false, isNotify: true);
-    }
-    else {
+    } else {
       list = provider.sortOptions.getList(isNewInstance: false);
     }
 
@@ -368,20 +362,20 @@ class FilterController {
   }) {
     FilterProvider provider = filterProvider;
 
-    if(selectedCategories != null) provider.selectedCategories.setList(list: selectedCategories, isClear: true, isNotify: false);
-    if(selectedSkills != null) provider.selectedSkills.setList(list: selectedSkills, isClear: true, isNotify: false);
-    if(selectedContentTypes != null) provider.selectedContentTypes.setList(list: selectedContentTypes, isClear: true, isNotify: false);
-    if(selectedJobRoles != null) provider.selectedJobRoles.setList(list: selectedJobRoles, isClear: true, isNotify: false);
-    if(selectedSolutions != null) provider.selectedSolutions.setList(list: selectedSolutions, isClear: true, isNotify: false);
-    if(selectedLearningProviders != null) provider.selectedLearningProviders.setList(list: selectedLearningProviders, isClear: true, isNotify: false);
-    if(selectedInstructors != null) provider.selectedInstructor.setList(list: selectedInstructors, isClear: true, isNotify: false);
+    if (selectedCategories != null) provider.selectedCategories.setList(list: selectedCategories, isClear: true, isNotify: false);
+    if (selectedSkills != null) provider.selectedSkills.setList(list: selectedSkills, isClear: true, isNotify: false);
+    if (selectedContentTypes != null) provider.selectedContentTypes.setList(list: selectedContentTypes, isClear: true, isNotify: false);
+    if (selectedJobRoles != null) provider.selectedJobRoles.setList(list: selectedJobRoles, isClear: true, isNotify: false);
+    if (selectedSolutions != null) provider.selectedSolutions.setList(list: selectedSolutions, isClear: true, isNotify: false);
+    if (selectedLearningProviders != null) provider.selectedLearningProviders.setList(list: selectedLearningProviders, isClear: true, isNotify: false);
+    if (selectedInstructors != null) provider.selectedInstructor.setList(list: selectedInstructors, isClear: true, isNotify: false);
 
     provider.minPrice.set(value: minPrice, isNotify: false);
     provider.maxPrice.set(value: maxPrice, isNotify: false);
 
     provider.selectedFilterCredit.set(value: selectedFilterCredit ?? provider.defaultFilterCredit.get(), isNotify: false);
 
-    if(selectedEventDateType != null) {
+    if (selectedEventDateType != null) {
       provider.selectedEventDateType.set(value: selectedEventDateType, isNotify: false);
       provider.selectedStartEventDateTime.set(value: startEventDate, isNotify: false);
       provider.selectedEndEventDateTime.set(value: endEventDate, isNotify: false);

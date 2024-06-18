@@ -7,6 +7,7 @@ import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_answe
 import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_comment_request_model.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_question_request_model.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/response_model/filter_user_skills_dto.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/response_model/user_question_skills_response_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:provider/provider.dart';
 
@@ -686,16 +687,16 @@ class AskTheExpertController {
     return dataResponseModel.data?.table.checkNotEmpty ?? false;
   }
 
-  Future<bool> getUserFilterSkills({required int componentId, required int componentInstanceId}) async {
+  Future<bool> getUserFilterSkills() async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("DiscussionController().getUserListBaseOnUserInfo() called '", tag: tag);
 
-    DataResponseModel<FilterUserSkillsDtoResponseModel> dataResponseModel = await _askTheExpertRepository.getUserSkills(componentId: componentId, componentInstanceId: componentInstanceId);
+    DataResponseModel<UserQuestionSkillsResponseModel> dataResponseModel = await _askTheExpertRepository.getUserSkills();
 
     MyPrint.printOnConsole("addTopicComment response:$dataResponseModel", tag: tag);
 
-    if (dataResponseModel.data != null || dataResponseModel.data!.table.checkNotEmpty) {
-      askTheExpertProvider.userFilterSkillsList.setList(list: dataResponseModel.data?.userFilterSkills ?? []);
+    if (dataResponseModel.data != null || dataResponseModel.data!.Table.checkNotEmpty) {
+      askTheExpertProvider.userFilterSkillsList.setList(list: dataResponseModel.data?.Table ?? []);
     }
 
     if (dataResponseModel.appErrorModel != null) {
@@ -703,6 +704,6 @@ class AskTheExpertController {
       return false;
     }
 
-    return dataResponseModel.data?.table.checkNotEmpty ?? false;
+    return askTheExpertProvider.userFilterSkillsList.length > 0;
   }
 }

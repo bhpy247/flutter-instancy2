@@ -1,25 +1,37 @@
+import 'dart:typed_data';
+
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_question_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
-class MicroLearningModel {
+class MicroLearningPageElementModel {
   String htmlContentCode = "";
-  String questionType = MicrolearningTypes.text;
+  String elementType = MicroLearningElementType.Text;
   String title = "";
-  String image = "";
+  String imageUrl = "";
+  String videoUrl = "";
+  String audioUrl = "";
+  Uint8List? imageBytes;
+  Uint8List? videoBytes;
+  Uint8List? audioBytes;
   QuizQuestionModel? quizQuestionModel;
 
-  MicroLearningModel({
+  MicroLearningPageElementModel({
     this.htmlContentCode = "",
-    this.questionType = MicrolearningTypes.text,
+    this.elementType = MicroLearningElementType.Text,
     this.title = "",
-    this.image = "",
+    this.imageUrl = "",
+    this.videoUrl = "",
+    this.audioUrl = "",
+    this.imageBytes,
+    this.videoBytes,
+    this.audioBytes,
     this.quizQuestionModel,
   });
 
-  MicroLearningModel.fromMap(Map<String, dynamic> map) {
+  MicroLearningPageElementModel.fromMap(Map<String, dynamic> map) {
     _initializeFromMap(map);
   }
 
@@ -29,9 +41,11 @@ class MicroLearningModel {
 
   void _initializeFromMap(Map<String, dynamic> map) {
     htmlContentCode = map["htmlContentCode"] != null ? ParsingHelper.parseStringMethod(map["htmlContentCode"]) : htmlContentCode;
-    questionType = map["questionType"] != null ? ParsingHelper.parseStringMethod(map["questionType"]) : questionType;
+    elementType = map["elementType"] != null ? ParsingHelper.parseStringMethod(map["elementType"]) : elementType;
     title = map["title"] != null ? ParsingHelper.parseStringMethod(map["title"]) : title;
-    image = map["image"] != null ? ParsingHelper.parseStringMethod(map["image"]) : image;
+    imageUrl = map["imageUrl"] != null ? ParsingHelper.parseStringMethod(map["imageUrl"]) : imageUrl;
+    videoUrl = map["videoUrl"] != null ? ParsingHelper.parseStringMethod(map["videoUrl"]) : videoUrl;
+    audioUrl = map["audioUrl"] != null ? ParsingHelper.parseStringMethod(map["audioUrl"]) : audioUrl;
 
     Map<String, dynamic>? quizQuestionModelMap = map["quizQuestionModel"] != null ? ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(map["quizQuestionModel"]) : null;
     if (quizQuestionModelMap.checkNotEmpty) {
@@ -44,9 +58,11 @@ class MicroLearningModel {
   Map<String, dynamic> toMap({bool toJson = true}) {
     return <String, dynamic>{
       "htmlContentCode": htmlContentCode,
-      "questionType": questionType,
+      "elementType": elementType,
       "title": title,
-      "image": image,
+      "imageUrl": imageUrl,
+      "videoUrl": videoUrl,
+      "audioUrl": audioUrl,
       "quizQuestionModel": quizQuestionModel?.toMap(toJson: toJson),
     };
   }

@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/models/ask_the_expert/request_model/add_quest
 import 'package:flutter_instancy_2/models/ask_the_expert/request_model/get_question_list_forum_model.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/response_model/QuestionListDtoResponseModel.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/response_model/filter_user_skills_dto.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/response_model/user_question_skills_response_model.dart';
 
 import '../../api/api_call_model.dart';
 import '../../api/api_controller.dart';
@@ -73,9 +74,7 @@ class AskTheExpertRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<AnswerCommentDTOModel>> getAnswersComments({
-    required int intQuestionId,
-  }) async {
+  Future<DataResponseModel<AnswerCommentDTOModel>> getAnswersComments({required int intQuestionId}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
@@ -215,10 +214,7 @@ class AskTheExpertRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<AskTheExpertDto>> addAnswer({
-    bool isEdit = false,
-    required AddAnswerRequestModel requestModel,
-  }) async {
+  Future<DataResponseModel<AskTheExpertDto>> addAnswer({bool isEdit = false, required AddAnswerRequestModel requestModel}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
@@ -249,10 +245,7 @@ class AskTheExpertRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<AddQuestionResponseModel>> addQuestion({
-    bool isEdit = false,
-    required AddQuestionRequestModel requestModel,
-  }) async {
+  Future<DataResponseModel<AddQuestionResponseModel>> addQuestion({bool isEdit = false, required AddQuestionRequestModel requestModel}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
@@ -283,8 +276,12 @@ class AskTheExpertRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<FilterUserSkillsDtoResponseModel>> getFilterSkills(
-      {required int componentId, required int componentInstanceId, bool isFromOffline = false, bool isStoreDataInHive = false}) async {
+  Future<DataResponseModel<FilterUserSkillsDtoResponseModel>> getFilterSkills({
+    required int componentId,
+    required int componentInstanceId,
+    bool isFromOffline = false,
+    bool isStoreDataInHive = false,
+  }) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     MyPrint.printOnConsole(" getWikiCategories Site Url:${apiEndpoints.siteUrl}  ");
@@ -309,30 +306,29 @@ class AskTheExpertRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<FilterUserSkillsDtoResponseModel>> getUserSkills(
-      {required int componentId, required int componentInstanceId, bool isFromOffline = false, bool isStoreDataInHive = false}) async {
+  Future<DataResponseModel<UserQuestionSkillsResponseModel>> getUserSkills({
+    bool isFromOffline = false,
+    bool isStoreDataInHive = false,
+  }) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
-    MyPrint.printOnConsole(" getUserSkills: ${apiEndpoints.siteUrl}  ");
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;
-    // {"intUserID":"363","intSiteID":"374","intComponentID":1,"Locale":"en-us","strType":"cat"}
-    apiUrlConfigurationProvider.getCurrentUserId();
+
     int siteID = apiUrlConfigurationProvider.getCurrentSiteId();
-    apiUrlConfigurationProvider.getLocale();
+
     Map<String, String> request = {
       "aintSiteID": siteID.toString(),
       "astrType": "all",
     };
+
     ApiCallModel apiCallModel = await apiController.getApiCallModelFromData<String>(
       restCallType: RestCallType.simpleGetCall,
       queryParameters: request,
-      parsingType: ModelDataParsingType.FilterUserSkillsDtoResponseModel,
+      parsingType: ModelDataParsingType.UserQuestionSkillsResponseModel,
       url: apiEndpoints.GetUserSkills(),
     );
 
-    DataResponseModel<FilterUserSkillsDtoResponseModel> apiResponseModel = await apiController.callApi<FilterUserSkillsDtoResponseModel>(
-      apiCallModel: apiCallModel,
-    );
+    DataResponseModel<UserQuestionSkillsResponseModel> apiResponseModel = await apiController.callApi<UserQuestionSkillsResponseModel>(apiCallModel: apiCallModel);
     return apiResponseModel;
   }
 
@@ -381,10 +377,7 @@ class AskTheExpertRepository {
     return apiResponseModel;
   }
 
-  Future<DataResponseModel<String>> addComment({
-    bool isEdit = false,
-    required AddCommentRequestModel requestModel,
-  }) async {
+  Future<DataResponseModel<String>> addComment({bool isEdit = false, required AddCommentRequestModel requestModel}) async {
     ApiEndpoints apiEndpoints = apiController.apiEndpoints;
 
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = apiController.apiDataProvider;

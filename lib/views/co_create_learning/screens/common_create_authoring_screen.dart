@@ -7,6 +7,7 @@ import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowled
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/models/filter/data_model/content_filter_category_tree_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/common_save_exit_button_row.dart';
@@ -16,11 +17,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/configurations/app_configuration_operations.dart';
-import '../../../backend/wiki_component/wiki_controller.dart';
-import '../../../backend/wiki_component/wiki_provider.dart';
 import '../../../configs/app_configurations.dart';
 import '../../../configs/app_constants.dart';
-import '../../../models/wiki_component/response_model/wikiCategoriesModel.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_safe_state.dart';
 import '../../../utils/my_utils.dart';
@@ -53,14 +51,12 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
   TextEditingController websiteUrlController = TextEditingController();
   TextEditingController imageFileText = TextEditingController();
   String selectedCategoriesString = "";
-  List<WikiCategoryTable> selectedCategoriesList = [];
+  List<ContentFilterCategoryTreeModel> selectedCategoriesList = [];
 
   String thumbNailName = "";
   Uint8List? thumbNailBytes;
   String thumbnailImagePath = "";
 
-  late WikiProvider wikiProvider;
-  late WikiController wikiController;
   bool isExpanded = false;
   final GlobalKey expansionTile = GlobalKey();
 
@@ -91,15 +87,15 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       thumbNailBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
       thumbnailImagePath = coCreateContentAuthoringModel.ThumbnailImagePath;
 
-      List<WikiCategoryTable> list = wikiProvider.wikiSkillsList;
+      List<ContentFilterCategoryTreeModel> list = coCreateKnowledgeProvider.skills.getList();
       for (String skill in coCreateContentAuthoringModel.skills) {
-        WikiCategoryTable? model = list.where((element) => element.name == skill).firstOrNull;
+        ContentFilterCategoryTreeModel? model = list.where((element) => element.categoryName == skill).firstOrNull;
         if (model != null) {
           selectedCategoriesList.add(model);
         }
       }
       selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-        list: selectedCategoriesList.map((e) => e.name).toList(),
+        list: selectedCategoriesList.map((e) => e.categoryName).toList(),
         separator: ", ",
       );
     } else {
@@ -438,15 +434,15 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
     if (skills != null) {
       selectedCategoriesList.clear();
-      List<WikiCategoryTable> list = wikiProvider.wikiSkillsList;
+      List<ContentFilterCategoryTreeModel> list = coCreateKnowledgeProvider.skills.getList();
       for (String skill in skills) {
-        WikiCategoryTable? model = list.where((element) => element.name == skill).firstOrNull;
+        ContentFilterCategoryTreeModel? model = list.where((element) => element.categoryName == skill).firstOrNull;
         if (model != null) {
           selectedCategoriesList.add(model);
         }
       }
       selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-        list: selectedCategoriesList.map((e) => e.name).toList(),
+        list: selectedCategoriesList.map((e) => e.categoryName).toList(),
         separator: ", ",
       );
     }
@@ -599,7 +595,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
   bool validateFormData() {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return false;
-    } else if (wikiProvider.wikiSkillsList.checkNotEmpty && selectedCategoriesList.isEmpty) {
+    } else if (coCreateKnowledgeProvider.skills.length > 0 && selectedCategoriesList.isEmpty) {
       MyToast.showError(context: context, msg: "Please select a Skill");
       return false;
     } else if (thumbNailBytes.checkEmpty && thumbnailImagePath.isEmpty) {
@@ -617,8 +613,8 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
     coCreateContentAuthoringModel.title = titleController.text.trim();
     coCreateContentAuthoringModel.description = descriptionController.text.trim();
-    coCreateContentAuthoringModel.skills = selectedCategoriesList.map((e) => e.name).toList();
-    coCreateContentAuthoringModel.skillsMap = Map<int, String>.fromEntries(selectedCategoriesList.map((e) => MapEntry<int, String>(e.categoryID, e.name)));
+    coCreateContentAuthoringModel.skills = selectedCategoriesList.map((e) => e.categoryName).toList();
+    coCreateContentAuthoringModel.skillsMap = Map<String, String>.fromEntries(selectedCategoriesList.map((e) => MapEntry<String, String>(e.categoryId, e.categoryName)));
     coCreateContentAuthoringModel.ThumbnailImageName = thumbNailName;
     coCreateContentAuthoringModel.thumbNailImageBytes = thumbNailBytes;
     coCreateContentAuthoringModel.ThumbnailImagePath = thumbnailImagePath;
@@ -791,14 +787,14 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
     String previousTitle = coCreateContentAuthoringModel.title;
     String previousDescription = coCreateContentAuthoringModel.description;
     List<String> previousSkills = coCreateContentAuthoringModel.skills;
-    Map<int, String> previousSkillsMap = coCreateContentAuthoringModel.skillsMap;
+    Map<String, String> previousSkillsMap = coCreateContentAuthoringModel.skillsMap;
     Uint8List? previousThumbnailBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
     String previousThumbnailImagePath = coCreateContentAuthoringModel.ThumbnailImagePath;
 
     coCreateContentAuthoringModel.title = titleController.text.trim();
     coCreateContentAuthoringModel.description = descriptionController.text.trim();
-    coCreateContentAuthoringModel.skills = selectedCategoriesList.map((e) => e.name).toList();
-    coCreateContentAuthoringModel.skillsMap = Map<int, String>.fromEntries(selectedCategoriesList.map((e) => MapEntry<int, String>(e.categoryID, e.name)));
+    coCreateContentAuthoringModel.skills = selectedCategoriesList.map((e) => e.categoryName).toList();
+    coCreateContentAuthoringModel.skillsMap = Map<String, String>.fromEntries(selectedCategoriesList.map((e) => MapEntry<String, String>(e.categoryId, e.categoryName)));
     coCreateContentAuthoringModel.ThumbnailImageName = thumbNailName;
     coCreateContentAuthoringModel.thumbNailImageBytes = thumbNailBytes;
     coCreateContentAuthoringModel.ThumbnailImagePath = thumbnailImagePath;
@@ -870,7 +866,6 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
   @override
   void initState() {
     super.initState();
-    wikiProvider = context.read<WikiProvider>();
     // wikiController = WikiController(wikiProvider: wikiProvider);
     // wikiController.getWikiCategoriesFromApi(
     //   componentId: InstancyComponents.Catalog,
@@ -1136,88 +1131,86 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
 
   //region SkillsExpansionTile
   Widget getSkillsExpansionTile() {
-    return Consumer<WikiProvider>(
-      builder: (BuildContext context, WikiProvider provider, _) {
-        return Container(
-          decoration: BoxDecoration(border: Border.all(width: 0.5, color: Colors.black45), borderRadius: BorderRadius.circular(5)),
-          child: Theme(
-            data: themeData.copyWith(dividerColor: Colors.transparent),
-            child: ExpansionTile(
-              key: expansionTile,
-              backgroundColor: const Color(0xffF8F8F8),
-              initiallyExpanded: isExpanded,
-              tilePadding: const EdgeInsets.symmetric(horizontal: 14),
-              title: Row(
-                children: [
-                  getImageView(url: "assets/catalog/categories.png", height: 15, width: 15),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Expanded(
-                    child: Text(
-                      selectedCategoriesString.isEmpty ? "Skills" : selectedCategoriesString,
-                      style: themeData.textTheme.titleSmall?.copyWith(color: Colors.black45),
-                    ),
-                  ),
-                ],
-              ),
-              onExpansionChanged: (bool? newVal) {
-                FocusScope.of(context).unfocus();
-              },
-              children: provider.wikiSkillsList.map((e) {
-                bool isChecked = selectedCategoriesList.map((e) => e.name).contains(e.name);
-                return Container(
-                  color: Colors.white,
-                  child: InkWell(
-                    onTap: () {
-                      if (isChecked) {
-                        selectedCategoriesList.remove(e);
-                      } else {
-                        selectedCategoriesList.add(e);
-                      }
+    List<ContentFilterCategoryTreeModel> skills = coCreateKnowledgeProvider.skills.getList();
 
-                      selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-                        list: selectedCategoriesList.map((e) => e.name).toList(),
-                        separator: ", ",
-                      );
-                      setState(() {});
-                    },
-                    child: Row(
-                      children: [
-                        Checkbox(
-                          activeColor: themeData.primaryColor,
-                          value: isChecked,
-                          onChanged: (bool? value) {
-                            bool isCheckedTemp = value ?? false;
-                            if (isCheckedTemp) {
-                              if (!isChecked) {
-                                selectedCategoriesList.add(e);
-                              }
-                            } else {
-                              if (isChecked) {
-                                selectedCategoriesList.remove(e);
-                              }
-                            }
-                            selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
-                              list: selectedCategoriesList.map((e) => e.name).toList(),
-                              separator: ",",
-                            );
-                            setState(() {});
-                          },
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(e.name),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
+    return Container(
+      decoration: BoxDecoration(border: Border.all(width: 0.5, color: Colors.black45), borderRadius: BorderRadius.circular(5)),
+      child: Theme(
+        data: themeData.copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          key: expansionTile,
+          backgroundColor: const Color(0xffF8F8F8),
+          initiallyExpanded: isExpanded,
+          tilePadding: const EdgeInsets.symmetric(horizontal: 14),
+          title: Row(
+            children: [
+              getImageView(url: "assets/catalog/categories.png", height: 15, width: 15),
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: Text(
+                  selectedCategoriesString.isEmpty ? "Skills" : selectedCategoriesString,
+                  style: themeData.textTheme.titleSmall?.copyWith(color: Colors.black45),
+                ),
+              ),
+            ],
           ),
-        );
-      },
+          onExpansionChanged: (bool? newVal) {
+            FocusScope.of(context).unfocus();
+          },
+          children: skills.map((e) {
+            bool isChecked = selectedCategoriesList.map((e) => e.categoryName).contains(e.categoryName);
+            return Container(
+              color: Colors.white,
+              child: InkWell(
+                onTap: () {
+                  if (isChecked) {
+                    selectedCategoriesList.remove(e);
+                  } else {
+                    selectedCategoriesList.add(e);
+                  }
+
+                  selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+                    list: selectedCategoriesList.map((e) => e.categoryName).toList(),
+                    separator: ", ",
+                  );
+                  setState(() {});
+                },
+                child: Row(
+                  children: [
+                    Checkbox(
+                      activeColor: themeData.primaryColor,
+                      value: isChecked,
+                      onChanged: (bool? value) {
+                        bool isCheckedTemp = value ?? false;
+                        if (isCheckedTemp) {
+                          if (!isChecked) {
+                            selectedCategoriesList.add(e);
+                          }
+                        } else {
+                          if (isChecked) {
+                            selectedCategoriesList.remove(e);
+                          }
+                        }
+                        selectedCategoriesString = AppConfigurationOperations.getSeparatorJoinedStringFromStringList(
+                          list: selectedCategoriesList.map((e) => e.categoryName).toList(),
+                          separator: ",",
+                        );
+                        setState(() {});
+                      },
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(e.categoryName),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 

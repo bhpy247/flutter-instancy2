@@ -35,6 +35,7 @@ import 'package:flutter_instancy_2/models/content_review_ratings/data_model/cont
 import 'package:flutter_instancy_2/models/course_download/data_model/course_download_data_model.dart';
 import 'package:flutter_instancy_2/models/course_download/request_model/course_download_request_model.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
+import 'package:flutter_instancy_2/models/filter/data_model/content_filter_category_tree_model.dart';
 import 'package:flutter_instancy_2/models/gamification/request_model/update_content_gamification_request_model.dart';
 import 'package:flutter_instancy_2/models/my_learning/response_model/page_notes_response_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
@@ -1480,6 +1481,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             longDescription: contentDetailsDTOModel.LongDescription,
             shortDescription: contentDetailsDTOModel.ShortDescription,
           ),
+          getSkillsListWidget(ContentSkills: contentDetailsDTOModel.ContentSkills),
         ],
       ),
     );
@@ -1629,6 +1631,42 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
               // text: 'Flutter is Google’s mobile UI open source framework to build high-quality native (super fast) interfaces for iOS and Android apps with the unified codebase.and Android apps with the unified codebase.and Android apps with the unified codebase.and Android apps with the unified codebase.and Android apps with the unified codebase.and Android apps with the unified codebase.and Android apps with the unified codebase.and Android apps with the unified codebase.and Android apps with the unified codebase.and Android apps with the unified codebase.and Android apps with the unified codebase.',
             ),
         ],
+      ),
+    );
+  }
+
+  Widget getSkillsListWidget({required List<ContentFilterCategoryTreeModel> ContentSkills}) {
+    if (ContentSkills.isEmpty) {
+      return const SizedBox();
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: getWidgetWithTitle(
+        title: "Skills",
+        widget: Wrap(
+          spacing: 5,
+          runSpacing: 5,
+          children: ContentSkills.map((e) {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              /*decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: themeData.primaryColor),
+              ),*/
+              decoration: BoxDecoration(
+                color: themeData.primaryColor,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Text(
+                e.categoryName,
+                style: themeData.textTheme.labelMedium?.copyWith(
+                  color: themeData.colorScheme.onPrimary,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }

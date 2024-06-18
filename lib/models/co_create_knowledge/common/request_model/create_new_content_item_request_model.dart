@@ -30,6 +30,7 @@ class CreateNewContentItemRequestModel {
   CreateNewContentItemFormDataModel formData = CreateNewContentItemFormDataModel();
   Uint8List? ThumbnailImage;
   List<String> Categories = <String>[];
+  List<String> UnAssignCategories = <String>[];
   List<InstancyMultipartFileUploadModel>? Files;
 
   CreateNewContentItemRequestModel({
@@ -56,9 +57,11 @@ class CreateNewContentItemRequestModel {
     required this.formData,
     this.ThumbnailImage,
     List<String>? Categories,
+    List<String>? UnAssignCategories,
     this.Files,
   }) {
     this.Categories = Categories ?? <String>[];
+    this.UnAssignCategories = UnAssignCategories ?? <String>[];
   }
 
   Map<String, String> toMap() {
@@ -91,6 +94,7 @@ class CreateNewContentItemRequestModel {
               defaultMimeType: "image/jpeg",
             ),
       "Categories": AppConfigurationOperations.getSeparatorJoinedStringFromStringList(list: Categories),
+      "UnAssignCategories": AppConfigurationOperations.getSeparatorJoinedStringFromStringList(list: UnAssignCategories),
     };
   }
 

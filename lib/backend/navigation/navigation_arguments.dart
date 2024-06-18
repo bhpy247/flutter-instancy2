@@ -890,7 +890,7 @@ class CatalogContentsListScreenNavigationArguments extends NavigationArguments {
   final CatalogProvider? catalogProvider;
   final WikiProvider? wikiProvider;
   final ContentFilterCategoryTreeModel? selectedCategory;
-  List<CatalogCategoriesForBrowseModel> categoriesListForPath = [];
+  List<CatalogCategoriesForBrowseModel> categoriesListForPath = <CatalogCategoriesForBrowseModel>[];
   final String searchString;
   final bool isShowSearchTextField;
   final bool isShowAppbar;
@@ -912,7 +912,7 @@ class CatalogContentsListScreenNavigationArguments extends NavigationArguments {
     this.subSiteId,
     List<CatalogCategoriesForBrowseModel>? categoriesListForPath,
   }) {
-    this.categoriesListForPath = categoriesListForPath ?? [];
+    this.categoriesListForPath = categoriesListForPath ?? <CatalogCategoriesForBrowseModel>[];
   }
 }
 
@@ -979,7 +979,6 @@ class CoCreateKnowledgeScreenNavigationArguments extends NavigationArguments {
   final int? HomeComponentId;
   final CatalogProvider? catalogProvider;
   final CoCreateKnowledgeProvider? coCreateKnowledgeProvider;
-  final WikiProvider? wikiProvider;
   final ContentFilterCategoryTreeModel? selectedCategory;
   final List<CatalogCategoriesForBrowseModel>? categoriesListForPath;
   final String searchString;
@@ -994,7 +993,6 @@ class CoCreateKnowledgeScreenNavigationArguments extends NavigationArguments {
     this.HomeComponentId,
     this.catalogProvider,
     this.coCreateKnowledgeProvider,
-    this.wikiProvider,
     this.selectedCategory,
     this.searchString = "",
     this.isShowSearchTextField = true,

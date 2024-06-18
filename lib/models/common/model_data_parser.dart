@@ -7,6 +7,7 @@ import 'package:flutter_instancy_2/models/ask_the_expert/data_model/answer_comme
 import 'package:flutter_instancy_2/models/ask_the_expert/response_model/QuestionListDtoResponseModel.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/response_model/add_question_response_model.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/response_model/filter_user_skills_dto.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/response_model/user_question_skills_response_model.dart';
 import 'package:flutter_instancy_2/models/authentication/data_model/native_login_dto_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/forgot_password_response_model.dart';
 import 'package:flutter_instancy_2/models/authentication/response_model/save_social_network_users_response_dto_model.dart';
@@ -317,6 +318,7 @@ enum ModelDataParsingType {
   AnswerCommentDtoModel,
   AddQuestionResponseModel,
   FilterUserSkillsDtoResponseModel,
+  UserQuestionSkillsResponseModel,
   //endregion
 
   //region learning Communities
@@ -556,6 +558,7 @@ class ModelDataParser {
     ModelDataParsingType.QuestionListDtoModel: parseQuestionListDtoModel,
     ModelDataParsingType.AddQuestionResponseModel: parseAddQuestionResponseModel,
     ModelDataParsingType.FilterUserSkillsDtoResponseModel: parseFilterUserSkillsDtoResponseModel,
+    ModelDataParsingType.UserQuestionSkillsResponseModel: parseUserQuestionSkillsResponseModel,
     //region
 
     //region LearningCommunitiesModel
@@ -1555,6 +1558,16 @@ class ModelDataParser {
 
     if (json.isNotEmpty) {
       return FilterUserSkillsDtoResponseModel.fromJson(json);
+    } else {
+      return null;
+    }
+  }
+
+  static UserQuestionSkillsResponseModel? parseUserQuestionSkillsResponseModel({required dynamic decodedValue}) {
+    Map<String, dynamic> json = ParsingHelper.parseMapMethod<dynamic, dynamic, String, dynamic>(decodedValue);
+
+    if (json.isNotEmpty) {
+      return UserQuestionSkillsResponseModel.fromMap(json);
     } else {
       return null;
     }

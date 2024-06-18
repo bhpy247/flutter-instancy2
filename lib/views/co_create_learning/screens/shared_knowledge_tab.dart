@@ -4,6 +4,7 @@ import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowled
 import 'package:flutter_instancy_2/backend/course_launch/course_launch_controller.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
 import 'package:flutter_instancy_2/backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
+import 'package:flutter_instancy_2/configs/app_configurations.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/local_str.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
@@ -143,14 +144,8 @@ class _SharedKnowledgeTabState extends State<SharedKnowledgeTab> with MySafeStat
     super.pageBuild();
     return Sizer(
       builder: (context, orientation, deviceType) {
-        return RefreshIndicator(
-          onRefresh: () async {
-            future = getFutureData();
-            mySetState();
-          },
-          child: Scaffold(
-            body: mainWidget(),
-          ),
+        return Scaffold(
+          body: mainWidget(),
         );
       },
     );
@@ -263,24 +258,49 @@ class _SharedKnowledgeTabState extends State<SharedKnowledgeTab> with MySafeStat
     if (provider.isLoadingSharedKnowledge.get()) return const CommonLoader();
     List<CourseDTOModel> list = provider.sharedKnowledgeList.getList();
 
-    return ListView.builder(
-      itemCount: list.length,
-      padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(bottom: 10),
-      itemBuilder: (BuildContext listContext, int index) {
-        CourseDTOModel model = list[index];
+    if (list.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: () async {
+          future = getFutureData(isRefresh: true);
+          mySetState();
+        },
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+            Center(
+              child: AppConfigurations.commonNoDataView(),
+            ),
+          ],
+        ),
+      );
+    }
 
-        return getCatalogContentWidget(model: model, index: index);
-
-        /*return MyKnowledgeItemWidget(
-          model: model,
-          onMoreTap: () {
-            showMoreActions(model: model);
-          },
-          onCardTap: () {
-            onViewTap(model: model);
-          },
-        );*/
+    return RefreshIndicator(
+      onRefresh: () async {
+        future = getFutureData(isRefresh: true);
+        mySetState();
       },
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: list.length,
+        padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(bottom: 10),
+        itemBuilder: (BuildContext listContext, int index) {
+          CourseDTOModel model = list[index];
+
+          return getCatalogContentWidget(model: model, index: index);
+
+          /*return MyKnowledgeItemWidget(
+            model: model,
+            onMoreTap: () {
+              showMoreActions(model: model);
+            },
+            onCardTap: () {
+              onViewTap(model: model);
+            },
+          );*/
+        },
+      ),
     );
   }
 

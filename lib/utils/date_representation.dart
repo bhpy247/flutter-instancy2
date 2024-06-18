@@ -26,7 +26,7 @@ abstract class DatePresentation {
 
   static String mmmddYYyyFormatter(DateTime timeStamp) {
     DateTime dateTime = timeStamp;
-    return DateFormat('MMM dd, yyyy').format(dateTime);
+    return DateFormat('dd MMM yyyy').format(dateTime);
   }
 
   static String yyyyMMddFormatter(Timestamp timeStamp) {

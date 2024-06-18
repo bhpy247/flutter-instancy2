@@ -45,7 +45,6 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
   TextEditingController startTimeController = TextEditingController();
   TextEditingController dateController = TextEditingController();
 
-  String startTime = "", endTime = "";
   bool isDateEnabled = true, isStartDateEnabled = true, isEndDateEnabled = true;
 
   Future<String> _selectTime(BuildContext context) async {
@@ -91,9 +90,9 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
       eventUrlController.text = eventModel.eventUrl;
       locationController.text = eventModel.location;
     } else {
-      dateController.text = "30 May 2024";
-      startTimeController.text = "5:30 PM";
-      endTimeController.text = "6:00 PM";
+      dateController.text = "30 Aug 2024";
+      startTimeController.text = "5:30:00 PM";
+      endTimeController.text = "6:00:00 PM";
       eventUrlController.text = "https://zoom.us/";
       locationController.text = "NC";
     }
@@ -258,8 +257,6 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
     return getTexFormField(
       onTap: () async {
         endTimeController.text = await _selectTime(context);
-        endTime = "05/30/2024 ${endTimeController.text}";
-
         mySetState();
       },
       isMandatory: false,
@@ -275,7 +272,6 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
     return getTexFormField(
       onTap: () async {
         startTimeController.text = await _selectTime(context);
-        startTime = "05/30/2024 ${startTimeController.text}";
         mySetState();
       },
       isMandatory: false,

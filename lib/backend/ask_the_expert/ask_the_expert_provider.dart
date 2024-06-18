@@ -1,5 +1,6 @@
 import 'package:flutter_instancy_2/backend/common/common_provider.dart';
 import 'package:flutter_instancy_2/models/ask_the_expert/data_model/ask_the_expert_dto.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/data_model/user_question_skill_model.dart';
 
 import '../../models/ask_the_expert/response_model/filter_user_skills_dto.dart';
 import '../../models/common/pagination/pagination_model.dart';
@@ -36,8 +37,8 @@ class AskTheExpertProvider extends CommonProvider {
       list: <FilterSkills>[],
       notify: notify,
     );
-    userFilterSkillsList = CommonProviderListParameter<UserFilterSkills>(
-      list: <UserFilterSkills>[],
+    userFilterSkillsList = CommonProviderListParameter<UserQuestionSkillModel>(
+      list: <UserQuestionSkillModel>[],
       notify: notify,
     );
     questionId = CommonProviderPrimitiveParameter<String>(
@@ -81,7 +82,7 @@ class AskTheExpertProvider extends CommonProvider {
 
   late CommonProviderListParameter<UserQuestionListDto> questionList;
   late CommonProviderListParameter<FilterSkills> filterSkillsList;
-  late CommonProviderListParameter<UserFilterSkills> userFilterSkillsList;
+  late CommonProviderListParameter<UserQuestionSkillModel> userFilterSkillsList;
   late final CommonProviderPrimitiveParameter<String> questionId;
   late final CommonProviderPrimitiveParameter<String> questionListSearchString;
   late final CommonProviderPrimitiveParameter<String> filterCategoriesIds;

@@ -1,21 +1,30 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/api/api_url_configuration_provider.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/app/dependency_injection.dart';
+import 'package:flutter_instancy_2/backend/ask_the_expert/ask_the_expert_repository.dart';
 import 'package:flutter_instancy_2/configs/app_constants.dart';
 import 'package:flutter_instancy_2/models/app_configuration_models/data_models/app_ststem_configurations.dart';
+import 'package:flutter_instancy_2/models/app_configuration_models/data_models/local_str.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/data_model/user_question_skill_model.dart';
+import 'package:flutter_instancy_2/models/ask_the_expert/response_model/user_question_skills_response_model.dart';
 import 'package:flutter_instancy_2/models/catalog/response_model/catalog_dto_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/article/data_model/article_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_formdata_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/create_new_content_item_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/delete_co_create_content_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/generate_images_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/get_co_create_knowledgebase_list_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/native_authoring_get_module_names_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/native_authoring_get_resources_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/save_content_json_request_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/share_co_create_knowledge_base_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avatar_voice_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avtar_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
@@ -26,7 +35,7 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/data_mo
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/request_model/flashcard_request_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_content_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_page_element_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/data_model/podcast_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/language_voice_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/speaking_style_model.dart';
@@ -44,11 +53,16 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/video/response_mod
 import 'package:flutter_instancy_2/models/common/Instancy_multipart_file_upload_model.dart';
 import 'package:flutter_instancy_2/models/common/data_response_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
+import 'package:flutter_instancy_2/models/filter/data_model/content_filter_category_tree_model.dart';
 import 'package:flutter_instancy_2/models/profile/data_model/user_profile_details_model.dart';
+import 'package:flutter_instancy_2/utils/date_representation.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
+import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
+import 'package:flutter_instancy_2/views/common/components/common_confirmation_dialog.dart';
+import 'package:provider/provider.dart';
 
 import '../../api/api_controller.dart';
 import '../../models/co_create_knowledge/article/request_model/generate_whole_article_content_request_model.dart';
@@ -74,6 +88,40 @@ class CoCreateKnowledgeController {
   CoCreateKnowledgeProvider get coCreateKnowledgeProvider => _coCreateKnowledgeProvider;
 
   CoCreateKnowledgeRepository get coCreateKnowledgeRepository => _coCreateKnowledgeRepository;
+
+  Future<void> getSkillsList() async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getSkillsList() called", tag: tag);
+
+    CoCreateKnowledgeProvider provider = coCreateKnowledgeProvider;
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    DataResponseModel<UserQuestionSkillsResponseModel> dataResponseModel = await AskTheExpertRepository(apiController: repository.apiController).getUserSkills();
+
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from FilterController().getContentFilterCategoryTree() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from FilterController().getContentFilterCategoryTree() because data is null", tag: tag);
+      return;
+    }
+
+    UserQuestionSkillsResponseModel responseModel = dataResponseModel.data!;
+    List<UserQuestionSkillModel> list = responseModel.Table;
+    MyPrint.printOnConsole("list length:${list.length}", tag: tag);
+
+    List<ContentFilterCategoryTreeModel> finalList = list.map((e) {
+      return ContentFilterCategoryTreeModel(
+        categoryId: e.PreferrenceID.toString(),
+        categoryName: e.PreferrenceTitle,
+      );
+    }).toList();
+
+    provider.skills.setList(list: finalList, isClear: true, isNotify: true);
+
+    MyPrint.printOnConsole("Final Skills Length in Provider:${provider.skills.length}", tag: tag);
+  }
 
   Future<bool> getMyKnowledgeList({GetCoCreateKnowledgebaseListRequestModel? requestModel}) async {
     String tag = MyUtils.getNewId();
@@ -350,6 +398,7 @@ class CoCreateKnowledgeController {
   }
 
   CreateNewContentItemRequestModel getCreateNewContentItemRequestModelFromCoCreateContentAuthoringModel({required CoCreateContentAuthoringModel coCreateContentAuthoringModel}) {
+    CoCreateKnowledgeProvider provider = coCreateKnowledgeProvider;
     CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
 
     CreateNewContentItemFormDataModel createNewContentItemFormDataModel = CreateNewContentItemFormDataModel(
@@ -359,13 +408,13 @@ class CoCreateKnowledgeController {
       MediaTypeID: coCreateContentAuthoringModel.mediaTypeId.toString(),
       Language: repository.apiController.apiDataProvider.getLocale(),
       Bit3: coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.reference && coCreateContentAuthoringModel.mediaTypeId == InstancyMediaTypes.url,
-      StartPage: coCreateContentAuthoringModel.referenceUrl ?? "",
+      StartPage: coCreateContentAuthoringModel.referenceUrl ?? coCreateContentAuthoringModel.startPage,
     );
 
     if (coCreateContentAuthoringModel.skillsMap.isEmpty && coCreateContentAuthoringModel.skills.isNotEmpty) {
-      Map<int, String> allSkillsMap = Map<int, String>.fromEntries(DependencyInjection.wikiProvider.wikiSkillsList.map((e) => MapEntry(e.categoryID, e.name)));
+      Map<String, String> allSkillsMap = Map<String, String>.fromEntries(provider.skills.getList().map((e) => MapEntry(e.categoryId, e.categoryName)));
 
-      coCreateContentAuthoringModel.skillsMap = Map<int, String>.fromEntries(allSkillsMap.entries.where((element) => coCreateContentAuthoringModel.skills.contains(element.value)));
+      coCreateContentAuthoringModel.skillsMap = Map<String, String>.fromEntries(allSkillsMap.entries.where((element) => coCreateContentAuthoringModel.skills.contains(element.value)));
       coCreateContentAuthoringModel.skills = coCreateContentAuthoringModel.skillsMap.values.toList();
     }
 
@@ -377,10 +426,12 @@ class CoCreateKnowledgeController {
       ThumbnailImageName: coCreateContentAuthoringModel.ThumbnailImageName,
       ActionType: coCreateContentAuthoringModel.isEdit ? CreateNewContentItemActionType.update : CreateNewContentItemActionType.create,
       Categories: coCreateContentAuthoringModel.skillsMap.keys.map((e) => e.toString()).toList(),
+      UnAssignCategories: coCreateContentAuthoringModel.oldSkillsMap.keys.map((e) => e.toString()).toList(),
       CategoryType: CreateNewContentItemCategoryType.skl,
       ContentID: coCreateContentAuthoringModel.contentId,
       FolderPath: coCreateContentAuthoringModel.courseDTOModel?.FolderPath ?? "",
     );
+    requestModel.UnAssignCategories.removeWhere((element) => requestModel.Categories.contains(element));
 
     if (coCreateContentAuthoringModel.uploadedDocumentName.checkNotEmpty) {
       requestModel.fileName = coCreateContentAuthoringModel.uploadedDocumentName!;
@@ -417,6 +468,22 @@ class CoCreateKnowledgeController {
       createNewContentItemFormDataModel.EventEndDateTime = "${eventModel.date} ${eventModel.endTime}";
       createNewContentItemFormDataModel.RegistrationURL = eventModel.eventUrl;
       createNewContentItemFormDataModel.Location = eventModel.location;
+
+      DateTime? startDateTime = ParsingHelper.parseDateTimeMethod(
+        createNewContentItemFormDataModel.EventStartDateTime,
+        dateFormat: "dd MMM yyyy hh:mm:ss aa",
+      );
+      DateTime? endDateTime = ParsingHelper.parseDateTimeMethod(
+        createNewContentItemFormDataModel.EventEndDateTime,
+        dateFormat: "dd MMM yyyy hh:mm:ss aa",
+      );
+      if (startDateTime != null && endDateTime != null) {
+        createNewContentItemFormDataModel.Duration = DatePresentation.getDifferenceBetweenDatesInMinutes(
+          startDateTime,
+          endDateTime,
+        );
+      }
+
       requestModel.additionalData = eventModel.toString();
     }
     if (coCreateContentAuthoringModel.microLearningContentModel != null) {
@@ -459,7 +526,13 @@ class CoCreateKnowledgeController {
     courseDTOModel.ThumbnailImagePath = coCreateContentAuthoringModel.ThumbnailImagePath;
     courseDTOModel.ThumbnailImageName = coCreateContentAuthoringModel.ThumbnailImageName;
     courseDTOModel.thumbNailFileBytes = coCreateContentAuthoringModel.thumbNailImageBytes;
-    courseDTOModel.ContentSkills = coCreateContentAuthoringModel.skills;
+    courseDTOModel.startpage = coCreateContentAuthoringModel.startPage;
+    courseDTOModel.ContentSkills = coCreateContentAuthoringModel.skillsMap.entries.map((e) {
+      return ContentFilterCategoryTreeModel(
+        categoryId: e.key,
+        categoryName: e.value,
+      );
+    }).toList();
     courseDTOModel.ContentTypeId = coCreateContentAuthoringModel.contentTypeId;
     courseDTOModel.MediaTypeID = coCreateContentAuthoringModel.mediaTypeId;
 
@@ -481,8 +554,8 @@ class CoCreateKnowledgeController {
       courseDTOModel.EventEndDateTime = "${eventModel.date} ${eventModel.endTime}";
       courseDTOModel.EventStartDateTimeWithoutConvert = coCreateContentAuthoringModel.eventModel?.startTime ?? "";
       courseDTOModel.EventEndDateTimeTimeWithoutConvert = coCreateContentAuthoringModel.eventModel?.endTime ?? "";
-      courseDTOModel.Duration = "30 Minutes";
-      courseDTOModel.AvailableSeats = "10";
+      // courseDTOModel.Duration = "30 Minutes";
+      // courseDTOModel.AvailableSeats = "10";
 
       //   UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
       // ContentTypeId: InstancyObjectTypes.events,
@@ -524,13 +597,22 @@ class CoCreateKnowledgeController {
     coCreateContentAuthoringModel.ThumbnailImagePath = courseDTOModel.ThumbnailImagePath;
     coCreateContentAuthoringModel.ThumbnailImageName = courseDTOModel.ThumbnailImageName;
     coCreateContentAuthoringModel.thumbNailImageBytes = courseDTOModel.thumbNailFileBytes;
-    coCreateContentAuthoringModel.skills = courseDTOModel.ContentSkills;
+    coCreateContentAuthoringModel.startPage = courseDTOModel.startpage;
+    coCreateContentAuthoringModel.skillsMap = Map<String, String>.fromEntries(courseDTOModel.ContentSkills.map((e) => MapEntry(e.categoryId, e.categoryName)));
+    coCreateContentAuthoringModel.skills = courseDTOModel.ContentSkills.map((e) => e.categoryName).toList();
+    coCreateContentAuthoringModel.oldSkillsMap = Map<String, String>.from(coCreateContentAuthoringModel.skillsMap);
 
     if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.reference && coCreateContentAuthoringModel.mediaTypeId == InstancyMediaTypes.url) {
       coCreateContentAuthoringModel.referenceUrl = courseDTOModel.ViewLink;
     } else if (coCreateContentAuthoringModel.contentTypeId == InstancyObjectTypes.document) {
       coCreateContentAuthoringModel.uploadedDocumentBytes = courseDTOModel.uploadedDocumentBytes;
       coCreateContentAuthoringModel.uploadedDocumentName = courseDTOModel.uploadedFileName;
+      if (coCreateContentAuthoringModel.uploadedDocumentName.checkEmpty) {
+        int index = coCreateContentAuthoringModel.startPage.lastIndexOf("/");
+        if (index != -1 && (index + 1) < coCreateContentAuthoringModel.startPage.length) {
+          coCreateContentAuthoringModel.uploadedDocumentName = coCreateContentAuthoringModel.startPage.substring(index + 1);
+        }
+      }
     }
 
     coCreateContentAuthoringModel.eventModel = courseDTOModel.eventModel;
@@ -1111,11 +1193,11 @@ class CoCreateKnowledgeController {
   }
 
   //region Generate MicroLearning Content
-  Future<List<MicroLearningModel>> generateMicroLearningContentPages({required MicroLearningContentModel microLearningContentModel}) async {
+  Future<List<MicroLearningPageElementModel>> generateMicroLearningContentPages({required MicroLearningContentModel microLearningContentModel}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningContentPages() called with microLearningContentModel:$microLearningContentModel", tag: tag);
 
-    List<MicroLearningModel> pages = <MicroLearningModel>[];
+    List<MicroLearningPageElementModel> pages = <MicroLearningPageElementModel>[];
 
     if (microLearningContentModel.pageCount < 1) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningContentPages() because pageCount is less than 1", tag: tag);
@@ -1177,6 +1259,15 @@ class CoCreateKnowledgeController {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningText() because topic is empty", tag: tag);
       return text;
     }
+
+    text = await generateWholeArticleContent(
+      requestModel: GenerateWholeArticleContentRequestModel(
+        title: topic,
+        numberOfTopics: 3,
+        source: "internet",
+        wordsCount: 200,
+      ),
+    );
 
     MyPrint.printOnConsole("Final text:$text", tag: tag);
 
@@ -1295,5 +1386,187 @@ class CoCreateKnowledgeController {
 
     return quizQuestionModelsList;
   }
+
 // endregion
+
+  Future<bool> DeleteCoCreateContent({required BuildContext context, required DeleteCoCreateContentRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().DeleteCoCreateContent() called", tag: tag);
+
+    CoCreateKnowledgeProvider provider = coCreateKnowledgeProvider;
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    bool isDeleted = false;
+
+    if (requestModel.ContentID.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().DeleteCoCreateContent() because ContentID is empty", tag: tag);
+      if (context.checkMounted()) MyToast.showError(context: context, msg: "ContentID is Empty");
+      return isDeleted;
+    }
+
+    dynamic value = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        LocalStr localStrNew = context.read<AppProvider>().localStr;
+
+        return CommonConfirmationDialog(
+          title: "Delete Knowledge",
+          description: "Are you sure want to Delete this Knowledge?",
+          confirmationText: localStrNew.catalogActionsheetDeleteoption,
+          cancelText: localStrNew.catalogAlertbuttonCancelbutton,
+        );
+      },
+    );
+
+    if (value != true) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().DeleteCoCreateContent() because couldn't get confirmation", tag: tag);
+      return isDeleted;
+    }
+
+    DataResponseModel<String> dataResponseModel = await repository.DeleteCoCreateContent(requestModel: requestModel);
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().DeleteCoCreateContent() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return isDeleted;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().DeleteCoCreateContent() because data is null", tag: tag);
+      return isDeleted;
+    }
+
+    MyPrint.printOnConsole("dataResponseModel.data:${dataResponseModel.data}", tag: tag);
+
+    isDeleted = dataResponseModel.data!.isNotEmpty;
+
+    MyPrint.printOnConsole("Final isDeleted:$isDeleted", tag: tag);
+
+    if (isDeleted) {
+      List<CourseDTOModel> myKnowledgeList = provider.myKnowledgeList.getList(isNewInstance: false).where((element) => element.ContentID == requestModel.ContentID).toList();
+      provider.myKnowledgeList.removeItems(items: myKnowledgeList, isNotify: false);
+
+      List<CourseDTOModel> sharedKnowledgeList = provider.sharedKnowledgeList.getList(isNewInstance: false).where((element) => element.ContentID == requestModel.ContentID).toList();
+      provider.sharedKnowledgeList.removeItems(items: sharedKnowledgeList, isNotify: true);
+    }
+
+    if (isDeleted) {
+      if (context.checkMounted()) MyToast.showSuccess(context: context, msg: "Knowledge Deleted Successfully!");
+    } else {
+      if (context.checkMounted()) MyToast.showError(context: context, msg: "Knowledge Delete Failed!");
+    }
+
+    return isDeleted;
+  }
+
+  Future<bool> ShareCoCreateContent({required BuildContext context, required ShareCoCreateKnowledgeBaseRequestModel requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().ShareCoCreateContent() called", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    bool isShared = false;
+
+    if (requestModel.contentId.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().DeleteCoCreateContent() because ContentID is empty", tag: tag);
+      if (context.checkMounted()) MyToast.showError(context: context, msg: "ContentID is Empty");
+      return isShared;
+    } else if (requestModel.folderPath.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().DeleteCoCreateContent() because FolderPath is empty", tag: tag);
+      if (context.checkMounted()) MyToast.showError(context: context, msg: "FolderPath is Empty");
+      return isShared;
+    }
+
+    dynamic value = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        LocalStr localStrNew = context.read<AppProvider>().localStr;
+
+        return CommonConfirmationDialog(
+          title: "Share Knowledge",
+          description: "Are you sure want to share your knowledge?",
+          confirmationText: localStrNew.catalogActionsheetShareoption,
+          cancelText: localStrNew.catalogAlertbuttonCancelbutton,
+        );
+      },
+    );
+
+    if (value != true) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().DeleteCoCreateContent() because couldn't get confirmation", tag: tag);
+      return isShared;
+    }
+
+    DataResponseModel<String> dataResponseModel = await repository.ShareCoCreateKnowledgeBase(requestModel: requestModel);
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().ShareCoCreateContent() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return isShared;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().ShareCoCreateContent() because data is null", tag: tag);
+      return isShared;
+    }
+
+    MyPrint.printOnConsole("dataResponseModel.data:${dataResponseModel.data}", tag: tag);
+
+    isShared = dataResponseModel.data! == '1';
+
+    MyPrint.printOnConsole("Final isShared:$isShared", tag: tag);
+
+    if (isShared) {
+      getSharedKnowledgeList();
+    }
+
+    if (isShared) {
+      if (context.checkMounted()) MyToast.showSuccess(context: context, msg: "Knowledge Shared Successfully!");
+    } else {
+      if (context.checkMounted()) MyToast.showError(context: context, msg: "Knowledge Share Failed!");
+    }
+
+    return isShared;
+  }
+
+  Future<void> DeleteAllContentsTemp() async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().DeleteAllContentsTemp()", tag: tag);
+
+    CoCreateKnowledgeProvider provider = coCreateKnowledgeProvider;
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    List<CourseDTOModel> list = provider.myKnowledgeList.getList();
+
+    List<Future<bool>> futures = <Future<bool>>[];
+
+    for (CourseDTOModel model in list) {
+      Completer<bool> completer = Completer<bool>();
+
+      repository.DeleteCoCreateContent(
+        requestModel: DeleteCoCreateContentRequestModel(
+          UserID: model.SiteUserID,
+          ContentID: model.ContentID,
+        ),
+      ).then((DataResponseModel<String> dataResponseModel) {
+        if (dataResponseModel.appErrorModel != null) {
+          MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().DeleteAllContentsTemp() because appErrorModel is not null for ContentId ${model.ContentID}", tag: tag);
+          MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+          return completer.complete(false);
+        } else if (dataResponseModel.data == null) {
+          MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().DeleteAllContentsTemp() because data is null for ContentId ${model.ContentID}", tag: tag);
+          return completer.complete(false);
+        }
+
+        bool isDeleted = dataResponseModel.data!.isNotEmpty;
+        MyPrint.printOnConsole("Final isDeleted for ContentId ${model.ContentID} : $isDeleted", tag: tag);
+
+        return completer.complete(isDeleted);
+      }).catchError((e, s) {
+        MyPrint.printOnConsole("Error in Deleting Content for ContentId ${model.ContentID}:$e", tag: tag);
+        MyPrint.printOnConsole(s, tag: tag);
+
+        return completer.complete(false);
+      });
+
+      futures.add(completer.future);
+    }
+
+    await Future.wait(futures);
+
+    MyPrint.printOnConsole("Completed", tag: tag);
+  }
 }

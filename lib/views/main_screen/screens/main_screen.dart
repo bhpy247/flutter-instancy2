@@ -8,6 +8,7 @@ import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/app/dependency_injection.dart';
 import 'package:flutter_instancy_2/backend/app_theme/app_theme_provider.dart';
 import 'package:flutter_instancy_2/backend/authentication/authentication_provider.dart';
+import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_controller.dart';
 import 'package:flutter_instancy_2/backend/course_download/course_download_provider.dart';
@@ -195,10 +196,8 @@ class _MainScreenState extends State<MainScreen> {
       componentId: InstancyComponents.Catalog,
       componentInstanceId: InstancyComponents.CatalogComponentInsId,
     );
-    wikiController.getWikiSkillsFromApi(
-      componentId: InstancyComponents.Catalog,
-      componentInstanceId: InstancyComponents.CatalogComponentInsId,
-    );
+
+    CoCreateKnowledgeController(coCreateKnowledgeProvider: DependencyInjection.coCreateKnowledgeProvider).getSkillsList();
   }
 
   @override
@@ -586,7 +585,7 @@ class _MainScreenState extends State<MainScreen> {
             componentInstanceId: model.repositoryid,
             componentId: model.componentid,
             catalogProvider: context.read<CatalogProvider>(),
-            wikiProvider: context.read<WikiProvider>(),
+            wikiProvider: wikiProvider,
           ),
         );
       } else if (model.landingpagetype == CatalogLandingPageType.categoriesListScreen) {
@@ -594,7 +593,7 @@ class _MainScreenState extends State<MainScreen> {
           componentId: model.componentid,
           componentInstanceId: model.repositoryid,
           catalogProvider: context.read<CatalogProvider>(),
-          wikiProvider: context.read<WikiProvider>(),
+          wikiProvider: wikiProvider,
         );
       } else {
         return const Text("Catalog");
@@ -680,7 +679,6 @@ class _MainScreenState extends State<MainScreen> {
             componentId: model.componentid,
             catalogProvider: DependencyInjection.coCreateCatalogProvider,
             coCreateKnowledgeProvider: context.read<CoCreateKnowledgeProvider>(),
-            wikiProvider: context.read<WikiProvider>(),
             isShowAppbar: false,
           ),
           isHandleChatBotSpaceMargin: true,

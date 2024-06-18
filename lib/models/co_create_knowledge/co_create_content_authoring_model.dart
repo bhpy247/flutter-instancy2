@@ -25,6 +25,7 @@ class CoCreateContentAuthoringModel {
   Uint8List? uploadedDocumentBytes;
   String? uploadedDocumentName;
   String? referenceUrl;
+  String startPage = "";
   CourseDTOModel? courseDTOModel;
   CourseDTOModel? newCurrentCourseDTOModel;
   bool isEdit = false;
@@ -38,7 +39,8 @@ class CoCreateContentAuthoringModel {
   LearningPathContentModel? learningPathContentModel;
   VideoContentModel? videoContentModel;
   List<String> skills = <String>[];
-  Map<int, String> skillsMap = <int, String>{};
+  Map<String, String> skillsMap = <String, String>{};
+  Map<String, String> oldSkillsMap = <String, String>{};
 
   CoCreateContentAuthoringModel({
     required this.coCreateAuthoringType,
@@ -57,6 +59,7 @@ class CoCreateContentAuthoringModel {
     this.isEdit = false,
     this.uploadedDocumentName,
     this.referenceUrl,
+    this.startPage = "",
     this.flashcardContentModel,
     this.quizContentModel,
     this.articleContentModel,
@@ -67,9 +70,11 @@ class CoCreateContentAuthoringModel {
     this.learningPathContentModel,
     this.videoContentModel,
     List<String>? skills,
-    Map<int, String>? skillsMap,
+    Map<String, String>? skillsMap,
+    Map<String, String>? oldSkillsMap,
   }) {
     this.skills = skills ?? <String>[];
-    this.skillsMap = skillsMap ?? <int, String>{};
+    this.skillsMap = skillsMap ?? <String, String>{};
+    this.oldSkillsMap = oldSkillsMap ?? <String, String>{};
   }
 }

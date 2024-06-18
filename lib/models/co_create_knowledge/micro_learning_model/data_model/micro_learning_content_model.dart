@@ -1,4 +1,4 @@
-import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learningt_page_model.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 
@@ -14,7 +14,7 @@ class MicroLearningContentModel {
   bool isGenerateVideoEnabled = false;
   bool isGenerateQuizEnabled = false;
   List<String> selectedTopics = <String>[];
-  List<MicroLearningModel> microLearningPages = <MicroLearningModel>[];
+  List<MicroLearningPageModel> pages = <MicroLearningPageModel>[];
 
   MicroLearningContentModel({
     this.selectedSourceType = "",
@@ -27,10 +27,10 @@ class MicroLearningContentModel {
     this.isGenerateVideoEnabled = false,
     this.isGenerateQuizEnabled = false,
     List<String>? selectedTopics,
-    List<MicroLearningModel>? microLearningPages,
+    List<MicroLearningPageModel>? pages,
   }) {
     this.selectedTopics = selectedTopics ?? <String>[];
-    this.microLearningPages = microLearningPages ?? <MicroLearningModel>[];
+    this.pages = pages ?? <MicroLearningPageModel>[];
   }
 
   MicroLearningContentModel.fromMap(Map<String, dynamic> map) {
@@ -53,9 +53,9 @@ class MicroLearningContentModel {
     isGenerateQuizEnabled = map["isGenerateQuizEnabled"] != null ? ParsingHelper.parseBoolMethod(map["isGenerateQuizEnabled"]) : isGenerateQuizEnabled;
     selectedTopics = map["selectedTopics"] != null ? ParsingHelper.parseListMethod<dynamic, String>(map["selectedTopics"]) : selectedTopics;
 
-    if (map["microLearningPages"] != null) {
-      List<Map<String, dynamic>> microLearningPagesMapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(map["microLearningPages"]);
-      microLearningPages = microLearningPagesMapsList.map((e) => MicroLearningModel.fromMap(e)).toList();
+    if (map["pages"] != null) {
+      List<Map<String, dynamic>> pagesMapsList = ParsingHelper.parseMapsListMethod<String, dynamic>(map["pages"]);
+      pages = pagesMapsList.map((e) => MicroLearningPageModel.fromMap(e)).toList();
     }
   }
 
@@ -71,7 +71,7 @@ class MicroLearningContentModel {
       "isGenerateVideoEnabled": isGenerateVideoEnabled,
       "isGenerateQuizEnabled": isGenerateQuizEnabled,
       "selectedTopics": selectedTopics,
-      "microLearningPages": microLearningPages.map((e) => e.toMap(toJson: toJson)).toList(),
+      "pages": pages.map((e) => e.toMap(toJson: toJson)).toList(),
     };
   }
 
