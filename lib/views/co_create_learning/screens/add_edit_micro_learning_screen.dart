@@ -61,7 +61,15 @@ class _AddEditMicroLearningScreenState extends State<AddEditMicroLearningScreen>
   void initialize() {
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
 
-    MicroLearningContentModel microLearningContentModel = coCreateContentAuthoringModel.microLearningContentModel ??= MicroLearningContentModel();
+    MicroLearningContentModel microLearningContentModel = coCreateContentAuthoringModel.microLearningContentModel ??= MicroLearningContentModel(
+      pageCount: 3,
+      wordsPerPageCount: 300,
+      isGenerateTextEnabled: true,
+      isGenerateImageEnabled: true,
+      isGenerateAudioEnabled: true,
+      isGenerateVideoEnabled: true,
+      isGenerateQuizEnabled: true,
+    );
 
     pagesController.text = microLearningContentModel.pageCount.toString();
     wordsPerPageController.text = microLearningContentModel.wordsPerPageCount.toString();
@@ -426,6 +434,7 @@ class _MicroLearningSourceSelectionScreenState extends State<MicroLearningSource
 
   Map<String, String> sourceTypesList = <String, String>{};
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController youtubeController = TextEditingController();
   TextEditingController websiteController = TextEditingController();
 
@@ -453,7 +462,15 @@ class _MicroLearningSourceSelectionScreenState extends State<MicroLearningSource
     };
     selectedSourceType = sourceTypesList.entries.firstElement?.key;
 
-    MicroLearningContentModel microLearningContentModel = coCreateContentAuthoringModel.microLearningContentModel ??= MicroLearningContentModel();
+    MicroLearningContentModel microLearningContentModel = coCreateContentAuthoringModel.microLearningContentModel ??= MicroLearningContentModel(
+      pageCount: 3,
+      wordsPerPageCount: 300,
+      isGenerateTextEnabled: true,
+      isGenerateImageEnabled: true,
+      isGenerateAudioEnabled: true,
+      isGenerateVideoEnabled: true,
+      isGenerateQuizEnabled: true,
+    );
 
     selectedSourceType = sourceTypesList.entries.where((element) => element.value == microLearningContentModel.selectedSourceType).firstElement?.key ?? selectedSourceType;
 
@@ -522,7 +539,46 @@ class _MicroLearningSourceSelectionScreenState extends State<MicroLearningSource
     Navigator.pop(context);
   }
 
+  bool validateData() {
+    if (selectedSourceType == null) {
+      MyToast.showError(context: context, msg: "Invalid source type");
+      return false;
+    }
+    if (!sourceTypesList.keys.contains(selectedSourceType)) {
+      MyToast.showError(context: context, msg: "Please select a source type");
+      return false;
+    }
+
+    String sourceType = sourceTypesList[selectedSourceType]!;
+
+    if (sourceType == MicroLearningSourceSelectionTypes.LLM) {
+      return true;
+    }
+
+    if ([MicroLearningSourceSelectionTypes.Youtube, MicroLearningSourceSelectionTypes.Website].contains(sourceType)) {
+      if (!(_formKey.currentState?.validate() ?? false)) {
+        return false;
+      }
+    } else if (sourceType == MicroLearningSourceSelectionTypes.InternetSearch) {
+      if (selectedInternetSearchUrl.checkEmpty) {
+        MyToast.showError(context: context, msg: "Please select a Internet Search Url");
+        return false;
+      }
+    } else if (sourceType == MicroLearningSourceSelectionTypes.YoutubeSearch) {
+      if (selectedYoutubeSearchUrl.checkEmpty) {
+        MyToast.showError(context: context, msg: "Please select a Youtube Search Url");
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   Future<void> onGeneratePageTitlesButtonTap() async {
+    if (!validateData()) {
+      return;
+    }
+
     MicroLearningContentModel microLearningContentModel = coCreateContentAuthoringModel.microLearningContentModel ??= MicroLearningContentModel();
 
     microLearningContentModel.selectedSourceType = sourceTypesList.keys.contains(selectedSourceType) ? sourceTypesList[selectedSourceType]! : sourceTypesList.entries.first.value;
@@ -617,17 +673,20 @@ class _MicroLearningSourceSelectionScreenState extends State<MicroLearningSource
             borderRadius: BorderRadius.circular(5),
             border: Border.all(width: 1, color: Styles.borderColor),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: sourceTypesList.entries.map((e) {
-              return getCommonRadioButton(
-                value: e.key,
-                onChanged: (val) {
-                  selectedSourceType = val ?? "";
-                  mySetState();
-                },
-              );
-            }).toList(),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: sourceTypesList.entries.map((e) {
+                return getCommonRadioButton(
+                  value: e.key,
+                  onChanged: (val) {
+                    selectedSourceType = val ?? "";
+                    mySetState();
+                  },
+                );
+              }).toList(),
+            ),
           ),
         ),
       ),
@@ -640,7 +699,7 @@ class _MicroLearningSourceSelectionScreenState extends State<MicroLearningSource
     if (["Youtube", "Website"].contains(value) && selectedSourceType == value) {
       subtitle = Padding(
         padding: const EdgeInsets.all(8.0),
-        child: TextField(
+        child: TextFormField(
           controller: value == "Youtube" ? youtubeController : websiteController,
           decoration: const InputDecoration(
             hintText: "Enter url",
@@ -650,6 +709,19 @@ class _MicroLearningSourceSelectionScreenState extends State<MicroLearningSource
               vertical: 5,
             ),
           ),
+          validator: (String? value) {
+            if (value.checkEmpty) {
+              return "Enter url";
+            }
+
+            Uri? uri = Uri.tryParse(value!);
+            MyPrint.printOnConsole("uri:$uri");
+            if (uri == null) {
+              return "Invalid url";
+            }
+
+            return null;
+          },
         ),
       );
     } else if (["Internet Search", "Youtube Search"].contains(value) && selectedSourceType == value) {
@@ -871,6 +943,7 @@ class _MicroLearningTopicSelectionScreenState extends State<MicroLearningTopicSe
         ],
       ),
     );
+    topicsList = topicsList.toSet().toList();
 
     MyPrint.printOnConsole("Final topicsList:$topicsList");
 
@@ -931,10 +1004,25 @@ class _MicroLearningTopicSelectionScreenState extends State<MicroLearningTopicSe
     Navigator.pop(context);
   }
 
+  bool validateData() {
+    topicsList = topicsList.toSet().toList();
+    return topicsList.isNotEmpty;
+  }
+
   Future<void> onGenerateWithAIButtonTap() async {
     MyPrint.printOnConsole("topicsList : $topicsList");
 
-    MicroLearningContentModel microLearningContentModel = coCreateContentAuthoringModel.microLearningContentModel ??= MicroLearningContentModel();
+    if (!validateData()) return;
+
+    MicroLearningContentModel microLearningContentModel = coCreateContentAuthoringModel.microLearningContentModel ??= MicroLearningContentModel(
+      pageCount: 3,
+      wordsPerPageCount: 300,
+      isGenerateTextEnabled: true,
+      isGenerateImageEnabled: true,
+      isGenerateAudioEnabled: true,
+      isGenerateVideoEnabled: true,
+      isGenerateQuizEnabled: true,
+    );
     microLearningContentModel.selectedTopics = topicsList;
 
     dynamic value = await NavigationController.navigateToMicroLearningEditorScreen(
@@ -1279,7 +1367,7 @@ class _MicroLearningViewScreenState extends State<MicroLearningViewScreen> with 
               height: 20,
             ),
             Text(
-              microLearningList[index].title,
+              model.title,
               style: TextStyle(fontSize: 22, color: themeData.primaryColor, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),

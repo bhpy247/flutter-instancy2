@@ -27,6 +27,7 @@ class CreateNewContentItemRequestModel {
   int UserID = 0;
   int SiteID = AppConstants.defaultSiteId;
   int MediaTypeID = 0;
+  bool isContentShared = false;
   CreateNewContentItemFormDataModel formData = CreateNewContentItemFormDataModel();
   Uint8List? ThumbnailImage;
   List<String> Categories = <String>[];
@@ -54,6 +55,7 @@ class CreateNewContentItemRequestModel {
     this.UserID = 0,
     this.SiteID = AppConstants.defaultSiteId,
     this.MediaTypeID = 0,
+    this.isContentShared = false,
     required this.formData,
     this.ThumbnailImage,
     List<String>? Categories,
@@ -85,6 +87,7 @@ class CreateNewContentItemRequestModel {
       "UserID": UserID.toString(),
       "SiteID": SiteID.toString(),
       "MediaTypeID": MediaTypeID.toString(),
+      "isContentShared": isContentShared.toString(),
       "formData": MyUtils.encodeJson(formData.toMap()),
       "ThumbnailImage": ThumbnailImage == null
           ? ""

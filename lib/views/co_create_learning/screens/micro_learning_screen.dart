@@ -38,7 +38,9 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
   bool onSaveTap = false;
 
   List<String> contentList = [];
-  List<MicroLearningPageElementModel> microLearningList = <MicroLearningPageElementModel>[
+  List<MicroLearningPageElementModel> microLearningList = <MicroLearningPageElementModel>[];
+
+  /*List<MicroLearningPageElementModel> microLearningList = <MicroLearningPageElementModel>[
     MicroLearningPageElementModel(
       title: "Technology in Sustainable Urban Planning",
       htmlContentCode:
@@ -72,7 +74,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
       elementType: MicroLearningElementType.Image,
       imageUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fconclusionimg.png?alt=media&token=0398ab8e-390e-4f38-a65b-d861cae4d701",
     ),
-  ];
+  ];*/
 
   void initializeData() {
     appProvider = context.read<AppProvider>();
@@ -190,7 +192,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
     if (model.elementType == MicroLearningElementType.Text) {
       child = getTypeTextWidget(model: model);
     } else if (model.elementType == MicroLearningElementType.Quiz) {
-      child = getQuestionWidget(model: model.quizQuestionModel ?? QuizQuestionModel(), index: 0);
+      child = getQuestionWidget(model: model.quizQuestionModels.firstElement ?? QuizQuestionModel(), index: 0);
     } else if (model.elementType == MicroLearningElementType.Image) {
       child = getTypeImageWidget(model: model);
     }
@@ -204,7 +206,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
           const SizedBox(
             height: 20,
           ),
-          Text(
+          /*Text(
             model.title,
             style: TextStyle(
               color: themeData.primaryColor,
@@ -215,7 +217,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
           ),
           const SizedBox(
             height: 10,
-          ),
+          ),*/
           getTextWidget(text: model.htmlContentCode),
           const SizedBox(
             height: 20,
@@ -233,7 +235,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
           const SizedBox(
             height: 20,
           ),
-          Text(
+          /*Text(
             model.title,
             style: TextStyle(
               color: themeData.primaryColor,
@@ -244,7 +246,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
           ),
           const SizedBox(
             height: 10,
-          ),
+          ),*/
           getImageWidget(url: model.imageUrl),
           const SizedBox(
             height: 20,

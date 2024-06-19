@@ -54,10 +54,12 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 
   ScrollController scrollController = ScrollController();
 
-  Future<void> getFutureData({bool isRefresh = true, bool isScrollToLast = false}) async {
+  Future<void> getFutureData({bool isRefresh = true, bool isScrollToLast = false, bool isGetSharedKnowledge = false}) async {
     if (!isRefresh && _provider.myKnowledgeList.length > 0) {
       return;
     }
+
+    if (isGetSharedKnowledge) _controller.getSharedKnowledgeList();
 
     await _controller.getMyKnowledgeList();
 
@@ -246,7 +248,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       courseDTOModel: model,
     );
 
-    CoCreateKnowledgeController(coCreateKnowledgeProvider: null).initializeCoCreateContentAuthoringModelFromCourseDTOModel(
+    _controller.initializeCoCreateContentAuthoringModelFromCourseDTOModel(
       courseDTOModel: model,
       coCreateContentAuthoringModel: coCreateContentAuthoringModel,
     );
@@ -401,7 +403,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
     } else {}
 
     if (isEdited == true) {
-      future = getFutureData(isRefresh: true);
+      future = getFutureData(isRefresh: true, isGetSharedKnowledge: true);
       mySetState();
     }
   }
@@ -423,7 +425,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       return;
     }
 
-    future = getFutureData(isRefresh: true);
+    future = getFutureData(isRefresh: true, isGetSharedKnowledge: true);
     mySetState();
   }
 

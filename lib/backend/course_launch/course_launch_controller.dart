@@ -104,6 +104,17 @@ class CourseLaunchController {
           courseDTOModel: model,
         ),
       );
+    } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.image) {
+      String imageUrl = AppConfigurationOperations(appProvider: appProvider).getInstancyImageUrlFromImagePath(imagePath: model.ViewLink);
+      MyPrint.printOnConsole("Final imageUrl:$imageUrl");
+
+      NavigationController.navigateToCommonViewImageScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: CommonViewImageScreenNavigationArguments(imageUrl: imageUrl),
+      );
     } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.audio) {
       String documentUrl = AppConfigurationOperations(appProvider: appProvider).getInstancyImageUrlFromImagePath(imagePath: model.ViewLink);
       NavigationController.navigateToPodcastEpisodeScreen(

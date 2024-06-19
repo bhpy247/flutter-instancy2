@@ -8,6 +8,7 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/video/data_model/v
 import 'package:flutter_instancy_2/models/co_create_knowledge/video/request_model/generate_video_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/video_with_transcript_launch_screen.dart';
 import 'package:provider/provider.dart';
@@ -166,6 +167,7 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
 
     if (contentId.checkEmpty) {
       MyPrint.printOnConsole("Returning from GenerateWithAiVideoScreen().saveEvent() because contentId is null or empty", tag: tag);
+      MyToast.showError(context: context, msg: coCreateContentAuthoringModel.isEdit ? "Couldn't Update Content" : "Couldn't Create Content");
       return null;
     }
 

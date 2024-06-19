@@ -619,6 +619,7 @@ class _PodcastPreviewScreenState extends State<PodcastPreviewScreen> with MySafe
 
     if (contentId.checkEmpty) {
       MyPrint.printOnConsole("Returning from AddEditEventScreen().saveEvent() because contentId is null or empty", tag: tag);
+      MyToast.showError(context: context, msg: coCreateContentAuthoringModel.isEdit ? "Couldn't Update Content" : "Couldn't Create Content");
       return null;
     }
 

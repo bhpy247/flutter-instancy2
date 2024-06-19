@@ -753,6 +753,7 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
 
     if (contentId.checkEmpty) {
       MyPrint.printOnConsole("Returning from AddEditArticleScreen().saveEvent() because contentId is null or empty", tag: tag);
+      MyToast.showError(context: context, msg: coCreateContentAuthoringModel.isEdit ? "Couldn't Update Content" : "Couldn't Create Content");
       return null;
     }
 

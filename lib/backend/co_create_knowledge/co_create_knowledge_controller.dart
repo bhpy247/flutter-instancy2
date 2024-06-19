@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -36,6 +35,7 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/request
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/response_model/generated_flashcard_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_page_element_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learningt_page_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/data_model/podcast_content_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/language_voice_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/speaking_style_model.dart';
@@ -300,6 +300,14 @@ class CoCreateKnowledgeController {
     String contentId = dataResponseModel.data!;
     MyPrint.printOnConsole("Final contentId:'$contentId'", tag: tag);
 
+    if (contentId.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().CreateNewContentItem() because Content couldn't be created/updated", tag: tag);
+      return null;
+    } else if (requestModel.ContentID.isNotEmpty && contentId != requestModel.ContentID) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().CreateNewContentItem() because Content Update Failed, Response:'$contentId'", tag: tag);
+      return null;
+    }
+
     if (requestModel.ActionType == CreateNewContentItemActionType.update) {
       SaveContentJsonRequestModel saveContentJsonRequestModel = SaveContentJsonRequestModel(
         contentId: requestModel.ContentID,
@@ -418,6 +426,12 @@ class CoCreateKnowledgeController {
       coCreateContentAuthoringModel.skills = coCreateContentAuthoringModel.skillsMap.values.toList();
     }
 
+    bool isContentShared = false;
+    if (coCreateContentAuthoringModel.contentId.isNotEmpty && coCreateContentAuthoringModel.isEdit) {
+      List<CourseDTOModel> list = provider.sharedKnowledgeList.getList();
+      isContentShared = list.where((element) => element.ContentID == coCreateContentAuthoringModel.contentId).isNotEmpty;
+    }
+
     CreateNewContentItemRequestModel requestModel = CreateNewContentItemRequestModel(
       formData: createNewContentItemFormDataModel,
       ObjectTypeID: coCreateContentAuthoringModel.contentTypeId,
@@ -430,6 +444,7 @@ class CoCreateKnowledgeController {
       CategoryType: CreateNewContentItemCategoryType.skl,
       ContentID: coCreateContentAuthoringModel.contentId,
       FolderPath: coCreateContentAuthoringModel.courseDTOModel?.FolderPath ?? "",
+      isContentShared: isContentShared,
     );
     requestModel.UnAssignCategories.removeWhere((element) => requestModel.Categories.contains(element));
 
@@ -1224,11 +1239,11 @@ class CoCreateKnowledgeController {
   }
 
   //region Generate MicroLearning Content
-  Future<List<MicroLearningPageElementModel>> generateMicroLearningContentPages({required MicroLearningContentModel microLearningContentModel}) async {
+  Future<List<MicroLearningPageModel>> generateMicroLearningContentPages({required MicroLearningContentModel microLearningContentModel}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningContentPages() called with microLearningContentModel:$microLearningContentModel", tag: tag);
 
-    List<MicroLearningPageElementModel> pages = <MicroLearningPageElementModel>[];
+    List<MicroLearningPageModel> pages = <MicroLearningPageModel>[];
 
     if (microLearningContentModel.pageCount < 1) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningContentPages() because pageCount is less than 1", tag: tag);
@@ -1255,34 +1270,184 @@ class CoCreateKnowledgeController {
       return pages;
     }
 
-    List<String> elementsEnabled = totalElementsEnabled.toList()..remove(MicroLearningElementType.Quiz);
+    List<String> elementsEnabled = totalElementsEnabled.toList();
+    // bool isQuizEnabled = elementsEnabled.remove(MicroLearningElementType.Quiz);
 
-    int pagesCountToGenerate = microLearningContentModel.pageCount;
+    Map<String, List<String>> pagesElementWise = <String, List<String>>{};
 
-    List<List<String>> pagesElementWise = <List<String>>[];
+    List<String> selectedTopics = microLearningContentModel.selectedTopics;
 
-    for (int i = 0; i < pagesCountToGenerate; i++) {
-      int elementCount = Random().nextInt(elementsEnabled.length) + 1;
-
+    for (String topic in selectedTopics) {
       List<String> elements = <String>[];
-      for (int j = 0; j < elementCount; j++) {
-        String element = elementsEnabled[Random().nextInt(elementsEnabled.length)];
-        elements.add(element);
-      }
-
-      pagesElementWise.add(elements);
+      elements.addAll(elementsEnabled);
+      pagesElementWise[topic] = elements;
     }
 
-    MyPrint.printOnConsole("Final pages:$pages", tag: tag);
+    /*if(isQuizEnabled) {
+      pagesElementWise[pagesElementWise.length] = [MicroLearningElementType.Quiz];
+    }*/
+    MyPrint.printOnConsole("Final pagesElementWise:$pagesElementWise", tag: tag);
+
+    List<Future<void>> futures = <Future<void>>[];
+    Map<String, MicroLearningPageModel?> pagesMap = <String, MicroLearningPageModel?>{};
+
+    pagesElementWise.forEach((String topic, List<String> elementsList) {
+      Completer<void> completer = Completer<void>();
+
+      generateMicroLearningPage(topic: topic, pageElements: elementsList).then((MicroLearningPageModel? microLearningPageModel) {
+        MyPrint.printOnConsole("Got Data for Topic '$topic' not null:${microLearningPageModel != null}", tag: tag);
+
+        pagesMap[topic] = microLearningPageModel;
+      }).catchError((e, s) {
+        MyPrint.printOnConsole("Error in Getting MicroLearningPageModel for Topic '$topic':$e", tag: tag);
+        MyPrint.printOnConsole(s, tag: tag);
+      }).whenComplete(() {
+        MyPrint.printOnConsole("Completed Getting Data for Topic '$topic'", tag: tag);
+        if (!completer.isCompleted) {
+          completer.complete();
+        }
+      });
+
+      futures.add(completer.future);
+    });
+
+    await Future.wait(futures);
+
+    MyPrint.printOnConsole("pagesMap length:${pagesMap.length}", tag: tag);
+
+    for (String topic in selectedTopics) {
+      MicroLearningPageModel? microLearningPageModel = pagesMap[topic];
+
+      if (microLearningPageModel != null) {
+        pages.add(microLearningPageModel);
+      }
+    }
+
+    MyPrint.printOnConsole("Final pages length:${pages.length}", tag: tag);
+    MyPrint.logOnConsole("Final pages:$pages", tag: tag);
 
     return pages;
+  }
+
+  Future<MicroLearningPageModel?> generateMicroLearningPage({required String topic, required List<String> pageElements}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningPage() called for topic:'$topic', pageElements:$pageElements", tag: tag);
+
+    MicroLearningPageModel? page;
+
+    if (topic.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningPage() because topic is empty", tag: tag);
+      return page;
+    } else if (pageElements.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningPage() because topic is empty", tag: tag);
+      return page;
+    }
+
+    List<Future<void>> futures = <Future<void>>[];
+    Map<int, MicroLearningPageElementModel?> elementsMap = <int, MicroLearningPageElementModel?>{};
+
+    for (int i = 0; i < pageElements.length; i++) {
+      String pageElement = pageElements[i];
+
+      Completer<void> completer = Completer<void>();
+
+      generateMicroLearningPageElementModel(topic: topic, elementType: pageElement).then((MicroLearningPageElementModel? microLearningPageElementModel) {
+        MyPrint.printOnConsole("Got Data for Element '$pageElement' not null:${microLearningPageElementModel != null}", tag: tag);
+
+        elementsMap[i] = microLearningPageElementModel;
+      }).catchError((e, s) {
+        MyPrint.printOnConsole("Error in Getting MicroLearningPageElementModel for Element '$pageElement' for topic '$topic':$e", tag: tag);
+        MyPrint.printOnConsole(s, tag: tag);
+      }).whenComplete(() {
+        MyPrint.printOnConsole("Completed Getting Data for Topic '$topic'", tag: tag);
+        if (!completer.isCompleted) {
+          completer.complete();
+        }
+      });
+
+      futures.add(completer.future);
+    }
+
+    await Future.wait(futures);
+
+    MyPrint.printOnConsole("Final elementsMap:${elementsMap.length}", tag: tag);
+
+    if (elementsMap.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningPage() because generated elementsMap is empty", tag: tag);
+      return page;
+    }
+
+    List<int> indexes = elementsMap.keys.toList();
+    indexes.sort();
+    List<MicroLearningPageElementModel> elementsList = <MicroLearningPageElementModel>[];
+
+    for (int index in indexes) {
+      MicroLearningPageElementModel? microLearningPageElementModel = elementsMap[index];
+      if (microLearningPageElementModel != null) {
+        elementsList.add(microLearningPageElementModel);
+      }
+    }
+
+    page = MicroLearningPageModel(
+      title: topic,
+      elements: elementsList,
+    );
+
+    MyPrint.printOnConsole("Final page:$page", tag: tag);
+
+    return page;
+  }
+
+  Future<MicroLearningPageElementModel?> generateMicroLearningPageElementModel({required String topic, required String elementType}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningPageElementModel() called for topic:'$topic', elementType:'$elementType'", tag: tag);
+
+    MicroLearningPageElementModel? pageElement;
+
+    if (topic.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningPageElementModel() because topic is empty", tag: tag);
+      return pageElement;
+    } else if (elementType.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningPageElementModel() because elementType is empty", tag: tag);
+      return pageElement;
+    }
+
+    if (elementType == MicroLearningElementType.Text) {
+      String text = await generateMicroLearningText(topic: topic);
+
+      if (text.isEmpty) {
+        MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningPageElementModel() because generated text is empty", tag: tag);
+        return pageElement;
+      }
+
+      pageElement = MicroLearningPageElementModel(
+        elementType: elementType,
+        htmlContentCode: text,
+      );
+    } else if (elementType == MicroLearningElementType.Image) {
+      Uint8List? imageBytes = await generateMicroLearningImage(topic: topic);
+
+      if (imageBytes.checkEmpty) {
+        MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningPageElementModel() because generated imageBytes are null or empty", tag: tag);
+        return pageElement;
+      }
+
+      pageElement = MicroLearningPageElementModel(
+        elementType: elementType,
+        imageBytes: imageBytes,
+      );
+    } else if (elementType == MicroLearningElementType.Audio) {
+    } else if (elementType == MicroLearningElementType.Video) {
+    } else if (elementType == MicroLearningElementType.Quiz) {}
+
+    return pageElement;
   }
 
   Future<String> generateMicroLearningText({required String topic}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningText() called", tag: tag);
 
-    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+    // CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
 
     String text = "";
 

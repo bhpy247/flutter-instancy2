@@ -16,7 +16,12 @@ import '../../common/components/common_border_dropdown.dart';
 import '../../common/components/common_text_form_field.dart';
 
 class ThumbnailDialog extends StatefulWidget {
-  const ThumbnailDialog({super.key});
+  final String title;
+
+  const ThumbnailDialog({
+    super.key,
+    this.title = "Thumbnail Image",
+  });
 
   @override
   State<ThumbnailDialog> createState() => _ThumbnailDialogState();
@@ -62,7 +67,7 @@ class _ThumbnailDialogState extends State<ThumbnailDialog> with MySafeState {
             ],
           ),
           Text(
-            "Thumbnail Image",
+            widget.title,
             style: themeData.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w900, fontSize: 18),
           ),
           const SizedBox(

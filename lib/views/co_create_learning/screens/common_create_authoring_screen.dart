@@ -309,7 +309,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
               "This field encompasses the use of artificial intelligence (AI), machine learning, robotics, and data analytics to develop smart solutions that can adapt to changing conditions, optimize performance, and automate complex tasks. Applications include predictive maintenance, autonomous systems, smart infrastructure, and intelligent control systems, all aimed at improving decision-making processes, reducing costs, and increasing the overall effectiveness of engineering projects.";
           thumbnailImageUrl =
               "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fdemo_contents_thumbnail%2FIntelligent%20Systems%20And%20Applications%20In%20Engineering.jpeg?alt=media&token=af5618ca-7afd-4469-bf8a-ed7b5917a0d7";
-          skills = ["Customer Service"];
+          skills = ["UX Writing", "Neumorphism"];
 
           break;
         }
@@ -320,7 +320,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
               "It involves the efficient and effective handling of customer inquiries, concerns, and issues. This process ensures that customer questions are answered promptly, problems are resolved satisfactorily, and customer satisfaction is maintained. Utilizing a combination of trained support staff, clear communication channels, and robust problem-solving strategies, Customer Query Resolution aims to enhance the overall customer experience and foster loyalty by addressing their needs with care and professionalism.";
           thumbnailImageUrl =
               "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fdemo_contents_thumbnail%2FCustomer%20Query%20Resolution.avif?alt=media&token=e259b727-4c1b-489e-8e3b-9e71edccef57";
-          skills = ["Customer Service"];
+          skills = ["UX Writing", "Neumorphism"];
 
           break;
         }
@@ -330,7 +330,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
           description =
               "This certification covers key concepts, theories, and practical strategies for fostering economic growth, addressing income inequality, and promoting sustainable practices. Ideal for professionals, policymakers, and students, the program offers valuable insights into the economic policies and development strategies that can transform societies and improve living standards. Participants will gain the analytical skills and knowledge necessary to contribute effectively to the field of economic development.";
           thumbnailImageUrl = "/Content/SiteFiles/Images/Event.jpg";
-          skills = ["Customer Service"];
+          skills = ["UX Writing", "Neumorphism"];
 
           break;
         }
@@ -347,7 +347,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
               "It provides practical guidance on identifying potential risks associated with poor ergonomics, such as musculoskeletal disorders, repetitive strain injuries, and general discomfort. The workbook includes step-by-step instructions, checklists, and interactive exercises to assess ergonomic setups and implement effective solutions.";
           thumbnailImageUrl =
               "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fdemo_contents_thumbnail%2FIdentifying%20and%20Addressing.png?alt=media&token=6ded5bc1-e599-4b5a-ba20-ef15d402e9f1";
-          skills = ["Customer Service"];
+          skills = ["UX Writing", "Neumorphism"];
 
           break;
         }
@@ -358,7 +358,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
               "This insightful guide explores the innovative field of generative AI, highlighting its capacity to revolutionize various business sectors. It delves into how enterprises can leverage generative AI to enhance creativity, optimize operations, and drive growth. By providing practical examples and industry-specific applications, this introduction offers a comprehensive overview of the transformative impact generative AI can have on modern businesses, making it an essential read for professionals seeking to harness the power of this cutting-edge technology.";
           thumbnailImageUrl =
               "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fdemo_contents_thumbnail%2FAn%20introduction%20to%20Generative%20AI%20and%20its%20Transformative%20potential%20for%20Enterprises.png?alt=media&token=11ef17a1-7224-41d6-b9ad-0d4894b7fdba";
-          skills = ["Customer Service"];
+          skills = ["UX Writing", "Neumorphism"];
 
           break;
         }
@@ -373,7 +373,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
               "It is a comprehensive guide designed to enhance your interpersonal skills and communication techniques. This book delves into the core principles of effective communication, offering practical strategies for improving clarity, empathy, and understanding in both personal and professional interactions. Whether you're looking to strengthen your relationships, excel in your career, or simply become a more effective communicator, \"Refining Communication\" provides the tools and insights you need to succeed.";
           thumbnailImageUrl =
               "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fdemo_contents_thumbnail%2FRefinig%20Communication.jpg?alt=media&token=5b6141a8-a7f2-4d32-a772-c90c630dc2e6";
-          skills = ["Customer Service"];
+          skills = ["UX Writing", "Neumorphism"];
 
           break;
         }
@@ -384,7 +384,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
               "It focuses on designing and arranging workspaces to fit the needs and capabilities of employees, promoting comfort, efficiency, and well-being. It involves optimizing furniture, equipment, and work practices to prevent strain and injury, enhancing productivity and overall job satisfaction. Key elements include adjustable chairs, desks, monitor placement, proper lighting, and keyboard and mouse positioning. By applying ergonomic principles, businesses can create healthier, more supportive work environments that reduce the risk of musculoskeletal disorders and improve employee performance.";
           thumbnailImageUrl =
               "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fdemo_contents_thumbnail%2FOffice%20Ergonomics.jpeg?alt=media&token=e1b10d9c-11d1-4e66-9cb1-34f2a0d2054d";
-          skills = ["Customer Service"];
+          skills = ["UX Writing", "Neumorphism"];
 
           break;
         }
@@ -395,7 +395,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
               "Unveiling the Neurons of AI explores the intricate mechanisms and inner workings of artificial intelligence systems, drawing parallels to the human brain's neural networks. This title delves into the foundational algorithms, the architecture of neural networks, and the latest advancements in AI technology, revealing how these artificial 'neurons' process information, learn, and make decisions. Through this exploration, readers gain insight into the complexity and potential of AI, demystifying the science behind the machines shaping our future.";
           thumbnailImageUrl =
               "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fdemo_contents_thumbnail%2FUnveiling%20the%20Neurons%20of%20Alsss.jpeg?alt=media&token=c1a1d2ba-8b71-4b2b-90cd-005db53eb984";
-          skills = ["Customer Service"];
+          skills = ["UX Writing", "Neumorphism"];
 
           break;
         }
@@ -407,7 +407,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
               "Artificial Intelligence (AI) is at the forefront of a technological revolution that is reshaping every aspect of our modern world. From healthcare to finance, education to entertainment, AI's impact is profound and far-reaching. This comprehensive exploration delves into how AI technologies are transforming industries, enhancing efficiencies, and driving innovation.";
           thumbnailImageUrl =
               "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fdemo_contents_thumbnail%2FlearningPathThumbnail.png?alt=media&token=6aa46e14-3a64-4b67-bb78-18868c1fa415";
-          skills = ["Customer Service"];
+          skills = ["UX Writing", "Neumorphism"];
 
           break;
         }
@@ -418,7 +418,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
               "Technology in Sustainable Urban Planning explores the integration of innovative technologies to create environmentally friendly, resilient, and efficient urban spaces. It focuses on smart solutions such as green infrastructure, renewable energy, IoT-enabled city management, and data-driven approaches to enhance the quality of life, reduce environmental impact, and promote sustainable development in urban areas.";
           thumbnailImageUrl =
               "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2Fdemo_contents_thumbnail%2FlearningPathThumbnail.png?alt=media&token=6aa46e14-3a64-4b67-bb78-18868c1fa415";
-          skills = ["Customer Service"];
+          skills = ["UX Writing", "Neumorphism"];
 
           break;
         }
@@ -813,6 +813,8 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       coCreateContentAuthoringModel.skillsMap = previousSkillsMap;
       coCreateContentAuthoringModel.thumbNailImageBytes = previousThumbnailBytes;
       coCreateContentAuthoringModel.ThumbnailImagePath = previousThumbnailImagePath;
+
+      MyToast.showError(context: context, msg: coCreateContentAuthoringModel.isEdit ? "Couldn't Update Content" : "Couldn't Create Content");
 
       return null;
     }

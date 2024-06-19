@@ -13,6 +13,7 @@ import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart'
 import 'package:flutter_instancy_2/models/filter/data_model/content_filter_category_tree_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/common_save_exit_button_row.dart';
 import 'package:flutter_instancy_2/views/common/components/common_cached_network_image.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
@@ -291,7 +292,7 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
 
     coCreateContentAuthoringModel.newCurrentCourseDTOModel?.ThumbnailImagePath = thumbnailImageUrl!;
 
-    List<String> skills = ["Customer Service"];
+    List<String> skills = ["UX Writing", "Neumorphism"];
     selectedCategoriesList.clear();
     List<ContentFilterCategoryTreeModel> list = coCreateKnowledgeProvider.skills.getList();
     for (String skill in skills) {
@@ -389,6 +390,7 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
 
     if (contentId.checkEmpty) {
       MyPrint.printOnConsole("Returning from AddEditEventScreen().saveEvent() because contentId is null or empty", tag: tag);
+      MyToast.showError(context: context, msg: coCreateContentAuthoringModel.isEdit ? "Couldn't Update Content" : "Couldn't Create Content");
       return null;
     }
 
@@ -414,21 +416,19 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
       return;
     }
 
-    if (documentBytes != null) {
-      if (courseDTOModel.MediaTypeID == InstancyMediaTypes.pDF) {
-        await NavigationController.navigateToPDFLaunchScreen(
-          navigationOperationParameters: NavigationOperationParameters(
-            context: context,
-            navigationType: NavigationType.pushNamed,
-          ),
-          arguments: PDFLaunchScreenNavigationArguments(
-            contntName: courseDTOModel.ContentName,
-            isNetworkPDF: false,
-            pdfFileBytes: courseDTOModel.uploadedDocumentBytes,
-            // pdfUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fdocuments%2Fai%20for%20biotechnology.pdf?alt=media&token=ab06fadc-ba08-4114-88e1-529213d117bf",
-          ),
-        );
-      }
+    if (courseDTOModel.MediaTypeID == InstancyMediaTypes.pDF) {
+      await NavigationController.navigateToPDFLaunchScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        arguments: PDFLaunchScreenNavigationArguments(
+          contntName: courseDTOModel.ContentName,
+          isNetworkPDF: false,
+          pdfFileBytes: courseDTOModel.uploadedDocumentBytes,
+          // pdfUrl: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fdocuments%2Fai%20for%20biotechnology.pdf?alt=media&token=ab06fadc-ba08-4114-88e1-529213d117bf",
+        ),
+      );
     }
 
     Navigator.pop(context, true);

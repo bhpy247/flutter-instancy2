@@ -10,6 +10,7 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/q
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/request_model/quiz_generate_request_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
+import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/theme_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_border_dropdown.dart';
@@ -471,6 +472,7 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
 
     if (contentId.checkEmpty) {
       MyPrint.printOnConsole("Returning from AddEditEventScreen().saveEvent() because contentId is null or empty", tag: tag);
+      MyToast.showError(context: context, msg: coCreateContentAuthoringModel.isEdit ? "Couldn't Update Content" : "Couldn't Create Content");
       return null;
     }
 

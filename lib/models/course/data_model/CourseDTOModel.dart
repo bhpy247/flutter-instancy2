@@ -793,7 +793,7 @@ class CourseDTOModel {
       int count = 1;
       dynamic decodedValue1 = ContentJSONData;
 
-      while (decodedValue1 is! Map && count < 5) {
+      while (decodedValue1 != null && decodedValue1 is! Map && count < 5) {
         decodedValue1 = MyUtils.decodeJson(decodedValue1);
         MyPrint.printOnConsole("decodedValue $count:$decodedValue1");
         MyPrint.printOnConsole("decodedValue $count type:${decodedValue1.runtimeType}");
