@@ -637,7 +637,7 @@ class NavigationController {
           break;
         }
 
-      case PodcastViewScreen.routeName:
+      case PodcastPreviewScreen.routeName:
         {
           page = parsePodcastPreviewScreen(settings: settings);
           break;
@@ -1383,7 +1383,13 @@ class NavigationController {
   }
 
   static Widget? parsePodcastEpisodeScreen({required RouteSettings settings}) {
-    return const PodcastEpisodeScreen();
+    dynamic argument = settings.arguments;
+    if (argument is! PodcastScreenNavigationArguments) {
+      return null;
+    }
+    return PodcastEpisodeScreen(
+      arguments: argument,
+    );
   }
 
   static Widget? parseFlashCardScreen({required RouteSettings settings}) {
@@ -1593,7 +1599,7 @@ class NavigationController {
     if (argument is! PodcastPreviewScreenNavigationArgument) {
       return null;
     }
-    return PodcastViewScreen(arguments: argument);
+    return PodcastPreviewScreen(arguments: argument);
   }
 
   static Widget? parseLearningPathScreen({required RouteSettings settings}) {
@@ -2355,9 +2361,12 @@ class NavigationController {
     );
   }
 
-  static Future<dynamic> navigateToPodcastEpisodeScreen({required NavigationOperationParameters navigationOperationParameters}) {
+  static Future<dynamic> navigateToPodcastEpisodeScreen({required NavigationOperationParameters navigationOperationParameters, required PodcastScreenNavigationArguments argument}) {
     return NavigationOperation.navigate(
-      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: PodcastEpisodeScreen.routeName),
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: PodcastEpisodeScreen.routeName,
+        arguments: argument,
+      ),
     );
   }
 
@@ -2610,7 +2619,7 @@ class NavigationController {
   static Future<dynamic> navigateToPodcastPreviewScreen({required NavigationOperationParameters navigationOperationParameters, required PodcastPreviewScreenNavigationArgument argument}) {
     return NavigationOperation.navigate(
       navigationOperationParameters: navigationOperationParameters.copyWith(
-        routeName: PodcastViewScreen.routeName,
+        routeName: PodcastPreviewScreen.routeName,
         arguments: argument,
       ),
     );

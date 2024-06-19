@@ -188,11 +188,11 @@ class _FlashCardScreenState extends State<FlashCardScreen> with MySafeState {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              "assets/cocreate/flashCard.png",
-              width: double.maxFinite,
-            ),
-            const SizedBox(height: 20),
+            // Image.asset(
+            //   "assets/cocreate/flashCard.png",
+            //   width: double.maxFinite,
+            // ),
+            // const SizedBox(height: 20),
             Text(
               text,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -219,20 +219,23 @@ class _FlashCardScreenState extends State<FlashCardScreen> with MySafeState {
       padding: const EdgeInsets.all(20.0),
       child: Row(
         children: [
-          Expanded(
-            child: CommonButton(
-              onPressed: () {
-                if (index != 0) {
-                  pageController.jumpToPage(index - 1);
-                }
-              },
-              text: "Previous",
-              fontColor: themeData.primaryColor,
-              backGroundColor: themeData.colorScheme.onPrimary,
-              borderColor: themeData.primaryColor,
-            ),
+          if (index != 0)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 20.0),
+                child: CommonButton(
+                  onPressed: () {
+                    if (index != 0) {
+                      pageController.jumpToPage(index - 1);
+                    }
+                  },
+                  text: "Previous",
+                  fontColor: themeData.primaryColor,
+                  backGroundColor: themeData.colorScheme.onPrimary,
+                  borderColor: themeData.primaryColor,
+                ),
+              ),
           ),
-          const SizedBox(width: 20),
           Expanded(
             child: CommonButton(
               onPressed: () {

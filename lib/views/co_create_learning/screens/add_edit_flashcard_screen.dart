@@ -692,25 +692,22 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
 
     return PopScope(
       canPop: !isLoading,
-      child: ModalProgressHUD(
-        inAsyncCall: isLoading,
-        child: Scaffold(
-          backgroundColor: const Color(0xffF8F8F8),
-          appBar: getAppBar(),
-          body: AppUIComponents.getBackGroundBordersRounded(
-            context: context,
-            child: future != null
-                ? FutureBuilder(
-                    future: future,
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return getMainBody();
-                }
-                return const CommonLoader();
-              },
-                  )
-                : getMainBody(),
-          ),
+      child: Scaffold(
+        backgroundColor: const Color(0xffF8F8F8),
+        appBar: getAppBar(),
+        body: AppUIComponents.getBackGroundBordersRounded(
+          context: context,
+          child: future != null
+              ? FutureBuilder(
+                  future: future,
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      return getMainBody();
+                    }
+                    return const CommonLoader();
+                  },
+                )
+              : getMainBody(),
         ),
       ),
     );
@@ -894,20 +891,23 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
       padding: const EdgeInsets.all(20.0),
       child: Row(
         children: [
-          Expanded(
-            child: CommonButton(
-              onPressed: () {
-                if (index != 0) {
-                  pageController.jumpToPage(index - 1);
-                }
-              },
-              text: "Previous",
-              fontColor: themeData.primaryColor,
-              backGroundColor: themeData.colorScheme.onPrimary,
-              borderColor: themeData.primaryColor,
+          if (index != 0)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 20.0),
+                child: CommonButton(
+                  onPressed: () {
+                    if (index != 0) {
+                      pageController.jumpToPage(index - 1);
+                    }
+                  },
+                  text: "Previous",
+                  fontColor: themeData.primaryColor,
+                  backGroundColor: themeData.colorScheme.onPrimary,
+                  borderColor: themeData.primaryColor,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(width: 20),
           Expanded(
             child: CommonButton(
               onPressed: () {

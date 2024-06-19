@@ -120,6 +120,7 @@ enum ModelDataParsingType {
   int,
   List,
   StringList,
+  Uint8List,
 
   //region App Module
   CurrencyDataResponseModel,

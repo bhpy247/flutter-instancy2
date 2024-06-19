@@ -296,6 +296,7 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
     filePath = path;
     this.fileName = fileName ?? "";
     fileBytes = bytes;
+    MyPrint.printOnConsole("filePath : $filePath");
     mySetState();
   }
 
@@ -311,6 +312,8 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
     podcastContentModel.filePath = filePath ?? "";
     podcastContentModel.fileName = fileName;
     podcastContentModel.fileBytes = fileBytes;
+    coCreateContentAuthoringModel.uploadedDocumentBytes = fileBytes;
+    coCreateContentAuthoringModel.uploadedDocumentName = fileName;
 
     dynamic value = await NavigationController.navigateToPodcastPreviewScreen(
       navigationOperationParameters: NavigationOperationParameters(
@@ -504,17 +507,17 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
   }
 }
 
-class PodcastViewScreen extends StatefulWidget {
+class PodcastPreviewScreen extends StatefulWidget {
   static const String routeName = "/PodcastViewScreen";
   final PodcastPreviewScreenNavigationArgument arguments;
 
-  const PodcastViewScreen({super.key, required this.arguments});
+  const PodcastPreviewScreen({super.key, required this.arguments});
 
   @override
-  State<PodcastViewScreen> createState() => _PodcastViewScreenState();
+  State<PodcastPreviewScreen> createState() => _PodcastPreviewScreenState();
 }
 
-class _PodcastViewScreenState extends State<PodcastViewScreen> with MySafeState {
+class _PodcastPreviewScreenState extends State<PodcastPreviewScreen> with MySafeState {
   bool isLoading = false;
 
   late AudioPlayer player = AudioPlayer();
@@ -526,6 +529,26 @@ class _PodcastViewScreenState extends State<PodcastViewScreen> with MySafeState 
       "You can replace this text with any text you wish. You can either write in this text box or paste your own text here. Try different languages and voices. Change the speed and the pitch of the voice. You can even tweak the SSML (Speech Synthesis Markup Language)to control how the different sections of the text sound. Click on SSML above to give it a try! Enjoy using Text to Speech! ";
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
   late Future future;
+  Uint8List? generatedBytes;
+
+  Future<void> initializeData() async {
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+
+    coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
+
+    if (widget.arguments.isFromTextToAudio) {
+      future = getGeneratedData();
+    } else {
+      if (widget.arguments.coCreateContentAuthoringModel.uploadedDocumentBytes.checkNotEmpty) {
+        await player.setSourceBytes(widget.arguments.coCreateContentAuthoringModel.uploadedDocumentBytes!);
+        await player.resume();
+      } else {
+        await player.setSourceAsset("audio/audio.mp3");
+        await player.resume();
+      }
+    }
+  }
 
   Future<void> getGeneratedData() async {
     // isLoading = true;
@@ -542,8 +565,11 @@ class _PodcastViewScreenState extends State<PodcastViewScreen> with MySafeState 
       speekingSpeed: widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.voiceSpeed.toInt() ?? 0,
       isPlay: true,
     );
-    await coCreateKnowledgeController.getAudioGenerator(requestModel: playerRequestModel);
+
+    Uint8List? uint8list = await coCreateKnowledgeController.getAudioGenerator(requestModel: playerRequestModel);
     MyPrint.printOnConsole("Audio url : ${coCreateKnowledgeProvider.audioUrlFromApi.get()}");
+    MyPrint.printOnConsole("uint8list: ${uint8list}");
+
     String audioUrl = coCreateKnowledgeProvider.audioUrlFromApi.get();
     if (audioUrl.checkNotEmpty) {
       // Create the audio player.
@@ -551,7 +577,7 @@ class _PodcastViewScreenState extends State<PodcastViewScreen> with MySafeState 
 
       // Set the release mode to keep the source after playback has completed.
       player.setReleaseMode(ReleaseMode.stop);
-
+      generatedBytes = uint8list;
       // Start the player as soon as the app is displayed.
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         // await player.setSourceAsset("audio/audio.mp3");
@@ -563,30 +589,27 @@ class _PodcastViewScreenState extends State<PodcastViewScreen> with MySafeState 
     // mySetState();
   }
 
-  Future<void> initializeData() async {
-    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
-    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
-
-    coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
-
-    PodcastContentModel? podcastContentModel = coCreateContentAuthoringModel.podcastContentModel;
-    if (podcastContentModel != null) {
-      if (podcastContentModel.fileBytes != null) {
-        await player.setSourceBytes(podcastContentModel.fileBytes!);
-        await player.resume();
-      } else if (podcastContentModel.audioUrl.isNotEmpty) {
-        await player.setSourceUrl(podcastContentModel.audioUrl);
-        await player.resume();
-      }
-    }
-  }
-
   Future<CourseDTOModel?> savePodcast() async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("GenerateWithAiFlashCardScreen().saveFlashcard() called", tag: tag);
 
     isLoading = true;
     mySetState();
+
+    PodcastContentModel podCastContentModel = coCreateContentAuthoringModel.podcastContentModel ?? PodcastContentModel();
+    podCastContentModel.audioUrl = coCreateKnowledgeProvider.audioUrlFromApi.get();
+    coCreateContentAuthoringModel.podcastContentModel = podCastContentModel;
+
+    if (coCreateContentAuthoringModel.uploadedDocumentBytes.checkEmpty) {
+      coCreateContentAuthoringModel.uploadedDocumentBytes = generatedBytes;
+      coCreateContentAuthoringModel.uploadedDocumentName = "${MyUtils.getNewId()}.mp3";
+    } else {
+      // coCreateContentAuthoringModel.uploadedDocumentBytes = generatedBytes;
+      String extention = podCastContentModel.filePath.split(".").last;
+      coCreateContentAuthoringModel.uploadedDocumentName = "${MyUtils.getNewId()}.$extention";
+    }
+
+    MyPrint.printOnConsole("coCreateContentAuthoringModel.uploadedDocumentName:'${coCreateContentAuthoringModel.uploadedDocumentName}'", tag: tag);
 
     String? contentId = await coCreateKnowledgeController.addEditContentItem(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
     MyPrint.printOnConsole("contentId:'$contentId'", tag: tag);
@@ -627,6 +650,7 @@ class _PodcastViewScreenState extends State<PodcastViewScreen> with MySafeState 
 
     await NavigationController.navigateToPodcastEpisodeScreen(
       navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+      argument: PodcastScreenNavigationArguments(courseDTOModel: widget.arguments.coCreateContentAuthoringModel.courseDTOModel ?? CourseDTOModel(), fileBytes: generatedBytes),
     );
 
     Navigator.pop(context, true);
@@ -636,7 +660,6 @@ class _PodcastViewScreenState extends State<PodcastViewScreen> with MySafeState 
   void initState() {
     super.initState();
     initializeData();
-    future = getGeneratedData();
   }
 
   @override
@@ -660,60 +683,66 @@ class _PodcastViewScreenState extends State<PodcastViewScreen> with MySafeState 
           bottomNavigationBar: getBottomButtonWidget(),
           body: AppUIComponents.getBackGroundBordersRounded(
             context: context,
-            child: FutureBuilder(
-                future: future,
-                builder: (context, asyncSnapshot) {
-                  if (asyncSnapshot.connectionState == ConnectionState.done) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            PlayerWidget(
-                              player: player,
-                              onRetakeTap: widget.arguments.isRetakeRequired
-                                  ? () {
-                                      Navigator.pop(context);
-                                    }
-                                  : null,
-                            ),
-                            InkWell(
-                              onTap: () {
-                                isTranscriptExpanded = !isTranscriptExpanded;
-                                mySetState();
-                              },
-                              child: Row(
-                                children: [
-                                  Icon(isTranscriptExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down_outlined),
-                                  const Text(
-                                    "Transcript",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            if (isTranscriptExpanded)
-                              const Text(
-                                """
+            child: widget.arguments.isFromTextToAudio
+                ? FutureBuilder(
+                    future: future,
+                    builder: (context, asyncSnapshot) {
+                      if (asyncSnapshot.connectionState == ConnectionState.done) {
+                        return getMainWidget();
+                      } else {
+                        return CommonLoader();
+                      }
+                    })
+                : getMainWidget(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget getMainWidget() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PlayerWidget(
+              player: player,
+              onRetakeTap: widget.arguments.isRetakeRequired
+                  ? () {
+                      Navigator.pop(context);
+                    }
+                  : null,
+            ),
+            InkWell(
+              onTap: () {
+                isTranscriptExpanded = !isTranscriptExpanded;
+                mySetState();
+              },
+              child: Row(
+                children: [
+                  Icon(isTranscriptExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down_outlined),
+                  const Text(
+                    "Transcript",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                ],
+              ),
+            ),
+            if (isTranscriptExpanded)
+              const Text(
+                """
                                   Nigel:
                                   
                                   Glad to see things are going well and business is starting to pick up. Andrea told me about your outstanding numbers on Tuesday. Keep up the good work. Now to other business, I am going to suggest a payment schedule for the outstanding monies that is due. One, can you pay the balance of the license agreement as soon as possible? Two, I suggest we setup or you suggest, what you can pay on the back royalties, would you feel comfortable with paying every two weeks? Every month, I will like to catch up and maintain current royalties. So, if we can start the current royalties and maintain them every two weeks as all stores are required to do, I would appreciate it. Let me know if this works for you.
                                   
                                   Thanks.
                                    """,
-                              )
-                          ],
-                        ),
-                      ),
-                    );
-                  } else {
-                    return CommonLoader();
-                  }
-                }),
-          ),
+              )
+          ],
         ),
       ),
     );

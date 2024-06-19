@@ -101,7 +101,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           },
           iconData: InstancyIcons.view,
         ),
-      if (!(model.ContentTypeId == InstancyObjectTypes.mediaResource && [InstancyMediaTypes.audio, InstancyMediaTypes.video].contains(model.MediaTypeID)))
+      if (!(model.ContentTypeId == InstancyObjectTypes.mediaResource && [InstancyMediaTypes.video].contains(model.MediaTypeID)))
         InstancyUIActionModel(
           text: "Edit",
           actionsEnum: InstancyContentActionsEnum.Edit,
@@ -381,6 +381,18 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         argument: MicroLearningEditorScreenNavigationArgument(
           coCreateContentAuthoringModel: coCreateContentAuthoringModel,
         ),
+      );
+
+      if (value == true) {
+        isEdited = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.mediaResource && mediaTypeId == InstancyMediaTypes.audio) {
+      dynamic value = await NavigationController.navigateToTextToAudioGenerateWithAIScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: TextToAudioGenerateWithAIScreenNavigationArgument(coCreateContentAuthoringModel: coCreateContentAuthoringModel, isEdit: true),
       );
 
       if (value == true) {

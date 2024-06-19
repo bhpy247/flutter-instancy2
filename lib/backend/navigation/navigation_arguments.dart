@@ -1019,6 +1019,14 @@ class CreatePodcastSourceSelectionScreenNavigationArguments extends NavigationAr
   });
 }
 
+class PodcastScreenNavigationArguments extends NavigationArguments {
+  final CourseDTOModel courseDTOModel;
+  final String audioUrl;
+  final Uint8List? fileBytes;
+
+  const PodcastScreenNavigationArguments({required this.courseDTOModel, this.audioUrl = "", this.fileBytes});
+}
+
 class CreateUrlScreenNavigationArguments extends NavigationArguments {
   final int componentId;
   final int componentInsId;
@@ -1131,10 +1139,10 @@ class TextToAudioScreenNavigationArgument extends NavigationArguments {
 
 class TextToAudioGenerateWithAIScreenNavigationArgument extends NavigationArguments {
   final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+  final bool isEdit;
 
   const TextToAudioGenerateWithAIScreenNavigationArgument({
-    required this.coCreateContentAuthoringModel,
-  });
+    required this.coCreateContentAuthoringModel, this.isEdit = false});
 }
 
 class AddEditRolePlayScreenNavigationArgument extends NavigationArguments {
@@ -1188,10 +1196,12 @@ class ArticlePreviewScreenNavigationArgument extends NavigationArguments {
 class PodcastPreviewScreenNavigationArgument extends NavigationArguments {
   final CoCreateContentAuthoringModel coCreateContentAuthoringModel;
   final bool isRetakeRequired;
+  final bool isFromTextToAudio;
 
   const PodcastPreviewScreenNavigationArgument({
     required this.coCreateContentAuthoringModel,
     this.isRetakeRequired = false,
+    this.isFromTextToAudio = false,
   });
 }
 

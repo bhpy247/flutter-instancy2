@@ -1096,7 +1096,7 @@ class CoCreateKnowledgeController {
     return true;
   }
 
-  Future<bool> getAudioGenerator({required PlayAudioForTextRequestModel requestModel}) async {
+  Future<Uint8List?> getAudioGenerator({required PlayAudioForTextRequestModel requestModel}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().getAudioGenerator() called ", tag: tag);
 
@@ -1112,21 +1112,25 @@ class CoCreateKnowledgeController {
     if (dataResponseModel.appErrorModel != null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getAudioGenerator() because appErrorModel is not null", tag: tag);
       MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
-      return false;
+      return null;
     } else if (dataResponseModel.data == null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getAudioGenerator() because data is null", tag: tag);
-      return false;
+      return null;
     }
 
     MyPrint.printOnConsole("dataResponseModel.data : ${dataResponseModel.data}");
-
+    Uint8List? convertedBytes;
     if (dataResponseModel.data != null) {
       String? audioUrl = dataResponseModel.data;
       if (audioUrl != null) {
         coCreateKnowledgeProvider.audioUrlFromApi.set(value: audioUrl);
+        convertedBytes = await repository.getBytesFromUrl(url: audioUrl);
+        if (convertedBytes != null && convertedBytes.checkNotEmpty) {
+          return convertedBytes;
+        }
       }
     }
-    return true;
+    return convertedBytes;
   }
 
   Future<String> generateWholeArticleContent({required GenerateWholeArticleContentRequestModel requestModel}) async {
@@ -1190,6 +1194,33 @@ class CoCreateKnowledgeController {
       MyPrint.printOnConsole(s, tag: tag);
       return "";
     }
+  }
+
+  Future<String> chatCompletion({required String promptText}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().generateQuiz() called with chatCompletion:$promptText", tag: tag);
+
+    CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+    ApiUrlConfigurationProvider apiUrlConfigurationProvider = repository.apiController.apiDataProvider;
+
+    // region Chat Completion
+
+    String generatedString = "";
+
+    DataResponseModel<String> dataResponseModel = await repository.chatCompletionCall(prompt: promptText);
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().chatCompletion() because appErrorModel is not null for chatCompletionCall", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+      return generatedString;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().chatCompletion() because data is null for chatCompletionCall", tag: tag);
+      return generatedString;
+    }
+
+    MyPrint.printOnConsole("chatCompletionCall data : ${dataResponseModel.data}", tag: tag);
+    generatedString = dataResponseModel.data!;
+
+    return generatedString;
   }
 
   //region Generate MicroLearning Content

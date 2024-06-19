@@ -11,6 +11,7 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_m
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/language_voice_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/speaking_style_model.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -32,10 +33,15 @@ class TextToAudioScreen extends StatefulWidget {
 }
 
 class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState {
+  late CoCreateKnowledgeController coCreateKnowledgeController;
+  late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
+
   TextEditingController textEditingController = TextEditingController();
   TextEditingController promptEditingController = TextEditingController();
 
   bool isRegenerateTap = false;
+  bool isLoading = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   void showBottomSheetDialog() {
     showModalBottomSheet(
@@ -79,7 +85,21 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
     );
   }
 
+  Future<void> generateScriptedText({required String text}) async {
+    isLoading = true;
+    mySetState();
+
+    String generatedText = await coCreateKnowledgeController.chatCompletion(promptText: text);
+    if (generatedText.checkNotEmpty) {
+      textEditingController.text = generatedText;
+    }
+
+    isLoading = false;
+    mySetState();
+  }
+
   Future<void> onNextTap() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
     CoCreateContentAuthoringModel coCreateContentAuthoringModel = widget.argument.coCreateContentAuthoringModel;
     PodcastContentModel podcastContentModel = coCreateContentAuthoringModel.podcastContentModel ??= PodcastContentModel();
 
@@ -98,6 +118,14 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
       Navigator.pop(context, true);
       return;
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+    generateScriptedText(text: widget.argument.coCreateContentAuthoringModel.title);
   }
 
   @override
@@ -122,40 +150,78 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
   }
 
   Widget mainWidget() {
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  Column(
+    return ModalProgressHUD(
+      inAsyncCall: isLoading,
+      child: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
                     children: [
-                      getTitleTextFormField(),
+                      const SizedBox(height: 10),
+                      Column(
+                        children: [
+                          getTitleTextFormField(),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+
+                      isRegenerateTap
+                          ? Stack(
+                              children: [
+                                getPromptTextFormField(),
+                                Positioned(
+                                  bottom: promptEditingController.text.trim().checkEmpty ? 20 : 0.0, // Adjust positioning as needed
+                                  right: promptEditingController.text.trim().checkEmpty ? 0 : 0.0,
+                                  child: InkWell(
+                                    onTap: () async {
+                                      if (!(_formKey.currentState?.validate() ?? false)) return;
+
+                                      await generateScriptedText(text: promptEditingController.text.trim());
+                                      promptEditingController.clear();
+                                      isRegenerateTap = false;
+                                      mySetState();
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(color: themeData.primaryColor, shape: BoxShape.circle),
+                                      child: const Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 18.0, horizontal: 10),
+                                        child: Icon(
+                                          Icons.send,
+                                          size: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            )
+                          : const SizedBox(),
+                      // const SizedBox(height: 10,),
+                      const SizedBox(
+                        height: 40,
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-
-                  isRegenerateTap ? getPromptTextFormField() : const SizedBox(),
-                  // const SizedBox(height: 10,),
-                  const SizedBox(
-                    height: 40,
-                  ),
-                ],
+                ),
               ),
-            ),
+              CommonButton(
+                minWidth: double.infinity,
+                onPressed: () {
+                  onNextTap();
+                },
+                text: "Next",
+                fontColor: themeData.colorScheme.onPrimary,
+              )
+            ],
           ),
-          CommonButton(
-            minWidth: double.infinity,
-            onPressed: () {
-              onNextTap();
-            },
-            text: "Next",
-            fontColor: themeData.colorScheme.onPrimary,
-          )
-        ],
+        ),
       ),
     );
   }
@@ -165,7 +231,7 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
     return getTexFormField(
       validator: (String? val) {
         if (val == null || val.isEmpty) {
-          return "Please enter title";
+          return "Please enter script text";
         }
         return null;
       },
@@ -175,7 +241,7 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
       isShowIcon: false,
       controller: textEditingController,
       iconUrl: "assets/catalog/title.png",
-      labelText: "Enter text...",
+      labelText: "Enter Script Text..",
     );
   }
 
@@ -184,46 +250,22 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
   // region getPromptTextFormField
   Widget getPromptTextFormField() {
     return Container(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), border: Border.all(color: Styles.borderColor)),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: getTexFormField(
-                validator: (String? val) {
-                  if (val == null || val.isEmpty) {
-                    return "Please enter prompt";
-                  }
-                  return null;
-                },
-                isMandatory: false,
-                minLines: 5,
-                maxLines: 5,
-                isShowIcon: false,
-                controller: promptEditingController,
-                iconUrl: "assets/catalog/title.png",
-                labelText: "Write prompt here....",
-                borderColor: Colors.transparent),
-          ),
-          InkWell(
-            onTap: () {
-              isRegenerateTap = false;
-              mySetState();
-            },
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(color: themeData.primaryColor, shape: BoxShape.circle),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 18.0, horizontal: 10),
-                child: Icon(
-                  Icons.send,
-                  size: 15,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          )
-        ],
+      // decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), border: Border.all(color: Styles.borderColor)),
+      child: getTexFormField(
+        validator: (String? val) {
+          if (val == null || val.isEmpty) {
+            return "Please enter prompt";
+          }
+          return null;
+        },
+        isMandatory: false,
+        minLines: 5,
+        maxLines: 5,
+        isShowIcon: false,
+        controller: promptEditingController,
+        iconUrl: "assets/catalog/title.png",
+        labelText: "Write prompt here....",
+        // borderColor: Colors.transparent,
       ),
     );
   }
@@ -265,7 +307,7 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
       borderColor: borderColor,
       enabledBorderColor: borderColor,
       focusColor: borderColor,
-      isHintText: true,
+      isHintText: false,
       prefixWidget: isShowIcon
           ? iconUrl.isNotEmpty
               ? getImageView(url: iconUrl, height: iconHeight, width: iconWidth)
@@ -313,7 +355,7 @@ class TextToAudioGenerateWithAIScreen extends StatefulWidget {
 }
 
 class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWithAIScreen> with MySafeState {
-  double selectedVoiceSpeed = 0;
+  double selectedVoiceSpeed = 1;
   String? selectedTone, selectedGender;
   late CoCreateKnowledgeController coCreateKnowledgeController;
   late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
@@ -340,11 +382,51 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
     AudioModel(name: "John", gender: "Male", language: "British"),
   ];
 
+  Future<void> initializeData() async {
+    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
+    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
+    if (widget.argument.isEdit) {
+      PodcastContentModel podcastContentModel = widget.argument.coCreateContentAuthoringModel.podcastContentModel!;
+      languageList = coCreateKnowledgeProvider.languageList.getList();
+      selectedLanguage = languageList.where((element) => podcastContentModel.selectedLanguage?.languageCode == element.languageCode).toList().first;
+      await getLanguageVoiceList();
+      await getSpeakingStyleList();
+      languageVoiceList = coCreateKnowledgeProvider.languageVoiceList.getList();
+      // element.voiceName == podcastContentModel.selectedVoiceModel?.voiceName)
+      MyPrint.printOnConsole("languageVoiceList: ${languageVoiceList.length}");
+
+      List<LanguageVoiceModel> lagModel = languageVoiceList.where((element) {
+        MyPrint.printOnConsole("podcastContentModel.selectedVoiceModel?.voiceName: ${podcastContentModel.selectedVoiceModel?.toMap()} : element.voiceName ${element.voiceName}");
+        return podcastContentModel.selectedVoiceModel?.voiceName == element.voiceName;
+      }).toList();
+      // MyPrint.printOnConsole("podcastContentModel.selectedVoiceModel:${languageVoiceList.length} ${languageVoiceList.where((element) {
+      //   return true;
+      // })}");
+      selectedGender = podcastContentModel.selectedGender;
+      selectedLanguage = languageList.where((element) => podcastContentModel.selectedLanguage?.languageCode == element.languageCode).toList().first;
+      selectedVoiceModel = languageVoiceList.where((element) => podcastContentModel.selectedVoiceModel?.voiceName == element.voiceName).toList().first;
+      filteredVoiceList = languageVoiceList.where((element) => element.gender == selectedGender).toList();
+      speakingStyleModel = podcastContentModel.speakingStyleModel;
+      toneList = speakingStyleModel?.voiceStyle ?? [];
+      selectedTone = podcastContentModel.voiceTone;
+
+      // await getLanguageVoiceList();
+      // await getSpeakingStyleList();
+      mySetState();
+    } else {
+      future = getData();
+    }
+  }
+
   Future<void> getData() async {
+    isLoading = true;
+    mySetState();
     bool isSuccess = await coCreateKnowledgeController.getLanguageList();
     if (isSuccess) {
       languageList = coCreateKnowledgeProvider.languageList.getList();
     }
+    isLoading = false;
+    mySetState();
   }
 
   Future<void> getLanguageVoiceList() async {
@@ -382,16 +464,18 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
     podcastContentModel.voiceTone = selectedTone ?? "";
     podcastContentModel.voiceName = selectedVoiceModel?.voiceName ?? "";
     podcastContentModel.voiceLanguage = selectedLanguage?.languageCode ?? "";
+    podcastContentModel.selectedGender = selectedGender ?? "";
+    podcastContentModel.selectedLanguage = selectedLanguage;
+    podcastContentModel.selectedVoiceModel = selectedVoiceModel;
+    podcastContentModel.speakingStyleModel = speakingStyleModel;
 
+    coCreateContentAuthoringModel.podcastContentModel = podcastContentModel;
     dynamic value = await NavigationController.navigateToPodcastPreviewScreen(
       navigationOperationParameters: NavigationOperationParameters(
         context: context,
         navigationType: NavigationType.pushNamed,
       ),
-      argument: PodcastPreviewScreenNavigationArgument(
-        coCreateContentAuthoringModel: widget.argument.coCreateContentAuthoringModel,
-        isRetakeRequired: false,
-      ),
+      argument: PodcastPreviewScreenNavigationArgument(coCreateContentAuthoringModel: coCreateContentAuthoringModel, isRetakeRequired: false, isFromTextToAudio: true),
     );
 
     if (value == true) {
@@ -403,9 +487,7 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
   @override
   void initState() {
     super.initState();
-    coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
-    coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
-    future = getData();
+    initializeData();
   }
 
   @override
@@ -416,15 +498,17 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
       appBar: AppConfigurations().commonAppBar(
         title: "Text to Audio",
       ),
-      body: FutureBuilder(
-          future: future,
-          builder: (context, asyncSnapshot) {
-            if (asyncSnapshot.connectionState == ConnectionState.done) {
-              return getMainBody();
-            } else {
-              return CommonLoader();
-            }
-          }),
+      body: widget.argument.isEdit
+          ? getMainBody()
+          : FutureBuilder(
+              future: future,
+              builder: (context, asyncSnapshot) {
+                if (asyncSnapshot.connectionState == ConnectionState.done) {
+                  return getMainBody();
+                } else {
+                  return CommonLoader();
+                }
+              }),
     );
   }
 
@@ -597,7 +681,12 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
           onChanged: (LanguageModel? language) async {
             if (language == null) return;
             selectedLanguage = language;
+
             await getLanguageVoiceList();
+            selectedGender = null;
+            selectedVoiceModel = null;
+            selectedTone = null;
+            speakingStyleModel = null;
             mySetState();
           },
           style: const TextStyle(

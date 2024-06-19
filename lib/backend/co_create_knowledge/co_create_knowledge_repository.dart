@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_instancy_2/api/api_call_model.dart';
 import 'package:flutter_instancy_2/api/api_controller.dart';
 import 'package:flutter_instancy_2/api/api_endpoints.dart';
@@ -34,6 +36,7 @@ import 'package:flutter_instancy_2/models/common/model_data_parser.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
+import 'package:http/http.dart' as http;
 
 import '../../models/co_create_knowledge/article/request_model/generate_whole_article_content_request_model.dart';
 import '../../models/co_create_knowledge/podcast/response_model/language_response_model.dart';
@@ -875,5 +878,21 @@ class CoCreateKnowledgeRepository {
     DataResponseModel<String> apiResponseModel = await apiController.callApi<String>(apiCallModel: apiCallModel);
 
     return apiResponseModel;
+  }
+
+  Future<Uint8List?> getBytesFromUrl({required String url}) async {
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        return response.bodyBytes;
+      } else {
+        // Handle unsuccessful response (e.g., throw an exception)
+        throw Exception('Failed to get bytes from URL: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle errors during network call
+      print('Error getting bytes from URL: $error');
+      return null;
+    }
   }
 }

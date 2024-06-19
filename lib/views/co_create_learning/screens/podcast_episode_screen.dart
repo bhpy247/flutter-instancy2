@@ -2,17 +2,23 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/message/components/audio_player_widget.dart';
 
+import '../../../backend/navigation/navigation_arguments.dart';
 import '../../../configs/app_configurations.dart';
 import '../../common/components/app_ui_components.dart';
 import '../../common/components/common_button.dart';
 
 class PodcastEpisodeScreen extends StatefulWidget {
   static const String routeName = "/PodcastEpisodeScreen";
+  final PodcastScreenNavigationArguments arguments;
 
-  const PodcastEpisodeScreen({super.key});
+  const PodcastEpisodeScreen({
+    super.key,
+    required this.arguments,
+  });
 
   @override
   State<PodcastEpisodeScreen> createState() => _PodcastEpisodeScreenState();
@@ -21,21 +27,30 @@ class PodcastEpisodeScreen extends StatefulWidget {
 class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> {
   late AudioPlayer player = AudioPlayer();
   bool isTranscriptExpanded = true;
-  @override
-  void initState() {
-    super.initState();
 
+  Future<void> initializeData() async {
     // Create the audio player.
     player = AudioPlayer();
 
     // Set the release mode to keep the source after playback has completed.
     player.setReleaseMode(ReleaseMode.stop);
 
-    // Start the player as soon as the app is displayed.
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    if (widget.arguments.audioUrl.checkNotEmpty) {
+      await player.setSourceUrl(widget.arguments.audioUrl);
+      await player.resume();
+    } else if (widget.arguments.fileBytes != null) {
+      await player.setSourceBytes(widget.arguments.fileBytes!);
+      await player.resume();
+    } else {
       await player.setSourceAsset("audio/audio.mp3");
       await player.resume();
-    });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initializeData();
   }
 
   @override
@@ -76,14 +91,14 @@ class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> {
                 ),
                 if (isTranscriptExpanded)
                   const Text(
-                  """
+                    """
 Nigel:
 
 Glad to see things are going well and business is starting to pick up. Andrea told me about your outstanding numbers on Tuesday. Keep up the good work. Now to other business, I am going to suggest a payment schedule for the outstanding monies that is due. One, can you pay the balance of the license agreement as soon as possible? Two, I suggest we setup or you suggest, what you can pay on the back royalties, would you feel comfortable with paying every two weeks? Every month, I will like to catch up and maintain current royalties. So, if we can start the current royalties and maintain them every two weeks as all stores are required to do, I would appreciate it. Let me know if this works for you.
 
 Thanks.
  """,
-                )
+                  )
               ],
             ),
           ),

@@ -87,7 +87,7 @@ class _AddContentItemScreenState extends State<AddContentItemScreen> with MySafe
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-      );
+          argument: PodcastScreenNavigationArguments(courseDTOModel: model));
     } else if (objectType == InstancyObjectTypes.reference && mediaType == InstancyMediaTypes.url) {
       NavigationController.navigateToWebViewScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
