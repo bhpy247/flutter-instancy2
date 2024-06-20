@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -63,6 +64,7 @@ import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_confirmation_dialog.dart';
 import 'package:provider/provider.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../api/api_controller.dart';
 import '../../models/co_create_knowledge/article/request_model/generate_whole_article_content_request_model.dart';
@@ -518,7 +520,7 @@ class CoCreateKnowledgeController {
       requestModel.additionalData = videoContentModel.toString();
     }
 
-    if (requestModel.additionalData.isNotEmpty) requestModel.additionalData = MyUtils.encodeJson(requestModel.additionalData);
+    // if (requestModel.additionalData.isNotEmpty && coCreateContentAuthoringModel.microLearningContentModel == null) requestModel.additionalData = MyUtils.encodeJson(requestModel.additionalData);
 
     return requestModel;
   }
@@ -930,11 +932,11 @@ class CoCreateKnowledgeController {
 
   Future<String> getAiVideoGenerator({required String videoContentId, int count = 0}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CoCreateKnowledgeController().getAiVideoGenerator() called with videoContentId:$videoContentId", tag: tag);
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getAiVideoGenerator() called with videoContentId:'$videoContentId', count:$count", tag: tag);
 
     CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
 
-    if (count > 12) {
+    if (count > 50) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getAiVideoGenerator() because max call achieved", tag: tag);
       return "";
     }
@@ -1125,7 +1127,6 @@ class CoCreateKnowledgeController {
     }
 
     SpeakingStyleModel speakingStyleModel = dataResponseModel.data!;
-    coCreateKnowledgeProvider.speakingStyleModel.set(value: speakingStyleModel);
     return speakingStyleModel;
   }
 
@@ -1293,47 +1294,67 @@ class CoCreateKnowledgeController {
     }
 
     List<String> elementsEnabled = totalElementsEnabled.toList();
-    // bool isQuizEnabled = elementsEnabled.remove(MicroLearningElementType.Quiz);
+    bool isQuizEnabled = elementsEnabled.remove(MicroLearningElementType.Quiz);
 
     Map<String, List<String>> pagesElementWise = <String, List<String>>{};
 
     List<String> selectedTopics = microLearningContentModel.selectedTopics;
+    bool isGenerateAudio = false;
+    bool isGenerateVideo = false;
 
     for (String topic in selectedTopics) {
       List<String> elements = <String>[];
       elements.addAll(elementsEnabled);
       pagesElementWise[topic] = elements;
+
+      if (elements.contains(MicroLearningElementType.Audio)) isGenerateAudio = true;
+      if (elements.contains(MicroLearningElementType.Video)) isGenerateVideo = true;
     }
 
-    /*if(isQuizEnabled) {
-      pagesElementWise[pagesElementWise.length] = [MicroLearningElementType.Quiz];
-    }*/
     MyPrint.printOnConsole("Final pagesElementWise:$pagesElementWise", tag: tag);
 
-    List<Future<void>> futures = <Future<void>>[];
+    if (isGenerateAudio || isGenerateVideo) {
+      MyPrint.printOnConsole("Getting Audio/Video Generation Metadata", tag: tag);
+
+      DateTime start = DateTime.now();
+
+      String language = "en-US";
+
+      List<Future> futures = <Future>[
+        getLanguageVoiceList(language),
+      ];
+
+      if (isGenerateVideo) {
+        futures.addAll([
+          getAllAvtarList(),
+          getAvatarVoiceList(),
+          getBackgroundColorList(),
+        ]);
+      }
+
+      if (futures.isNotEmpty) await Future.wait(futures);
+
+      DateTime end = DateTime.now();
+      MyPrint.printOnConsole("Completed Getting Audio/Video Generation Metadata in ${start.difference(end).inMilliseconds} Milliseconds", tag: tag);
+    }
+
     Map<String, MicroLearningPageModel?> pagesMap = <String, MicroLearningPageModel?>{};
 
-    pagesElementWise.forEach((String topic, List<String> elementsList) {
-      Completer<void> completer = Completer<void>();
+    String quizTopic = "";
+    List<QuizQuestionModel> quizQuestions = <QuizQuestionModel>[];
 
-      generateMicroLearningPage(topic: topic, pageElements: elementsList).then((MicroLearningPageModel? microLearningPageModel) {
-        MyPrint.printOnConsole("Got Data for Topic '$topic' not null:${microLearningPageModel != null}", tag: tag);
+    for (MapEntry<String, List<String>> entry in pagesElementWise.entries) {
+      String topic = entry.key;
+      List<String> elementsList = entry.value;
 
-        pagesMap[topic] = microLearningPageModel;
-      }).catchError((e, s) {
-        MyPrint.printOnConsole("Error in Getting MicroLearningPageModel for Topic '$topic':$e", tag: tag);
-        MyPrint.printOnConsole(s, tag: tag);
-      }).whenComplete(() {
-        MyPrint.printOnConsole("Completed Getting Data for Topic '$topic'", tag: tag);
-        if (!completer.isCompleted) {
-          completer.complete();
-        }
-      });
+      MicroLearningPageModel? microLearningPageModel = await generateMicroLearningPage(topic: topic, pageElements: elementsList);
+      pagesMap[topic] = microLearningPageModel;
+    }
 
-      futures.add(completer.future);
-    });
-
-    await Future.wait(futures);
+    if (isQuizEnabled) {
+      quizTopic = selectedTopics[Random().nextInt(selectedTopics.length)];
+      quizQuestions = await generateMicroLearningQuiz(topic: quizTopic);
+    }
 
     MyPrint.printOnConsole("pagesMap length:${pagesMap.length}", tag: tag);
 
@@ -1343,6 +1364,19 @@ class CoCreateKnowledgeController {
       if (microLearningPageModel != null) {
         pages.add(microLearningPageModel);
       }
+    }
+
+    if (quizTopic.isNotEmpty && quizQuestions.isNotEmpty) {
+      MicroLearningPageModel microLearningPageModel = MicroLearningPageModel(
+        title: quizTopic,
+        elements: [
+          MicroLearningPageElementModel(
+            elementType: MicroLearningElementType.Quiz,
+            quizQuestionModels: quizQuestions,
+          ),
+        ],
+      );
+      pages.add(microLearningPageModel);
     }
 
     MyPrint.printOnConsole("Final pages length:${pages.length}", tag: tag);
@@ -1456,7 +1490,7 @@ class CoCreateKnowledgeController {
 
       pageElement = MicroLearningPageElementModel(
         elementType: elementType,
-        imageBytes: bytes,
+        contentBytes: bytes,
       );
     } else if (elementType == MicroLearningElementType.Audio) {
       Uint8List? bytes = await generateMicroLearningAudio(topic: topic);
@@ -1468,7 +1502,7 @@ class CoCreateKnowledgeController {
 
       pageElement = MicroLearningPageElementModel(
         elementType: elementType,
-        audioBytes: bytes,
+        contentBytes: bytes,
       );
     } else if (elementType == MicroLearningElementType.Video) {
       Uint8List? bytes = await generateMicroLearningVideo(topic: topic);
@@ -1478,12 +1512,18 @@ class CoCreateKnowledgeController {
         return pageElement;
       }
 
+      Uri uri = Uri.dataFromBytes(bytes!);
+      VideoPlayerController videoPlayerController = VideoPlayerController.networkUrl(uri);
+      await videoPlayerController.initialize();
+
       pageElement = MicroLearningPageElementModel(
         elementType: elementType,
-        videoBytes: bytes,
+        contentBytes: bytes,
+        videoPlayerController: videoPlayerController,
       );
     } else if (elementType == MicroLearningElementType.Quiz) {}
 
+    MyPrint.printOnConsole("Completed CoCreateKnowledgeController().generateMicroLearningPageElementModel() for topic:'$topic', elementType:'$elementType'", tag: tag);
     return pageElement;
   }
 
@@ -1544,6 +1584,8 @@ class CoCreateKnowledgeController {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningAudio() called", tag: tag);
 
+    CoCreateKnowledgeProvider provider = coCreateKnowledgeProvider;
+
     if (topic.isEmpty) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningAudio() because topic is empty", tag: tag);
       return null;
@@ -1557,12 +1599,12 @@ class CoCreateKnowledgeController {
 
     String language = "en-US";
 
-    List<LanguageVoiceModel> voiceList = await getLanguageVoiceList(language);
+    List<LanguageVoiceModel> voiceList = provider.languageVoiceList.getList();
     if (voiceList.isEmpty) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningAudio() because voiceList is empty", tag: tag);
       return null;
     }
-    LanguageVoiceModel voiceModel = voiceList.first;
+    LanguageVoiceModel voiceModel = voiceList[Random().nextInt(voiceList.length)];
 
     SpeakingStyleModel? speakingStyleModel = await getSpeakingStyle(voiceModel.voiceName);
     if (speakingStyleModel == null) {
@@ -1607,46 +1649,40 @@ class CoCreateKnowledgeController {
       return null;
     }
 
-    String scriptText = await chatCompletion(promptText: "Detailed Info about '$topic'");
+    String scriptText = "Heart Attack is a major disises";
+    // String scriptText = await chatCompletion(promptText: "Detailed Info about '$topic'");
     if (scriptText.isEmpty) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because scriptText is empty", tag: tag);
       return null;
     }
 
-    getAvatarVoiceList();
-
-    String language = "en-US";
-
-    await getAllAvtarList();
-    Avatars? avatarModel = provider.avatarList.getList().firstElement;
-    if (avatarModel == null) {
-      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because avatarModel is null", tag: tag);
+    List<Avatars> avatarModelsList = provider.avatarList.getList();
+    if (avatarModelsList.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because avatarModelsList is empty", tag: tag);
       return null;
     }
+    Avatars avatarModel = avatarModelsList[Random().nextInt(avatarModelsList.length)];
 
-    await getAvatarVoiceList();
-    AvtarVoiceModel? avtarVoiceModel = provider.avatarVoiceList.getList().firstElement;
-    if (avtarVoiceModel == null) {
-      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because avtarVoiceModel is null", tag: tag);
+    List<AvtarVoiceModel> avtarVoiceModelsList = provider.avatarVoiceList.getList();
+    if (avtarVoiceModelsList.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because avtarVoiceModelsList is empty", tag: tag);
       return null;
     }
+    AvtarVoiceModel avtarVoiceModel = avtarVoiceModelsList[Random().nextInt(avtarVoiceModelsList.length)];
 
-    await getBackgroundColorList();
-    BackgroundColorModel? backgroundColorModel = provider.backgroundColorList.getList().firstElement;
-    if (backgroundColorModel == null) {
-      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because backgroundColorModel is null", tag: tag);
-      return null;
-    } else if (backgroundColorModel.backgrounds.isEmpty) {
-      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because backgrounds is empty", tag: tag);
+    List<BackgroundColorModel> backgroundColorModelsList = provider.backgroundColorList.getList();
+    if (avtarVoiceModelsList.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because backgroundColorModelsList is empty", tag: tag);
       return null;
     }
+    BackgroundColorModel backgroundColorModel = backgroundColorModelsList[Random().nextInt(backgroundColorModelsList.length)];
 
-    List<LanguageVoiceModel> voiceList = await getLanguageVoiceList(language);
+    List<LanguageVoiceModel> voiceList = provider.languageVoiceList.getList();
     if (voiceList.isEmpty) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because voiceList is empty", tag: tag);
       return null;
     }
-    LanguageVoiceModel voiceModel = voiceList.first;
+    LanguageVoiceModel voiceModel = voiceList[Random().nextInt(voiceList.length)];
 
     SpeakingStyleModel? speakingStyleModel = await getSpeakingStyle(voiceModel.voiceName);
     if (speakingStyleModel == null) {
@@ -1668,9 +1704,9 @@ class CoCreateKnowledgeController {
               background: backgroundColorModel.backgrounds.first,
               avatarSettings: AvatarSettings(
                 voice: avtarVoiceModel.voiceID,
-                horizontalAlign: 'FullBody',
                 scale: 1,
-                style: "Center",
+                horizontalAlign: 'center',
+                style: "rectangular",
               ),
             ),
           ],
@@ -1689,27 +1725,27 @@ class CoCreateKnowledgeController {
     return bytes;
   }
 
-  Future<List<QuizQuestionModel>> generateMicroLearningQuiz({required List<String> topics}) async {
+  Future<List<QuizQuestionModel>> generateMicroLearningQuiz({required String topic, int numberOfQuestions = 1}) async {
     String tag = MyUtils.getNewId();
-    MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningQuiz() called with topics:$topics", tag: tag);
+    MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningQuiz() called with topic:$topic", tag: tag);
 
     List<QuizQuestionModel> quizQuestionModelsList = <QuizQuestionModel>[];
 
-    if (topics.isEmpty) {
-      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningQuiz() because topics are empty", tag: tag);
+    if (topic.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningQuiz() because topic is empty", tag: tag);
       return quizQuestionModelsList;
     }
 
-    quizQuestionModelsList = (await generateQuiz(
-          requestModel: QuizGenerateRequestModel(
-            prompt: "Questions for Topics:${topics.join(",")}",
-            questionType: QuizQuestionType.mcq,
-            difficultyLevel: QuizDifficultyTypes.intermediate,
-            numberOfQuestions: 1,
-          ),
-        )) ??
-        <QuizQuestionModel>[];
+    List<QuizQuestionModel>? list = await generateQuiz(
+      requestModel: QuizGenerateRequestModel(
+        prompt: topic,
+        questionType: QuizQuestionType.mcq,
+        difficultyLevel: QuizDifficultyTypes.intermediate,
+        numberOfQuestions: numberOfQuestions,
+      ),
+    );
 
+    quizQuestionModelsList = list ?? <QuizQuestionModel>[];
     MyPrint.printOnConsole("Final quizQuestionModelsList:$quizQuestionModelsList", tag: tag);
 
     return quizQuestionModelsList;

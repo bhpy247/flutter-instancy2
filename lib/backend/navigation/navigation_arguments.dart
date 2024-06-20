@@ -17,6 +17,7 @@ import 'package:flutter_instancy_2/models/app_configuration_models/data_models/n
 import 'package:flutter_instancy_2/models/ask_the_expert/data_model/ask_the_expert_dto.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/flashcards/data_model/flashcard_model.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_content_model.dart';
 import 'package:flutter_instancy_2/models/course/data_model/CourseDTOModel.dart';
 import 'package:flutter_instancy_2/models/course_launch/data_model/course_launch_model.dart';
 import 'package:flutter_instancy_2/models/membership/data_model/membership_plan_details_model.dart';
@@ -1286,12 +1287,12 @@ class MicroLearningEditorScreenNavigationArgument extends NavigationArguments {
 }
 
 class MicroLearningViewScreenNavigationArgument extends NavigationArguments {
-  final String contentId;
-  final CourseDTOModel? courseDTOModel;
+  final String title;
+  final MicroLearningContentModel microLearningContentModel;
 
   const MicroLearningViewScreenNavigationArgument({
-    required this.contentId,
-    required this.courseDTOModel,
+    required this.title,
+    required this.microLearningContentModel,
   });
 }
 

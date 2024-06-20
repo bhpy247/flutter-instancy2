@@ -27,15 +27,18 @@ import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/audio_players.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/thumbnail_dialog.dart';
-import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_micro_learning_screen.dart';
 import 'package:flutter_instancy_2/views/common/components/app_ui_components.dart';
+import 'package:flutter_instancy_2/views/common/components/common_border_dropdown.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:flutter_instancy_2/views/common/components/common_loader.dart';
+import 'package:flutter_instancy_2/views/common/components/common_text_form_field.dart';
 import 'package:flutter_instancy_2/views/common/components/instancy_ui_actions/instancy_ui_actions.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
+
+import 'video_with_transcript_launch_screen.dart';
 
 class MicroLearningEditorScreen extends StatefulWidget {
   static const String routeName = "/MicroLearningEditorScreen";
@@ -92,11 +95,12 @@ class _MicroLearningEditorScreenState extends State<MicroLearningEditorScreen> w
       isGenerateQuizEnabled: true,
     );
 
-    if (microLearningContentModel.pages.isEmpty) {
+    generateContent();
+    /*if (microLearningContentModel.pages.isEmpty) {
       generateContent();
     } else {
       microLearningList = microLearningContentModel.pages.map((e) => MicroLearningPageModel.fromMap(e.toMap())).toList();
-    }
+    }*/
   }
 
   Future<void> generateContent() async {
@@ -210,16 +214,18 @@ class _MicroLearningEditorScreenState extends State<MicroLearningEditorScreen> w
       return;
     }
 
-    await NavigationController.navigateToMicroLearningViewScreen(
-      navigationOperationParameters: NavigationOperationParameters(
-        context: context,
-        navigationType: navigationType.NavigationType.pushNamed,
-      ),
-      argument: MicroLearningViewScreenNavigationArgument(
-        contentId: courseDTOModel.ContentID,
-        courseDTOModel: courseDTOModel,
-      ),
-    );
+    if (courseDTOModel.microLearningContentModel != null) {
+      await NavigationController.navigateToMicroLearningViewScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: navigationType.NavigationType.pushNamed,
+        ),
+        argument: MicroLearningViewScreenNavigationArgument(
+          title: courseDTOModel.ContentID,
+          microLearningContentModel: courseDTOModel.microLearningContentModel!,
+        ),
+      );
+    }
 
     Navigator.pop(context, true);
   }
@@ -406,13 +412,13 @@ class _MicroLearningSinglePageScreenState extends State<MicroLearningSinglePageS
       ({String fileName, Uint8List? fileBytes}) response = await openFileExplorer();
 
       if (response.fileBytes != null && response.fileBytes!.isNotEmpty) {
-        model.imageBytes = response.fileBytes;
-        model.imageFileName = response.fileName;
+        model.contentBytes = response.fileBytes;
+        model.contentFileName = response.fileName;
         mySetState();
       }
     } else if (val is Uint8List) {
-      model.imageBytes = val;
-      model.imageFileName = "${DateTime.now().millisecondsSinceEpoch}.jpeg";
+      model.contentBytes = val;
+      model.contentFileName = "${DateTime.now().millisecondsSinceEpoch}.jpeg";
       mySetState();
     }
   }
@@ -507,6 +513,8 @@ class _MicroLearningSinglePageScreenState extends State<MicroLearningSinglePageS
       return getImageEditingWidget(model: model);
     } else if (model.elementType == MicroLearningElementType.Audio) {
       return getAudioEditingWidget(model: model);
+    } else if (model.elementType == MicroLearningElementType.Video) {
+      return MicroLearningVideoElementEditor(elementModel: model);
     } else if (model.elementType == MicroLearningElementType.Quiz) {
       return getQuizEditingWidget(model: model);
     }
@@ -517,8 +525,8 @@ class _MicroLearningSinglePageScreenState extends State<MicroLearningSinglePageS
   Widget getImageEditingWidget({required MicroLearningPageElementModel model}) {
     Widget imageWidget;
 
-    Uint8List? imageBytes = model.imageBytes;
-    String imagePath = model.imageUrl;
+    Uint8List? imageBytes = model.contentBytes;
+    String imagePath = model.contentUrl;
 
     if (imageBytes.checkEmpty && imagePath.isEmpty) {
       MyPrint.printOnConsole("No Image Widget");
@@ -574,8 +582,8 @@ class _MicroLearningSinglePageScreenState extends State<MicroLearningSinglePageS
   Widget getAudioEditingWidget({required MicroLearningPageElementModel model}) {
     Widget audioWidget;
 
-    Uint8List? audioBytes = model.audioBytes;
-    String audioUrl = model.audioUrl;
+    Uint8List? audioBytes = model.contentBytes;
+    String audioUrl = model.contentUrl;
 
     // if (audioBytes.checkEmpty && audioUrl.isEmpty) {
     if (audioBytes.checkEmpty && audioUrl.isEmpty) {
@@ -853,10 +861,427 @@ class MicroLearningVideoElementEditor extends StatefulWidget {
 }
 
 class _MicroLearningVideoElementEditorState extends State<MicroLearningVideoElementEditor> {
-  VideoPlayerController? _videoPlayerController;
+  @override
+  Widget build(BuildContext context) {
+    VideoPlayerController? controller = widget.elementModel.videoPlayerController;
+
+    if (controller == null) {
+      return const Center(
+        child: Text("Video Couldn't loaded"),
+      );
+    }
+
+    return ValueListenableBuilder<VideoPlayerValue>(
+      valueListenable: controller,
+      builder: (BuildContext context, VideoPlayerValue videoPlayerValue, Widget? child) {
+        if (!controller.value.isInitialized) {
+          return const CommonLoader();
+        }
+
+        VideoPlayerController videoPlayerController = controller;
+
+        return Container(
+          height: 250,
+          padding: const EdgeInsets.all(10.0),
+          decoration: BoxDecoration(border: Border.all(color: Styles.borderColor), borderRadius: BorderRadius.circular(5)),
+          child: Container(
+            decoration: BoxDecoration(border: Border.all(color: Colors.black), borderRadius: BorderRadius.circular(10)),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  VideoPlayer(videoPlayerController),
+                  ControlsOverlay(
+                    controller: videoPlayerController,
+                    onPlayTap: () {
+                      (videoPlayerController.value.isPlaying) ? videoPlayerController.pause() : videoPlayerController.play();
+                      // _videoPlayerController?.value.
+                      setState(() {});
+                    },
+                  ),
+                  VideoProgressIndicator(
+                    videoPlayerController,
+                    allowScrubbing: true,
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class MicroLearningQuizQuestionEditingWidget extends StatefulWidget {
+  final QuizQuestionModel questionModel;
+  final int index;
+  final void Function()? onPreviousClick;
+  final void Function()? onNextClick;
+  final void Function()? onSaveAndExitPressed;
+  final void Function()? onSaveAndViewPressed;
+
+  const MicroLearningQuizQuestionEditingWidget({
+    super.key,
+    required this.questionModel,
+    required this.index,
+    this.onPreviousClick,
+    this.onNextClick,
+    this.onSaveAndExitPressed,
+    this.onSaveAndViewPressed,
+  });
+
+  @override
+  State<MicroLearningQuizQuestionEditingWidget> createState() => _MicroLearningQuizQuestionEditingWidgetState();
+}
+
+class _MicroLearningQuizQuestionEditingWidgetState extends State<MicroLearningQuizQuestionEditingWidget> with MySafeState {
+  late QuizQuestionModel questionModel;
+  late int index;
+
+  TextEditingController correctFeedbackController = TextEditingController();
+  TextEditingController incorrectFeedbackController = TextEditingController();
+
+  void save() {
+    questionModel.correctFeedback = correctFeedbackController.text;
+    questionModel.inCorrectFeedback = incorrectFeedbackController.text;
+  }
+
+  void onNextPressed() {
+    save();
+    widget.onNextClick?.call();
+  }
+
+  void onPreviousPressed() {
+    save();
+    widget.onPreviousClick?.call();
+  }
+
+  void onSaveAndExitPressed() {
+    save();
+    widget.onSaveAndExitPressed?.call();
+  }
+
+  void onSaveAndViewPressed() {
+    save();
+    widget.onSaveAndViewPressed?.call();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    questionModel = widget.questionModel;
+    index = widget.index;
+
+    correctFeedbackController.text = questionModel.correctFeedback;
+    incorrectFeedbackController.text = questionModel.inCorrectFeedback;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    super.pageBuild();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        getQuestionWidget(questionModel: questionModel, index: index),
+        const SizedBox(
+          height: 10,
+        ),
+        getAnswerList(questionModel.choices, questionModel, index),
+        const SizedBox(
+          height: 20,
+        ),
+        getCorrectAnswerWidget(optionList: questionModel.choices, answer: questionModel.correct_choice, questionModel: questionModel),
+        const SizedBox(
+          height: 10,
+        ),
+        getCorrectFeedback(),
+        const SizedBox(
+          height: 10,
+        ),
+        getInCorrectFeedback(),
+        const SizedBox(
+          height: 10,
+        ),
+      ],
+    );
   }
+
+  Widget getQuestionWidget({required QuizQuestionModel questionModel, int index = 0}) {
+    return InkWell(
+      onLongPress: () {
+        questionModel.isQuestionEditable = true;
+        mySetState();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: questionModel.isQuestionEditable
+            ? getEditableTextField(
+                controller: TextEditingController(text: questionModel.question),
+                onSubmitted: (String? val) {
+                  if (val == null) return null;
+                  questionModel.question = val;
+                  questionModel.isQuestionEditable = false;
+                  mySetState();
+                  return "";
+                },
+              )
+            : Text(
+                questionModel.question,
+                style: const TextStyle(fontSize: 16),
+              ),
+      ),
+    );
+  }
+
+  Widget getCorrectAnswerWidget({required QuizQuestionModel questionModel, required List<String> optionList, required String? answer}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Correct Answer",
+          style: TextStyle(fontSize: 15),
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        getCommonDropDown(
+          list: optionList,
+          value: answer,
+          hintText: "Correct Answer",
+          onChanged: (val) {
+            answer = val;
+            questionModel.correct_choice = val ?? "";
+            mySetState();
+          },
+          iconUrl: "assets/cocreate/commonText.png",
+        ),
+      ],
+    );
+  }
+
+  Widget getCommonDropDown({
+    required String? value,
+    required List<String> list,
+    required ValueChanged<String?> onChanged,
+    required String hintText,
+    double iconHeight = 15,
+    double iconWidth = 15,
+    String iconUrl = "",
+  }) {
+    return CommonBorderDropdown<String>(
+      isExpanded: true,
+      isDense: false,
+      items: list,
+      value: value,
+      hintText: hintText,
+      onChanged: onChanged,
+    );
+  }
+
+  Widget getCorrectAndIncorrectAnswerWidget(
+    QuizQuestionModel questionModel,
+  ) {
+    if (!questionModel.isAnswerGiven) return const SizedBox();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (questionModel.selectedAnswer != questionModel.correct_choice)
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10.0),
+            child: Text(
+              "Incorrect Answer",
+              style: TextStyle(fontSize: 14, color: Colors.red),
+            ),
+          ),
+        const SizedBox(
+          height: 6,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Text(
+            "Correct Answer${questionModel.selectedAnswer != questionModel.correct_choice ? ":" : ""}",
+            style: const TextStyle(fontSize: 16, color: Colors.green, fontWeight: FontWeight.bold),
+          ),
+        ),
+        const SizedBox(
+          height: 6,
+        ),
+        if (questionModel.selectedAnswer != questionModel.correct_choice)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Text(
+              questionModel.correct_choice,
+              style: const TextStyle(fontSize: 14),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget getAnswerList(List<String> answerList, QuizQuestionModel questionModel, int quizListIndex) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(10),
+      shrinkWrap: true,
+      itemCount: answerList.length,
+      itemBuilder: (BuildContext context, int index) {
+        return InkWell(
+          onTap: questionModel.isAnswerGiven
+              ? null
+              : () {
+                  questionModel.selectedAnswer = answerList[index];
+                  mySetState();
+                },
+          onLongPress: () {
+            questionModel.isEditModeEnable = [false, false, false, false];
+            questionModel.isEditModeEnable[index] = true;
+            mySetState();
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              // border: Border.all(
+              //   color: isSelected ? themeData.primaryColor : const Color(0xffDCDCDC),
+              // ),
+            ),
+            child: questionModel.isEditModeEnable[index]
+                ? getEditableTextField(
+                    controller: TextEditingController(text: answerList[index]),
+                    onSubmitted: (String? val) {
+                      if (answerList[index] == questionModel.correct_choice) {
+                        questionModel.correct_choice = val ?? "";
+                      }
+                      answerList[index] = val ?? "";
+                      questionModel.choices[index] = val ?? "";
+                      MyPrint.printOnConsole("questionModel.optionList[index] : ${questionModel.choices[index]}");
+                      questionModel.isEditModeEnable[index] = false;
+                      mySetState();
+                      return "";
+                    },
+                  )
+                : Text(
+                    answerList[index],
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget getEditableTextField({
+    required TextEditingController controller,
+    required String? Function(String?)? onSubmitted,
+  }) {
+    return getTexFormField(
+        isMandatory: false,
+        showPrefixIcon: false,
+        isHintText: true,
+        controller: controller,
+        labelText: "Correct Feedback",
+        keyBoardType: TextInputType.text,
+        iconUrl: "assets/cocreate/commonText.png",
+        minLines: 1,
+        maxLines: 1,
+        onSubmitted: onSubmitted);
+  }
+
+  Widget getCorrectFeedback() {
+    return getTexFormField(
+      isMandatory: false,
+      showPrefixIcon: false,
+      controller: correctFeedbackController,
+      labelText: "Correct Feedback",
+      keyBoardType: TextInputType.text,
+      iconUrl: "assets/cocreate/commonText.png",
+      minLines: 3,
+      maxLines: 3,
+    );
+  }
+
+  Widget getInCorrectFeedback() {
+    return getTexFormField(
+      isMandatory: false,
+      showPrefixIcon: false,
+      controller: incorrectFeedbackController,
+      labelText: "Incorrect Feedback",
+      keyBoardType: TextInputType.text,
+      iconUrl: "assets/cocreate/commonText.png",
+      minLines: 3,
+      maxLines: 3,
+    );
+  }
+
+  //region textFieldView
+  Widget getTexFormField({
+    TextEditingController? controller,
+    String iconUrl = "",
+    String? Function(String?)? validator,
+    String? Function(String?)? onSubmitted,
+    String labelText = "Label",
+    Widget? suffixWidget,
+    required bool isMandatory,
+    int? minLines,
+    int? maxLines,
+    bool showPrefixIcon = false,
+    bool isHintText = false,
+    TextInputType? keyBoardType,
+    double iconHeight = 15,
+    double iconWidth = 15,
+  }) {
+    return CommonTextFormFieldWithLabel(
+      controller: controller,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      label: isMandatory ? labelWithStar(labelText) : null,
+      isHintText: isHintText,
+      labelText: isMandatory ? null : labelText,
+      validator: validator,
+      floatingLabelColor: Colors.black.withOpacity(.6),
+      minLines: minLines,
+      maxLines: maxLines,
+      borderColor: Styles.borderColor,
+      enabledBorderColor: Styles.borderColor,
+      focusColor: Styles.borderColor,
+      borderWidth: 1,
+      isOutlineInputBorder: true,
+      keyboardType: keyBoardType,
+      onSubmitted: onSubmitted,
+      // prefixWidget: showPrefixIcon
+      //     ? iconUrl.isNotEmpty
+      //     ? getImageView(url: iconUrl, height: iconHeight, width: iconWidth)
+      //     : const Icon(
+      //   FontAwesomeIcons.globe,
+      //   size: 15,
+      //   color: Colors.grey,
+      // )
+      //     : null,
+      suffixWidget: suffixWidget,
+    );
+  }
+
+  Widget labelWithStar(String labelText, {TextStyle? style}) {
+    return RichText(
+      text: TextSpan(
+        text: labelText,
+        style: style ?? const TextStyle(color: Colors.grey),
+        children: const [
+          TextSpan(
+              text: ' *',
+              style: TextStyle(
+                color: Colors.red,
+              ))
+        ],
+      ),
+    );
+  }
+//endregion
 }

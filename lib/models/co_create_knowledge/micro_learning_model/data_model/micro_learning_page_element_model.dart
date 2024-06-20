@@ -10,15 +10,9 @@ import 'package:video_player/video_player.dart';
 class MicroLearningPageElementModel {
   String htmlContentCode = "";
   String elementType = MicroLearningElementType.Text;
-  String imageUrl = "";
-  String videoUrl = "";
-  String audioUrl = "";
-  String imageFileName = "";
-  String videoFileName = "";
-  String audioFileName = "";
-  Uint8List? imageBytes;
-  Uint8List? videoBytes;
-  Uint8List? audioBytes;
+  String contentUrl = "";
+  String contentFileName = "";
+  Uint8List? contentBytes;
   List<QuizQuestionModel> quizQuestionModels = <QuizQuestionModel>[];
   HtmlEditorController? htmlEditorController;
   VideoPlayerController? videoPlayerController;
@@ -26,15 +20,9 @@ class MicroLearningPageElementModel {
   MicroLearningPageElementModel({
     this.htmlContentCode = "",
     this.elementType = MicroLearningElementType.Text,
-    this.imageUrl = "",
-    this.videoUrl = "",
-    this.audioUrl = "",
-    this.imageFileName = "",
-    this.videoFileName = "",
-    this.audioFileName = "",
-    this.imageBytes,
-    this.videoBytes,
-    this.audioBytes,
+    this.contentUrl = "",
+    this.contentFileName = "",
+    this.contentBytes,
     List<QuizQuestionModel>? quizQuestionModels,
     this.htmlEditorController,
     this.videoPlayerController,
@@ -53,16 +41,10 @@ class MicroLearningPageElementModel {
   void _initializeFromMap(Map<String, dynamic> map) {
     htmlContentCode = map["htmlContentCode"] != null ? ParsingHelper.parseStringMethod(map["htmlContentCode"]) : htmlContentCode;
     elementType = map["elementType"] != null ? ParsingHelper.parseStringMethod(map["elementType"]) : elementType;
-    imageUrl = map["imageUrl"] != null ? ParsingHelper.parseStringMethod(map["imageUrl"]) : imageUrl;
-    videoUrl = map["videoUrl"] != null ? ParsingHelper.parseStringMethod(map["videoUrl"]) : videoUrl;
-    audioUrl = map["audioUrl"] != null ? ParsingHelper.parseStringMethod(map["audioUrl"]) : audioUrl;
-    imageFileName = map["imageFileName"] != null ? ParsingHelper.parseStringMethod(map["imageFileName"]) : imageFileName;
-    videoFileName = map["videoFileName"] != null ? ParsingHelper.parseStringMethod(map["videoFileName"]) : videoFileName;
-    audioFileName = map["audioFileName"] != null ? ParsingHelper.parseStringMethod(map["audioFileName"]) : audioFileName;
+    contentUrl = map["contentUrl"] != null ? ParsingHelper.parseStringMethod(map["contentUrl"]) : contentUrl;
+    contentFileName = map["contentFileName"] != null ? ParsingHelper.parseStringMethod(map["contentFileName"]) : contentFileName;
 
-    imageBytes = map["imageBytes"] is Uint8List ? map["imageBytes"] : imageBytes;
-    videoBytes = map["videoBytes"] is Uint8List ? map["videoBytes"] : videoBytes;
-    audioBytes = map["audioBytes"] is Uint8List ? map["audioBytes"] : audioBytes;
+    contentBytes = map["contentBytes"] is Uint8List ? map["contentBytes"] : contentBytes;
 
     if (map["quizQuestionModels"] != null) {
       quizQuestionModels.clear();
@@ -80,15 +62,9 @@ class MicroLearningPageElementModel {
     return <String, dynamic>{
       "htmlContentCode": htmlContentCode,
       "elementType": elementType,
-      "imageUrl": imageUrl,
-      "videoUrl": videoUrl,
-      "audioUrl": audioUrl,
-      "imageFileName": imageFileName,
-      "videoFileName": videoFileName,
-      "audioFileName": audioFileName,
-      "imageBytes": toJson ? null : imageBytes,
-      "videoBytes": toJson ? null : videoBytes,
-      "audioBytes": toJson ? null : audioBytes,
+      "contentUrl": contentUrl,
+      "contentFileName": contentFileName,
+      "contentBytes": toJson ? (contentBytes != null ? MyUtils.convertBytesToBase64(bytes: contentBytes!, fileName: contentFileName) : null) : contentBytes,
       "quizQuestionModels": quizQuestionModels.map((e) => e.toMap(toJson: toJson)).toList(),
     };
   }

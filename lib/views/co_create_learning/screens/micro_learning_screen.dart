@@ -222,7 +222,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
           const SizedBox(
             height: 20,
           ),
-          getImageWidget(url: model.imageUrl),
+          getImageWidget(url: model.contentUrl),
         ],
       ),
     );
@@ -247,7 +247,7 @@ class _MicroLearningScreenState extends State<MicroLearningScreen> with MySafeSt
           const SizedBox(
             height: 10,
           ),*/
-          getImageWidget(url: model.imageUrl),
+          getImageWidget(url: model.contentUrl),
           const SizedBox(
             height: 20,
           ),

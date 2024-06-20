@@ -193,14 +193,27 @@ class CourseLaunchController {
         ),
       );
     } else if (objectType == InstancyObjectTypes.contentObject && mediaType == InstancyMediaTypes.microLearning) {
-      NavigationController.navigateToMicroLearningScreen(
+      /*NavigationController.navigateToMicroLearningScreen(
         navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
         argument: MicroLearningScreenNavigationArgument(
           model: model,
           componentId: _componentId,
           componentInstanceId: _componentInstanceId,
         ),
-      );
+      );*/
+
+      if (model.microLearningContentModel != null) {
+        await NavigationController.navigateToMicroLearningViewScreen(
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
+          argument: MicroLearningViewScreenNavigationArgument(
+            title: model.ContentName,
+            microLearningContentModel: model.microLearningContentModel!,
+          ),
+        );
+      }
     }
   }
 

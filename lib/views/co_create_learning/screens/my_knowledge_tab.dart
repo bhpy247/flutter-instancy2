@@ -227,6 +227,8 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       requestModel: ShareCoCreateKnowledgeBaseRequestModel(
         contentId: model.ContentID,
         folderPath: model.FolderPath,
+        startPage: model.startpage,
+        objectTypeId: model.ContentTypeId,
       ),
     );
 

@@ -3,7 +3,6 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_mo
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/avtar_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/response_model/background_response_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/language_response_model.dart';
-import 'package:flutter_instancy_2/models/co_create_knowledge/podcast/response_model/speaking_style_model.dart';
 import 'package:flutter_instancy_2/models/filter/data_model/content_filter_category_tree_model.dart';
 
 import '../../models/co_create_knowledge/podcast/response_model/language_voice_model.dart';
@@ -60,10 +59,6 @@ class CoCreateKnowledgeProvider extends CommonProvider {
       list: [],
       notify: notify,
     );
-    speakingStyleModel = CommonProviderPrimitiveParameter(
-      value: SpeakingStyleModel(),
-      notify: notify,
-    );
     audioUrlFromApi = CommonProviderPrimitiveParameter(
       value: "",
       notify: notify,
@@ -85,7 +80,6 @@ class CoCreateKnowledgeProvider extends CommonProvider {
   late final CommonProviderListParameter<AvtarVoiceModel> avatarVoiceList;
   late final CommonProviderListParameter<LanguageModel> languageList;
   late final CommonProviderListParameter<LanguageVoiceModel> languageVoiceList;
-  late final CommonProviderPrimitiveParameter<SpeakingStyleModel> speakingStyleModel;
   late final CommonProviderPrimitiveParameter<String> audioUrlFromApi;
 
   final FilterProvider filterProvider = FilterProvider();
@@ -120,7 +114,6 @@ class CoCreateKnowledgeProvider extends CommonProvider {
     languageList.setList(list: [], isNotify: false);
     languageVoiceList.setList(list: [], isNotify: false);
     generatedVideoUrl.set(value: "", isNotify: false);
-    speakingStyleModel.set(value: SpeakingStyleModel(), isNotify: false);
     audioUrlFromApi.set(value: "", isNotify: false);
   }
 }
