@@ -433,10 +433,8 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
     if (selectedLanguage == null) return;
     isLoading = true;
     mySetState();
-    bool isSuccess = await coCreateKnowledgeController.getLanguageVoiceList(selectedLanguage!.languageCode);
-    if (isSuccess) {
-      languageVoiceList = coCreateKnowledgeProvider.languageVoiceList.getList();
-    }
+    List<LanguageVoiceModel> list = await coCreateKnowledgeController.getLanguageVoiceList(selectedLanguage!.languageCode);
+    languageVoiceList = list;
 
     isLoading = false;
     mySetState();
@@ -446,13 +444,15 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
     if (selectedVoiceModel == null) return;
     isLoading = true;
     mySetState();
-    bool isSuccess = await coCreateKnowledgeController.getSpeakingStyle(selectedVoiceModel!.voiceName);
-    if (isSuccess) {
-      speakingStyleModel = coCreateKnowledgeProvider.speakingStyleModel.get();
-      toneList = speakingStyleModel?.voiceStyle ?? [];
-      mySetState();
-    }
+    SpeakingStyleModel? model = await coCreateKnowledgeController.getSpeakingStyle(selectedVoiceModel!.voiceName);
+
     isLoading = false;
+
+    if (model != null) {
+      speakingStyleModel = model;
+      toneList = model.voiceStyle;
+    }
+
     mySetState();
   }
 

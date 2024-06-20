@@ -843,14 +843,15 @@ class CoCreateKnowledgeController {
     return;
   }
 
-  Future<bool> generateVideo({required GenerateVideoRequestModel requestModel}) async {
+  Future<Uint8List?> generateVideo({required GenerateVideoRequestModel requestModel}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().generateVideo() called with requestModel:$requestModel", tag: tag);
 
     CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
-    String contentId = MyUtils.getNewId();
-
     ApiUrlConfigurationProvider apiUrlConfigurationProvider = repository.apiController.apiDataProvider;
+
+    String contentId = MyUtils.getNewId();
+    // String contentId = "generate_content_page_${apiUrlConfigurationProvider.getCurrentUserId()}";
 
     requestModel.content = Content(
       contentID: contentId,
@@ -863,29 +864,41 @@ class CoCreateKnowledgeController {
     if (dataResponseModel.appErrorModel != null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateVideo() because appErrorModel is not null", tag: tag);
       MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
-      return false;
+      return null;
     } else if (dataResponseModel.data == null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateVideo() because data is null", tag: tag);
-      return false;
+      return null;
     }
 
-    if (dataResponseModel.data == "1") {
-      String videoId = await getVideoIdFromVideoDetails(videoContentId: contentId);
-      if (videoId.checkNotEmpty) {
-        String value = await getAiVideoGenerator(videoContentId: videoId);
-        MyPrint.printOnConsole("getAiVideoGenerator value : $value");
-        if (value == "1") {
-          coCreateKnowledgeProvider.generatedVideoUrl.set(value: "${repository.apiController.apiEndpoints.adminSiteUrl}content/aigeneratedvideos/$videoId.mp4");
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    } else {
-      return false;
+    if (dataResponseModel.data != "1") {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateVideo() because generateVideo is not 1", tag: tag);
+      return null;
     }
+
+    String videoId = await getVideoIdFromVideoDetails(videoContentId: contentId);
+    if (videoId.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateVideo() because videoId empty", tag: tag);
+      return null;
+    }
+
+    String value = await getAiVideoGenerator(videoContentId: videoId);
+    MyPrint.printOnConsole("getAiVideoGenerator value : $value");
+    if (value != "1") {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateVideo() because getAiVideoGenerator response is not 1", tag: tag);
+      return null;
+    }
+
+    String videoUrl = "${repository.apiController.apiEndpoints.adminSiteUrl}/content/aigeneratedvideos/$videoId.mp4";
+    MyPrint.printOnConsole("Video Generated Successfully, videoUrl:'$videoUrl'", tag: tag);
+
+    Uint8List? convertedBytes = await repository.getBytesFromUrl(url: videoUrl);
+    if (convertedBytes == null || convertedBytes.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateVideo() because generated video bytes are null or empty", tag: tag);
+      return null;
+    }
+
+    coCreateKnowledgeProvider.generatedVideoUrl.set(value: videoUrl);
+    return convertedBytes;
   }
 
   Future<String> getVideoIdFromVideoDetails({required String videoContentId}) async {
@@ -897,11 +910,11 @@ class CoCreateKnowledgeController {
 
     DataResponseModel<List<VideoDetails>> dataResponseModelOfVideoDetails = await repository.getVideoDetails(videoContentId: videoContentId);
     if (dataResponseModelOfVideoDetails.appErrorModel != null) {
-      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateVideo() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getVideoIdFromVideoDetails() because appErrorModel is not null", tag: tag);
       MyPrint.printOnConsole("appErrorModel:${dataResponseModelOfVideoDetails.appErrorModel}", tag: tag);
       return videoIdFromVideoDetail;
     } else if (dataResponseModelOfVideoDetails.data == null) {
-      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateVideo() because data is null", tag: tag);
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getVideoIdFromVideoDetails() because data is null", tag: tag);
       return videoIdFromVideoDetail;
     }
 
@@ -915,11 +928,16 @@ class CoCreateKnowledgeController {
     return videoIdFromVideoDetail;
   }
 
-  Future<String> getAiVideoGenerator({required String videoContentId}) async {
+  Future<String> getAiVideoGenerator({required String videoContentId, int count = 0}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().getAiVideoGenerator() called with videoContentId:$videoContentId", tag: tag);
 
     CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
+
+    if (count > 12) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getAiVideoGenerator() because max call achieved", tag: tag);
+      return "";
+    }
 
     DataResponseModel<String> dataResponseModelOfAiVideoGenerator = await repository.aiVideoGeneratorApi(videoId: videoContentId);
     if (dataResponseModelOfAiVideoGenerator.appErrorModel != null) {
@@ -932,19 +950,19 @@ class CoCreateKnowledgeController {
     }
     MyPrint.printOnConsole("dataResponseModelOfAiVideoGenerator.data ${dataResponseModelOfAiVideoGenerator.data}", tag: tag);
 
-    if (dataResponseModelOfAiVideoGenerator.data == "0") {
-      await Future.delayed(
-        const Duration(seconds: 10),
-        () async {
-          await getAiVideoGenerator(videoContentId: videoContentId);
-        },
-      );
-    } else {
-      MyPrint.printOnConsole("dataResponseModelOfAiVideoGenerator.data 2 ${dataResponseModelOfAiVideoGenerator.data}", tag: tag);
-      return dataResponseModelOfAiVideoGenerator.data ?? "";
+    String response = dataResponseModelOfAiVideoGenerator.data!;
+
+    if (response == "1") {
+      MyPrint.printOnConsole("Video with videoContentId '$videoContentId' Created Successfully", tag: tag);
+      return "1";
     }
-    // MyPrint.printOnConsole("dataResponseModelOfAiVideoGenerator.data 3 ${dataResponseModelOfAiVideoGenerator.data}", tag: tag);
-    return "1";
+
+    count++;
+    await Future.delayed(const Duration(seconds: 10));
+
+    String responseString = await getAiVideoGenerator(videoContentId: videoContentId, count: count);
+
+    return responseString;
   }
 
   Future<List<String>> getInternetSearchUrls({required NativeAuthoringGetResourcesRequestModel requestModel}) async {
@@ -1063,30 +1081,34 @@ class CoCreateKnowledgeController {
     return true;
   }
 
-  Future<bool> getLanguageVoiceList(String languageCode) async {
+  Future<List<LanguageVoiceModel>> getLanguageVoiceListgetLanguageVoiceList(String languageCode) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().getLanguageVoiceList() called ", tag: tag);
 
     CoCreateKnowledgeRepository repository = coCreateKnowledgeRepository;
 
+    List<LanguageVoiceModel> languageList = <LanguageVoiceModel>[];
+
     DataResponseModel<List<LanguageVoiceModel>> dataResponseModel = await repository.getLanguageVoiceList(languageCode: languageCode);
     if (dataResponseModel.appErrorModel != null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getLanguageVoiceList() because appErrorModel is not null", tag: tag);
       MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
-      return false;
+      return languageList;
     } else if (dataResponseModel.data == null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getLanguageVoiceList() because data is null", tag: tag);
-      return false;
+      return languageList;
+    } else if (dataResponseModel.data!.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getLanguageVoiceList() because data is empty", tag: tag);
+      return languageList;
     }
 
-    if (dataResponseModel.data.checkNotEmpty) {
-      List<LanguageVoiceModel> languageList = dataResponseModel.data ?? [];
-      coCreateKnowledgeProvider.languageVoiceList.setList(list: languageList);
-    }
-    return true;
+    languageList = dataResponseModel.data!;
+    coCreateKnowledgeProvider.languageVoiceList.setList(list: languageList);
+
+    return languageList;
   }
 
-  Future<bool> getSpeakingStyle(String voiceName) async {
+  Future<SpeakingStyleModel?> getSpeakingStyle(String voiceName) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().getSpeakingStyle() called ", tag: tag);
 
@@ -1096,19 +1118,15 @@ class CoCreateKnowledgeController {
     if (dataResponseModel.appErrorModel != null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getSpeakingStyle() because appErrorModel is not null", tag: tag);
       MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
-      return false;
+      return null;
     } else if (dataResponseModel.data == null) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getSpeakingStyle() because data is null", tag: tag);
-      return false;
+      return null;
     }
 
-    if (dataResponseModel.data != null) {
-      SpeakingStyleModel? speakingStyleModel = dataResponseModel.data;
-      if (speakingStyleModel != null) {
-        coCreateKnowledgeProvider.speakingStyleModel.set(value: speakingStyleModel);
-      }
-    }
-    return true;
+    SpeakingStyleModel speakingStyleModel = dataResponseModel.data!;
+    coCreateKnowledgeProvider.speakingStyleModel.set(value: speakingStyleModel);
+    return speakingStyleModel;
   }
 
   Future<Uint8List?> getAudioGenerator({required PlayAudioForTextRequestModel requestModel}) async {
@@ -1134,17 +1152,21 @@ class CoCreateKnowledgeController {
     }
 
     MyPrint.printOnConsole("dataResponseModel.data : ${dataResponseModel.data}");
-    Uint8List? convertedBytes;
-    if (dataResponseModel.data != null) {
-      String? audioUrl = dataResponseModel.data;
-      if (audioUrl != null) {
-        coCreateKnowledgeProvider.audioUrlFromApi.set(value: audioUrl);
-        convertedBytes = await repository.getBytesFromUrl(url: audioUrl);
-        if (convertedBytes != null && convertedBytes.checkNotEmpty) {
-          return convertedBytes;
-        }
-      }
+    if (dataResponseModel.data == null || dataResponseModel.data!.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getAudioGenerator() because generated audio url is null or empty", tag: tag);
+      return null;
     }
+
+    String audioUrl = dataResponseModel.data!;
+
+    Uint8List? convertedBytes = await repository.getBytesFromUrl(url: audioUrl);
+    if (convertedBytes == null || convertedBytes.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getAudioGenerator() because generated audio bytes are null or empty", tag: tag);
+      return null;
+    }
+
+    coCreateKnowledgeProvider.audioUrlFromApi.set(value: audioUrl);
+
     return convertedBytes;
   }
 
@@ -1425,19 +1447,41 @@ class CoCreateKnowledgeController {
         htmlContentCode: text,
       );
     } else if (elementType == MicroLearningElementType.Image) {
-      Uint8List? imageBytes = await generateMicroLearningImage(topic: topic);
+      Uint8List? bytes = await generateMicroLearningImage(topic: topic);
 
-      if (imageBytes.checkEmpty) {
-        MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningPageElementModel() because generated imageBytes are null or empty", tag: tag);
+      if (bytes.checkEmpty) {
+        MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningPageElementModel() because generated ImageBytes are null or empty", tag: tag);
         return pageElement;
       }
 
       pageElement = MicroLearningPageElementModel(
         elementType: elementType,
-        imageBytes: imageBytes,
+        imageBytes: bytes,
       );
     } else if (elementType == MicroLearningElementType.Audio) {
+      Uint8List? bytes = await generateMicroLearningAudio(topic: topic);
+
+      if (bytes.checkEmpty) {
+        MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningPageElementModel() because generated AudioBytes are null or empty", tag: tag);
+        return pageElement;
+      }
+
+      pageElement = MicroLearningPageElementModel(
+        elementType: elementType,
+        audioBytes: bytes,
+      );
     } else if (elementType == MicroLearningElementType.Video) {
+      Uint8List? bytes = await generateMicroLearningVideo(topic: topic);
+
+      if (bytes.checkEmpty) {
+        MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningPageElementModel() because generated VideoBytes are null or empty", tag: tag);
+        return pageElement;
+      }
+
+      pageElement = MicroLearningPageElementModel(
+        elementType: elementType,
+        videoBytes: bytes,
+      );
     } else if (elementType == MicroLearningElementType.Quiz) {}
 
     return pageElement;
@@ -1496,65 +1540,153 @@ class CoCreateKnowledgeController {
     return imageBytes;
   }
 
-  Future<String> generateMicroLearningAudio({required String topic}) async {
+  Future<Uint8List?> generateMicroLearningAudio({required String topic}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningAudio() called", tag: tag);
 
-    String audioUrl = "";
-
     if (topic.isEmpty) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningAudio() because topic is empty", tag: tag);
-      return audioUrl;
+      return null;
     }
 
-    MyPrint.printOnConsole("Final audioUrl:$audioUrl", tag: tag);
+    String scriptText = await chatCompletion(promptText: "Detailed Info about '$topic'");
+    if (scriptText.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningAudio() because scriptText is empty", tag: tag);
+      return null;
+    }
 
-    return audioUrl;
+    String language = "en-US";
+
+    List<LanguageVoiceModel> voiceList = await getLanguageVoiceList(language);
+    if (voiceList.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningAudio() because voiceList is empty", tag: tag);
+      return null;
+    }
+    LanguageVoiceModel voiceModel = voiceList.first;
+
+    SpeakingStyleModel? speakingStyleModel = await getSpeakingStyle(voiceModel.voiceName);
+    if (speakingStyleModel == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningAudio() because speakingStyleModel is null", tag: tag);
+      return null;
+    } else if (speakingStyleModel.voiceStyle.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningAudio() because voiceStyle is null", tag: tag);
+      return null;
+    }
+
+    PlayAudioForTextRequestModel playerRequestModel = PlayAudioForTextRequestModel(
+      text: scriptText,
+      language: language,
+      voice: voiceModel.voiceName,
+      voiceStyle: speakingStyleModel.voiceStyle.first,
+      isOptionsChanged: true,
+      speekingPitch: 1,
+      speekingSpeed: 1,
+      isPlay: true,
+    );
+    Uint8List? bytes = await getAudioGenerator(requestModel: playerRequestModel);
+    MyPrint.printOnConsole("bytes:${bytes?.length}", tag: tag);
+
+    if (bytes == null || bytes.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because Video Couldn't Generate", tag: tag);
+      return bytes;
+    }
+
+    MyPrint.printOnConsole("Audio Generated", tag: tag);
+
+    return bytes;
   }
 
-  Future<String> generateMicroLearningVideo({required String topic}) async {
+  Future<Uint8List?> generateMicroLearningVideo({required String topic}) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().generateMicroLearningVideo() called", tag: tag);
 
-    String videoUrl = "";
+    CoCreateKnowledgeProvider provider = coCreateKnowledgeProvider;
 
     if (topic.isEmpty) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because topic is empty", tag: tag);
-      return videoUrl;
+      return null;
     }
 
-    bool isGenerated = await generateVideo(
+    String scriptText = await chatCompletion(promptText: "Detailed Info about '$topic'");
+    if (scriptText.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because scriptText is empty", tag: tag);
+      return null;
+    }
+
+    getAvatarVoiceList();
+
+    String language = "en-US";
+
+    await getAllAvtarList();
+    Avatars? avatarModel = provider.avatarList.getList().firstElement;
+    if (avatarModel == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because avatarModel is null", tag: tag);
+      return null;
+    }
+
+    await getAvatarVoiceList();
+    AvtarVoiceModel? avtarVoiceModel = provider.avatarVoiceList.getList().firstElement;
+    if (avtarVoiceModel == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because avtarVoiceModel is null", tag: tag);
+      return null;
+    }
+
+    await getBackgroundColorList();
+    BackgroundColorModel? backgroundColorModel = provider.backgroundColorList.getList().firstElement;
+    if (backgroundColorModel == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because backgroundColorModel is null", tag: tag);
+      return null;
+    } else if (backgroundColorModel.backgrounds.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because backgrounds is empty", tag: tag);
+      return null;
+    }
+
+    List<LanguageVoiceModel> voiceList = await getLanguageVoiceList(language);
+    if (voiceList.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because voiceList is empty", tag: tag);
+      return null;
+    }
+    LanguageVoiceModel voiceModel = voiceList.first;
+
+    SpeakingStyleModel? speakingStyleModel = await getSpeakingStyle(voiceModel.voiceName);
+    if (speakingStyleModel == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because speakingStyleModel is null", tag: tag);
+      return null;
+    } else if (speakingStyleModel.voiceStyle.isEmpty) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because voiceStyle is null", tag: tag);
+      return null;
+    }
+
+    Uint8List? bytes = await generateVideo(
       requestModel: GenerateVideoRequestModel(
         videoInput: VideoInput(
-          title: "Heart Attack",
+          title: topic,
           input: [
-            /*Input(
-              avatar: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.avatarId ?? "",
-              background: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.background ?? "",
-              scriptText: "Heart Attack is a major disises",
+            Input(
+              scriptText: scriptText,
+              avatar: avatarModel.actorID,
+              background: backgroundColorModel.backgrounds.first,
               avatarSettings: AvatarSettings(
-                horizontalAlign: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.background.toLowerCase() ?? "",
-                voice: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.voice ?? "",
+                voice: avtarVoiceModel.voiceID,
+                horizontalAlign: 'FullBody',
                 scale: 1,
-                style: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.style ?? "",
+                style: "Center",
               ),
-            ),*/
+            ),
           ],
         ),
       ),
     );
-    MyPrint.printOnConsole("isGenerated:$isGenerated", tag: tag);
+    MyPrint.printOnConsole("bytes:${bytes?.length}", tag: tag);
 
-    if (!isGenerated) {
+    if (bytes == null || bytes.isEmpty) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because Video Couldn't Generate", tag: tag);
-      return videoUrl;
+      return bytes;
     }
 
-    videoUrl = coCreateKnowledgeProvider.generatedVideoUrl.get();
+    MyPrint.printOnConsole("Video Generated", tag: tag);
 
-    MyPrint.printOnConsole("Final videoUrl:$videoUrl", tag: tag);
-
-    return videoUrl;
+    return bytes;
   }
 
   Future<List<QuizQuestionModel>> generateMicroLearningQuiz({required List<String> topics}) async {

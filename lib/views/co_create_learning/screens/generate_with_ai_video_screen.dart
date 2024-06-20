@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
@@ -106,9 +108,9 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
         ],
       ),
     );
-    bool isSuccess = await coCreateKnowledgeController.generateVideo(requestModel: generateVideoRequestModel);
-    MyPrint.printOnConsole("IsSuccess ${isSuccess}");
-    if (isSuccess) {
+    Uint8List? videoBytes = await coCreateKnowledgeController.generateVideo(requestModel: generateVideoRequestModel);
+    MyPrint.printOnConsole("videoBytes:${videoBytes?.length}");
+    if (videoBytes != null) {
       futureInitializeVideo = getData();
     }
   }
