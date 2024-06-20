@@ -25,6 +25,7 @@ import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/utils/my_toast.dart';
 import 'package:flutter_instancy_2/utils/my_utils.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/component/audio_players.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/component/thumbnail_dialog.dart';
 import 'package:flutter_instancy_2/views/co_create_learning/screens/add_edit_micro_learning_screen.dart';
 import 'package:flutter_instancy_2/views/common/components/app_ui_components.dart';
@@ -34,6 +35,7 @@ import 'package:flutter_instancy_2/views/common/components/instancy_ui_actions/i
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:provider/provider.dart';
+import 'package:video_player/video_player.dart';
 
 class MicroLearningEditorScreen extends StatefulWidget {
   static const String routeName = "/MicroLearningEditorScreen";
@@ -503,6 +505,8 @@ class _MicroLearningSinglePageScreenState extends State<MicroLearningSinglePageS
       );
     } else if (model.elementType == MicroLearningElementType.Image) {
       return getImageEditingWidget(model: model);
+    } else if (model.elementType == MicroLearningElementType.Audio) {
+      return getAudioEditingWidget(model: model);
     } else if (model.elementType == MicroLearningElementType.Quiz) {
       return getQuizEditingWidget(model: model);
     }
@@ -567,6 +571,76 @@ class _MicroLearningSinglePageScreenState extends State<MicroLearningSinglePageS
     );
   }
 
+  Widget getAudioEditingWidget({required MicroLearningPageElementModel model}) {
+    Widget audioWidget;
+
+    Uint8List? audioBytes = model.audioBytes;
+    String audioUrl = model.audioUrl;
+
+    // if (audioBytes.checkEmpty && audioUrl.isEmpty) {
+    if (audioBytes.checkEmpty && audioUrl.isEmpty) {
+      MyPrint.printOnConsole("No Audio Widget");
+
+      audioWidget = const SizedBox(
+        width: double.maxFinite,
+        height: 150,
+        // color: Colors.red,
+      );
+    } else if (audioBytes.checkNotEmpty) {
+      MyPrint.printOnConsole("Bytes Audio Widget");
+
+      audioWidget = Container(
+        height: 150,
+        padding: const EdgeInsets.symmetric(horizontal: 25),
+        child: Center(
+          child: AppAudioPlayer(
+            sourceBytes: audioBytes,
+            // onDelete: () {},
+          ),
+        ),
+      );
+    } else {
+      MyPrint.printOnConsole("Network Audio Widget");
+
+      audioUrl = AppConfigurationOperations(appProvider: DependencyInjection.appProvider).getInstancyImageUrlFromImagePath(imagePath: audioUrl);
+
+      audioWidget = Container(
+        height: 150,
+        padding: const EdgeInsets.symmetric(horizontal: 25),
+        child: AppAudioPlayer(
+          sourceNetworkUrl: audioUrl,
+          onDelete: () {},
+        ),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: themeData.primaryColor),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Stack(
+        fit: StackFit.loose,
+        children: [
+          audioWidget,
+          Positioned(
+            right: 10,
+            top: 10,
+            child: CommonButton(
+              onPressed: () {
+                changeImage(model: model);
+              },
+              text: "Change Audio",
+              fontColor: themeData.colorScheme.onPrimary,
+              fontSize: 12,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget getQuizEditingWidget({required MicroLearningPageElementModel model, int index = 0}) {
     QuizQuestionModel? quizQuestionModel = model.quizQuestionModels.firstElement;
 
@@ -617,7 +691,7 @@ class _MicroLearningTextElementEditorState extends State<MicroLearningTextElemen
   @override
   void initState() {
     super.initState();
-    controller = widget.elementModel.controller ??= HtmlEditorController();
+    controller = widget.elementModel.htmlEditorController ??= HtmlEditorController();
 
     if (widget.elementModel.htmlContentCode.checkNotEmpty) {
       initialText = widget.elementModel.htmlContentCode;
@@ -763,5 +837,26 @@ class _MicroLearningTextElementEditorState extends State<MicroLearningTextElemen
         );
       },
     );
+  }
+}
+
+class MicroLearningVideoElementEditor extends StatefulWidget {
+  final MicroLearningPageElementModel elementModel;
+
+  const MicroLearningVideoElementEditor({
+    super.key,
+    required this.elementModel,
+  });
+
+  @override
+  State<MicroLearningVideoElementEditor> createState() => _MicroLearningVideoElementEditorState();
+}
+
+class _MicroLearningVideoElementEditorState extends State<MicroLearningVideoElementEditor> {
+  VideoPlayerController? _videoPlayerController;
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
   }
 }
