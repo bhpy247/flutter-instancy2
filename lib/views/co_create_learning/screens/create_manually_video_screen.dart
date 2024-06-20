@@ -41,11 +41,11 @@ class _CreateManuallyVideoScreenState extends State<CreateManuallyVideoScreen> w
   bool isLoading = false;
   late Future future;
 
-  List<String> avatarList = ["Select Avatar", "Alex", "Bridget", "Christina", "Jack"],
-      videoBackground = ["off_white", "warm_white", "light_pink", "soft_pink", "light_blue"],
-      avatarSpeech = ["Afrikaans", "Amharic", "Amharic", "Arabic (AE)", "English"],
-      avatarType = ["FullBody", "Circle"],
-      avatarPosition = ["Left", "Center", "Right"];
+  List<String> avatarList = ["Select Avatar", "Alex", "Bridget", "Christina", "Jack"];
+  List<String> videoBackground = ["off_white", "warm_white", "light_pink", "soft_pink", "light_blue"];
+  List<String> avatarSpeech = ["Afrikaans", "Amharic", "Amharic", "Arabic (AE)", "English"];
+  List<String> avatarType = ["FullBody", "Circle"];
+  List<String> avatarPosition = ["Left", "Center", "Right"];
 
   List<Avatars> avatarsList = [];
   List<BackgroundColorModel> backgroundColorModelList = [];
