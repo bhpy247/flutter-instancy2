@@ -5,6 +5,7 @@ import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/q
 import 'package:flutter_instancy_2/utils/my_utils.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
+import 'package:video_player/video_player.dart';
 
 class MicroLearningPageElementModel {
   String htmlContentCode = "";
@@ -19,7 +20,8 @@ class MicroLearningPageElementModel {
   Uint8List? videoBytes;
   Uint8List? audioBytes;
   List<QuizQuestionModel> quizQuestionModels = <QuizQuestionModel>[];
-  HtmlEditorController? controller;
+  HtmlEditorController? htmlEditorController;
+  VideoPlayerController? videoPlayerController;
 
   MicroLearningPageElementModel({
     this.htmlContentCode = "",
@@ -34,7 +36,8 @@ class MicroLearningPageElementModel {
     this.videoBytes,
     this.audioBytes,
     List<QuizQuestionModel>? quizQuestionModels,
-    this.controller,
+    this.htmlEditorController,
+    this.videoPlayerController,
   }) {
     this.quizQuestionModels = quizQuestionModels ?? <QuizQuestionModel>[];
   }
@@ -56,6 +59,10 @@ class MicroLearningPageElementModel {
     imageFileName = map["imageFileName"] != null ? ParsingHelper.parseStringMethod(map["imageFileName"]) : imageFileName;
     videoFileName = map["videoFileName"] != null ? ParsingHelper.parseStringMethod(map["videoFileName"]) : videoFileName;
     audioFileName = map["audioFileName"] != null ? ParsingHelper.parseStringMethod(map["audioFileName"]) : audioFileName;
+
+    imageBytes = map["imageBytes"] is Uint8List ? map["imageBytes"] : imageBytes;
+    videoBytes = map["videoBytes"] is Uint8List ? map["videoBytes"] : videoBytes;
+    audioBytes = map["audioBytes"] is Uint8List ? map["audioBytes"] : audioBytes;
 
     if (map["quizQuestionModels"] != null) {
       quizQuestionModels.clear();
@@ -79,6 +86,9 @@ class MicroLearningPageElementModel {
       "imageFileName": imageFileName,
       "videoFileName": videoFileName,
       "audioFileName": audioFileName,
+      "imageBytes": toJson ? null : imageBytes,
+      "videoBytes": toJson ? null : videoBytes,
+      "audioBytes": toJson ? null : audioBytes,
       "quizQuestionModels": quizQuestionModels.map((e) => e.toMap(toJson: toJson)).toList(),
     };
   }
