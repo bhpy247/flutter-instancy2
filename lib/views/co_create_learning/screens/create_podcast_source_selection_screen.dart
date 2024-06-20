@@ -161,7 +161,6 @@ class _CreatePodcastSourceSelectionScreenState extends State<CreatePodcastSource
   @override
   Widget build(BuildContext context) {
     super.pageBuild();
-
     return Scaffold(
       appBar: AppConfigurations().commonAppBar(
         title: widget.arguments.coCreateContentAuthoringModel.isEdit ? "Edit Podcast Episode" : "Podcast Episode",
@@ -279,7 +278,7 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
 
     MyPrint.printOnConsole("Got file Name:$fileName");
     MyPrint.printOnConsole("Got file bytes:${fileBytes?.length}");
-
+    mySetState();
     return;
   }
 
@@ -331,6 +330,8 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
       return;
     }
   }
+
+  void intializeData() {}
 
   @override
   void initState() {

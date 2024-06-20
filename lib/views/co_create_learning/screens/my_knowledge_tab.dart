@@ -305,12 +305,12 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       quizContentModel.questionType = "Multiple Choice";*/
       // coCreateContentAuthoringModel.quizContentModel = quizContentModel;
 
-      dynamic value = await NavigationController.navigateToGeneratedQuizScreen(
+      dynamic value = await NavigationController.navigateToAddEditQuizScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: GeneratedQuizScreenNavigationArgument(
+        argument: AddEditQuizScreenArgument(
           coCreateContentAuthoringModel: coCreateContentAuthoringModel,
         ),
       );
@@ -389,12 +389,14 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         isEdited = true;
       }
     } else if (objectTypeId == InstancyObjectTypes.mediaResource && mediaTypeId == InstancyMediaTypes.audio) {
-      dynamic value = await NavigationController.navigateToTextToAudioGenerateWithAIScreen(
+      dynamic value = await NavigationController.navigateToCreatePodcastSourceSelectionScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: TextToAudioGenerateWithAIScreenNavigationArgument(coCreateContentAuthoringModel: coCreateContentAuthoringModel, isEdit: true),
+        arguments: CreatePodcastSourceSelectionScreenNavigationArguments(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
       );
 
       if (value == true) {

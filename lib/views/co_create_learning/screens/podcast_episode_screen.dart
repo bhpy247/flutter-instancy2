@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/message/components/audio_player_widget.dart';
@@ -24,9 +25,11 @@ class PodcastEpisodeScreen extends StatefulWidget {
   State<PodcastEpisodeScreen> createState() => _PodcastEpisodeScreenState();
 }
 
-class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> {
+class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> with MySafeState {
   late AudioPlayer player = AudioPlayer();
   bool isTranscriptExpanded = true;
+
+  bool isLoading = false;
 
   Future<void> initializeData() async {
     // Create the audio player.
@@ -35,6 +38,8 @@ class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> {
     // Set the release mode to keep the source after playback has completed.
     player.setReleaseMode(ReleaseMode.stop);
 
+    isLoading = true;
+    mySetState();
     if (widget.arguments.audioUrl.checkNotEmpty) {
       await player.setSourceUrl(widget.arguments.audioUrl);
       await player.resume();
@@ -45,6 +50,8 @@ class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> {
       await player.setSourceAsset("audio/audio.mp3");
       await player.resume();
     }
+    isLoading = false;
+    mySetState();
   }
 
   @override
@@ -63,43 +70,47 @@ class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.pageBuild();
     return Scaffold(
       appBar: getAppBar(),
       body: AppUIComponents.getBackGroundBordersRounded(
         context: context,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                PlayerWidget(player: player),
-                Row(
-                  children: [
-                    InkWell(
-                        onTap: () {
-                          isTranscriptExpanded = !isTranscriptExpanded;
-                          setState(() {});
-                        },
-                        child: Icon(isTranscriptExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down_outlined)),
-                    Text(
-                      "Transcript",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+        child: ModalProgressHUD(
+          inAsyncCall: isLoading,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  PlayerWidget(player: player),
+                  Row(
+                    children: [
+                      InkWell(
+                          onTap: () {
+                            isTranscriptExpanded = !isTranscriptExpanded;
+                            setState(() {});
+                          },
+                          child: Icon(isTranscriptExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down_outlined)),
+                      Text(
+                        "Transcript",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    ],
+                  ),
+                  if (isTranscriptExpanded)
+                    const Text(
+                      """
+          Nigel:
+          
+          Glad to see things are going well and business is starting to pick up. Andrea told me about your outstanding numbers on Tuesday. Keep up the good work. Now to other business, I am going to suggest a payment schedule for the outstanding monies that is due. One, can you pay the balance of the license agreement as soon as possible? Two, I suggest we setup or you suggest, what you can pay on the back royalties, would you feel comfortable with paying every two weeks? Every month, I will like to catch up and maintain current royalties. So, if we can start the current royalties and maintain them every two weeks as all stores are required to do, I would appreciate it. Let me know if this works for you.
+          
+          Thanks.
+           """,
                     )
-                  ],
-                ),
-                if (isTranscriptExpanded)
-                  const Text(
-                    """
-Nigel:
-
-Glad to see things are going well and business is starting to pick up. Andrea told me about your outstanding numbers on Tuesday. Keep up the good work. Now to other business, I am going to suggest a payment schedule for the outstanding monies that is due. One, can you pay the balance of the license agreement as soon as possible? Two, I suggest we setup or you suggest, what you can pay on the back royalties, would you feel comfortable with paying every two weeks? Every month, I will like to catch up and maintain current royalties. So, if we can start the current royalties and maintain them every two weeks as all stores are required to do, I would appreciate it. Let me know if this works for you.
-
-Thanks.
- """,
-                  )
-              ],
+                ],
+              ),
             ),
           ),
         ),

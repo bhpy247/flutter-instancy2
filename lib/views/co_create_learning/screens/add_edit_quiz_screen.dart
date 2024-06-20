@@ -205,6 +205,7 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
   Widget getQuestionTypeDropDown() {
     return CommonBorderDropdown(
       isExpanded: true,
+      isDense: false,
       items: QuizQuestionTypeMap.keys.toList(),
       value: selectedQuestionType,
       hintText: "Question Type",
@@ -218,6 +219,7 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
   Widget getDifficultyLevelDropDown() {
     return CommonBorderDropdown(
       isExpanded: true,
+      isDense: false,
       items: QuizDifficultyTypeMap.keys.toList(),
       value: selectedDifficultyLevel,
       hintText: "Difficulty Level",
