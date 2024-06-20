@@ -1081,7 +1081,7 @@ class CoCreateKnowledgeController {
     return true;
   }
 
-  Future<List<LanguageVoiceModel>> getLanguageVoiceListgetLanguageVoiceList(String languageCode) async {
+  Future<List<LanguageVoiceModel>> getLanguageVoiceList(String languageCode) async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("CoCreateKnowledgeController().getLanguageVoiceList() called ", tag: tag);
 
