@@ -11,6 +11,7 @@ class AppAudioPlayer extends StatefulWidget {
   final String sourceAssetPath;
   final String sourceNetworkUrl;
   final Uint8List? sourceBytes;
+  final MainAxisAlignment verticalAlignment;
 
   /// Callback when audio file should be removed
   /// Setting this to null hides the delete button
@@ -22,6 +23,7 @@ class AppAudioPlayer extends StatefulWidget {
     this.sourceAssetPath = "",
     this.sourceNetworkUrl = "",
     this.sourceBytes,
+    this.verticalAlignment = MainAxisAlignment.center,
     this.onDelete,
   });
 
@@ -105,6 +107,7 @@ class AppAudioPlayerState extends State<AppAudioPlayer> {
 
         return Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: widget.verticalAlignment,
           children: [
             Row(
               mainAxisSize: MainAxisSize.max,

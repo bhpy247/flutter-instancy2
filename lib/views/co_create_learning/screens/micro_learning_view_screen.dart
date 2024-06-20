@@ -1,14 +1,27 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/view/common/components/common_loader.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_instancy_2/backend/app/dependency_injection.dart';
 import 'package:flutter_instancy_2/backend/app_theme/style.dart';
+import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation_arguments.dart';
 import 'package:flutter_instancy_2/configs/app_configurations.dart';
+import 'package:flutter_instancy_2/configs/app_constants.dart';
+import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learning_page_element_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/micro_learning_model/data_model/micro_learningt_page_model.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/quiz/data_models/quiz_question_model.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
+import 'package:flutter_instancy_2/views/co_create_learning/component/audio_players.dart';
 import 'package:flutter_instancy_2/views/common/components/app_ui_components.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:flutter_instancy_2/views/common/components/modal_progress_hud.dart';
+import 'package:video_player/video_player.dart';
+
+import 'video_with_transcript_launch_screen.dart';
 
 class MicroLearningViewScreen extends StatefulWidget {
   static const String routeName = "/MicroLearningViewScreen";
@@ -53,16 +66,55 @@ class _MicroLearningViewScreenState extends State<MicroLearningViewScreen> with 
   List<MicroLearningPageModel> microLearningList = [
     MicroLearningPageModel(
       title: "Technology in Sustainable Urban Planning",
+      elements: [
+        MicroLearningPageElementModel(
+          htmlContentCode: "<h4>Impact of the Pandemic on Consumer Behavior and Digital Marketing Trends</h4>",
+          elementType: MicroLearningElementType.Text,
+        ),
+        MicroLearningPageElementModel(
+          contentUrl: "https://qalearning.instancy.com/Content/SiteFiles/Images/Reference.jpg",
+          elementType: MicroLearningElementType.Image,
+        ),
+        MicroLearningPageElementModel(
+          contentUrl: "https://qalearning.instancy.com/Content/Instancy%20V2%20Folders/1403/en-us/22d5a73c-ee68-4b25-97ac-81d1f537d1ed.mp3",
+          elementType: MicroLearningElementType.Audio,
+        ),
+        MicroLearningPageElementModel(
+          contentUrl: "https://qalearning.instancy.com/Content/Instancy%20V2%20Folders/1403/en-us/d86cea8b-64bc-424d-97ac-128bcf62b05f.mp4",
+          elementType: MicroLearningElementType.Video,
+        ),
+      ],
     ),
     MicroLearningPageModel(title: "Components of Eco-Conscious Cities"),
+    MicroLearningPageModel(title: "Challenges in Urban Sustainability"),
     MicroLearningPageModel(
-      title: "Challenges in Urban Sustainability",
+      title: "Inspiring Action for Resilient Cities",
+      elements: [
+        MicroLearningPageElementModel(
+          elementType: MicroLearningElementType.Quiz,
+          quizQuestionModels: [
+            QuizQuestionModel(
+              question: "What is the primary goal of office ergonomics?",
+              choices: [
+                "A. Promote proper posture and reduce strain on the body",
+                "B. Increase workload for employees",
+                "C. Encourage standing desks only",
+                "D. Focus on aesthetics over functionality",
+              ],
+              correct_choice: "A. Promote proper posture and reduce strain on the body",
+              correctFeedback: "That's right! The main goal is to create a workspace that supports good posture and reduces physical stress. By adjusting the"
+                  " workspace to fit the individual needs of workers, office ergonomics promotes better health and productivity.",
+              inCorrectFeedback: "Incorrect. Office ergonomics is about optimizing the physical setup of the workspace to reduce strain and prevent injuries, "
+                  "thereby improving employee comfort and performance.",
+            ),
+          ],
+        ),
+      ],
     ),
-    MicroLearningPageModel(title: "Inspiring Action for Resilient Cities"),
   ];
 
   void initialize() {
-    microLearningList = widget.arguments.microLearningContentModel.pages;
+    // microLearningList = widget.arguments.microLearningContentModel.pages;
     mySetState();
     microLearningList.forEach((element) {
       MyPrint.printOnConsole("microLearningLists : ${element.elements.length}");
@@ -176,32 +228,155 @@ class _MicroLearningViewScreenState extends State<MicroLearningViewScreen> with 
       },
       itemCount: microLearningList.length,
       itemBuilder: (BuildContext context, int index) {
-        // MyPrint.printOnConsole("microLearningList : ${microLearningList[index].elementType}");
         MicroLearningPageModel model = microLearningList[index];
-        /*if (model.elementType == MicroLearningTypes.question) {
-          return getQuizEditingWidget(model: quizModel, index: index);
-        }*/
-        return Column(
-          children: [
-            const SizedBox(
-              height: 20,
-            ),
-            Text(
-              model.title,
-              style: TextStyle(fontSize: 22, color: themeData.primaryColor, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Expanded(
-              child: getMainBody(
-                htmlCode: defaultArticleScreen,
-              ),
-            ),
-          ],
-        );
+
+        return getSinglePageWidget(model: model);
       },
+    );
+  }
+
+  Widget getSinglePageWidget({required MicroLearningPageModel model}) {
+    return Column(
+      children: [
+        const SizedBox(
+          height: 20,
+        ),
+        Text(
+          model.title,
+          style: TextStyle(fontSize: 22, color: themeData.primaryColor, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 20),
+        Expanded(
+          child: getPageElementsWidget(elements: model.elements),
+        ),
+      ],
+    );
+  }
+
+  Widget getPageElementsWidget({required List<MicroLearningPageElementModel> elements}) {
+    if (elements.isEmpty) {
+      return const Center(
+        child: Text("No Elements"),
+      );
+    }
+
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: elements.map((e) {
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 5),
+          child: getPageElementWidgetByType(model: e),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget getPageElementWidgetByType({required MicroLearningPageElementModel model}) {
+    if (model.elementType == MicroLearningElementType.Text) {
+      return getTextElementWidget(model: model);
+    } else if (model.elementType == MicroLearningElementType.Image) {
+      return getImageElementWidget(model: model);
+    } else if (model.elementType == MicroLearningElementType.Audio) {
+      return getAudioElementWidget(model: model);
+    } else if (model.elementType == MicroLearningElementType.Video) {
+      return MicroLearningVideoElementViewer(elementModel: model);
+    }
+
+    return const SizedBox();
+  }
+
+  Widget getTextElementWidget({required MicroLearningPageElementModel model}) {
+    return Html(data: model.htmlContentCode);
+  }
+
+  Widget getImageElementWidget({required MicroLearningPageElementModel model}) {
+    Widget imageWidget;
+
+    Uint8List? imageBytes = model.contentBytes;
+    String imagePath = model.contentUrl;
+
+    if (imageBytes.checkEmpty && imagePath.isEmpty) {
+      MyPrint.printOnConsole("No Image Widget");
+
+      imageWidget = const SizedBox(
+        width: double.maxFinite,
+        height: 200,
+        // color: Colors.red,
+      );
+    } else if (imageBytes.checkNotEmpty) {
+      MyPrint.printOnConsole("Bytes Image Widget");
+
+      imageWidget = Image.memory(
+        imageBytes!,
+      );
+    } else {
+      MyPrint.printOnConsole("Network Image Widget");
+
+      String imageUrl = AppConfigurationOperations(appProvider: DependencyInjection.appProvider).getInstancyImageUrlFromImagePath(imagePath: imagePath);
+
+      imageWidget = CachedNetworkImage(
+        imageUrl: imageUrl,
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: themeData.primaryColor),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: imageWidget,
+    );
+  }
+
+  Widget getAudioElementWidget({required MicroLearningPageElementModel model}) {
+    Widget audioWidget;
+
+    Uint8List? audioBytes = model.contentBytes;
+    String audioUrl = model.contentUrl;
+
+    // if (audioBytes.checkEmpty && audioUrl.isEmpty) {
+    if (audioBytes.checkEmpty && audioUrl.isEmpty) {
+      MyPrint.printOnConsole("No Audio Widget");
+
+      audioWidget = const SizedBox(
+        width: double.maxFinite,
+        height: 120,
+        // color: Colors.red,
+      );
+    } else if (audioBytes.checkNotEmpty) {
+      MyPrint.printOnConsole("Bytes Audio Widget");
+
+      audioWidget = Container(
+        height: 120,
+        padding: const EdgeInsets.symmetric(horizontal: 25),
+        child: Center(
+          child: AppAudioPlayer(
+            sourceBytes: audioBytes,
+            // onDelete: () {},
+          ),
+        ),
+      );
+    } else {
+      MyPrint.printOnConsole("Network Audio Widget");
+
+      audioUrl = AppConfigurationOperations(appProvider: DependencyInjection.appProvider).getInstancyImageUrlFromImagePath(imagePath: audioUrl);
+
+      audioWidget = Container(
+        height: 120,
+        padding: const EdgeInsets.symmetric(horizontal: 25),
+        child: AppAudioPlayer(
+          sourceNetworkUrl: audioUrl,
+        ),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: themeData.primaryColor),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Center(child: audioWidget),
     );
   }
 
@@ -222,134 +397,108 @@ class _MicroLearningViewScreenState extends State<MicroLearningViewScreen> with 
       // onSaveAndViewPressed: onSaveAndViewTap,
     );*/
   }
+}
 
-  Widget getMainBody({required String htmlCode}) {
-    return const SizedBox();
-    /*return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        maxHeight ??= constraints.maxHeight;
-        return Padding(
-            padding: const EdgeInsets.only(right: 18.0),
-            child: HtmlEditor(
-              controller: controller,
-              htmlEditorOptions: HtmlEditorOptions(hint: 'Your text here...', shouldEnsureVisible: true, initialText: htmlCode
-                  // initialText: widget.arguments.coCreateContentAuthoringModel.articleHtmlCode.checkNotEmpty ? widget.arguments.coCreateContentAuthoringModel.articleHtmlCode : defaultArticleScreen,
+class MicroLearningVideoElementViewer extends StatefulWidget {
+  final MicroLearningPageElementModel elementModel;
+
+  const MicroLearningVideoElementViewer({
+    super.key,
+    required this.elementModel,
+  });
+
+  @override
+  State<MicroLearningVideoElementViewer> createState() => _MicroLearningVideoElementViewerState();
+}
+
+class _MicroLearningVideoElementViewerState extends State<MicroLearningVideoElementViewer> {
+  late Future<void> futureGetData;
+  VideoPlayerController? controller;
+
+  Future<void> getData() async {
+    controller = widget.elementModel.videoPlayerController;
+    if (controller == null) {
+      MicroLearningPageElementModel elementModel = widget.elementModel;
+
+      if (elementModel.contentBytes != null) {
+        controller = VideoPlayerController.networkUrl(Uri.dataFromBytes(elementModel.contentBytes!));
+      } else if (elementModel.contentUrl.isNotEmpty) {
+        Uri? uri = Uri.tryParse(elementModel.contentUrl);
+        if (uri == null) {
+          return;
+        }
+        controller = VideoPlayerController.networkUrl(uri);
+      }
+
+      if (controller != null) {
+        controller!.initialize();
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    futureGetData = getData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<void>(
+      future: futureGetData,
+      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const CommonLoader();
+        }
+
+        if (controller == null) {
+          return const Center(
+            child: Text("Video Couldn't loaded"),
+          );
+        }
+
+        return ValueListenableBuilder<VideoPlayerValue>(
+          valueListenable: controller!,
+          builder: (BuildContext context, VideoPlayerValue videoPlayerValue, Widget? child) {
+            if (!controller!.value.isInitialized) {
+              return const CommonLoader();
+            }
+
+            VideoPlayerController videoPlayerController = controller!;
+
+            return Container(
+              height: 250,
+              padding: const EdgeInsets.all(10.0),
+              decoration: BoxDecoration(border: Border.all(color: Styles.borderColor), borderRadius: BorderRadius.circular(5)),
+              child: Container(
+                decoration: BoxDecoration(border: Border.all(color: Colors.black), borderRadius: BorderRadius.circular(10)),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      VideoPlayer(videoPlayerController),
+                      ControlsOverlay(
+                        controller: videoPlayerController,
+                        onPlayTap: () {
+                          (videoPlayerController.value.isPlaying) ? videoPlayerController.pause() : videoPlayerController.play();
+                          // _videoPlayerController?.value.
+                          setState(() {});
+                        },
+                      ),
+                      VideoProgressIndicator(
+                        videoPlayerController,
+                        allowScrubbing: true,
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                      ),
+                    ],
                   ),
-              htmlToolbarOptions: HtmlToolbarOptions(
-                  textStyle: themeData.textTheme.labelMedium,
-                  dropdownIconSize: 20,
-                  toolbarPosition: ToolbarPosition.aboveEditor,
-                  toolbarType: ToolbarType.nativeScrollable,
-                  onButtonPressed: (ButtonType type, bool? status, Function? updateStatus) {
-                    print("button '${type.name}' pressed, the current selected status is $status");
-                    return true;
-                  },
-                  onDropdownChanged: (DropdownType type, dynamic changed, Function(dynamic)? updateSelectedItem) {
-                    print("dropdown '${type.name}' changed to $changed");
-                    return true;
-                  },
-                  mediaLinkInsertInterceptor: (String url, InsertFileType type) {
-                    print(url);
-                    return true;
-                  },
-                  audioExtensions: ["audio"]
-                  */ /*mediaUploadInterceptor: (PlatformFile file, InsertFileType type) async {
-          print(file.name); //filename
-          print(file.size); //size in bytes
-          print(file.extension); //file extension (eg jpeg or mp4)
-          return true;
-        },*/ /*
-                  ),
-              otherOptions: OtherOptions(height: maxHeight!),
-              callbacks: Callbacks(
-                onBeforeCommand: (String? currentHtml) {
-                  print('html before change is $currentHtml');
-                },
-                onChangeContent: (String? changed) {
-                  print('content changed to $changed');
-                },
-                onChangeCodeview: (String? changed) {
-                  print('code changed to $changed');
-                },
-                onChangeSelection: (EditorSettings settings) {
-                  print('parent element is ${settings.parentElement}');
-                  print('font name is ${settings.fontName}');
-                },
-                onDialogShown: () {
-                  print('dialog shown');
-                },
-                onEnter: () {
-                  print('enter/return pressed');
-                },
-                onFocus: () {
-                  print('editor focused');
-                },
-                onBlur: () {
-                  print('editor unfocused');
-                },
-                onBlurCodeview: () {
-                  print('codeview either focused or unfocused');
-                },
-                onInit: () {
-                  print('init');
-                },
-                //this is commented because it overrides the default Summernote handlers
-                */ /*onImageLinkInsert: (String? url) {
-          print(url ?? "unknown url");
-        },
-        onImageUpload: (FileUpload file) async {
-          print(file.name);
-          print(file.size);
-          print(file.type);
-          print(file.base64);
-        },*/ /*
-                onImageUploadError: (FileUpload? file, String? base64Str, UploadError error) {
-                  print(error.name);
-                  print(base64Str ?? '');
-                  if (file != null) {
-                    print(file.name);
-                    print(file.size);
-                    print(file.type);
-                  }
-                },
-                onKeyDown: (int? keyCode) {
-                  print('$keyCode key downed');
-                  print('current character count: ${controller.characterCount}');
-                },
-                onKeyUp: (int? keyCode) {
-                  print('$keyCode key released');
-                },
-                onMouseDown: () {
-                  print('mouse downed');
-                },
-                onMouseUp: () {
-                  print('mouse released');
-                },
-                onNavigationRequestMobile: (String url) {
-                  print(url);
-                  return NavigationActionPolicy.ALLOW;
-                },
-                onPaste: () {
-                  print('pasted into editor');
-                },
-                onScroll: () {
-                  print('editor scrolled');
-                },
-              ),
-              plugins: [
-                SummernoteAtMention(
-                  getSuggestionsMobile: (String value) {
-                    var mentions = <String>['test1', 'test2', 'test3'];
-                    return mentions.where((element) => element.contains(value)).toList();
-                  },
-                  mentionsWeb: ['test1', 'test2', 'test3'],
-                  onSelect: (String value) {
-                    print(value);
-                  },
                 ),
-              ],
-            ));
+              ),
+            );
+          },
+        );
       },
-    );*/
+    );
   }
 }

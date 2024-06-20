@@ -95,12 +95,11 @@ class _MicroLearningEditorScreenState extends State<MicroLearningEditorScreen> w
       isGenerateQuizEnabled: true,
     );
 
-    generateContent();
-    /*if (microLearningContentModel.pages.isEmpty) {
+    if (microLearningContentModel.pages.isEmpty) {
       generateContent();
     } else {
       microLearningList = microLearningContentModel.pages.map((e) => MicroLearningPageModel.fromMap(e.toMap())).toList();
-    }*/
+    }
   }
 
   Future<void> generateContent() async {
@@ -617,7 +616,6 @@ class _MicroLearningSinglePageScreenState extends State<MicroLearningSinglePageS
         padding: const EdgeInsets.symmetric(horizontal: 25),
         child: AppAudioPlayer(
           sourceNetworkUrl: audioUrl,
-          onDelete: () {},
         ),
       );
     }

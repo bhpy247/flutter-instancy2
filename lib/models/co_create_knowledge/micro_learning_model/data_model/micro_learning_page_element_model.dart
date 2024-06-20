@@ -44,7 +44,12 @@ class MicroLearningPageElementModel {
     contentUrl = map["contentUrl"] != null ? ParsingHelper.parseStringMethod(map["contentUrl"]) : contentUrl;
     contentFileName = map["contentFileName"] != null ? ParsingHelper.parseStringMethod(map["contentFileName"]) : contentFileName;
 
-    contentBytes = map["contentBytes"] is Uint8List ? map["contentBytes"] : contentBytes;
+    dynamic contentBytesTemp = map["contentBytes"];
+    if (contentBytesTemp is Uint8List) {
+      contentBytes = contentBytesTemp;
+    } else if (contentBytesTemp is String && contentBytesTemp.startsWith("data:")) {
+      contentBytes = MyUtils.convertBase64ToBytes(contentBytesTemp);
+    }
 
     if (map["quizQuestionModels"] != null) {
       quizQuestionModels.clear();

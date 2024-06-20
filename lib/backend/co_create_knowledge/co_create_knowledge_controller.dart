@@ -1649,8 +1649,8 @@ class CoCreateKnowledgeController {
       return null;
     }
 
-    String scriptText = "Heart Attack is a major disises";
-    // String scriptText = await chatCompletion(promptText: "Detailed Info about '$topic'");
+    // String scriptText = "Heart Attack is a major disises";
+    String scriptText = await chatCompletion(promptText: "Detailed Info about '$topic'");
     if (scriptText.isEmpty) {
       MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().generateMicroLearningVideo() because scriptText is empty", tag: tag);
       return null;
