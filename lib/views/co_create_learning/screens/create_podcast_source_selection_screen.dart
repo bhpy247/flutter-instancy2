@@ -491,7 +491,7 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
         ? Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25),
             child: AppAudioPlayer(
-              source: filePath!,
+              sourceFilePath: filePath!,
               onDelete: () {
                 showPlayer = false;
                 filePath = null;

@@ -7,16 +7,22 @@ import 'package:flutter/material.dart';
 
 class AppAudioPlayer extends StatefulWidget {
   /// Path from where to play recorded audio
-  final String source;
+  final String sourceFilePath;
+  final String sourceAssetPath;
+  final String sourceNetworkUrl;
+  final Uint8List? sourceBytes;
 
   /// Callback when audio file should be removed
   /// Setting this to null hides the delete button
-  final VoidCallback onDelete;
+  final VoidCallback? onDelete;
 
   const AppAudioPlayer({
     super.key,
-    required this.source,
-    required this.onDelete,
+    this.sourceFilePath = "",
+    this.sourceAssetPath = "",
+    this.sourceNetworkUrl = "",
+    this.sourceBytes,
+    this.onDelete,
   });
 
   @override
@@ -25,7 +31,7 @@ class AppAudioPlayer extends StatefulWidget {
 
 class AppAudioPlayerState extends State<AppAudioPlayer> {
   static const double _controlSize = 56;
-  static const double _deleteBtnSize = 24;
+  double _deleteBtnSize = 24;
 
   final _audioPlayer = ap.AudioPlayer()..setReleaseMode(ReleaseMode.stop);
   late StreamSubscription<void> _playerStateChangedSubscription;
@@ -33,6 +39,7 @@ class AppAudioPlayerState extends State<AppAudioPlayer> {
   late StreamSubscription<Duration> _positionChangedSubscription;
   Duration? _position;
   Duration? _duration;
+  late Source source;
 
   // String getDurationString({required Duration duration, required Duration position }){
   //   String positionString = '';
@@ -64,7 +71,19 @@ class AppAudioPlayerState extends State<AppAudioPlayer> {
       }),
     );
 
-    _audioPlayer.setSource(_source);
+    if (widget.sourceFilePath.isNotEmpty) {
+      source = kIsWeb ? ap.UrlSource(widget.sourceFilePath) : ap.DeviceFileSource(widget.sourceFilePath);
+    } else if (widget.sourceNetworkUrl.isNotEmpty) {
+      source = ap.UrlSource(widget.sourceNetworkUrl);
+    } else if (widget.sourceAssetPath.isNotEmpty) {
+      source = ap.AssetSource(widget.sourceAssetPath);
+    } else if (widget.sourceBytes != null) {
+      source = ap.BytesSource(widget.sourceBytes!);
+    } else {
+      source = kIsWeb ? ap.UrlSource(widget.sourceFilePath) : ap.DeviceFileSource(widget.sourceFilePath);
+    }
+
+    _audioPlayer.setSource(source);
 
     super.initState();
   }
@@ -82,6 +101,8 @@ class AppAudioPlayerState extends State<AppAudioPlayer> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        _deleteBtnSize = widget.onDelete != null ? 24 : 0;
+
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -91,14 +112,15 @@ class AppAudioPlayerState extends State<AppAudioPlayer> {
               children: <Widget>[
                 _buildControl(),
                 _buildSlider(constraints.maxWidth),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Color(0xFF73748D), size: _deleteBtnSize),
-                  onPressed: () {
+                if (widget.onDelete != null)
+                  IconButton(
+                    icon: Icon(Icons.delete, color: const Color(0xFF73748D), size: _deleteBtnSize),
+                    onPressed: () {
                     if (_audioPlayer.state == ap.PlayerState.playing) {
-                      stop().then((value) => widget.onDelete());
-                    } else {
-                      widget.onDelete();
-                    }
+                        stop().then((value) => widget.onDelete!());
+                      } else {
+                        widget.onDelete!();
+                      }
                   },
                 ),
               ],
@@ -171,7 +193,7 @@ class AppAudioPlayerState extends State<AppAudioPlayer> {
     );
   }
 
-  Future<void> play() => _audioPlayer.play(_source);
+  Future<void> play() => _audioPlayer.play(source);
 
   Future<void> pause() async {
     await _audioPlayer.pause();
@@ -182,6 +204,4 @@ class AppAudioPlayerState extends State<AppAudioPlayer> {
     await _audioPlayer.stop();
     setState(() {});
   }
-
-  Source get _source => kIsWeb ? ap.UrlSource(widget.source) : ap.DeviceFileSource(widget.source);
 }
