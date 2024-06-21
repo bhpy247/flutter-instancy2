@@ -138,13 +138,13 @@ dependencies:
 
   arcore_flutter_plugin:
     git:
-      url: https://github.com/Rockstar95/arcore_flutter_plugin
-      ref: master
+      url: https://Instancy@dev.azure.com/Instancy/Mobile%20Platform/_git/arcore_flutter_plugin
+      ref: develop
 
   linkedin_login:
     git:
-      url: https://github.com/Rockstar95/linkedin_login
-      ref: master
+      url: https://Instancy@dev.azure.com/Instancy/Mobile%20Platform/_git/linkedin_login
+      ref: develop
 
 dependency_overrides:
   intl: ^0.19.0
