@@ -949,8 +949,8 @@ class _EditFlashCardScreenState extends State<EditFlashCardScreen> with MySafeSt
   @override
   void initState() {
     super.initState();
-    frontController.text = widget.arguments.model.flashcard_back;
-    backController.text = widget.arguments.model.flashcard_front;
+    frontController.text = widget.arguments.model.flashcard_front;
+    backController.text = widget.arguments.model.flashcard_back;
     MyPrint.printOnConsole("Text: ${widget.arguments.model.flashcard_back}");
   }
 
