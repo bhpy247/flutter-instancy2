@@ -128,6 +128,8 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
       customColorSwatchesAndNames: colorsNameMap,
     ).showPickerDialog(
       context,
+      backgroundColor: themeData.colorScheme.onPrimary,
+      surfaceTintColor: themeData.colorScheme.onPrimary,
       actionsPadding: const EdgeInsets.all(16),
       constraints: const BoxConstraints(minHeight: 480, minWidth: 300, maxWidth: 320),
     );
