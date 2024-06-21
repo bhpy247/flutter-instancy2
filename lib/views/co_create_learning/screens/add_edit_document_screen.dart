@@ -273,13 +273,13 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
       courseDTOModel.AuthorName = "Richard Parker";
       courseDTOModel.AuthorDisplayName = "Richard Parker";
 
-      courseDTOModel.ThumbnailImagePath = "Content/SiteFiles/Images/assignment-thumbnail.png";
+      // courseDTOModel.ThumbnailImagePath = "Content/SiteFiles/Images/assignment-thumbnail.png";
       courseDTOModel.UserProfileImagePath = "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg";
 
       coCreateContentAuthoringModel.newCurrentCourseDTOModel = courseDTOModel;
       coCreateContentAuthoringModel.contentType = courseDTOModel.ContentType;
 
-      initializeMetadataForNewContentAccordingToType();
+      // initializeMetadataForNewContentAccordingToType();
     }
   }
 

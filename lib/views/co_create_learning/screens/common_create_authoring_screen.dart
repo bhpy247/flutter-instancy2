@@ -291,7 +291,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       coCreateContentAuthoringModel.newCurrentCourseDTOModel = courseDTOModel;
       coCreateContentAuthoringModel.contentType = courseDTOModel.ContentType;
 
-      initializeMetadataForNewContentAccordingToType();
+      // initializeMetadataForNewContentAccordingToType();
     }
   }
 

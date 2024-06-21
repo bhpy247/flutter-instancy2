@@ -157,8 +157,8 @@ class _CreateUrlScreenState extends State<CreateUrlScreen> with MySafeState {
   void initState() {
     super.initState();
     websiteUrlController.text = widget.argument.coCreateContentAuthoringModel?.referenceUrl ??
-        widget.argument.coCreateContentAuthoringModel?.courseDTOModel?.ViewLink ??
-        "https://smartbridge.com/introduction-generative-ai-transformative-potential-enterprises/";
+        widget.argument.coCreateContentAuthoringModel?.courseDTOModel?.ViewLink ?? "";
+    // "https://smartbridge.com/introduction-generative-ai-transformative-potential-enterprises/";
 
     initialize();
   }
