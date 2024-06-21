@@ -5,6 +5,7 @@ class ShareCoCreateKnowledgeBaseRequestModel {
   String contentId = "";
   String folderPath = "";
   String startPage = "";
+  String contentName = "";
   int objectTypeId = 0;
   int assignComponentId = InstancyComponents.CoCreateKnowledgeComponent;
 
@@ -13,6 +14,7 @@ class ShareCoCreateKnowledgeBaseRequestModel {
     required this.folderPath,
     required this.startPage,
     required this.objectTypeId,
+    this.contentName = "",
     this.assignComponentId = InstancyComponents.CoCreateKnowledgeComponent,
   });
 
