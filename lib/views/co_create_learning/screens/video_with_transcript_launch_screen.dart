@@ -123,123 +123,126 @@ class _VideoWithTranscriptLaunchScreenState extends State<VideoWithTranscriptLau
           return const CommonLoader();
         }
 
-        return Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: SizedBox(
-                    height: 250,
-                    child: Container(
-                      decoration: BoxDecoration(border: Border.all(color: Colors.black), borderRadius: BorderRadius.circular(10)),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            VideoPlayer(_videoPlayerController!),
-                            ControlsOverlay(
-                              controller: _videoPlayerController!,
-                              onPlayTap: () {
-                                (_videoPlayerController!.value.isPlaying) ? _videoPlayerController!.pause() : _videoPlayerController!.play();
-                                // _videoPlayerController?.value.
-                                setState(() {});
-                              },
-                            ),
-                            VideoProgressIndicator(
-                              _videoPlayerController!,
-                              allowScrubbing: true,
-                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                            ),
-                          ],
-                        ),
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: SizedBox(
+                  height: 250,
+                  child: Container(
+                    decoration: BoxDecoration(border: Border.all(color: Colors.black), borderRadius: BorderRadius.circular(10)),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          VideoPlayer(_videoPlayerController!),
+                          ControlsOverlay(
+                            controller: _videoPlayerController!,
+                            onPlayTap: () {
+                              (_videoPlayerController!.value.isPlaying) ? _videoPlayerController!.pause() : _videoPlayerController!.play();
+                              // _videoPlayerController?.value.
+                              setState(() {});
+                            },
+                          ),
+                          VideoProgressIndicator(
+                            _videoPlayerController!,
+                            allowScrubbing: true,
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: Row(
-                    children: [
-                      InkWell(
-                          onTap: () {
-                            isTranscriptExpanded = !isTranscriptExpanded;
-                            setState(() {});
-                          },
-                          child: Icon(isTranscriptExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down_outlined)),
-                      const Text(
-                        "Transcript",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                if (isTranscriptExpanded)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15.0),
-                    child: Text(
-                      """
-0:00
-Enhancing corporate Learning with AI Agents and LLM featuring large memory, AI agents and large language model applications are revolutionizing learning and skill development by leveraging advanced AI capabilities.
-
-0:14
-These technologies enhance personalized learning experiences by remembering and processing vast amounts of information over extended periods.
-
-0:22
-Here are the top five benefits of long memory in AI agents and LL, and applications for learning and skill development.
-
-0:30
-Number one, personalized learning experiences.
-
-0:33
-Long memory allows AI systems to remember individual learners, progress, preferences, and past interactions.
-
-0:41
-This capability enables AI to tailor educational content to match each user's learning pace and style, providing a highly customized learning journey that addresses specific needs and accelerates skill acquisition #2 Consistent learning support.
-
-0:58
-AI with long term memory can be a consistent learning companion.
-
-1:02
-It retains information about a learner's long term development path, including past achievements and areas of difficulty, ensuring that the learning process is continuous and builds on previous knowledge without unnecessary repetition #3 Adaptive learning paths.
-
-1:19
-With access to historical learning data, AI can adapt the learning path dynamically.
-
-1:24
-It assesses the effectiveness of past learning activities and modifies upcoming sessions to meet the learner's goals better.
-
-1:31
-This adaptive approach helps in closing skill gaps more efficiently and effectively #4 proactive performance support.
-
-1:39
-AI agents can proactively offer assistance by predicting when a learner might struggle or need reinforcement based on past performance patterns.
-
-1:48
-This timely intervention helps reinforce learning at critical moments, potentially improving the retention and application of knowledge #5 enhanced assessment and feedback.
-
-1:59
-Long memory enables AI to provide more accurate assessments and constructive feedback by analyzing A learner's progress trajectory over time.
-
-2:09
-This long term perspective allows for a more nuanced understanding of a learner's development, enabling better alignment of feedback and recommendations with the learner specific context and history.
-
-2:21
-These benefits demonstrate how AI with long memory significantly enhances the learning and skill development process, making it more personalized, supportive, and responsive to individual learner needs.
-
-2:34
-Instancy offers a comprehensive learning ecosystem featuring a generative AI and AI agents platform seamlessly integrated with a learning management system, content management, web and mobile learning experiences, and robust data analytics.
-
-2:50
-Connect with us to elevate your learning journey.""",
-                      textAlign: TextAlign.justify,
-                    ),
-                  )
-              ],
-            ),
+              ),
+              //                 SizedBox(
+              //                   height: 20,
+              //                 ),
+              //                 Padding(
+              //                   padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              //                   child: Row(
+              //                     children: [
+              //                       InkWell(
+              //                           onTap: () {
+              //                             isTranscriptExpanded = !isTranscriptExpanded;
+              //                             setState(() {});
+              //                           },
+              //                           child: Icon(isTranscriptExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down_outlined)),
+              //                       const Text(
+              //                         "Transcript",
+              //                         style: TextStyle(
+              //                           fontWeight: FontWeight.bold,
+              //                         ),
+              //                       )
+              //                     ],
+              //                   ),
+              //                 ),
+              //                 if (isTranscriptExpanded)
+              //                   const Padding(
+              //                     padding: EdgeInsets.symmetric(horizontal: 15.0),
+              //                     child: Text(
+              //                       """
+              // 0:00
+              // Enhancing corporate Learning with AI Agents and LLM featuring large memory, AI agents and large language model applications are revolutionizing learning and skill development by leveraging advanced AI capabilities.
+              //
+              // 0:14
+              // These technologies enhance personalized learning experiences by remembering and processing vast amounts of information over extended periods.
+              //
+              // 0:22
+              // Here are the top five benefits of long memory in AI agents and LL, and applications for learning and skill development.
+              //
+              // 0:30
+              // Number one, personalized learning experiences.
+              //
+              // 0:33
+              // Long memory allows AI systems to remember individual learners, progress, preferences, and past interactions.
+              //
+              // 0:41
+              // This capability enables AI to tailor educational content to match each user's learning pace and style, providing a highly customized learning journey that addresses specific needs and accelerates skill acquisition #2 Consistent learning support.
+              //
+              // 0:58
+              // AI with long term memory can be a consistent learning companion.
+              //
+              // 1:02
+              // It retains information about a learner's long term development path, including past achievements and areas of difficulty, ensuring that the learning process is continuous and builds on previous knowledge without unnecessary repetition #3 Adaptive learning paths.
+              //
+              // 1:19
+              // With access to historical learning data, AI can adapt the learning path dynamically.
+              //
+              // 1:24
+              // It assesses the effectiveness of past learning activities and modifies upcoming sessions to meet the learner's goals better.
+              //
+              // 1:31
+              // This adaptive approach helps in closing skill gaps more efficiently and effectively #4 proactive performance support.
+              //
+              // 1:39
+              // AI agents can proactively offer assistance by predicting when a learner might struggle or need reinforcement based on past performance patterns.
+              //
+              // 1:48
+              // This timely intervention helps reinforce learning at critical moments, potentially improving the retention and application of knowledge #5 enhanced assessment and feedback.
+              //
+              // 1:59
+              // Long memory enables AI to provide more accurate assessments and constructive feedback by analyzing A learner's progress trajectory over time.
+              //
+              // 2:09
+              // This long term perspective allows for a more nuanced understanding of a learner's development, enabling better alignment of feedback and recommendations with the learner specific context and history.
+              //
+              // 2:21
+              // These benefits demonstrate how AI with long memory significantly enhances the learning and skill development process, making it more personalized, supportive, and responsive to individual learner needs.
+              //
+              // 2:34
+              // Instancy offers a comprehensive learning ecosystem featuring a generative AI and AI agents platform seamlessly integrated with a learning management system, content management, web and mobile learning experiences, and robust data analytics.
+              //
+              // 2:50
+              // Connect with us to elevate your learning journey.""",
+              //                       textAlign: TextAlign.justify,
+              //                     ),
+              //                   )
+            ],
           ),
         );
       },
