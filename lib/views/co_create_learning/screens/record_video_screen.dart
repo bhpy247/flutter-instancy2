@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/utils/extensions.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/co_create_content_authoring_model.dart';
@@ -20,6 +21,7 @@ import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../backend/app_theme/style.dart';
+import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../backend/navigation/navigation_arguments.dart';
 import '../../../backend/navigation/navigation_controller.dart';
 import '../../../backend/navigation/navigation_operation_parameters.dart';
@@ -73,6 +75,17 @@ class _RecordVideoScreenState extends State<RecordVideoScreen> with MySafeState 
     coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
 
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
+
+    if (coCreateContentAuthoringModel.isEdit) {
+      MyPrint.printOnConsole("coCreateContentAuthoringModel.courseDTOModel.ViewLink :${coCreateContentAuthoringModel.courseDTOModel!.ViewLink}");
+      String videoUrl = AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: coCreateContentAuthoringModel.courseDTOModel!.ViewLink);
+
+      if (coCreateContentAuthoringModel.courseDTOModel != null) {
+        videoController = VideoPlayerController.contentUri(Uri.parse(videoUrl));
+        String docfileName = videoUrl.split("/").last;
+        fileName = docfileName;
+      }
+    }
   }
 
   Future<void> openFileExplorer(
@@ -118,6 +131,10 @@ class _RecordVideoScreenState extends State<RecordVideoScreen> with MySafeState 
 
     isLoading = true;
     mySetState();
+    if (videoFile != null) {
+      fileBytes = await videoFile?.readAsBytes();
+      fileName = videoFile?.name ?? "";
+    }
 
     coCreateContentAuthoringModel.uploadedDocumentBytes = fileBytes;
     coCreateContentAuthoringModel.uploadedDocumentName = fileName;
