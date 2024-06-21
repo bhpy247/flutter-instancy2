@@ -810,8 +810,23 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
         child: GestureDetector(
           onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
           child: Scaffold(
-            appBar: AppConfigurations().commonAppBar(
-              title: "Article",
+            // appBar: AppConfigurations().commonAppBar(
+            //   title: "Article",
+            // ),
+            appBar: AppBar(
+              // leadingWidth: 30,
+              title: getSelectedSourceTextWidget(),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    showMoreActions(model: widget.arguments.coCreateContentAuthoringModel.courseDTOModel);
+                  },
+                  icon: const Icon(
+                    Icons.more_vert,
+                    size: 20,
+                  ),
+                ),
+              ],
             ),
             body: AppUIComponents.getBackGroundBordersRounded(
               context: context,
@@ -838,7 +853,7 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: Column(
         children: [
-          getSelectedSourceTextWidget(),
+          // getSelectedSourceTextWidget(),
           const SizedBox(
             height: 10,
           ),
@@ -863,16 +878,11 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
         Expanded(
           child: Text(
             widget.arguments.coCreateContentAuthoringModel.title,
-            style: themeData.textTheme.bodyMedium?.copyWith(decoration: TextDecoration.underline, fontWeight: FontWeight.bold, color: themeData.colorScheme.onBackground.withAlpha(100), fontSize: 15),
-          ),
-        ),
-        IconButton(
-          onPressed: () {
-            showMoreActions(model: widget.arguments.coCreateContentAuthoringModel.courseDTOModel);
-          },
-          icon: const Icon(
-            Icons.more_vert,
-            size: 20,
+            maxLines: 1,
+            // style: themeData.textTheme.bodyMedium?.copyWith(
+            //   decoration: TextDecoration.underline,
+            //   fontWeight: FontWeight.bold,
+            // ),
           ),
         ),
       ],
