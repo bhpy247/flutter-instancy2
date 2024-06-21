@@ -103,8 +103,8 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           },
           iconData: InstancyIcons.view,
         ),
-      if (!(model.ContentTypeId == InstancyObjectTypes.mediaResource && [InstancyMediaTypes.video].contains(model.MediaTypeID)))
-        InstancyUIActionModel(
+      // if (!(model.ContentTypeId == InstancyObjectTypes.mediaResource && [InstancyMediaTypes.video].contains(model.MediaTypeID)))
+      InstancyUIActionModel(
           text: "Edit",
           actionsEnum: InstancyContentActionsEnum.Edit,
           onTap: () {
@@ -228,8 +228,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         contentId: model.ContentID,
         folderPath: model.FolderPath,
         startPage: model.startpage,
-        objectTypeId: model.ContentTypeId,
-      ),
+        objectTypeId: model.ContentTypeId, contentName: model.ContentName),
     );
 
     isLoading = false;
@@ -307,12 +306,21 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
       quizContentModel.questionType = "Multiple Choice";*/
       // coCreateContentAuthoringModel.quizContentModel = quizContentModel;
 
-      dynamic value = await NavigationController.navigateToAddEditQuizScreen(
+      // dynamic value = await NavigationController.navigateToAddEditQuizScreen(
+      //   navigationOperationParameters: NavigationOperationParameters(
+      //     context: context,
+      //     navigationType: NavigationType.pushNamed,
+      //   ),
+      //   argument: AddEditQuizScreenArgument(
+      //     coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+      //   ),
+      // );
+      dynamic value = await NavigationController.navigateToGeneratedQuizScreen(
         navigationOperationParameters: NavigationOperationParameters(
           context: context,
           navigationType: NavigationType.pushNamed,
         ),
-        argument: AddEditQuizScreenArgument(
+        argument: GeneratedQuizScreenNavigationArgument(
           coCreateContentAuthoringModel: coCreateContentAuthoringModel,
         ),
       );
@@ -397,6 +405,20 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
           navigationType: NavigationType.pushNamed,
         ),
         arguments: CreatePodcastSourceSelectionScreenNavigationArguments(
+          coCreateContentAuthoringModel: coCreateContentAuthoringModel,
+        ),
+      );
+
+      if (value == true) {
+        isEdited = true;
+      }
+    } else if (objectTypeId == InstancyObjectTypes.mediaResource && mediaTypeId == InstancyMediaTypes.video) {
+      dynamic value = await NavigationController.navigateToAddEditVideoScreen(
+        navigationOperationParameters: NavigationOperationParameters(
+          context: context,
+          navigationType: NavigationType.pushNamed,
+        ),
+        argument: AddEditVideoScreenNavigationArgument(
           coCreateContentAuthoringModel: coCreateContentAuthoringModel,
         ),
       );
