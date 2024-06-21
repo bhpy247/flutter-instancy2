@@ -309,7 +309,7 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
 
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
   late PageController pageController;
-  late Future future;
+  Future? future;
 
   // List<QuizQuestionModel> quizModelList = [
   //   QuizQuestionModel(
@@ -385,9 +385,10 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
       if (quizModelList.length > quizContentModel.questionCount) {
         quizModelList = quizModelList.sublist(0, quizContentModel.questionCount);
       }
+    } else {
+      future = getData();
     }
 
-    future = getData();
   }
 
   Future<void> getData() async {
@@ -532,8 +533,10 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
           appBar: getAppBar(),
           body: AppUIComponents.getBackGroundBordersRounded(
             context: context,
-            child: FutureBuilder(
-              future: future,
+            child: future == null
+                ? getMainBody()
+                : FutureBuilder(
+                    future: future,
               builder: (BuildContext context, AsyncSnapshot snapShot) {
                 if (snapShot.connectionState == ConnectionState.done) {
                   return getMainBody();
