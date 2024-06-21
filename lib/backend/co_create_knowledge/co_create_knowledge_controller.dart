@@ -1845,7 +1845,7 @@ class CoCreateKnowledgeController {
 
         return CommonConfirmationDialog(
           title: "Share Knowledge",
-          description: "Are you sure want to share your knowledge?",
+          description: "Are you sure want to share ${requestModel.contentName} to your knowledge?",
           confirmationText: localStrNew.catalogActionsheetShareoption,
           cancelText: localStrNew.catalogAlertbuttonCancelbutton,
         );
