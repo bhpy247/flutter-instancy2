@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
@@ -22,6 +23,10 @@ import 'package:flutter_instancy_2/views/common/components/instancy_ui_actions/i
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../backend/co_create_knowledge/co_create_knowledge_controller.dart';
+import '../../../utils/my_toast.dart';
+import '../../../utils/my_utils.dart';
+
 class AddEditLearningPathScreen extends StatefulWidget {
   static const String routeName = "/AddEditLearningPathScreen";
 
@@ -36,87 +41,91 @@ class AddEditLearningPathScreen extends StatefulWidget {
 class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> with MySafeState {
   String title = "";
   late AppProvider appProvider;
+  bool isLoading = false;
 
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
+  late CoCreateKnowledgeController _coCreateKnowledgeController;
+  late CoCreateKnowledgeProvider _provider;
 
-  LearningPathContentModel learningPathList = LearningPathContentModel(blockListModel: [
-    BlockListModel(blockName: "Intelligent Agents: The Future of Autonomous Systems", blockContentList: [
-      CourseDTOModel(
-        Title: "Generative AI and its Transformative Potential",
-        TitleName: "Generative AI and its Transformative Potential",
-        ContentName: "Generative AI and its Transformative Potential",
-        AuthorName: "Richard Parker",
-        AuthorDisplayName: "Richard Parker",
-        UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
-        ContentTypeId: InstancyObjectTypes.reference,
-        MediaTypeID: InstancyMediaTypes.url,
-        ContentType: "Reference Link",
-        ThumbnailImagePath: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FGenerative%20AI%20(1).jpg?alt=media&token=42d9004b-9dd8-4d30-a889-982996d6cd6d",
-        ShortDescription: "Uncover the revolutionary capabilities of Generative AI, poised to reshape industries and creative expression with its innovative potential.",
-      ),
-      CourseDTOModel(
-        Title: "AI Agents Memory and Personalize Learning",
-        TitleName: "AI Agents Memory and Personalize Learning",
-        ContentName: "AI Agents Memory and Personalize Learning",
-        AuthorName: "Richard Parker",
-        AuthorDisplayName: "Richard Parker",
-        UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
-        ContentTypeId: InstancyObjectTypes.mediaResource,
-        MediaTypeID: InstancyMediaTypes.video,
-        ContentType: "Video",
-        ThumbnailImagePath:
-            "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FMastering%20Communication%20(1).jpg?alt=media&token=a5031b2e-2f73-4270-b710-6373ede36b4e",
-        ShortDescription:
-            "Unlock the power of AI agents in personalized learning! This course explores the intricacies of memory systems in AI, guiding you through techniques to tailor learning experiences for individual students. Learn how AI agents adapt content delivery based on learner preferences, track progress, and create personalized pathways. Perfect for educators, AI enthusiasts, and developers looking to revolutionize education with AI.",
-      ),
-      CourseDTOModel(
-        Title: "Exploring the Intersection of Artificial Intelligence and Biotechnology",
-        TitleName: "Exploring the Intersection of Artificial Intelligence and Biotechnology",
-        ContentName: "Exploring the Intersection of Artificial Intelligence and Biotechnology",
-        AuthorName: "Richard Parker",
-        AuthorDisplayName: "Richard Parker",
-        UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
-        ContentTypeId: InstancyObjectTypes.document,
-        MediaTypeID: InstancyMediaTypes.pDF,
-        ViewLink: "https://qalearning.instancy.com//content/publishfiles/d6caf328-6c9e-43b1-8ba0-eb8d4d065e66/en-us/41cea17c-728d-4c88-9cd8-1e0473fa6f21.pdf?fromNativeapp=true",
-        ContentType: "Documents",
-        ThumbnailImagePath:
-            "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FExploring%20the%20Intersection%20of%20Artificial%20Intelligence%20and%20Biotechnology.jpg?alt=media&token=a840ca3c-73af-4def-8f2e-93aa26d75cb3",
-        ShortDescription: "Delve into the dynamic synergy between AI and biotech, uncovering how cutting-edge technology revolutionizes healthcare, agriculture, and beyond.",
-      ),
-    ]),
-    BlockListModel(blockName: "Exploring the Capabilities and Challenges of AI Agents in Modern Applications", blockContentList: [
-      CourseDTOModel(
-        Title: "Artificial Intelligence (AI)",
-        TitleName: "Artificial Intelligence (AI)",
-        ContentName: "Artificial Intelligence (AI)",
-        AuthorName: "Richard Parker",
-        AuthorDisplayName: "Richard Parker",
-        UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
-        ContentTypeId: InstancyObjectTypes.flashCard,
-        MediaTypeID: InstancyMediaTypes.none,
-        ContentType: "Flashcards",
-        ThumbnailImagePath:
-            "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FArtificial%20Intelligence%20(1).jpg?alt=media&token=eea140e2-20ec-4077-b42a-ccebd8046624",
-        ShortDescription: "Delve into the realm of Artificial Intelligence, where machine learning and cognitive computing converge to redefine the boundaries of human innovation.",
-      ),
-      CourseDTOModel(
-        Title: "Office Ergonomics",
-        TitleName: "Office Ergonomics",
-        ContentName: "Office Ergonomics",
-        AuthorName: "Richard Parker",
-        AuthorDisplayName: "Richard Parker",
-        UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
-        ContentTypeId: InstancyObjectTypes.assessment,
-        MediaTypeID: InstancyMediaTypes.test,
-        ContentType: "Quiz",
-        ThumbnailImagePath:
-            "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FOffice%20Ergonomics%20(1).jpg?alt=media&token=e8b61e56-79d8-4257-bd6e-fdad51d0b9f9",
-        ShortDescription: "Discover the science of workplace comfort and efficiency, optimizing your workspace to enhance productivity and well-being through ergonomic principles.",
-      ),
-    ]),
-  ]);
+  LearningPathContentModel learningPathList = LearningPathContentModel(blockListModel: []);
 
+  // blockListModel: [
+  // BlockListModel(blockName: "Intelligent Agents: The Future of Autonomous Systems", blockContentList: [
+  // CourseDTOModel(
+  // Title: "Generative AI and its Transformative Potential",
+  // TitleName: "Generative AI and its Transformative Potential",
+  // ContentName: "Generative AI and its Transformative Potential",
+  // AuthorName: "Richard Parker",
+  // AuthorDisplayName: "Richard Parker",
+  // UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
+  // ContentTypeId: InstancyObjectTypes.reference,
+  // MediaTypeID: InstancyMediaTypes.url,
+  // ContentType: "Reference Link",
+  // ThumbnailImagePath: "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FGenerative%20AI%20(1).jpg?alt=media&token=42d9004b-9dd8-4d30-a889-982996d6cd6d",
+  // ShortDescription: "Uncover the revolutionary capabilities of Generative AI, poised to reshape industries and creative expression with its innovative potential.",
+  // ),
+  // CourseDTOModel(
+  // Title: "AI Agents Memory and Personalize Learning",
+  // TitleName: "AI Agents Memory and Personalize Learning",
+  // ContentName: "AI Agents Memory and Personalize Learning",
+  // AuthorName: "Richard Parker",
+  // AuthorDisplayName: "Richard Parker",
+  // UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
+  // ContentTypeId: InstancyObjectTypes.mediaResource,
+  // MediaTypeID: InstancyMediaTypes.video,
+  // ContentType: "Video",
+  // ThumbnailImagePath:
+  // "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FMastering%20Communication%20(1).jpg?alt=media&token=a5031b2e-2f73-4270-b710-6373ede36b4e",
+  // ShortDescription:
+  // "Unlock the power of AI agents in personalized learning! This course explores the intricacies of memory systems in AI, guiding you through techniques to tailor learning experiences for individual students. Learn how AI agents adapt content delivery based on learner preferences, track progress, and create personalized pathways. Perfect for educators, AI enthusiasts, and developers looking to revolutionize education with AI.",
+  // ),
+  // CourseDTOModel(
+  // Title: "Exploring the Intersection of Artificial Intelligence and Biotechnology",
+  // TitleName: "Exploring the Intersection of Artificial Intelligence and Biotechnology",
+  // ContentName: "Exploring the Intersection of Artificial Intelligence and Biotechnology",
+  // AuthorName: "Richard Parker",
+  // AuthorDisplayName: "Richard Parker",
+  // UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
+  // ContentTypeId: InstancyObjectTypes.document,
+  // MediaTypeID: InstancyMediaTypes.pDF,
+  // ViewLink: "https://qalearning.instancy.com//content/publishfiles/d6caf328-6c9e-43b1-8ba0-eb8d4d065e66/en-us/41cea17c-728d-4c88-9cd8-1e0473fa6f21.pdf?fromNativeapp=true",
+  // ContentType: "Documents",
+  // ThumbnailImagePath:
+  // "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FExploring%20the%20Intersection%20of%20Artificial%20Intelligence%20and%20Biotechnology.jpg?alt=media&token=a840ca3c-73af-4def-8f2e-93aa26d75cb3",
+  // ShortDescription: "Delve into the dynamic synergy between AI and biotech, uncovering how cutting-edge technology revolutionizes healthcare, agriculture, and beyond.",
+  // ),
+  // ]),
+  // BlockListModel(blockName: "Exploring the Capabilities and Challenges of AI Agents in Modern Applications", blockContentList: [
+  // CourseDTOModel(
+  // Title: "Artificial Intelligence (AI)",
+  // TitleName: "Artificial Intelligence (AI)",
+  // ContentName: "Artificial Intelligence (AI)",
+  // AuthorName: "Richard Parker",
+  // AuthorDisplayName: "Richard Parker",
+  // UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
+  // ContentTypeId: InstancyObjectTypes.flashCard,
+  // MediaTypeID: InstancyMediaTypes.none,
+  // ContentType: "Flashcards",
+  // ThumbnailImagePath:
+  // "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FArtificial%20Intelligence%20(1).jpg?alt=media&token=eea140e2-20ec-4077-b42a-ccebd8046624",
+  // ShortDescription: "Delve into the realm of Artificial Intelligence, where machine learning and cognitive computing converge to redefine the boundaries of human innovation.",
+  // ),
+  // CourseDTOModel(
+  // Title: "Office Ergonomics",
+  // TitleName: "Office Ergonomics",
+  // ContentName: "Office Ergonomics",
+  // AuthorName: "Richard Parker",
+  // AuthorDisplayName: "Richard Parker",
+  // UserProfileImagePath: "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg",
+  // ContentTypeId: InstancyObjectTypes.assessment,
+  // MediaTypeID: InstancyMediaTypes.test,
+  // ContentType: "Quiz",
+  // ThumbnailImagePath:
+  // "https://firebasestorage.googleapis.com/v0/b/instancy-f241d.appspot.com/o/demo%2Fimages%2FOffice%20Ergonomics%20(1).jpg?alt=media&token=e8b61e56-79d8-4257-bd6e-fdad51d0b9f9",
+  // ShortDescription: "Discover the science of workplace comfort and efficiency, optimizing your workspace to enhance productivity and well-being through ergonomic principles.",
+  // ),
+  // ]),
+  // ]
   // Map<String, List<CourseDTOModel>> learningPathList = <String, List<CourseDTOModel>>{
   //   "Block 1": [
   //     CourseDTOModel(
@@ -320,7 +329,7 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
 
     if (val == null) return;
     if (val is List<CourseDTOModel>) {
-      learningPathList.blockListModel?[index].blockContentList = val;
+      learningPathList.blockListModel[index].blockContentList = val;
       mySetState();
     }
   }
@@ -403,7 +412,7 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
         actionsEnum: InstancyContentActionsEnum.Delete,
         onTap: () {
           Navigator.pop(context);
-          learningPathList.blockListModel?.removeAt(index);
+          learningPathList.blockListModel.removeAt(index);
           mySetState();
           // onAddBlockTap(model: model);
         },
@@ -427,17 +436,22 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
     if (val == null) return;
 
     if (isEdit) {
-      learningPathList.blockListModel?[index].blockName = val;
+      learningPathList.blockListModel[index].blockName = val;
     } else {
-      learningPathList.blockListModel?.add(BlockListModel(blockName: val));
+      learningPathList.blockListModel.addAll({BlockListModel(blockName: val)});
     }
     mySetState();
   }
 
-  Future<CourseDTOModel?> saveFlashcard() async {
+  Future<CourseDTOModel?> saveLearningPath() async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("GenerateWithAiFlashCardScreen().saveLearningPath() called", tag: tag);
     LearningPathContentModel learningPathModel = coCreateContentAuthoringModel.learningPathContentModel ?? LearningPathContentModel();
     learningPathModel.blockListModel = learningPathList.blockListModel;
     coCreateContentAuthoringModel.learningPathContentModel = learningPathModel;
+
+    isLoading = true;
+    mySetState();
 
     CourseDTOModel? courseDTOModel = coCreateContentAuthoringModel.courseDTOModel ?? coCreateContentAuthoringModel.newCurrentCourseDTOModel;
 
@@ -460,6 +474,18 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
 
       courseDTOModel.learningPathContentModel = learningPathModel;
 
+      String? contentId = await _coCreateKnowledgeController.addEditContentItem(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
+      MyPrint.printOnConsole("contentId:'$contentId'", tag: tag);
+
+      isLoading = false;
+      mySetState();
+
+      if (contentId.checkEmpty) {
+        MyPrint.printOnConsole("Returning from AddEditEventScreen().saveEvent() because contentId is null or empty", tag: tag);
+        MyToast.showError(context: context, msg: coCreateContentAuthoringModel.isEdit ? "Couldn't Update Content" : "Couldn't Create Content");
+        return null;
+      }
+
       if (!coCreateContentAuthoringModel.isEdit) {
         context.read<CoCreateKnowledgeProvider>().myKnowledgeList.setList(list: [courseDTOModel], isClear: false, isNotify: true);
       }
@@ -469,7 +495,7 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
   }
 
   Future<void> onSaveAndExitTap() async {
-    CourseDTOModel? courseDTOModel = await saveFlashcard();
+    CourseDTOModel? courseDTOModel = await saveLearningPath();
 
     if (courseDTOModel == null) {
       return;
@@ -480,7 +506,7 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
   }
 
   Future<void> onSaveAndViewTap() async {
-    CourseDTOModel? courseDTOModel = await saveFlashcard();
+    CourseDTOModel? courseDTOModel = await saveLearningPath();
 
     if (courseDTOModel == null) {
       return;
@@ -502,8 +528,10 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
 
   void initializeData() {
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
+    _provider = context.read<CoCreateKnowledgeProvider>();
+    _coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: _provider);
     title = widget.arguments.model?.ContentName ?? "";
-    if (title.isEmpty) title = "Technology in sustainable urban planning";
+    // if (title.isEmpty) title = "Technology in sustainable urban planning";
     LearningPathContentModel? learningPathModel = widget.arguments.model?.learningPathContentModel;
     if (learningPathModel != null) {
       learningPathList = learningPathModel;
@@ -514,6 +542,7 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
   void initState() {
     super.initState();
     appProvider = context.read<AppProvider>();
+
     initializeData();
   }
 
@@ -557,44 +586,47 @@ class _AddEditLearningPathScreenState extends State<AddEditLearningPathScreen> w
         child: Text("No Block Available"),
       );
     }
-    return SingleChildScrollView(
-      child: Column(
-        children: List.generate(
-          learningPathList.blockListModel?.length ?? 0,
-          (index) {
-            String keys = learningPathList.blockListModel?[index].blockName ?? "";
-            return Theme(
-              data: Theme.of(context).copyWith(
-                dividerColor: Colors.transparent, // Set the color of the divider here
-              ),
-              child: ExpansionTile(
-                childrenPadding: const EdgeInsets.symmetric(horizontal: 20),
-                initiallyExpanded: index == 0 ? true : false,
-                controlAffinity: ListTileControlAffinity.leading,
-                title: Text(
-                  keys,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+    return ModalProgressHUD(
+      inAsyncCall: isLoading,
+      child: SingleChildScrollView(
+        child: Column(
+          children: List.generate(
+            learningPathList.blockListModel.length ?? 0,
+            (index) {
+              String keys = learningPathList.blockListModel[index].blockName ?? "";
+              return Theme(
+                data: Theme.of(context).copyWith(
+                  dividerColor: Colors.transparent, // Set the color of the divider here
                 ),
-                trailing: InkWell(
-                  onTap: () {
-                    showMoreActions(
-                      model: CourseDTOModel(),
-                      actions: getBlockActionsList(model: CourseDTOModel(), index: index, blockName: keys),
-                    );
-                  },
-                  child: const Icon(
-                    Icons.more_vert,
-                    size: 25,
+                child: ExpansionTile(
+                  childrenPadding: const EdgeInsets.symmetric(horizontal: 20),
+                  initiallyExpanded: index == 0 ? true : false,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: Text(
+                    keys,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  trailing: InkWell(
+                    onTap: () {
+                      showMoreActions(
+                        model: CourseDTOModel(),
+                        actions: getBlockActionsList(model: CourseDTOModel(), index: index, blockName: keys),
+                      );
+                    },
+                    child: const Icon(
+                      Icons.more_vert,
+                      size: 25,
+                    ),
+                  ),
+                  children: (learningPathList.blockListModel[index].blockContentList ?? []).map(
+                    (CourseDTOModel model) {
+                      return getCatalogContentWidget(model: model);
+                    },
+                  ).toList(),
                 ),
-                children: (learningPathList.blockListModel?[index].blockContentList ?? []).map(
-                  (CourseDTOModel model) {
-                    return getCatalogContentWidget(model: model);
-                  },
-                ).toList(),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

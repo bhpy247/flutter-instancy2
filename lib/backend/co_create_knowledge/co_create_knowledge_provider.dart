@@ -20,7 +20,15 @@ class CoCreateKnowledgeProvider extends CommonProvider {
       value: false,
       notify: notify,
     );
+    isLoadingLearningPathContent = CommonProviderPrimitiveParameter<bool>(
+      value: false,
+      notify: notify,
+    );
     myKnowledgeList = CommonProviderListParameter<CourseDTOModel>(
+      list: <CourseDTOModel>[],
+      notify: notify,
+    );
+    learningContentItemList = CommonProviderListParameter<CourseDTOModel>(
       list: <CourseDTOModel>[],
       notify: notify,
     );
@@ -70,7 +78,9 @@ class CoCreateKnowledgeProvider extends CommonProvider {
   late final CommonProviderPrimitiveParameter<String> generatedVideoUrl;
 
   late CommonProviderPrimitiveParameter<bool> isLoadingMyKnowledge;
+  late CommonProviderPrimitiveParameter<bool> isLoadingLearningPathContent;
   late CommonProviderListParameter<CourseDTOModel> myKnowledgeList;
+  late CommonProviderListParameter<CourseDTOModel> learningContentItemList;
 
   late CommonProviderPrimitiveParameter<bool> isLoadingSharedKnowledge;
   late CommonProviderListParameter<CourseDTOModel> sharedKnowledgeList;
@@ -103,7 +113,9 @@ class CoCreateKnowledgeProvider extends CommonProvider {
     skills.setList(list: <ContentFilterCategoryTreeModel>[], isClear: true, isNotify: false);
 
     isLoadingMyKnowledge.set(value: false, isNotify: false);
+    isLoadingLearningPathContent.set(value: false, isNotify: false);
     myKnowledgeList.setList(list: [], isNotify: false);
+    learningContentItemList.setList(list: [], isNotify: false);
 
     isLoadingSharedKnowledge.set(value: false, isNotify: false);
     sharedKnowledgeList.setList(list: [], isNotify: false);

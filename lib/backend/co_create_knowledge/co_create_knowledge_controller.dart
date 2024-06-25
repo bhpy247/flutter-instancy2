@@ -69,6 +69,7 @@ import 'package:video_player/video_player.dart';
 import '../../api/api_controller.dart';
 import '../../models/co_create_knowledge/article/request_model/generate_whole_article_content_request_model.dart';
 import '../../models/co_create_knowledge/article/response_model/article_response_model.dart';
+import '../../models/co_create_knowledge/learning_path/data_model/learning_path_content_model.dart';
 import '../../models/co_create_knowledge/podcast/request_model/play_audio_for_text_request_model.dart';
 import '../../models/co_create_knowledge/podcast/response_model/language_response_model.dart';
 import 'co_create_knowledge_provider.dart';
@@ -512,8 +513,8 @@ class CoCreateKnowledgeController {
       requestModel.additionalData = roleplayContentModel.toString();
     }
     if (coCreateContentAuthoringModel.learningPathContentModel != null) {
-      // LearningPathContentModel learningPathContentModel = coCreateContentAuthoringModel.learningPathContentModel!;
-      // requestModel.additionalData = learningPathContentModel.toString();
+      LearningPathContentModel learningPathContentModel = coCreateContentAuthoringModel.learningPathContentModel!;
+      requestModel.additionalData = learningPathContentModel.toString();
     }
     if (coCreateContentAuthoringModel.videoContentModel != null) {
       VideoContentModel videoContentModel = coCreateContentAuthoringModel.videoContentModel!;
@@ -1932,5 +1933,59 @@ class CoCreateKnowledgeController {
     await Future.wait(futures);
 
     MyPrint.printOnConsole("Completed", tag: tag);
+  }
+
+  Future<bool> getLearningPathContentItem({GetCoCreateKnowledgebaseListRequestModel? requestModel}) async {
+    String tag = MyUtils.getNewId();
+    MyPrint.printOnConsole("CoCreateKnowledgeController().getMyKnowledgeList() called with requestModel:$requestModel", tag: tag);
+
+    CoCreateKnowledgeProvider provider = coCreateKnowledgeProvider;
+    provider.isLoadingLearningPathContent.set(value: true, isNotify: false);
+
+    if (requestModel == null) {
+      MyPrint.printOnConsole("Initializing requestModel", tag: tag);
+
+      ApiUrlConfigurationProvider apiUrlConfigurationProvider = coCreateKnowledgeRepository.apiController.apiDataProvider;
+      AppSystemConfigurationModel appSystemConfigurationModel = DependencyInjection.appProvider.appSystemConfigurationModel;
+
+      requestModel = GetCoCreateKnowledgebaseListRequestModel(
+          userId: apiUrlConfigurationProvider.getCurrentUserId(),
+          cmsGroupId: appSystemConfigurationModel.CoCreateKnowledgeDefaultCMSGroupID,
+          folderId: appSystemConfigurationModel.CoCreateKnowledgeDefaultFolderID,
+          additionalFilter: "trackcontent");
+
+      MyPrint.printOnConsole("Final requestModel", tag: tag);
+    }
+
+    DataResponseModel<CatalogResponseDTOModel> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeList2(requestModel: requestModel);
+    // DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeList(requestModel: requestModel);
+    // DataResponseModel<List<CourseDTOModel>> dataResponseModel = await coCreateKnowledgeRepository.getMyKnowledgeListTemp(requestModel: requestModel);
+
+    if (dataResponseModel.appErrorModel != null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getMyKnowledgeList() because appErrorModel is not null", tag: tag);
+      MyPrint.printOnConsole("appErrorModel:${dataResponseModel.appErrorModel}", tag: tag);
+
+      provider.isLoadingLearningPathContent.set(value: false, isNotify: false);
+      provider.learningContentItemList.setList(list: <CourseDTOModel>[]);
+
+      return false;
+    } else if (dataResponseModel.data == null) {
+      MyPrint.printOnConsole("Returning from CoCreateKnowledgeController().getMyKnowledgeList() because data is null", tag: tag);
+
+      provider.isLoadingLearningPathContent.set(value: false, isNotify: false);
+      provider.learningContentItemList.setList(list: <CourseDTOModel>[]);
+
+      return false;
+    }
+
+    List<CourseDTOModel> contentsList = dataResponseModel.data?.CourseList ?? <CourseDTOModel>[];
+    MyPrint.printOnConsole("MyKnowledge Contents Length got in Api:${contentsList.length}", tag: tag);
+
+    provider.isLoadingLearningPathContent.set(value: false, isNotify: false);
+    provider.learningContentItemList.setList(list: contentsList);
+
+    MyPrint.printOnConsole("Final myKnowledgeList length:${provider.myKnowledgeList.length}", tag: tag);
+
+    return true;
   }
 }

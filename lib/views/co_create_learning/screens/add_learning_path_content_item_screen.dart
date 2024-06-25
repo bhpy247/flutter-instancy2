@@ -7,6 +7,7 @@ import 'package:flutter_instancy_2/views/common/components/common_text_form_fiel
 import 'package:provider/provider.dart';
 
 import '../../../backend/app/app_provider.dart';
+import '../../../backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import '../../../backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import '../../../backend/ui_actions/primary_secondary_actions/primary_secondary_actions_constants.dart';
 import '../../../configs/app_configurations.dart';
@@ -15,6 +16,7 @@ import '../../../models/course/data_model/CourseDTOModel.dart';
 import '../../../utils/my_print.dart';
 import '../../catalog/components/catalogContentListComponent.dart';
 import '../../common/components/app_ui_components.dart';
+import '../../common/components/common_loader.dart';
 
 class AddContentItemScreen extends StatefulWidget {
   static const String routeName = "/AddContentItemScreen";
@@ -30,6 +32,48 @@ class _AddContentItemScreenState extends State<AddContentItemScreen> with MySafe
   late AppProvider appProvider;
 
   List<CourseDTOModel> selectedContentList = [];
+
+  late CoCreateKnowledgeController _controller;
+  late CoCreateKnowledgeProvider _provider;
+  late Future future;
+  ScrollController scrollController = ScrollController();
+
+  // List<CourseDTOModel>
+  Map<String, List<CourseDTOModel>> blockMapWithContentList = {};
+
+  Future<void> getFutureData({bool isRefresh = true, bool isScrollToLast = false, bool isGetSharedKnowledge = false}) async {
+    if (!isRefresh && _provider.learningContentItemList.length > 0) {
+      return;
+    }
+
+    await _controller.getLearningPathContentItem();
+
+    /*MyPrint.printOnConsole("isScrollToLast:$isScrollToLast");
+    if (isScrollToLast) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+        MyPrint.printOnConsole("addPostFrameCallback called");
+
+        Stream<bool> hasClientsStream = Stream.periodic(const Duration(milliseconds: 10), (int count) {
+          bool hasClients = scrollController.hasClients;
+          MyPrint.printOnConsole("hasClients check count:$count, hasClients:$hasClients");
+          return hasClients;
+        });
+
+        await hasClientsStream.where((event) => event).first;
+
+        MyPrint.printOnConsole("scrollController.hasClients:${scrollController.hasClients}");
+        if (scrollController.hasClients) {
+          MyPrint.printOnConsole("scrollController.position.maxScrollExtent:${scrollController.position.maxScrollExtent}");
+          // scrollController.jumpTo(scrollController.position.maxScrollExtent);
+          scrollController.animateTo(
+            scrollController.position.maxScrollExtent,
+            duration: const Duration(seconds: 2),
+            curve: Curves.fastOutSlowIn,
+          );
+        }
+      });
+    }*/
+  }
 
   Future<void> onDetailsTap({required CourseDTOModel model}) async {
     dynamic value = await NavigationController.navigateToCourseDetailScreen(
@@ -83,10 +127,10 @@ class _AddContentItemScreenState extends State<AddContentItemScreen> with MySafe
       );
     } else if (objectType == InstancyObjectTypes.mediaResource && mediaType == InstancyMediaTypes.audio) {
       NavigationController.navigateToPodcastEpisodeScreen(
-        navigationOperationParameters: NavigationOperationParameters(
-          context: context,
-          navigationType: NavigationType.pushNamed,
-        ),
+          navigationOperationParameters: NavigationOperationParameters(
+            context: context,
+            navigationType: NavigationType.pushNamed,
+          ),
           argument: PodcastScreenNavigationArguments(courseDTOModel: model));
     } else if (objectType == InstancyObjectTypes.reference && mediaType == InstancyMediaTypes.url) {
       NavigationController.navigateToWebViewScreen(
@@ -153,6 +197,9 @@ class _AddContentItemScreenState extends State<AddContentItemScreen> with MySafe
   void initState() {
     super.initState();
     appProvider = context.read<AppProvider>();
+    _provider = context.read<CoCreateKnowledgeProvider>();
+    _controller = CoCreateKnowledgeController(coCreateKnowledgeProvider: _provider);
+    future = getFutureData();
   }
 
   @override
@@ -170,7 +217,16 @@ class _AddContentItemScreenState extends State<AddContentItemScreen> with MySafe
       ),
       body: AppUIComponents.getBackGroundBordersRounded(
         context: context,
-        child: getMainBody(),
+        child: FutureBuilder(
+          future: future,
+          builder: (context, AsyncSnapshot asyncSnapshot) {
+            if (asyncSnapshot.connectionState == ConnectionState.done) {
+              return getMainBody();
+            } else {
+              return const Center(child: CommonLoader());
+            }
+          },
+        ),
       ),
     );
   }
@@ -182,41 +238,46 @@ class _AddContentItemScreenState extends State<AddContentItemScreen> with MySafe
   }
 
   Widget getMainBody() {
-    return Consumer<CoCreateKnowledgeProvider>(builder: (context, CoCreateKnowledgeProvider provider, _) {
-      List<CourseDTOModel> contentList = provider.myKnowledgeList.getList();
-      return Column(
-        children: [
-          const SizedBox(
-            height: 10,
-          ),
-          getSearchTextFormField(),
-          const SizedBox(
-            height: 20,
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: contentList.length,
-              padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(bottom: 10),
-              itemBuilder: (BuildContext listContext, int index) {
-                CourseDTOModel model = contentList[index];
-
-                return getCatalogContentWidget(model: model, index: index);
-
-                /*return MyKnowledgeItemWidget(
-                model: model,
-                onMoreTap: () {
-                  showMoreActions(model: model);
-                },
-                onCardTap: () {
-                  onViewTap(model: model);
-                },
-              );*/
-              },
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CoCreateKnowledgeProvider>.value(value: _provider),
+      ],
+      child: Consumer<CoCreateKnowledgeProvider>(builder: (context, CoCreateKnowledgeProvider provider, _) {
+        List<CourseDTOModel> contentList = provider.learningContentItemList.getList();
+        return Column(
+          children: [
+            const SizedBox(
+              height: 10,
             ),
-          ),
-        ],
-      );
-    });
+            getSearchTextFormField(),
+            const SizedBox(
+              height: 20,
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: contentList.length,
+                padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(bottom: 10),
+                itemBuilder: (BuildContext listContext, int index) {
+                  CourseDTOModel model = contentList[index];
+
+                  return getCatalogContentWidget(model: model, index: index);
+
+                  /*return MyKnowledgeItemWidget(
+                  model: model,
+                  onMoreTap: () {
+                    showMoreActions(model: model);
+                  },
+                  onCardTap: () {
+                    onViewTap(model: model);
+                  },
+                );*/
+                },
+              ),
+            ),
+          ],
+        );
+      }),
+    );
   }
 
   Widget getSearchTextFormField() {
