@@ -848,7 +848,10 @@ class _MicroLearningSourceSelectionScreenState extends State<MicroLearningSource
                     Expanded(
                       child: Text(
                         e,
-                        style: themeData.textTheme.labelMedium,
+                        style: themeData.textTheme.labelMedium?.copyWith(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline
+                        ),
                       ),
                     ),
                   ],

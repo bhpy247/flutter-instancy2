@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/configurations/app_configuration_operations.dart';
+import 'package:flutter_instancy_2/utils/extensions.dart';
 import 'package:flutter_instancy_2/utils/parsing_helper.dart';
 import 'package:flutter_instancy_2/views/common/components/common_button.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -202,6 +203,7 @@ class CatalogContentListComponent extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
+          if(model.AvailableSeats.checkNotEmpty)
           Text(
             "Available seats : ${model.AvailableSeats}",
             style: themeData.textTheme.labelSmall?.copyWith(

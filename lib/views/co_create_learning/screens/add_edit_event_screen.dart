@@ -38,6 +38,8 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
 
   late CoCreateContentAuthoringModel coCreateContentAuthoringModel;
 
+  final _formKey = GlobalKey<FormState>();
+
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController locationController = TextEditingController();
@@ -162,7 +164,9 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
       child: CommonButton(
         onPressed: () async {
-          await saveEvent();
+          if(_formKey.currentState?.validate() ??  false){
+            await saveEvent();
+          }
         },
         text: coCreateContentAuthoringModel.isEdit ? "Edit" : "Create",
         fontColor: themeData.colorScheme.onPrimary,
@@ -173,37 +177,40 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
   Widget getMainBody() {
     return Container(
       padding: const EdgeInsets.all(20),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            // getTitleFormField(),
-            // const SizedBox(
-            //   height: 15,
-            // ),
-            getDateFormField(),
-            const SizedBox(height: 15),
-            Row(
-              children: [
-                Expanded(
-                  child: getStartTimeTextFormField(),
-                ),
-                const SizedBox(width: 10),
-                const Text("To"),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: getEndTimeTextFormField(),
-                ),
-              ],
-            ),
-            // const SizedBox(
-            //   height: 15,
-            // ),
-            // getDescriptionFormField(),
-            const SizedBox(height: 15),
-            getEventURLFormField(),
-            const SizedBox(height: 15),
-            getLocationFormField(),
-          ],
+      child: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // getTitleFormField(),
+              // const SizedBox(
+              //   height: 15,
+              // ),
+              getDateFormField(),
+              const SizedBox(height: 15),
+              Row(
+                children: [
+                  Expanded(
+                    child: getStartTimeTextFormField(),
+                  ),
+                  const SizedBox(width: 10),
+                  const Text("To"),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: getEndTimeTextFormField(),
+                  ),
+                ],
+              ),
+              // const SizedBox(
+              //   height: 15,
+              // ),
+              // getDescriptionFormField(),
+              const SizedBox(height: 15),
+              getEventURLFormField(),
+              const SizedBox(height: 15),
+              getLocationFormField(),
+            ],
+          ),
         ),
       ),
     );
@@ -235,74 +242,99 @@ class _AddEditEventScreenState extends State<AddEditEventScreen> with MySafeStat
 
   Widget getEventURLFormField() {
     return getTexFormField(
-      isMandatory: false,
-      showPrefixIcon: false,
-      controller: eventUrlController,
-      labelText: "Event URL",
-      keyBoardType: TextInputType.text,
-      iconUrl: "assets/catalog/imageDescription.png",
-    );
+        isMandatory: false,
+        showPrefixIcon: false,
+        controller: eventUrlController,
+        labelText: "Event URL",
+        keyBoardType: TextInputType.text,
+        iconUrl: "assets/catalog/imageDescription.png",
+        validator: (String? val) {
+          if (val == null || val.trim().checkEmpty) {
+            return "Please enter the url";
+          }
+          return null;
+        });
   }
 
   Widget getLocationFormField() {
     return getTexFormField(
-      isMandatory: false,
-      showPrefixIcon: false,
-      controller: locationController,
-      labelText: "Location",
-      keyBoardType: TextInputType.text,
-      iconUrl: "assets/catalog/imageDescription.png",
-    );
+        isMandatory: false,
+        showPrefixIcon: false,
+        controller: locationController,
+        labelText: "Location",
+        keyBoardType: TextInputType.text,
+        iconUrl: "assets/catalog/imageDescription.png",
+        validator: (String? val) {
+          if (val == null || val.trim().checkEmpty) {
+            return "Please enter the location";
+          }
+          return null;
+        });
   }
 
   Widget getEndTimeTextFormField() {
     return getTexFormField(
-      onTap: () async {
-        endTimeController.text = await _selectTime(context);
-        mySetState();
-      },
-      isMandatory: false,
-      showPrefixIcon: false,
-      controller: endTimeController,
-      labelText: "End Time",
-      keyBoardType: TextInputType.text,
-      iconUrl: "assets/catalog/imageDescription.png",
-    );
+        onTap: () async {
+          endTimeController.text = await _selectTime(context);
+          mySetState();
+        },
+        isMandatory: false,
+        showPrefixIcon: false,
+        controller: endTimeController,
+        labelText: "End Time",
+        keyBoardType: TextInputType.text,
+        iconUrl: "assets/catalog/imageDescription.png",
+        validator: (String? val) {
+          if (val == null || val.trim().checkEmpty) {
+            return "Please select the end time";
+          }
+          return null;
+        });
   }
 
   Widget getStartTimeTextFormField() {
     return getTexFormField(
-      onTap: () async {
-        startTimeController.text = await _selectTime(context);
-        mySetState();
-      },
-      isMandatory: false,
-      showPrefixIcon: false,
-      controller: startTimeController,
-      labelText: "Start Time",
-      keyBoardType: TextInputType.text,
-      iconUrl: "assets/catalog/imageDescription.png",
-    );
+        onTap: () async {
+          startTimeController.text = await _selectTime(context);
+          mySetState();
+        },
+        isMandatory: false,
+        showPrefixIcon: false,
+        controller: startTimeController,
+        labelText: "Start Time",
+        keyBoardType: TextInputType.text,
+        iconUrl: "assets/catalog/imageDescription.png",
+        validator: (String? val) {
+          if (val == null || val.trim().checkEmpty) {
+            return "Please select the start time";
+          }
+          return null;
+        });
   }
 
   Widget getDateFormField() {
     return getTexFormField(
-      onTap: () async {
-        isDateEnabled = true;
-        mySetState();
+        onTap: () async {
+          isDateEnabled = true;
+          mySetState();
 
-        dateController.text = await _selectDate(context);
-        isDateEnabled = false;
-        mySetState();
-      },
-      isEnabled: isDateEnabled,
-      isMandatory: false,
-      showPrefixIcon: false,
-      controller: dateController,
-      labelText: "Date",
-      keyBoardType: TextInputType.text,
-      iconUrl: "assets/catalog/imageDescription.png",
-    );
+          dateController.text = await _selectDate(context);
+          isDateEnabled = false;
+          mySetState();
+        },
+        isEnabled: isDateEnabled,
+        isMandatory: false,
+        showPrefixIcon: false,
+        controller: dateController,
+        labelText: "Date",
+        keyBoardType: TextInputType.text,
+        iconUrl: "assets/catalog/imageDescription.png",
+        validator: (String? val) {
+          if (val == null || val.trim().checkEmpty) {
+            return "Please select the date";
+          }
+          return null;
+        });
   }
 
   //region textFieldView

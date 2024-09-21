@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_instancy_2/backend/app/dependency_injection.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_instancy_2/views/common/components/common_cached_network
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../backend/authentication/authentication_provider.dart';
 import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../configs/app_configurations.dart';
 import '../../../configs/app_constants.dart';
@@ -281,12 +283,17 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
         _ => "",
       };
 
-      courseDTOModel.AuthorName = "Richard Parker";
-      courseDTOModel.AuthorName = "Richard Parker";
-      courseDTOModel.AuthorDisplayName = "Richard Parker";
-
-      courseDTOModel.ThumbnailImagePath = "Content/SiteFiles/Images/assignment-thumbnail.png";
-      courseDTOModel.UserProfileImagePath = "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg";
+      // AuthenticationProvider authenticationProvider = context.read<AuthenticationProvider>();
+      //
+      // String name = authenticationProvider.getEmailLoginResponseModel()?.username ?? "";
+      // String imageurl = authenticationProvider.getEmailLoginResponseModel()?.image ?? "";
+      //
+      // courseDTOModel.AuthorName = name;
+      // courseDTOModel.AuthorDisplayName = name;
+      //
+      // courseDTOModel.ThumbnailImagePath = "Content/SiteFiles/Images/assignment-thumbnail.png";
+      // courseDTOModel.UserProfileImagePath = imageurl;
+      MyPrint.printOnConsole("courseDTOModel.AuthorName: ${courseDTOModel.AuthorName}");
 
       coCreateContentAuthoringModel.newCurrentCourseDTOModel = courseDTOModel;
       coCreateContentAuthoringModel.contentType = courseDTOModel.ContentType;
@@ -595,13 +602,14 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
   bool validateFormData() {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return false;
-    } else if (coCreateKnowledgeProvider.skills.length > 0 && selectedCategoriesList.isEmpty) {
-      MyToast.showError(context: context, msg: "Please select a Skill");
-      return false;
-    } else if (thumbNailBytes.checkEmpty && thumbnailImagePath.isEmpty) {
-      MyToast.showError(context: context, msg: "Please choose Thumbnail Image");
-      return false;
     }
+    // else if (coCreateKnowledgeProvider.skills.length > 0 && selectedCategoriesList.isEmpty) {
+    //   MyToast.showError(context: context, msg: "Please select a Skill");
+    //   return false;
+    // } else if (thumbNailBytes.checkEmpty && thumbnailImagePath.isEmpty) {
+    //   MyToast.showError(context: context, msg: "Please choose Thumbnail Image");
+    //   return false;
+    // }
 
     return true;
   }
@@ -1095,14 +1103,15 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
   Widget getTitleTextFormField() {
     return getTexFormField(
       validator: (String? val) {
-        if (val == null || val.isEmpty) {
+        if (val == null || val.trim().isEmpty) {
           return "Please enter title";
         }
         return null;
       },
       isMandatory: true,
       minLines: 1,
-      maxLines: 1,
+      inputFormatters:[LengthLimitingTextInputFormatter(200)],
+      // maxLines: 1,
       controller: titleController,
       iconUrl: "assets/catalog/title.png",
       labelText: "Title",
@@ -1115,7 +1124,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
   Widget getDescriptionTextFormField() {
     return getTexFormField(
       validator: (String? val) {
-        if (val == null || val.isEmpty) {
+        if (val == null || val.trim().isEmpty) {
           return "Please enter description";
         }
         return null;
@@ -1227,6 +1236,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       String labelText = "Label",
       Widget? suffixWidget,
       required bool isMandatory,
+      List<TextInputFormatter>? inputFormatters,
       int? minLines,
       int? maxLines,
       double iconHeight = 15,
@@ -1240,6 +1250,7 @@ class _CommonCreateAuthoringToolScreenState extends State<CommonCreateAuthoringT
       maxLines: maxLines,
       floatingLabelColor: Colors.grey,
       isOutlineInputBorder: true,
+      inputFormatters: inputFormatters,
       prefixWidget: iconUrl.isNotEmpty
           ? getImageView(url: iconUrl, height: iconHeight, width: iconWidth)
           : const Icon(

@@ -65,7 +65,7 @@ class _AddEditQuizScreenState extends State<AddEditQuizScreen> with MySafeState 
     QuizDifficultyTypeMap = {
       "Hard": QuizDifficultyTypes.advance,
       "Medium": QuizDifficultyTypes.intermediate,
-      "East": QuizDifficultyTypes.beginner,
+      "Easy": QuizDifficultyTypes.beginner,
     };
 
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
@@ -385,10 +385,10 @@ class _GeneratedQuizScreenState extends State<GeneratedQuizScreen> with MySafeSt
       if (quizModelList.length > quizContentModel.questionCount) {
         quizModelList = quizModelList.sublist(0, quizContentModel.questionCount);
       }
-    } else {
+    }
+    if(!coCreateContentAuthoringModel.isEdit){
       future = getData();
     }
-
   }
 
   Future<void> getData() async {

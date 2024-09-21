@@ -18,7 +18,7 @@ class GenerateWholeArticleContentRequestModel {
   });
 
   GenerateWholeArticleContentRequestModel.fromJson(Map<String, dynamic> json) {
-    title = ParsingHelper.parseStringMethod(json['title']);
+    title = ParsingHelper.parseStringMethod(json['topicTitle']);
     clientUrl = ParsingHelper.parseStringMethod(json['client_url']);
     source = ParsingHelper.parseStringMethod(json['source']);
     numberOfTopics = ParsingHelper.parseIntMethod(json['numberOfTopics']);
@@ -27,7 +27,7 @@ class GenerateWholeArticleContentRequestModel {
 
   Map<String, dynamic> toMap({bool toJson = false}) {
     return {
-      'title': title,
+      'topicTitle': title,
       'client_url': clientUrl,
       'source': source,
       'numberOfTopics': numberOfTopics,

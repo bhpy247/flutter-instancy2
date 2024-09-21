@@ -4,6 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/utils/extensions.dart';
+import 'package:flutter_instancy_2/utils/my_print.dart';
 import 'package:flutter_instancy_2/utils/my_safe_state.dart';
 import 'package:flutter_instancy_2/views/message/components/audio_player_widget.dart';
 
@@ -31,6 +32,7 @@ class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> with MySafe
 
   bool isLoading = false;
 
+
   Future<void> initializeData() async {
     // Create the audio player.
     player = AudioPlayer();
@@ -43,9 +45,11 @@ class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> with MySafe
     if (widget.arguments.audioUrl.checkNotEmpty) {
       await player.setSourceUrl(widget.arguments.audioUrl);
       await player.resume();
-    } else if (widget.arguments.fileBytes != null) {
-      await player.setSourceBytes(widget.arguments.fileBytes!);
-      await player.resume();
+    } else if (widget.arguments.coCreateContentAuthoringModel?.uploadedDocumentBytes != null) {
+      if(widget.arguments.coCreateContentAuthoringModel != null){
+        await player.setSourceBytes(widget.arguments.coCreateContentAuthoringModel!.uploadedDocumentBytes!);
+        await player.resume();
+      }
     } else {
       await player.setSourceAsset("audio/audio.mp3");
       await player.resume();
@@ -57,6 +61,7 @@ class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> with MySafe
   @override
   void initState() {
     super.initState();
+    MyPrint.printOnConsole("widget.arguments : ${widget.arguments.fileBytes}. widget.arguments ${widget.arguments.coCreateContentAuthoringModel?.uploadedDocumentBytes}");
     initializeData();
   }
 
@@ -119,8 +124,15 @@ class _PodcastEpisodeScreenState extends State<PodcastEpisodeScreen> with MySafe
   }
 
   PreferredSizeWidget getAppBar() {
+    String title = "";
+    if(widget.arguments.coCreateContentAuthoringModel?.title != null){
+      title = widget.arguments.coCreateContentAuthoringModel?.title ?? "";
+    }
+    if(widget.arguments.courseDTOModel.Title.checkNotEmpty){
+      title = widget.arguments.courseDTOModel.Title;
+    }
     return AppConfigurations().commonAppBar(
-      title: "Refining Communication",
+      title: title,
     );
   }
 

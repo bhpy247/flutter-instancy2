@@ -4,11 +4,13 @@ class DeleteCoCreateContentRequestModel {
   int UserID = 0;
   String ContentID = "";
   int ActiveStatus = 0;
+  String contentName = "";
 
   DeleteCoCreateContentRequestModel({
     required this.UserID,
     required this.ContentID,
     this.ActiveStatus = 0,
+    this.contentName = ""
   });
 
   Map<String, String> toMap() {

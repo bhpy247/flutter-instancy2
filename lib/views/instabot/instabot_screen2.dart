@@ -102,13 +102,25 @@ class _InstaBotScreen2State extends State<InstaBotScreen2> {
         );
       },
       onLaunchUrl: ({required String url, String? text}) {
-        NavigationController.navigateToWebViewScreen(
-          navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-          arguments: WebViewScreenNavigationArguments(
-            title: text ?? "Url",
-            url: url,
-          ),
-        );
+        bool isPdf = url.split(".").last == "pdf";
+        if(isPdf){
+          NavigationController.navigateToPDFLaunchScreen(
+            navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+            arguments: PDFLaunchScreenNavigationArguments(
+              contntName: "$text",
+              isNetworkPDF: true,
+              pdfUrl: url
+            ),
+          );
+        } else {
+          NavigationController.navigateToWebViewScreen(
+            navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
+            arguments: WebViewScreenNavigationArguments(
+              title: text ?? "Url",
+              url: url,
+            ),
+          );
+        }
       },
     );
   }

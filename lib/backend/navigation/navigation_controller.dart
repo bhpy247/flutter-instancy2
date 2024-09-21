@@ -2585,7 +2585,10 @@ class NavigationController {
   static Future<dynamic> navigateToEditFlashcardScreen({required NavigationOperationParameters navigationOperationParameters, required EditFlashcardScreenNavigationArgument argument}) {
     MyPrint.printOnConsole("navigateToQuizScreen called with navigationType:${navigationOperationParameters.navigationType}");
     return NavigationOperation.navigate(
-      navigationOperationParameters: navigationOperationParameters.copyWith(routeName: EditFlashCardScreen.routeName, arguments: argument),
+      navigationOperationParameters: navigationOperationParameters.copyWith(
+        routeName: EditFlashCardScreen.routeName,
+        arguments: argument,
+      ),
     );
   }
 

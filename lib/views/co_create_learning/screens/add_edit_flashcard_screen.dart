@@ -1,5 +1,7 @@
 import 'package:flex_color_picker/flex_color_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_chat_bot/view/common/components/common_loader.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
@@ -46,7 +48,7 @@ class AddEditFlashcardScreen extends StatefulWidget {
 
 class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with MySafeState {
   bool isLoading = false;
-
+  final _formKey = GlobalKey<FormState>();
   late CoCreateKnowledgeProvider coCreateKnowledgeProvider;
   late CoCreateKnowledgeController coCreateKnowledgeController;
 
@@ -79,9 +81,9 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
   }
 
   void initializeDataForNewContent() {
-    countController.text = "3";
-    urlController.text = "https://www.unvielingtheneuronsofAI.com";
-    selectedColor = const Color(0xff2ba700);
+    countController.text = "1";
+    // urlController.text = "https://www.unvielingtheneuronsofAI.com";
+    // selectedColor = const Color(0xff2ba700);
   }
 
   Future<bool> colorPickerDialog() async {
@@ -163,7 +165,25 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
     );
   }
 
+  bool validateFormData() {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return false;
+    }
+    // else if (coCreateKnowledgeProvider.skills.length > 0 && selectedCategoriesList.isEmpty) {
+    //   MyToast.showError(context: context, msg: "Please select a Skill");
+    //   return false;
+    // } else if (thumbNailBytes.checkEmpty && thumbnailImagePath.isEmpty) {
+    //   MyToast.showError(context: context, msg: "Please choose Thumbnail Image");
+    //   return false;
+    // }
+
+    return true;
+  }
+
   Future<void> onGenerateTap() async {
+    if (!validateFormData()) {
+      return;
+    }
     FlashcardContentModel flashcardContentModel = coCreateContentAuthoringModel.flashcardContentModel ?? FlashcardContentModel();
     flashcardContentModel.cardCount = int.tryParse(countController.text) ?? 0;
     flashcardContentModel.queryUrl = urlController.text;
@@ -222,32 +242,35 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
               context: context,
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            const SizedBox(
-                              height: 17,
-                            ),
-                            getCardCountTextFormField(),
-                            const SizedBox(
-                              height: 17,
-                            ),
-                            getDropDownViewTypeTile(text: selectedColor == null ? "Background Color" : "$selectedColor"),
-                            const SizedBox(
-                              height: 17,
-                            ),
-                            getUrlTextFormField(),
-                            const SizedBox(
-                              height: 17,
-                            ),
-                          ],
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              const SizedBox(
+                                height: 17,
+                              ),
+                              getCardCountTextFormField(),
+                              const SizedBox(
+                                height: 17,
+                              ),
+                              getDropDownViewTypeTile(text: selectedColor == null ? "Background Color" : "$selectedColor"),
+                              const SizedBox(
+                                height: 17,
+                              ),
+                              getUrlTextFormField(),
+                              const SizedBox(
+                                height: 17,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -302,12 +325,19 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
 
   Widget getCardCountTextFormField() {
     return getTexFormField(
-      isMandatory: false,
-      controller: countController,
-      labelText: "Card Count",
-      keyBoardType: TextInputType.number,
-      iconUrl: "assets/catalog/imageDescription.png",
-    );
+        isMandatory: false,
+        controller: countController,
+        labelText: "Card Count",
+        keyBoardType: TextInputType.number,
+        iconUrl: "assets/catalog/imageDescription.png",
+        validator: (String? val) {
+          if ((val?.trim().checkEmpty ?? false) || val == null) {
+            return "Please enter the count";
+          } else if (int.parse(val) < 1) {
+            return "Count should be greater than 1";
+          }
+          return null;
+        });
   }
 
   Widget getUrlTextFormField() {
@@ -315,6 +345,20 @@ class _AddEditFlashcardScreenState extends State<AddEditFlashcardScreen> with My
       isMandatory: false,
       controller: urlController,
       labelText: "Enter URL",
+      keyBoardType: TextInputType.url,
+      validator: (String? val) {
+        if(val == null || val.checkEmpty){
+          return null;
+        }
+        var urlPattern = r"(https?|http)://([-A-Z0-9.]+\.?)+(/[-A-Z0-9+&@#/%=~_|!:,.;]*)?(\?[A-Z0-9+&@#/%=~_|!:‌​,.;]*)?";
+        var match = new RegExp(urlPattern, caseSensitive: false).firstMatch(val);
+
+        if (match != null) {
+          return null; // URL is valid
+        } else {
+          return "Enter a valid URL";
+        }
+      },
     );
   }
 
@@ -550,8 +594,9 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
       InstancyUIActionModel(
         text: "Save & Exit",
         actionsEnum: InstancyContentActionsEnum.Save,
-        onTap: () {
+        onTap: () async {
           Navigator.pop(context);
+          await onSaveAndExitTap();
         },
         iconData: InstancyIcons.save,
       ),
@@ -807,7 +852,7 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
       ],
     );
   }
-
+ScrollController sc = ScrollController();
   Widget getSingleWidget({required FlashcardModel model, required int index, required int total}) {
     return ModalProgressHUD(
       inAsyncCall: isLoading,
@@ -839,14 +884,16 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
           const SizedBox(
             height: 10,
           ),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-            child: FlipCard(
-              alignment: Alignment.topCenter,
-              controller: model.controller,
-              flipOnTouch: true,
-              front: getCommonFrontAndBackWidget(text: model.flashcard_front, onTap: () => model.controller.flip()),
-              back: getCommonFrontAndBackWidget(text: model.flashcard_back, onTap: () => model.controller.flip()),
+          Flexible(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
+              child: FlipCard(
+                alignment: Alignment.topCenter,
+                controller: model.controller,
+                flipOnTouch: true,
+                front: getCommonFrontAndBackWidget(text: model.flashcard_front, onTap: () => model.controller.flip()),
+                back: getCommonFrontAndBackWidget(text: model.flashcard_back, onTap: () => model.controller.flip()),
+              ),
             ),
           ),
         ],
@@ -861,21 +908,11 @@ class _GenerateWithAiFlashCardScreenState extends State<GenerateWithAiFlashCardS
         padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 30),
         decoration: BoxDecoration(color: Colors.white, border: Border.all(), borderRadius: BorderRadius.circular(10)),
         width: double.infinity,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Image.asset(
-            //   "assets/cocreate/flashCard.png",
-            //   width: double.maxFinite,
-            // ),
-            // const SizedBox(height: 20),
-            Text(
-              text,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              textAlign: TextAlign.center,
-            )
-          ],
-        ),
+        child: Text(
+          text,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          textAlign: TextAlign.center,
+        )
       ),
     );
   }
@@ -943,8 +980,8 @@ class _EditFlashCardScreenState extends State<EditFlashCardScreen> with MySafeSt
   TextEditingController backController = TextEditingController();
 
   void onSaveTap() {
-    widget.arguments.model.flashcard_back = frontController.text.trim();
-    widget.arguments.model.flashcard_front = backController.text.trim();
+    widget.arguments.model.flashcard_front = frontController.text.trim();
+    widget.arguments.model.flashcard_back = backController.text.trim();
     Navigator.pop(context, true);
   }
 
@@ -970,7 +1007,7 @@ class _EditFlashCardScreenState extends State<EditFlashCardScreen> with MySafeSt
           onPressed: () {
             onSaveTap();
           },
-          text: "Edit",
+          text: "Save",
           fontColor: themeData.colorScheme.onPrimary,
         ),
       ),

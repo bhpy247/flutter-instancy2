@@ -132,6 +132,15 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
   Future<PageNotesResponseModel>? getNotes;
 
+  Future<void> onViewTap({required CourseDTOModel model}) async {
+    await CourseLaunchController(
+      appProvider: appProvider,
+      componentId: componentId,
+      componentInstanceId: componentInstanceId,
+    ).viewCoCreateKnowledgeContent(context: context, model: model);
+  }
+
+
   Future<void> getContentDetailsData() async {
     String tag = MyUtils.getNewId();
     MyPrint.printOnConsole("_CourseDetailScreenState().getContentDetailsData() called", tag: tag);
@@ -1390,9 +1399,16 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
                   courseDurationView(contentDetailsDTOModel: contentDetailsDTOModel),
                   directionUrl(contentDetailsDTOModel: contentDetailsDTOModel),
                   // programOutlineView(),
-                  getAuthorView(contentDetailsDTOModel: contentDetailsDTOModel),
-                  getReviews(contentDetailsDTOModel: contentDetailsDTOModel),
-                  getRatings(contentDetailsDTOModel: contentDetailsDTOModel),
+                  if(!widget.arguments.isFromMyKnowledge)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      getAuthorView(contentDetailsDTOModel: contentDetailsDTOModel),
+                      getReviews(contentDetailsDTOModel: contentDetailsDTOModel),
+                      getRatings(contentDetailsDTOModel: contentDetailsDTOModel),
+                    ],
+                  ),
+
                   getMultiInstanceEventScheduleListWidget(courseDetailsProvider: courseDetailsProvider),
                   getEventSessionsListWidget(
                     contentDetailsDTOModel: contentDetailsDTOModel,
@@ -1586,16 +1602,17 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
         Flexible(
           child: Text(
             // 'From $eventStartDateTimeWithoutConvert to $eventEndDateTimeTimeWithoutConvert',
-            'From $EventStartDateTime ${appConfigurationOperations.getConvertedEventDateTimeString(
-              eventDate: eventStartDateTimeWithoutConvert,
-              sourceDateFormat: "MM/dd/yyyy hh:mm:ss aa",
-              destinationDateFormat: "hh:mm aa",
-            )} '
-            'To $EventEndDateTime ${appConfigurationOperations.getConvertedEventDateTimeString(
-              eventDate: eventEndDateTimeTimeWithoutConvert,
-              sourceDateFormat: "MM/dd/yyyy HH:mm:ss aa",
-              destinationDateFormat: "hh:mm aa",
-            )}',
+            'From $EventStartDateTime to $EventEndDateTime',
+            // 'From $EventStartDateTime ${appConfigurationOperations.getConvertedEventDateTimeString(
+            //   eventDate: eventStartDateTimeWithoutConvert,
+            //   sourceDateFormat: "MM/dd/yyyy hh:mm:ss aa",
+            //   destinationDateFormat: "hh:mm aa",
+            // )} '
+            // 'To $EventEndDateTime ${appConfigurationOperations.getConvertedEventDateTimeString(
+            //   eventDate: eventEndDateTimeTimeWithoutConvert,
+            //   sourceDateFormat: "MM/dd/yyyy HH:mm:ss aa",
+            //   destinationDateFormat: "hh:mm aa",
+            // )}',
             style: themeData.textTheme.bodyMedium,
           ),
         )
@@ -1979,7 +1996,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                contentDetailsDTOModel.AuthorName,
+                contentDetailsDTOModel.AuthorName.checkEmpty ? contentDetailsDTOModel.AuthorDisplayName : contentDetailsDTOModel.AuthorName,
                 style: themeData.textTheme.bodyLarge,
               ),
               /*Row(
@@ -2108,6 +2125,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> with MySafeStat
 
   //region ratings
   Widget getRatings({required CourseDTOModel contentDetailsDTOModel}) {
+
     /*MyPrint.printOnConsole(
         "contentDetailsDTOModel.RatingID : ${contentDetailsDTOModel.RatingID} : appProvider.appSystemConfigurationModel.minimumRatingRequiredToShowRating: ${appProvider.appSystemConfigurationModel.minimumRatingRequiredToShowRating}");
     if (!AppConfigurationOperations(appProvider: appProvider).showReviewAndRatingSection(averageRating: contentDetailsDTOModel.RatingID)) {

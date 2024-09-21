@@ -387,6 +387,17 @@ class CoCreateKnowledgeController {
         "ContentTypeId:${coCreateContentAuthoringModel.contentTypeId}",
         tag: tag);
 
+    CoCreateContentAuthoringModel newcoCreateContentAuthoringModel = coCreateContentAuthoringModel;
+
+    // UserProfileDetailsModel? userProfileDetailsModel = DependencyInjection.profileProvider.userProfileDetails.getList(isNewInstance: false).firstElement;
+    // if (userProfileDetailsModel != null) {
+    //   authorName = "${userProfileDetailsModel.firstname} ${userProfileDetailsModel.lastname}";
+    // }
+    // if(newcoCreateContentAuthoringModel.newCurrentCourseDTOModel != null){
+    //
+    // }
+    // newcoCreateContentAuthoringModel
+
     CreateNewContentItemRequestModel requestModel = getCreateNewContentItemRequestModelFromCoCreateContentAuthoringModel(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
 
     String? contentId = await CreateNewContentItem(requestModel: requestModel);
@@ -395,6 +406,7 @@ class CoCreateKnowledgeController {
     if (contentId.checkEmpty) {
       return null;
     }
+
 
     coCreateContentAuthoringModel.contentId = contentId!;
 
@@ -1775,8 +1787,8 @@ class CoCreateKnowledgeController {
         LocalStr localStrNew = context.read<AppProvider>().localStr;
 
         return CommonConfirmationDialog(
-          title: "Delete Knowledge",
-          description: "Are you sure want to Delete this Knowledge?",
+          title: "Delete ${requestModel.contentName}",
+          description: "Are you sure want to delete this knowledge?",
           confirmationText: localStrNew.catalogActionsheetDeleteoption,
           cancelText: localStrNew.catalogAlertbuttonCancelbutton,
         );

@@ -59,8 +59,8 @@ class _CreateUrlScreenState extends State<CreateUrlScreen> with MySafeState {
       CourseDTOModel courseDTOModel = coCreateContentAuthoringModel.courseDTOModel!;
 
       coCreateKnowledgeController.initializeCoCreateContentAuthoringModelFromCourseDTOModel(courseDTOModel: courseDTOModel, coCreateContentAuthoringModel: coCreateContentAuthoringModel);
-
-      websiteUrlController.text = coCreateContentAuthoringModel.referenceUrl ?? "";
+      MyPrint.printOnConsole("courseDTOModel.startpage: ${coCreateContentAuthoringModel.courseDTOModel!.startpage}");
+      websiteUrlController.text = coCreateContentAuthoringModel.courseDTOModel?.startpage ?? "";
     }
   }
 

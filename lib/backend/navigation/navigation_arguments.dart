@@ -281,6 +281,7 @@ class CourseDetailScreenNavigationArguments extends NavigationArguments {
   final bool isConsolidated;
   final bool isRescheduleEvent;
   final bool isReEnroll;
+  final bool isFromMyKnowledge;
   final InstancyContentScreenType screenType;
   final MyLearningProvider? myLearningProvider;
   final CatalogProvider? catalogProvider;
@@ -297,6 +298,7 @@ class CourseDetailScreenNavigationArguments extends NavigationArguments {
       this.isFromCatalog = false,
       this.isConsolidated = false,
       this.isRescheduleEvent = false,
+      this.isFromMyKnowledge = false,
       this.isReEnroll = false,
       this.screenType = InstancyContentScreenType.Catalog,
       this.myLearningProvider,
@@ -1022,10 +1024,11 @@ class CreatePodcastSourceSelectionScreenNavigationArguments extends NavigationAr
 
 class PodcastScreenNavigationArguments extends NavigationArguments {
   final CourseDTOModel courseDTOModel;
+  final CoCreateContentAuthoringModel? coCreateContentAuthoringModel;
   final String audioUrl;
   final Uint8List? fileBytes;
 
-  const PodcastScreenNavigationArguments({required this.courseDTOModel, this.audioUrl = "", this.fileBytes});
+  const PodcastScreenNavigationArguments({required this.courseDTOModel, this.audioUrl = "", this.fileBytes, this.coCreateContentAuthoringModel});
 }
 
 class CreateUrlScreenNavigationArguments extends NavigationArguments {

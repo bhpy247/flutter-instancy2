@@ -4,6 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
 import 'package:flutter_instancy_2/backend/navigation/navigation.dart';
@@ -22,6 +23,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../backend/app_theme/style.dart';
+import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../configs/app_configurations.dart';
 import '../../../utils/my_print.dart';
 import '../../../utils/my_utils.dart';
@@ -509,7 +511,7 @@ class _RecordAndUploadPodcastScreenState extends State<RecordAndUploadPodcastScr
 }
 
 class PodcastPreviewScreen extends StatefulWidget {
-  static const String routeName = "/PodcastViewScreen";
+  static const String routeName = "/PodcastPreviewScreen";
   final PodcastPreviewScreenNavigationArgument arguments;
 
   const PodcastPreviewScreen({super.key, required this.arguments});
@@ -538,11 +540,13 @@ class _PodcastPreviewScreenState extends State<PodcastPreviewScreen> with MySafe
 
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
 
+    MyPrint.printOnConsole("coCreateContentAuthoringModel.uploadedDocumentBytes : ${coCreateContentAuthoringModel.uploadedDocumentBytes}");
+
     if (widget.arguments.isFromTextToAudio) {
       future = getGeneratedData();
     } else {
-      if (widget.arguments.coCreateContentAuthoringModel.uploadedDocumentBytes.checkNotEmpty) {
-        await player.setSourceBytes(widget.arguments.coCreateContentAuthoringModel.uploadedDocumentBytes!);
+      if (coCreateContentAuthoringModel.uploadedDocumentBytes != null) {
+        await player.setSourceBytes(coCreateContentAuthoringModel.uploadedDocumentBytes!);
         await player.resume();
       } else {
         await player.setSourceAsset("audio/audio.mp3");
@@ -558,9 +562,9 @@ class _PodcastPreviewScreenState extends State<PodcastPreviewScreen> with MySafe
       voice: widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.voiceName ?? "",
       voiceStyle: widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.voiceTone ?? "",
       language: widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.voiceLanguage ?? "",
-      text: (widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.promptText.checkEmpty ?? false)
+      text: (widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.audioTranscript.checkEmpty ?? false)
           ? dummyText
-          : widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.promptText ?? "",
+          : widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.audioTranscript ?? "",
       isOptionsChanged: true,
       speekingPitch: 1,
       speekingSpeed: widget.arguments.coCreateContentAuthoringModel.podcastContentModel?.voiceSpeed.toInt() ?? 0,
@@ -601,7 +605,7 @@ class _PodcastPreviewScreenState extends State<PodcastPreviewScreen> with MySafe
     podCastContentModel.audioUrl = coCreateKnowledgeProvider.audioUrlFromApi.get();
     coCreateContentAuthoringModel.podcastContentModel = podCastContentModel;
 
-    if (coCreateContentAuthoringModel.uploadedDocumentBytes.checkEmpty) {
+    if (coCreateContentAuthoringModel.uploadedDocumentBytes == null) {
       coCreateContentAuthoringModel.uploadedDocumentBytes = generatedBytes;
       coCreateContentAuthoringModel.uploadedDocumentName = "${MyUtils.getNewId()}.mp3";
     } else {
@@ -610,7 +614,7 @@ class _PodcastPreviewScreenState extends State<PodcastPreviewScreen> with MySafe
       coCreateContentAuthoringModel.uploadedDocumentName = "${MyUtils.getNewId()}.$extention";
     }
 
-    MyPrint.printOnConsole("coCreateContentAuthoringModel.uploadedDocumentName:'${coCreateContentAuthoringModel.uploadedDocumentName}'", tag: tag);
+    MyPrint.printOnConsole("coCreateContentAuthoringModel.uploadedDocumentBytes:'${coCreateContentAuthoringModel.uploadedDocumentBytes}'", tag: tag);
 
     String? contentId = await coCreateKnowledgeController.addEditContentItem(coCreateContentAuthoringModel: coCreateContentAuthoringModel);
     MyPrint.printOnConsole("contentId:'$contentId'", tag: tag);
@@ -649,10 +653,17 @@ class _PodcastPreviewScreenState extends State<PodcastPreviewScreen> with MySafe
       MyToast.showError(context: context, msg: "Podcast couldn't be Saved");
       return;
     }
+    String documentUrl = AppConfigurationOperations(appProvider: context.read<AppProvider>()).getInstancyImageUrlFromImagePath(imagePath: courseDTOModel.ViewLink);
+
 
     await NavigationController.navigateToPodcastEpisodeScreen(
       navigationOperationParameters: NavigationOperationParameters(context: context, navigationType: NavigationType.pushNamed),
-      argument: PodcastScreenNavigationArguments(courseDTOModel: widget.arguments.coCreateContentAuthoringModel.courseDTOModel ?? CourseDTOModel(), fileBytes: generatedBytes),
+      argument: PodcastScreenNavigationArguments(
+        courseDTOModel: widget.arguments.coCreateContentAuthoringModel.courseDTOModel ?? CourseDTOModel(),
+        fileBytes: generatedBytes,
+        audioUrl: documentUrl,
+        coCreateContentAuthoringModel: coCreateContentAuthoringModel
+      ),
     );
 
     Navigator.pop(context, true);
@@ -752,7 +763,7 @@ class _PodcastPreviewScreenState extends State<PodcastPreviewScreen> with MySafe
 
   PreferredSizeWidget getAppBar() {
     return AppConfigurations().commonAppBar(
-      title: "Refining Communication",
+      title: coCreateContentAuthoringModel.description,
     );
   }
 

@@ -55,6 +55,7 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
   VideoPlayerController? _videoPlayerController;
   Future<void>? futureInitializeVideo;
   bool isTranscriptOpen = true;
+
   late Future future;
 
   void initializeData() {
@@ -92,12 +93,12 @@ class _GenerateWithAiVideoScreenState extends State<GenerateWithAiVideoScreen> w
   Future<void> getFutureData() async {
     GenerateVideoRequestModel generateVideoRequestModel = GenerateVideoRequestModel(
       videoInput: VideoInput(
-        title: "Heart Attack",
+        title: coCreateContentAuthoringModel.title,
         input: [
           Input(
             avatar: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.avatarId ?? "",
             background: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.background ?? "",
-            scriptText: "Heart Attack is a major disises",
+            scriptText: coCreateContentAuthoringModel.description,
             avatarSettings: AvatarSettings(
               horizontalAlign: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.background.toLowerCase() ?? "",
               voice: widget.arguments.coCreateContentAuthoringModel.videoContentModel?.voice ?? "",

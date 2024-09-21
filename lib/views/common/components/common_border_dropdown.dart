@@ -37,7 +37,9 @@ class _CommonBorderDropdownState<T> extends State<CommonBorderDropdown<T>> {
         borderRadius: BorderRadius.circular(4.0),
       ),
       child: DropdownButtonHideUnderline(
+
         child: DropdownButton2<T>(
+
           value: widget.value,
           isExpanded: widget.isExpanded,
           isDense: widget.isDense,

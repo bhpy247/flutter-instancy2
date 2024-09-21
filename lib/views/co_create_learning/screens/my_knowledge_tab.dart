@@ -105,15 +105,15 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         ),
       // if (!(model.ContentTypeId == InstancyObjectTypes.mediaResource && [InstancyMediaTypes.video].contains(model.MediaTypeID)))
       InstancyUIActionModel(
-          text: "Edit",
-          actionsEnum: InstancyContentActionsEnum.Edit,
-          onTap: () {
-            Navigator.pop(context);
+        text: "Edit",
+        actionsEnum: InstancyContentActionsEnum.Edit,
+        onTap: () {
+          Navigator.pop(context);
 
-            onEditTap(model: model, index: index);
-          },
-          iconData: InstancyIcons.edit,
-        ),
+          onEditTap(model: model, index: index);
+        },
+        iconData: InstancyIcons.edit,
+      ),
       if (![InstancyObjectTypes.document].contains(model.ContentTypeId))
         InstancyUIActionModel(
           text: "Edit Metadata",
@@ -183,6 +183,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
         userId: model.SiteUserID,
         screenType: InstancyContentScreenType.Catalog,
         courseDtoModel: model,
+        isFromMyKnowledge : true,
       ),
     );
     MyPrint.printOnConsole("CourseDetailScreen return value:$value");
@@ -206,10 +207,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
 
     bool isDeleted = await _controller.DeleteCoCreateContent(
       context: context,
-      requestModel: DeleteCoCreateContentRequestModel(
-        UserID: model.SiteUserID,
-        ContentID: model.ContentID,
-      ),
+      requestModel: DeleteCoCreateContentRequestModel(UserID: model.SiteUserID, ContentID: model.ContentID, contentName: model.ContentName),
     );
 
     isLoading = false;
@@ -225,10 +223,7 @@ class _MyKnowledgeTabState extends State<MyKnowledgeTab> with MySafeState {
     bool isDeleted = await _controller.ShareCoCreateContent(
       context: context,
       requestModel: ShareCoCreateKnowledgeBaseRequestModel(
-        contentId: model.ContentID,
-        folderPath: model.FolderPath,
-        startPage: model.startpage,
-        objectTypeId: model.ContentTypeId, contentName: model.ContentName),
+          contentId: model.ContentID, folderPath: model.FolderPath, startPage: model.startpage, objectTypeId: model.ContentTypeId, contentName: model.ContentName),
     );
 
     isLoading = false;

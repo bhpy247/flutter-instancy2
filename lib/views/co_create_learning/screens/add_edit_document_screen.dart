@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_instancy_2/backend/app/app_provider.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_provider.dart';
@@ -23,6 +24,7 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 
+import '../../../backend/authentication/authentication_provider.dart';
 import '../../../backend/configurations/app_configuration_operations.dart';
 import '../../../configs/app_configurations.dart';
 import '../../../models/co_create_knowledge/co_create_content_authoring_model.dart';
@@ -31,6 +33,7 @@ import '../../../utils/my_utils.dart';
 import '../../common/components/common_button.dart';
 import '../../common/components/common_text_form_field.dart';
 import '../../common/components/modal_progress_hud.dart';
+import '../component/thumbnail_dialog.dart';
 
 class AddEditDocumentsScreen extends StatefulWidget {
   static const String routeName = "/DocumentsScreen";
@@ -269,12 +272,19 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
       courseDTOModel.ContentTypeId = coCreateContentAuthoringModel.contentTypeId;
       courseDTOModel.ContentType = "Documents";
 
-      courseDTOModel.AuthorName = "Richard Parker";
-      courseDTOModel.AuthorName = "Richard Parker";
-      courseDTOModel.AuthorDisplayName = "Richard Parker";
+      AuthenticationProvider authenticationProvider = context.read<AuthenticationProvider>();
 
-      // courseDTOModel.ThumbnailImagePath = "Content/SiteFiles/Images/assignment-thumbnail.png";
-      courseDTOModel.UserProfileImagePath = "https://enterprisedemo.instancy.com/Content/SiteFiles/374/ProfileImages/298_1.jpg";
+      String name = authenticationProvider.getEmailLoginResponseModel()?.username ?? "";
+      String imageurl = authenticationProvider.getEmailLoginResponseModel()?.image ?? "";
+
+      courseDTOModel.AuthorName = name;
+      courseDTOModel.AuthorDisplayName = name;
+
+      MyPrint.printOnConsole("courseDTOModel.AuthorName : ${courseDTOModel.AuthorName}");
+
+      courseDTOModel.ThumbnailImagePath = "Content/SiteFiles/Images/assignment-thumbnail.png";
+      courseDTOModel.UserProfileImagePath = imageurl;
+
 
       coCreateContentAuthoringModel.newCurrentCourseDTOModel = courseDTOModel;
       coCreateContentAuthoringModel.contentType = courseDTOModel.ContentType;
@@ -306,6 +316,29 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
       separator: ", ",
     );
   }
+
+  Future<void> thumbnailDialog() async {
+    dynamic val = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const ThumbnailDialog();
+      },
+    );
+
+    MyPrint.printOnConsole("val: $val");
+    if (val == null) return;
+
+    if (val == 1) {
+      await openFileExplorer(false, true);
+    } else if (val is Uint8List) {
+      thumbNailBytes = val;
+      thumbNailName = "${DateTime.now().millisecondsSinceEpoch}.jpeg";
+      mySetState();
+    }
+
+    MyPrint.printOnConsole("Final thumbNailName:'$thumbNailName'");
+  }
+
 
   Future<void> openFileExplorer(bool multiPick, bool isThumbNail) async {
     String fileName = "";
@@ -527,15 +560,17 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
   //region getTitleTextFormField
   Widget getTitleTextFormField() {
     return getTexFormField(
+      inputFormatters:[LengthLimitingTextInputFormatter(200)],
+
       validator: (String? val) {
-        if (val == null || val.isEmpty) {
+        if (val == null || val.trim().isEmpty) {
           return "Please enter title";
         }
         return null;
       },
       isMandatory: true,
       minLines: 1,
-      maxLines: 1,
+      // maxLines: 1,
       controller: titleController,
       iconUrl: "assets/catalog/title.png",
       labelText: "Title",
@@ -548,7 +583,7 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
   Widget getDescriptionTextFormField() {
     return getTexFormField(
       validator: (String? val) {
-        if (val == null || val.isEmpty) {
+        if (val == null || val.trim().isEmpty) {
           return "Please enter description";
         }
         return null;
@@ -661,11 +696,20 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
     return CommonSaveExitButtonRow(
       onSaveAndExitPressed: () {
         if (formKey.currentState!.validate()) {
+          if(documentBytes == null){
+            MyToast.showError(context: context, msg: "Please upload the document");
+            return;
+          }
           onSaveAndExitTap();
+
         }
       },
       onSaveAndViewPressed: () async {
         if (formKey.currentState!.validate()) {
+          if(documentBytes == null){
+            MyToast.showError(context: context, msg: "Please upload the document");
+            return;
+          }
           await onSaveAndViewTap();
         }
       },
@@ -710,7 +754,7 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
         if (thumbNailBytes == null && thumbnailImageUrl.checkEmpty)
           InkWell(
             onTap: () async {
-              await openFileExplorer(false, true);
+              await thumbnailDialog();
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -822,6 +866,8 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
       required bool isMandatory,
       int? minLines,
       int? maxLines,
+        List<TextInputFormatter>? inputFormatters,
+
       double iconHeight = 15,
       double iconWidth = 15}) {
     return CommonTextFormFieldWithLabel(
@@ -831,6 +877,7 @@ class _AddEditDocumentsScreenState extends State<AddEditDocumentsScreen> with My
       validator: validator,
       minLines: minLines,
       maxLines: maxLines,
+      inputFormatters: inputFormatters,
       isOutlineInputBorder: true,
       prefixWidget: iconUrl.isNotEmpty
           ? getImageView(url: iconUrl, height: iconHeight, width: iconWidth)

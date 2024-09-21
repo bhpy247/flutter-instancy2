@@ -636,7 +636,7 @@ class _RecordVideoScreenState extends State<RecordVideoScreen> with MySafeState 
                 onPressed: () async {
                   await openFileExplorer(FileType.video, false);
                 },
-                text: "ReTake",
+                text: "Retake",
                 backGroundColor: Colors.transparent,
               ),
             ],

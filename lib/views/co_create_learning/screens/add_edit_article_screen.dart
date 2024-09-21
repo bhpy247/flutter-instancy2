@@ -77,8 +77,8 @@ class _AddEditArticleScreenState extends State<AddEditArticleScreen> with MySafe
       "Large Language Model (LLM)": MicroLearningSourceSelectionTypes.LLM,
       "Youtube": MicroLearningSourceSelectionTypes.Youtube,
       "Website": MicroLearningSourceSelectionTypes.Website,
-      "Internet Search": MicroLearningSourceSelectionTypes.InternetSearch,
       "Youtube Search": MicroLearningSourceSelectionTypes.YoutubeSearch,
+      "Internet Search": MicroLearningSourceSelectionTypes.InternetSearch,
     };
     selectedSourceType = sourceTypesList.entries.firstElement?.key;
 
@@ -152,10 +152,10 @@ class _AddEditArticleScreenState extends State<AddEditArticleScreen> with MySafe
   }
 
   Future<void> onNextButtonTap() async {
-    ArticleContentModel microLearningContentModel = coCreateContentAuthoringModel.articleContentModel ??= ArticleContentModel();
+    ArticleContentModel articleContentModel = coCreateContentAuthoringModel.articleContentModel ??= ArticleContentModel();
 
-    microLearningContentModel.selectedArticleSourceType = sourceTypesList.keys.contains(selectedSourceType) ? sourceTypesList[selectedSourceType]! : sourceTypesList.entries.first.value;
-    microLearningContentModel.contentUrl = switch (microLearningContentModel.selectedArticleSourceType) {
+    articleContentModel.selectedArticleSourceType = sourceTypesList.keys.contains(selectedSourceType) ? sourceTypesList[selectedSourceType]! : sourceTypesList.entries.first.value;
+    articleContentModel.contentUrl = switch (articleContentModel.selectedArticleSourceType) {
       MicroLearningSourceSelectionTypes.Youtube => youtubeController.text,
       MicroLearningSourceSelectionTypes.Website => websiteController.text,
       MicroLearningSourceSelectionTypes.InternetSearch => selectedInternetSearchUrl ?? "",
@@ -163,7 +163,7 @@ class _AddEditArticleScreenState extends State<AddEditArticleScreen> with MySafe
       _ => "",
     };
 
-    MyPrint.printOnConsole("microLearningContentModel.selectedArticleSourceType : ${microLearningContentModel.selectedArticleSourceType}");
+    MyPrint.printOnConsole("Article.selectedArticleSourceType : ${articleContentModel.selectedArticleSourceType}");
 
     dynamic value = await NavigationController.navigateToArticleEditorScreen(
       navigationOperationParameters: NavigationOperationParameters(
@@ -401,7 +401,7 @@ class _AddEditArticleScreenState extends State<AddEditArticleScreen> with MySafe
                     Expanded(
                       child: Text(
                         e,
-                        style: themeData.textTheme.labelMedium,
+                        style: themeData.textTheme.labelMedium?.copyWith(color: Colors.blue, decoration: TextDecoration.underline),
                       ),
                     ),
                   ],
@@ -590,7 +590,7 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
     coCreateKnowledgeController = CoCreateKnowledgeController(coCreateKnowledgeProvider: coCreateKnowledgeProvider);
 
     coCreateContentAuthoringModel = widget.arguments.coCreateContentAuthoringModel;
-
+    MyPrint.printOnConsole("coCreateContentAuthoringModelcoCreateContentAuthoringModel : ${coCreateContentAuthoringModel.articleContentModel?.toMap()}");
     // initialHtmlString = coCreateContentAuthoringModel.articleContentModel?.articleHtmlCode;
     // if (!coCreateContentAuthoringModel.isEdit) initialHtmlString = defaultArticleScreen;
     if (!coCreateContentAuthoringModel.isEdit) {
@@ -600,7 +600,13 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
 
   Future<void> getGeneratedData() async {
     GenerateWholeArticleContentRequestModel requestModel = GenerateWholeArticleContentRequestModel(
-        title: coCreateContentAuthoringModel.title, numberOfTopics: 3, source: coCreateContentAuthoringModel.articleContentModel?.selectedArticleSourceType.toLowerCase() ?? "", wordsCount: 200);
+      title: coCreateContentAuthoringModel.title,
+      numberOfTopics: 3,
+      source: coCreateContentAuthoringModel.articleContentModel?.selectedArticleSourceType == MicroLearningSourceSelectionTypes.InternetSearch
+          ? "internet"
+          : coCreateContentAuthoringModel.articleContentModel?.selectedArticleSourceType.toLowerCase() ?? "",
+      wordsCount: 200,
+    );
     initialHtmlString = await coCreateKnowledgeController.generateWholeArticleContent(requestModel: requestModel);
     MyPrint.printOnConsole("initialHtmlString: $initialHtmlString");
   }
@@ -763,6 +769,12 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
   }
 
   Future<void> onSaveAndExitTap() async {
+    String text = await controller.getText();
+    if (text.trim().checkEmpty) {
+      MyToast.showError(context: context, msg: "Please enter the text");
+      return;
+    }
+
     CourseDTOModel? courseDTOModel = await saveContent();
 
     if (courseDTOModel == null) {
@@ -773,6 +785,11 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
   }
 
   Future<void> onSaveAndViewTap() async {
+    String text = await controller.getText();
+    if (text.trim().checkEmpty) {
+      MyToast.showError(context: context, msg: "Please enter the text");
+      return;
+    }
     CourseDTOModel? courseDTOModel = await saveContent();
 
     if (courseDTOModel == null) {
@@ -900,10 +917,12 @@ class _ArticleEditorScreenState extends State<ArticleEditorScreen> with MySafeSt
           controller: controller,
           htmlEditorOptions: HtmlEditorOptions(
             hint: 'Your text here...',
+
             shouldEnsureVisible: true,
             initialText: articleHtmlCode.checkNotEmpty ? articleHtmlCode : initialHtmlString,
           ),
           htmlToolbarOptions: HtmlToolbarOptions(
+
               textStyle: themeData.textTheme.labelMedium,
               dropdownIconSize: 20,
               toolbarPosition: ToolbarPosition.aboveEditor,
@@ -1178,7 +1197,7 @@ class _InternetSearchDialogState extends State<InternetSearchDialog> with MySafe
               borderColor: themeData.primaryColor,
             ),
           ),
-          SizedBox(
+          const SizedBox(
             width: 20,
           ),
           Expanded(
@@ -1308,6 +1327,7 @@ class _GenerateTextWithAIDialogState extends State<GenerateTextWithAIDialog> wit
                 child: getMainBody(),
               ),
               const SizedBox(height: 10),
+              getBottomButton()
             ],
           ),
         ),
@@ -1323,51 +1343,65 @@ class _GenerateTextWithAIDialogState extends State<GenerateTextWithAIDialog> wit
     return getDummySearchResult();
   }
 
+  final _formKey = GlobalKey<FormState>();
+
   Widget getSearchTextField() {
-    return Column(
-      children: [
-        Expanded(
-          child: CommonTextFormField(
-            controller: promptController,
-            borderRadius: 5,
-            boxConstraints: const BoxConstraints(minWidth: 55),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            hintText: "Write Prompt...",
-            isOutlineInputBorder: true,
-            minLines: 40,
-            maxLines: null,
-            keyboardType: TextInputType.multiline,
-            onTap: () {
-              if (promptController.text.isEmpty) {
-                promptController.text = "What is AI Note Taking?";
-              }
-            },
-          ),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: CommonButton(
-                onPressed: () {
-                  onGenerateTap();
-                },
-                text: "Generate",
-                minWidth: double.infinity,
-                fontColor: themeData.colorScheme.onPrimary,
-                borderColor: Colors.transparent,
-                fontWeight: FontWeight.w600,
-                borderWidth: 1.5,
-              ),
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          Expanded(
+            child: CommonTextFormField(
+              controller: promptController,
+              borderRadius: 5,
+              boxConstraints: const BoxConstraints(minWidth: 55),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              hintText: "Write Prompt...",
+              isOutlineInputBorder: true,
+              minLines: 40,
+              validator: (String? val) {
+                if (val == null || val.trim().checkEmpty) {
+                  return "Please enter the prompt";
+                }
+                return null;
+              },
+              maxLines: null,
+              keyboardType: TextInputType.multiline,
+              onTap: () {
+                if (promptController.text.isEmpty) {
+                  promptController.text = "What is AI Note Taking?";
+                }
+              },
             ),
-          ],
-        ),
-        const SizedBox(height: 10),
-      ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: CommonButton(
+                  onPressed: () {
+                    if (_formKey.currentState?.validate() ?? false) {
+                      onGenerateTap();
+                    }
+                  },
+                  text: "Generate",
+                  minWidth: double.infinity,
+                  fontColor: themeData.colorScheme.onPrimary,
+                  borderColor: Colors.transparent,
+                  fontWeight: FontWeight.w600,
+                  borderWidth: 1.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+        ],
+      ),
     );
   }
 
   Widget getBottomButton() {
+    if (!isSearchedForResult) return const SizedBox();
     return Container(
       margin: const EdgeInsets.symmetric(
         horizontal: 0,
@@ -1387,7 +1421,7 @@ class _GenerateTextWithAIDialogState extends State<GenerateTextWithAIDialog> wit
               borderColor: themeData.primaryColor,
             ),
           ),
-          SizedBox(
+          const SizedBox(
             width: 20,
           ),
           Expanded(
@@ -1420,7 +1454,7 @@ class _GenerateTextWithAIDialogState extends State<GenerateTextWithAIDialog> wit
               ),
             );
           } else {
-            return CommonLoader();
+            return const CommonLoader();
           }
         });
   }
@@ -1478,6 +1512,7 @@ class _ArticlePreviewScreenState extends State<ArticlePreviewScreen> with MySafe
             initialData: flutter_inappwebview.InAppWebViewInitialData(
               data: widget.arguments.model.articleContentModel?.articleHtmlCode ?? "",
             ),
+            initialSettings: flutter_inappwebview.InAppWebViewSettings(displayZoomControls: true, supportZoom: true),
             onWebViewCreated: (flutter_inappwebview.InAppWebViewController webViewController) {
               MyPrint.printOnConsole("onWebViewCreated called with webViewController:$webViewController");
 

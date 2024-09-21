@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bot/view/common/components/common_loader.dart';
+import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
 import 'package:flutter_instancy_2/configs/app_strings.dart';
 import 'package:flutter_instancy_2/models/co_create_knowledge/common/request_model/generate_images_request_model.dart';
@@ -205,59 +207,65 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       backgroundColor: themeData.colorScheme.onPrimary,
       surfaceTintColor: themeData.colorScheme.onPrimary,
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+      child: Container(
+        height: isShowThumbnailImage ? MediaQuery.of(context).size.height *.65 : MediaQuery.of(context).size.height *.55,
+        child: ModalProgressHUD(
+          inAsyncCall: isImageLoading,
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  InkWell(
-                    onTap: () => Navigator.pop(context),
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Icon(
-                        Icons.clear,
-                        size: 20,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        child: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(
+                            Icons.clear,
+                            size: 20,
+                          ),
+                        ),
                       ),
+                    ],
+                  ),
+                  Text(
+                    "Generate Thumbnail Image",
+                    style: themeData.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w900, fontSize: 18),
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: getImageDescriptionTextFormField(),
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: getResolutionDropDown(),
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: getTypeDropDown(),
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Row(
+                      children: [
+                        getGeneratedThumbnailImage(),
+                      ],
                     ),
                   ),
+                  const SizedBox(height: 20),
+                  getButtonWidget(),
+                  const SizedBox(height: 20),
                 ],
               ),
-              Text(
-                "Generate Thumbnail Image",
-                style: themeData.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w900, fontSize: 18),
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: getImageDescriptionTextFormField(),
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: getResolutionDropDown(),
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: getTypeDropDown(),
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Row(
-                  children: [
-                    getGeneratedThumbnailImage(),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              getButtonWidget(),
-              const SizedBox(height: 20),
-            ],
+            ),
           ),
         ),
       ),
@@ -320,7 +328,7 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
   }
 
   Widget getGeneratedThumbnailImage() {
-    if (isImageLoading) return const CommonLoader();
+    // if (isImageLoading) return const CommonLoader();
     if (!isShowThumbnailImage) return const SizedBox();
     if (generatedImageBytes.checkEmpty) return const SizedBox();
 
@@ -343,10 +351,9 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
       minLines: 5,
       maxLines: 5,
       validator: (String? text) {
-        if (text.checkEmpty) {
+        if (text?.trim().checkEmpty ?? false) {
           return "Please enter Image Description";
         }
-
         return null;
       },
     );
@@ -387,31 +394,37 @@ class _GenerateThumbnailImageDialogState extends State<GenerateThumbnailImageDia
     double iconWidth = 15,
     String iconUrl = "",
   }) {
-    return CommonBorderDropdown<String>(
-      isExpanded: true,
-      items: list,
-      value: value,
-      hintText: hintText,
-      onChanged: onChanged,
+    return IgnorePointer(
+      ignoring: isImageLoading ? true : false,
+      child: CommonBorderDropdown<String>(
+        isExpanded: true,
+        isDense: false,
+        items: list,
+        value: value,
+        hintText: hintText,
+        onChanged: onChanged,
+      ),
     );
   }
 
   //region textFieldView
-  Widget getTexFormField(
-      {TextEditingController? controller,
-      String iconUrl = "",
-      String? Function(String?)? validator,
-      String labelText = "Label",
-      Widget? suffixWidget,
-      required bool isMandatory,
-      int? minLines,
-      int? maxLines,
-      bool showPrefixIcon = false,
-      TextInputType? keyBoardType,
-      double iconHeight = 15,
-      double iconWidth = 15}) {
+  Widget getTexFormField({
+    TextEditingController? controller,
+    String iconUrl = "",
+    String? Function(String?)? validator,
+    String labelText = "Label",
+    Widget? suffixWidget,
+    required bool isMandatory,
+    int? minLines,
+    int? maxLines,
+    bool showPrefixIcon = false,
+    TextInputType? keyBoardType,
+    double iconHeight = 15,
+    double iconWidth = 15,
+  }) {
     return CommonTextFormFieldWithLabel(
       controller: controller,
+      enabled: isImageLoading ? false : true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       label: isMandatory ? labelWithStar(labelText) : null,
       isHintText: true,

@@ -1,5 +1,6 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bot/utils/mmy_toast.dart';
 import 'package:flutter_chat_bot/view/common/components/common_loader.dart';
 import 'package:flutter_chat_bot/view/common/components/modal_progress_hud.dart';
 import 'package:flutter_instancy_2/backend/co_create_knowledge/co_create_knowledge_controller.dart';
@@ -230,7 +231,7 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
   Widget getTitleTextFormField() {
     return getTexFormField(
       validator: (String? val) {
-        if (val == null || val.isEmpty) {
+        if (val == null || val.trim().isEmpty) {
           return "Please enter script text";
         }
         return null;
@@ -253,7 +254,7 @@ class _TextToAudioScreenState extends State<TextToAudioScreen> with MySafeState 
       // decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), border: Border.all(color: Styles.borderColor)),
       child: getTexFormField(
         validator: (String? val) {
-          if (val == null || val.isEmpty) {
+          if (val == null || val.trim().isEmpty) {
             return "Please enter prompt";
           }
           return null;
@@ -381,6 +382,23 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
     AudioModel(name: "Michale", gender: "Male", language: "British"),
     AudioModel(name: "John", gender: "Male", language: "British"),
   ];
+
+  bool checkIsValidated(){
+    bool isValidated = false;
+    if(selectedLanguage == null){
+      MyToast.showError(context: context, msg: "Please select the language");
+    } else if(selectedGender == null){
+      MyToast.showError(context: context, msg: "Please select the gender");
+    }else if(selectedVoiceModel == null){
+      MyToast.showError(context: context, msg: "Please select the avatar");
+    }else if(selectedTone == null){
+      MyToast.showError(context: context, msg: "Please select the tone");
+    } else {
+      isValidated = true;
+    }
+
+    return isValidated;
+  }
 
   Future<void> initializeData() async {
     coCreateKnowledgeProvider = context.read<CoCreateKnowledgeProvider>();
@@ -565,7 +583,9 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
             CommonButton(
               minWidth: double.infinity,
               onPressed: () {
-                onGenerateWithAITap();
+                if(checkIsValidated()){
+                  onGenerateWithAITap();
+                }
               },
               text: "Generate with AI",
               fontColor: themeData.colorScheme.onPrimary,
@@ -575,6 +595,8 @@ class _TextToAudioGenerateWithAIScreenState extends State<TextToAudioGenerateWit
       ),
     );
   }
+
+
 
   Widget getVoiceSpeedSlider() {
     return Column(
